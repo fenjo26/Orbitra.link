@@ -19,23 +19,21 @@ echo "[1/4] Updating system and installing packages (Nginx, PHP, SQLite)..."
 apt-get update -y
 apt-get install -y ca-certificates apt-transport-https software-properties-common curl git unzip nginx php-fpm php-sqlite3 php-curl php-mbstring php-xml
 
-# Определяем установленную версию PHP-FPM
+# Determine installed PHP-FPM version
 PHP_V=$(php -v | head -n 1 | cut -d " " -f 2 | cut -f1-2 -d".")
 PHP_FPM_SOCK="/var/run/php/php${PHP_V}-fpm.sock"
 
 echo "[2/4] Downloading Orbitra source code to /var/www/orbitra..."
-# Удаляем старую папку, если вдруг есть
+# Remove old folder if it exists
 rm -rf /var/www/orbitra
-# Клонируем репозиторий
-# Пример: git clone https://github.com/fenjo26/Orbitra.link.git /var/www/orbitra
-# Пока для примера создаем просто структуру (в реальном скрипте раскомментируйте git clone)
+# Clone the repository
 git clone https://github.com/fenjo26/Orbitra.link.git /var/www/orbitra || {
     echo "ERROR: Failed to download repository. Please check the github link."
     exit 1
 }
 
 echo "[3/4] Configuring permissions for SQLite Database..."
-# Разрешаем Nginx писать в папку, чтобы SQLite мог создать БД
+# Allow Nginx to write to the folder so SQLite can create the DB
 chown -R www-data:www-data /var/www/orbitra
 find /var/www/orbitra -type d -exec chmod 775 {} \;
 find /var/www/orbitra -type f -exec chmod 664 {} \;
@@ -48,18 +46,18 @@ server {
     root /var/www/orbitra;
     index index.php admin.php index.html;
 
-    # Доступ к статике React/Vite
+    # Access to React/Vite static files
     location /frontend/dist/ {
         alias /var/www/orbitra/frontend/dist/;
         try_files \$uri \$uri/ /frontend/dist/index.html;
     }
 
-    # Роутинг трекера (API и клики)
+    # Router handling (API and clicks)
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
 
-    # Обработка PHP 
+    # PHP processing
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
         fastcgi_pass unix:$PHP_FPM_SOCK;
@@ -67,7 +65,7 @@ server {
         include fastcgi_params;
     }
 
-    # Запрет доступа к БД SQLite и логам конфигураций
+    # Deny access to SQLite DB and configurations
     location ~ \.sqlite$ {
         deny all;
     }
@@ -77,15 +75,15 @@ server {
 }
 EOF
 
-# Активация конфигурации Nginx
+# Activate Nginx configuration
 ln -sf /etc/nginx/sites-available/orbitra /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
 systemctl restart php${PHP_V}-fpm
 systemctl restart nginx
 
-# Получаем внешний IP сервера для вывода
-SERVER_IP=$(curl -s http://checkip.amazonaws.com || echo "ваш_ip_сервера")
+# Get public IP for output
+SERVER_IP=$(curl -s http://checkip.amazonaws.com || echo "your_server_ip")
 
 echo "======================================================="
 echo " ✅ INSTALLATION COMPLETED SUCCESSFULLY!                "
