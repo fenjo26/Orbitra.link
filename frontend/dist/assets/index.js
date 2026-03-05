@@ -19566,187 +19566,201 @@ const SetupWizard = ({ onComplete }) => {
       setContextLanguage(value);
     }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full max-w-md", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center mb-8", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-white flex justify-center items-center", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-indigo-500 mr-1", children: "Orbitra" }),
-        ".link"
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4 relative", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "select",
+      {
+        value: language,
+        onChange: (e) => setContextLanguage(e.target.value),
+        className: "bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "en", children: "🇺🇸 English" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "ru", children: "🇷🇺 Русский" })
+        ]
+      }
+    ) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full max-w-md", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center mb-8", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-3xl font-bold text-white flex justify-center items-center", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-indigo-500 mr-1", children: "Orbitra" }),
+          ".link"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-slate-400 mt-2", children: t2("setup.title") })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-slate-400 mt-2", children: t2("setup.title") })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center mb-6", children: [1, 2, 3].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(React.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= s ? "bg-indigo-600 text-white" : "bg-gray-700 text-gray-400"}`, children: step > s ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16 }) : s }),
-      s < 3 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `w-12 h-1 ${step > s ? "bg-indigo-600" : "bg-gray-700"}` })
-    ] }, s)) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl shadow-2xl p-8", children: [
-      step === 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800 mb-2 text-center", children: t2("setup.step1Title") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm text-center mb-6", children: t2("setup.step1Desc") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t2("setup.username") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "absolute left-4 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center mb-6", children: [1, 2, 3].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(React.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= s ? "bg-indigo-600 text-white" : "bg-gray-700 text-gray-400"}`, children: step > s ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16 }) : s }),
+        s < 3 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `w-12 h-1 ${step > s ? "bg-indigo-600" : "bg-gray-700"}` })
+      ] }, s)) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl shadow-2xl p-8", children: [
+        step === 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800 mb-2 text-center", children: t2("setup.step1Title") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm text-center mb-6", children: t2("setup.step1Desc") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t2("setup.username") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "absolute left-4 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    name: "username",
+                    value: formData.username,
+                    onChange: handleChange,
+                    className: "w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
+                    placeholder: "admin",
+                    autoFocus: true
+                  }
+                )
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t2("setup.password") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "absolute left-4 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: showPassword ? "text" : "password",
+                    name: "password",
+                    value: formData.password,
+                    onChange: handleChange,
+                    className: "w-full pl-12 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
+                    placeholder: t2("setup.passwordMin")
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => setShowPassword(!showPassword),
+                    className: "absolute right-3 top-2.5 text-gray-400 hover:text-gray-600",
+                    children: showPassword ? /* @__PURE__ */ jsxRuntimeExports.jsx(EyeOff, { size: 20 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { size: 20 })
+                  }
+                )
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t2("setup.confirmPassword") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "absolute left-4 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: showPassword ? "text" : "password",
+                    name: "confirmPassword",
+                    value: formData.confirmPassword,
+                    onChange: handleChange,
+                    className: "w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
+                    placeholder: t2("setup.confirmPasswordPlaceholder")
+                  }
+                )
+              ] })
+            ] }),
+            error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-lg", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
+              error
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "submit",
+                className: "w-full py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium",
+                children: t2("setup.continue")
+              }
+            )
+          ] })
+        ] }),
+        step === 2 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800 mb-2 text-center", children: t2("setup.step2Title") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm text-center mb-6", children: t2("setup.step2Desc") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "inline mr-1" }),
+                t2("setup.timezone")
+              ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
+                "select",
                 {
-                  type: "text",
-                  name: "username",
-                  value: formData.username,
+                  name: "timezone",
+                  value: formData.timezone,
                   onChange: handleChange,
-                  className: "w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
-                  placeholder: "admin",
-                  autoFocus: true
+                  className: "w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
+                  children: timezones.map((tz) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tz.value, children: tz.label }, tz.value))
                 }
               )
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t2("setup.password") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "absolute left-4 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 16, className: "inline mr-1" }),
+                t2("setup.language")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
                 {
-                  type: showPassword ? "text" : "password",
-                  name: "password",
-                  value: formData.password,
+                  name: "language",
+                  value: formData.language,
                   onChange: handleChange,
-                  className: "w-full pl-12 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
-                  placeholder: t2("setup.passwordMin")
+                  className: "w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "ru", children: "Русский" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "en", children: "English" })
+                  ]
+                }
+              )
+            ] }),
+            error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-lg", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
+              error
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setStep(1),
+                  className: "flex-1 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium",
+                  children: t2("common.back")
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "button",
                 {
-                  type: "button",
-                  onClick: () => setShowPassword(!showPassword),
-                  className: "absolute right-3 top-2.5 text-gray-400 hover:text-gray-600",
-                  children: showPassword ? /* @__PURE__ */ jsxRuntimeExports.jsx(EyeOff, { size: 20 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { size: 20 })
+                  type: "submit",
+                  disabled: loading,
+                  className: "flex-1 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium disabled:opacity-50",
+                  children: loading ? t2("common.loading") : t2("common.finish")
                 }
               )
             ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t2("setup.confirmPassword") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "absolute left-4 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: showPassword ? "text" : "password",
-                  name: "confirmPassword",
-                  value: formData.confirmPassword,
-                  onChange: handleChange,
-                  className: "w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
-                  placeholder: t2("setup.confirmPasswordPlaceholder")
-                }
-              )
-            ] })
-          ] }),
-          error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-lg", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
-            error
-          ] }),
+          ] })
+        ] }),
+        step === 3 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 32, className: "text-green-600" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800 mb-2", children: t2("setup.step3Title") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 mb-6", children: t2("setup.step3Desc") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
-              type: "submit",
+              onClick: onComplete,
               className: "w-full py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium",
-              children: t2("setup.continue")
+              children: t2("setup.login")
             }
           )
         ] })
       ] }),
-      step === 2 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800 mb-2 text-center", children: t2("setup.step2Title") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm text-center mb-6", children: t2("setup.step2Desc") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "inline mr-1" }),
-              t2("setup.timezone")
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "select",
-              {
-                name: "timezone",
-                value: formData.timezone,
-                onChange: handleChange,
-                className: "w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
-                children: timezones.map((tz) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tz.value, children: tz.label }, tz.value))
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 16, className: "inline mr-1" }),
-              t2("setup.language")
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "select",
-              {
-                name: "language",
-                value: formData.language,
-                onChange: handleChange,
-                className: "w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "ru", children: "Русский" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "en", children: "English" })
-                ]
-              }
-            )
-          ] }),
-          error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-lg", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
-            error
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                type: "button",
-                onClick: () => setStep(1),
-                className: "flex-1 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium",
-                children: t2("common.back")
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                type: "submit",
-                disabled: loading,
-                className: "flex-1 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium disabled:opacity-50",
-                children: loading ? t2("common.loading") : t2("common.finish")
-              }
-            )
-          ] })
+      step === 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 p-4 bg-gray-800/50 rounded-lg border border-gray-700", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2 text-gray-400 text-xs", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Terminal, { size: 14, className: "mt-0.5 flex-shrink-0" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-gray-300 mb-1", children: t2("setup.passwordRecovery") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-mono text-gray-500", children: t2("setup.recoveryHint") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "block mt-1 p-2 bg-gray-900 rounded text-green-400 text-xs overflow-x-auto", children: t2("login.cliSqlite").replace("'login'", `'${formData.username || "user"}'`) })
         ] })
-      ] }),
-      step === 3 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 32, className: "text-green-600" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800 mb-2", children: t2("setup.step3Title") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 mb-6", children: t2("setup.step3Desc") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            onClick: onComplete,
-            className: "w-full py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium",
-            children: t2("setup.login")
-          }
-        )
-      ] })
-    ] }),
-    step === 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 p-4 bg-gray-800/50 rounded-lg border border-gray-700", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2 text-gray-400 text-xs", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Terminal, { size: 14, className: "mt-0.5 flex-shrink-0" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-gray-300 mb-1", children: t2("setup.passwordRecovery") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-mono text-gray-500", children: t2("setup.recoveryHint") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "block mt-1 p-2 bg-gray-900 rounded text-green-400 text-xs overflow-x-auto", children: t2("login.cliSqlite").replace("'login'", `'${formData.username || "user"}'`) })
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center text-slate-500 text-sm mt-6", children: "© 2026 Orbitra.link" })
-  ] }) });
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center text-slate-500 text-sm mt-6", children: "© 2026 Orbitra.link" })
+    ] })
+  ] });
 };
 const formatNum = (num) => {
   if (num === null || num === void 0) return "0";

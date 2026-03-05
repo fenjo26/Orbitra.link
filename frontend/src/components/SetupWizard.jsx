@@ -96,7 +96,19 @@ const SetupWizard = ({ onComplete }) => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4 relative">
+            {/* Global Language Toggle */}
+            <div className="absolute top-4 right-4">
+                <select
+                    value={language}
+                    onChange={(e) => setContextLanguage(e.target.value)}
+                    className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                >
+                    <option value="en">🇺🇸 English</option>
+                    <option value="ru">🇷🇺 Русский</option>
+                </select>
+            </div>
+
             <div className="w-full max-w-md">
                 {/* Logo */}
                 <div className="text-center mb-8">

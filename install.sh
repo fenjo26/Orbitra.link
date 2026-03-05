@@ -1,21 +1,21 @@
 #!/bin/bash
 # Orbitra v0.9 Tracker Auto-Installer
-# Поддержка: Ubuntu 20.04, 22.04, 24.04 / Debian 11, 12
-# Требуются root права (sudo)
+# Supported OS: Ubuntu 20.04, 22.04, 24.04 / Debian 11, 12
+# Root privileges required (sudo)
 
 set -e
 
 echo "======================================================="
-echo "       Начинаем установку Orbitra Tracker              "
+echo "       Starting Orbitra Tracker Installation           "
 echo "======================================================="
 
-# Проверка на root
+# Check for root
 if [ "$EUID" -ne 0 ]; then
-  echo "Пожалуйста, запустите скрипт от имени root (используйте sudo)"
+  echo "ERROR: Please run this script as root (use sudo)"
   exit
 fi
 
-echo "[1/4] Обновление системы и установка пакетов (Nginx, PHP, SQLite)..."
+echo "[1/4] Updating system and installing packages (Nginx, PHP, SQLite)..."
 apt-get update -y
 apt-get install -y ca-certificates apt-transport-https software-properties-common curl git unzip nginx php-fpm php-sqlite3 php-curl php-mbstring php-xml
 
@@ -23,24 +23,24 @@ apt-get install -y ca-certificates apt-transport-https software-properties-commo
 PHP_V=$(php -v | head -n 1 | cut -d " " -f 2 | cut -f1-2 -d".")
 PHP_FPM_SOCK="/var/run/php/php${PHP_V}-fpm.sock"
 
-echo "[2/4] Скачивание исходного кода Orbitra в /var/www/orbitra..."
+echo "[2/4] Downloading Orbitra source code to /var/www/orbitra..."
 # Удаляем старую папку, если вдруг есть
 rm -rf /var/www/orbitra
 # Клонируем репозиторий
 # Пример: git clone https://github.com/fenjo26/Orbitra.link.git /var/www/orbitra
 # Пока для примера создаем просто структуру (в реальном скрипте раскомментируйте git clone)
 git clone https://github.com/fenjo26/Orbitra.link.git /var/www/orbitra || {
-    echo "ОШИБКА: Не удалось скачать репозиторий. Проверьте ссылку."
+    echo "ERROR: Failed to download repository. Please check the github link."
     exit 1
 }
 
-echo "[3/4] Настройка прав доступа для Базы Данных SQLite..."
+echo "[3/4] Configuring permissions for SQLite Database..."
 # Разрешаем Nginx писать в папку, чтобы SQLite мог создать БД
 chown -R www-data:www-data /var/www/orbitra
 find /var/www/orbitra -type d -exec chmod 775 {} \;
 find /var/www/orbitra -type f -exec chmod 664 {} \;
 
-echo "[4/4] Настройка веб-сервера Nginx..."
+echo "[4/4] Configuring Nginx web server..."
 cat > /etc/nginx/sites-available/orbitra << EOF
 server {
     listen 80;
@@ -88,8 +88,8 @@ systemctl restart nginx
 SERVER_IP=$(curl -s http://checkip.amazonaws.com || echo "ваш_ip_сервера")
 
 echo "======================================================="
-echo " ✅ УСТАНОВКА УСПЕШНО ЗАВЕРШЕНА!                        "
+echo " ✅ INSTALLATION COMPLETED SUCCESSFULLY!                "
 echo "======================================================="
-echo " Завершите установку и создайте первого администратора:"
+echo " Complete the setup and create the first administrator:"
 echo " 🔗 http://$SERVER_IP/admin.php                        "
 echo "======================================================="
