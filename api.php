@@ -35,11 +35,16 @@ $action = $_GET['action'] ?? '';
 function checkRateLimit($key, $maxRequests = 5, $window = 300) {
     if (class_exists('Redis')) {
         try {
-            $redis = new Redis();
+            /** @noinspection PhpUndefinedClassInspection */
+            $redis = new \Redis();
+            /** @noinspection PhpUndefinedMethodInspection */
             if (@$redis->connect('127.0.0.1', 6379)) {
+                /** @noinspection PhpUndefinedMethodInspection */
                 $current = $redis->get("ratelimit:$key") ?: 0;
                 if ($current >= $maxRequests) return false;
+                /** @noinspection PhpUndefinedMethodInspection */
                 $redis->incr("ratelimit:$key");
+                /** @noinspection PhpUndefinedMethodInspection */
                 $redis->expire("ratelimit:$key", $window);
                 return true;
             }
