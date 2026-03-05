@@ -34,7 +34,7 @@ $action = $_GET['action'] ?? '';
 // Rate Limiting fallback implementation
 function checkRateLimit($key, $maxRequests = 5, $window = 300) {
     // Попробовать Redis, если расширение установлено
-    if (extension_loaded('redis')) {
+    if (extension_loaded('redis') && class_exists('Redis')) {
         try {
             $redis = new Redis();
             if (@$redis->connect('127.0.0.1', 6379)) {
@@ -2477,7 +2477,7 @@ try {
                 echo json_encode([
                     'status' => 'success',
                     'data' => [
-                        'version' => (defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2') . '-Orbitra',
+                        'version' => (defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.1') . '-Orbitra',
                         'clicks' => (int)$clicksCount,
                         'conversions' => (int)$convCount,
                         'db_size_bytes' => $dbSize,
@@ -2525,7 +2525,7 @@ try {
 
         // === UPDATE SYSTEM API ===
         case 'check_update':
-            $currentVersion = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2';
+            $currentVersion = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.1';
             
             // URL to check for latest version (change to your server or GitHub raw file)
             // Example for GitHub: 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/version.json'
