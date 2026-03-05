@@ -201,6 +201,35 @@ $shouldRedirect = ($_GET['redirect'] ?? '1') !== '0';
 $explicitUrl = $_GET['url'] ?? '';
 
 if ($shouldRedirect) {
+    if ($explicitUrl) {
+        $parsed = parse_url($explicitUrl);
+        $host = $parsed['host'] ?? '';
+
+        // Security: Open Redirect protection
+        $stmtUrls = $pdo->query("SELECT url FROM offers WHERE state = 'active' AND url IS NOT NULL");
+        $offerUrls = $stmtUrls->fetchAll(PDO::FETCH_COLUMN);
+        $allowedDomains = [];
+        foreach ($offerUrls as $u) {
+            $parsedCmp = parse_url($u);
+            if (!empty($parsedCmp['host'])) {
+                $allowedDomains[] = $parsedCmp['host'];
+            }
+        }
+
+        if ($offerUrl) {
+            $offerParsed = parse_url($offerUrl);
+            if (!empty($offerParsed['host'])) {
+                $allowedDomains[] = $offerParsed['host'];
+            }
+        }
+
+        if (!in_array($host, $allowedDomains)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid redirect domain']);
+            exit;
+        }
+    }
+
     $finalUrl = $explicitUrl ?: $offerUrl;
 
     if ($finalUrl) {

@@ -9,9 +9,18 @@ require_once 'config.php';
 require_once 'version.php';
 
 // CORS Headers
-header('Access-Control-Allow-Origin: *');
+$allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+if (in_array($origin, $allowedOrigins)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+    header('Access-Control-Allow-Credentials: true');
+} else {
+    // Fallback for tools like curl if needed, but safer to restrict
+    header('Access-Control-Allow-Origin: *'); 
+}
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN');
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -22,9 +31,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 header('Content-Type: application/json');
 $action = $_GET['action'] ?? '';
 
-// === AUTHENTICATION MIDDLEWARE ===
+// Rate Limiting fallback implementation
+function checkRateLimit($key, $maxRequests = 5, $window = 300) {
+    if (class_exists('Redis')) {
+        try {
+            $redis = new Redis();
+            if (@$redis->connect('127.0.0.1', 6379)) {
+                $current = $redis->get("ratelimit:$key") ?: 0;
+                if ($current >= $maxRequests) return false;
+                $redis->incr("ratelimit:$key");
+                $redis->expire("ratelimit:$key", $window);
+                return true;
+            }
+        } catch (\Exception $e) {}
+    }
+    
+    // SQLite Fallback for rate limiting
+    global $pdo;
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS rate_limits (key VARCHAR(255) PRIMARY KEY, count INTEGER, expires_at DATETIME)");
+        $pdo->exec("DELETE FROM rate_limits WHERE expires_at < datetime('now')");
+        
+        $stmt = $pdo->prepare("SELECT count FROM rate_limits WHERE key = ?");
+        $stmt->execute([$key]);
+        $row = $stmt->fetch();
+        
+        if ($row) {
+            if ($row['count'] >= $maxRequests) return false;
+            $pdo->prepare("UPDATE rate_limits SET count = count + 1 WHERE key = ?")->execute([$key]);
+        } else {
+            $pdo->prepare("INSERT INTO rate_limits (key, count, expires_at) VALUES (?, 1, datetime('now', '+$window seconds'))")->execute([$key]);
+        }
+        return true;
+    } catch (\Exception $e) {}
+    return true; // Graceful degrade if DB fails
+}
+
+// === AUTHENTICATION MIDDLEWARE & CSRF ===
 $publicActions = ['login', 'check_setup', 'setup_first_user'];
+
+$csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? '';
+
 if (!in_array($action, $publicActions)) {
+    // Ensure CSRF exists in session
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (!hash_equals($_SESSION['csrf_token'], $csrfToken)) {
+            // http_response_code(403);
+            // echo json_encode(['status' => 'error', 'message' => 'CSRF token mismatch']);
+            // exit; // Uncomment once React app is updated to send X-CSRF-TOKEN
+        }
+    }
+
     if (!isset($_SESSION['user_id'])) {
         http_response_code(401);
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
@@ -978,17 +1039,58 @@ try {
                     break;
                 }
 
+                // Security: Check file size (< 50MB)
+                if ($_FILES['file']['size'] > 50 * 1024 * 1024) {
+                    echo json_encode(['status' => 'error', 'message' => 'File too large (max 50MB)']);
+                    break;
+                }
+
+                $zipFile = $_FILES['file']['tmp_name'];
+                
+                // Security: Check MIME type
+                $allowedMimes = ['application/zip', 'application/x-zip-compressed'];
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mimeType = finfo_file($finfo, $zipFile);
+                finfo_close($finfo);
+
+                if (!in_array($mimeType, $allowedMimes)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Invalid file type. Only ZIP allowed.']);
+                    break;
+                }
+
                 $uploadDir = __DIR__ . '/landings/' . $id . '/';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
 
-                $zipFile = $_FILES['file']['tmp_name'];
                 $zip = new ZipArchive;
                 if ($zip->open($zipFile) === TRUE) {
-                    $zip->extractTo($uploadDir);
+                    // Security: Verify contents before extraction
+                    $safeToExtract = true;
+                    $errorMsg = '';
+                    for ($i = 0; $i < $zip->numFiles; $i++) {
+                        $filename = $zip->getNameIndex($i);
+                        // Deny PHP files
+                        if (preg_match('/\.(php|phtml|php5|php7)$/i', $filename)) {
+                            $safeToExtract = false;
+                            $errorMsg = 'PHP files not allowed';
+                            break;
+                        }
+                        // Deny path traversal inside zip
+                        if (strpos($filename, '..') !== false || strpos($filename, '/') === 0) {
+                            $safeToExtract = false;
+                            $errorMsg = 'Invalid filename in archive';
+                            break;
+                        }
+                    }
+
+                    if ($safeToExtract) {
+                        $zip->extractTo($uploadDir);
+                        echo json_encode(['status' => 'success', 'message' => 'Files extracted successfully']);
+                    } else {
+                        echo json_encode(['status' => 'error', 'message' => $errorMsg]);
+                    }
                     $zip->close();
-                    echo json_encode(['status' => 'success', 'message' => 'Files extracted successfully']);
                 }
                 else {
                     echo json_encode(['status' => 'error', 'message' => 'Failed to open ZIP file']);
@@ -1031,11 +1133,19 @@ try {
             $id = $_GET['id'] ?? null;
             $path = $_GET['path'] ?? null;
             if ($id && $path) {
-                if (strpos($path, '..') !== false) {
-                    echo json_encode(['status' => 'error', 'message' => 'Invalid path']);
+                // Security: Normalize path and prevent traversal
+                $path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path);
+                $path = preg_replace('/\.\.+/', '', $path);
+                
+                $fullPath = realpath(__DIR__ . '/landings/' . $id . '/' . ltrim($path, '/'));
+                $allowedPath = realpath(__DIR__ . '/landings/' . $id . '/');
+
+                if ($fullPath === false || strpos($fullPath, $allowedPath) !== 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'Access denied']);
                     break;
                 }
-                $file = __DIR__ . '/landings/' . $id . '/' . ltrim($path, '/');
+
+                $file = $fullPath;
                 if (file_exists($file) && is_file($file)) {
                     $content = file_get_contents($file);
                     echo json_encode(['status' => 'success', 'data' => $content]);
@@ -1057,11 +1167,19 @@ try {
                 $content = $data['content'] ?? '';
 
                 if ($id && $path) {
-                    if (strpos($path, '..') !== false) {
-                        echo json_encode(['status' => 'error', 'message' => 'Invalid path']);
+                    // Security: Normalize path and prevent traversal
+                    $path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path);
+                    $path = preg_replace('/\.\.+/', '', $path);
+                    
+                    $fullPath = realpath(__DIR__ . '/landings/' . $id . '/' . ltrim($path, '/'));
+                    $allowedPath = realpath(__DIR__ . '/landings/' . $id . '/');
+
+                    if ($fullPath === false || strpos($fullPath, $allowedPath) !== 0) {
+                        echo json_encode(['status' => 'error', 'message' => 'Access denied']);
                         break;
                     }
-                    $file = __DIR__ . '/landings/' . $id . '/' . ltrim($path, '/');
+
+                    $file = $fullPath;
                     if (file_exists($file) && is_file($file)) {
                         file_put_contents($file, $content);
                         echo json_encode(['status' => 'success']);
@@ -2459,9 +2577,30 @@ try {
 
         case 'run_update':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                // Security: Only admins can trigger git pull
+                if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                    echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                    break;
+                }
+
                 // Perform a git pull if inside a git repository
                 $isGit = is_dir(__DIR__ . '/.git');
                 if ($isGit) {
+                    // Security: Ensure we are on a safe branch
+                    $allowedBranches = ['main', 'master'];
+                    $currentBranch = trim(exec('git rev-parse --abbrev-ref HEAD'));
+                    if (!in_array($currentBranch, $allowedBranches)) {
+                        echo json_encode(['status' => 'error', 'message' => 'Unsafe branch: ' . htmlspecialchars($currentBranch)]);
+                        break;
+                    }
+
+                    // Security: Ensure no local changes before pull
+                    $statusCode = trim(exec('git status --porcelain | wc -l'));
+                    if ($statusCode !== '0') {
+                        echo json_encode(['status' => 'error', 'message' => 'Local changes detected. Cannot pull.']);
+                        break;
+                    }
+
                     $output = [];
                     $returnCode = 0;
                     exec('git pull origin main 2>&1', $output, $returnCode);
@@ -3070,6 +3209,12 @@ try {
 
         case 'login':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+                if (!checkRateLimit("login:$ip", 5, 300)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Too many attempts. Please try again later.']);
+                    break;
+                }
+
                 $data = json_decode(file_get_contents('php://input'), true);
                 $username = $data['username'] ?? '';
                 $password = $data['password'] ?? '';
