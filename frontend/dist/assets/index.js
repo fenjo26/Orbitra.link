@@ -19604,9 +19604,11 @@ const SetupWizard = ({ onComplete }) => {
                   "input",
                   {
                     type: "text",
+                    id: "username",
                     name: "username",
                     value: formData.username,
                     onChange: handleChange,
+                    autoComplete: "username",
                     className: "w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
                     placeholder: "admin",
                     autoFocus: true
@@ -19622,9 +19624,11 @@ const SetupWizard = ({ onComplete }) => {
                   "input",
                   {
                     type: showPassword ? "text" : "password",
+                    id: "password",
                     name: "password",
                     value: formData.password,
                     onChange: handleChange,
+                    autoComplete: "new-password",
                     className: "w-full pl-12 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
                     placeholder: t2("setup.passwordMin")
                   }
@@ -19648,9 +19652,11 @@ const SetupWizard = ({ onComplete }) => {
                   "input",
                   {
                     type: showPassword ? "text" : "password",
+                    id: "confirmPassword",
                     name: "confirmPassword",
                     value: formData.confirmPassword,
                     onChange: handleChange,
+                    autoComplete: "new-password",
                     className: "w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
                     placeholder: t2("setup.confirmPasswordPlaceholder")
                   }
