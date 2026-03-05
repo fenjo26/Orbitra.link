@@ -1,0 +1,2 @@
+RewriteEngine On
+RewriteRule ^r/(.*)$ index.php?campaign=$1 [L,QSA]

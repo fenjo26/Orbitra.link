@@ -1,0 +1,40 @@
+# Dependencies
+vendor/
+node_modules/
+
+# SQLite Database - USER DATA (never overwrite)
+*.sqlite
+*.sqlite-journal
+ltt_tracker.sqlite
+orbitra_db.sqlite
+database.sqlite
+
+# User config (never overwrite)
+config.php
+
+# Geo databases
+var/geoip/*
+
+# Uploads
+/landings/*
+!/landings/.gitkeep
+
+# macOS / OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+
+# Node logs
+npm-debug.log
+yarn-error.log
+
+# We are NOT ignoring frontend/dist/ because our install.sh script expects 
+# the compiled frontend to be downloaded directly from GitHub.
