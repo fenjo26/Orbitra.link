@@ -1,5 +1,5 @@
 #!/bin/bash
-# Orbitra v0.9.1 Tracker Auto-Installer
+# Orbitra v0.9.2 Tracker Auto-Installer
 # Supported OS: Ubuntu 20.04, 22.04, 24.04 / Debian 11, 12
 # Root privileges required (sudo)
 
@@ -65,6 +65,11 @@ fi
 
 
 echo "[3/4] Configuring permissions for SQLite Database..."
+# Create necessary subdirectories first
+mkdir -p /var/www/orbitra/var/geoip/SxGeoCity
+mkdir -p /var/www/orbitra/geo
+mkdir -p /var/www/orbitra/core
+
 # Allow Nginx to write to the folder so SQLite can create the DB
 chown -R www-data:www-data /var/www/orbitra
 find /var/www/orbitra -type d -exec chmod 775 {} \;

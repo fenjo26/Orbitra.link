@@ -1,3 +1,3 @@
 <?php
-// version.php - Версия проекта Orbitra
-define('ORBITRA_VERSION', '0.9.1');
+// version.php - Версия проекта// Orbitra Tracker Version File
+define('ORBITRA_VERSION', '0.9.2');

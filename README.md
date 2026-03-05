@@ -1,4 +1,4 @@
-# Orbitra v0.9.1 Tracker
+# Orbitra v0.9.2 Tracker
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![PHP Version](https://img.shields.io/badge/PHP-8.0+-777BB4?logo=php)

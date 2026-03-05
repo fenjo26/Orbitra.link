@@ -10,7 +10,7 @@ function botText($lang, $key, $params = [])
 {
     $texts = [
         'ru' => [
-            'welcome' => "🚀 *Добро пожаловать в Orbitra v0.9.1 Bot!*\n\nЯ помогу отслеживать статистику ваших кампаний.\n\nДоступные команды:\n/stats — Статистика за сегодня\n/stats 7d — За последние 7 дней\n/campaigns — Активные кампании\n/campaign ID — Стата по кампании\n/top — ТОП-5 по доходу\n/conversions — Последние конверсии\n/notify on|off — Уведомления\n/daily on|off — Ежедневная сводка\n/lang ru|en — Язык бота\n/help — Справка",
+            'welcome' => "🚀 *Добро пожаловать в Orbitra v0.9.2 Bot!*\n\nЯ помогу отслеживать статистику ваших кампаний.\n\nДоступные команды:\n/stats — Статистика за сегодня\n/stats 7d — За последние 7 дней\n/campaigns — Активные кампании\n/campaign ID — Стата по кампании\n/top — ТОП-5 по доходу\n/conversions — Последние конверсии\n/notify on|off — Уведомления\n/daily on|off — Ежедневная сводка\n/lang ru|en — Язык бота\n/help — Справка",
             'help' => "📖 *Доступные команды:*\n\n/stats — Статистика за сегодня\n/stats 1d|7d|30d — За период\n/stats yesterday — За вчера\n/campaigns — Список кампаний\n/campaign ID — Детали кампании\n/top — ТОП-5 кампаний\n/conversions — Последние 10 конверсий\n/notify on|off — Уведомления о конверсиях\n/daily on|off — Ежедневная сводка\n/lang ru|en — Сменить язык",
             'stats_title' => "📊 *Статистика: {period}*",
             'clicks' => "Кликов",
@@ -48,7 +48,7 @@ function botText($lang, $key, $params = [])
             'country' => "Страна",
         ],
         'en' => [
-            'welcome' => "🚀 *Welcome to Orbitra v0.9.1 Bot!*\n\nI'll help you track your campaign stats.\n\nAvailable commands:\n/stats — Today's statistics\n/stats 7d — Last 7 days\n/campaigns — Active campaigns\n/campaign ID — Campaign details\n/top — Top 5 by revenue\n/conversions — Recent conversions\n/notify on|off — Notifications\n/daily on|off — Daily summary\n/lang ru|en — Bot language\n/help — Help",
+            'welcome' => "🚀 *Welcome to Orbitra v0.9.2 Bot!*\n\nI'll help you track your campaign stats.\n\nAvailable commands:\n/stats — Today's statistics\n/stats 7d — Last 7 days\n/campaigns — Active campaigns\n/campaign ID — Campaign details\n/top — Top 5 by revenue\n/conversions — Recent conversions\n/notify on|off — Notifications\n/daily on|off — Daily summary\n/lang ru|en — Bot language\n/help — Help",
             'help' => "📖 *Available commands:*\n\n/stats — Today's statistics\n/stats 1d|7d|30d — For a period\n/stats yesterday — Yesterday\n/campaigns — Campaign list\n/campaign ID — Campaign details\n/top — Top 5 campaigns\n/conversions — Last 10 conversions\n/notify on|off — Conversion notifications\n/daily on|off — Daily summary report\n/lang ru|en — Change language",
             'stats_title' => "📊 *Statistics: {period}*",
             'clicks' => "Clicks",

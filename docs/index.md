@@ -1,4 +1,4 @@
-# Orbitra v0.9.1 Tracker
+# Orbitra v0.9.2 Tracker
 
 Добро пожаловать в документацию проекта Orbitra! 
 

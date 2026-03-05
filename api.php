@@ -2358,7 +2358,7 @@ try {
                 echo json_encode([
                     'status' => 'success',
                     'data' => [
-                        'version' => (defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.1') . '-Orbitra',
+                        'version' => (defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2') . '-Orbitra',
                         'clicks' => (int)$clicksCount,
                         'conversions' => (int)$convCount,
                         'db_size_bytes' => $dbSize,
@@ -2406,7 +2406,7 @@ try {
 
         // === UPDATE SYSTEM API ===
         case 'check_update':
-            $currentVersion = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.1';
+            $currentVersion = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2';
             
             // URL to check for latest version (change to your server or GitHub raw file)
             // Example for GitHub: 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/version.json'
@@ -2684,9 +2684,30 @@ try {
             $dbId = $_POST['id'] ?? $input['id'] ?? null;
 
             if (!in_array($dbId, ['sypex_city_lite', 'maxmind_city', 'ip2location_lite_db3'])) {
-                echo json_encode(['status' => 'error', 'message' => 'Неизвестная база данных']);
+                echo json_encode(['status' => 'error', 'message' => 'Неизвестная база данных: ' . htmlspecialchars($dbId)]);
                 break;
             }
+
+            // Helper function to download file using cURL
+            $downloadFile = function ($url) {
+                $ch = curl_init($url);
+                curl_setopt_array($ch, [
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_TIMEOUT => 120,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_USERAGENT => 'LTT Tracker/1.0'
+                ]);
+                $data = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $error = curl_error($ch);
+                curl_close($ch);
+
+                if ($error || $httpCode !== 200) {
+                    return null;
+                }
+                return $data;
+            };
 
             if ($dbId === 'ip2location_lite_db3') {
                 $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'ip2location_token'");
@@ -2812,75 +2833,66 @@ try {
                 break;
             }
 
-            // Helper function to download file using cURL
-            $downloadFile = function ($url) {
-                $ch = curl_init($url);
-                curl_setopt_array($ch, [
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_TIMEOUT => 120,
-                    CURLOPT_SSL_VERIFYPEER => false,
-                    CURLOPT_USERAGENT => 'LTT Tracker/1.0'
-                ]);
-                $data = curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $error = curl_error($ch);
-                curl_close($ch);
-
-                if ($error || $httpCode !== 200) {
-                    return null;
-                }
-                return $data;
-            };
-
-            try {
-                $geoDir = __DIR__ . '/var/geoip/SxGeoCity';
-                if (!is_dir($geoDir)) {
-                    mkdir($geoDir, 0777, true);
-                }
-
-                // 1. Download parser if missing
-                $parserPath = __DIR__ . '/core/SxGeo.php';
-                if (!file_exists($parserPath)) {
-                    if (!is_dir(__DIR__ . '/core'))
-                        mkdir(__DIR__ . '/core', 0777, true);
-                    $parserCode = $downloadFile('https://raw.githubusercontent.com/sypexgeo/SxGeoPHP/master/SxGeo.php');
-                    if ($parserCode) {
-                        file_put_contents($parserPath, $parserCode);
+            if ($dbId === 'sypex_city_lite') {
+                try {
+                    $geoDir = __DIR__ . '/var/geoip/SxGeoCity';
+                    if (!is_dir($geoDir)) {
+                        mkdir($geoDir, 0777, true);
                     }
-                    else {
-                        throw new \Exception("Не удалось скачать парсер SxGeo.php. Проверьте подключение к интернету.");
+                    if (!is_dir(__DIR__ . '/geo')) {
+                        mkdir(__DIR__ . '/geo', 0777, true);
                     }
-                }
 
-                // 2. Download Database ZIP
-                $zipFile = $geoDir . '/SxGeoCity_utf8.zip';
-                $zipData = $downloadFile('https://sypexgeo.net/files/SxGeoCity_utf8.zip');
-                if (!$zipData) {
-                    throw new \Exception("Не удалось скачать архив базы от Sypex. Проверьте подключение к интернету.");
-                }
-                file_put_contents($zipFile, $zipData);
+                    // 1. Download Database ZIP
+                    $zipFile = $geoDir . '/SxGeoCity_utf8.zip';
+                    $zipData = $downloadFile('https://sypexgeo.net/files/SxGeoCity_utf8.zip');
+                    if (!$zipData) {
+                        throw new \Exception("Не удалось скачать архив базы от Sypex. Проверьте подключение к интернету.");
+                    }
+                    file_put_contents($zipFile, $zipData);
 
-                // 3. Unzip Database
-                $zip = new ZipArchive;
-                if ($zip->open($zipFile) === TRUE) {
-                    $zip->extractTo($geoDir);
-                    $zip->close();
+                    // 2. Unzip Database and extract SxGeo.php if missing
+                    $zip = new ZipArchive;
+                    if ($zip->open($zipFile) === TRUE) {
+                        
+                        // Извлечение SxGeo.php если нужно
+                        $parserPath = __DIR__ . '/core/SxGeo.php';
+                        if (!file_exists($parserPath)) {
+                            if (!is_dir(__DIR__ . '/core')) mkdir(__DIR__ . '/core', 0777, true);
+                            for($i = 0; $i < $zip->numFiles; $i++) {
+                                $filename = $zip->getNameIndex($i);
+                                if ($filename === 'SxGeo.php') {
+                                    $content = $zip->getFromIndex($i);
+                                    file_put_contents($parserPath, $content);
+                                    break;
+                                }
+                            }
+                        }
 
-                    // Cleanup
-                    @unlink($zipFile);
-                    logSystem($pdo, 'INFO', 'Sypex Geo DB Updated successfully');
+                        // Если не нашлось
+                        if (!file_exists($parserPath)) {
+                            // Опционально скачиваем из альтернативного источника, но тут мы рекомендуем через встроенный файл
+                            throw new \Exception("Не удалось скачать парсер SxGeo.php. Пожалуйста, загрузите его вручную.");
+                        }
 
-                    echo json_encode(['status' => 'success', 'message' => 'База успешно обновлена']);
+                        $zip->extractTo($geoDir);
+                        $zip->close();
+                        @unlink($zipFile);
+
+                        logSystem($pdo, 'INFO', 'Sypex Geo DB Updated successfully');
+                        echo json_encode(['status' => 'success', 'message' => 'База Sypex успешно обновлена']);
+                    } else {
+                        throw new \Exception("Не удалось открыть скачанный архив.");
+                    }
+                } catch (\Exception $e) {
+                    error_log("Sypex Geo Update Error: " . $e->getMessage());
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
-                else {
-                    throw new \Exception("Не удалось распаковать архив базы");
-                }
+                break;
             }
-            catch (\Exception $e) {
-                logSystem($pdo, 'ERROR', 'Sypex Geo Update Failed: ' . $e->getMessage());
-                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
-            }
+
+            // Fallback (should be unreachable given validation)
+            echo json_encode(['status' => 'error', 'message' => 'Возникла неизвестная ошибка при обновлении: ' . $dbId]);
             break;
 
         // === USERS API ===

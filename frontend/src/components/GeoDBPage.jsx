@@ -8,7 +8,7 @@ const GeoDBPage = () => {
     const { t } = useLanguage();
     const [dbs, setDbs] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [updateLoading, setUpdateLoading] = useState(false);
+    const [updateProgress, setUpdateProgress] = useState({});
     const [uploadLoading, setUploadLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
@@ -57,7 +57,7 @@ const GeoDBPage = () => {
     };
 
     const handleUpdate = async (id) => {
-        setUpdateLoading(true);
+        setUpdateProgress(prev => ({ ...prev, [id]: { status: 'loading', progress: 0 } }));
         setMessage('');
         setError('');
         try {
@@ -68,15 +68,16 @@ const GeoDBPage = () => {
             });
             const data = await res.json();
             if (data.status === 'success') {
-                setMessage(t('geoDb.updateSuccess'));
+                setMessage(t('geoDb.updateSuccess') || 'База успешно обновлена');
+                setUpdateProgress(prev => ({ ...prev, [id]: { status: 'success', progress: 100 } }));
                 fetchDbs();
             } else {
                 setError(data.message || t('geoDb.updateError'));
+                setUpdateProgress(prev => ({ ...prev, [id]: { status: 'error', message: data.message } }));
             }
         } catch (e) {
             setError(t('common.networkError') + ': ' + e.message);
-        } finally {
-            setUpdateLoading(false);
+            setUpdateProgress(prev => ({ ...prev, [id]: { status: 'error', message: e.message } }));
         }
     };
 
@@ -362,11 +363,11 @@ const GeoDBPage = () => {
                                         <div className="action-buttons">
                                             <button
                                                 onClick={() => handleUpdate(db.id)}
-                                                disabled={updateLoading}
+                                                disabled={updateProgress[db.id]?.status === 'loading'}
                                                 className="btn btn-primary btn-sm"
                                             >
-                                                <RefreshCw className={`w-3.5 h-3.5 ${updateLoading ? 'animate-spin' : ''}`} />
-                                                {updateLoading ? t('geoDb.downloading') : t('geoDb.update')}
+                                                <RefreshCw className={`w-3.5 h-3.5 ${updateProgress[db.id]?.status === 'loading' ? 'animate-spin' : ''}`} />
+                                                {updateProgress[db.id]?.status === 'loading' ? t('geoDb.downloading') : t('geoDb.update')}
                                             </button>
                                         </div>
                                     </td>
