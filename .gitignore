@@ -9,8 +9,7 @@ ltt_tracker.sqlite
 orbitra_db.sqlite
 database.sqlite
 
-# User config (never overwrite)
-config.php
+
 
 # Geo databases
 var/geoip/*
