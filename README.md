@@ -87,7 +87,7 @@
 ## 📁 Структура проекта
 
 ```
-LTT/
+Orbitra/
 ├── config.php              # Конфигурация БД и инициализация таблиц SQLite
 ├── database.sql            # Схема БД (документация SQLite)
 ├── api.php                 # REST API для React frontend
@@ -98,8 +98,6 @@ LTT/
 ├── router.php              # Router для PHP built-in server
 ├── admin.php               # Admin panel (React App)
 ├── .htaccess               # Apache mod_rewrite правила
-├── Dockerfile              # Docker образ
-├── docker-compose.yml      # Docker Compose конфигурация
 ├── orbitra_db.sqlite      # Файл БД SQLite (создаётся автоматически)
 ├── landings/               # Папка для загруженных локальных лендингов
 └── frontend/               # React + Vite frontend
@@ -366,33 +364,36 @@ LTT/
 - **Конверсия**: кампания, статус, сумма, валюта, страна (с флагом), время
 - **Ежедневная сводка**: клики, конверсии, доход/расход/профит + ТОП-3 кампании
 
-## 🚀 Запуск
+## 🚀 Автоматическая Установка (Production)
+
+Для автоматической установки на "чистый" Linux сервер (Ubuntu 20.04/22.04) выполните следующую команду в терминале (под `root` / `sudo`):
+
+```bash
+wget -qO- https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh | bash
+```
+
+Установщик автоматически установит Nginx, PHP 8+, SQLite, скачает проект с GitHub, скачает Frontend релиз и настроит сертификаты Let's Encrypt для домена.
+
+## 🛠 Ручной запуск (Local Development)
 
 ### Разработка (PHP built-in + Vite)
 
 ```bash
 # Терминал 1: Backend
-cd LTT
+cd Orbitra
 php -S localhost:8080 router.php
 
 # Терминал 2: Frontend
-cd LTT/frontend
+cd Orbitra/frontend
 npm install
 npm run dev
 ```
 
-### Продакшн (сборка)
+### Продакшн сборка фронтенда
 
 ```bash
-cd LTT/frontend
+cd Orbitra/frontend
 npm run build
-```
-
-### Docker
-
-```bash
-cd LTT
-docker-compose up -d
 ```
 
 ## 🔧 Конфигурация
