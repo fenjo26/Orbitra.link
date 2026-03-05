@@ -1,3 +1,3 @@
 <?php
 // version.php - Версия проекта Orbitra
-define('ORBITRA_VERSION', '0.9');
+define('ORBITRA_VERSION', '0.9.1');
