@@ -19376,11 +19376,13 @@ const Login = ({ onLogin }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-slate-700 mb-1", children: t2("login.usernameLabel") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "absolute left-3 top-2.5 h-5 w-5 text-gray-400" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "absolute left-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
                   type: "text",
+                  id: "username",
+                  autoComplete: "username",
                   value: username,
                   onChange: (e) => setUsername(e.target.value),
                   className: "w-full !pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg transition-all placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
@@ -19392,11 +19394,13 @@ const Login = ({ onLogin }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-slate-700 mb-1", children: t2("login.passwordLabel") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "absolute left-3 top-2.5 h-5 w-5 text-gray-400" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "absolute left-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
                   type: showPassword ? "text" : "password",
+                  id: "password",
+                  autoComplete: "current-password",
                   value: password,
                   onChange: (e) => setPassword(e.target.value),
                   className: "w-full !pl-10 !pr-10 py-2.5 border border-slate-300 rounded-lg transition-all placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent",

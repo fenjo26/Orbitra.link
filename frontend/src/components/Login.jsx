@@ -76,9 +76,11 @@ const Login = ({ onLogin }) => {
                                     {t('login.usernameLabel')}
                                 </label>
                                 <div className="relative">
-                                    <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                                    <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" />
                                     <input
                                         type="text"
+                                        id="username"
+                                        autoComplete="username"
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
                                         className="w-full !pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg transition-all placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -93,9 +95,11 @@ const Login = ({ onLogin }) => {
                                     {t('login.passwordLabel')}
                                 </label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                                    <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" />
                                     <input
                                         type={showPassword ? 'text' : 'password'}
+                                        id="password"
+                                        autoComplete="current-password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="w-full !pl-10 !pr-10 py-2.5 border border-slate-300 rounded-lg transition-all placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
