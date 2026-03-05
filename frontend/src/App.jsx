@@ -59,6 +59,19 @@ function App() {
 
   // Handle API Session Expiration (401 Unauthorized) globally
   useEffect(() => {
+    // CSRF Token Request Interceptor
+    const getCsrfToken = () => {
+      return document.querySelector('meta[name="csrf-token"]')?.content;
+    };
+
+    const reqIntercept = axios.interceptors.request.use((config) => {
+      const csrfToken = getCsrfToken();
+      if (csrfToken && csrfToken !== '{{ csrf_token }}') {
+        config.headers['X-CSRF-TOKEN'] = csrfToken;
+      }
+      return config;
+    });
+
     const mintercept = axios.interceptors.response.use(
       response => response,
       error => {
@@ -82,6 +95,7 @@ function App() {
     };
 
     return () => {
+      axios.interceptors.request.eject(reqIntercept);
       axios.interceptors.response.eject(mintercept);
       window.fetch = originalFetch; // restore
     };

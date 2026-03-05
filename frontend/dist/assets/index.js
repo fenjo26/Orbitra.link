@@ -40274,7 +40274,7 @@ const GeoDBPage = () => {
   const { t: t2 } = useLanguage();
   const [dbs, setDbs] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
-  const [updateLoading, setUpdateLoading] = reactExports.useState(false);
+  const [updateProgress, setUpdateProgress] = reactExports.useState({});
   const [uploadLoading, setUploadLoading] = reactExports.useState(false);
   const [message2, setMessage] = reactExports.useState("");
   const [error, setError] = reactExports.useState("");
@@ -40312,7 +40312,7 @@ const GeoDBPage = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + " " + sizes[i];
   };
   const handleUpdate = async (id) => {
-    setUpdateLoading(true);
+    setUpdateProgress((prev) => ({ ...prev, [id]: { status: "loading", progress: 0 } }));
     setMessage("");
     setError("");
     try {
@@ -40323,15 +40323,16 @@ const GeoDBPage = () => {
       });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage(t2("geoDb.updateSuccess"));
+        setMessage(t2("geoDb.updateSuccess") || "База успешно обновлена");
+        setUpdateProgress((prev) => ({ ...prev, [id]: { status: "success", progress: 100 } }));
         fetchDbs();
       } else {
         setError(data.message || t2("geoDb.updateError"));
+        setUpdateProgress((prev) => ({ ...prev, [id]: { status: "error", message: data.message } }));
       }
     } catch (e) {
       setError(t2("common.networkError") + ": " + e.message);
-    } finally {
-      setUpdateLoading(false);
+      setUpdateProgress((prev) => ({ ...prev, [id]: { status: "error", message: e.message } }));
     }
   };
   const handleFileUpload = async (e) => {
@@ -40595,11 +40596,11 @@ const GeoDBPage = () => {
           "button",
           {
             onClick: () => handleUpdate(db.id),
-            disabled: updateLoading,
+            disabled: updateProgress[db.id]?.status === "loading",
             className: "btn btn-primary btn-sm",
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-3.5 h-3.5 ${updateLoading ? "animate-spin" : ""}` }),
-              updateLoading ? t2("geoDb.downloading") : t2("geoDb.update")
+              /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-3.5 h-3.5 ${updateProgress[db.id]?.status === "loading" ? "animate-spin" : ""}` }),
+              updateProgress[db.id]?.status === "loading" ? t2("geoDb.downloading") : t2("geoDb.update")
             ]
           }
         ) }) })
@@ -54347,6 +54348,16 @@ function App() {
     custom_to: null
   });
   reactExports.useEffect(() => {
+    const getCsrfToken = () => {
+      return document.querySelector('meta[name="csrf-token"]')?.content;
+    };
+    const reqIntercept = axios.interceptors.request.use((config) => {
+      const csrfToken = getCsrfToken();
+      if (csrfToken && csrfToken !== "{{ csrf_token }}") {
+        config.headers["X-CSRF-TOKEN"] = csrfToken;
+      }
+      return config;
+    });
     const mintercept = axios.interceptors.response.use(
       (response) => response,
       (error) => {
@@ -54367,6 +54378,7 @@ function App() {
       return response;
     };
     return () => {
+      axios.interceptors.request.eject(reqIntercept);
       axios.interceptors.response.eject(mintercept);
       window.fetch = originalFetch;
     };

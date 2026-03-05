@@ -33,18 +33,13 @@ $action = $_GET['action'] ?? '';
 
 // Rate Limiting fallback implementation
 function checkRateLimit($key, $maxRequests = 5, $window = 300) {
-    if (class_exists('Redis')) {
+    if (extension_loaded('redis')) {
         try {
-            /** @noinspection PhpUndefinedClassInspection */
-            $redis = new \Redis();
-            /** @noinspection PhpUndefinedMethodInspection */
+            $redis = new Redis();
             if (@$redis->connect('127.0.0.1', 6379)) {
-                /** @noinspection PhpUndefinedMethodInspection */
                 $current = $redis->get("ratelimit:$key") ?: 0;
                 if ($current >= $maxRequests) return false;
-                /** @noinspection PhpUndefinedMethodInspection */
                 $redis->incr("ratelimit:$key");
-                /** @noinspection PhpUndefinedMethodInspection */
                 $redis->expire("ratelimit:$key", $window);
                 return true;
             }
@@ -85,9 +80,9 @@ if (!in_array($action, $publicActions)) {
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!hash_equals($_SESSION['csrf_token'], $csrfToken)) {
-            // http_response_code(403);
-            // echo json_encode(['status' => 'error', 'message' => 'CSRF token mismatch']);
-            // exit; // Uncomment once React app is updated to send X-CSRF-TOKEN
+            http_response_code(403);
+            echo json_encode(['status' => 'error', 'message' => 'CSRF token mismatch']);
+            exit;
         }
     }
 

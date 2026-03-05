@@ -1,4 +1,13 @@
 <?php
+// Secure session startup
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+session_start();
+
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Запрет кэширования
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
@@ -7,4 +16,5 @@ header("Expires: 0");
 
 // admin.php - входная точка для React приложения (SPA)
 $html = file_get_contents(__DIR__ . '/frontend/dist/index.html');
+$html = str_replace('{{ csrf_token }}', $_SESSION['csrf_token'], $html);
 echo $html;
