@@ -6,7 +6,7 @@
 set -e
 
 echo "======================================================="
-echo "       Начинаем установку LTT (Lightweight Tracker)    "
+echo "       Начинаем установку Orbitra Tracker              "
 echo "======================================================="
 
 # Проверка на root
@@ -23,7 +23,7 @@ apt-get install -y ca-certificates apt-transport-https software-properties-commo
 PHP_V=$(php -v | head -n 1 | cut -d " " -f 2 | cut -f1-2 -d".")
 PHP_FPM_SOCK="/var/run/php/php${PHP_V}-fpm.sock"
 
-echo "[2/4] Скачивание исходного кода LTT в /var/www/orbitra..."
+echo "[2/4] Скачивание исходного кода Orbitra в /var/www/orbitra..."
 # Удаляем старую папку, если вдруг есть
 rm -rf /var/www/orbitra
 # Клонируем репозиторий
@@ -41,7 +41,7 @@ find /var/www/orbitra -type d -exec chmod 775 {} \;
 find /var/www/orbitra -type f -exec chmod 664 {} \;
 
 echo "[4/4] Настройка веб-сервера Nginx..."
-cat > /etc/nginx/sites-available/ltt << EOF
+cat > /etc/nginx/sites-available/orbitra << EOF
 server {
     listen 80;
     server_name _;
@@ -78,7 +78,7 @@ server {
 EOF
 
 # Активация конфигурации Nginx
-ln -sf /etc/nginx/sites-available/ltt /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/orbitra /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
 systemctl restart php${PHP_V}-fpm
