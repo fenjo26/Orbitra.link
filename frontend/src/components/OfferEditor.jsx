@@ -35,8 +35,7 @@ const OfferEditor = ({ offerId, onClose }) => {
         alt_offer_id: '',
         notes: '',
         values: [],
-        state: 'active',
-        add_more: false
+        state: 'active'
     });
 
     // Local offer files
@@ -87,8 +86,7 @@ const OfferEditor = ({ offerId, onClose }) => {
                             alt_offer_id: data.alt_offer_id || '',
                             notes: data.notes || '',
                             values: data.values || [],
-                            state: data.state || 'active',
-                            add_more: false
+                            state: data.state || 'active'
                         });
                         if (data.capping_limit > 0) setShowCapping(true);
                     }
@@ -114,33 +112,7 @@ const OfferEditor = ({ offerId, onClose }) => {
 
             const res = await axios.post(`${API_URL}?action=save_offer`, payload);
             if (res.data.status === 'success') {
-                if (formData.add_more) {
-                    setFormData({
-                        name: '',
-                        group_id: '',
-                        affiliate_network_id: '',
-                        url: '',
-                        redirect_type: 'redirect',
-                        is_local: false,
-                        geo: '',
-                        payout_type: 'cpa',
-                        payout_value: 0,
-                        payout_auto: false,
-                        allow_rebills: false,
-                        capping_limit: 0,
-                        capping_timezone: 'UTC',
-                        alt_offer_id: '',
-                        notes: '',
-                        values: [],
-                        state: 'active',
-                        add_more: true
-                    });
-                    setShowCapping(false);
-                    setActiveTab('general');
-                    alert(t('offerEditor.savedSuccess'));
-                } else {
-                    onClose(true);
-                }
+                onClose(true);
             } else {
                 alert(t('offerEditor.saveError') + " " + res.data.message);
             }
@@ -590,15 +562,6 @@ const OfferEditor = ({ offerId, onClose }) => {
 
                 {/* Footer */}
                 <div className="modal-footer">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            className="rounded"
-                            checked={formData.add_more}
-                            onChange={(e) => setFormData({ ...formData, add_more: e.target.checked })}
-                        />
-                        <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('common.create')}</span>
-                    </label>
                     <div className="flex gap-3">
                         <button onClick={() => onClose(false)} className="btn btn-secondary">
                             {t('common.cancel')}

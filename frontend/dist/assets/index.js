@@ -33425,8 +33425,7 @@ const OfferEditor = ({ offerId, onClose }) => {
     alt_offer_id: "",
     notes: "",
     values: [],
-    state: "active",
-    add_more: false
+    state: "active"
   });
   const [files, setFiles] = reactExports.useState([]);
   const [uploadingZip, setUploadingZip] = reactExports.useState(false);
@@ -33470,8 +33469,7 @@ const OfferEditor = ({ offerId, onClose }) => {
             alt_offer_id: data.alt_offer_id || "",
             notes: data.notes || "",
             values: data.values || [],
-            state: data.state || "active",
-            add_more: false
+            state: data.state || "active"
           });
           if (data.capping_limit > 0) setShowCapping(true);
         }
@@ -33493,33 +33491,7 @@ const OfferEditor = ({ offerId, onClose }) => {
       if (offerId) payload.id = offerId;
       const res = await axios.post(`${API_URL$t}?action=save_offer`, payload);
       if (res.data.status === "success") {
-        if (formData.add_more) {
-          setFormData({
-            name: "",
-            group_id: "",
-            affiliate_network_id: "",
-            url: "",
-            redirect_type: "redirect",
-            is_local: false,
-            geo: "",
-            payout_type: "cpa",
-            payout_value: 0,
-            payout_auto: false,
-            allow_rebills: false,
-            capping_limit: 0,
-            capping_timezone: "UTC",
-            alt_offer_id: "",
-            notes: "",
-            values: [],
-            state: "active",
-            add_more: true
-          });
-          setShowCapping(false);
-          setActiveTab("general");
-          alert(t2("offerEditor.savedSuccess"));
-        } else {
-          onClose(true);
-        }
+        onClose(true);
       } else {
         alert(t2("offerEditor.saveError") + " " + res.data.message);
       }
@@ -33963,24 +33935,10 @@ const OfferEditor = ({ offerId, onClose }) => {
         )
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            type: "checkbox",
-            className: "rounded",
-            checked: formData.add_more,
-            onChange: (e) => setFormData({ ...formData, add_more: e.target.checked })
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t2("common.create") })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t2("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, disabled: loading, className: "btn btn-primary", children: offerId ? t2("common.save") : t2("common.create") })
-      ] })
-    ] })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t2("common.cancel") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, disabled: loading, className: "btn btn-primary", children: offerId ? t2("common.save") : t2("common.create") })
+    ] }) })
   ] }) });
 };
 const API_URL$s = "/api.php";

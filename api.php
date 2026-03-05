@@ -33,6 +33,7 @@ $action = $_GET['action'] ?? '';
 
 // Rate Limiting fallback implementation
 function checkRateLimit($key, $maxRequests = 5, $window = 300) {
+    // Попробовать Redis, если расширение установлено
     if (extension_loaded('redis')) {
         try {
             $redis = new Redis();
@@ -45,17 +46,17 @@ function checkRateLimit($key, $maxRequests = 5, $window = 300) {
             }
         } catch (\Exception $e) {}
     }
-    
-    // SQLite Fallback for rate limiting
+
+    // SQLite Fallback для rate limiting
     global $pdo;
     try {
         $pdo->exec("CREATE TABLE IF NOT EXISTS rate_limits (key VARCHAR(255) PRIMARY KEY, count INTEGER, expires_at DATETIME)");
         $pdo->exec("DELETE FROM rate_limits WHERE expires_at < datetime('now')");
-        
+
         $stmt = $pdo->prepare("SELECT count FROM rate_limits WHERE key = ?");
         $stmt->execute([$key]);
         $row = $stmt->fetch();
-        
+
         if ($row) {
             if ($row['count'] >= $maxRequests) return false;
             $pdo->prepare("UPDATE rate_limits SET count = count + 1 WHERE key = ?")->execute([$key]);
@@ -64,7 +65,7 @@ function checkRateLimit($key, $maxRequests = 5, $window = 300) {
         }
         return true;
     } catch (\Exception $e) {}
-    return true; // Graceful degrade if DB fails
+    return true; // Graceful degrade если БД недоступна
 }
 
 // === AUTHENTICATION MIDDLEWARE & CSRF ===
