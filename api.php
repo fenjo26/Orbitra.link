@@ -2621,16 +2621,25 @@ try {
                         break;
                     }
 
-                    // Security: Ensure no local changes before pull
+                    // Stash local changes if any, then pull
                     $statusCode = trim(exec('git status --porcelain | wc -l'));
-                    if ($statusCode !== '0') {
-                        echo json_encode(['status' => 'error', 'message' => 'Local changes detected. Cannot pull.']);
-                        break;
+                    $hasLocalChanges = ($statusCode !== '0');
+                    
+                    if ($hasLocalChanges) {
+                        exec('git stash 2>&1', $stashOutput, $stashReturn);
                     }
 
                     $output = [];
                     $returnCode = 0;
                     exec('git pull origin main 2>&1', $output, $returnCode);
+                    
+                    // Restore stashed changes after pull
+                    if ($hasLocalChanges && $returnCode === 0) {
+                        exec('git stash pop 2>&1', $popOutput, $popReturn);
+                        if ($popReturn === 0) {
+                            $output = array_merge($output, ['[Stash restored]']);
+                        }
+                    }
                     
                     if ($returnCode === 0) {
                         echo json_encode(['status' => 'success', 'message' => 'Обновлено успешно. Вывод: ' . implode(" ", $output)]);
