@@ -23,35 +23,80 @@ function getClientIp()
     return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 }
 
-// Получение ГЕО через локальную базу MaxMind или Sypex Geo
-function getGeoCountry($ip)
+function normalizeGeoString($value, $default = '')
 {
-    if (in_array($ip, ['127.0.0.1', '::1']))
-        return 'Local';
+    if (!is_string($value)) {
+        return $default;
+    }
+    $value = trim($value);
+    if ($value === '' || $value === '-' || strtolower($value) === 'unknown') {
+        return $default;
+    }
+    return $value;
+}
 
-    // 1. Попытка использовать MaxMind
-    $maxMindDb = __DIR__ . '/geo/GeoLite2-City.mmdb';
-    $readerClass = '\GeoIp2\Database\Reader';
-    if (file_exists($maxMindDb) && class_exists($readerClass)) {
-        try {
-            $reader = new $readerClass($maxMindDb);
-            $record = $reader->city($ip);
-            // @phpstan-ignore-next-line
-            return $record->country->isoCode ?: 'Unknown';
-        }
-        catch (\Exception $e) {
-        // Фолбек при ошибке базы (например, IP не найден)
+function fillGeoData(array &$target, array $source)
+{
+    $stringKeys = ['country_code', 'region', 'city', 'zipcode', 'timezone'];
+    foreach ($stringKeys as $key) {
+        if ((empty($target[$key]) || $target[$key] === 'Unknown') && !empty($source[$key])) {
+            $target[$key] = (string)$source[$key];
         }
     }
 
-    // 2. Попытка использовать IP2Location
-    $ip2locDb = __DIR__ . '/geo/IP2LOCATION-LITE-DB3.BIN';
-    if (file_exists($ip2locDb) && class_exists('\IP2Location\Database')) {
+    foreach (['latitude', 'longitude'] as $key) {
+        if ($target[$key] === null && isset($source[$key]) && is_numeric($source[$key])) {
+            $target[$key] = (float)$source[$key];
+        }
+    }
+}
+
+// Получение расширенных GEO данных из локальных БД
+function getGeoData($ip)
+{
+    $geo = [
+        'country_code' => 'Unknown',
+        'region' => '',
+        'city' => '',
+        'latitude' => null,
+        'longitude' => null,
+        'zipcode' => '',
+        'timezone' => ''
+    ];
+
+    if (in_array($ip, ['127.0.0.1', '::1'])) {
+        $geo['country_code'] = 'Local';
+        return $geo;
+    }
+
+    // 1. IP2Location (DB11/DB3) - приоритет для расширенных полей
+    $ip2locCandidates = [
+        __DIR__ . '/geo/IP2LOCATION-LITE.BIN',
+        __DIR__ . '/geo/IP2LOCATION-LITE-DB11.BIN',
+        __DIR__ . '/geo/IP2LOCATION-LITE-DB3.BIN',
+    ];
+    $ip2locDb = null;
+    foreach ($ip2locCandidates as $candidate) {
+        if (file_exists($candidate)) {
+            $ip2locDb = $candidate;
+            break;
+        }
+    }
+
+    if ($ip2locDb && class_exists('\IP2Location\Database')) {
         try {
             $db = new \IP2Location\Database($ip2locDb, \IP2Location\Database::FILE_IO);
             $records = $db->lookup($ip, \IP2Location\Database::ALL);
-            if ($records && is_array($records) && !empty($records['countryCode']) && $records['countryCode'] !== '-') {
-                return $records['countryCode'];
+            if ($records && is_array($records)) {
+                fillGeoData($geo, [
+                    'country_code' => normalizeGeoString($records['countryCode'] ?? $records['country_code'] ?? '', ''),
+                    'region' => normalizeGeoString($records['regionName'] ?? $records['region_name'] ?? '', ''),
+                    'city' => normalizeGeoString($records['cityName'] ?? $records['city_name'] ?? '', ''),
+                    'latitude' => $records['latitude'] ?? null,
+                    'longitude' => $records['longitude'] ?? null,
+                    'zipcode' => normalizeGeoString($records['zipCode'] ?? $records['zipcode'] ?? '', ''),
+                    'timezone' => normalizeGeoString($records['timeZone'] ?? $records['timezone'] ?? '', ''),
+                ]);
             }
         }
         catch (\Exception $e) {
@@ -59,11 +104,37 @@ function getGeoCountry($ip)
         }
     }
 
-    // 3. Попытка использовать локальную базу Sypex Geo
+    // 2. MaxMind
+    $maxMindDb = __DIR__ . '/geo/GeoLite2-City.mmdb';
+    $readerClass = '\GeoIp2\Database\Reader';
+    if (file_exists($maxMindDb) && class_exists($readerClass)) {
+        try {
+            $reader = new $readerClass($maxMindDb);
+            $record = $reader->city($ip);
+            fillGeoData($geo, [
+                // @phpstan-ignore-next-line
+                'country_code' => normalizeGeoString($record->country->isoCode ?? '', ''),
+                // @phpstan-ignore-next-line
+                'region' => normalizeGeoString($record->mostSpecificSubdivision->name ?? '', ''),
+                // @phpstan-ignore-next-line
+                'city' => normalizeGeoString($record->city->name ?? '', ''),
+                // @phpstan-ignore-next-line
+                'latitude' => $record->location->latitude ?? null,
+                // @phpstan-ignore-next-line
+                'longitude' => $record->location->longitude ?? null,
+                // @phpstan-ignore-next-line
+                'timezone' => normalizeGeoString($record->location->timeZone ?? '', ''),
+            ]);
+        }
+        catch (\Exception $e) {
+        // Фолбек при ошибке базы (например, IP не найден)
+        }
+    }
+
+    // 3. Sypex
     $sxGeoDat = __DIR__ . '/var/geoip/SxGeoCity/SxGeoCity.dat';
     $sxGeoParser = __DIR__ . '/core/SxGeo.php';
     $sxGeoClass = '\SxGeo';
-
     if (file_exists($sxGeoDat) && file_exists($sxGeoParser)) {
         require_once $sxGeoParser;
         try {
@@ -71,7 +142,9 @@ function getGeoCountry($ip)
                 $sxGeo = new $sxGeoClass($sxGeoDat);
                 // @phpstan-ignore-next-line
                 $country = $sxGeo->getCountry($ip);
-                return $country ?: 'Unknown';
+                fillGeoData($geo, [
+                    'country_code' => normalizeGeoString((string)$country, ''),
+                ]);
             }
         }
         catch (\Exception $e) {
@@ -79,18 +152,34 @@ function getGeoCountry($ip)
         }
     }
 
-    // Резервный внешний API
-    $ch = curl_init("http://ip-api.com/json/{$ip}?fields=countryCode");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 2);
-    $response = curl_exec($ch);
-    curl_close($ch);
+    // 4. Резервный внешний API (заполняет недостающие поля)
+    if ($geo['country_code'] === 'Unknown' || $geo['city'] === '' || $geo['region'] === '') {
+        $ch = curl_init("http://ip-api.com/json/{$ip}?fields=countryCode,regionName,city,lat,lon,zip,timezone");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+        $response = curl_exec($ch);
+        curl_close($ch);
 
-    if ($response) {
-        $data = json_decode($response, true);
-        return $data['countryCode'] ?? 'Unknown';
+        if ($response) {
+            $data = json_decode($response, true);
+            if (is_array($data)) {
+                fillGeoData($geo, [
+                    'country_code' => normalizeGeoString($data['countryCode'] ?? '', ''),
+                    'region' => normalizeGeoString($data['regionName'] ?? '', ''),
+                    'city' => normalizeGeoString($data['city'] ?? '', ''),
+                    'latitude' => $data['lat'] ?? null,
+                    'longitude' => $data['lon'] ?? null,
+                    'zipcode' => normalizeGeoString($data['zip'] ?? '', ''),
+                    'timezone' => normalizeGeoString($data['timezone'] ?? '', ''),
+                ]);
+            }
+        }
     }
-    return 'Unknown';
+
+    if ($geo['country_code'] === '') {
+        $geo['country_code'] = 'Unknown';
+    }
+    return $geo;
 }
 
 // Определение типа устройства (упрощенно)
@@ -101,6 +190,40 @@ function getDeviceType($userAgent)
         return 'Mobile';
     }
     return 'Desktop';
+}
+
+function detectOs($userAgent)
+{
+    $ua = strtolower($userAgent);
+    if (strpos($ua, 'windows') !== false)
+        return 'Windows';
+    if (strpos($ua, 'android') !== false)
+        return 'Android';
+    if (strpos($ua, 'iphone') !== false || strpos($ua, 'ipad') !== false || strpos($ua, 'ios') !== false)
+        return 'iOS';
+    if (strpos($ua, 'mac os') !== false || strpos($ua, 'macintosh') !== false)
+        return 'macOS';
+    if (strpos($ua, 'linux') !== false)
+        return 'Linux';
+    return 'Unknown';
+}
+
+function detectBrowser($userAgent)
+{
+    $ua = strtolower($userAgent);
+    if (strpos($ua, 'edg/') !== false)
+        return 'Edge';
+    if (strpos($ua, 'opr/') !== false || strpos($ua, 'opera') !== false)
+        return 'Opera';
+    if (strpos($ua, 'samsungbrowser') !== false)
+        return 'Samsung Browser';
+    if (strpos($ua, 'chrome/') !== false && strpos($ua, 'edg/') === false)
+        return 'Chrome';
+    if (strpos($ua, 'firefox/') !== false)
+        return 'Firefox';
+    if (strpos($ua, 'safari/') !== false && strpos($ua, 'chrome/') === false)
+        return 'Safari';
+    return 'Unknown';
 }
 
 // Генерация UUID v4 для click_id
@@ -222,8 +345,18 @@ $campaignId = $campaign['id'];
 $ip = getClientIp();
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $referer = $_SERVER['HTTP_REFERER'] ?? '';
-$country = getGeoCountry($ip);
+$geoData = getGeoData($ip);
+$country = $geoData['country_code'];
+$countryCode = $geoData['country_code'];
+$region = $geoData['region'];
+$city = $geoData['city'];
+$latitude = $geoData['latitude'];
+$longitude = $geoData['longitude'];
+$zipcode = $geoData['zipcode'];
+$timezone = $geoData['timezone'];
 $deviceType = getDeviceType($userAgent);
+$os = detectOs($userAgent);
+$browser = detectBrowser($userAgent);
 $clickId = generateUuid();
 
 
@@ -479,8 +612,12 @@ if ($stmtDebounce->fetch()) {
 if ($statsEnabled && !$isDebounced) {
     $insertStmt = $pdo->prepare("
         INSERT INTO clicks 
-        (id, campaign_id, offer_id, stream_id, source_id, landing_id, ip, user_agent, referer, country, device_type, parameters_json) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (
+            id, campaign_id, offer_id, stream_id, source_id, landing_id, ip, user_agent, referer,
+            country, country_code, region, city, latitude, longitude, zipcode, timezone,
+            device_type, os, browser, parameters_json
+        ) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $insertStmt->execute([
         $clickId,
@@ -493,7 +630,16 @@ if ($statsEnabled && !$isDebounced) {
         $userAgent,
         $referer,
         $country,
+        $countryCode,
+        $region,
+        $city,
+        $latitude,
+        $longitude,
+        $zipcode,
+        $timezone,
         $deviceType,
+        $os,
+        $browser,
         $parametersJson
     ]);
 }

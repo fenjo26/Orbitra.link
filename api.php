@@ -1652,7 +1652,20 @@ try {
 
             if ($type === 'traffic') {
                 $stmt = $pdo->prepare("
-                    SELECT cl.id, cl.id as click_id, cl.created_at, c.name as campaign_name, cl.ip, cl.country as country_code, cl.device_type, cl.user_agent, o.url as redirect_url, '' as subid
+                    SELECT
+                        cl.id,
+                        cl.id as click_id,
+                        cl.created_at,
+                        c.name as campaign_name,
+                        cl.ip,
+                        COALESCE(NULLIF(cl.country_code, ''), cl.country) as country_code,
+                        cl.region,
+                        cl.city,
+                        cl.timezone as geo_timezone,
+                        cl.device_type,
+                        cl.user_agent,
+                        o.url as redirect_url,
+                        '' as subid
                     FROM clicks cl
                     LEFT JOIN campaigns c ON cl.campaign_id = c.id
                     LEFT JOIN offers o ON cl.offer_id = o.id
@@ -1829,7 +1842,10 @@ try {
                     cl.created_at,
                     cl.ip,
                     cl.user_agent,
-                    cl.country_code,
+                    COALESCE(NULLIF(cl.country_code, ''), cl.country) as country_code,
+                    cl.region,
+                    cl.city,
+                    cl.timezone as geo_timezone,
                     cl.device_type,
                     cl.os,
                     cl.browser,
@@ -1855,6 +1871,9 @@ try {
                 $logText .= "IP: {$log['ip']}\n";
                 $logText .= "UserAgent: {$log['user_agent']}\n";
                 $logText .= "Country: {$log['country_code']}\n";
+                $logText .= "Region: " . ($log['region'] ?: '-') . "\n";
+                $logText .= "City: " . ($log['city'] ?: '-') . "\n";
+                $logText .= "Timezone: " . ($log['geo_timezone'] ?: '-') . "\n";
                 $logText .= "Device: {$log['device_type']}\n";
                 $logText .= "OS: {$log['os']}\n";
                 $logText .= "Browser: {$log['browser']}\n";
@@ -2475,7 +2494,18 @@ try {
                 $geoDbs = [];
                 $sypexFile = __DIR__ . '/var/geoip/SxGeoCity/SxGeoCity.dat';
                 $maxmindFile = __DIR__ . '/geo/GeoLite2-City.mmdb';
-                $ip2locFile = __DIR__ . '/geo/IP2LOCATION-LITE-DB3.BIN';
+                $ip2locCandidates = [
+                    __DIR__ . '/geo/IP2LOCATION-LITE.BIN',
+                    __DIR__ . '/geo/IP2LOCATION-LITE-DB11.BIN',
+                    __DIR__ . '/geo/IP2LOCATION-LITE-DB3.BIN',
+                ];
+                $ip2locFile = null;
+                foreach ($ip2locCandidates as $candidate) {
+                    if (file_exists($candidate)) {
+                        $ip2locFile = $candidate;
+                        break;
+                    }
+                }
 
                 $geoDbs[] = [
                     'name' => 'Sypex Geo City',
@@ -2490,10 +2520,10 @@ try {
                     'updated' => file_exists($maxmindFile) ? date('Y-m-d H:i', filemtime($maxmindFile)) : null
                 ];
                 $geoDbs[] = [
-                    'name' => 'IP2Location DB3',
-                    'status' => file_exists($ip2locFile) ? 'ok' : 'missing',
-                    'size' => file_exists($ip2locFile) ? filesize($ip2locFile) : 0,
-                    'updated' => file_exists($ip2locFile) ? date('Y-m-d H:i', filemtime($ip2locFile)) : null
+                    'name' => 'IP2Location LITE (DB3/DB11)',
+                    'status' => ($ip2locFile && file_exists($ip2locFile)) ? 'ok' : 'missing',
+                    'size' => ($ip2locFile && file_exists($ip2locFile)) ? filesize($ip2locFile) : 0,
+                    'updated' => ($ip2locFile && file_exists($ip2locFile)) ? date('Y-m-d H:i', filemtime($ip2locFile)) : null
                 ];
 
                 // Server software detection
@@ -2824,15 +2854,26 @@ try {
             ];
             $dbs[] = $sypex;
 
-            // IP2Location LITE DB3
-            $ip2locDb = __DIR__ . '/geo/IP2LOCATION-LITE-DB3.BIN';
+            // IP2Location LITE BIN (DB3/DB11)
+            $ip2locCandidates = [
+                __DIR__ . '/geo/IP2LOCATION-LITE.BIN',
+                __DIR__ . '/geo/IP2LOCATION-LITE-DB11.BIN',
+                __DIR__ . '/geo/IP2LOCATION-LITE-DB3.BIN'
+            ];
+            $ip2locDb = null;
+            foreach ($ip2locCandidates as $candidate) {
+                if (file_exists($candidate)) {
+                    $ip2locDb = $candidate;
+                    break;
+                }
+            }
             $ip2loc = [
                 'id' => 'ip2location_lite_db3',
-                'name' => 'IP2Location DB3 LITE',
-                'type' => 'Country-Region-City',
-                'status' => file_exists($ip2locDb) ? 'OK' : 'Нет базы',
-                'updated_at' => file_exists($ip2locDb) ? date('Y-m-d H:i:s', filemtime($ip2locDb)) : null,
-                'size' => file_exists($ip2locDb) ? filesize($ip2locDb) : 0
+                'name' => 'IP2Location LITE (DB3/DB11)',
+                'type' => 'Country-Region-City-(Lat/Lon/ZIP/Timezone in DB11)',
+                'status' => ($ip2locDb && file_exists($ip2locDb)) ? 'OK' : 'Нет базы',
+                'updated_at' => ($ip2locDb && file_exists($ip2locDb)) ? date('Y-m-d H:i:s', filemtime($ip2locDb)) : null,
+                'size' => ($ip2locDb && file_exists($ip2locDb)) ? filesize($ip2locDb) : 0
             ];
             $dbs[] = $ip2loc;
 
@@ -2906,7 +2947,7 @@ try {
                                         $found = true;
                                     } else if ($fExt === 'bin') {
                                         if (!is_dir(__DIR__ . '/geo')) mkdir(__DIR__ . '/geo', 0755, true);
-                                        copy($file->getPathname(), __DIR__ . '/geo/IP2LOCATION-LITE-DB3.BIN');
+                                        copy($file->getPathname(), __DIR__ . '/geo/IP2LOCATION-LITE.BIN');
                                         logSystem($pdo, 'INFO', 'IP2Location DB uploaded via ZIP');
                                         $found = true;
                                     } else if ($fExt === 'mmdb') {
@@ -2933,7 +2974,7 @@ try {
                     }
                     else if ($ext === 'bin') {
                         if (!is_dir(__DIR__ . '/geo')) mkdir(__DIR__ . '/geo', 0755, true);
-                        if (move_uploaded_file($fileTmp, __DIR__ . '/geo/IP2LOCATION-LITE-DB3.BIN')) {
+                        if (move_uploaded_file($fileTmp, __DIR__ . '/geo/IP2LOCATION-LITE.BIN')) {
                             logSystem($pdo, 'INFO', 'IP2Location DB uploaded directly');
                             echo json_encode(['status' => 'success', 'message' => 'Файл IP2Location загружен успешно']);
                         } else {
@@ -3000,27 +3041,37 @@ try {
                     break;
                 }
 
-                $url = "https://www.ip2location.com/download/?token={$token}&file=DB3LITEBIN";
+                $downloadVariants = ['DB11LITEBIN', 'DB3LITEBIN'];
                 $tmpArchive = sys_get_temp_dir() . '/ip2location.zip';
-                
-                // Download
-                $ch = curl_init($url);
-                $fp = fopen($tmpArchive, 'wb');
-                curl_setopt($ch, CURLOPT_FILE, $fp);
-                curl_setopt($ch, CURLOPT_HEADER, 0);
-                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-                curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
-                fclose($fp);
+                $downloaded = false;
+                $usedVariant = null;
 
-                if ($httpCode !== 200) {
-                    echo json_encode(['status' => 'error', 'message' => "Failed to download database. HTTP Code: $httpCode. Check your Token."]);
+                foreach ($downloadVariants as $variant) {
+                    $url = "https://www.ip2location.com/download/?token={$token}&file={$variant}";
+                    $ch = curl_init($url);
+                    $fp = fopen($tmpArchive, 'wb');
+                    curl_setopt($ch, CURLOPT_FILE, $fp);
+                    curl_setopt($ch, CURLOPT_HEADER, 0);
+                    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                    curl_exec($ch);
+                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    curl_close($ch);
+                    fclose($fp);
+
+                    if ($httpCode === 200 && file_exists($tmpArchive) && filesize($tmpArchive) > 1024) {
+                        $downloaded = true;
+                        $usedVariant = $variant;
+                        break;
+                    }
+                }
+
+                if (!$downloaded) {
+                    echo json_encode(['status' => 'error', 'message' => "Failed to download database. Check token and download quota."]);
                     break;
                 }
 
                 // Extract .bin
-                $destPath = __DIR__ . '/geo/IP2LOCATION-LITE-DB3.BIN';
+                $destPath = __DIR__ . '/geo/IP2LOCATION-LITE.BIN';
                 if (!is_dir(__DIR__ . '/geo')) {
                     mkdir(__DIR__ . '/geo', 0755, true);
                 }
@@ -3041,8 +3092,8 @@ try {
                         $zip->close();
 
                         if ($extracted) {
-                            logSystem($pdo, 'INFO', 'IP2Location Geo DB Updated successfully');
-                            echo json_encode(['status' => 'success', 'message' => 'База IP2Location успешно обновлена']);
+                            logSystem($pdo, 'INFO', 'IP2Location Geo DB Updated successfully', ['variant' => $usedVariant]);
+                            echo json_encode(['status' => 'success', 'message' => "База IP2Location успешно обновлена ($usedVariant)"]);
                         } else {
                             echo json_encode(['status' => 'error', 'message' => 'Failed to find .BIN in downloaded archive']);
                         }
@@ -4760,10 +4811,22 @@ try {
                     } catch (\Exception $e) {}
                 }
 
-                // 2. IP2Location
+                // 2. IP2Location (DB11/DB3)
                 if ($country === 'UNKNOWN') {
-                    $ip2locDb = __DIR__ . '/geo/IP2LOCATION-LITE-DB3.BIN';
-                    if (file_exists($ip2locDb) && class_exists('\IP2Location\Database')) {
+                    $ip2locCandidates = [
+                        __DIR__ . '/geo/IP2LOCATION-LITE.BIN',
+                        __DIR__ . '/geo/IP2LOCATION-LITE-DB11.BIN',
+                        __DIR__ . '/geo/IP2LOCATION-LITE-DB3.BIN'
+                    ];
+                    $ip2locDb = null;
+                    foreach ($ip2locCandidates as $candidate) {
+                        if (file_exists($candidate)) {
+                            $ip2locDb = $candidate;
+                            break;
+                        }
+                    }
+
+                    if ($ip2locDb && class_exists('\IP2Location\Database')) {
                         try {
                             $db = new \IP2Location\Database($ip2locDb, \IP2Location\Database::FILE_IO);
                             $records = $db->lookup($ip, \IP2Location\Database::ALL);

@@ -180,18 +180,30 @@ try {
         campaign_id INTEGER NOT NULL,
         offer_id INTEGER NOT NULL,
         stream_id INTEGER,
+        source_id INTEGER,
         landing_id INTEGER,
         ip TEXT NOT NULL,
         user_agent TEXT,
         referer TEXT,
         country TEXT,
+        country_code TEXT,
+        region TEXT,
+        city TEXT,
+        latitude REAL,
+        longitude REAL,
+        zipcode TEXT,
+        timezone TEXT,
         device_type TEXT DEFAULT 'Unknown',
+        os TEXT,
+        browser TEXT,
         is_conversion INTEGER DEFAULT 0,
         revenue REAL DEFAULT 0.00,
         cost REAL DEFAULT 0.00,
+        parameters_json TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE,
-        FOREIGN KEY (offer_id) REFERENCES offers(id) ON DELETE CASCADE
+        FOREIGN KEY (offer_id) REFERENCES offers(id) ON DELETE CASCADE,
+        FOREIGN KEY (source_id) REFERENCES traffic_sources(id) ON DELETE SET NULL
     );
     CREATE TABLE IF NOT EXISTS conversions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -502,6 +514,63 @@ try {
     }
     try {
         $pdo->exec("ALTER TABLE users ADD COLUMN first_day_of_week INTEGER DEFAULT 1");
+    }
+    catch (\Exception $e) {
+    }
+
+    // Clicks table backward-compatible migrations (older installs may miss these columns)
+    try {
+        $pdo->exec("ALTER TABLE clicks ADD COLUMN source_id INTEGER");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE clicks ADD COLUMN parameters_json TEXT");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE clicks ADD COLUMN country_code TEXT");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE clicks ADD COLUMN region TEXT");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE clicks ADD COLUMN city TEXT");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE clicks ADD COLUMN latitude REAL");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE clicks ADD COLUMN longitude REAL");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE clicks ADD COLUMN zipcode TEXT");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE clicks ADD COLUMN timezone TEXT");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE clicks ADD COLUMN os TEXT");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE clicks ADD COLUMN browser TEXT");
     }
     catch (\Exception $e) {
     }

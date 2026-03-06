@@ -57,7 +57,14 @@ const RecentClicks = ({ logs, preferences, onShowAll }) => {
                                     </td>
                                 )}
                                 {isVisible('campaign_name') && <td className="px-5 py-3 font-medium" style={{ color: 'var(--color-text-primary)' }}>{log.campaign_name}</td>}
-                                {isVisible('country_code') && <td className="px-5 py-3 text-center text-xs font-mono align-middle">{log.country_code || '-'}</td>}
+                                {isVisible('country_code') && (
+                                    <td
+                                        className="px-5 py-3 text-center text-xs font-mono align-middle"
+                                        title={[log.country_code, log.region, log.city, log.geo_timezone].filter(Boolean).join(' / ')}
+                                    >
+                                        {log.country_code || '-'}
+                                    </td>
+                                )}
                                 {isVisible('device_type') && <td className="px-5 py-3 text-center align-middle"><div className="flex justify-center">{getDeviceIcon(log.device_type)}</div></td>}
                                 {isVisible('ip') && <td className="px-5 py-3 font-mono text-xs align-middle" style={{ color: 'var(--color-text-secondary)' }}>{log.ip}</td>}
                                 {isVisible('user_agent') && (

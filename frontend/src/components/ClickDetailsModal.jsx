@@ -151,7 +151,15 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
 
                             <SectionHeader title={t('clickDetails.sections.geoDevice')} />
                             <DetailRow label={t('clickDetails.fields.country')} value={data.country} />
+                            <DetailRow label={t('clickDetails.fields.region')} value={data.region} />
+                            <DetailRow label={t('clickDetails.fields.city')} value={data.city} />
+                            <DetailRow label={t('clickDetails.fields.zipcode')} value={data.zipcode} />
+                            <DetailRow label={t('clickDetails.fields.timezone')} value={data.timezone} />
+                            <DetailRow label={t('clickDetails.fields.latitude')} value={data.latitude} />
+                            <DetailRow label={t('clickDetails.fields.longitude')} value={data.longitude} />
                             <DetailRow label={t('clickDetails.fields.deviceType')} value={data.device_type} />
+                            <DetailRow label={t('clickDetails.fields.os')} value={data.os} />
+                            <DetailRow label={t('clickDetails.fields.browser')} value={data.browser} />
                             <DetailRow label={t('clickDetails.fields.userAgent')} value={data.user_agent} />
 
                             <SectionHeader title={t('clickDetails.sections.calendar')} />

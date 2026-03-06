@@ -171,8 +171,17 @@ CREATE TABLE IF NOT EXISTS clicks (
     ip TEXT NOT NULL,
     user_agent TEXT,
     referer TEXT,
-    country TEXT,
+    country TEXT,                                 -- Legacy country code field
+    country_code TEXT,                            -- Normalized country code
+    region TEXT,
+    city TEXT,
+    latitude REAL,
+    longitude REAL,
+    zipcode TEXT,
+    timezone TEXT,
     device_type TEXT DEFAULT 'Unknown',           -- Desktop, Mobile, Tablet
+    os TEXT,
+    browser TEXT,
     is_conversion INTEGER DEFAULT 0,
     revenue REAL DEFAULT 0.00,
     cost REAL DEFAULT 0.00,
