@@ -21,7 +21,9 @@ try {
         postback_url TEXT,
         notes TEXT,
         state TEXT DEFAULT 'active',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        is_archived INTEGER DEFAULT 0,
+        archived_at DATETIME
     );
 
     CREATE TABLE IF NOT EXISTS affiliate_network_templates (
@@ -59,6 +61,8 @@ try {
         values_json TEXT,
         state TEXT DEFAULT 'active',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        is_archived INTEGER DEFAULT 0,
+        archived_at DATETIME,
         FOREIGN KEY (group_id) REFERENCES offer_groups(id) ON DELETE SET NULL,
         FOREIGN KEY (affiliate_network_id) REFERENCES affiliate_networks(id) ON DELETE SET NULL,
         FOREIGN KEY (alt_offer_id) REFERENCES offers(id) ON DELETE SET NULL
@@ -451,6 +455,37 @@ try {
     }
     try {
         $pdo->exec("ALTER TABLE domains ADD COLUMN https_only INTEGER DEFAULT 0");
+    }
+    catch (\Exception $e) {
+    }
+
+    try {
+        $pdo->exec("ALTER TABLE offers ADD COLUMN is_archived INTEGER DEFAULT 0");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE offers ADD COLUMN archived_at DATETIME");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE affiliate_networks ADD COLUMN is_archived INTEGER DEFAULT 0");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE affiliate_networks ADD COLUMN archived_at DATETIME");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE traffic_sources ADD COLUMN is_archived INTEGER DEFAULT 0");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE traffic_sources ADD COLUMN archived_at DATETIME");
     }
     catch (\Exception $e) {
     }
