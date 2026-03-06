@@ -153,7 +153,7 @@ class ReferOnEngine
     {
         $headers = [
             'Accept: application/json',
-            'User-Agent: Orbitra/0.9.2.1',
+            'User-Agent: Orbitra/0.9.2.2',
         ];
 
         $token = $credentials['api_key'] ?? '';

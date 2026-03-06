@@ -80,8 +80,12 @@ CREATE TABLE IF NOT EXISTS domains (
     name TEXT NOT NULL UNIQUE,
     index_campaign_id INTEGER,                    -- Campaign for root requests
     catch_404 INTEGER DEFAULT 0,                  -- Catch 404 errors
+    group_id INTEGER,                             -- Organizational grouping for domains
+    is_noindex INTEGER DEFAULT 0,                 -- Add X-Robots-Tag: noindex
+    https_only INTEGER DEFAULT 0,                 -- Force HTTPS redirects
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (index_campaign_id) REFERENCES campaigns(id) ON DELETE SET NULL
+    FOREIGN KEY (index_campaign_id) REFERENCES campaigns(id) ON DELETE SET NULL,
+    FOREIGN KEY (group_id) REFERENCES offer_groups(id) ON DELETE SET NULL
 );
 
 -- Campaign Groups (Группы кампаний)

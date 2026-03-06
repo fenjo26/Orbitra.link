@@ -88,8 +88,12 @@ try {
         name TEXT NOT NULL UNIQUE,
         index_campaign_id INTEGER,
         catch_404 INTEGER DEFAULT 0,
+        group_id INTEGER,
+        is_noindex INTEGER DEFAULT 0,
+        https_only INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (index_campaign_id) REFERENCES campaigns(id) ON DELETE SET NULL
+        FOREIGN KEY (index_campaign_id) REFERENCES campaigns(id) ON DELETE SET NULL,
+        FOREIGN KEY (group_id) REFERENCES offer_groups(id) ON DELETE SET NULL
     );
 
     CREATE TABLE IF NOT EXISTS campaign_groups (
@@ -435,6 +439,22 @@ try {
     $pdo->exec($init_sql);
 
     // Migrations for existing tables gracefully
+    try {
+        $pdo->exec("ALTER TABLE domains ADD COLUMN group_id INTEGER");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE domains ADD COLUMN is_noindex INTEGER DEFAULT 0");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE domains ADD COLUMN https_only INTEGER DEFAULT 0");
+    }
+    catch (\Exception $e) {
+    }
+
     try {
         $pdo->exec("ALTER TABLE users ADD COLUMN language TEXT DEFAULT 'ru'");
     }
