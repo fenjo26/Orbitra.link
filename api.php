@@ -2503,7 +2503,7 @@ try {
                 echo json_encode([
                     'status' => 'success',
                     'data' => [
-                        'version' => (defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.2') . '-Orbitra',
+                        'version' => (defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.3') . '-Orbitra',
                         'clicks' => (int)$clicksCount,
                         'conversions' => (int)$convCount,
                         'db_size_bytes' => $dbSize,
@@ -2551,7 +2551,7 @@ try {
 
         // === UPDATE SYSTEM API ===
         case 'check_update':
-            $currentVersion = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.2';
+            $currentVersion = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.3';
             
             // URL to check for latest version (change to your server or GitHub raw file)
             // Example for GitHub: 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/version.json'
