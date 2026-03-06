@@ -40679,10 +40679,9 @@ const UpdatePage = () => {
   const checkUpdate = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL$5}?action=check_update`);
-      const data = await res.json();
-      if (data.status === "success") {
-        setUpdateInfo(data.data);
+      const res = await axios.get(`${API_URL$5}?action=check_update`);
+      if (res.data.status === "success") {
+        setUpdateInfo(res.data.data);
       }
     } catch (e) {
       setError(t2("update.checkError"));
@@ -40702,11 +40701,8 @@ const UpdatePage = () => {
     try {
       await new Promise((r2) => setTimeout(r2, 800));
       setUpdateStep("installing");
-      const res = await fetch(`${API_URL$5}?action=run_update`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
-      });
-      const data = await res.json();
+      const res = await axios.post(`${API_URL$5}?action=run_update`);
+      const data = res.data;
       if (data.status === "success") {
         setUpdateStep("complete");
         setUpdateSuccess(true);
