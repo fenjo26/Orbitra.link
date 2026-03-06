@@ -61,6 +61,9 @@ function App() {
   useEffect(() => {
     // CSRF Token Request Interceptor
     const getCsrfToken = () => {
+      // Priority: localStorage (from login) > meta tag
+      const storedToken = localStorage.getItem('orbitra_csrf_token');
+      if (storedToken) return storedToken;
       return document.querySelector('meta[name="csrf-token"]')?.content;
     };
 

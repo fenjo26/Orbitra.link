@@ -111,7 +111,7 @@ class GenericApiEngine
         }
 
         // Собираем заголовки
-        $headers = ['Accept: application/json', 'User-Agent: Orbitra/0.9.2.3'];
+        $headers = ['Accept: application/json', 'User-Agent: Orbitra/0.9.2.8'];
         if (!empty($creds['auth_header'])) {
             $headers[] = 'Authorization: ' . $creds['auth_header'];
         }

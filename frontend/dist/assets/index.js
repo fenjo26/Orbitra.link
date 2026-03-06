@@ -19347,6 +19347,9 @@ const Login = ({ onLogin }) => {
       });
       const data = await res.json();
       if (data.status === "success") {
+        if (data.data.csrf_token) {
+          localStorage.setItem("orbitra_csrf_token", data.data.csrf_token);
+        }
         onLogin(data.data);
       } else {
         setError(data.message || t2("login.invalidStatus"));
@@ -54303,6 +54306,8 @@ function App() {
   });
   reactExports.useEffect(() => {
     const getCsrfToken = () => {
+      const storedToken = localStorage.getItem("orbitra_csrf_token");
+      if (storedToken) return storedToken;
       return document.querySelector('meta[name="csrf-token"]')?.content;
     };
     const reqIntercept = axios.interceptors.request.use((config) => {

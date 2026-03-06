@@ -2503,7 +2503,7 @@ try {
                 echo json_encode([
                     'status' => 'success',
                     'data' => [
-                        'version' => (defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.3') . '-Orbitra',
+                        'version' => (defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.8') . '-Orbitra',
                         'clicks' => (int)$clicksCount,
                         'conversions' => (int)$convCount,
                         'db_size_bytes' => $dbSize,
@@ -2551,7 +2551,7 @@ try {
 
         // === UPDATE SYSTEM API ===
         case 'check_update':
-            $currentVersion = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.3';
+            $currentVersion = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.8';
             
             // URL to check for latest version (change to your server or GitHub raw file)
             // Example for GitHub: 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/version.json'
@@ -3261,6 +3261,11 @@ try {
                     $_SESSION['username'] = $user['username'];
                     $_SESSION['role'] = $user['role'];
 
+                    // Ensure CSRF token exists
+                    if (!isset($_SESSION['csrf_token'])) {
+                        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                    }
+
                     // Update last login
                     $pdo->prepare("UPDATE users SET last_login = datetime('now') WHERE id = ?")->execute([$user['id']]);
 
@@ -3273,7 +3278,8 @@ try {
                             'role' => $user['role'],
                             'language' => $user['language'] ?? 'ru',
                             'timezone' => $user['timezone'] ?? 'Europe/Kyiv',
-                            'permissions' => !empty($user['permissions_json']) ? json_decode($user['permissions_json'], true) : []
+                            'permissions' => !empty($user['permissions_json']) ? json_decode($user['permissions_json'], true) : [],
+                            'csrf_token' => $_SESSION['csrf_token']
                         ]
                     ]);
                 }

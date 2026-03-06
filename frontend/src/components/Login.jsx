@@ -33,6 +33,10 @@ const Login = ({ onLogin }) => {
             const data = await res.json();
 
             if (data.status === 'success') {
+                // Save CSRF token to localStorage if provided
+                if (data.data.csrf_token) {
+                    localStorage.setItem('orbitra_csrf_token', data.data.csrf_token);
+                }
                 onLogin(data.data);
             } else {
                 setError(data.message || t('login.invalidStatus'));
