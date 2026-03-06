@@ -263,14 +263,22 @@ try {
             $timeFormat = $isSingleDay ? "'%Y-%m-%d %H:00:00'" : "'%Y-%m-%d'";
 
             $chartQuery = "
-                SELECT strftime($timeFormat, clicks.created_at, '$dbTzOffset') as period, 
-                       COUNT(clicks.id) as clicks, 
-                       COUNT(DISTINCT clicks.ip) as unique_clicks,
-                       SUM(clicks.is_conversion) as conversions,
-                       SUM(COALESCE((SELECT SUM(payout) FROM conversions WHERE conversions.click_id = clicks.id), 0)) as revenue,
-                       SUM(COALESCE((SELECT SUM(revenue) FROM revenue_records rr WHERE rr.click_id = clicks.id), 0)) as real_revenue
-                FROM clicks 
-                $whereCl
+                SELECT period, 
+                       COUNT(id) as clicks, 
+                       COUNT(DISTINCT ip) as unique_clicks,
+                       SUM(is_conversion) as conversions,
+                       SUM(revenue) as revenue,
+                       SUM(real_revenue) as real_revenue
+                FROM (
+                    SELECT strftime($timeFormat, clicks.created_at, '$dbTzOffset') as period, 
+                           clicks.id,
+                           clicks.ip,
+                           clicks.is_conversion,
+                           COALESCE((SELECT SUM(payout) FROM conversions WHERE conversions.click_id = clicks.id), 0) as revenue,
+                           COALESCE((SELECT SUM(revenue) FROM revenue_records rr WHERE rr.click_id = clicks.id), 0) as real_revenue
+                    FROM clicks 
+                    $whereCl
+                )
                 GROUP BY period
                 ORDER BY period ASC 
                 LIMIT 100
@@ -1204,22 +1212,32 @@ try {
 
             // Полный список офферов со статистикой
             $stmt = $pdo->prepare("
-                SELECT o.id, o.name, o.group_id, o.affiliate_network_id, o.url, o.redirect_type, 
-                       o.is_local, o.geo, o.payout_type, o.payout_value, o.payout_auto, 
-                       o.allow_rebills, o.capping_limit, o.capping_timezone, o.alt_offer_id, 
-                       o.notes, o.state, o.created_at,
-                       og.name as group_name,
-                       an.name as affiliate_network_name,
-                       COUNT(cl.id) as clicks, 
-                       COUNT(DISTINCT cl.ip) as unique_clicks,
-                       COALESCE(SUM(cl.is_conversion), 0) as conversions,
-                       SUM(COALESCE((SELECT SUM(payout) FROM conversions cv WHERE cv.click_id = cl.id), 0)) as revenue
-                FROM offers o
-                LEFT JOIN offer_groups og ON o.group_id = og.id
-                LEFT JOIN affiliate_networks an ON o.affiliate_network_id = an.id
-                LEFT JOIN clicks cl ON o.id = cl.offer_id $joinCondition
-                WHERE o.is_archived = 0
-                GROUP BY o.id
+                SELECT id, name, group_id, affiliate_network_id, url, redirect_type, 
+                       is_local, geo, payout_type, payout_value, payout_auto, 
+                       allow_rebills, capping_limit, capping_timezone, alt_offer_id, 
+                       notes, state, created_at, group_name, affiliate_network_name,
+                       COUNT(click_id) as clicks, 
+                       COUNT(DISTINCT click_ip) as unique_clicks,
+                       COALESCE(SUM(is_conversion), 0) as conversions,
+                       SUM(click_revenue) as revenue
+                FROM (
+                    SELECT o.id, o.name, o.group_id, o.affiliate_network_id, o.url, o.redirect_type, 
+                           o.is_local, o.geo, o.payout_type, o.payout_value, o.payout_auto, 
+                           o.allow_rebills, o.capping_limit, o.capping_timezone, o.alt_offer_id, 
+                           o.notes, o.state, o.created_at,
+                           og.name as group_name,
+                           an.name as affiliate_network_name,
+                           cl.id as click_id,
+                           cl.ip as click_ip,
+                           cl.is_conversion as is_conversion,
+                           COALESCE((SELECT SUM(payout) FROM conversions cv WHERE cv.click_id = cl.id), 0) as click_revenue
+                    FROM offers o
+                    LEFT JOIN offer_groups og ON o.group_id = og.id
+                    LEFT JOIN affiliate_networks an ON o.affiliate_network_id = an.id
+                    LEFT JOIN clicks cl ON o.id = cl.offer_id $joinCondition
+                    WHERE o.is_archived = 0
+                )
+                GROUP BY id
                 $havingClause
                 $orderBy
                 $limitClause
@@ -2145,14 +2163,22 @@ try {
 
             $sql = "
                 SELECT 
-                    COALESCE($dim_sql, 'Unknown') as dimension_name,
-                    COUNT(clicks.id) as clicks,
-                    COUNT(DISTINCT clicks.ip) as unique_clicks,
-                    SUM(clicks.is_conversion) as conversions,
-                    SUM(COALESCE((SELECT SUM(payout) FROM conversions WHERE click_id = clicks.id), 0)) as revenue,
-                    SUM(COALESCE((SELECT SUM(amount) FROM revenue_records WHERE click_id = clicks.id), 0)) as real_revenue
-                FROM clicks
-                WHERE $where
+                    dimension_name,
+                    COUNT(click_id) as clicks,
+                    COUNT(DISTINCT click_ip) as unique_clicks,
+                    SUM(is_conversion) as conversions,
+                    SUM(click_revenue) as revenue,
+                    SUM(click_real_revenue) as real_revenue
+                FROM (
+                    SELECT COALESCE($dim_sql, 'Unknown') as dimension_name,
+                           clicks.id as click_id,
+                           clicks.ip as click_ip,
+                           clicks.is_conversion,
+                           COALESCE((SELECT SUM(payout) FROM conversions WHERE click_id = clicks.id), 0) as click_revenue,
+                           COALESCE((SELECT SUM(amount) FROM revenue_records WHERE click_id = clicks.id), 0) as click_real_revenue
+                    FROM clicks
+                    WHERE $where
+                )
                 GROUP BY dimension_name
                 ORDER BY clicks DESC
                 LIMIT 500
@@ -4097,15 +4123,24 @@ try {
             // Get aggregated data
             $sql = "
                 SELECT 
-                    strftime('$dateFormat', cl.created_at) as period,
-                    COUNT(cl.id) as clicks,
-                    COUNT(DISTINCT cl.ip) as unique_clicks,
-                    SUM(cl.is_conversion) as conversions,
-                    COALESCE(SUM((SELECT SUM(payout) FROM conversions WHERE click_id = cl.id)), 0) as revenue,
-                    COALESCE(SUM((SELECT SUM(amount) FROM revenue_records WHERE click_id = cl.id)), 0) as real_revenue,
-                    COALESCE(SUM(cl.cost), 0) as cost
-                FROM clicks cl
-                WHERE $whereSQL
+                    period,
+                    COUNT(click_id) as clicks,
+                    COUNT(DISTINCT click_ip) as unique_clicks,
+                    SUM(is_conversion) as conversions,
+                    COALESCE(SUM(click_revenue), 0) as revenue,
+                    COALESCE(SUM(click_real_revenue), 0) as real_revenue,
+                    COALESCE(SUM(cost), 0) as cost
+                FROM (
+                    SELECT strftime('$dateFormat', cl.created_at) as period,
+                           cl.id as click_id,
+                           cl.ip as click_ip,
+                           cl.is_conversion,
+                           cl.cost,
+                           (SELECT SUM(payout) FROM conversions WHERE click_id = cl.id) as click_revenue,
+                           (SELECT SUM(amount) FROM revenue_records WHERE click_id = cl.id) as click_real_revenue
+                    FROM clicks cl
+                    WHERE $whereSQL
+                )
                 GROUP BY period
                 ORDER BY period ASC
             ";
