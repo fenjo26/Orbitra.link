@@ -71,19 +71,26 @@ function checkRateLimit($key, $maxRequests = 5, $window = 300) {
 // === AUTHENTICATION MIDDLEWARE & CSRF ===
 $publicActions = ['login', 'check_setup', 'setup_first_user'];
 
+// Actions that skip CSRF validation (but still require authentication)
+$skipCsrfActions = ['run_update'];
+
 $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? '';
 
-if (!in_array($action, $publicActions)) {
-    // Ensure CSRF exists in session
-    if (!isset($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
+$skipCsrf = in_array($action, $skipCsrfActions);
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (!hash_equals($_SESSION['csrf_token'], $csrfToken)) {
-            http_response_code(403);
-            echo json_encode(['status' => 'error', 'message' => 'CSRF token mismatch']);
-            exit;
+if (!in_array($action, $publicActions)) {
+    // Ensure CSRF exists in session (unless skipped)
+    if (!$skipCsrf) {
+        if (!isset($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!hash_equals($_SESSION['csrf_token'], $csrfToken)) {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'CSRF token mismatch']);
+                exit;
+            }
         }
     }
 
@@ -232,7 +239,7 @@ try {
             $metrics['roi'] = $metrics['cost'] > 0 ? round(($metrics['profit'] / $metrics['cost']) * 100, 2) : ($metrics['profit'] > 0 ? 100 : 0);
 
             // Real Revenue
-            $rrStmt = $pdo->prepare("SELECT SUM(rr.revenue) as real_rev FROM revenue_records rr JOIN clicks ON rr.click_id = clicks.id $whereCl");
+            $rrStmt = $pdo->prepare("SELECT SUM(rr.amount) as real_rev FROM revenue_records rr JOIN clicks ON rr.click_id = clicks.id $whereCl");
             $rrStmt->execute($paramsCl);
             $metrics['real_revenue'] = (float)$rrStmt->fetch()['real_rev'];
             $real_profit = $metrics['real_revenue'] - $metrics['cost'];
@@ -2585,11 +2592,8 @@ try {
 
         case 'run_update':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                // Security: Only admins can trigger git pull
-                if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-                    echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
-                    break;
-                }
+                // Security: Any logged-in user can update their tracker installation
+                // CSRF is skipped for this action (see $skipCsrfActions)
 
                 // Perform a git pull if inside a git repository
                 $isGit = is_dir(__DIR__ . '/.git');
