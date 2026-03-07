@@ -2,9 +2,12 @@
 // Secure session startup
 ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
-// Включаем отображение ошибок для отладки (убрать в продакшене)
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('session.use_strict_mode', 1);
+ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.cookie_secure', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? '1' : '0');
+// Keep errors in logs, but do not leak them into API JSON responses.
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 
 // Логирование ошибок в файл
@@ -14,6 +17,15 @@ ini_set('error_log', __DIR__ . '/var/logs/php_errors.log');
 // Создаём директорию для логов если нет
 if (!is_dir(__DIR__ . '/var/logs')) {
     mkdir(__DIR__ . '/var/logs', 0777, true);
+}
+
+// Use project-local session storage to avoid hosting-level session path issues.
+$sessionDir = __DIR__ . '/var/sessions';
+if (!is_dir($sessionDir)) {
+    @mkdir($sessionDir, 0777, true);
+}
+if (is_dir($sessionDir) && is_writable($sessionDir)) {
+    session_save_path($sessionDir);
 }
 
 session_start();

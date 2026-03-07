@@ -54414,6 +54414,7 @@ function App() {
       (error) => {
         if (error.response && error.response.status === 401) {
           localStorage.removeItem("orbitra_user");
+          localStorage.removeItem("orbitra_csrf_token");
           setUser(null);
         }
         return Promise.reject(error);
@@ -54424,6 +54425,7 @@ function App() {
       const response = await originalFetch(...args);
       if (response.status === 401) {
         localStorage.removeItem("orbitra_user");
+        localStorage.removeItem("orbitra_csrf_token");
         setUser(null);
       }
       return response;
@@ -54519,7 +54521,9 @@ function App() {
       if (resLandings.data.status === "success") setLandings(resLandings.data.data || []);
       if (resSources.data.status === "success") setSources(resSources.data.data || []);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      if (error?.response?.status !== 401) {
+        console.error("Error fetching data:", error);
+      }
     } finally {
       setLoading(false);
     }
