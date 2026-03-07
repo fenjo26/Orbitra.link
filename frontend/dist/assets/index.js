@@ -19330,6 +19330,30 @@ const Login = ({ onLogin }) => {
   const [error, setError] = reactExports.useState("");
   const [loading, setLoading] = reactExports.useState(false);
   const [showRecoveryModal, setShowRecoveryModal] = reactExports.useState(false);
+  const [usernameReady, setUsernameReady] = reactExports.useState(false);
+  const [passwordReady, setPasswordReady] = reactExports.useState(false);
+  const usernameRef = reactExports.useRef(null);
+  const passwordRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    const syncAutofill = () => {
+      const domUsername = usernameRef.current?.value || "";
+      const domPassword = passwordRef.current?.value || "";
+      if (domUsername) {
+        setUsername(domUsername);
+        setUsernameReady(true);
+      }
+      if (domPassword) {
+        setPassword(domPassword);
+        setPasswordReady(true);
+      }
+    };
+    const t1 = setTimeout(syncAutofill, 80);
+    const t22 = setTimeout(syncAutofill, 400);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t22);
+    };
+  }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -19383,10 +19407,18 @@ const Login = ({ onLogin }) => {
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
+                  ref: usernameRef,
                   type: "text",
+                  name: "username",
                   id: "username",
                   autoComplete: "username",
+                  autoCapitalize: "none",
+                  autoCorrect: "off",
+                  spellCheck: false,
+                  readOnly: !usernameReady,
                   value: username,
+                  onFocus: () => setUsernameReady(true),
+                  onMouseDown: () => setUsernameReady(true),
                   onChange: (e) => setUsername(e.target.value),
                   className: "w-full !pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg transition-all placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
                   placeholder: t2("login.usernamePlaceholder")
@@ -19401,10 +19433,18 @@ const Login = ({ onLogin }) => {
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
+                  ref: passwordRef,
                   type: showPassword ? "text" : "password",
+                  name: "password",
                   id: "password",
                   autoComplete: "current-password",
+                  autoCapitalize: "none",
+                  autoCorrect: "off",
+                  spellCheck: false,
+                  readOnly: !passwordReady,
                   value: password,
+                  onFocus: () => setPasswordReady(true),
+                  onMouseDown: () => setPasswordReady(true),
                   onChange: (e) => setPassword(e.target.value),
                   className: "w-full !pl-10 !pr-10 py-2.5 border border-slate-300 rounded-lg transition-all placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
                   placeholder: t2("login.passwordPlaceholder")
@@ -35893,6 +35933,9 @@ const UsersPage = () => {
   const [currentUser, setCurrentUser] = reactExports.useState(null);
   const [error, setError] = reactExports.useState("");
   const [success, setSuccess] = reactExports.useState("");
+  const [credentialFieldReady, setCredentialFieldReady] = reactExports.useState({ username: false, password: false });
+  const usernameInputRef = reactExports.useRef(null);
+  const passwordInputRef = reactExports.useRef(null);
   const [formData, setFormData] = reactExports.useState({
     username: "",
     password: "",
@@ -35911,6 +35954,37 @@ const UsersPage = () => {
   reactExports.useEffect(() => {
     fetchUsers();
   }, []);
+  reactExports.useEffect(() => {
+    if (!showModal) return;
+    const syncAutofill = () => {
+      const domUsername = usernameInputRef.current?.value || "";
+      const domPassword = passwordInputRef.current?.value || "";
+      if (domUsername && domUsername !== formData.username) {
+        setFormData((prev) => ({ ...prev, username: domUsername }));
+      }
+      if (domPassword && domPassword !== formData.password) {
+        setFormData((prev) => ({ ...prev, password: domPassword }));
+      }
+      if (domUsername || domPassword) {
+        setCredentialFieldReady((prev) => {
+          const next = {
+            username: prev.username || !!domUsername,
+            password: prev.password || !!domPassword
+          };
+          if (next.username === prev.username && next.password === prev.password) {
+            return prev;
+          }
+          return next;
+        });
+      }
+    };
+    const t1 = setTimeout(syncAutofill, 80);
+    const t22 = setTimeout(syncAutofill, 400);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t22);
+    };
+  }, [showModal, formData.username, formData.password]);
   const fetchUsers = async () => {
     try {
       const res = await axios.get(`${API_URL$k}?action=users`);
@@ -35936,6 +36010,7 @@ const UsersPage = () => {
       language: "ru",
       is_active: 1
     });
+    setCredentialFieldReady({ username: false, password: false });
     setError("");
     setShowModal(true);
   };
@@ -35948,6 +36023,7 @@ const UsersPage = () => {
       language: user.language || "ru",
       is_active: user.is_active
     });
+    setCredentialFieldReady({ username: true, password: false });
     setError("");
     setShowModal(true);
   };
@@ -36187,8 +36263,18 @@ const UsersPage = () => {
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
+                ref: usernameInputRef,
                 type: "text",
+                name: "username",
+                id: currentUser ? "edit-username" : "new-username",
+                autoComplete: "username",
+                autoCapitalize: "none",
+                autoCorrect: "off",
+                spellCheck: false,
+                readOnly: !credentialFieldReady.username,
                 value: formData.username,
+                onFocus: () => setCredentialFieldReady((prev) => ({ ...prev, username: true })),
+                onMouseDown: () => setCredentialFieldReady((prev) => ({ ...prev, username: true })),
                 onChange: (e) => setFormData({ ...formData, username: e.target.value }),
                 className: "form-input pl-12",
                 placeholder: t2("users.usernamePlaceholder")
@@ -36207,8 +36293,18 @@ const UsersPage = () => {
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
+                ref: passwordInputRef,
                 type: "password",
+                name: "password",
+                id: "user-password",
+                autoComplete: "new-password",
+                autoCapitalize: "none",
+                autoCorrect: "off",
+                spellCheck: false,
+                readOnly: !credentialFieldReady.password,
                 value: formData.password,
+                onFocus: () => setCredentialFieldReady((prev) => ({ ...prev, password: true })),
+                onMouseDown: () => setCredentialFieldReady((prev) => ({ ...prev, password: true })),
                 onChange: (e) => setFormData({ ...formData, password: e.target.value }),
                 className: "form-input pl-12",
                 placeholder: currentUser ? t2("users.passwordPlaceholder") : t2("users.passwordPlaceholderNew")
@@ -38626,11 +38722,7 @@ $client->execute();
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-5 h-5" }),
       description: t2("integrations.jsBannerDesc"),
       code: `<div id="ltt-banner-container"></div>
-<script type="application/javascript">
-  fetch('${trackerUrl}/banner.js?campaign_id=YOUR_ID')
-    .then(r => r.text())
-    .then(code => eval(code));
-<\/script>`
+<script src="${trackerUrl}/banner.js?campaign_id=YOUR_ID" async><\/script>`
     },
     tracking_pixel: {
       title: "Tracking Pixel",

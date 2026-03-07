@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Plus, Edit2, Trash2, Key, Copy, Shield, User, Globe, Lock } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -15,6 +15,9 @@ const UsersPage = () => {
     const [currentUser, setCurrentUser] = useState(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [credentialFieldReady, setCredentialFieldReady] = useState({ username: false, password: false });
+    const usernameInputRef = useRef(null);
+    const passwordInputRef = useRef(null);
 
     const [formData, setFormData] = useState({
         username: '',
@@ -36,6 +39,42 @@ const UsersPage = () => {
     useEffect(() => {
         fetchUsers();
     }, []);
+
+    useEffect(() => {
+        if (!showModal) return;
+
+        const syncAutofill = () => {
+            const domUsername = usernameInputRef.current?.value || '';
+            const domPassword = passwordInputRef.current?.value || '';
+
+            if (domUsername && domUsername !== formData.username) {
+                setFormData(prev => ({ ...prev, username: domUsername }));
+            }
+            if (domPassword && domPassword !== formData.password) {
+                setFormData(prev => ({ ...prev, password: domPassword }));
+            }
+            if (domUsername || domPassword) {
+                setCredentialFieldReady(prev => {
+                    const next = {
+                        username: prev.username || !!domUsername,
+                        password: prev.password || !!domPassword
+                    };
+                    if (next.username === prev.username && next.password === prev.password) {
+                        return prev;
+                    }
+                    return next;
+                });
+            }
+        };
+
+        const t1 = setTimeout(syncAutofill, 80);
+        const t2 = setTimeout(syncAutofill, 400);
+
+        return () => {
+            clearTimeout(t1);
+            clearTimeout(t2);
+        };
+    }, [showModal, formData.username, formData.password]);
 
     const fetchUsers = async () => {
         try {
@@ -64,6 +103,7 @@ const UsersPage = () => {
             language: 'ru',
             is_active: 1
         });
+        setCredentialFieldReady({ username: false, password: false });
         setError('');
         setShowModal(true);
     };
@@ -77,6 +117,7 @@ const UsersPage = () => {
             language: user.language || 'ru',
             is_active: user.is_active
         });
+        setCredentialFieldReady({ username: true, password: false });
         setError('');
         setShowModal(true);
     };
@@ -366,8 +407,18 @@ const UsersPage = () => {
                                     <div className="relative">
                                         <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                                         <input
+                                            ref={usernameInputRef}
                                             type="text"
+                                            name="username"
+                                            id={currentUser ? 'edit-username' : 'new-username'}
+                                            autoComplete="username"
+                                            autoCapitalize="none"
+                                            autoCorrect="off"
+                                            spellCheck={false}
+                                            readOnly={!credentialFieldReady.username}
                                             value={formData.username}
+                                            onFocus={() => setCredentialFieldReady(prev => ({ ...prev, username: true }))}
+                                            onMouseDown={() => setCredentialFieldReady(prev => ({ ...prev, username: true }))}
                                             onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                                             className="form-input pl-12"
                                             placeholder={t('users.usernamePlaceholder')}
@@ -379,8 +430,18 @@ const UsersPage = () => {
                                     <div className="relative">
                                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                                         <input
+                                            ref={passwordInputRef}
                                             type="password"
+                                            name="password"
+                                            id="user-password"
+                                            autoComplete="new-password"
+                                            autoCapitalize="none"
+                                            autoCorrect="off"
+                                            spellCheck={false}
+                                            readOnly={!credentialFieldReady.password}
                                             value={formData.password}
+                                            onFocus={() => setCredentialFieldReady(prev => ({ ...prev, password: true }))}
+                                            onMouseDown={() => setCredentialFieldReady(prev => ({ ...prev, password: true }))}
                                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                             className="form-input pl-12"
                                             placeholder={currentUser ? t('users.passwordPlaceholder') : t('users.passwordPlaceholderNew')}

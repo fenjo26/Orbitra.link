@@ -2,6 +2,20 @@
 // Secure session startup
 ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
+// Включаем отображение ошибок для отладки (убрать в продакшене)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Логирование ошибок в файл
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/var/logs/php_errors.log');
+
+// Создаём директорию для логов если нет
+if (!is_dir(__DIR__ . '/var/logs')) {
+    mkdir(__DIR__ . '/var/logs', 0777, true);
+}
+
 session_start();
 
 // api.php - JSON API для React Dashboard
@@ -192,6 +206,67 @@ function getDashboardFilters($prefix = '') {
     return [$whereClause, $params];
 }
 
+function getTableColumns($pdo, $tableName) {
+    static $cache = [];
+    if (isset($cache[$tableName])) {
+        return $cache[$tableName];
+    }
+
+    $cache[$tableName] = [];
+    try {
+        $stmt = $pdo->query("PRAGMA table_info($tableName)");
+        if ($stmt) {
+            $cache[$tableName] = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'name');
+        }
+    }
+    catch (\Exception $e) {
+        $cache[$tableName] = [];
+    }
+
+    return $cache[$tableName];
+}
+
+function getRevenueRecordsValueColumn($pdo) {
+    static $column = false;
+    if ($column !== false) {
+        return $column;
+    }
+
+    $column = null;
+    $columns = getTableColumns($pdo, 'revenue_records');
+    if (in_array('amount', $columns, true)) {
+        $column = 'amount';
+    }
+    elseif (in_array('revenue', $columns, true)) {
+        // Backward compatibility for older schemas.
+        $column = 'revenue';
+    }
+
+    return $column;
+}
+
+function getConversionsValueColumn($pdo) {
+    static $column = false;
+    if ($column !== false) {
+        return $column;
+    }
+
+    $column = null;
+    $columns = getTableColumns($pdo, 'conversions');
+    if (in_array('payout', $columns, true)) {
+        $column = 'payout';
+    }
+    elseif (in_array('revenue', $columns, true)) {
+        // Legacy schemas.
+        $column = 'revenue';
+    }
+    elseif (in_array('amount', $columns, true)) {
+        $column = 'amount';
+    }
+
+    return $column;
+}
+
 try {
     switch ($action) {
         case 'metrics':
@@ -204,6 +279,7 @@ try {
             $clickData = $clicksStmt->fetch();
             $metrics['clicks'] = (int)$clickData['total_clicks'];
             $metrics['unique_clicks'] = (int)$clickData['unique_clicks'];
+            list($whereClicksPrefixed, $paramsClicksPrefixed) = getDashboardFilters('clicks.');
 
             list($whereCv, $paramsCv) = getDashboardFilters();
             // Handle conversions specific join if campaign_id is provided, but conversions has click_id.
@@ -216,7 +292,11 @@ try {
                 list($whereCv, $paramsCv) = getDashboardFilters('');
             }
 
-            $convStmt = $pdo->prepare("SELECT COUNT(conversions.id) as total_conversions, SUM(conversions.payout) as total_revenue FROM conversions $joinConv $whereCv");
+            $conversionsValueColumn = getConversionsValueColumn($pdo);
+            $conversionRevenueSumExpression = $conversionsValueColumn !== null
+                ? "COALESCE(SUM(conversions.$conversionsValueColumn), 0)"
+                : "0";
+            $convStmt = $pdo->prepare("SELECT COUNT(conversions.id) as total_conversions, $conversionRevenueSumExpression as total_revenue FROM conversions $joinConv $whereCv");
             $convStmt->execute($paramsCv);
             $convData = $convStmt->fetch();
             $metrics['conversions'] = (int)$convData['total_conversions'];
@@ -232,9 +312,13 @@ try {
             $metrics['roi'] = $metrics['cost'] > 0 ? round(($metrics['profit'] / $metrics['cost']) * 100, 2) : ($metrics['profit'] > 0 ? 100 : 0);
 
             // Real Revenue
-            $rrStmt = $pdo->prepare("SELECT SUM(rr.revenue) as real_rev FROM revenue_records rr JOIN clicks ON rr.click_id = clicks.id $whereCl");
-            $rrStmt->execute($paramsCl);
-            $metrics['real_revenue'] = (float)$rrStmt->fetch()['real_rev'];
+            $metrics['real_revenue'] = 0.0;
+            $revenueRecordsValueColumn = getRevenueRecordsValueColumn($pdo);
+            if ($revenueRecordsValueColumn !== null) {
+                $rrStmt = $pdo->prepare("SELECT COALESCE(SUM(rr.$revenueRecordsValueColumn), 0) as real_rev FROM revenue_records rr JOIN clicks ON rr.click_id = clicks.id $whereClicksPrefixed");
+                $rrStmt->execute($paramsClicksPrefixed);
+                $metrics['real_revenue'] = (float)$rrStmt->fetch()['real_rev'];
+            }
             $real_profit = $metrics['real_revenue'] - $metrics['cost'];
             $metrics['real_roi'] = $metrics['cost'] > 0 ? round(($real_profit / $metrics['cost']) * 100, 2) : ($real_profit > 0 ? 100 : 0);
 
@@ -262,6 +346,17 @@ try {
             // SQLite datetime formatting string
             $timeFormat = $isSingleDay ? "'%Y-%m-%d %H:00:00'" : "'%Y-%m-%d'";
 
+            $revenueRecordsValueColumn = getRevenueRecordsValueColumn($pdo);
+            $realRevenueExpression = "0";
+            if ($revenueRecordsValueColumn !== null) {
+                $realRevenueExpression = "COALESCE((SELECT SUM($revenueRecordsValueColumn) FROM revenue_records rr WHERE rr.click_id = clicks.id), 0)";
+            }
+            $conversionsValueColumn = getConversionsValueColumn($pdo);
+            $conversionRevenueExpression = "0";
+            if ($conversionsValueColumn !== null) {
+                $conversionRevenueExpression = "COALESCE((SELECT SUM($conversionsValueColumn) FROM conversions WHERE conversions.click_id = clicks.id), 0)";
+            }
+
             $chartQuery = "
                 SELECT period, 
                        COUNT(id) as clicks, 
@@ -274,8 +369,8 @@ try {
                            clicks.id,
                            clicks.ip,
                            clicks.is_conversion,
-                           COALESCE((SELECT SUM(payout) FROM conversions WHERE conversions.click_id = clicks.id), 0) as revenue,
-                           COALESCE((SELECT SUM(revenue) FROM revenue_records rr WHERE rr.click_id = clicks.id), 0) as real_revenue
+                           $conversionRevenueExpression as revenue,
+                           $realRevenueExpression as real_revenue
                     FROM clicks 
                     $whereCl
                 )
@@ -325,8 +420,8 @@ try {
                 }
 
                 foreach ($chartData as $row) {
-                    $period = $row['period']; // format is 'YYYY-MM-DD HH:00:00'
-                    if (isset($hourlyData[$period])) {
+                    $period = $row['period'] ?? ''; // format is 'YYYY-MM-DD HH:00:00'
+                    if ($period !== '' && isset($hourlyData[$period])) {
                         $hourlyData[$period]['clicks'] = (int)$row['clicks'];
                         $hourlyData[$period]['unique_clicks'] = (int)$row['unique_clicks'];
                         $hourlyData[$period]['conversions'] = (int)$row['conversions'];
@@ -1207,8 +1302,13 @@ try {
             list($whereCl, $paramsCl) = getDashboardFilters('cl.');
             $joinCondition = !empty($whereCl) ? str_replace("WHERE ", "AND ", $whereCl) : "";
             $limitClause = isset($_GET['limit']) ? "LIMIT " . (int)$_GET['limit'] : "";
-            $orderBy = isset($_GET['limit']) ? "ORDER BY clicks DESC, o.created_at DESC" : "ORDER BY o.created_at DESC";
+            $orderBy = isset($_GET['limit']) ? "ORDER BY clicks DESC, created_at DESC" : "ORDER BY created_at DESC";
             $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
+            $conversionsValueColumn = getConversionsValueColumn($pdo);
+            $offerClickRevenueExpression = "0";
+            if ($conversionsValueColumn !== null) {
+                $offerClickRevenueExpression = "COALESCE((SELECT SUM($conversionsValueColumn) FROM conversions cv WHERE cv.click_id = cl.id), 0)";
+            }
 
             // Полный список офферов со статистикой
             $stmt = $pdo->prepare("
@@ -1230,7 +1330,7 @@ try {
                            cl.id as click_id,
                            cl.ip as click_ip,
                            cl.is_conversion as is_conversion,
-                           COALESCE((SELECT SUM(payout) FROM conversions cv WHERE cv.click_id = cl.id), 0) as click_revenue
+                           $offerClickRevenueExpression as click_revenue
                     FROM offers o
                     LEFT JOIN offer_groups og ON o.group_id = og.id
                     LEFT JOIN affiliate_networks an ON o.affiliate_network_id = an.id
@@ -2160,6 +2260,16 @@ try {
             }
 
             $where = implode(' AND ', $conds);
+            $conversionsValueColumn = getConversionsValueColumn($pdo);
+            $campaignRevenueExpression = "0";
+            if ($conversionsValueColumn !== null) {
+                $campaignRevenueExpression = "COALESCE((SELECT SUM($conversionsValueColumn) FROM conversions WHERE click_id = clicks.id), 0)";
+            }
+            $revenueRecordsValueColumn = getRevenueRecordsValueColumn($pdo);
+            $campaignRealRevenueExpression = "0";
+            if ($revenueRecordsValueColumn !== null) {
+                $campaignRealRevenueExpression = "COALESCE((SELECT SUM($revenueRecordsValueColumn) FROM revenue_records WHERE click_id = clicks.id), 0)";
+            }
 
             $sql = "
                 SELECT 
@@ -2174,8 +2284,8 @@ try {
                            clicks.id as click_id,
                            clicks.ip as click_ip,
                            clicks.is_conversion,
-                           COALESCE((SELECT SUM(payout) FROM conversions WHERE click_id = clicks.id), 0) as click_revenue,
-                           COALESCE((SELECT SUM(amount) FROM revenue_records WHERE click_id = clicks.id), 0) as click_real_revenue
+                           $campaignRevenueExpression as click_revenue,
+                           $campaignRealRevenueExpression as click_real_revenue
                     FROM clicks
                     WHERE $where
                 )
@@ -2503,7 +2613,7 @@ try {
                 echo json_encode([
                     'status' => 'success',
                     'data' => [
-                        'version' => (defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.8') . '-Orbitra',
+                        'version' => (defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.9') . '-Orbitra',
                         'clicks' => (int)$clicksCount,
                         'conversions' => (int)$convCount,
                         'db_size_bytes' => $dbSize,
@@ -2551,7 +2661,7 @@ try {
 
         // === UPDATE SYSTEM API ===
         case 'check_update':
-            $currentVersion = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.8';
+            $currentVersion = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.9';
             
             // URL to check for latest version (change to your server or GitHub raw file)
             // Example for GitHub: 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/version.json'
@@ -4134,6 +4244,16 @@ try {
 
             // Day of week names for display
             $dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+            $conversionsValueColumn = getConversionsValueColumn($pdo);
+            $trendRevenueExpression = "0";
+            if ($conversionsValueColumn !== null) {
+                $trendRevenueExpression = "(SELECT SUM($conversionsValueColumn) FROM conversions WHERE click_id = cl.id)";
+            }
+            $revenueRecordsValueColumn = getRevenueRecordsValueColumn($pdo);
+            $trendRealRevenueExpression = "0";
+            if ($revenueRecordsValueColumn !== null) {
+                $trendRealRevenueExpression = "(SELECT SUM($revenueRecordsValueColumn) FROM revenue_records WHERE click_id = cl.id)";
+            }
 
             // Get aggregated data
             $sql = "
@@ -4151,8 +4271,8 @@ try {
                            cl.ip as click_ip,
                            cl.is_conversion,
                            cl.cost,
-                           (SELECT SUM(payout) FROM conversions WHERE click_id = cl.id) as click_revenue,
-                           (SELECT SUM(amount) FROM revenue_records WHERE click_id = cl.id) as click_real_revenue
+                           $trendRevenueExpression as click_revenue,
+                           $trendRealRevenueExpression as click_real_revenue
                     FROM clicks cl
                     WHERE $whereSQL
                 )

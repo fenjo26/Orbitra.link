@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Lock, User, Eye, EyeOff, Terminal, X, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -12,6 +12,33 @@ const Login = ({ onLogin }) => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [showRecoveryModal, setShowRecoveryModal] = useState(false);
+    const [usernameReady, setUsernameReady] = useState(false);
+    const [passwordReady, setPasswordReady] = useState(false);
+    const usernameRef = useRef(null);
+    const passwordRef = useRef(null);
+
+    useEffect(() => {
+        const syncAutofill = () => {
+            const domUsername = usernameRef.current?.value || '';
+            const domPassword = passwordRef.current?.value || '';
+
+            if (domUsername) {
+                setUsername(domUsername);
+                setUsernameReady(true);
+            }
+            if (domPassword) {
+                setPassword(domPassword);
+                setPasswordReady(true);
+            }
+        };
+
+        const t1 = setTimeout(syncAutofill, 80);
+        const t2 = setTimeout(syncAutofill, 400);
+        return () => {
+            clearTimeout(t1);
+            clearTimeout(t2);
+        };
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -82,10 +109,18 @@ const Login = ({ onLogin }) => {
                                 <div className="relative">
                                     <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" />
                                     <input
+                                        ref={usernameRef}
                                         type="text"
+                                        name="username"
                                         id="username"
                                         autoComplete="username"
+                                        autoCapitalize="none"
+                                        autoCorrect="off"
+                                        spellCheck={false}
+                                        readOnly={!usernameReady}
                                         value={username}
+                                        onFocus={() => setUsernameReady(true)}
+                                        onMouseDown={() => setUsernameReady(true)}
                                         onChange={(e) => setUsername(e.target.value)}
                                         className="w-full !pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg transition-all placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                         placeholder={t('login.usernamePlaceholder')}
@@ -101,10 +136,18 @@ const Login = ({ onLogin }) => {
                                 <div className="relative">
                                     <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" />
                                     <input
+                                        ref={passwordRef}
                                         type={showPassword ? 'text' : 'password'}
+                                        name="password"
                                         id="password"
                                         autoComplete="current-password"
+                                        autoCapitalize="none"
+                                        autoCorrect="off"
+                                        spellCheck={false}
+                                        readOnly={!passwordReady}
                                         value={password}
+                                        onFocus={() => setPasswordReady(true)}
+                                        onMouseDown={() => setPasswordReady(true)}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="w-full !pl-10 !pr-10 py-2.5 border border-slate-300 rounded-lg transition-all placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                         placeholder={t('login.passwordPlaceholder')}

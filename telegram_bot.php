@@ -8,7 +8,7 @@ require_once 'config.php';
 // Bot translations
 function botText($lang, $key, $params = [])
 {
-    $version = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.8';
+    $version = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.9';
     $texts = [
         'ru' => [
             'welcome' => "🚀 *Добро пожаловать в Orbitra v{version} Bot!*\n\nЯ помогу отслеживать статистику ваших кампаний.\n\nДоступные команды:\n/stats — Статистика за сегодня\n/stats 7d — За последние 7 дней\n/campaigns — Активные кампании\n/campaign ID — Стата по кампании\n/top — ТОП-5 по доходу\n/conversions — Последние конверсии\n/notify on|off — Уведомления\n/daily on|off — Ежедневная сводка\n/lang ru|en — Язык бота\n/help — Справка",

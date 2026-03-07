@@ -153,7 +153,7 @@ class AffilkaEngine
     {
         $headers = [
             'Accept: application/json',
-            'User-Agent: Orbitra/0.9.2.8',
+            'User-Agent: Orbitra/0.9.2.9',
         ];
 
         $apiKey = $credentials['api_key'] ?? '';

@@ -331,7 +331,7 @@ const IntegrationsPage = () => {
             title: t('integrations.jsBannerTitle'),
             icon: <Code className="w-5 h-5" />,
             description: t('integrations.jsBannerDesc'),
-            code: `<div id="ltt-banner-container"></div>\n<script type="application/javascript">\n  fetch('${trackerUrl}/banner.js?campaign_id=YOUR_ID')\n    .then(r => r.text())\n    .then(code => eval(code));\n</script>`
+            code: `<div id="ltt-banner-container"></div>\n<script src="${trackerUrl}/banner.js?campaign_id=YOUR_ID" async></script>`
         },
         tracking_pixel: {
             title: 'Tracking Pixel',
