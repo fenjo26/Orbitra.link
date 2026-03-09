@@ -23,6 +23,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [activeTab, setActiveTab] = useState('general');
     const [loading, setLoading] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
+    const [copySuccess, setCopySuccess] = useState(false);
 
     // Modal states
     const [showLogModal, setShowLogModal] = useState(false);
@@ -105,11 +106,44 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         return `${baseUrl}/${formData.alias}`;
     };
 
-    // Copy URL to clipboard
-    const copyUrl = () => {
-        navigator.clipboard.writeText(getCampaignUrl());
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 2000);
+    // Copy URL to clipboard with fallback for non-secure contexts / older browsers
+    const copyUrl = async () => {
+        const url = getCampaignUrl();
+        let copied = false;
+
+        if (navigator.clipboard && window.isSecureContext) {
+            try {
+                await navigator.clipboard.writeText(url);
+                copied = true;
+            } catch (e) {
+                copied = false;
+            }
+        }
+
+        if (!copied) {
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = url;
+                textarea.setAttribute('readonly', '');
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                textarea.style.pointerEvents = 'none';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                copied = document.execCommand('copy');
+                document.body.removeChild(textarea);
+            } catch (e) {
+                copied = false;
+            }
+        }
+
+        if (copied) {
+            setCopySuccess(true);
+            setTimeout(() => setCopySuccess(false), 1500);
+        } else {
+            alert(t('common.error'));
+        }
     };
 
     // Fetch click logs
@@ -412,7 +446,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
 
                         {/* Copy URL */}
                         <button onClick={copyUrl} className="btn btn-ghost btn-icon" title={t('editor.copyUrl')}>
-                            <Copy className="w-5 h-5" />
+                            {copySuccess ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                         </button>
 
                         {/* Log button */}
@@ -635,7 +669,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                         style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)' }}
                                                     />
                                                     <button onClick={copyUrl} className="btn btn-secondary btn-icon">
-                                                        <Copy className="w-4 h-4" />
+                                                        {copySuccess ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                                                     </button>
                                                 </div>
                                             </div>
