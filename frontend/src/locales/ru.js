@@ -11,6 +11,7 @@ export default {
         networkError: "Произошла ошибка сети",
         close: "Закрыть",
         apply: "Применить",
+        add: "Добавить",
         create: "Создать",
         actions: "Действия",
         clearStats: "Очистить статистику",

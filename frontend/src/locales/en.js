@@ -11,6 +11,7 @@ export default {
         networkError: "A network error occurred",
         close: "Close",
         apply: "Apply",
+        add: "Add",
         create: "Create",
         actions: "Actions",
         clearStats: "Clear Statistics",
