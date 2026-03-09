@@ -1,6 +1,6 @@
 {
-    "version": "0.9.2.9",
-    "release_notes": "Fix dashboard 500 errors (metrics/offers/chart), improve login/user form autofill behavior, and replace eval-based banner snippet with CSP-safe script include.",
+    "version": "0.9.2.5",
+    "release_notes": "Geo tracking improvements: DB11-only flow, full IPv4+IPv6 auto-update package, richer click geo fields, and log UI enhancements.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-03-07"
+    "released_at": "2026-03-09"
 }
