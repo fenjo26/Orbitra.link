@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
-import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, DollarSign, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play } from 'lucide-react';
 import CampaignReports from './CampaignReports';
 import { useLanguage } from '../contexts/LanguageContext';
 

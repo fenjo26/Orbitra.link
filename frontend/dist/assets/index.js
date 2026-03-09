@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1v = [
+const __iconNode$1w = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$1v = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1v);
-const __iconNode$1u = [
+const Activity = createLucideIcon("activity", __iconNode$1w);
+const __iconNode$1v = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1u);
-const __iconNode$1t = [
+const Archive = createLucideIcon("archive", __iconNode$1v);
+const __iconNode$1u = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1t);
-const __iconNode$1s = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1u);
+const __iconNode$1t = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1s);
-const __iconNode$1r = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1t);
+const __iconNode$1s = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1r);
-const __iconNode$1q = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1s);
+const __iconNode$1r = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$1q = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1q);
-const __iconNode$1p = [
+const BellOff = createLucideIcon("bell-off", __iconNode$1r);
+const __iconNode$1q = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$1p = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1p);
-const __iconNode$1o = [
+const Bell = createLucideIcon("bell", __iconNode$1q);
+const __iconNode$1p = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1o);
-const __iconNode$1n = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$1p);
+const __iconNode$1o = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1n);
-const __iconNode$1m = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1o);
+const __iconNode$1n = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1m);
-const __iconNode$1l = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1n);
+const __iconNode$1m = [
   [
     "path",
     {
@@ -15198,78 +15198,78 @@ const __iconNode$1l = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1l);
-const __iconNode$1k = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1k);
-const __iconNode$1j = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1j);
-const __iconNode$1i = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1i);
-const __iconNode$1h = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1h);
-const __iconNode$1g = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1g);
-const __iconNode$1f = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1m);
+const __iconNode$1l = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1l);
+const __iconNode$1k = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1k);
+const __iconNode$1j = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1j);
+const __iconNode$1i = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1i);
+const __iconNode$1h = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1h);
+const __iconNode$1g = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1f);
-const __iconNode$1e = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1g);
+const __iconNode$1f = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1e);
-const __iconNode$1d = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1f);
+const __iconNode$1e = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1d);
-const __iconNode$1c = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1e);
+const __iconNode$1d = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1c);
-const __iconNode$1b = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1d);
+const __iconNode$1c = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1b);
-const __iconNode$1a = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1c);
+const __iconNode$1b = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1a);
-const __iconNode$19 = [
+const Clock = createLucideIcon("clock", __iconNode$1b);
+const __iconNode$1a = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$19);
-const __iconNode$18 = [
+const Code = createLucideIcon("code", __iconNode$1a);
+const __iconNode$19 = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$18);
-const __iconNode$17 = [
+const Copy = createLucideIcon("copy", __iconNode$19);
+const __iconNode$18 = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$17);
-const __iconNode$16 = [
+const Database = createLucideIcon("database", __iconNode$18);
+const __iconNode$17 = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$16);
-const __iconNode$15 = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$17);
+const __iconNode$16 = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$15);
-const __iconNode$14 = [
+const Download = createLucideIcon("download", __iconNode$16);
+const __iconNode$15 = [
   [
     "path",
     {
@@ -15278,7 +15278,13 @@ const __iconNode$14 = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$14);
+const Droplet = createLucideIcon("droplet", __iconNode$15);
+const __iconNode$14 = [
+  ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
+  ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
+  ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
+];
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$14);
 const __iconNode$13 = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
@@ -15340,7 +15346,7 @@ const __iconNode$$ = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText$1 = createLucideIcon("file-text", __iconNode$$);
+const FileText = createLucideIcon("file-text", __iconNode$$);
 const __iconNode$_ = [
   [
     "path",
@@ -15575,7 +15581,7 @@ const __iconNode$A = [
     }
   ]
 ];
-const Play$1 = createLucideIcon("play", __iconNode$A);
+const Play = createLucideIcon("play", __iconNode$A);
 const __iconNode$z = [
   ["path", { d: "M12 22v-5", key: "1ega77" }],
   ["path", { d: "M15 8V2", key: "18g5xt" }],
@@ -19023,7 +19029,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Plug, { size: 16 }), label: t2("adminMenu.integrations"), tab: "admin_integrations" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { size: 16 }), label: t2("adminMenu.aggregator"), tab: "admin_aggregator" },
     { divider: true },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText$1, { size: 16 }), label: t2("adminMenu.conversions"), tab: "conversions" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { size: 16 }), label: t2("adminMenu.conversions"), tab: "conversions" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Server, { size: 16 }), label: t2("adminMenu.status"), tab: "admin_status" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileStack, { size: 16 }), label: t2("adminMenu.logs"), tab: "admin_logs" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Archive, { size: 16 }), label: t2("adminMenu.archive"), tab: "admin_archive" },
@@ -32731,7 +32737,7 @@ const TrafficSimulation = () => {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "submit", disabled: loading, className: "btn btn-primary", style: { width: "100%" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Play$1, { className: "w-4 h-4" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { className: "w-4 h-4" }),
           loading ? t2("simulation.simulating") : t2("simulation.runTest")
         ] })
       ] }) }),
@@ -33076,7 +33082,7 @@ const LandingEditor = ({ landingId, onClose }) => {
                 borderRight: selectedFile === file ? "2px solid var(--color-primary)" : "none"
               },
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(FileText$1, { className: "w-3.5 h-3.5 mr-2", style: { color: "var(--color-text-muted)" } }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-3.5 h-3.5 mr-2", style: { color: "var(--color-text-muted)" } }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", title: file, children: file })
               ]
             }
@@ -40750,7 +40756,7 @@ const MigrationsPage = () => {
               disabled: actionLoading === m.version,
               className: `btn btn-sm ${isCompleted ? "btn-secondary" : "btn-primary"}`,
               children: [
-                actionLoading === m.version ? /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5 animate-spin" }) : isCompleted ? /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Play$1, { className: "w-3.5 h-3.5" }),
+                actionLoading === m.version ? /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5 animate-spin" }) : isCompleted ? /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { className: "w-3.5 h-3.5" }),
                 actionLoading === m.version ? t2("migrations.running") : isCompleted ? t2("migrations.repeat") : t2("migrations.execute")
               ]
             }
@@ -41284,7 +41290,7 @@ function AggregatorPage() {
   const tabs = [
     { key: "connections", label: t2("aggregator.connections"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { size: 16 }) },
     { key: "revenue", label: t2("aggregator.revenue"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 16 }) },
-    { key: "logs", label: t2("aggregator.syncLogs"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText$1, { size: 16 }) }
+    { key: "logs", label: t2("aggregator.syncLogs"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { size: 16 }) }
   ];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "0" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_aggregator", title: t2("aggregator.manualTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px", marginTop: "8px" }, children: [
@@ -42927,7 +42933,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             setShowLogModal(true);
           }, className: "btn btn-ghost btn-icon", title: t2("campaignEditor.clickLog"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-5 h-5" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowReportsMenu(!showReportsMenu), className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MoreVertical, { className: "w-5 h-5" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowReportsMenu(!showReportsMenu), className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(EllipsisVertical, { className: "w-5 h-5" }) }),
             showReportsMenu && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute right-0 top-full mt-1 w-56 rounded-2xl shadow-xl z-50 py-2", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-2 text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: t2("campaignEditor.reports") }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -42940,7 +42946,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   className: "w-full text-left px-4 py-2 text-sm flex items-center gap-2",
                   style: { color: "var(--color-success)" },
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(BarChart3, { className: "w-4 h-4" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { className: "w-4 h-4" }),
                     " ",
                     t2("editor.fullReportCsv")
                   ]

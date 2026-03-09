@@ -1,19 +1,6 @@
 <?php
-// Secure session startup
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_only_cookies', 1);
-ini_set('session.use_strict_mode', 1);
-ini_set('session.cookie_samesite', 'Lax');
-ini_set('session.cookie_secure', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? '1' : '0');
-// Use project-local session storage to avoid hosting-level session path issues.
-$sessionDir = __DIR__ . '/var/sessions';
-if (!is_dir($sessionDir)) {
-    @mkdir($sessionDir, 0777, true);
-}
-if (is_dir($sessionDir) && is_writable($sessionDir)) {
-    session_save_path($sessionDir);
-}
-session_start();
+require_once __DIR__ . '/session_bootstrap.php';
+orbitraBootstrapSession();
 
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));

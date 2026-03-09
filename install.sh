@@ -24,6 +24,12 @@ PHP_V=$(php -v | head -n 1 | cut -d " " -f 2 | cut -f1-2 -d".")
 PHP_FPM_SOCK="/var/run/php/php${PHP_V}-fpm.sock"
 
 echo "[2/4] Downloading Orbitra source code to /var/www/orbitra..."
+TMP_SRC_DIR="$(mktemp -d /tmp/orbitra_src.XXXXXX)"
+cleanup_tmp() {
+    rm -rf "$TMP_SRC_DIR"
+}
+trap cleanup_tmp EXIT
+
 if [ -f "/var/www/orbitra/orbitra_db.sqlite" ]; then
     echo "  > Backing up database..."
     cp /var/www/orbitra/orbitra_db.sqlite /tmp/orbitra_db_backup.sqlite
@@ -37,13 +43,15 @@ if [ -d "/var/www/orbitra/geo" ]; then
     cp -r /var/www/orbitra/geo /tmp/orbitra_geo_backup
 fi
 
-# Remove old folder if it exists
-rm -rf /var/www/orbitra
-# Clone the repository
-git clone https://github.com/fenjo26/Orbitra.link.git /var/www/orbitra || {
+# Clone the repository into a temporary directory first to avoid downtime on clone failure.
+git clone https://github.com/fenjo26/Orbitra.link.git "$TMP_SRC_DIR" || {
     echo "ERROR: Failed to download repository. Please check the github link."
     exit 1
 }
+
+# Replace old folder only after successful clone
+rm -rf /var/www/orbitra
+mv "$TMP_SRC_DIR" /var/www/orbitra
 
 # Restore backups
 if [ -f "/tmp/orbitra_db_backup.sqlite" ]; then
