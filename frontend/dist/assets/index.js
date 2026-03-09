@@ -16178,6 +16178,21 @@ const ru = {
     noLogs: "Нет логов",
     geoPlaceholder: "Введите или выберите страны..."
   },
+  filters: {
+    country: "Страна",
+    device: "Устройство",
+    os: "Операционная система",
+    browser: "Браузер",
+    language: "Язык",
+    isp: "Провайдер (ISP)",
+    ispPlaceholder: "Ростелеком, MTS, Vodafone...",
+    connection: "Тип соединения",
+    ip: "IP-адрес",
+    keyword: "Ключевое слово",
+    referer: "Реферер",
+    weekday: "День недели",
+    time: "Время"
+  },
   landings: {
     title: "Лендинги",
     noLandings: "Нет загруженных лендингов",
@@ -17700,6 +17715,21 @@ const en = {
     onlyUniqueClicks: "Only for unique clicks",
     noLogs: "No logs",
     geoPlaceholder: "Enter or select countries..."
+  },
+  filters: {
+    country: "Country",
+    device: "Device",
+    os: "Operating System",
+    browser: "Browser",
+    language: "Language",
+    isp: "ISP Provider",
+    ispPlaceholder: "Comcast, Verizon, Vodafone...",
+    connection: "Connection Type",
+    ip: "IP Address",
+    keyword: "Keyword",
+    referer: "Referrer",
+    weekday: "Day of Week",
+    time: "Time"
   },
   landings: {
     title: "Landings",

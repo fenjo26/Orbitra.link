@@ -294,6 +294,21 @@ export default {
         noLogs: "No logs",
         geoPlaceholder: "Enter or select countries..."
     },
+    filters: {
+        country: "Country",
+        device: "Device",
+        os: "Operating System",
+        browser: "Browser",
+        language: "Language",
+        isp: "ISP Provider",
+        ispPlaceholder: "Comcast, Verizon, Vodafone...",
+        connection: "Connection Type",
+        ip: "IP Address",
+        keyword: "Keyword",
+        referer: "Referrer",
+        weekday: "Day of Week",
+        time: "Time"
+    },
     landings: {
         title: "Landings",
         noLandings: "No landings loaded",

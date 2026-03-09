@@ -294,6 +294,21 @@ export default {
         noLogs: "Нет логов",
         geoPlaceholder: "Введите или выберите страны..."
     },
+    filters: {
+        country: "Страна",
+        device: "Устройство",
+        os: "Операционная система",
+        browser: "Браузер",
+        language: "Язык",
+        isp: "Провайдер (ISP)",
+        ispPlaceholder: "Ростелеком, MTS, Vodafone...",
+        connection: "Тип соединения",
+        ip: "IP-адрес",
+        keyword: "Ключевое слово",
+        referer: "Реферер",
+        weekday: "День недели",
+        time: "Время"
+    },
     landings: {
         title: "Лендинги",
         noLandings: "Нет загруженных лендингов",
