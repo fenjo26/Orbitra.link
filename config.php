@@ -196,6 +196,7 @@ try {
         device_type TEXT DEFAULT 'Unknown',
         os TEXT,
         browser TEXT,
+        language TEXT,
         is_conversion INTEGER DEFAULT 0,
         revenue REAL DEFAULT 0.00,
         cost REAL DEFAULT 0.00,
@@ -571,6 +572,11 @@ try {
     }
     try {
         $pdo->exec("ALTER TABLE clicks ADD COLUMN browser TEXT");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE clicks ADD COLUMN language TEXT");
     }
     catch (\Exception $e) {
     }

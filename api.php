@@ -1697,6 +1697,7 @@ try {
                         cl.region,
                         cl.city,
                         cl.timezone as geo_timezone,
+                        cl.language,
                         cl.device_type,
                         cl.user_agent,
                         o.url as redirect_url,
@@ -1875,6 +1876,7 @@ try {
                     cl.region,
                     cl.city,
                     cl.timezone as geo_timezone,
+                    cl.language,
                     cl.device_type,
                     cl.os,
                     cl.browser,
@@ -1903,6 +1905,7 @@ try {
                 $logText .= "Region: " . ($log['region'] ?: '-') . "\n";
                 $logText .= "City: " . ($log['city'] ?: '-') . "\n";
                 $logText .= "Timezone: " . ($log['geo_timezone'] ?: '-') . "\n";
+                $logText .= "Language: " . ($log['language'] ?: '-') . "\n";
                 $logText .= "Device: {$log['device_type']}\n";
                 $logText .= "OS: {$log['os']}\n";
                 $logText .= "Browser: {$log['browser']}\n";
@@ -1994,10 +1997,22 @@ try {
                 $userAgent = $data['user_agent'] ?? 'Mozilla/5.0';
                 $country = $data['country'] ?? 'US';
                 $deviceType = $data['device_type'] ?? 'desktop';
+                $language = strtolower(trim((string) ($data['language'] ?? 'en')));
+                if ($language === '' || $language === '*') {
+                    $language = 'unknown';
+                }
+                $language = explode(',', $language)[0];
+                $language = explode(';', $language)[0];
+                $language = trim($language);
+                $language = preg_split('/[-_]/', $language)[0] ?? '';
+                $language = preg_replace('/[^a-z]/', '', $language);
+                if ($language === '') {
+                    $language = 'unknown';
+                }
 
                 $trace = [];
                 $trace[] = "Start simulation for Campaign ID: $campaignId";
-                $trace[] = "Context -> IP: $ip, UA: $userAgent, Country: $country, Device: $deviceType";
+                $trace[] = "Context -> IP: $ip, UA: $userAgent, Country: $country, Device: $deviceType, Language: $language";
 
                 if (!$campaignId) {
                     echo json_encode(['status' => 'error', 'message' => 'Missing campaign ID']);
@@ -2019,7 +2034,7 @@ try {
                 $trace[] = "Loaded " . count($allStreams) . " active streams";
 
                 if (!function_exists('streamMatchesFiltersSim')) {
-                    function streamMatchesFiltersSim($stream, $ip, $country, $deviceType, &$trace)
+                    function streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $language, &$trace)
                     {
                         if (empty($stream['filters_json']))
                             return true;
@@ -2038,15 +2053,30 @@ try {
                                 $matched = in_array($country, $payload);
                             else if ($f['name'] === 'Device')
                                 $matched = in_array($deviceType, $payload);
+                            else if ($f['name'] === 'Language') {
+                                $normalizedPayload = [];
+                                foreach ($payload as $item) {
+                                    $candidate = strtolower(trim((string) $item));
+                                    $candidate = explode(',', $candidate)[0];
+                                    $candidate = explode(';', $candidate)[0];
+                                    $candidate = trim($candidate);
+                                    $candidate = preg_split('/[-_]/', $candidate)[0] ?? '';
+                                    $candidate = preg_replace('/[^a-z]/', '', $candidate);
+                                    if ($candidate !== '') {
+                                        $normalizedPayload[] = $candidate;
+                                    }
+                                }
+                                $matched = !empty($normalizedPayload) && in_array($language, $normalizedPayload, true);
+                            }
                             else
                                 $matched = true;
 
                             if ($mode === 'include' && !$matched) {
-                                $trace[] = "  [Filter Failed] Stream '{$stream['name']}' requires Country/Device IN " . implode(',', $payload);
+                                $trace[] = "  [Filter Failed] Stream '{$stream['name']}' requires {$f['name']} IN " . implode(',', $payload);
                                 return false;
                             }
                             if ($mode === 'exclude' && $matched) {
-                                $trace[] = "  [Filter Failed] Stream '{$stream['name']}' excludes Country/Device IN " . implode(',', $payload);
+                                $trace[] = "  [Filter Failed] Stream '{$stream['name']}' excludes {$f['name']} IN " . implode(',', $payload);
                                 return false;
                             }
                         }
@@ -2058,7 +2088,7 @@ try {
                 $trace[] = "Evaluating Intercepting streams...";
                 foreach ($allStreams as $stream) {
                     if (($stream['type'] ?? 'regular') === 'intercepting') {
-                        if (streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $trace)) {
+                        if (streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $language, $trace)) {
                             $selectedStream = $stream;
                             $trace[] = "=> MATCHED Intercepting Stream: " . $stream['name'];
                             break;
@@ -2068,7 +2098,7 @@ try {
 
                 if (!$selectedStream) {
                     $trace[] = "Evaluating Regular streams...";
-                    $regular = array_filter($allStreams, fn($s) => ($s['type'] ?? 'regular') === 'regular' && streamMatchesFiltersSim($s, $ip, $country, $deviceType, $trace));
+                    $regular = array_filter($allStreams, fn($s) => ($s['type'] ?? 'regular') === 'regular' && streamMatchesFiltersSim($s, $ip, $country, $deviceType, $language, $trace));
 
                     if (!empty($regular)) {
                         $trace[] = "Found " . count($regular) . " eligible regular streams";
@@ -2271,6 +2301,7 @@ try {
             $allowed_dimensions = [
                 'country' => 'clicks.country',
                 'device_type' => 'clicks.device_type',
+                'language' => 'clicks.language',
                 'stream_id' => 'clicks.stream_id',
                 'source_id' => 'clicks.source_id',
             ];

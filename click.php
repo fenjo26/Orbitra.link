@@ -228,6 +228,38 @@ function clickDetectBrowser($userAgent)
     return 'Unknown';
 }
 
+function clickNormalizeLanguageCode($value)
+{
+    if (!is_string($value)) {
+        return 'Unknown';
+    }
+
+    $value = strtolower(trim($value));
+    if ($value === '' || $value === '*') {
+        return 'Unknown';
+    }
+
+    $value = explode(',', $value)[0];
+    $value = explode(';', $value)[0];
+    $value = trim($value);
+    if ($value === '') {
+        return 'Unknown';
+    }
+
+    $primary = preg_split('/[-_]/', $value)[0] ?? '';
+    $primary = preg_replace('/[^a-z]/', '', $primary);
+    if ($primary === '') {
+        return 'Unknown';
+    }
+
+    return $primary;
+}
+
+function clickDetectLanguage()
+{
+    return clickNormalizeLanguageCode($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
+}
+
 function clickGenerateUuid()
 {
     try {
@@ -257,6 +289,7 @@ $timezone = $geoData['timezone'];
 $deviceType = clickGetDeviceType($userAgent);
 $os = clickDetectOs($userAgent);
 $browser = clickDetectBrowser($userAgent);
+$language = clickDetectLanguage();
 $clickId = clickGenerateUuid();
 
 // Collect sub parameters
@@ -325,9 +358,9 @@ if ($statsEnabled && !$isDebounced) {
         INSERT INTO clicks (
             id, campaign_id, offer_id, stream_id, source_id, ip, user_agent, referer,
             country, country_code, region, city, latitude, longitude, zipcode, timezone,
-            device_type, os, browser, parameters_json
+            device_type, os, browser, language, parameters_json
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $insertStmt->execute([
         $clickId,
@@ -349,6 +382,7 @@ if ($statsEnabled && !$isDebounced) {
         $deviceType,
         $os,
         $browser,
+        $language,
         $parametersJson
     ]);
 }

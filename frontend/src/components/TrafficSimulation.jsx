@@ -13,7 +13,8 @@ const TrafficSimulation = () => {
         ip: '192.168.1.1',
         user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
         country: 'US',
-        device_type: 'desktop'
+        device_type: 'desktop',
+        language: 'en'
     });
     const [trace, setTrace] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -113,6 +114,16 @@ const TrafficSimulation = () => {
                                 <option value="mobile">{t('simulation.mobile')}</option>
                                 <option value="tablet">{t('simulation.tablet')}</option>
                             </select>
+                        </div>
+                        <div>
+                            <label className="form-label">{t('simulation.language')}</label>
+                            <input
+                                type="text"
+                                value={formData.language}
+                                onChange={e => setFormData({ ...formData, language: e.target.value })}
+                                className="form-input"
+                                placeholder="en, ru, de..."
+                            />
                         </div>
                         <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%' }}>
                             <Play className="w-4 h-4" />

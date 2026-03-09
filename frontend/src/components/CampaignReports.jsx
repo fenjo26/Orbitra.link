@@ -19,6 +19,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const dimensions = [
         { value: 'country', label: t('campaignReports.geoCountry') },
         { value: 'device_type', label: t('campaignReports.deviceType') },
+        { value: 'language', label: t('campaignReports.language') },
         { value: 'stream_id', label: t('campaignReports.stream') },
         { value: 'source_id', label: t('campaignReports.source') },
         { value: 'sub_id_1', label: 'Sub ID 1' },
