@@ -63,7 +63,15 @@ const LogsPage = () => {
                                     <td>{log.subid || '-'}</td>
                                     <td>{log.campaign_name || t('logs.direct')}</td>
                                     <td>{log.ip}</td>
-                                    <td>{log.country_code || '-'}</td>
+                                    <td>
+                                        <div>{log.country_code || '-'}</div>
+                                        <div className="text-xs text-[var(--color-text-muted)]">
+                                            {[log.region, log.city].filter(Boolean).join(', ') || '-'}
+                                        </div>
+                                        {log.geo_timezone ? (
+                                            <div className="text-[11px] text-[var(--color-text-muted)]">{log.geo_timezone}</div>
+                                        ) : null}
+                                    </td>
                                     <td>{log.device_type || '-'}</td>
                                 </tr>
                             ))}

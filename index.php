@@ -69,11 +69,10 @@ function getGeoData($ip)
         return $geo;
     }
 
-    // 1. IP2Location (DB11/DB3) - приоритет для расширенных полей
+    // 1. IP2Location (DB11) - приоритет для расширенных полей
     $ip2locCandidates = [
-        __DIR__ . '/geo/IP2LOCATION-LITE.BIN',
         __DIR__ . '/geo/IP2LOCATION-LITE-DB11.BIN',
-        __DIR__ . '/geo/IP2LOCATION-LITE-DB3.BIN',
+        __DIR__ . '/geo/IP2LOCATION-LITE.BIN', // legacy path
     ];
     $ip2locDb = null;
     foreach ($ip2locCandidates as $candidate) {

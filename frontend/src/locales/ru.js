@@ -1046,7 +1046,7 @@ export default {
         maxmindPlaceholder: "Введите лицензионный ключ MaxMind",
         maxmindHint: "Обязателен для скачивания обновления базы MaxMind GeoLite2.",
         ip2locationPlaceholder: "Введите токен скачивания IP2Location",
-        ip2locationHint: "Обязателен для автообновления базы IP2Location LITE (приоритет DB11, fallback DB3).",
+        ip2locationHint: "Обязателен для автообновления полной базы IP2Location LITE DB11 IPv4+IPv6 (пакет DB11LITEBINIPV6 / id=20).",
         saveKeys: "Сохранить ключи",
         savingKeys: "Сохранение...",
         keysSaved: "Ключи успешно сохранены",

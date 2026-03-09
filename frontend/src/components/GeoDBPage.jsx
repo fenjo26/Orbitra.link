@@ -184,7 +184,7 @@ const GeoDBPage = () => {
                         <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-success)', marginBottom: '4px' }}>{t('geoDb.recommendedFree')}</p>
                         <ul style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginLeft: '16px' }}>
                             <li>• <strong>Sypex Geo City Lite</strong> — {t('geoDb.sypexDesc')}</li>
-                            <li>• <strong>IP2Location LITE (DB11/DB3)</strong> — {t('geoDb.ip2locLiteDesc')}</li>
+                            <li>• <strong>IP2Location LITE (DB11 IPv4+IPv6)</strong> — {t('geoDb.ip2locLiteDesc')}</li>
                         </ul>
                     </div>
 
@@ -294,7 +294,7 @@ const GeoDBPage = () => {
                             type="file"
                             ref={fileInputRef}
                             onChange={handleFileUpload}
-                            accept=".dat,.zip"
+                            accept=".dat,.zip,.bin"
                             className="hidden"
                         />
                         <button

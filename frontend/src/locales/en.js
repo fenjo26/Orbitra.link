@@ -1046,7 +1046,7 @@ export default {
         maxmindPlaceholder: "Enter MaxMind license key",
         maxmindHint: "Required for downloading MaxMind GeoLite2 database updates.",
         ip2locationPlaceholder: "Enter IP2Location download token",
-        ip2locationHint: "Required for auto-updating IP2Location LITE (DB11 priority, DB3 fallback).",
+        ip2locationHint: "Required for auto-updating full IP2Location LITE DB11 IPv4+IPv6 (package DB11LITEBINIPV6 / id=20).",
         saveKeys: "Save Keys",
         savingKeys: "Saving...",
         keysSaved: "Keys saved successfully",

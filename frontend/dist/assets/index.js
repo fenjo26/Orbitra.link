@@ -16930,7 +16930,7 @@ const ru = {
     maxmindPlaceholder: "Введите лицензионный ключ MaxMind",
     maxmindHint: "Обязателен для скачивания обновления базы MaxMind GeoLite2.",
     ip2locationPlaceholder: "Введите токен скачивания IP2Location",
-    ip2locationHint: "Обязателен для автообновления базы IP2Location LITE (приоритет DB11, fallback DB3).",
+    ip2locationHint: "Обязателен для автообновления полной базы IP2Location LITE DB11 IPv4+IPv6 (пакет DB11LITEBINIPV6 / id=20).",
     saveKeys: "Сохранить ключи",
     savingKeys: "Сохранение...",
     keysSaved: "Ключи успешно сохранены",
@@ -18477,7 +18477,7 @@ const en = {
     maxmindPlaceholder: "Enter MaxMind license key",
     maxmindHint: "Required for downloading MaxMind GeoLite2 database updates.",
     ip2locationPlaceholder: "Enter IP2Location download token",
-    ip2locationHint: "Required for auto-updating IP2Location LITE (DB11 priority, DB3 fallback).",
+    ip2locationHint: "Required for auto-updating full IP2Location LITE DB11 IPv4+IPv6 (package DB11LITEBINIPV6 / id=20).",
     saveKeys: "Save Keys",
     savingKeys: "Saving...",
     keysSaved: "Keys saved successfully",
@@ -40083,7 +40083,11 @@ const LogsPage = () => {
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.subid || "-" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.campaign_name || t2("logs.direct") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.ip }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.country_code || "-" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: log.country_code || "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)]", children: [log.region, log.city].filter(Boolean).join(", ") || "-" }),
+              log.geo_timezone ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] text-[var(--color-text-muted)]", children: log.geo_timezone }) : null
+            ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.device_type || "-" })
           ] }, i)) })
         ] });
@@ -40539,7 +40543,7 @@ const GeoDBPage = () => {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
             "• ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "IP2Location LITE (DB11/DB3)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "IP2Location LITE (DB11 IPv4+IPv6)" }),
             " — ",
             t2("geoDb.ip2locLiteDesc")
           ] })
@@ -40664,7 +40668,7 @@ const GeoDBPage = () => {
           type: "file",
           ref: fileInputRef,
           onChange: handleFileUpload,
-          accept: ".dat,.zip",
+          accept: ".dat,.zip,.bin",
           className: "hidden"
         }
       ),
