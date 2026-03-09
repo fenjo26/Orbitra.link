@@ -42,7 +42,7 @@ class AffilkaEngine
             $body = curl_exec($ch);
             $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $error = curl_error($ch);
-            curl_close($ch);
+            // curl_close() is deprecated in PHP 8.5 - resources are auto-freed
 
             if ($error) {
                 return ['success' => false, 'message' => 'cURL: ' . $error];
@@ -63,15 +63,14 @@ class AffilkaEngine
             ]);
             $body2 = curl_exec($ch2);
             $code2 = curl_getinfo($ch2, CURLINFO_HTTP_CODE);
-            curl_close($ch2);
+            // curl_close() is deprecated in PHP 8.5 - resources are auto-freed
 
             if ($code2 >= 200 && $code2 < 400) {
                 return ['success' => true, 'message' => "Connected via v2 API! HTTP $code2"];
             }
 
             return ['success' => false, 'message' => "HTTP $code — " . substr($body, 0, 200)];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return ['success' => false, 'message' => $e->getMessage()];
         }
     }
@@ -113,7 +112,7 @@ class AffilkaEngine
             $body = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $error = curl_error($ch);
-            curl_close($ch);
+            // curl_close() is deprecated in PHP 8.5 - resources are auto-freed
 
             if ($error) {
                 throw new \Exception('Affilka cURL: ' . $error);
@@ -200,10 +199,10 @@ class AffilkaEngine
         }
 
         // Fallback для amount
-        if (empty($result['amount']) || (float)$result['amount'] == 0) {
+        if (empty($result['amount']) || (float) $result['amount'] == 0) {
             foreach (['commission_amount', 'commission', 'revenue', 'amount', 'payout', 'net_revenue'] as $af) {
-                if (isset($row[$af]) && (float)$row[$af] > 0) {
-                    $result['amount'] = (float)$row[$af];
+                if (isset($row[$af]) && (float) $row[$af] > 0) {
+                    $result['amount'] = (float) $row[$af];
                     break;
                 }
             }
@@ -213,8 +212,7 @@ class AffilkaEngine
         if (empty($result['event_type'])) {
             if (isset($row['is_first_deposit']) && $row['is_first_deposit']) {
                 $result['event_type'] = 'ftd';
-            }
-            else {
+            } else {
                 $result['event_type'] = 'commission';
             }
         }

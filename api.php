@@ -29,7 +29,7 @@ if (in_array($origin, $allowedOrigins)) {
     header('Access-Control-Allow-Credentials: true');
 } else {
     // Fallback for tools like curl if needed, but safer to restrict
-    header('Access-Control-Allow-Origin: *'); 
+    header('Access-Control-Allow-Origin: *');
 }
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN');
@@ -44,19 +44,22 @@ header('Content-Type: application/json');
 $action = $_GET['action'] ?? '';
 
 // Rate Limiting fallback implementation
-function checkRateLimit($key, $maxRequests = 5, $window = 300) {
+function checkRateLimit($key, $maxRequests = 5, $window = 300)
+{
     // Попробовать Redis, если расширение установлено
     if (extension_loaded('redis') && class_exists('Redis')) {
         try {
             $redis = new Redis();
             if (@$redis->connect('127.0.0.1', 6379)) {
                 $current = $redis->get("ratelimit:$key") ?: 0;
-                if ($current >= $maxRequests) return false;
+                if ($current >= $maxRequests)
+                    return false;
                 $redis->incr("ratelimit:$key");
                 $redis->expire("ratelimit:$key", $window);
                 return true;
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
 
     // SQLite Fallback для rate limiting
@@ -70,13 +73,15 @@ function checkRateLimit($key, $maxRequests = 5, $window = 300) {
         $row = $stmt->fetch();
 
         if ($row) {
-            if ($row['count'] >= $maxRequests) return false;
+            if ($row['count'] >= $maxRequests)
+                return false;
             $pdo->prepare("UPDATE rate_limits SET count = count + 1 WHERE key = ?")->execute([$key]);
         } else {
             $pdo->prepare("INSERT INTO rate_limits (key, count, expires_at) VALUES (?, 1, datetime('now', '+$window seconds'))")->execute([$key]);
         }
         return true;
-    } catch (\Exception $e) {}
+    } catch (\Exception $e) {
+    }
     return true; // Graceful degrade если БД недоступна
 }
 
@@ -117,7 +122,8 @@ try {
             $userTimezone = $tz;
         }
     }
-} catch (\Exception $e) {}
+} catch (\Exception $e) {
+}
 
 date_default_timezone_set($userTimezone);
 
@@ -133,8 +139,7 @@ function logSystem($pdo, $level, $message, $context = null)
     try {
         $stmt = $pdo->prepare("INSERT INTO system_logs (level, message, context) VALUES (?, ?, ?)");
         $stmt->execute([$level, $message, is_string($context) ? $context : json_encode($context)]);
-    }
-    catch (\Exception $e) {
+    } catch (\Exception $e) {
     }
 }
 
@@ -145,16 +150,16 @@ function logAudit($pdo, $action, $resource, $resource_id = null, $context = null
         $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
         $stmt = $pdo->prepare("INSERT INTO audit_logs (action, resource, resource_id, context, ip, user_agent, status_code) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$action, $resource, $resource_id, is_string($context) ? $context : json_encode($context), $ip, $user_agent, $status_code]);
-    }
-    catch (\Exception $e) {
+    } catch (\Exception $e) {
         logSystem($pdo, 'ERROR', "Audit Log Error", $e->getMessage());
     }
 }
 
-function getDashboardFilters($prefix = '') {
+function getDashboardFilters($prefix = '')
+{
     global $dbTzOffset;
-    
-    $campaign_id = !empty($_GET['campaign_id']) ? (int)$_GET['campaign_id'] : null;
+
+    $campaign_id = !empty($_GET['campaign_id']) ? (int) $_GET['campaign_id'] : null;
     $date_range = $_GET['date_range'] ?? 'all';
     $custom_from = !empty($_GET['custom_from']) ? $_GET['custom_from'] : null;
     $custom_to = !empty($_GET['custom_to']) ? $_GET['custom_to'] : null;
@@ -168,7 +173,7 @@ function getDashboardFilters($prefix = '') {
     }
 
     $dateColumn = "{$prefix}created_at";
-    
+
     switch ($date_range) {
         case 'today':
             $conditions[] = "date($dateColumn, '$dbTzOffset') = date('now', '$dbTzOffset')";
@@ -204,7 +209,8 @@ function getDashboardFilters($prefix = '') {
     return [$whereClause, $params];
 }
 
-function getTableColumns($pdo, $tableName) {
+function getTableColumns($pdo, $tableName)
+{
     static $cache = [];
     if (isset($cache[$tableName])) {
         return $cache[$tableName];
@@ -216,15 +222,15 @@ function getTableColumns($pdo, $tableName) {
         if ($stmt) {
             $cache[$tableName] = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'name');
         }
-    }
-    catch (\Exception $e) {
+    } catch (\Exception $e) {
         $cache[$tableName] = [];
     }
 
     return $cache[$tableName];
 }
 
-function getRevenueRecordsValueColumn($pdo) {
+function getRevenueRecordsValueColumn($pdo)
+{
     static $column = false;
     if ($column !== false) {
         return $column;
@@ -234,8 +240,7 @@ function getRevenueRecordsValueColumn($pdo) {
     $columns = getTableColumns($pdo, 'revenue_records');
     if (in_array('amount', $columns, true)) {
         $column = 'amount';
-    }
-    elseif (in_array('revenue', $columns, true)) {
+    } elseif (in_array('revenue', $columns, true)) {
         // Backward compatibility for older schemas.
         $column = 'revenue';
     }
@@ -243,7 +248,8 @@ function getRevenueRecordsValueColumn($pdo) {
     return $column;
 }
 
-function getConversionsValueColumn($pdo) {
+function getConversionsValueColumn($pdo)
+{
     static $column = false;
     if ($column !== false) {
         return $column;
@@ -253,12 +259,10 @@ function getConversionsValueColumn($pdo) {
     $columns = getTableColumns($pdo, 'conversions');
     if (in_array('payout', $columns, true)) {
         $column = 'payout';
-    }
-    elseif (in_array('revenue', $columns, true)) {
+    } elseif (in_array('revenue', $columns, true)) {
         // Legacy schemas.
         $column = 'revenue';
-    }
-    elseif (in_array('amount', $columns, true)) {
+    } elseif (in_array('amount', $columns, true)) {
         $column = 'amount';
     }
 
@@ -275,8 +279,8 @@ try {
             $clicksStmt = $pdo->prepare("SELECT COUNT(id) as total_clicks, COUNT(DISTINCT ip) as unique_clicks FROM clicks $whereCl");
             $clicksStmt->execute($paramsCl);
             $clickData = $clicksStmt->fetch();
-            $metrics['clicks'] = (int)$clickData['total_clicks'];
-            $metrics['unique_clicks'] = (int)$clickData['unique_clicks'];
+            $metrics['clicks'] = (int) $clickData['total_clicks'];
+            $metrics['unique_clicks'] = (int) $clickData['unique_clicks'];
             list($whereClicksPrefixed, $paramsClicksPrefixed) = getDashboardFilters('clicks.');
 
             list($whereCv, $paramsCv) = getDashboardFilters();
@@ -297,8 +301,8 @@ try {
             $convStmt = $pdo->prepare("SELECT COUNT(conversions.id) as total_conversions, $conversionRevenueSumExpression as total_revenue FROM conversions $joinConv $whereCv");
             $convStmt->execute($paramsCv);
             $convData = $convStmt->fetch();
-            $metrics['conversions'] = (int)$convData['total_conversions'];
-            $metrics['revenue'] = (float)$convData['total_revenue'];
+            $metrics['conversions'] = (int) $convData['total_conversions'];
+            $metrics['revenue'] = (float) $convData['total_revenue'];
 
             // Расход (в этой модели у нас нет cost, для красоты ставим 0 или моковые данные)
             $metrics['cost'] = 0.00;
@@ -315,7 +319,7 @@ try {
             if ($revenueRecordsValueColumn !== null) {
                 $rrStmt = $pdo->prepare("SELECT COALESCE(SUM(rr.$revenueRecordsValueColumn), 0) as real_rev FROM revenue_records rr JOIN clicks ON rr.click_id = clicks.id $whereClicksPrefixed");
                 $rrStmt->execute($paramsClicksPrefixed);
-                $metrics['real_revenue'] = (float)$rrStmt->fetch()['real_rev'];
+                $metrics['real_revenue'] = (float) $rrStmt->fetch()['real_rev'];
             }
             $real_profit = $metrics['real_revenue'] - $metrics['cost'];
             $metrics['real_roi'] = $metrics['cost'] > 0 ? round(($real_profit / $metrics['cost']) * 100, 2) : ($real_profit > 0 ? 100 : 0);
@@ -328,7 +332,7 @@ try {
 
         case 'chart':
             list($whereCl, $paramsCl) = getDashboardFilters('');
-            
+
             // Determine if the range is a single day (from GET params)
             $isSingleDay = false;
             if (isset($_GET['date_range'])) {
@@ -376,7 +380,7 @@ try {
                 ORDER BY period ASC 
                 LIMIT 100
             ";
-            
+
             $chartStmt = $pdo->prepare($chartQuery);
             $chartStmt->execute($paramsCl);
             $chartData = $chartStmt->fetchAll();
@@ -405,30 +409,37 @@ try {
 
                 $hourlyData = [];
                 // If the selected day is today, only show hours up to the current hour
-                $maxHour = ($baseDate === date('Y-m-d')) ? (int)date('H') : 23;
+                $maxHour = ($baseDate === date('Y-m-d')) ? (int) date('H') : 23;
 
                 for ($i = 0; $i <= $maxHour; $i++) {
                     $hourStr = str_pad($i, 2, '0', STR_PAD_LEFT);
                     $key = "$baseDate $hourStr:00:00";
                     $hourlyData[$key] = [
-                        'clicks' => 0, 'unique_clicks' => 0, 'conversions' => 0, 
-                        'revenue' => 0.0, 'cost' => 0.0, 'profit' => 0.0, 'roi' => 0.0,
-                        'real_revenue' => 0.0, 'real_roi' => 0.0, 'ctr' => 100
+                        'clicks' => 0,
+                        'unique_clicks' => 0,
+                        'conversions' => 0,
+                        'revenue' => 0.0,
+                        'cost' => 0.0,
+                        'profit' => 0.0,
+                        'roi' => 0.0,
+                        'real_revenue' => 0.0,
+                        'real_roi' => 0.0,
+                        'ctr' => 100
                     ];
                 }
 
                 foreach ($chartData as $row) {
                     $period = $row['period'] ?? ''; // format is 'YYYY-MM-DD HH:00:00'
                     if ($period !== '' && isset($hourlyData[$period])) {
-                        $hourlyData[$period]['clicks'] = (int)$row['clicks'];
-                        $hourlyData[$period]['unique_clicks'] = (int)$row['unique_clicks'];
-                        $hourlyData[$period]['conversions'] = (int)$row['conversions'];
-                        $hourlyData[$period]['revenue'] = (float)$row['revenue'];
+                        $hourlyData[$period]['clicks'] = (int) $row['clicks'];
+                        $hourlyData[$period]['unique_clicks'] = (int) $row['unique_clicks'];
+                        $hourlyData[$period]['conversions'] = (int) $row['conversions'];
+                        $hourlyData[$period]['revenue'] = (float) $row['revenue'];
                         $hourlyData[$period]['cost'] = 0.0; // Mocked cost if DB has no cost column yet
                         $hourlyData[$period]['profit'] = $hourlyData[$period]['revenue'] - $hourlyData[$period]['cost'];
                         $hourlyData[$period]['roi'] = $hourlyData[$period]['cost'] > 0 ? round(($hourlyData[$period]['profit'] / $hourlyData[$period]['cost']) * 100, 2) : ($hourlyData[$period]['profit'] > 0 ? 100 : 0);
-                        
-                        $hourlyData[$period]['real_revenue'] = (float)$row['real_revenue'];
+
+                        $hourlyData[$period]['real_revenue'] = (float) $row['real_revenue'];
                         $real_profit = $hourlyData[$period]['real_revenue'] - $hourlyData[$period]['cost'];
                         $hourlyData[$period]['real_roi'] = $hourlyData[$period]['cost'] > 0 ? round(($real_profit / $hourlyData[$period]['cost']) * 100, 2) : ($real_profit > 0 ? 100 : 0);
                         $hourlyData[$period]['ctr'] = 100; // Simplified
@@ -452,15 +463,29 @@ try {
             } else {
                 // Standard multi-day grouping with dynamic formatting based on date_range
                 $dateRange = $_GET['date_range'] ?? 'this_month';
-                
+
                 $daysMap = [
-                    'Mon' => 'Пн', 'Tue' => 'Вт', 'Wed' => 'Ср', 
-                    'Thu' => 'Чт', 'Fri' => 'Пт', 'Sat' => 'Сб', 'Sun' => 'Вс'
+                    'Mon' => 'Пн',
+                    'Tue' => 'Вт',
+                    'Wed' => 'Ср',
+                    'Thu' => 'Чт',
+                    'Fri' => 'Пт',
+                    'Sat' => 'Сб',
+                    'Sun' => 'Вс'
                 ];
                 $monthsMap = [
-                    '01' => 'Янв', '02' => 'Фев', '03' => 'Мар', '04' => 'Апр',
-                    '05' => 'Май', '06' => 'Июн', '07' => 'Июл', '08' => 'Авг',
-                    '09' => 'Сен', '10' => 'Окт', '11' => 'Ноя', '12' => 'Дек'
+                    '01' => 'Янв',
+                    '02' => 'Фев',
+                    '03' => 'Мар',
+                    '04' => 'Апр',
+                    '05' => 'Май',
+                    '06' => 'Июн',
+                    '07' => 'Июл',
+                    '08' => 'Авг',
+                    '09' => 'Сен',
+                    '10' => 'Окт',
+                    '11' => 'Ноя',
+                    '12' => 'Дек'
                 ];
 
                 // Determine start and end dates to zero-fill the gaps
@@ -499,17 +524,17 @@ try {
                 // Zero-fill the array
                 $dailyData = [];
                 $currentDateStr = $startDate;
-                
+
                 // Safety limiter for custom ranges to prevent infinite loops
-                $maxIterations = 366; 
+                $maxIterations = 366;
                 $i = 0;
-                
+
                 while (strtotime($currentDateStr) <= strtotime($endDate) && $i < $maxIterations) {
                     $key = $isYear ? date('Y-m', strtotime($currentDateStr)) : $currentDateStr;
                     $dailyData[$key] = [
                         'clicks' => 0,
-                        'unique_clicks' => 0, 
-                        'conversions' => 0, 
+                        'unique_clicks' => 0,
+                        'conversions' => 0,
                         'revenue' => 0.0,
                         'cost' => 0.0,
                         'profit' => 0.0,
@@ -527,17 +552,17 @@ try {
                 foreach ($chartData as $row) {
                     $rawDate = $row['period']; // YYYY-MM-DD
                     $key = $isYear ? date('Y-m', strtotime($rawDate)) : $rawDate;
-                    
+
                     if (isset($dailyData[$key])) {
-                        $dailyData[$key]['clicks'] = (int)$row['clicks'];
-                        $dailyData[$key]['unique_clicks'] = (int)$row['unique_clicks'];
-                        $dailyData[$key]['conversions'] = (int)$row['conversions'];
-                        $dailyData[$key]['revenue'] = (float)$row['revenue'];
+                        $dailyData[$key]['clicks'] = (int) $row['clicks'];
+                        $dailyData[$key]['unique_clicks'] = (int) $row['unique_clicks'];
+                        $dailyData[$key]['conversions'] = (int) $row['conversions'];
+                        $dailyData[$key]['revenue'] = (float) $row['revenue'];
                         $dailyData[$key]['cost'] = 0.0;
                         $dailyData[$key]['profit'] = $dailyData[$key]['revenue'] - $dailyData[$key]['cost'];
                         $dailyData[$key]['roi'] = $dailyData[$key]['cost'] > 0 ? round(($dailyData[$key]['profit'] / $dailyData[$key]['cost']) * 100, 2) : ($dailyData[$key]['profit'] > 0 ? 100 : 0);
-                        
-                        $dailyData[$key]['real_revenue'] = (float)$row['real_revenue'];
+
+                        $dailyData[$key]['real_revenue'] = (float) $row['real_revenue'];
                         $real_profit = $dailyData[$key]['real_revenue'] - $dailyData[$key]['cost'];
                         $dailyData[$key]['real_roi'] = $dailyData[$key]['cost'] > 0 ? round(($real_profit / $dailyData[$key]['cost']) * 100, 2) : ($real_profit > 0 ? 100 : 0);
                         $dailyData[$key]['ctr'] = 100; // Simplified
@@ -602,7 +627,7 @@ try {
             // Add AND condition if WHERE already exists, else start with WHERE
             $joinCondition = !empty($whereCl) ? str_replace("WHERE ", "AND ", $whereCl) : "";
 
-            $limitClause = isset($_GET['limit']) ? "LIMIT " . (int)$_GET['limit'] : "";
+            $limitClause = isset($_GET['limit']) ? "LIMIT " . (int) $_GET['limit'] : "";
             $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
 
             $stmt = $pdo->prepare("
@@ -654,17 +679,17 @@ try {
         case 'save_campaign':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
-                $id = !empty($data['id']) ? (int)$data['id'] : null;
+                $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $name = $data['name'] ?? '';
                 $alias = $data['alias'] ?? '';
-                $domainId = !empty($data['domain_id']) ? (int)$data['domain_id'] : null;
-                $groupId = !empty($data['group_id']) ? (int)$data['group_id'] : null;
-                $sourceId = !empty($data['source_id']) ? (int)$data['source_id'] : null;
+                $domainId = !empty($data['domain_id']) ? (int) $data['domain_id'] : null;
+                $groupId = !empty($data['group_id']) ? (int) $data['group_id'] : null;
+                $sourceId = !empty($data['source_id']) ? (int) $data['source_id'] : null;
                 $costModel = $data['cost_model'] ?? 'CPC';
-                $costValue = !empty($data['cost_value']) ? (float)$data['cost_value'] : 0.00;
+                $costValue = !empty($data['cost_value']) ? (float) $data['cost_value'] : 0.00;
                 $uniquenessMethod = $data['uniqueness_method'] ?? 'IP';
-                $uniquenessHours = !empty($data['uniqueness_hours']) ? (int)$data['uniqueness_hours'] : 24;
-                $catch404StreamId = !empty($data['catch_404_stream_id']) ? (int)$data['catch_404_stream_id'] : null;
+                $uniquenessHours = !empty($data['uniqueness_hours']) ? (int) $data['uniqueness_hours'] : 24;
+                $catch404StreamId = !empty($data['catch_404_stream_id']) ? (int) $data['catch_404_stream_id'] : null;
 
                 $streams = $data['streams'] ?? [];
                 $postbacks = $data['postbacks'] ?? [];
@@ -686,20 +711,34 @@ try {
                             WHERE id=?
                         ");
                         $stmt->execute([
-                            $name, $alias, $domainId, $groupId, $sourceId,
-                            $costModel, $costValue, $uniquenessMethod, $uniquenessHours,
-                            $catch404StreamId, $id
+                            $name,
+                            $alias,
+                            $domainId,
+                            $groupId,
+                            $sourceId,
+                            $costModel,
+                            $costValue,
+                            $uniquenessMethod,
+                            $uniquenessHours,
+                            $catch404StreamId,
+                            $id
                         ]);
-                    }
-                    else {
+                    } else {
                         $stmt = $pdo->prepare("
                             INSERT INTO campaigns 
                             (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, catch_404_stream_id)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         $stmt->execute([
-                            $name, $alias, $domainId, $groupId, $sourceId,
-                            $costModel, $costValue, $uniquenessMethod, $uniquenessHours,
+                            $name,
+                            $alias,
+                            $domainId,
+                            $groupId,
+                            $sourceId,
+                            $costModel,
+                            $costValue,
+                            $uniquenessMethod,
+                            $uniquenessHours,
                             $catch404StreamId
                         ]);
                         $id = $pdo->lastInsertId();
@@ -714,8 +753,8 @@ try {
                     ");
                     foreach ($streams as $str) {
                         // Convert offer_id = 0 to NULL to avoid FOREIGN KEY constraint error
-                        $offerId = !empty($str['offer_id']) ? (int)$str['offer_id'] : null;
-                        
+                        $offerId = !empty($str['offer_id']) ? (int) $str['offer_id'] : null;
+
                         $stmtStream->execute([
                             $id,
                             $offerId,
@@ -746,8 +785,7 @@ try {
 
                     $pdo->commit();
                     echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     $pdo->rollBack();
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
@@ -760,8 +798,7 @@ try {
                 if (!empty($data['id'])) {
                     $pdo->prepare("UPDATE campaigns SET is_archived = 1, archived_at = datetime('now') WHERE id = ?")->execute([$data['id']]);
                     echo json_encode(['status' => 'success']);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
                 }
             }
@@ -774,12 +811,10 @@ try {
                     $stmt = $pdo->prepare("INSERT INTO campaign_groups (name) VALUES (?)");
                     $stmt->execute([$data['name']]);
                     echo json_encode(['status' => 'success', 'data' => ['id' => $pdo->lastInsertId()]]);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing name']);
                 }
-            }
-            else {
+            } else {
                 $stmt = $pdo->query("SELECT * FROM campaign_groups ORDER BY name ASC");
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             }
@@ -788,7 +823,7 @@ try {
         case 'traffic_sources':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
-                $id = !empty($data['id']) ? (int)$data['id'] : null;
+                $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $name = $data['name'] ?? '';
                 $template = $data['template'] ?? '';
                 $postbackUrl = $data['postback_url'] ?? '';
@@ -806,23 +841,20 @@ try {
                     if ($id) {
                         $stmt = $pdo->prepare("UPDATE traffic_sources SET name=?, template=?, postback_url=?, postback_statuses=?, parameters_json=?, notes=?, state=? WHERE id=?");
                         $stmt->execute([$name, $template, $postbackUrl, $postbackStatuses, $parametersJson, $notes, $state, $id]);
-                    }
-                    else {
+                    } else {
                         $stmt = $pdo->prepare("INSERT INTO traffic_sources (name, template, postback_url, postback_statuses, parameters_json, notes, state) VALUES (?, ?, ?, ?, ?, ?, ?)");
                         $stmt->execute([$name, $template, $postbackUrl, $postbackStatuses, $parametersJson, $notes, $state]);
                         $id = $pdo->lastInsertId();
                     }
                     echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
-            }
-            else {
+            } else {
                 // Get traffic sources with stats
                 list($whereCl, $paramsCl) = getDashboardFilters('cl.');
                 $joinCondition = !empty($whereCl) ? str_replace("WHERE ", "AND ", $whereCl) : "";
-                $limitClause = isset($_GET['limit']) ? "LIMIT " . (int)$_GET['limit'] : "";
+                $limitClause = isset($_GET['limit']) ? "LIMIT " . (int) $_GET['limit'] : "";
                 $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
 
                 $stmt = $pdo->prepare("
@@ -874,8 +906,7 @@ try {
                     $pdo->prepare("UPDATE campaigns SET source_id = NULL WHERE source_id = ?")->execute([$id]);
                     $pdo->prepare("UPDATE traffic_sources SET is_archived = 1, archived_at = datetime('now') WHERE id = ?")->execute([$id]);
                     echo json_encode(['status' => 'success']);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
                 }
             }
@@ -1033,12 +1064,10 @@ try {
                     $stmt = $pdo->prepare("INSERT INTO landing_groups (name) VALUES (?)");
                     $stmt->execute([$data['name']]);
                     echo json_encode(['status' => 'success', 'data' => ['id' => $pdo->lastInsertId()]]);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing name']);
                 }
-            }
-            else {
+            } else {
                 $stmt = $pdo->query("SELECT * FROM landing_groups ORDER BY name ASC");
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             }
@@ -1047,7 +1076,7 @@ try {
         case 'landings':
             list($whereCl, $paramsCl) = getDashboardFilters('cl.');
             $joinCondition = !empty($whereCl) ? str_replace("WHERE ", "AND ", $whereCl) : "";
-            $limitClause = isset($_GET['limit']) ? "LIMIT " . (int)$_GET['limit'] : "";
+            $limitClause = isset($_GET['limit']) ? "LIMIT " . (int) $_GET['limit'] : "";
             $orderBy = isset($_GET['limit']) ? "ORDER BY clicks DESC, l.id DESC" : "ORDER BY l.id DESC";
             $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
 
@@ -1077,12 +1106,10 @@ try {
                 $landing = $stmt->fetch();
                 if ($landing) {
                     echo json_encode(['status' => 'success', 'data' => $landing]);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Landing not found']);
                 }
-            }
-            else {
+            } else {
                 echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
             }
             break;
@@ -1101,15 +1128,13 @@ try {
                     if ($id) {
                         $stmt = $pdo->prepare("UPDATE landings SET name=?, group_id=?, type=?, url=?, action_payload=?, state=? WHERE id=?");
                         $stmt->execute([$data['name'], $groupId, $type, $url, $actionPayload, $state, $id]);
-                    }
-                    else {
+                    } else {
                         $stmt = $pdo->prepare("INSERT INTO landings (name, group_id, type, url, action_payload, state) VALUES (?, ?, ?, ?, ?, ?)");
                         $stmt->execute([$data['name'], $groupId, $type, $url, $actionPayload, $state]);
                         $id = $pdo->lastInsertId();
                     }
                     echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing name']);
                 }
             }
@@ -1122,8 +1147,7 @@ try {
                 if ($id) {
                     $pdo->prepare("UPDATE landings SET is_archived = 1, archived_at = datetime('now') WHERE id = ?")->execute([$id]);
                     echo json_encode(['status' => 'success']);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
                 }
             }
@@ -1148,12 +1172,12 @@ try {
                 }
 
                 $zipFile = $_FILES['file']['tmp_name'];
-                
+
                 // Security: Check MIME type
                 $allowedMimes = ['application/zip', 'application/x-zip-compressed'];
                 $finfo = finfo_open(FILEINFO_MIME_TYPE);
                 $mimeType = finfo_file($finfo, $zipFile);
-                finfo_close($finfo);
+                // finfo_close() is deprecated since PHP 8.5 - resources are auto-freed
 
                 if (!in_array($mimeType, $allowedMimes)) {
                     echo json_encode(['status' => 'error', 'message' => 'Invalid file type. Only ZIP allowed.']);
@@ -1193,8 +1217,7 @@ try {
                         echo json_encode(['status' => 'error', 'message' => $errorMsg]);
                     }
                     $zip->close();
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Failed to open ZIP file']);
                 }
             }
@@ -1212,7 +1235,7 @@ try {
                 $iterator = new RecursiveIteratorIterator(
                     new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
                     RecursiveIteratorIterator::SELF_FIRST
-                    );
+                );
 
                 $files = [];
                 foreach ($iterator as $file) {
@@ -1225,8 +1248,7 @@ try {
                     }
                 }
                 echo json_encode(['status' => 'success', 'data' => $files]);
-            }
-            else {
+            } else {
                 echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
             }
             break;
@@ -1238,7 +1260,7 @@ try {
                 // Security: Normalize path and prevent traversal
                 $path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path);
                 $path = preg_replace('/\.\.+/', '', $path);
-                
+
                 $fullPath = realpath(__DIR__ . '/landings/' . $id . '/' . ltrim($path, '/'));
                 $allowedPath = realpath(__DIR__ . '/landings/' . $id . '/');
 
@@ -1251,12 +1273,10 @@ try {
                 if (file_exists($file) && is_file($file)) {
                     $content = file_get_contents($file);
                     echo json_encode(['status' => 'success', 'data' => $content]);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'File not found']);
                 }
-            }
-            else {
+            } else {
                 echo json_encode(['status' => 'error', 'message' => 'Missing ID or path']);
             }
             break;
@@ -1272,7 +1292,7 @@ try {
                     // Security: Normalize path and prevent traversal
                     $path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path);
                     $path = preg_replace('/\.\.+/', '', $path);
-                    
+
                     $fullPath = realpath(__DIR__ . '/landings/' . $id . '/' . ltrim($path, '/'));
                     $allowedPath = realpath(__DIR__ . '/landings/' . $id . '/');
 
@@ -1285,12 +1305,10 @@ try {
                     if (file_exists($file) && is_file($file)) {
                         file_put_contents($file, $content);
                         echo json_encode(['status' => 'success']);
-                    }
-                    else {
+                    } else {
                         echo json_encode(['status' => 'error', 'message' => 'File not found']);
                     }
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID or path']);
                 }
             }
@@ -1299,7 +1317,7 @@ try {
         case 'offers':
             list($whereCl, $paramsCl) = getDashboardFilters('cl.');
             $joinCondition = !empty($whereCl) ? str_replace("WHERE ", "AND ", $whereCl) : "";
-            $limitClause = isset($_GET['limit']) ? "LIMIT " . (int)$_GET['limit'] : "";
+            $limitClause = isset($_GET['limit']) ? "LIMIT " . (int) $_GET['limit'] : "";
             $orderBy = isset($_GET['limit']) ? "ORDER BY clicks DESC, created_at DESC" : "ORDER BY created_at DESC";
             $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
             $conversionsValueColumn = getConversionsValueColumn($pdo);
@@ -1370,21 +1388,21 @@ try {
         case 'save_offer':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
-                $id = !empty($data['id']) ? (int)$data['id'] : null;
+                $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $name = $data['name'] ?? '';
-                $groupId = !empty($data['group_id']) ? (int)$data['group_id'] : null;
-                $affiliateNetworkId = !empty($data['affiliate_network_id']) ? (int)$data['affiliate_network_id'] : null;
+                $groupId = !empty($data['group_id']) ? (int) $data['group_id'] : null;
+                $affiliateNetworkId = !empty($data['affiliate_network_id']) ? (int) $data['affiliate_network_id'] : null;
                 $url = $data['url'] ?? '';
                 $redirectType = $data['redirect_type'] ?? 'redirect';
                 $isLocal = !empty($data['is_local']) ? 1 : 0;
                 $geo = $data['geo'] ?? '';
                 $payoutType = $data['payout_type'] ?? 'cpa';
-                $payoutValue = !empty($data['payout_value']) ? (float)$data['payout_value'] : 0.00;
+                $payoutValue = !empty($data['payout_value']) ? (float) $data['payout_value'] : 0.00;
                 $payoutAuto = !empty($data['payout_auto']) ? 1 : 0;
                 $allowRebills = !empty($data['allow_rebills']) ? 1 : 0;
-                $cappingLimit = !empty($data['capping_limit']) ? (int)$data['capping_limit'] : 0;
+                $cappingLimit = !empty($data['capping_limit']) ? (int) $data['capping_limit'] : 0;
                 $cappingTimezone = $data['capping_timezone'] ?? 'UTC';
-                $altOfferId = !empty($data['alt_offer_id']) ? (int)$data['alt_offer_id'] : null;
+                $altOfferId = !empty($data['alt_offer_id']) ? (int) $data['alt_offer_id'] : null;
                 $notes = $data['notes'] ?? '';
                 $valuesJson = json_encode($data['values'] ?? []);
                 $state = $data['state'] ?? 'active';
@@ -1405,13 +1423,26 @@ try {
                             WHERE id=?
                         ");
                         $stmt->execute([
-                            $name, $groupId, $affiliateNetworkId, $url, $redirectType,
-                            $isLocal, $geo, $payoutType, $payoutValue, $payoutAuto,
-                            $allowRebills, $cappingLimit, $cappingTimezone, $altOfferId,
-                            $notes, $valuesJson, $state, $id
+                            $name,
+                            $groupId,
+                            $affiliateNetworkId,
+                            $url,
+                            $redirectType,
+                            $isLocal,
+                            $geo,
+                            $payoutType,
+                            $payoutValue,
+                            $payoutAuto,
+                            $allowRebills,
+                            $cappingLimit,
+                            $cappingTimezone,
+                            $altOfferId,
+                            $notes,
+                            $valuesJson,
+                            $state,
+                            $id
                         ]);
-                    }
-                    else {
+                    } else {
                         $stmt = $pdo->prepare("
                             INSERT INTO offers 
                             (name, group_id, affiliate_network_id, url, redirect_type, is_local, geo, 
@@ -1420,16 +1451,28 @@ try {
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         $stmt->execute([
-                            $name, $groupId, $affiliateNetworkId, $url, $redirectType,
-                            $isLocal, $geo, $payoutType, $payoutValue, $payoutAuto,
-                            $allowRebills, $cappingLimit, $cappingTimezone, $altOfferId,
-                            $notes, $valuesJson, $state
+                            $name,
+                            $groupId,
+                            $affiliateNetworkId,
+                            $url,
+                            $redirectType,
+                            $isLocal,
+                            $geo,
+                            $payoutType,
+                            $payoutValue,
+                            $payoutAuto,
+                            $allowRebills,
+                            $cappingLimit,
+                            $cappingTimezone,
+                            $altOfferId,
+                            $notes,
+                            $valuesJson,
+                            $state
                         ]);
                         $id = $pdo->lastInsertId();
                     }
                     echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
             }
@@ -1446,8 +1489,7 @@ try {
                     } catch (\Exception $e) {
                         echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                     }
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
                 }
             }
@@ -1461,16 +1503,13 @@ try {
                         $stmt = $pdo->prepare("INSERT INTO offer_groups (name) VALUES (?)");
                         $stmt->execute([$data['name']]);
                         echo json_encode(['status' => 'success', 'data' => ['id' => $pdo->lastInsertId()]]);
-                    }
-                    catch (\Exception $e) {
+                    } catch (\Exception $e) {
                         echo json_encode(['status' => 'error', 'message' => 'Группа с таким названием уже существует']);
                     }
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing name']);
                 }
-            }
-            else {
+            } else {
                 $stmt = $pdo->query("SELECT * FROM offer_groups ORDER BY name ASC");
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             }
@@ -1485,8 +1524,7 @@ try {
                     $pdo->prepare("UPDATE offers SET group_id = NULL WHERE group_id = ?")->execute([$id]);
                     $pdo->prepare("DELETE FROM offer_groups WHERE id = ?")->execute([$id]);
                     echo json_encode(['status' => 'success']);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
                 }
             }
@@ -1495,7 +1533,7 @@ try {
         case 'affiliate_networks':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
-                $id = !empty($data['id']) ? (int)$data['id'] : null;
+                $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $name = $data['name'] ?? '';
                 $template = $data['template'] ?? '';
                 $offerParams = $data['offer_params'] ?? '';
@@ -1512,20 +1550,17 @@ try {
                     if ($id) {
                         $stmt = $pdo->prepare("UPDATE affiliate_networks SET name=?, template=?, offer_params=?, postback_url=?, notes=?, state=? WHERE id=?");
                         $stmt->execute([$name, $template, $offerParams, $postbackUrl, $notes, $state, $id]);
-                    }
-                    else {
+                    } else {
                         $stmt = $pdo->prepare("INSERT INTO affiliate_networks (name, template, offer_params, postback_url, notes, state) VALUES (?, ?, ?, ?, ?, ?)");
                         $stmt->execute([$name, $template, $offerParams, $postbackUrl, $notes, $state]);
                         $id = $pdo->lastInsertId();
                     }
                     logAudit($pdo, isset($data['id']) ? 'UPDATE' : 'CREATE', 'Affiliate Network', $id, "Name: $name");
                     echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
-            }
-            else {
+            } else {
                 $stmt = $pdo->query("
                     SELECT an.*, 
                            COUNT(DISTINCT o.id) as offers_count
@@ -1550,8 +1585,7 @@ try {
             $network = $stmt->fetch();
             if ($network) {
                 echo json_encode(['status' => 'success', 'data' => $network]);
-            }
-            else {
+            } else {
                 echo json_encode(['status' => 'error', 'message' => 'Network not found']);
             }
             break;
@@ -1565,8 +1599,7 @@ try {
                     $pdo->prepare("UPDATE affiliate_networks SET is_archived = 1, archived_at = datetime('now') WHERE id = ?")->execute([$id]);
                     logAudit($pdo, 'DELETE', 'Affiliate Network', $id);
                     echo json_encode(['status' => 'success']);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
                 }
             }
@@ -1641,14 +1674,14 @@ try {
 
         case 'logs':
             $type = $_GET['type'] ?? 'traffic';
-            
+
             // Strictly limit dashboard requests to 20 for performance 
             if (isset($_GET['dashboard']) && $_GET['dashboard'] === 'true') {
                 $limit = 20;
             } else {
-                $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 50;
+                $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 50;
             }
-            $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
+            $offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
 
             if ($type === 'traffic') {
                 $stmt = $pdo->prepare("
@@ -1674,8 +1707,7 @@ try {
                 ");
                 $stmt->execute([$limit, $offset]);
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
-            }
-            elseif ($type === 'postbacks') {
+            } elseif ($type === 'postbacks') {
                 $stmt = $pdo->prepare("
                     SELECT conv.id, conv.click_id, conv.status, conv.original_status, conv.payout, conv.currency, conv.created_at, cl.campaign_id, c.name as campaign_name
                     FROM conversions conv
@@ -1686,23 +1718,19 @@ try {
                 ");
                 $stmt->execute([$limit, $offset]);
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
-            }
-            elseif ($type === 'system') {
+            } elseif ($type === 'system') {
                 $stmt = $pdo->prepare("SELECT * FROM system_logs ORDER BY created_at DESC LIMIT ? OFFSET ?");
                 $stmt->execute([$limit, $offset]);
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
-            }
-            elseif ($type === 'audit') {
+            } elseif ($type === 'audit') {
                 $stmt = $pdo->prepare("SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT ? OFFSET ?");
                 $stmt->execute([$limit, $offset]);
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
-            }
-            elseif ($type === 's2s') {
+            } elseif ($type === 's2s') {
                 $stmt = $pdo->prepare("SELECT * FROM s2s_postbacks_log ORDER BY created_at DESC LIMIT ? OFFSET ?");
                 $stmt->execute([$limit, $offset]);
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
-            }
-            else {
+            } else {
                 echo json_encode(['status' => 'error', 'message' => 'Неизвестный тип логов']);
             }
             break;
@@ -1772,23 +1800,23 @@ try {
                 // Ignore IP if it's localhost for testing, but in production we match A record
                 $domainIp = gethostbyname($domain['name']);
                 if ($domainIp === $serverIp || $domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
-                     $domain['status'] = 'active';
+                    $domain['status'] = 'active';
                 } else {
-                     $domain['status'] = 'pending';
+                    $domain['status'] = 'pending';
                 }
             }
-            
+
             echo json_encode(['status' => 'success', 'data' => $domains, 'server_ip' => $serverIp]);
             break;
 
         case 'save_domain':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
-                $id = !empty($data['id']) ? (int)$data['id'] : null;
+                $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $name = $data['name'] ?? '';
-                $indexCampId = !empty($data['index_campaign_id']) ? (int)$data['index_campaign_id'] : null;
+                $indexCampId = !empty($data['index_campaign_id']) ? (int) $data['index_campaign_id'] : null;
                 $catch404 = !empty($data['catch_404']) ? 1 : 0;
-                $groupId = !empty($data['group_id']) ? (int)$data['group_id'] : null;
+                $groupId = !empty($data['group_id']) ? (int) $data['group_id'] : null;
                 $isNoindex = !empty($data['is_noindex']) ? 1 : 0;
                 $httpsOnly = !empty($data['https_only']) ? 1 : 0;
 
@@ -1808,8 +1836,7 @@ try {
                         logAudit($pdo, 'CREATE', 'Domain', $pdo->lastInsertId(), "Name: $name");
                     }
                     echo json_encode(['status' => 'success']);
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => 'Дубликат домена или системная ошибка']);
                 }
             }
@@ -1818,7 +1845,7 @@ try {
         case 'delete_domain':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
-                $id = !empty($data['id']) ? (int)$data['id'] : null;
+                $id = !empty($data['id']) ? (int) $data['id'] : null;
                 if ($id) {
                     $pdo->prepare("DELETE FROM domains WHERE id=?")->execute([$id]);
                     logAudit($pdo, 'DELETE', 'Domain', $id);
@@ -1834,8 +1861,8 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Missing campaign_id']);
                 break;
             }
-            
-            $limit = (int)($_GET['limit'] ?? 100);
+
+            $limit = (int) ($_GET['limit'] ?? 100);
             $stmt = $pdo->prepare("
                 SELECT 
                     cl.id,
@@ -1864,7 +1891,7 @@ try {
             ");
             $stmt->execute([$campaignId, $limit]);
             $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             // Format logs with ClickContext-style text
             foreach ($logs as &$log) {
                 $logText = "[ClickContext]\n";
@@ -1884,7 +1911,7 @@ try {
                 $logText .= "Revenue: {$log['revenue']}\n";
                 $log['log_text'] = $logText;
             }
-            
+
             echo json_encode(['status' => 'success', 'data' => $logs]);
             break;
 
@@ -1897,8 +1924,7 @@ try {
                     $pdo->prepare("DELETE FROM conversions WHERE campaign_id = ?")->execute([$campaignId]);
                     logAudit($pdo, 'CLEAR_STATS', 'Campaign', $campaignId);
                     echo json_encode(['status' => 'success']);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing campaign ID']);
                 }
             }
@@ -1913,8 +1939,7 @@ try {
                     $pdo->prepare("DELETE FROM conversions WHERE campaign_id = ?")->execute([$campaignId]);
                     logAudit($pdo, 'CLEAR_STATS', 'Campaign', $campaignId);
                     echo json_encode(['status' => 'success']);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing campaign ID']);
                 }
             }
@@ -1924,7 +1949,7 @@ try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
                 $campaignId = $data['campaign_id'] ?? null;
-                $totalCost = (float)($data['cost'] ?? 0);
+                $totalCost = (float) ($data['cost'] ?? 0);
                 $startDate = $data['start_date'] ?? null;
                 $endDate = $data['end_date'] ?? null;
                 $uniqueOnly = !empty($data['unique_only']);
@@ -1950,12 +1975,10 @@ try {
                         }
                         $pdo->commit();
                         echo json_encode(['status' => 'success', 'updated_clicks' => count($clicks)]);
-                    }
-                    else {
+                    } else {
                         echo json_encode(['status' => 'error', 'message' => 'No clicks found in this period']);
                     }
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing parameters']);
                 }
             }
@@ -2050,15 +2073,13 @@ try {
                         if (($campaign['rotation_type'] ?? 'weight') === 'position') {
                             $selectedStream = reset($regular);
                             $trace[] = "=> Selected by position: " . $selectedStream['name'];
-                        }
-                        else {
+                        } else {
                             $totalW = array_sum(array_column($regular, 'weight'));
                             $trace[] = "=> Weight rotation, total weight: $totalW";
                             if ($totalW > 0) {
                                 $selectedStream = reset($regular);
                                 $trace[] = "=> Simulating selection by weight. Picked: " . $selectedStream['name'];
-                            }
-                            else {
+                            } else {
                                 $selectedStream = reset($regular);
                                 $trace[] = "=> Weights are 0, picking first: " . $selectedStream['name'];
                             }
@@ -2081,19 +2102,16 @@ try {
                     $trace[] = "--- RESULT ---";
                     if (($selectedStream['schema_type'] ?? 'redirect') === 'action') {
                         $trace[] = "Action: " . ($selectedStream['action_payload'] ?? 'do_nothing');
-                    }
-                    else if (($selectedStream['schema_type'] ?? 'redirect') === 'landing_offer') {
+                    } else if (($selectedStream['schema_type'] ?? 'redirect') === 'landing_offer') {
                         $trace[] = "Handling Landing + Offer split test (simulating choice)...";
                         $customSchema = json_decode($selectedStream['schema_custom_json'] ?? '{}', true);
                         $landingsCount = count($customSchema['landings'] ?? []);
                         $offersCount = count($customSchema['offers'] ?? []);
                         $trace[] = "Has $landingsCount landings and $offersCount offers mapped.";
-                    }
-                    else {
+                    } else {
                         $trace[] = "Redirect to single Offer ID: " . ($selectedStream['offer_id'] ?? 0);
                     }
-                }
-                else {
+                } else {
                     $trace[] = "--- RESULT: NO STREAM MATCHED (404 / 500) ---";
                 }
 
@@ -2103,8 +2121,8 @@ try {
 
         // === CONVERSIONS API ===
         case 'conversions':
-            $page = (int)($_GET['page'] ?? 1);
-            $perPage = (int)($_GET['per_page'] ?? 50);
+            $page = (int) ($_GET['page'] ?? 1);
+            $perPage = (int) ($_GET['per_page'] ?? 50);
             $offset = ($page - 1) * $perPage;
 
             $where = "1=1";
@@ -2117,11 +2135,11 @@ try {
             }
             if (!empty($_GET['campaign_id'])) {
                 $where .= " AND cv.campaign_id = ?";
-                $params[] = (int)$_GET['campaign_id'];
+                $params[] = (int) $_GET['campaign_id'];
             }
             if (!empty($_GET['offer_id'])) {
                 $where .= " AND cv.offer_id = ?";
-                $params[] = (int)$_GET['offer_id'];
+                $params[] = (int) $_GET['offer_id'];
             }
             if (!empty($_GET['date_from'])) {
                 $where .= " AND cv.created_at >= ?";
@@ -2164,7 +2182,7 @@ try {
                 'status' => 'success',
                 'data' => $conversions,
                 'pagination' => [
-                    'total' => (int)$total,
+                    'total' => (int) $total,
                     'page' => $page,
                     'per_page' => $perPage,
                     'total_pages' => ceil($total / $perPage)
@@ -2180,8 +2198,8 @@ try {
 
         // === POSTBACK LOGS API ===
         case 'postback_logs':
-            $page = (int)($_GET['page'] ?? 1);
-            $perPage = (int)($_GET['per_page'] ?? 50);
+            $page = (int) ($_GET['page'] ?? 1);
+            $perPage = (int) ($_GET['per_page'] ?? 50);
             $offset = ($page - 1) * $perPage;
 
             $where = "1=1";
@@ -2189,7 +2207,7 @@ try {
 
             if (!empty($_GET['is_success'])) {
                 $where .= " AND pl.is_success = ?";
-                $params[] = (int)$_GET['is_success'];
+                $params[] = (int) $_GET['is_success'];
             }
             if (!empty($_GET['date_from'])) {
                 $where .= " AND pl.created_at >= ?";
@@ -2219,7 +2237,7 @@ try {
                 'status' => 'success',
                 'data' => $logs,
                 'pagination' => [
-                    'total' => (int)$total,
+                    'total' => (int) $total,
                     'page' => $page,
                     'per_page' => $perPage,
                     'total_pages' => ceil($total / $perPage)
@@ -2242,7 +2260,7 @@ try {
             break;
 
         case 'campaign_report':
-            $campaign_id = (int)($_GET['campaign_id'] ?? 0);
+            $campaign_id = (int) ($_GET['campaign_id'] ?? 0);
             $date_from = $_GET['date_from'] ?? null;
             $date_to = $_GET['date_to'] ?? null;
             $group_by = $_GET['group_by'] ?? 'country';
@@ -2318,13 +2336,13 @@ try {
             // Cost and Profit (simplified, assuming 0 cost as per earlier logic)
             foreach ($rows as &$r) {
                 $r['cost'] = 0.00;
-                $r['profit'] = (float)$r['revenue'] - $r['cost'];
-                $r['real_profit'] = (float)$r['real_revenue'] - $r['cost'];
+                $r['profit'] = (float) $r['revenue'] - $r['cost'];
+                $r['real_profit'] = (float) $r['real_revenue'] - $r['cost'];
                 $r['cr'] = $r['clicks'] > 0 ? round(($r['conversions'] / $r['clicks']) * 100, 2) : 0;
-                $r['epc'] = $r['clicks'] > 0 ? round(((float)$r['revenue'] / $r['clicks']), 4) : 0;
-                $r['real_epc'] = $r['clicks'] > 0 ? round(((float)$r['real_revenue'] / $r['clicks']), 4) : 0;
-                $r['real_roi'] = $r['cost'] > 0 ? round(((float)$r['real_profit'] / $r['cost']) * 100, 2) : ($r['real_profit'] > 0 ? 100 : 0);
-                
+                $r['epc'] = $r['clicks'] > 0 ? round(((float) $r['revenue'] / $r['clicks']), 4) : 0;
+                $r['real_epc'] = $r['clicks'] > 0 ? round(((float) $r['real_revenue'] / $r['clicks']), 4) : 0;
+                $r['real_roi'] = $r['cost'] > 0 ? round(((float) $r['real_profit'] / $r['cost']) * 100, 2) : ($r['real_profit'] > 0 ? 100 : 0);
+
                 // Fetch Stream/Source names instead of IDs if grouped by them
                 if ($group_by === 'stream_id' && is_numeric($r['dimension_name'])) {
                     $st_q = $pdo->prepare("SELECT name FROM streams WHERE id = ?");
@@ -2340,7 +2358,7 @@ try {
                     }
                 }
             }
-            
+
             echo json_encode(['status' => 'success', 'data' => $rows]);
             break;
 
@@ -2384,8 +2402,7 @@ try {
                     }
 
                     echo json_encode(['status' => 'success']);
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
             }
@@ -2437,9 +2454,9 @@ try {
                     preg_match_all('/^processor/m', $cpuinfo, $matches);
                     $cpuCores = count($matches[0]) ?: 1;
                 } elseif (PHP_OS_FAMILY === 'Darwin') {
-                    $cpuCores = (int)shell_exec('sysctl -n hw.ncpu 2>/dev/null') ?: 1;
+                    $cpuCores = (int) shell_exec('sysctl -n hw.ncpu 2>/dev/null') ?: 1;
                 } elseif (PHP_OS_FAMILY === 'Windows') {
-                    $cpuCores = (int)shell_exec('echo %NUMBER_OF_PROCESSORS%') ?: 1;
+                    $cpuCores = (int) shell_exec('echo %NUMBER_OF_PROCESSORS%') ?: 1;
                 }
 
                 // System memory (Linux)
@@ -2451,8 +2468,8 @@ try {
                     preg_match('/MemTotal:\s+(\d+)/', $meminfo, $totalMatch);
                     preg_match('/MemAvailable:\s+(\d+)/', $meminfo, $availMatch);
                     preg_match('/MemFree:\s+(\d+)/', $meminfo, $freeMatch);
-                    $totalMem = isset($totalMatch[1]) ? (int)$totalMatch[1] * 1024 : 0;
-                    $availableMem = isset($availMatch[1]) ? (int)$availMatch[1] * 1024 : (isset($freeMatch[1]) ? (int)$freeMatch[1] * 1024 : 0);
+                    $totalMem = isset($totalMatch[1]) ? (int) $totalMatch[1] * 1024 : 0;
+                    $availableMem = isset($availMatch[1]) ? (int) $availMatch[1] * 1024 : (isset($freeMatch[1]) ? (int) $freeMatch[1] * 1024 : 0);
                     $freeMem = $availableMem;
                     $usedMemPercent = $totalMem > 0 ? round((($totalMem - $freeMem) / $totalMem) * 100, 1) : 0;
                 }
@@ -2463,9 +2480,9 @@ try {
                 $memoryLimit = ini_get('memory_limit');
                 $memoryLimitBytes = 0;
                 if (preg_match('/^(\d+)(.)$/', $memoryLimit, $matches)) {
-                    $value = (int)$matches[1];
+                    $value = (int) $matches[1];
                     $unit = strtoupper($matches[2]);
-                    $memoryLimitBytes = match($unit) {
+                    $memoryLimitBytes = match ($unit) {
                         'G' => $value * 1024 * 1024 * 1024,
                         'M' => $value * 1024 * 1024,
                         'K' => $value * 1024,
@@ -2594,10 +2611,14 @@ try {
 
                 // Estimate capacity
                 $capacityScore = 100;
-                if ($diskUsedPercent > 80) $capacityScore -= 20;
-                if ($usedMemPercent > 80) $capacityScore -= 20;
-                if ($loadPerCore > 1) $capacityScore -= 15;
-                if ($dbSize > 200 * 1024 * 1024) $capacityScore -= 10;
+                if ($diskUsedPercent > 80)
+                    $capacityScore -= 20;
+                if ($usedMemPercent > 80)
+                    $capacityScore -= 20;
+                if ($loadPerCore > 1)
+                    $capacityScore -= 15;
+                if ($dbSize > 200 * 1024 * 1024)
+                    $capacityScore -= 10;
 
                 $capacityScore = max(0, $capacityScore);
 
@@ -2642,8 +2663,8 @@ try {
                     'status' => 'success',
                     'data' => [
                         'version' => (defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.9') . '-Orbitra',
-                        'clicks' => (int)$clicksCount,
-                        'conversions' => (int)$convCount,
+                        'clicks' => (int) $clicksCount,
+                        'conversions' => (int) $convCount,
                         'db_size_bytes' => $dbSize,
                         // Disk
                         'disk_free_bytes' => $diskFree,
@@ -2681,8 +2702,7 @@ try {
                         'components' => $components
                     ]
                 ]);
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
             }
             break;
@@ -2690,16 +2710,16 @@ try {
         // === UPDATE SYSTEM API ===
         case 'check_update':
             $currentVersion = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.9';
-            
+
             // URL to check for latest version (change to your server or GitHub raw file)
             // Example for GitHub: 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/version.json'
             $versionCheckUrl = 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/version.json';
-            
+
             $latestVersion = $currentVersion; // Default: no update
             $releaseNotes = '';
             $downloadUrl = '';
             $releasedAt = null;
-            
+
             // Try to fetch latest version from remote server
             if (function_exists('curl_init')) {
                 $ch = curl_init($versionCheckUrl);
@@ -2712,8 +2732,8 @@ try {
                 ]);
                 $response = curl_exec($ch);
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
-                
+                // curl_close() deprecated in PHP 8.5 - resources are auto-freed
+
                 if ($httpCode === 200 && $response) {
                     $data = json_decode($response, true);
                     if ($data && isset($data['version'])) {
@@ -2724,7 +2744,7 @@ try {
                     }
                 }
             }
-            
+
             // Compare versions
             $updateAvailable = version_compare($latestVersion, $currentVersion, '>');
 
@@ -2762,7 +2782,7 @@ try {
                     // Stash local changes if any, then pull
                     $statusCode = trim(exec('git status --porcelain | wc -l'));
                     $hasLocalChanges = ($statusCode !== '0');
-                    
+
                     if ($hasLocalChanges) {
                         exec('git stash 2>&1', $stashOutput, $stashReturn);
                     }
@@ -2770,7 +2790,7 @@ try {
                     $output = [];
                     $returnCode = 0;
                     exec('git pull origin main 2>&1', $output, $returnCode);
-                    
+
                     // Restore stashed changes after pull
                     if ($hasLocalChanges && $returnCode === 0) {
                         exec('git stash pop 2>&1', $popOutput, $popReturn);
@@ -2778,7 +2798,7 @@ try {
                             $output = array_merge($output, ['[Stash restored]']);
                         }
                     }
-                    
+
                     if ($returnCode === 0) {
                         echo json_encode(['status' => 'success', 'message' => 'Обновлено успешно. Вывод: ' . implode(" ", $output)]);
                     } else {
@@ -2828,8 +2848,7 @@ try {
                     $pdo->prepare("UPDATE clicks SET is_conversion = 1, revenue = revenue + ? WHERE id = ?")->execute([$payout, $subid]);
 
                     echo json_encode(['status' => 'success', 'message' => 'Test conversion recorded']);
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
             }
@@ -2935,7 +2954,7 @@ try {
                             mkdir($zipDir);
                             $zip->extractTo($zipDir);
                             $zip->close();
-                            
+
                             $found = false;
                             $iter = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($zipDir));
                             foreach ($iter as $file) {
@@ -2946,54 +2965,52 @@ try {
                                         logSystem($pdo, 'INFO', 'Sypex Geo DB uploaded via ZIP');
                                         $found = true;
                                     } else if ($fExt === 'bin') {
-                                        if (!is_dir(__DIR__ . '/geo')) mkdir(__DIR__ . '/geo', 0755, true);
+                                        if (!is_dir(__DIR__ . '/geo'))
+                                            mkdir(__DIR__ . '/geo', 0755, true);
                                         copy($file->getPathname(), __DIR__ . '/geo/IP2LOCATION-LITE.BIN');
                                         logSystem($pdo, 'INFO', 'IP2Location DB uploaded via ZIP');
                                         $found = true;
                                     } else if ($fExt === 'mmdb') {
-                                        if (!is_dir(__DIR__ . '/geo')) mkdir(__DIR__ . '/geo', 0755, true);
+                                        if (!is_dir(__DIR__ . '/geo'))
+                                            mkdir(__DIR__ . '/geo', 0755, true);
                                         copy($file->getPathname(), __DIR__ . '/geo/GeoLite2-City.mmdb');
                                         logSystem($pdo, 'INFO', 'MaxMind DB uploaded via ZIP');
                                         $found = true;
                                     }
                                 }
                             }
-                            
+
                             array_map('unlink', glob("$zipDir/*.*"));
                             @rmdir($zipDir);
-                            
+
                             if ($found) {
                                 echo json_encode(['status' => 'success', 'message' => 'Архив распакован, базы обновлены']);
                             } else {
                                 echo json_encode(['status' => 'error', 'message' => 'В архиве не найдено подходящих файлов (.dat, .bin, .mmdb)']);
                             }
-                        }
-                        else {
+                        } else {
                             echo json_encode(['status' => 'error', 'message' => 'Не удалось открыть ZIP архив']);
                         }
-                    }
-                    else if ($ext === 'bin') {
-                        if (!is_dir(__DIR__ . '/geo')) mkdir(__DIR__ . '/geo', 0755, true);
+                    } else if ($ext === 'bin') {
+                        if (!is_dir(__DIR__ . '/geo'))
+                            mkdir(__DIR__ . '/geo', 0755, true);
                         if (move_uploaded_file($fileTmp, __DIR__ . '/geo/IP2LOCATION-LITE.BIN')) {
                             logSystem($pdo, 'INFO', 'IP2Location DB uploaded directly');
                             echo json_encode(['status' => 'success', 'message' => 'Файл IP2Location загружен успешно']);
                         } else {
                             echo json_encode(['status' => 'error', 'message' => 'Не удалось сохранить файл .bin']);
                         }
-                    }
-                    else {
+                    } else {
                         // Direct .dat file
                         $destPath = $geoDir . '/SxGeoCity.dat';
                         if (move_uploaded_file($fileTmp, $destPath)) {
                             logSystem($pdo, 'INFO', 'Sypex Geo DB uploaded directly');
                             echo json_encode(['status' => 'success', 'message' => 'Файл загружен успешно']);
-                        }
-                        else {
+                        } else {
                             echo json_encode(['status' => 'error', 'message' => 'Не удалось сохранить файл']);
                         }
                     }
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     logSystem($pdo, 'ERROR', 'Geo DB Upload Error: ' . $e->getMessage());
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
@@ -3020,12 +3037,12 @@ try {
                     CURLOPT_FOLLOWLOCATION => true,
                     CURLOPT_TIMEOUT => 120,
                     CURLOPT_SSL_VERIFYPEER => false,
-                    CURLOPT_USERAGENT => 'LTT Tracker/1.0'
+                    CURLOPT_USERAGENT => 'Orbitra/1.0'
                 ]);
                 $data = curl_exec($ch);
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 $error = curl_error($ch);
-                curl_close($ch);
+                // curl_close() deprecated in PHP 8.5 - resources are auto-freed
 
                 if ($error || $httpCode !== 200) {
                     return null;
@@ -3055,7 +3072,7 @@ try {
                     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
                     curl_exec($ch);
                     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                    curl_close($ch);
+                    // curl_close() deprecated in PHP 8.5 - resources are auto-freed
                     fclose($fp);
 
                     if ($httpCode === 200 && file_exists($tmpArchive) && filesize($tmpArchive) > 1024) {
@@ -3080,7 +3097,7 @@ try {
                     $zip = new ZipArchive;
                     if ($zip->open($tmpArchive) === TRUE) {
                         $extracted = false;
-                        for($i = 0; $i < $zip->numFiles; $i++) {
+                        for ($i = 0; $i < $zip->numFiles; $i++) {
                             $filename = $zip->getNameIndex($i);
                             if (str_ends_with(strtolower($filename), '.bin')) {
                                 $content = $zip->getFromIndex($i);
@@ -3118,7 +3135,7 @@ try {
 
                 $url = "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key={$license_key}&suffix=tar.gz";
                 $tmpArchive = sys_get_temp_dir() . '/geolite2-city.tar.gz';
-                
+
                 // Download
                 $ch = curl_init($url);
                 $fp = fopen($tmpArchive, 'wb');
@@ -3127,7 +3144,7 @@ try {
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
                 curl_exec($ch);
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
+                // curl_close() deprecated in PHP 8.5 - resources are auto-freed
                 fclose($fp);
 
                 if ($httpCode !== 200) {
@@ -3145,7 +3162,7 @@ try {
                 try {
                     $ref = new \ReflectionClass('\PharData');
                     $p = $ref->newInstance($tmpArchive);
-                    
+
                     $extracted = false;
                     foreach (new RecursiveIteratorIterator($p) as $file) {
                         if (str_ends_with($file->getFilename(), '.mmdb')) {
@@ -3188,12 +3205,13 @@ try {
                     // 2. Unzip Database and extract SxGeo.php if missing
                     $zip = new ZipArchive;
                     if ($zip->open($zipFile) === TRUE) {
-                        
+
                         // Извлечение SxGeo.php если нужно
                         $parserPath = __DIR__ . '/core/SxGeo.php';
                         if (!file_exists($parserPath)) {
-                            if (!is_dir(__DIR__ . '/core')) mkdir(__DIR__ . '/core', 0777, true);
-                            for($i = 0; $i < $zip->numFiles; $i++) {
+                            if (!is_dir(__DIR__ . '/core'))
+                                mkdir(__DIR__ . '/core', 0777, true);
+                            for ($i = 0; $i < $zip->numFiles; $i++) {
                                 $filename = $zip->getNameIndex($i);
                                 if ($filename === 'SxGeo.php') {
                                     $content = $zip->getFromIndex($i);
@@ -3276,7 +3294,7 @@ try {
         case 'save_user':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
-                $id = !empty($data['id']) ? (int)$data['id'] : null;
+                $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $username = $data['username'] ?? '';
                 $password = $data['password'] ?? '';
                 $email = $data['email'] ?? '';
@@ -3308,13 +3326,11 @@ try {
                             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
                             $stmt = $pdo->prepare("UPDATE users SET username=?, password=?, email=?, role=?, language=?, permissions_json=?, is_active=? WHERE id=?");
                             $stmt->execute([$username, $hashedPassword, $email, $role, $language, json_encode($permissions), $isActive, $id]);
-                        }
-                        else {
+                        } else {
                             $stmt = $pdo->prepare("UPDATE users SET username=?, email=?, role=?, language=?, permissions_json=?, is_active=? WHERE id=?");
                             $stmt->execute([$username, $email, $role, $language, json_encode($permissions), $isActive, $id]);
                         }
-                    }
-                    else {
+                    } else {
                         // Create new user
                         if (!$password) {
                             echo json_encode(['status' => 'error', 'message' => 'Password is required for new user']);
@@ -3326,12 +3342,10 @@ try {
                         $id = $pdo->lastInsertId();
                     }
                     echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     if (strpos($e->getMessage(), 'UNIQUE constraint failed') !== false) {
                         echo json_encode(['status' => 'error', 'message' => 'Пользователь с таким логином уже существует']);
-                    }
-                    else {
+                    } else {
                         echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                     }
                 }
@@ -3347,7 +3361,7 @@ try {
                     break;
                 }
                 // Prevent deleting the first user (owner)
-                if ((int)$id === 1) {
+                if ((int) $id === 1) {
                     echo json_encode(['status' => 'error', 'message' => 'Невозможно удалить основного пользователя']);
                     break;
                 }
@@ -3450,8 +3464,7 @@ try {
                             'csrf_token' => $_SESSION['csrf_token']
                         ]
                     ]);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Неверный логин или пароль']);
                 }
             }
@@ -3464,26 +3477,26 @@ try {
             echo json_encode([
                 'status' => 'success',
                 'needs_setup' => $userCount == 0,
-                'user_count' => (int)$userCount
+                'user_count' => (int) $userCount
             ]);
             break;
 
         case 'setup_first_user':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
-                
+
                 // Check if users already exist
                 $stmt = $pdo->query("SELECT COUNT(*) FROM users");
                 if ($stmt->fetchColumn() > 0) {
                     echo json_encode(['status' => 'error', 'message' => 'Пользователи уже существуют']);
                     break;
                 }
-                
+
                 $username = trim($data['username'] ?? '');
                 $password = $data['password'] ?? '';
                 $timezone = $data['timezone'] ?? 'Europe/Kyiv';
                 $language = $data['language'] ?? 'ru';
-                
+
                 // Validation
                 if (strlen($username) < 3) {
                     echo json_encode(['status' => 'error', 'message' => 'Логин должен быть минимум 3 символа']);
@@ -3493,7 +3506,7 @@ try {
                     echo json_encode(['status' => 'error', 'message' => 'Пароль должен быть минимум 6 символов']);
                     break;
                 }
-                
+
                 // Validate timezone
                 try {
                     new DateTimeZone($timezone);
@@ -3501,7 +3514,7 @@ try {
                     echo json_encode(['status' => 'error', 'message' => "Неверный часовой пояс: $timezone"]);
                     break;
                 }
-                
+
                 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("INSERT INTO users (username, password, role, is_active, timezone, language, permissions_json) VALUES (?, ?, 'admin', 1, ?, ?, ?)");
                 $stmt->execute([
@@ -3511,7 +3524,7 @@ try {
                     $language,
                     json_encode(['can_delete_offers' => true, 'can_delete_campaigns' => true, 'can_manage_users' => true])
                 ]);
-                
+
                 echo json_encode(['status' => 'success', 'message' => 'Пользователь создан']);
             }
             break;
@@ -3524,8 +3537,7 @@ try {
                 $stmt = $pdo->prepare("INSERT INTO users (username, password, email, role, is_active, timezone, language) VALUES ('admin', ?, 'admin@localhost', 'admin', 1, 'Europe/Moscow', 'ru')");
                 $stmt->execute([$hashedPassword]);
                 echo json_encode(['status' => 'success', 'message' => 'Admin user created']);
-            }
-            else {
+            } else {
                 echo json_encode(['status' => 'success', 'message' => 'Users already exist']);
             }
             break;
@@ -3560,7 +3572,7 @@ try {
         case 'save_geo_profile':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
-                $id = !empty($data['id']) ? (int)$data['id'] : null;
+                $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $name = $data['name'] ?? '';
                 $countries = $data['countries'] ?? [];
 
@@ -3573,15 +3585,13 @@ try {
                     if ($id) {
                         $stmt = $pdo->prepare("UPDATE geo_profiles SET name=?, countries=? WHERE id=?");
                         $stmt->execute([$name, json_encode($countries), $id]);
-                    }
-                    else {
+                    } else {
                         $stmt = $pdo->prepare("INSERT INTO geo_profiles (name, countries) VALUES (?, ?)");
                         $stmt->execute([$name, json_encode($countries)]);
                         $id = $pdo->lastInsertId();
                     }
                     echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
             }
@@ -3836,29 +3846,26 @@ try {
                 if (isset($data['action']) && $data['action'] === 'delete') {
                     $pdo->prepare("DELETE FROM conversion_types WHERE id = ?")->execute([$data['id']]);
                     echo json_encode(['status' => 'success']);
-                }
-                else {
+                } else {
                     $id = $data['id'] ?? null;
                     $name = $data['name'] ?? '';
                     $status_values = $data['status_values'] ?? '';
                     $next_statuses = $data['next_statuses'] ?? '';
-                    $record_con = isset($data['record_conversion']) ? (int)$data['record_conversion'] : 1;
-                    $record_rev = isset($data['record_revenue']) ? (int)$data['record_revenue'] : 1;
-                    $send_pb = isset($data['send_postback']) ? (int)$data['send_postback'] : 1;
-                    $affect_cap = isset($data['affect_cap']) ? (int)$data['affect_cap'] : 1;
+                    $record_con = isset($data['record_conversion']) ? (int) $data['record_conversion'] : 1;
+                    $record_rev = isset($data['record_revenue']) ? (int) $data['record_revenue'] : 1;
+                    $send_pb = isset($data['send_postback']) ? (int) $data['send_postback'] : 1;
+                    $affect_cap = isset($data['affect_cap']) ? (int) $data['affect_cap'] : 1;
 
                     if ($id) {
                         $stmt = $pdo->prepare("UPDATE conversion_types SET name=?, status_values=?, next_statuses=?, record_conversion=?, record_revenue=?, send_postback=?, affect_cap=? WHERE id=?");
                         $stmt->execute([$name, $status_values, $next_statuses, $record_con, $record_rev, $send_pb, $affect_cap, $id]);
-                    }
-                    else {
+                    } else {
                         $stmt = $pdo->prepare("INSERT INTO conversion_types (name, status_values, next_statuses, record_conversion, record_revenue, send_postback, affect_cap) VALUES (?, ?, ?, ?, ?, ?, ?)");
                         $stmt->execute([$name, $status_values, $next_statuses, $record_con, $record_rev, $send_pb, $affect_cap]);
                     }
                     echo json_encode(['status' => 'success']);
                 }
-            }
-            else {
+            } else {
                 $stmt = $pdo->query("SELECT * FROM conversion_types ORDER BY id ASC");
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             }
@@ -3870,26 +3877,23 @@ try {
                 if (isset($data['action']) && $data['action'] === 'delete') {
                     $pdo->prepare("DELETE FROM custom_metrics WHERE id = ?")->execute([$data['id']]);
                     echo json_encode(['status' => 'success']);
-                }
-                else {
+                } else {
                     $id = $data['id'] ?? null;
                     $name = $data['name'] ?? '';
                     $formula = $data['formula'] ?? '';
                     $format = $data['format'] ?? 'number';
-                    $decimals = isset($data['decimals']) ? (int)$data['decimals'] : 2;
+                    $decimals = isset($data['decimals']) ? (int) $data['decimals'] : 2;
 
                     if ($id) {
                         $stmt = $pdo->prepare("UPDATE custom_metrics SET name=?, formula=?, format=?, decimals=? WHERE id=?");
                         $stmt->execute([$name, $formula, $format, $decimals, $id]);
-                    }
-                    else {
+                    } else {
                         $stmt = $pdo->prepare("INSERT INTO custom_metrics (name, formula, format, decimals) VALUES (?, ?, ?, ?)");
                         $stmt->execute([$name, $formula, $format, $decimals]);
                     }
                     echo json_encode(['status' => 'success']);
                 }
-            }
-            else {
+            } else {
                 $stmt = $pdo->query("SELECT * FROM custom_metrics ORDER BY id ASC");
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             }
@@ -3901,12 +3905,10 @@ try {
                 if (isset($data['action']) && $data['action'] === 'delete') {
                     $pdo->prepare("DELETE FROM bot_ips WHERE id = ?")->execute([$data['id']]);
                     echo json_encode(['status' => 'success']);
-                }
-                elseif (isset($data['action']) && $data['action'] === 'clear_all') {
+                } elseif (isset($data['action']) && $data['action'] === 'clear_all') {
                     $pdo->exec("DELETE FROM bot_ips");
                     echo json_encode(['status' => 'success']);
-                }
-                else {
+                } else {
                     $ips = explode("\n", $data['ips'] ?? '');
                     $stmt = $pdo->prepare("INSERT OR IGNORE INTO bot_ips (ip_or_cidr) VALUES (?)");
                     $added = 0;
@@ -3920,8 +3922,7 @@ try {
                     }
                     echo json_encode(['status' => 'success', 'added' => $added]);
                 }
-            }
-            else {
+            } else {
                 $stmt = $pdo->query("SELECT * FROM bot_ips ORDER BY id DESC LIMIT 1000"); // Limit for performance if huge
                 $total = $pdo->query("SELECT COUNT(*) as c FROM bot_ips")->fetch()['c'];
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll(), 'total' => $total]);
@@ -3934,12 +3935,10 @@ try {
                 if (isset($data['action']) && $data['action'] === 'delete') {
                     $pdo->prepare("DELETE FROM bot_signatures WHERE id = ?")->execute([$data['id']]);
                     echo json_encode(['status' => 'success']);
-                }
-                elseif (isset($data['action']) && $data['action'] === 'clear_all') {
+                } elseif (isset($data['action']) && $data['action'] === 'clear_all') {
                     $pdo->exec("DELETE FROM bot_signatures");
                     echo json_encode(['status' => 'success']);
-                }
-                else {
+                } else {
                     $sigs = explode("\n", $data['signatures'] ?? '');
                     $stmt = $pdo->prepare("INSERT OR IGNORE INTO bot_signatures (signature) VALUES (?)");
                     $added = 0;
@@ -3953,8 +3952,7 @@ try {
                     }
                     echo json_encode(['status' => 'success', 'added' => $added]);
                 }
-            }
-            else {
+            } else {
                 $stmt = $pdo->query("SELECT * FROM bot_signatures ORDER BY id DESC LIMIT 1000");
                 $total = $pdo->query("SELECT COUNT(*) as c FROM bot_signatures")->fetch()['c'];
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll(), 'total' => $total]);
@@ -3968,7 +3966,7 @@ try {
                 $lang = $data['language'] ?? 'ru';
                 $tz = $data['timezone'] ?? 'Europe/Moscow';
                 $firstDay = $data['first_day_of_week'] ?? 1;
-                
+
                 // Validate timezone
                 try {
                     new DateTimeZone($tz);
@@ -3976,7 +3974,7 @@ try {
                     echo json_encode(['status' => 'error', 'message' => "Неверный часовой пояс: $tz"]);
                     break;
                 }
-                
+
                 $pdo->prepare("UPDATE users SET language=?, timezone=?, first_day_of_week=? WHERE id=?")->execute([$lang, $tz, $firstDay, $userId]);
 
                 if (!empty($data['new_password'])) {
@@ -3984,8 +3982,7 @@ try {
                     $pdo->prepare("UPDATE users SET password=? WHERE id=?")->execute([$pwd, $userId]);
                 }
                 echo json_encode(['status' => 'success']);
-            }
-            else {
+            } else {
                 $userId = $_GET['user_id'] ?? 1;
                 $stmt = $pdo->prepare("SELECT id, username, email, language, timezone, first_day_of_week FROM users WHERE id=?");
                 $stmt->execute([$userId]);
@@ -4015,13 +4012,11 @@ try {
                     $pdo->prepare("UPDATE $type SET is_archived = 0, archived_at = NULL WHERE id = ?")->execute([$id]);
                     logAudit($pdo, 'RESTORE', $type, $id);
                     echo json_encode(['status' => 'success']);
-                }
-                else if ($type && $data['action'] === 'restore_all' && in_array($type, $allowed)) {
+                } else if ($type && $data['action'] === 'restore_all' && in_array($type, $allowed)) {
                     $pdo->exec("UPDATE $type SET is_archived = 0, archived_at = NULL WHERE is_archived = 1");
                     logAudit($pdo, 'RESTORE_ALL', $type);
                     echo json_encode(['status' => 'success']);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Invalid parameters']);
                 }
             }
@@ -4041,18 +4036,15 @@ try {
                     }
                     logAudit($pdo, 'PURGE_ALL', 'Archive');
                     echo json_encode(['status' => 'success']);
-                }
-                else if ($action === 'purge_section' && in_array($type, $allowed)) {
+                } else if ($action === 'purge_section' && in_array($type, $allowed)) {
                     $pdo->exec("DELETE FROM $type WHERE is_archived = 1");
                     logAudit($pdo, 'PURGE_SECTION', $type);
                     echo json_encode(['status' => 'success']);
-                }
-                else if (in_array($type, $allowed) && $id) {
+                } else if (in_array($type, $allowed) && $id) {
                     $pdo->prepare("DELETE FROM $type WHERE id = ? AND is_archived = 1")->execute([$id]);
                     logAudit($pdo, 'PURGE_ITEM', $type, $id);
                     echo json_encode(['status' => 'success']);
-                }
-                else {
+                } else {
                     echo json_encode(['status' => 'error', 'message' => 'Invalid parameters']);
                 }
             }
@@ -4121,7 +4113,7 @@ try {
                     }
 
                     $subid = $parts[0];
-                    $payout = (float)$parts[1];
+                    $payout = (float) $parts[1];
                     $tid = isset($parts[2]) && $parts[2] !== '' ? $parts[2] : null;
                     $status = $parts[3] ?? 'lead';
 
@@ -4151,18 +4143,15 @@ try {
                         $checkTid->execute([$subid, $tid]);
                         if ($checkTid->fetch()) {
                             $updateTidStmt->execute([$internalStatus, $status, $payout, 'USD', $subid, $tid]);
-                        }
-                        else {
+                        } else {
                             $insertStmt->execute([$subid, $tid, $internalStatus, $status, $payout, 'USD']);
                         }
-                    }
-                    else {
+                    } else {
                         $findTidNullStmt->execute([$subid]);
                         $existing = $findTidNullStmt->fetch();
                         if ($existing) {
                             $updateNoTidStmt->execute([$internalStatus, $status, $payout, 'USD', $existing['id']]);
-                        }
-                        else {
+                        } else {
                             $insertStmt->execute([$subid, null, $internalStatus, $status, $payout, 'USD']);
                         }
                     }
@@ -4215,8 +4204,7 @@ try {
                 if (isset($executed[$v])) {
                     $m['status'] = $executed[$v]['status'];
                     $m['executed_at'] = $executed[$v]['executed_at'];
-                }
-                else {
+                } else {
                     $m['status'] = 'pending';
                     $m['executed_at'] = null;
                 }
@@ -4238,21 +4226,22 @@ try {
             $dateTo = $_GET['date_to'] ?? date('Y-m-d');
             $metricsParam = $_GET['metrics'] ?? 'clicks,conversions,revenue';
             $filtersParam = $_GET['filters'] ?? '[]';
-            
+
             $selectedMetrics = explode(',', $metricsParam);
             $filters = json_decode($filtersParam, true) ?? [];
 
             // Build WHERE clause from filters
             $whereClauses = ["cl.created_at >= ? AND cl.created_at <= ?"];
             $params = [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'];
-            
+
             foreach ($filters as $f) {
                 $field = $f['field'] ?? '';
                 $operator = $f['operator'] ?? 'contains';
                 $value = $f['value'] ?? '';
-                
-                if (!$field || !$value) continue;
-                
+
+                if (!$field || !$value)
+                    continue;
+
                 switch ($operator) {
                     case 'contains':
                         $whereClauses[] = "cl.$field LIKE ?";
@@ -4280,11 +4269,11 @@ try {
                         break;
                 }
             }
-            
+
             $whereSQL = implode(' AND ', $whereClauses);
 
             // Determine grouping format
-            $dateFormat = match($groupBy) {
+            $dateFormat = match ($groupBy) {
                 'month' => '%Y-%m',
                 'day_of_week' => '%w',
                 'hour' => '%Y-%m-%d %H:00',
@@ -4328,7 +4317,7 @@ try {
                 GROUP BY period
                 ORDER BY period ASC
             ";
-            
+
             $stmt = $pdo->prepare($sql);
             $stmt->execute($params);
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -4346,19 +4335,19 @@ try {
 
             foreach ($rows as $row) {
                 $period = $row['period'];
-                
+
                 // Format period label
                 if ($groupBy === 'day_of_week') {
-                    $period = $dayNames[(int)$period] ?? $period;
+                    $period = $dayNames[(int) $period] ?? $period;
                 }
 
                 // Calculate derived metrics
-                $clicks = (int)$row['clicks'];
-                $conversions = (int)$row['conversions'];
-                $revenue = (float)$row['revenue'];
-                $realRevenue = (float)$row['real_revenue'];
-                $cost = (float)$row['cost'];
-                
+                $clicks = (int) $row['clicks'];
+                $conversions = (int) $row['conversions'];
+                $revenue = (float) $row['revenue'];
+                $realRevenue = (float) $row['real_revenue'];
+                $cost = (float) $row['cost'];
+
                 $profit = $revenue - $cost;
                 $realProfit = $realRevenue - $cost;
                 $ctr = 100; // Simplified
@@ -4369,7 +4358,7 @@ try {
                 $derivedRow = [
                     'period' => $period,
                     'clicks' => $clicks,
-                    'unique_clicks' => (int)$row['unique_clicks'],
+                    'unique_clicks' => (int) $row['unique_clicks'],
                     'conversions' => $conversions,
                     'revenue' => round($revenue, 2),
                     'real_revenue' => round($realRevenue, 2),
@@ -4443,7 +4432,7 @@ try {
         case 'run_migration':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
-                $version = (int)($data['version'] ?? 0);
+                $version = (int) ($data['version'] ?? 0);
 
                 $availableMigrations = [
                     1 => "SELECT 1;",
@@ -4471,8 +4460,7 @@ try {
                     $stmt->execute([$version, "Migration $version"]);
 
                     echo json_encode(['status' => 'success', 'message' => "Миграция $version выполнена успешно"]);
-                }
-                catch (\Exception $e) {
+                } catch (\Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => 'Ошибка выполнения миграции: ' . $e->getMessage()]);
                 }
             }
@@ -4521,7 +4509,7 @@ try {
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
                         curl_exec($ch);
-                        curl_close($ch);
+                        // curl_close() deprecated in PHP 8.5 - resources are auto-freed
                     }
                     $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_bot_token', '']);
                     $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_webhook_set', '0']);
@@ -4540,7 +4528,7 @@ try {
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
                     $response = curl_exec($ch);
-                    curl_close($ch);
+                    // curl_close() deprecated in PHP 8.5 - resources are auto-freed
                     $result = json_decode($response, true);
 
                     if (!$result || !($result['ok'] ?? false)) {
@@ -4566,7 +4554,7 @@ try {
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
                     $webhookResult = json_decode(curl_exec($ch), true);
-                    curl_close($ch);
+                    // curl_close() deprecated in PHP 8.5 - resources are auto-freed
 
                     $webhookOk = $webhookResult['ok'] ?? false;
                     $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_webhook_set', $webhookOk ? '1' : '0']);
@@ -4609,8 +4597,8 @@ try {
 
                 $lang = $chat['language'] ?? 'ru';
                 $testMsg = $lang === 'ru'
-                    ? "✅ *Тестовое сообщение*\n\nLTT Tracker бот работает корректно!"
-                    : "✅ *Test Message*\n\nLTT Tracker bot is working correctly!";
+                    ? "✅ *Тестовое сообщение*\n\nOrbitra бот работает корректно!"
+                    : "✅ *Test Message*\n\nOrbitra bot is working correctly!";
 
                 $url = "https://api.telegram.org/bot{$token}/sendMessage";
                 $ch = curl_init($url);
@@ -4624,7 +4612,7 @@ try {
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_TIMEOUT, 10);
                 $result = json_decode(curl_exec($ch), true);
-                curl_close($ch);
+                // curl_close() deprecated in PHP 8.5 - resources are auto-freed
 
                 if ($result && ($result['ok'] ?? false)) {
                     echo json_encode(['status' => 'success', 'message' => 'Test message sent']);
@@ -4661,7 +4649,7 @@ try {
                 $id = $data['id'] ?? null;
                 $token = $data['token'] ?? '';
                 $events = $data['events'] ?? 'PageView,Lead';
-                $is_active = isset($data['is_active']) ? (int)$data['is_active'] : 1;
+                $is_active = isset($data['is_active']) ? (int) $data['is_active'] : 1;
 
                 if ($id) {
                     $stmt = $pdo->prepare("UPDATE campaign_pixels SET type=?, pixel_id=?, token=?, events=?, is_active=? WHERE id=? AND campaign_id=?");
@@ -4721,7 +4709,7 @@ try {
 
                 $id = $data['id'] ?? null;
                 $campaign_id = $data['campaign_id'] ?: null;
-                $is_active = isset($data['is_active']) ? (int)$data['is_active'] : 1;
+                $is_active = isset($data['is_active']) ? (int) $data['is_active'] : 1;
 
                 if ($id) {
                     $stmt = $pdo->prepare("UPDATE app_configs SET name=?, campaign_id=?, config_json=?, is_active=?, updated_at=CURRENT_TIMESTAMP WHERE id=?");
@@ -4808,7 +4796,8 @@ try {
                         $reader = new \GeoIp2\Database\Reader($maxMindDb);
                         $record = $reader->city($ip);
                         $country = $record->country->isoCode ?: 'UNKNOWN';
-                    } catch (\Exception $e) {}
+                    } catch (\Exception $e) {
+                    }
                 }
 
                 // 2. IP2Location (DB11/DB3)
@@ -4833,7 +4822,8 @@ try {
                             if ($records && is_array($records) && !empty($records['countryCode']) && $records['countryCode'] !== '-') {
                                 $country = $records['countryCode'];
                             }
-                        } catch (\Exception $e) {}
+                        } catch (\Exception $e) {
+                        }
                     }
                 }
 
@@ -4848,9 +4838,11 @@ try {
                             if (class_exists($sxGeoClass)) {
                                 $sxGeo = new $sxGeoClass($sxGeoDat);
                                 $cc = $sxGeo->getCountry($ip);
-                                if ($cc) $country = $cc;
+                                if ($cc)
+                                    $country = $cc;
                             }
-                        } catch (\Exception $e) {}
+                        } catch (\Exception $e) {
+                        }
                     }
                 }
 
@@ -4860,10 +4852,11 @@ try {
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_TIMEOUT, 2);
                     $response = curl_exec($ch);
-                    curl_close($ch);
+                    // curl_close() deprecated in PHP 8.5 - resources are auto-freed
                     if ($response) {
                         $data = json_decode($response, true);
-                        if (!empty($data['countryCode'])) $country = $data['countryCode'];
+                        if (!empty($data['countryCode']))
+                            $country = $data['countryCode'];
                     }
                 }
             }
@@ -4902,7 +4895,7 @@ try {
                             $clickIdParam = $data['click_id_param'] ?? 'sub_id';
                             $fieldMappingJson = isset($data['field_mapping']) ? json_encode($data['field_mapping']) : null;
                             $syncInterval = $data['sync_interval_hours'] ?? 2;
-                            $isActive = isset($data['is_active']) ? (int)$data['is_active'] : 1;
+                            $isActive = isset($data['is_active']) ? (int) $data['is_active'] : 1;
 
                             if ($id) {
                                 $stmt = $pdo->prepare("UPDATE aggregator_connections SET name=?, engine=?, affiliate_network_id=?, auth_type=?, credentials_json=?, base_url=?, deal_type=?, baseline=?, click_id_param=?, field_mapping_json=?, sync_interval_hours=?, is_active=? WHERE id=?");
@@ -5023,7 +5016,8 @@ try {
                                     if ($externalId) {
                                         $dupCheck = $pdo->prepare("SELECT id FROM revenue_records WHERE connection_id = ? AND external_id = ?");
                                         $dupCheck->execute([$connectionId, $externalId]);
-                                        if ($dupCheck->fetch()) continue;
+                                        if ($dupCheck->fetch())
+                                            continue;
                                     }
 
                                     // Проверяем matching с clicks
@@ -5035,7 +5029,7 @@ try {
                                             $matched++;
 
                                             // Update clicks.revenue with real amount
-                                            $amount = (float)($rec['amount'] ?? 0);
+                                            $amount = (float) ($rec['amount'] ?? 0);
                                             if ($amount > 0) {
                                                 $updateRevenueStmt->execute([$amount, $clickId]);
                                             }
@@ -5048,7 +5042,7 @@ try {
                                         $clickId,
                                         $rec['player_id'] ?? null,
                                         $rec['event_type'] ?? 'ftd',
-                                        (float)($rec['amount'] ?? 0),
+                                        (float) ($rec['amount'] ?? 0),
                                         $rec['currency'] ?? 'USD',
                                         $rec['country'] ?? null,
                                         $rec['brand'] ?? null,
@@ -5080,7 +5074,8 @@ try {
                                     ]
                                 ]);
                             } catch (\Exception $e) {
-                                if ($pdo->inTransaction()) $pdo->rollBack();
+                                if ($pdo->inTransaction())
+                                    $pdo->rollBack();
                                 $durationMs = round((microtime(true) - $startTime) * 1000);
 
                                 $pdo->prepare("UPDATE aggregator_connections SET last_sync_at = datetime('now'), last_sync_status = 'error', last_sync_error = ? WHERE id = ?")->execute([$e->getMessage(), $connectionId]);
@@ -5096,8 +5091,8 @@ try {
                         $connectionId = $_GET['connection_id'] ?? null;
                         $dateFrom = $_GET['date_from'] ?? date('Y-m-d', strtotime('-30 days'));
                         $dateTo = $_GET['date_to'] ?? date('Y-m-d');
-                        $page = max(1, (int)($_GET['page'] ?? 1));
-                        $limit = min(100, max(10, (int)($_GET['limit'] ?? 50)));
+                        $page = max(1, (int) ($_GET['page'] ?? 1));
+                        $limit = min(100, max(10, (int) ($_GET['limit'] ?? 50)));
                         $offset = ($page - 1) * $limit;
 
                         $where = "WHERE rr.event_date >= ? AND rr.event_date <= ?";
@@ -5128,7 +5123,7 @@ try {
                             'status' => 'success',
                             'data' => $stmt->fetchAll(PDO::FETCH_ASSOC),
                             'totals' => $totals,
-                            'pagination' => ['page' => $page, 'limit' => $limit, 'total' => (int)$totals['total']]
+                            'pagination' => ['page' => $page, 'limit' => $limit, 'total' => (int) $totals['total']]
                         ]);
                         break;
 
@@ -5160,16 +5155,27 @@ try {
                         header('Content-Type: text/csv; charset=utf-8');
                         header('Content-Disposition: attachment; filename=aggregator_revenue_' . $dateFrom . '_' . $dateTo . '.csv');
                         $output = fopen('php://output', 'w');
-                        
+
                         // UTF-8 BOM
                         fwrite($output, "\xEF\xBB\xBF");
-                        
+
                         fputcsv($output, ['ID', 'Connection', 'Event Date', 'External ID', 'Click ID', 'Player ID', 'Event Type', 'Amount', 'Currency', 'Country', 'Brand', 'Sub ID', 'Is Matched', 'Imported At']);
                         foreach ($records as $r) {
                             fputcsv($output, [
-                                $r['id'], $r['connection'], $r['event_date'], $r['external_id'], $r['click_id'],
-                                $r['player_id'], $r['event_type'], $r['amount'], $r['currency'], $r['country'],
-                                $r['brand'], $r['sub_id'], ($r['is_matched'] ? 'Yes' : 'No'), $r['created_at']
+                                $r['id'],
+                                $r['connection'],
+                                $r['event_date'],
+                                $r['external_id'],
+                                $r['click_id'],
+                                $r['player_id'],
+                                $r['event_type'],
+                                $r['amount'],
+                                $r['currency'],
+                                $r['country'],
+                                $r['brand'],
+                                $r['sub_id'],
+                                ($r['is_matched'] ? 'Yes' : 'No'),
+                                $r['created_at']
                             ]);
                         }
                         fclose($output);
@@ -5217,8 +5223,7 @@ try {
             }
             echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
     }
-}
-catch (\Exception $e) {
+} catch (\Exception $e) {
     http_response_code(500);
     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }

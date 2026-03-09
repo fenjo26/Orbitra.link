@@ -40,13 +40,13 @@ function fillGeoData(array &$target, array $source)
     $stringKeys = ['country_code', 'region', 'city', 'zipcode', 'timezone'];
     foreach ($stringKeys as $key) {
         if ((empty($target[$key]) || $target[$key] === 'Unknown') && !empty($source[$key])) {
-            $target[$key] = (string)$source[$key];
+            $target[$key] = (string) $source[$key];
         }
     }
 
     foreach (['latitude', 'longitude'] as $key) {
         if ($target[$key] === null && isset($source[$key]) && is_numeric($source[$key])) {
-            $target[$key] = (float)$source[$key];
+            $target[$key] = (float) $source[$key];
         }
     }
 }
@@ -98,9 +98,8 @@ function getGeoData($ip)
                     'timezone' => normalizeGeoString($records['timeZone'] ?? $records['timezone'] ?? '', ''),
                 ]);
             }
-        }
-        catch (\Exception $e) {
-        // Фолбек при ошибке базы
+        } catch (\Exception $e) {
+            // Фолбек при ошибке базы
         }
     }
 
@@ -125,9 +124,8 @@ function getGeoData($ip)
                 // @phpstan-ignore-next-line
                 'timezone' => normalizeGeoString($record->location->timeZone ?? '', ''),
             ]);
-        }
-        catch (\Exception $e) {
-        // Фолбек при ошибке базы (например, IP не найден)
+        } catch (\Exception $e) {
+            // Фолбек при ошибке базы (например, IP не найден)
         }
     }
 
@@ -143,12 +141,11 @@ function getGeoData($ip)
                 // @phpstan-ignore-next-line
                 $country = $sxGeo->getCountry($ip);
                 fillGeoData($geo, [
-                    'country_code' => normalizeGeoString((string)$country, ''),
+                    'country_code' => normalizeGeoString((string) $country, ''),
                 ]);
             }
-        }
-        catch (\Exception $e) {
-        // Фолбек при ошибке базы
+        } catch (\Exception $e) {
+            // Фолбек при ошибке базы
         }
     }
 
@@ -158,7 +155,7 @@ function getGeoData($ip)
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 2);
         $response = curl_exec($ch);
-        curl_close($ch);
+        // curl_close() deprecated in PHP 8.5 - resources are auto-freed
 
         if ($response) {
             $data = json_decode($response, true);
@@ -231,8 +228,7 @@ function generateUuid()
 {
     try {
         $data = random_bytes(16);
-    }
-    catch (\Exception $e) {
+    } catch (\Exception $e) {
         // Fallback if random_bytes fails (rare)
         $data = openssl_random_pseudo_bytes(16);
     }
@@ -408,8 +404,10 @@ foreach ($stmtSets->fetchAll() as $row) {
 }
 
 if (($settings['ignore_prefetch'] ?? '1') === '1') {
-    if ((isset($_SERVER['HTTP_X_PURPOSE']) && $_SERVER['HTTP_X_PURPOSE'] == 'preview') ||
-    (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')) {
+    if (
+        (isset($_SERVER['HTTP_X_PURPOSE']) && $_SERVER['HTTP_X_PURPOSE'] == 'preview') ||
+        (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
+    ) {
         die("Prefetch ignored.");
     }
 }
@@ -486,7 +484,9 @@ foreach ($allStreams as $stream) {
 
 // Если не найден перехватывающий, отбираем обычные
 if (!$selectedStream) {
-    $regular = array_filter($allStreams, fn($s) => ($s['type'] ?? 'regular') === 'regular' && streamMatchesFilters($s, $ip, $country, $deviceType, $userAgent, $pdo));
+    $regular = array_filter($allStreams, function ($s) use ($ip, $country, $deviceType, $userAgent, $pdo) {
+        return ($s['type'] ?? 'regular') === 'regular' && streamMatchesFilters($s, $ip, $country, $deviceType, $userAgent, $pdo);
+    });
 
     if (!empty($regular)) {
         $selectedStream = reset($regular);
@@ -513,7 +513,7 @@ function selectWeightedItem($items)
         $rand = mt_rand(1, $totalW);
         $curW = 0;
         foreach ($items as $item) {
-            $curW += (int)($item['weight'] ?? 0);
+            $curW += (int) ($item['weight'] ?? 0);
             if ($rand <= $curW) {
                 return $item;
             }
@@ -536,8 +536,7 @@ if ($selectedStream) {
 
     if ($schemaType === 'action') {
         $actionToPerfrom = $selectedStream['action_payload'] ?? 'do_nothing';
-    }
-    else if ($schemaType === 'landing_offer') {
+    } else if ($schemaType === 'landing_offer') {
         $selectedLanding = selectWeightedItem($customSchema['landings'] ?? []);
         $selectedOffer = selectWeightedItem($customSchema['offers'] ?? []);
 
@@ -573,15 +572,13 @@ if ($selectedStream) {
                 }
             }
         }
-    }
-    else { // redirect
+    } else { // redirect
         $selectedOffer = selectWeightedItem($customSchema['offers'] ?? []);
 
         // Fallback to legacy offer_id if no weighted array is provided
         if ($selectedOffer) {
             $offerIdToLog = $selectedOffer['id'] ?? 0;
-        }
-        else {
+        } else {
             $offerIdToLog = $selectedStream['offer_id'] ?? 0;
         }
 
@@ -596,7 +593,7 @@ if ($selectedStream) {
 }
 
 // 5. Логирование клика
-$statsEnabled = isset($settings['stats_enabled']) ? (int)$settings['stats_enabled'] : 1;
+$statsEnabled = isset($settings['stats_enabled']) ? (int) $settings['stats_enabled'] : 1;
 
 $streamIdToLog = $selectedStream['id'] ?? null;
 $sourceIdToLog = $campaign['source_id'] ?? null;
@@ -653,15 +650,12 @@ if ($actionToPerfrom) {
     if ($actionToPerfrom === 'not_found') {
         http_response_code(404);
         die("404 Not Found");
-    }
-    else if ($actionToPerfrom === 'show_html') {
+    } else if ($actionToPerfrom === 'show_html') {
         die("<h1>Default HTML Content</h1>");
-    }
-    else {
+    } else {
         die("Do nothing.");
     }
-}
-else {
+} else {
     $offerUrlMacros = str_replace('{clickid}', $clickId, $offerUrl ?? '');
 
     if (isset($landingType) && $landingType !== 'redirect') {
@@ -669,28 +663,24 @@ else {
             $landingDir = __DIR__ . '/api/landings/' . $landingIdToLog;
             if (file_exists($landingDir . '/index.php')) {
                 require $landingDir . '/index.php';
-            }
-            else if (file_exists($landingDir . '/index.html')) {
+            } else if (file_exists($landingDir . '/index.html')) {
                 echo file_get_contents($landingDir . '/index.html');
-            }
-            else {
+            } else {
                 die("Local landing files not found in " . $landingDir);
             }
             exit;
-        }
-        else if ($landingType === 'action') {
+        } else if ($landingType === 'action') {
             $payload = str_replace(
-            ['{clickid}', '{offer_id}', '{offer}'],
-            [$clickId, $offerIdToLog, $offerUrlMacros],
+                ['{clickid}', '{offer_id}', '{offer}'],
+                [$clickId, $offerIdToLog, $offerUrlMacros],
                 $landingAction
             );
             echo $payload;
             exit;
-        }
-        else if ($landingType === 'preload') {
+        } else if ($landingType === 'preload') {
             $url = str_replace(
-            ['{clickid}', '{offer_id}', '{offer}'],
-            [$clickId, $offerIdToLog, $offerUrlMacros],
+                ['{clickid}', '{offer_id}', '{offer}'],
+                [$clickId, $offerIdToLog, $offerUrlMacros],
                 $landingUrl
             );
             $ch = curl_init();
@@ -699,7 +689,7 @@ else {
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
             $html = curl_exec($ch);
-            curl_close($ch);
+            // curl_close() deprecated in PHP 8.5 - resources are auto-freed
 
             $baseTag = '<base href="' . htmlspecialchars($url) . '">';
             $htmlWithBase = preg_replace('/<head>/i', "<head>\n" . $baseTag, $html, 1);
@@ -726,7 +716,7 @@ else {
     // Replace all extracted tracking parameters (e.g. {sub_id_1}, {keyword})
     if (!empty($clickParams)) {
         foreach ($clickParams as $key => $val) {
-            $finalUrl = str_replace('{' . $key . '}', urlencode((string)$val), $finalUrl);
+            $finalUrl = str_replace('{' . $key . '}', urlencode((string) $val), $finalUrl);
         }
     }
 
