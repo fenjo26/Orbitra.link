@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { HelpCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -10,6 +11,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 const HelpTooltip = ({ textKey, text, position = 'top', size = 15, style = {} }) => {
     const { t } = useLanguage();
     const [visible, setVisible] = useState(false);
+    const [tipCoords, setTipCoords] = useState({ left: 0, top: 0 });
     const tipRef = useRef(null);
     const btnRef = useRef(null);
 
@@ -27,11 +29,51 @@ const HelpTooltip = ({ textKey, text, position = 'top', size = 15, style = {} })
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [visible]);
 
+    useEffect(() => {
+        if (!visible) return;
+
+        const updatePosition = () => {
+            if (!btnRef.current || !tipRef.current) return;
+
+            const btnRect = btnRef.current.getBoundingClientRect();
+            const tipRect = tipRef.current.getBoundingClientRect();
+            const gap = 10;
+
+            let left = btnRect.left + btnRect.width / 2 - tipRect.width / 2;
+            let top = btnRect.top - tipRect.height - gap;
+
+            if (position === 'bottom') {
+                top = btnRect.bottom + gap;
+            } else if (position === 'left') {
+                left = btnRect.left - tipRect.width - gap;
+                top = btnRect.top + btnRect.height / 2 - tipRect.height / 2;
+            } else if (position === 'right') {
+                left = btnRect.right + gap;
+                top = btnRect.top + btnRect.height / 2 - tipRect.height / 2;
+            }
+
+            const padding = 8;
+            left = Math.max(padding, Math.min(left, window.innerWidth - tipRect.width - padding));
+            top = Math.max(padding, Math.min(top, window.innerHeight - tipRect.height - padding));
+
+            setTipCoords({ left, top });
+        };
+
+        const rafId = requestAnimationFrame(updatePosition);
+        window.addEventListener('resize', updatePosition);
+        window.addEventListener('scroll', updatePosition, true);
+        return () => {
+            cancelAnimationFrame(rafId);
+            window.removeEventListener('resize', updatePosition);
+            window.removeEventListener('scroll', updatePosition, true);
+        };
+    }, [visible, content, position]);
+
     const positionStyles = {
-        top: { bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: '8px' },
-        bottom: { top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: '8px' },
-        left: { right: '100%', top: '50%', transform: 'translateY(-50%)', marginRight: '8px' },
-        right: { left: '100%', top: '50%', transform: 'translateY(-50%)', marginLeft: '8px' },
+        top: {},
+        bottom: {},
+        left: {},
+        right: {},
     };
 
     const arrowStyles = {
@@ -42,7 +84,7 @@ const HelpTooltip = ({ textKey, text, position = 'top', size = 15, style = {} })
     };
 
     return (
-        <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', ...style }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', ...style }}>
             <button
                 ref={btnRef}
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setVisible(!visible); }}
@@ -67,13 +109,15 @@ const HelpTooltip = ({ textKey, text, position = 'top', size = 15, style = {} })
                 <HelpCircle size={size} />
             </button>
 
-            {visible && content && (
+            {visible && content && createPortal(
                 <div
                     ref={tipRef}
                     style={{
-                        position: 'absolute',
+                        position: 'fixed',
+                        left: `${tipCoords.left}px`,
+                        top: `${tipCoords.top}px`,
                         ...positionStyles[position],
-                        zIndex: 9999,
+                        zIndex: 10000,
                         width: 'max-content',
                         maxWidth: '320px',
                         padding: '10px 14px',
@@ -97,13 +141,14 @@ const HelpTooltip = ({ textKey, text, position = 'top', size = 15, style = {} })
                         ...arrowStyles[position],
                     }} />
                     <span style={{ position: 'relative', zIndex: 1 }}>{content}</span>
-                </div>
+                </div>,
+                document.body
             )}
 
             <style>{`
                 @keyframes helpFadeIn {
-                    from { opacity: 0; transform: translateX(-50%) translateY(4px); }
-                    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+                    from { opacity: 0; transform: translateY(4px); }
+                    to { opacity: 1; transform: translateY(0); }
                 }
             `}</style>
         </span>
