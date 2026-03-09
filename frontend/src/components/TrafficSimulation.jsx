@@ -14,7 +14,7 @@ const TrafficSimulation = () => {
         user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
         country: 'US',
         device_type: 'desktop',
-        language: 'en'
+        accept_language: 'ru,en-US;q=0.9,en;q=0.8'
     });
     const [trace, setTrace] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -119,10 +119,10 @@ const TrafficSimulation = () => {
                             <label className="form-label">{t('simulation.language')}</label>
                             <input
                                 type="text"
-                                value={formData.language}
-                                onChange={e => setFormData({ ...formData, language: e.target.value })}
+                                value={formData.accept_language}
+                                onChange={e => setFormData({ ...formData, accept_language: e.target.value })}
                                 className="form-input"
-                                placeholder="en, ru, de..."
+                                placeholder="ru,en-US;q=0.9,en;q=0.8"
                             />
                         </div>
                         <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%' }}>

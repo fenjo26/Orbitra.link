@@ -197,6 +197,7 @@ try {
         os TEXT,
         browser TEXT,
         language TEXT,
+        accept_language_raw TEXT,
         is_conversion INTEGER DEFAULT 0,
         revenue REAL DEFAULT 0.00,
         cost REAL DEFAULT 0.00,
@@ -577,6 +578,11 @@ try {
     }
     try {
         $pdo->exec("ALTER TABLE clicks ADD COLUMN language TEXT");
+    }
+    catch (\Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE clicks ADD COLUMN accept_language_raw TEXT");
     }
     catch (\Exception $e) {
     }

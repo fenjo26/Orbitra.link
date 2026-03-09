@@ -249,9 +249,31 @@ function normalizeLanguageCode($value)
     return $primary;
 }
 
-function detectLanguage()
+function extractLanguageCodes($headerValue)
 {
-    return normalizeLanguageCode($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
+    if (!is_string($headerValue)) {
+        return [];
+    }
+
+    $result = [];
+    foreach (explode(',', $headerValue) as $rawPart) {
+        $normalized = normalizeLanguageCode($rawPart);
+        if ($normalized === 'Unknown') {
+            continue;
+        }
+        if (!in_array($normalized, $result, true)) {
+            $result[] = $normalized;
+        }
+    }
+    return $result;
+}
+
+function detectAcceptLanguageRaw()
+{
+    if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+        return '';
+    }
+    return trim((string) $_SERVER['HTTP_ACCEPT_LANGUAGE']);
 }
 
 // Генерация UUID v4 для click_id
@@ -392,7 +414,9 @@ $timezone = $geoData['timezone'];
 $deviceType = getDeviceType($userAgent);
 $os = detectOs($userAgent);
 $browser = detectBrowser($userAgent);
-$language = detectLanguage();
+$acceptLanguageRaw = detectAcceptLanguageRaw();
+$languageCodes = extractLanguageCodes($acceptLanguageRaw);
+$language = $languageCodes[0] ?? 'Unknown';
 $clickId = generateUuid();
 
 
@@ -473,7 +497,7 @@ function isBot($pdo, $ip, $userAgent)
     return false;
 }
 
-function streamMatchesFilters($stream, $ip, $country, $deviceType, $language, $userAgent, $pdo)
+function streamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $pdo)
 {
     if (empty($stream['filters_json']))
         return true;
@@ -506,7 +530,7 @@ function streamMatchesFilters($stream, $ip, $country, $deviceType, $language, $u
                         $payloadLanguages[] = $normalized;
                     }
                 }
-                $matched = !empty($payloadLanguages) && in_array($language, $payloadLanguages, true);
+                $matched = !empty(array_intersect($payloadLanguages, $languageCodes));
                 break;
             default:
                 $matched = true;
@@ -525,7 +549,7 @@ $selectedStream = null;
 // Пытаемся найти перехватывающий
 foreach ($allStreams as $stream) {
     if (($stream['type'] ?? 'regular') === 'intercepting') {
-        if (streamMatchesFilters($stream, $ip, $country, $deviceType, $language, $userAgent, $pdo)) {
+        if (streamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $pdo)) {
             $selectedStream = $stream;
             break;
         }
@@ -534,8 +558,8 @@ foreach ($allStreams as $stream) {
 
 // Если не найден перехватывающий, отбираем обычные
 if (!$selectedStream) {
-    $regular = array_filter($allStreams, function ($s) use ($ip, $country, $deviceType, $language, $userAgent, $pdo) {
-        return ($s['type'] ?? 'regular') === 'regular' && streamMatchesFilters($s, $ip, $country, $deviceType, $language, $userAgent, $pdo);
+    $regular = array_filter($allStreams, function ($s) use ($ip, $country, $deviceType, $languageCodes, $userAgent, $pdo) {
+        return ($s['type'] ?? 'regular') === 'regular' && streamMatchesFilters($s, $ip, $country, $deviceType, $languageCodes, $userAgent, $pdo);
     });
 
     if (!empty($regular)) {
@@ -662,9 +686,9 @@ if ($statsEnabled && !$isDebounced) {
         (
             id, campaign_id, offer_id, stream_id, source_id, landing_id, ip, user_agent, referer,
             country, country_code, region, city, latitude, longitude, zipcode, timezone,
-            device_type, os, browser, language, parameters_json
+            device_type, os, browser, language, accept_language_raw, parameters_json
         ) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $insertStmt->execute([
         $clickId,
@@ -688,6 +712,7 @@ if ($statsEnabled && !$isDebounced) {
         $os,
         $browser,
         $language,
+        $acceptLanguageRaw,
         $parametersJson
     ]);
 }

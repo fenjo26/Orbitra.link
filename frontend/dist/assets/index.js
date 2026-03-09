@@ -16184,7 +16184,7 @@ const ru = {
     device: "Устройство",
     os: "Операционная система",
     browser: "Браузер",
-    language: "Язык",
+    language: "Язык браузера",
     isp: "Провайдер (ISP)",
     ispPlaceholder: "Ростелеком, MTS, Vodafone...",
     connection: "Тип соединения",
@@ -16542,7 +16542,7 @@ const ru = {
     userAgent: "User-Agent",
     geoCode: "Geo (Код страны)",
     deviceType: "Тип устройства",
-    language: "Язык",
+    language: "Языки браузера (Accept-Language)",
     desktop: "Desktop",
     mobile: "Mobile",
     tablet: "Tablet",
@@ -16601,7 +16601,8 @@ const ru = {
       timezone: "Часовой пояс",
       latitude: "Широта",
       longitude: "Долгота",
-      language: "Язык",
+      language: "Язык браузера (основной)",
+      acceptLanguageRaw: "Accept-Language (сырой)",
       deviceType: "Тип устройства",
       os: "ОС",
       browser: "Браузер",
@@ -17107,7 +17108,7 @@ const ru = {
     period: "Период:",
     geoCountry: "ГЕО (Страна)",
     deviceType: "Тип устройства",
-    language: "Язык",
+    language: "Язык браузера",
     stream: "Поток",
     source: "Источник",
     clicks: "Клики",
@@ -17734,7 +17735,7 @@ const en = {
     device: "Device",
     os: "Operating System",
     browser: "Browser",
-    language: "Language",
+    language: "Browser Language",
     isp: "ISP Provider",
     ispPlaceholder: "Comcast, Verizon, Vodafone...",
     connection: "Connection Type",
@@ -18092,7 +18093,7 @@ const en = {
     userAgent: "User-Agent",
     geoCode: "Geo (Country code)",
     deviceType: "Device type",
-    language: "Language",
+    language: "Browser Languages (Accept-Language)",
     desktop: "Desktop",
     mobile: "Mobile",
     tablet: "Tablet",
@@ -18151,7 +18152,8 @@ const en = {
       timezone: "Timezone",
       latitude: "Latitude",
       longitude: "Longitude",
-      language: "Language",
+      language: "Browser Language (Primary)",
+      acceptLanguageRaw: "Accept-Language (Raw)",
       deviceType: "Device Type",
       os: "OS",
       browser: "Browser",
@@ -18623,7 +18625,7 @@ const en = {
     period: "Period:",
     geoCountry: "GEO (Country)",
     deviceType: "Device Type",
-    language: "Language",
+    language: "Browser Language",
     stream: "Stream",
     source: "Source",
     clicks: "Clicks",
@@ -32006,6 +32008,7 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.zipcode"), value: data.zipcode }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.timezone"), value: data.timezone }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.language"), value: data.language }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.acceptLanguageRaw"), value: data.accept_language_raw }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.latitude"), value: data.latitude }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.longitude"), value: data.longitude }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.deviceType"), value: data.device_type }),
@@ -32787,7 +32790,7 @@ const TrafficSimulation = () => {
     user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
     country: "US",
     device_type: "desktop",
-    language: "en"
+    accept_language: "ru,en-US;q=0.9,en;q=0.8"
   });
   const [trace, setTrace] = reactExports.useState(null);
   const [loading, setLoading] = reactExports.useState(false);
@@ -32899,10 +32902,10 @@ const TrafficSimulation = () => {
             "input",
             {
               type: "text",
-              value: formData.language,
-              onChange: (e) => setFormData({ ...formData, language: e.target.value }),
+              value: formData.accept_language,
+              onChange: (e) => setFormData({ ...formData, accept_language: e.target.value }),
               className: "form-input",
-              placeholder: "en, ru, de..."
+              placeholder: "ru,en-US;q=0.9,en;q=0.8"
             }
           )
         ] }),
@@ -43079,7 +43082,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     { name: "Device", label: t2("filters.device"), placeholder: "mobile, desktop, tablet..." },
     { name: "OS", label: t2("filters.os"), placeholder: "windows, macos, ios, android..." },
     { name: "Browser", label: t2("filters.browser"), placeholder: "chrome, firefox, safari..." },
-    { name: "Language", label: t2("filters.language"), placeholder: "ru, en, de..." },
+    { name: "Language", label: t2("filters.language"), placeholder: "ru, en, de (from browser header)" },
     { name: "ISP", label: t2("filters.isp"), placeholder: t2("filters.ispPlaceholder") },
     { name: "Connection", label: t2("filters.connection"), placeholder: "mobile, wifi, cable..." },
     { name: "IP", label: t2("filters.ip"), placeholder: "192.168.1.1, 10.0.0.*..." },

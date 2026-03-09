@@ -271,6 +271,52 @@ function getConversionsValueColumn($pdo)
     return $column;
 }
 
+function normalizeBrowserLanguageCode($value)
+{
+    if (!is_string($value)) {
+        return '';
+    }
+
+    $value = strtolower(trim($value));
+    if ($value === '' || $value === '*') {
+        return '';
+    }
+
+    $value = explode(';', $value)[0];
+    $value = trim($value);
+    if ($value === '') {
+        return '';
+    }
+
+    $primary = preg_split('/[-_]/', $value)[0] ?? '';
+    $primary = preg_replace('/[^a-z]/', '', $primary);
+    if ($primary === '') {
+        return '';
+    }
+
+    return $primary;
+}
+
+function extractBrowserLanguageCodes($headerValue)
+{
+    if (!is_string($headerValue)) {
+        return [];
+    }
+
+    $result = [];
+    foreach (explode(',', $headerValue) as $rawPart) {
+        $normalized = normalizeBrowserLanguageCode($rawPart);
+        if ($normalized === '') {
+            continue;
+        }
+        if (!in_array($normalized, $result, true)) {
+            $result[] = $normalized;
+        }
+    }
+
+    return $result;
+}
+
 try {
     switch ($action) {
         case 'metrics':
@@ -1698,6 +1744,7 @@ try {
                         cl.city,
                         cl.timezone as geo_timezone,
                         cl.language,
+                        cl.accept_language_raw,
                         cl.device_type,
                         cl.user_agent,
                         o.url as redirect_url,
@@ -1877,6 +1924,7 @@ try {
                     cl.city,
                     cl.timezone as geo_timezone,
                     cl.language,
+                    cl.accept_language_raw,
                     cl.device_type,
                     cl.os,
                     cl.browser,
@@ -1906,6 +1954,7 @@ try {
                 $logText .= "City: " . ($log['city'] ?: '-') . "\n";
                 $logText .= "Timezone: " . ($log['geo_timezone'] ?: '-') . "\n";
                 $logText .= "Language: " . ($log['language'] ?: '-') . "\n";
+                $logText .= "Accept-Language: " . ($log['accept_language_raw'] ?: '-') . "\n";
                 $logText .= "Device: {$log['device_type']}\n";
                 $logText .= "OS: {$log['os']}\n";
                 $logText .= "Browser: {$log['browser']}\n";
@@ -1997,22 +2046,15 @@ try {
                 $userAgent = $data['user_agent'] ?? 'Mozilla/5.0';
                 $country = $data['country'] ?? 'US';
                 $deviceType = $data['device_type'] ?? 'desktop';
-                $language = strtolower(trim((string) ($data['language'] ?? 'en')));
-                if ($language === '' || $language === '*') {
-                    $language = 'unknown';
-                }
-                $language = explode(',', $language)[0];
-                $language = explode(';', $language)[0];
-                $language = trim($language);
-                $language = preg_split('/[-_]/', $language)[0] ?? '';
-                $language = preg_replace('/[^a-z]/', '', $language);
-                if ($language === '') {
-                    $language = 'unknown';
-                }
+                $acceptLanguageRaw = trim((string) ($data['accept_language'] ?? ($data['language'] ?? 'en')));
+                $languageCodes = extractBrowserLanguageCodes($acceptLanguageRaw);
+                $language = $languageCodes[0] ?? 'unknown';
 
                 $trace = [];
                 $trace[] = "Start simulation for Campaign ID: $campaignId";
-                $trace[] = "Context -> IP: $ip, UA: $userAgent, Country: $country, Device: $deviceType, Language: $language";
+                $trace[] = "Context -> IP: $ip, UA: $userAgent, Country: $country, Device: $deviceType, Primary Language: $language";
+                $trace[] = "Accept-Language raw: " . ($acceptLanguageRaw !== '' ? $acceptLanguageRaw : '-');
+                $trace[] = "Parsed browser languages: " . (!empty($languageCodes) ? implode(', ', $languageCodes) : 'none');
 
                 if (!$campaignId) {
                     echo json_encode(['status' => 'error', 'message' => 'Missing campaign ID']);
@@ -2034,7 +2076,7 @@ try {
                 $trace[] = "Loaded " . count($allStreams) . " active streams";
 
                 if (!function_exists('streamMatchesFiltersSim')) {
-                    function streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $language, &$trace)
+                    function streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $languageCodes, &$trace)
                     {
                         if (empty($stream['filters_json']))
                             return true;
@@ -2056,17 +2098,12 @@ try {
                             else if ($f['name'] === 'Language') {
                                 $normalizedPayload = [];
                                 foreach ($payload as $item) {
-                                    $candidate = strtolower(trim((string) $item));
-                                    $candidate = explode(',', $candidate)[0];
-                                    $candidate = explode(';', $candidate)[0];
-                                    $candidate = trim($candidate);
-                                    $candidate = preg_split('/[-_]/', $candidate)[0] ?? '';
-                                    $candidate = preg_replace('/[^a-z]/', '', $candidate);
+                                    $candidate = normalizeBrowserLanguageCode((string) $item);
                                     if ($candidate !== '') {
                                         $normalizedPayload[] = $candidate;
                                     }
                                 }
-                                $matched = !empty($normalizedPayload) && in_array($language, $normalizedPayload, true);
+                                $matched = !empty(array_intersect($normalizedPayload, $languageCodes));
                             }
                             else
                                 $matched = true;
@@ -2088,7 +2125,7 @@ try {
                 $trace[] = "Evaluating Intercepting streams...";
                 foreach ($allStreams as $stream) {
                     if (($stream['type'] ?? 'regular') === 'intercepting') {
-                        if (streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $language, $trace)) {
+                        if (streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $languageCodes, $trace)) {
                             $selectedStream = $stream;
                             $trace[] = "=> MATCHED Intercepting Stream: " . $stream['name'];
                             break;
@@ -2098,7 +2135,7 @@ try {
 
                 if (!$selectedStream) {
                     $trace[] = "Evaluating Regular streams...";
-                    $regular = array_filter($allStreams, fn($s) => ($s['type'] ?? 'regular') === 'regular' && streamMatchesFiltersSim($s, $ip, $country, $deviceType, $language, $trace));
+                    $regular = array_filter($allStreams, fn($s) => ($s['type'] ?? 'regular') === 'regular' && streamMatchesFiltersSim($s, $ip, $country, $deviceType, $languageCodes, $trace));
 
                     if (!empty($regular)) {
                         $trace[] = "Found " . count($regular) . " eligible regular streams";

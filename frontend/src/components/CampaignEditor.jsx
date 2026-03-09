@@ -373,7 +373,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         { name: 'Device', label: t('filters.device'), placeholder: 'mobile, desktop, tablet...' },
         { name: 'OS', label: t('filters.os'), placeholder: 'windows, macos, ios, android...' },
         { name: 'Browser', label: t('filters.browser'), placeholder: 'chrome, firefox, safari...' },
-        { name: 'Language', label: t('filters.language'), placeholder: 'ru, en, de...' },
+        { name: 'Language', label: t('filters.language'), placeholder: 'ru, en, de (from browser header)' },
         { name: 'ISP', label: t('filters.isp'), placeholder: t('filters.ispPlaceholder') },
         { name: 'Connection', label: t('filters.connection'), placeholder: 'mobile, wifi, cable...' },
         { name: 'IP', label: t('filters.ip'), placeholder: '192.168.1.1, 10.0.0.*...' },

@@ -195,6 +195,7 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
                             <DetailRow label={t('clickDetails.fields.zipcode')} value={data.zipcode} />
                             <DetailRow label={t('clickDetails.fields.timezone')} value={data.timezone} />
                             <DetailRow label={t('clickDetails.fields.language')} value={data.language} />
+                            <DetailRow label={t('clickDetails.fields.acceptLanguageRaw')} value={data.accept_language_raw} />
                             <DetailRow label={t('clickDetails.fields.latitude')} value={data.latitude} />
                             <DetailRow label={t('clickDetails.fields.longitude')} value={data.longitude} />
                             <DetailRow label={t('clickDetails.fields.deviceType')} value={data.device_type} />

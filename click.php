@@ -255,9 +255,31 @@ function clickNormalizeLanguageCode($value)
     return $primary;
 }
 
-function clickDetectLanguage()
+function clickExtractLanguageCodes($headerValue)
 {
-    return clickNormalizeLanguageCode($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
+    if (!is_string($headerValue)) {
+        return [];
+    }
+
+    $result = [];
+    foreach (explode(',', $headerValue) as $rawPart) {
+        $normalized = clickNormalizeLanguageCode($rawPart);
+        if ($normalized === 'Unknown') {
+            continue;
+        }
+        if (!in_array($normalized, $result, true)) {
+            $result[] = $normalized;
+        }
+    }
+    return $result;
+}
+
+function clickDetectAcceptLanguageRaw()
+{
+    if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+        return '';
+    }
+    return trim((string) $_SERVER['HTTP_ACCEPT_LANGUAGE']);
 }
 
 function clickGenerateUuid()
@@ -289,7 +311,9 @@ $timezone = $geoData['timezone'];
 $deviceType = clickGetDeviceType($userAgent);
 $os = clickDetectOs($userAgent);
 $browser = clickDetectBrowser($userAgent);
-$language = clickDetectLanguage();
+$acceptLanguageRaw = clickDetectAcceptLanguageRaw();
+$languageCodes = clickExtractLanguageCodes($acceptLanguageRaw);
+$language = $languageCodes[0] ?? 'Unknown';
 $clickId = clickGenerateUuid();
 
 // Collect sub parameters
@@ -358,9 +382,9 @@ if ($statsEnabled && !$isDebounced) {
         INSERT INTO clicks (
             id, campaign_id, offer_id, stream_id, source_id, ip, user_agent, referer,
             country, country_code, region, city, latitude, longitude, zipcode, timezone,
-            device_type, os, browser, language, parameters_json
+            device_type, os, browser, language, accept_language_raw, parameters_json
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $insertStmt->execute([
         $clickId,
@@ -383,6 +407,7 @@ if ($statsEnabled && !$isDebounced) {
         $os,
         $browser,
         $language,
+        $acceptLanguageRaw,
         $parametersJson
     ]);
 }

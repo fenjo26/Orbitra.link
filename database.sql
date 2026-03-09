@@ -182,7 +182,8 @@ CREATE TABLE IF NOT EXISTS clicks (
     device_type TEXT DEFAULT 'Unknown',           -- Desktop, Mobile, Tablet
     os TEXT,
     browser TEXT,
-    language TEXT,                                -- Browser/device language from Accept-Language
+    language TEXT,                                -- Primary browser language from Accept-Language
+    accept_language_raw TEXT,                     -- Full Accept-Language header for diagnostics/routing
     is_conversion INTEGER DEFAULT 0,
     revenue REAL DEFAULT 0.00,
     cost REAL DEFAULT 0.00,
