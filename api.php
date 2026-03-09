@@ -1736,7 +1736,7 @@ try {
                     SELECT
                         cl.id,
                         cl.id as click_id,
-                        cl.created_at,
+                        datetime(cl.created_at, '$dbTzOffset') as created_at,
                         c.name as campaign_name,
                         cl.ip,
                         COALESCE(NULLIF(cl.country_code, ''), cl.country) as country_code,
@@ -1759,7 +1759,16 @@ try {
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             } elseif ($type === 'postbacks') {
                 $stmt = $pdo->prepare("
-                    SELECT conv.id, conv.click_id, conv.status, conv.original_status, conv.payout, conv.currency, conv.created_at, cl.campaign_id, c.name as campaign_name
+                    SELECT
+                        conv.id,
+                        conv.click_id,
+                        conv.status,
+                        conv.original_status,
+                        conv.payout,
+                        conv.currency,
+                        datetime(conv.created_at, '$dbTzOffset') as created_at,
+                        cl.campaign_id,
+                        c.name as campaign_name
                     FROM conversions conv
                     LEFT JOIN clicks cl ON conv.click_id = cl.id
                     LEFT JOIN campaigns c ON cl.campaign_id = c.id
@@ -1769,15 +1778,15 @@ try {
                 $stmt->execute([$limit, $offset]);
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             } elseif ($type === 'system') {
-                $stmt = $pdo->prepare("SELECT * FROM system_logs ORDER BY created_at DESC LIMIT ? OFFSET ?");
+                $stmt = $pdo->prepare("SELECT *, datetime(created_at, '$dbTzOffset') as created_at FROM system_logs ORDER BY created_at DESC LIMIT ? OFFSET ?");
                 $stmt->execute([$limit, $offset]);
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             } elseif ($type === 'audit') {
-                $stmt = $pdo->prepare("SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT ? OFFSET ?");
+                $stmt = $pdo->prepare("SELECT *, datetime(created_at, '$dbTzOffset') as created_at FROM audit_logs ORDER BY created_at DESC LIMIT ? OFFSET ?");
                 $stmt->execute([$limit, $offset]);
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             } elseif ($type === 's2s') {
-                $stmt = $pdo->prepare("SELECT * FROM s2s_postbacks_log ORDER BY created_at DESC LIMIT ? OFFSET ?");
+                $stmt = $pdo->prepare("SELECT *, datetime(created_at, '$dbTzOffset') as created_at FROM s2s_postbacks_log ORDER BY created_at DESC LIMIT ? OFFSET ?");
                 $stmt->execute([$limit, $offset]);
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             } else {
@@ -1916,7 +1925,7 @@ try {
             $stmt = $pdo->prepare("
                 SELECT 
                     cl.id,
-                    cl.created_at,
+                    datetime(cl.created_at, '$dbTzOffset') as created_at,
                     cl.ip,
                     cl.user_agent,
                     COALESCE(NULLIF(cl.country_code, ''), cl.country) as country_code,
