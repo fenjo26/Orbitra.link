@@ -54436,9 +54436,10 @@ function App() {
   });
   reactExports.useEffect(() => {
     const getCsrfToken = () => {
+      const metaToken = document.querySelector('meta[name="csrf-token"]')?.content;
+      if (metaToken && metaToken !== "{{ csrf_token }}") return metaToken;
       const storedToken = localStorage.getItem("orbitra_csrf_token");
-      if (storedToken) return storedToken;
-      return document.querySelector('meta[name="csrf-token"]')?.content;
+      return storedToken || "";
     };
     const reqIntercept = axios.interceptors.request.use((config) => {
       const csrfToken = getCsrfToken();

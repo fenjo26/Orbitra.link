@@ -61,10 +61,11 @@ function App() {
   useEffect(() => {
     // CSRF Token Request Interceptor
     const getCsrfToken = () => {
-      // Priority: localStorage (from login) > meta tag
+      // Priority: current-session token from HTML meta > localStorage fallback.
+      const metaToken = document.querySelector('meta[name="csrf-token"]')?.content;
+      if (metaToken && metaToken !== '{{ csrf_token }}') return metaToken;
       const storedToken = localStorage.getItem('orbitra_csrf_token');
-      if (storedToken) return storedToken;
-      return document.querySelector('meta[name="csrf-token"]')?.content;
+      return storedToken || '';
     };
 
     const reqIntercept = axios.interceptors.request.use((config) => {
