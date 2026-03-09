@@ -737,4 +737,19 @@ if ($actionToPerfrom) {
     if (!preg_match('#^(https?:)?//#i', $finalUrl) && !preg_match('#^/#', $finalUrl) && !preg_match('#^(mailto|tel):#i', $finalUrl)) {
         $finalUrl = 'http://' . ltrim($finalUrl, '/');
     }
+
+    // Default behavior is redirect. Use redirect=0 for debug/integration checks.
+    $shouldRedirect = ($_GET['redirect'] ?? '1') !== '0';
+    if ($shouldRedirect) {
+        header('Location: ' . $finalUrl, true, 302);
+    } else {
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Origin: *');
+        echo json_encode([
+            'status' => 'ok',
+            'click_id' => $clickId,
+            'url' => $finalUrl
+        ]);
+    }
+    exit;
 }
