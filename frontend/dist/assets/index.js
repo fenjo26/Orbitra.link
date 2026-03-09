@@ -32133,9 +32133,12 @@ const InfoBanner = ({ storageKey, title, children, icon: Icon2 = Lightbulb, vari
             ` })
   ] });
 };
+var reactDomExports = requireReactDom();
+const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(reactDomExports);
 const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} }) => {
   const { t: t2 } = useLanguage();
   const [visible, setVisible] = reactExports.useState(false);
+  const [tipCoords, setTipCoords] = reactExports.useState({ left: 0, top: 0 });
   const tipRef = reactExports.useRef(null);
   const btnRef = reactExports.useRef(null);
   const content = text || (textKey ? t2(textKey) : "");
@@ -32149,11 +32152,43 @@ const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} })
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [visible]);
+  reactExports.useEffect(() => {
+    if (!visible) return;
+    const updatePosition = () => {
+      if (!btnRef.current || !tipRef.current) return;
+      const btnRect = btnRef.current.getBoundingClientRect();
+      const tipRect = tipRef.current.getBoundingClientRect();
+      const gap = 10;
+      let left = btnRect.left + btnRect.width / 2 - tipRect.width / 2;
+      let top = btnRect.top - tipRect.height - gap;
+      if (position === "bottom") {
+        top = btnRect.bottom + gap;
+      } else if (position === "left") {
+        left = btnRect.left - tipRect.width - gap;
+        top = btnRect.top + btnRect.height / 2 - tipRect.height / 2;
+      } else if (position === "right") {
+        left = btnRect.right + gap;
+        top = btnRect.top + btnRect.height / 2 - tipRect.height / 2;
+      }
+      const padding = 8;
+      left = Math.max(padding, Math.min(left, window.innerWidth - tipRect.width - padding));
+      top = Math.max(padding, Math.min(top, window.innerHeight - tipRect.height - padding));
+      setTipCoords({ left, top });
+    };
+    const rafId = requestAnimationFrame(updatePosition);
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [visible, content, position]);
   const positionStyles = {
-    top: { bottom: "100%", left: "50%", transform: "translateX(-50%)", marginBottom: "8px" },
-    bottom: { top: "100%", left: "50%", transform: "translateX(-50%)", marginTop: "8px" },
-    left: { right: "100%", top: "50%", transform: "translateY(-50%)", marginRight: "8px" },
-    right: { left: "100%", top: "50%", transform: "translateY(-50%)", marginLeft: "8px" }
+    top: {},
+    bottom: {},
+    left: {},
+    right: {}
   };
   const arrowStyles = {
     top: { bottom: "-5px", left: "50%", transform: "translateX(-50%) rotate(45deg)" },
@@ -32161,7 +32196,7 @@ const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} })
     left: { right: "-5px", top: "50%", transform: "translateY(-50%) rotate(45deg)" },
     right: { left: "-5px", top: "50%", transform: "translateY(-50%) rotate(45deg)" }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { position: "relative", display: "inline-flex", alignItems: "center", ...style }, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", ...style }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       "button",
       {
@@ -32191,43 +32226,48 @@ const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} })
         children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleQuestionMark, { size })
       }
     ),
-    visible && content && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        ref: tipRef,
-        style: {
-          position: "absolute",
-          ...positionStyles[position],
-          zIndex: 9999,
-          width: "max-content",
-          maxWidth: "320px",
-          padding: "10px 14px",
-          borderRadius: "10px",
-          background: "var(--color-bg-card, #fff)",
-          color: "var(--color-text-secondary)",
-          fontSize: "13px",
-          lineHeight: 1.55,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)",
-          pointerEvents: "none",
-          animation: "helpFadeIn 0.15s ease-out"
-        },
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-            position: "absolute",
-            width: "10px",
-            height: "10px",
+    visible && content && reactDomExports.createPortal(
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          ref: tipRef,
+          style: {
+            position: "fixed",
+            left: `${tipCoords.left}px`,
+            top: `${tipCoords.top}px`,
+            ...positionStyles[position],
+            zIndex: 1e4,
+            width: "max-content",
+            maxWidth: "320px",
+            padding: "10px 14px",
+            borderRadius: "10px",
             background: "var(--color-bg-card, #fff)",
-            boxShadow: "-1px -1px 2px rgba(0,0,0,0.05)",
-            ...arrowStyles[position]
-          } }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { position: "relative", zIndex: 1 }, children: content })
-        ]
-      }
+            color: "var(--color-text-secondary)",
+            fontSize: "13px",
+            lineHeight: 1.55,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)",
+            pointerEvents: "none",
+            animation: "helpFadeIn 0.15s ease-out"
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              position: "absolute",
+              width: "10px",
+              height: "10px",
+              background: "var(--color-bg-card, #fff)",
+              boxShadow: "-1px -1px 2px rgba(0,0,0,0.05)",
+              ...arrowStyles[position]
+            } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { position: "relative", zIndex: 1 }, children: content })
+          ]
+        }
+      ),
+      document.body
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: `
                 @keyframes helpFadeIn {
-                    from { opacity: 0; transform: translateX(-50%) translateY(4px); }
-                    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+                    from { opacity: 0; transform: translateY(4px); }
+                    to { opacity: 1; transform: translateY(0); }
                 }
             ` })
   ] });
@@ -47909,8 +47949,6 @@ function useEffectEvent(callback2) {
     return ref.current == null ? void 0 : ref.current(...args);
   }, []);
 }
-var reactDomExports = requireReactDom();
-const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(reactDomExports);
 function computeCoordsFromPlacement(_ref, placement, rtl) {
   let {
     reference,
