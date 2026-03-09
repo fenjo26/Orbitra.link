@@ -236,8 +236,10 @@ function generateUuid()
     return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
 }
 
-// Маршрутизация: ожидается параметр campaign, например: site.com/r/my-camp
-// Либо напрямую campaign_id от паркованного домена
+// Маршрутизация:
+// 1) campaign query param: site.com/r/my-camp
+// 2) alias from root path: site.com/my-camp
+// 3) direct campaign_id от паркованного домена
 $alias = $_GET['campaign'] ?? '';
 $directCampaignId = $_GET['campaign_id'] ?? null;
 $fallbackCampaignId = $_GET['fallback_campaign_id'] ?? null;
@@ -302,6 +304,12 @@ if (empty($alias) && isset($_SERVER['REQUEST_URI'])) {
     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     if (preg_match('#^/r/([^/]+)$#', $uri, $matches)) {
         $alias = $matches[1];
+    } elseif (preg_match('#^/([^/]+)$#', $uri, $matches)) {
+        $candidate = $matches[1];
+        $reservedPaths = ['admin', 'admin.php', 'api.php', 'click.php', 'postback.php', 'router.php', 'robots.txt', 'favicon.ico'];
+        if (!in_array($candidate, $reservedPaths, true)) {
+            $alias = $candidate;
+        }
     }
 }
 
