@@ -42667,6 +42667,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [activeTab, setActiveTab] = reactExports.useState("general");
   const [loading, setLoading] = reactExports.useState(false);
   const [saveSuccess, setSaveSuccess] = reactExports.useState(false);
+  const [copySuccess, setCopySuccess] = reactExports.useState(false);
   const [showLogModal, setShowLogModal] = reactExports.useState(false);
   const [showCostModal, setShowCostModal] = reactExports.useState(false);
   const [showClearModal, setShowClearModal] = reactExports.useState(false);
@@ -42728,10 +42729,40 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const baseUrl = domain ? `https://${domain.name}` : window.location.origin;
     return `${baseUrl}/${formData.alias}`;
   };
-  const copyUrl = () => {
-    navigator.clipboard.writeText(getCampaignUrl());
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 2e3);
+  const copyUrl = async () => {
+    const url = getCampaignUrl();
+    let copied = false;
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(url);
+        copied = true;
+      } catch (e) {
+        copied = false;
+      }
+    }
+    if (!copied) {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = url;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        textarea.style.pointerEvents = "none";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        copied = document.execCommand("copy");
+        document.body.removeChild(textarea);
+      } catch (e) {
+        copied = false;
+      }
+    }
+    if (copied) {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 1500);
+    } else {
+      alert(t2("common.error"));
+    }
   };
   const fetchClickLogs = async () => {
     if (!campaignId) return;
@@ -42994,7 +43025,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: copyUrl, className: "btn btn-ghost btn-icon", title: t2("editor.copyUrl"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-5 h-5" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: copyUrl, className: "btn btn-ghost btn-icon", title: t2("editor.copyUrl"), children: copySuccess ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-5 h-5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-5 h-5" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => {
             fetchClickLogs();
             setShowLogModal(true);
@@ -43260,7 +43291,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                       style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-secondary)" }
                     }
                   ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: copyUrl, className: "btn btn-secondary btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }) })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: copyUrl, className: "btn btn-secondary btn-icon", children: copySuccess ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }) })
                 ] })
               ] })
             ] }),
