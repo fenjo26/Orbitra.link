@@ -89,8 +89,30 @@ function App() {
     );
     // Add interceptor for native fetch as well
     const originalFetch = window.fetch;
-    window.fetch = async (...args) => {
-      const response = await originalFetch(...args);
+    window.fetch = async (input, init = {}) => {
+      const requestInit = { ...init };
+      const method = (requestInit.method || (input instanceof Request ? input.method : 'GET')).toUpperCase();
+      const requestUrl = typeof input === 'string' ? input : input?.url || '';
+
+      const isApiRequest = requestUrl.includes('/api.php') || requestUrl.startsWith('/api.php');
+      const isMutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+
+      if (isApiRequest) {
+        requestInit.credentials = requestInit.credentials || 'same-origin';
+
+        if (isMutating) {
+          const csrfToken = getCsrfToken();
+          if (csrfToken && csrfToken !== '{{ csrf_token }}') {
+            const headers = new Headers(requestInit.headers || (input instanceof Request ? input.headers : undefined));
+            if (!headers.has('X-CSRF-TOKEN')) {
+              headers.set('X-CSRF-TOKEN', csrfToken);
+            }
+            requestInit.headers = headers;
+          }
+        }
+      }
+
+      const response = await originalFetch(input, requestInit);
       if (response.status === 401) {
         localStorage.removeItem('orbitra_user');
         localStorage.removeItem('orbitra_csrf_token');

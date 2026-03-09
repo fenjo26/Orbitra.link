@@ -14260,8 +14260,8 @@ const trackStream = (stream, chunkSize, onProgress, onFinish) => {
 };
 const DEFAULT_CHUNK_SIZE = 64 * 1024;
 const { isFunction: isFunction$1 } = utils$1;
-const globalFetchAPI = (({ Request, Response }) => ({
-  Request,
+const globalFetchAPI = (({ Request: Request2, Response }) => ({
+  Request: Request2,
   Response
 }))(utils$1.global);
 const {
@@ -14279,18 +14279,18 @@ const factory = (env) => {
   env = utils$1.merge.call({
     skipUndefined: true
   }, globalFetchAPI, env);
-  const { fetch: envFetch, Request, Response } = env;
+  const { fetch: envFetch, Request: Request2, Response } = env;
   const isFetchSupported = envFetch ? isFunction$1(envFetch) : typeof fetch === "function";
-  const isRequestSupported = isFunction$1(Request);
+  const isRequestSupported = isFunction$1(Request2);
   const isResponseSupported = isFunction$1(Response);
   if (!isFetchSupported) {
     return false;
   }
   const isReadableStreamSupported = isFetchSupported && isFunction$1(ReadableStream$1);
-  const encodeText = isFetchSupported && (typeof TextEncoder === "function" ? /* @__PURE__ */ ((encoder) => (str) => encoder.encode(str))(new TextEncoder()) : async (str) => new Uint8Array(await new Request(str).arrayBuffer()));
+  const encodeText = isFetchSupported && (typeof TextEncoder === "function" ? /* @__PURE__ */ ((encoder) => (str) => encoder.encode(str))(new TextEncoder()) : async (str) => new Uint8Array(await new Request2(str).arrayBuffer()));
   const supportsRequestStream = isRequestSupported && isReadableStreamSupported && test(() => {
     let duplexAccessed = false;
-    const hasContentType = new Request(platform$1.origin, {
+    const hasContentType = new Request2(platform$1.origin, {
       body: new ReadableStream$1(),
       method: "POST",
       get duplex() {
@@ -14323,7 +14323,7 @@ const factory = (env) => {
       return body.size;
     }
     if (utils$1.isSpecCompliantForm(body)) {
-      const _request = new Request(platform$1.origin, {
+      const _request = new Request2(platform$1.origin, {
         method: "POST",
         body
       });
@@ -14368,7 +14368,7 @@ const factory = (env) => {
     let requestContentLength;
     try {
       if (onUploadProgress && supportsRequestStream && method !== "get" && method !== "head" && (requestContentLength = await resolveBodyLength(headers, data)) !== 0) {
-        let _request = new Request(url, {
+        let _request = new Request2(url, {
           method: "POST",
           body: data,
           duplex: "half"
@@ -14388,7 +14388,7 @@ const factory = (env) => {
       if (!utils$1.isString(withCredentials)) {
         withCredentials = withCredentials ? "include" : "omit";
       }
-      const isCredentialsSupported = isRequestSupported && "credentials" in Request.prototype;
+      const isCredentialsSupported = isRequestSupported && "credentials" in Request2.prototype;
       const resolvedOptions = {
         ...fetchOptions,
         signal: composedSignal,
@@ -14398,7 +14398,7 @@ const factory = (env) => {
         duplex: "half",
         credentials: isCredentialsSupported ? withCredentials : void 0
       };
-      request = isRequestSupported && new Request(url, resolvedOptions);
+      request = isRequestSupported && new Request2(url, resolvedOptions);
       let response = await (isRequestSupported ? _fetch(request, fetchOptions) : _fetch(url, resolvedOptions));
       const isStreamResponse = supportsResponseStream && (responseType === "stream" || responseType === "response");
       if (supportsResponseStream && (onDownloadProgress || isStreamResponse && unsubscribe)) {
@@ -14449,9 +14449,9 @@ const factory = (env) => {
 const seedCache = /* @__PURE__ */ new Map();
 const getFetch = (config) => {
   let env = config && config.env || {};
-  const { fetch: fetch2, Request, Response } = env;
+  const { fetch: fetch2, Request: Request2, Response } = env;
   const seeds = [
-    Request,
+    Request2,
     Response,
     fetch2
   ];
@@ -54459,8 +54459,26 @@ function App() {
       }
     );
     const originalFetch = window.fetch;
-    window.fetch = async (...args) => {
-      const response = await originalFetch(...args);
+    window.fetch = async (input, init = {}) => {
+      const requestInit = { ...init };
+      const method = (requestInit.method || (input instanceof Request ? input.method : "GET")).toUpperCase();
+      const requestUrl = typeof input === "string" ? input : input?.url || "";
+      const isApiRequest = requestUrl.includes("/api.php") || requestUrl.startsWith("/api.php");
+      const isMutating = ["POST", "PUT", "PATCH", "DELETE"].includes(method);
+      if (isApiRequest) {
+        requestInit.credentials = requestInit.credentials || "same-origin";
+        if (isMutating) {
+          const csrfToken = getCsrfToken();
+          if (csrfToken && csrfToken !== "{{ csrf_token }}") {
+            const headers = new Headers(requestInit.headers || (input instanceof Request ? input.headers : void 0));
+            if (!headers.has("X-CSRF-TOKEN")) {
+              headers.set("X-CSRF-TOKEN", csrfToken);
+            }
+            requestInit.headers = headers;
+          }
+        }
+      }
+      const response = await originalFetch(input, requestInit);
       if (response.status === 401) {
         localStorage.removeItem("orbitra_user");
         localStorage.removeItem("orbitra_csrf_token");
