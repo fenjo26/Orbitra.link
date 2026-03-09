@@ -16542,6 +16542,7 @@ const ru = {
     userAgent: "User-Agent",
     geoCode: "Geo (Код страны)",
     deviceType: "Тип устройства",
+    language: "Язык",
     desktop: "Desktop",
     mobile: "Mobile",
     tablet: "Tablet",
@@ -16600,6 +16601,7 @@ const ru = {
       timezone: "Часовой пояс",
       latitude: "Широта",
       longitude: "Долгота",
+      language: "Язык",
       deviceType: "Тип устройства",
       os: "ОС",
       browser: "Браузер",
@@ -17105,6 +17107,7 @@ const ru = {
     period: "Период:",
     geoCountry: "ГЕО (Страна)",
     deviceType: "Тип устройства",
+    language: "Язык",
     stream: "Поток",
     source: "Источник",
     clicks: "Клики",
@@ -18089,6 +18092,7 @@ const en = {
     userAgent: "User-Agent",
     geoCode: "Geo (Country code)",
     deviceType: "Device type",
+    language: "Language",
     desktop: "Desktop",
     mobile: "Mobile",
     tablet: "Tablet",
@@ -18147,6 +18151,7 @@ const en = {
       timezone: "Timezone",
       latitude: "Latitude",
       longitude: "Longitude",
+      language: "Language",
       deviceType: "Device Type",
       os: "OS",
       browser: "Browser",
@@ -18618,6 +18623,7 @@ const en = {
     period: "Period:",
     geoCountry: "GEO (Country)",
     deviceType: "Device Type",
+    language: "Language",
     stream: "Stream",
     source: "Source",
     clicks: "Clicks",
@@ -31852,6 +31858,8 @@ const TableWidget = ({ title, data, t: t2 }) => {
     ] }) })
   ] });
 };
+var reactDomExports = requireReactDom();
+const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(reactDomExports);
 const API_URL$A = "/api.php";
 const ClickDetailsModal = ({ clickId, onClose }) => {
   const { t: t2 } = useLanguage();
@@ -31877,94 +31885,141 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     };
     fetchDetails();
   }, [clickId]);
+  reactExports.useEffect(() => {
+    if (!clickId || typeof document === "undefined") return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [clickId]);
+  reactExports.useEffect(() => {
+    if (!clickId || typeof window === "undefined") return;
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [clickId, onClose]);
   const SectionHeader = ({ title }) => /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-3 mt-6 uppercase tracking-wide", children: title });
   const DetailRow = ({ label, value }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row py-1.5 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition px-2 rounded", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-1/3 text-xs font-medium text-gray-500 truncate pr-4", children: label }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-2/3 text-sm text-gray-800 break-all", children: value || "-" })
   ] });
+  const renderInPortal = (content) => {
+    if (typeof document === "undefined") return null;
+    return reactDomExports.createPortal(
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "fixed inset-0 bg-black/50 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto",
+          style: { zIndex: 2147483e3 },
+          onClick: onClose,
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "min-h-full flex items-center justify-center py-4",
+              onClick: (event) => event.stopPropagation(),
+              children: content
+            }
+          )
+        }
+      ),
+      document.body
+    );
+  };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl p-8 flex flex-col items-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Loader, { className: "w-8 h-8 text-blue-500 animate-spin mb-4" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 font-medium", children: t2("clickDetails.loading") })
-    ] }) });
+    return renderInPortal(
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl p-8 flex flex-col items-center w-full max-w-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Loader, { className: "w-8 h-8 text-blue-500 animate-spin mb-4" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 font-medium", children: t2("clickDetails.loading") })
+      ] })
+    );
   }
   if (error || !data) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-md p-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-lg font-semibold text-red-600", children: t2("clickDetails.error") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "p-1 hover:bg-gray-100 rounded-full transition", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20, className: "text-gray-500" }) })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-700", children: error || t2("clickDetails.notFound") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-6 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition font-medium text-sm", children: t2("clickDetails.close") }) })
-    ] }) });
+    return renderInPortal(
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-md p-6", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-lg font-semibold text-red-600", children: t2("clickDetails.error") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "p-1 hover:bg-gray-100 rounded-full transition", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20, className: "text-gray-500" }) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-700", children: error || t2("clickDetails.notFound") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-6 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition font-medium text-sm", children: t2("clickDetails.close") }) })
+      ] })
+    );
   }
   const formatMoney = (amount) => {
     return parseFloat(amount || 0).toLocaleString("en-US", { style: "currency", currency: "USD" });
   };
   const profit = (parseFloat(data.revenue || 0) - parseFloat(data.cost || 0)).toFixed(2);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl shadow-2xl w-full max-w-5xl flex flex-col max-h-full overflow-hidden", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-lg font-bold text-gray-800 flex items-center gap-2", children: [
-        t2("clickDetails.title"),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-mono bg-gray-200 text-gray-600 px-2 py-1 rounded-md ml-2 border border-gray-300", children: data.id })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "p-2 hover:bg-gray-200 rounded-full transition text-gray-500", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6 bg-white", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.data") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.campaign"), value: data.campaign_name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.campaignAlias"), value: data.campaign_alias }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.landing"), value: data.landing_name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.offer"), value: data.offer_name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.affiliateNetwork"), value: data.affiliate_network_name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.source"), value: data.source_name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.streamType"), value: data.stream_type }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.referer"), value: data.referer }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.id") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.clickId"), value: data.id }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.campaignId"), value: data.campaign_id }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.offerId"), value: data.offer_id }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.landingId"), value: data.landing_id }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.streamId"), value: data.stream_id }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.sourceId"), value: data.source_id }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.connection") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.ip"), value: data.ip }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.botScanner"), value: t2("clickDetails.noData") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.finance") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.cost"), value: formatMoney(data.cost) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.revenue"), value: formatMoney(data.revenue) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.profit"), value: formatMoney(profit) })
+  return renderInPortal(
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[calc(100vh-3rem)] overflow-hidden", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-lg font-bold text-gray-800 flex items-center gap-2", children: [
+          t2("clickDetails.title"),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-mono bg-gray-200 text-gray-600 px-2 py-1 rounded-md ml-2 border border-gray-300", children: data.id })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "p-2 hover:bg-gray-200 rounded-full transition text-gray-500", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.parameters") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.keyword"), value: data.parameters?.keyword }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: "Cost", value: data.parameters?.cost }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: "Currency", value: data.parameters?.currency }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.externalId"), value: data.parameters?.external_id }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.creativeId"), value: data.parameters?.creative_id }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.adCampaignId"), value: data.parameters?.ad_campaign_id }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.sourceParam"), value: data.parameters?.source }),
-        [...Array(30)].map((_, i) => data.parameters && data.parameters[`sub_id_${i + 1}`] ? /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: `Sub ID ${i + 1}`, value: data.parameters[`sub_id_${i + 1}`] }, i) : null),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.geoDevice") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.country"), value: data.country }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.region"), value: data.region }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.city"), value: data.city }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.zipcode"), value: data.zipcode }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.timezone"), value: data.timezone }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.latitude"), value: data.latitude }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.longitude"), value: data.longitude }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.deviceType"), value: data.device_type }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.os"), value: data.os }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.browser"), value: data.browser }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.userAgent"), value: data.user_agent }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.calendar") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.dateTime"), value: data.created_at }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.conversion"), value: data.is_conversion ? t2("clickDetails.yes") : t2("clickDetails.no") })
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "px-6 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded shadow-sm transition font-medium", children: t2("clickDetails.close") }) })
-  ] }) });
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6 bg-white", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.data") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.campaign"), value: data.campaign_name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.campaignAlias"), value: data.campaign_alias }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.landing"), value: data.landing_name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.offer"), value: data.offer_name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.affiliateNetwork"), value: data.affiliate_network_name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.source"), value: data.source_name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.streamType"), value: data.stream_type }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.referer"), value: data.referer }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.id") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.clickId"), value: data.id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.campaignId"), value: data.campaign_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.offerId"), value: data.offer_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.landingId"), value: data.landing_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.streamId"), value: data.stream_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.sourceId"), value: data.source_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.connection") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.ip"), value: data.ip }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.botScanner"), value: t2("clickDetails.noData") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.finance") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.cost"), value: formatMoney(data.cost) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.revenue"), value: formatMoney(data.revenue) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.profit"), value: formatMoney(profit) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.parameters") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.keyword"), value: data.parameters?.keyword }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: "Cost", value: data.parameters?.cost }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: "Currency", value: data.parameters?.currency }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.externalId"), value: data.parameters?.external_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.creativeId"), value: data.parameters?.creative_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.adCampaignId"), value: data.parameters?.ad_campaign_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.sourceParam"), value: data.parameters?.source }),
+          [...Array(30)].map((_, i) => data.parameters && data.parameters[`sub_id_${i + 1}`] ? /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: `Sub ID ${i + 1}`, value: data.parameters[`sub_id_${i + 1}`] }, i) : null),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.geoDevice") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.country"), value: data.country }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.region"), value: data.region }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.city"), value: data.city }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.zipcode"), value: data.zipcode }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.timezone"), value: data.timezone }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.language"), value: data.language }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.latitude"), value: data.latitude }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.longitude"), value: data.longitude }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.deviceType"), value: data.device_type }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.os"), value: data.os }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.browser"), value: data.browser }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.userAgent"), value: data.user_agent }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.calendar") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.dateTime"), value: data.created_at }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.conversion"), value: data.is_conversion ? t2("clickDetails.yes") : t2("clickDetails.no") })
+        ] })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "px-6 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded shadow-sm transition font-medium", children: t2("clickDetails.close") }) })
+    ] })
+  );
 };
 const getDeviceIcon = (deviceType) => {
   switch (deviceType?.toLowerCase()) {
@@ -32133,8 +32188,6 @@ const InfoBanner = ({ storageKey, title, children, icon: Icon2 = Lightbulb, vari
             ` })
   ] });
 };
-var reactDomExports = requireReactDom();
-const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(reactDomExports);
 const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} }) => {
   const { t: t2 } = useLanguage();
   const [visible, setVisible] = reactExports.useState(false);
@@ -32733,7 +32786,8 @@ const TrafficSimulation = () => {
     ip: "192.168.1.1",
     user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
     country: "US",
-    device_type: "desktop"
+    device_type: "desktop",
+    language: "en"
   });
   const [trace, setTrace] = reactExports.useState(null);
   const [loading, setLoading] = reactExports.useState(false);
@@ -32836,6 +32890,19 @@ const TrafficSimulation = () => {
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "mobile", children: t2("simulation.mobile") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tablet", children: t2("simulation.tablet") })
               ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("simulation.language") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: formData.language,
+              onChange: (e) => setFormData({ ...formData, language: e.target.value }),
+              className: "form-input",
+              placeholder: "en, ru, de..."
             }
           )
         ] }),
@@ -42554,6 +42621,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   const dimensions = [
     { value: "country", label: t2("campaignReports.geoCountry") },
     { value: "device_type", label: t2("campaignReports.deviceType") },
+    { value: "language", label: t2("campaignReports.language") },
     { value: "stream_id", label: t2("campaignReports.stream") },
     { value: "source_id", label: t2("campaignReports.source") },
     { value: "sub_id_1", label: "Sub ID 1" },
