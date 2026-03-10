@@ -8,6 +8,22 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/core/backorder.php';
 
+function orbitraCronSetSetting(PDO $pdo, string $key, string $value): void
+{
+    try {
+        $stmt = $pdo->prepare("
+            INSERT INTO settings (key, value, updated_at)
+            VALUES (?, ?, datetime('now'))
+            ON CONFLICT(key) DO UPDATE SET
+                value = excluded.value,
+                updated_at = datetime('now')
+        ");
+        $stmt->execute([$key, $value]);
+    } catch (Throwable $e) {
+        // Non-fatal: cron worker should still attempt main work.
+    }
+}
+
 // Tweakable defaults for personal use.
 $lockFile = __DIR__ . '/var/locks/backorder_cron.lock';
 $lockTtlSeconds = 300; // safety in case of stale locks
@@ -31,6 +47,25 @@ if ($fp) {
 }
 
 try {
+    $ts = date('Y-m-d H:i:s');
+    orbitraCronSetSetting($pdo, 'backorder_cron_last_ping_at', $ts);
+
+    // Allow disabling the worker from UI while keeping cron in place.
+    $enabled = '1';
+    try {
+        $val = $pdo->query("SELECT value FROM settings WHERE key='backorder_cron_enabled'")->fetchColumn();
+        if (is_string($val) && $val !== '') {
+            $enabled = $val;
+        }
+    } catch (Throwable $e) {
+        // Ignore.
+    }
+
+    if ($enabled === '0') {
+        echo "[$ts] backorder: disabled via settings\n";
+        exit(0);
+    }
+
     // Pick one domain: never checked first, then oldest checked.
     $stmt = $pdo->query("
         SELECT id, name
@@ -42,6 +77,11 @@ try {
     ");
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$row) {
+        orbitraCronSetSetting($pdo, 'backorder_cron_last_checked_at', $ts);
+        orbitraCronSetSetting($pdo, 'backorder_cron_last_domain', '');
+        orbitraCronSetSetting($pdo, 'backorder_cron_last_status', 'empty');
+        orbitraCronSetSetting($pdo, 'backorder_cron_last_http_code', '0');
+        orbitraCronSetSetting($pdo, 'backorder_cron_last_error', '');
         exit(0);
     }
 
@@ -70,17 +110,22 @@ try {
     ]);
 
     // Output a compact line for cron logs.
-    $ts = date('Y-m-d H:i:s');
-    $msg = $check['status'];
+    $msg = (string) $check['status'];
     $code = (int) $check['http_code'];
     echo "[$ts] backorder: $name => $msg (HTTP $code)\n";
+
+    orbitraCronSetSetting($pdo, 'backorder_cron_last_checked_at', $ts);
+    orbitraCronSetSetting($pdo, 'backorder_cron_last_domain', $name);
+    orbitraCronSetSetting($pdo, 'backorder_cron_last_status', $msg);
+    orbitraCronSetSetting($pdo, 'backorder_cron_last_http_code', (string) $code);
+    orbitraCronSetSetting($pdo, 'backorder_cron_last_error', (string) ($check['error'] ?? ''));
 } catch (Throwable $e) {
     $ts = date('Y-m-d H:i:s');
     echo "[$ts] backorder_cron error: " . $e->getMessage() . "\n";
+    orbitraCronSetSetting($pdo, 'backorder_cron_last_error', $e->getMessage());
 } finally {
     if (isset($fp) && is_resource($fp)) {
         flock($fp, LOCK_UN);
         fclose($fp);
     }
 }
-

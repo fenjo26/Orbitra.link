@@ -16323,7 +16323,7 @@ const ru = {
     notes: "Заметки",
     noRows: "Домены не добавлены",
     checkNow: "Проверить сейчас",
-    editTitle: "Метрики и заметки",
+    editTitle: "Заметки",
     statusAvailable: "Свободен",
     statusRegistered: "Занят",
     statusUnknown: "Ожидает проверки",
@@ -17164,8 +17164,40 @@ const ru = {
     bots: "Боты",
     conversionTypes: "Типы конверсий",
     customMetrics: "Пользовательские метрики",
+    automation: "Автоматизация",
     system: "Система",
     privacy: "Приватность"
+  },
+  automation: {
+    title: "Cron и автоматические задачи",
+    backorderCronTitle: "Backorder: автоматическая проверка доменов",
+    backorderCronDesc: "Проверка доступности доменов запускается отдельным cron-скриптом и обрабатывает 1 домен за запуск. Здесь можно включить/выключить выполнение и получить готовую команду.",
+    enableBackorderCron: "Включить проверку через cron",
+    enableBackorderCronDesc: "Если выключено, cron может оставаться в системе, но скрипт не будет проверять домены.",
+    cronCommand: "Команда для cron",
+    cronHint: "Добавьте строку в crontab на сервере. Рекомендуется запускать раз в 3 минуты или чаще, если доменов много.",
+    noCronExample: "Не удалось сформировать команду",
+    copy: "Копировать",
+    copied: "Скопировано",
+    copyError: "Не удалось скопировать",
+    refresh: "Обновить",
+    saveSuccess: "Настройки сохранены",
+    saveError: "Ошибка сохранения",
+    loadError: "Ошибка загрузки",
+    networkError: "Ошибка сети",
+    lastPing: "Последний ping cron",
+    lastChecked: "Последняя проверка",
+    lastDomain: "Последний домен",
+    lastResult: "Последний результат",
+    domainsTotal: "Всего доменов",
+    domainsNeverChecked: "Не проверено ни разу",
+    rdapTitle: "RDAP bootstrap (IANA)",
+    rdapBootstrapOk: "Кэш обновлён: {mtime} (возраст: {age})",
+    rdapBootstrapMissing: 'Кэш bootstrap не найден. Если часто видите статус "Нет RDAP", проверьте доступ сервера к https://data.iana.org/rdap/dns.json.',
+    rdapHint: 'Статус "Нет RDAP" появляется, когда для TLD не найден RDAP-сервис (или bootstrap не удалось загрузить, и используется минимальный fallback для .com/.net/.name).',
+    days: "дн",
+    hours: "ч",
+    minutes: "мин"
   },
   generalSettings: {
     title: "Общие настройки",
@@ -17901,7 +17933,7 @@ const en = {
     notes: "Notes",
     noRows: "No domains added",
     checkNow: "Check now",
-    editTitle: "Notes and metrics",
+    editTitle: "Notes",
     statusAvailable: "Available",
     statusRegistered: "Registered",
     statusUnknown: "Pending",
@@ -18771,8 +18803,40 @@ const en = {
     bots: "Bots",
     conversionTypes: "Conversion Types",
     customMetrics: "Custom Metrics",
+    automation: "Automation",
     system: "System",
     privacy: "Privacy"
+  },
+  automation: {
+    title: "Cron & Automation",
+    backorderCronTitle: "Backorder: scheduled domain checks",
+    backorderCronDesc: "Domain availability checks are executed by a separate cron script and process 1 domain per run. Here you can enable/disable execution and copy a ready-to-use cron command.",
+    enableBackorderCron: "Enable checks via cron",
+    enableBackorderCronDesc: "If disabled, cron can stay in the system but the script will not check domains.",
+    cronCommand: "Cron command",
+    cronHint: "Add this line to your server crontab. Recommended: every 3 minutes (or more often if you have many domains).",
+    noCronExample: "Could not generate a command",
+    copy: "Copy",
+    copied: "Copied",
+    copyError: "Copy failed",
+    refresh: "Refresh",
+    saveSuccess: "Settings saved",
+    saveError: "Save error",
+    loadError: "Load error",
+    networkError: "Network error",
+    lastPing: "Last cron ping",
+    lastChecked: "Last check time",
+    lastDomain: "Last domain",
+    lastResult: "Last result",
+    domainsTotal: "Total domains",
+    domainsNeverChecked: "Never checked",
+    rdapTitle: "RDAP bootstrap (IANA)",
+    rdapBootstrapOk: "Cache updated: {mtime} (age: {age})",
+    rdapBootstrapMissing: 'Bootstrap cache not found. If you often see "No RDAP", check server access to https://data.iana.org/rdap/dns.json.',
+    rdapHint: '"No RDAP" is shown when no RDAP service is found for the TLD (or bootstrap cannot be fetched and a minimal fallback is used for .com/.net/.name).',
+    days: "d",
+    hours: "h",
+    minutes: "min"
   },
   generalSettings: {
     title: "General Settings",
@@ -19450,7 +19514,7 @@ const NavItem = ({ icon, label, active, onClick }) => {
     }
   );
 };
-const API_URL$D = "/api.php";
+const API_URL$E = "/api.php";
 const Login = ({ onLogin }) => {
   const { t: t2 } = useLanguage();
   const [username, setUsername] = reactExports.useState("");
@@ -19493,7 +19557,7 @@ const Login = ({ onLogin }) => {
       return;
     }
     try {
-      const res = await fetch(`${API_URL$D}?action=login`, {
+      const res = await fetch(`${API_URL$E}?action=login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
@@ -19662,7 +19726,7 @@ const Login = ({ onLogin }) => {
     ] }) })
   ] });
 };
-const API_URL$C = "/api.php";
+const API_URL$D = "/api.php";
 const SetupWizard = ({ onComplete }) => {
   const { t: t2, setLanguage: setContextLanguage, language } = useLanguage();
   const [step, setStep] = reactExports.useState(1);
@@ -19717,7 +19781,7 @@ const SetupWizard = ({ onComplete }) => {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL$C}?action=setup_first_user`, {
+      const res = await fetch(`${API_URL$D}?action=setup_first_user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
@@ -31929,7 +31993,7 @@ const TableWidget = ({ title, data, t: t2 }) => {
 };
 var reactDomExports = requireReactDom();
 const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(reactDomExports);
-const API_URL$B = "/api.php";
+const API_URL$C = "/api.php";
 const ClickDetailsModal = ({ clickId, onClose }) => {
   const { t: t2 } = useLanguage();
   const [data, setData] = reactExports.useState(null);
@@ -31940,7 +32004,7 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     const fetchDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL$B}?action=click_details&id=${clickId}`);
+        const response = await axios.get(`${API_URL$C}?action=click_details&id=${clickId}`);
         if (response.data.status === "success") {
           setData(response.data.data);
         } else {
@@ -32395,7 +32459,7 @@ const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} })
             ` })
   ] });
 };
-const API_URL$A = "/api.php";
+const API_URL$B = "/api.php";
 const Domains = ({ campaigns }) => {
   const { t: t2 } = useLanguage();
   const [domains, setDomains] = reactExports.useState([]);
@@ -32420,7 +32484,7 @@ const Domains = ({ campaigns }) => {
   }, []);
   const fetchDomains = async () => {
     try {
-      const res = await axios.get(`${API_URL$A}?action=domains`);
+      const res = await axios.get(`${API_URL$B}?action=domains`);
       if (res.data.status === "success") {
         setDomains(res.data.data);
         setFilteredDomains(res.data.data);
@@ -32452,7 +32516,7 @@ const Domains = ({ campaigns }) => {
   const handleDelete = async (id) => {
     if (!window.confirm(t2("domains.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$A}?action=delete_domain`, { id });
+      await axios.post(`${API_URL$B}?action=delete_domain`, { id });
       fetchDomains();
     } catch (e) {
       console.error(e);
@@ -32469,7 +32533,7 @@ const Domains = ({ campaigns }) => {
     e.preventDefault();
     setError("");
     try {
-      const res = await axios.post(`${API_URL$A}?action=save_domain`, formData);
+      const res = await axios.post(`${API_URL$B}?action=save_domain`, formData);
       if (res.data.status === "success") {
         setShowModal(false);
         setFormData({ id: null, name: "", index_campaign_id: "", catch_404: false, group_id: "", is_noindex: true, https_only: false });
@@ -32696,7 +32760,7 @@ const Domains = ({ campaigns }) => {
     ] }) })
   ] });
 };
-const API_URL$z = "/api.php";
+const API_URL$A = "/api.php";
 const statusMeta = (t2, status) => {
   switch (status) {
     case "available":
@@ -32738,7 +32802,7 @@ const BackorderDomains = () => {
   const fetchRows = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$z}?action=backorder_domains`);
+      const res = await axios.get(`${API_URL$A}?action=backorder_domains`);
       if (res.data.status === "success") {
         setRows(res.data.data || []);
       }
@@ -32781,7 +32845,7 @@ const BackorderDomains = () => {
   const deleteOne = async (id) => {
     if (!window.confirm(t2("common.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$z}?action=backorder_delete`, { id });
+      await axios.post(`${API_URL$A}?action=backorder_delete`, { id });
       setSelectedIds((prev) => {
         const n = new Set(prev);
         n.delete(id);
@@ -32797,7 +32861,7 @@ const BackorderDomains = () => {
     if (ids.length === 0) return;
     if (!window.confirm(t2("backorder.deleteSelectedConfirm").replace("{count}", String(ids.length)))) return;
     try {
-      await axios.post(`${API_URL$z}?action=backorder_delete_selected`, { ids });
+      await axios.post(`${API_URL$A}?action=backorder_delete_selected`, { ids });
       setSelectedIds(/* @__PURE__ */ new Set());
       fetchRows();
     } catch (e) {
@@ -32827,7 +32891,7 @@ const BackorderDomains = () => {
         ahrefs_ur: editForm.ahrefs_ur,
         ahrefs_ref_domains: editForm.ahrefs_ref_domains
       };
-      const res = await axios.post(`${API_URL$z}?action=backorder_update`, payload);
+      const res = await axios.post(`${API_URL$A}?action=backorder_update`, payload);
       if (res.data.status === "success") {
         setShowEdit(false);
         fetchRows();
@@ -32840,7 +32904,7 @@ const BackorderDomains = () => {
   };
   const checkNow = async (id) => {
     try {
-      await axios.post(`${API_URL$z}?action=backorder_check_now`, { id });
+      await axios.post(`${API_URL$A}?action=backorder_check_now`, { id });
       fetchRows();
     } catch (e) {
       console.error(e);
@@ -32851,7 +32915,7 @@ const BackorderDomains = () => {
     setImportError("");
     setImportResult(null);
     try {
-      const res = await axios.post(`${API_URL$z}?action=backorder_import`, { domains_text: importText });
+      const res = await axios.post(`${API_URL$A}?action=backorder_import`, { domains_text: importText });
       if (res.data.status === "success") {
         setImportResult(res.data.data);
         fetchRows();
@@ -32949,14 +33013,12 @@ const BackorderDomains = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("backorder.domain") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("backorder.status") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("backorder.lastChecked") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("backorder.metrics") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("backorder.notes") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-right", children: t2("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-100", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center py-8", children: t2("common.loading") }) }) : filtered.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center py-8 text-gray-500", children: t2("backorder.noRows") }) }) : filtered.map((r2) => {
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-100", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8", children: t2("common.loading") }) }) : filtered.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8 text-gray-500", children: t2("backorder.noRows") }) }) : filtered.map((r2) => {
         const meta = statusMeta(t2, r2.status || "unknown");
         const checked = selectedIds.has(r2.id);
-        const metricsText = `DR ${r2.ahrefs_dr ?? "-"} / UR ${r2.ahrefs_ur ?? "-"} / RD ${r2.ahrefs_ref_domains ?? "-"}`;
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-gray-50 transition", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked, onChange: () => toggleOne(r2.id) }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-medium text-gray-800", children: r2.name }),
@@ -32965,7 +33027,6 @@ const BackorderDomains = () => {
             meta.label
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-600 text-xs", children: r2.last_checked_at || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400 italic", children: "-" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-600 text-xs font-mono", children: metricsText }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-700 text-xs max-w-[360px] truncate", title: r2.notes || "", children: r2.notes ? r2.notes : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400 italic", children: "-" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -33066,44 +33127,6 @@ const BackorderDomains = () => {
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-3 gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: "DR" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                value: editForm.ahrefs_dr,
-                onChange: (e) => setEditForm({ ...editForm, ahrefs_dr: e.target.value }),
-                className: "w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm",
-                inputMode: "decimal"
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: "UR" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                value: editForm.ahrefs_ur,
-                onChange: (e) => setEditForm({ ...editForm, ahrefs_ur: e.target.value }),
-                className: "w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm",
-                inputMode: "decimal"
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: "Ref" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                value: editForm.ahrefs_ref_domains,
-                onChange: (e) => setEditForm({ ...editForm, ahrefs_ref_domains: e.target.value }),
-                className: "w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm",
-                inputMode: "numeric"
-              }
-            )
-          ] })
-        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
@@ -33127,7 +33150,7 @@ const BackorderDomains = () => {
     ] }) })
   ] });
 };
-const API_URL$y = "/api.php";
+const API_URL$z = "/api.php";
 const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId }) => {
   const { t: t2 } = useLanguage();
   const [actionModal, setActionModal] = reactExports.useState({ type: null, campaignId: null });
@@ -33142,7 +33165,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   const handleDelete = async (id) => {
     if (window.confirm(t2("campaigns.deleteConfirm"))) {
       try {
-        await axios.post(`${API_URL$y}?action=delete_campaign`, { id });
+        await axios.post(`${API_URL$z}?action=delete_campaign`, { id });
         refreshData();
       } catch (err) {
         alert(t2("common.deleteError"));
@@ -33151,7 +33174,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   };
   const handleClearStats = async () => {
     try {
-      await axios.post(`${API_URL$y}?action=clear_stats`, { campaign_id: actionModal.campaignId });
+      await axios.post(`${API_URL$z}?action=clear_stats`, { campaign_id: actionModal.campaignId });
       refreshData();
       setActionModal({ type: null, campaignId: null });
     } catch (err) {
@@ -33169,7 +33192,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
       unique_only: fd.get("unique_only") === "on"
     };
     try {
-      const res = await axios.post(`${API_URL$y}?action=update_costs`, data);
+      const res = await axios.post(`${API_URL$z}?action=update_costs`, data);
       if (res.data.status === "success") {
         alert(t2("campaigns.updatedClicks").replace("{count}", res.data.updated_clicks));
         refreshData();
@@ -33278,7 +33301,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     ] }) })
   ] });
 };
-const API_URL$x = "/api.php";
+const API_URL$y = "/api.php";
 const TrafficSimulation = () => {
   const { t: t2 } = useLanguage();
   const [campaigns, setCampaigns] = reactExports.useState([]);
@@ -33293,7 +33316,7 @@ const TrafficSimulation = () => {
   const [trace, setTrace] = reactExports.useState(null);
   const [loading, setLoading] = reactExports.useState(false);
   reactExports.useEffect(() => {
-    axios.get(`${API_URL$x}?action=campaigns`).then((res) => {
+    axios.get(`${API_URL$y}?action=campaigns`).then((res) => {
       if (res.data.status === "success") {
         setCampaigns(res.data.data);
         if (res.data.data.length > 0) {
@@ -33307,7 +33330,7 @@ const TrafficSimulation = () => {
     setLoading(true);
     setTrace(null);
     try {
-      const res = await axios.post(`${API_URL$x}?action=simulate_traffic`, formData);
+      const res = await axios.post(`${API_URL$y}?action=simulate_traffic`, formData);
       if (res.data.status === "success") {
         setTrace(res.data.trace);
       } else {
@@ -33453,7 +33476,7 @@ const TrafficSimulation = () => {
     ] })
   ] });
 };
-const API_URL$w = "/api.php";
+const API_URL$x = "/api.php";
 const LandingEditor = ({ landingId, onClose }) => {
   const { t: t2 } = useLanguage();
   const [landing, setLanding] = reactExports.useState({
@@ -33477,13 +33500,13 @@ const LandingEditor = ({ landingId, onClose }) => {
       setLoading(true);
       try {
         const [groupsRes] = await Promise.all([
-          axios.get(`${API_URL$w}?action=landing_groups`)
+          axios.get(`${API_URL$x}?action=landing_groups`)
         ]);
         if (groupsRes.data.status === "success") {
           setGroups(groupsRes.data.data);
         }
         if (landingId) {
-          const landingRes = await axios.get(`${API_URL$w}?action=get_landing&id=${landingId}`);
+          const landingRes = await axios.get(`${API_URL$x}?action=get_landing&id=${landingId}`);
           if (landingRes.data.status === "success") {
             setLanding(landingRes.data.data);
             if (landingRes.data.data.type === "local") {
@@ -33502,7 +33525,7 @@ const LandingEditor = ({ landingId, onClose }) => {
   }, [landingId]);
   const fetchLandingFiles = async (id) => {
     try {
-      const res = await axios.get(`${API_URL$w}?action=landing_files&id=${id}`);
+      const res = await axios.get(`${API_URL$x}?action=landing_files&id=${id}`);
       if (res.data.status === "success") {
         setFiles(res.data.data);
       }
@@ -33515,7 +33538,7 @@ const LandingEditor = ({ landingId, onClose }) => {
     try {
       const payload = { ...landing };
       if (landingId) payload.id = landingId;
-      const res = await axios.post(`${API_URL$w}?action=save_landing`, payload);
+      const res = await axios.post(`${API_URL$x}?action=save_landing`, payload);
       if (res.data.status === "success") {
         if (!landingId && res.data.data.id && landing.type === "local") {
           alert(t2("landingEditor.savedFiles"));
@@ -33539,7 +33562,7 @@ const LandingEditor = ({ landingId, onClose }) => {
     formData.append("file", file);
     formData.append("id", landingId);
     try {
-      const res = await axios.post(`${API_URL$w}?action=upload_landing`, formData, {
+      const res = await axios.post(`${API_URL$x}?action=upload_landing`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status === "success") {
@@ -33557,7 +33580,7 @@ const LandingEditor = ({ landingId, onClose }) => {
   };
   const loadFileContent = async (path) => {
     try {
-      const res = await axios.get(`${API_URL$w}?action=get_landing_file&id=${landingId}&path=${encodeURIComponent(path)}`);
+      const res = await axios.get(`${API_URL$x}?action=get_landing_file&id=${landingId}&path=${encodeURIComponent(path)}`);
       if (res.data.status === "success") {
         setSelectedFile(path);
         setFileContent(res.data.data);
@@ -33572,7 +33595,7 @@ const LandingEditor = ({ landingId, onClose }) => {
     if (!selectedFile) return;
     setSavingFile(true);
     try {
-      const res = await axios.post(`${API_URL$w}?action=save_landing_file`, {
+      const res = await axios.post(`${API_URL$x}?action=save_landing_file`, {
         id: landingId,
         path: selectedFile,
         content: fileContent
@@ -33783,7 +33806,7 @@ const LandingEditor = ({ landingId, onClose }) => {
     ] })
   ] }) });
 };
-const API_URL$v = "/api.php";
+const API_URL$w = "/api.php";
 const Landings = ({ landings, refreshData }) => {
   const { t: t2 } = useLanguage();
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
@@ -33799,7 +33822,7 @@ const Landings = ({ landings, refreshData }) => {
   const handleDelete = async (id) => {
     if (window.confirm(t2("common.deleteConfirm"))) {
       try {
-        await axios.post(`${API_URL$v}?action=delete_landing`, { id });
+        await axios.post(`${API_URL$w}?action=delete_landing`, { id });
         refreshData();
       } catch (err) {
         alert(t2("common.error"));
@@ -33877,7 +33900,7 @@ const Landings = ({ landings, refreshData }) => {
     )
   ] });
 };
-const API_URL$u = "/api.php";
+const API_URL$v = "/api.php";
 const getCountryFlag = (code) => {
   if (!code || code === "Unknown" || code === "??") return "🏳️";
   if (code.length !== 2) return "📍";
@@ -33902,8 +33925,8 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
     const loadData = async () => {
       try {
         const [cRes, pRes] = await Promise.all([
-          axios.get(`${API_URL$u}?action=countries_list`),
-          axios.get(`${API_URL$u}?action=geo_profiles`)
+          axios.get(`${API_URL$v}?action=countries_list`),
+          axios.get(`${API_URL$v}?action=geo_profiles`)
         ]);
         if (cRes.data?.data) setCountries(cRes.data.data);
         if (pRes.data?.data) setProfiles(pRes.data.data);
@@ -34120,7 +34143,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
     ] })
   ] });
 };
-const API_URL$t = "/api.php";
+const API_URL$u = "/api.php";
 const OfferEditor = ({ offerId, onClose }) => {
   const { t: t2 } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
@@ -34155,9 +34178,9 @@ const OfferEditor = ({ offerId, onClose }) => {
     const fetchDeps = async () => {
       try {
         const [gRes, anRes, oRes] = await Promise.all([
-          axios.get(`${API_URL$t}?action=offer_groups`),
-          axios.get(`${API_URL$t}?action=affiliate_networks`),
-          axios.get(`${API_URL$t}?action=all_offers`)
+          axios.get(`${API_URL$u}?action=offer_groups`),
+          axios.get(`${API_URL$u}?action=affiliate_networks`),
+          axios.get(`${API_URL$u}?action=all_offers`)
         ]);
         if (gRes.data.status === "success") setGroups(gRes.data.data);
         if (anRes.data.status === "success") setAffiliateNetworks(anRes.data.data);
@@ -34169,7 +34192,7 @@ const OfferEditor = ({ offerId, onClose }) => {
     fetchDeps();
     if (offerId) {
       setLoading(true);
-      axios.get(`${API_URL$t}?action=get_offer&id=${offerId}`).then((res) => {
+      axios.get(`${API_URL$u}?action=get_offer&id=${offerId}`).then((res) => {
         if (res.data.status === "success") {
           const data = res.data.data;
           setFormData({
@@ -34209,7 +34232,7 @@ const OfferEditor = ({ offerId, onClose }) => {
       setLoading(true);
       const payload = { ...formData };
       if (offerId) payload.id = offerId;
-      const res = await axios.post(`${API_URL$t}?action=save_offer`, payload);
+      const res = await axios.post(`${API_URL$u}?action=save_offer`, payload);
       if (res.data.status === "success") {
         onClose(true);
       } else {
@@ -34661,7 +34684,7 @@ const OfferEditor = ({ offerId, onClose }) => {
     ] }) })
   ] }) });
 };
-const API_URL$s = "/api.php";
+const API_URL$t = "/api.php";
 const GroupsModal = ({ type, onClose }) => {
   const { t: t2 } = useLanguage();
   const [groups, setGroups] = reactExports.useState([]);
@@ -34698,7 +34721,7 @@ const GroupsModal = ({ type, onClose }) => {
   const fetchGroups = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$s}?action=${endpoint}`);
+      const res = await axios.get(`${API_URL$t}?action=${endpoint}`);
       if (res.data.status === "success") setGroups(res.data.data);
     } catch (err) {
       console.error("Error fetching groups:", err);
@@ -34709,7 +34732,7 @@ const GroupsModal = ({ type, onClose }) => {
   const handleCreate = async () => {
     if (!newGroupName.trim()) return;
     try {
-      const res = await axios.post(`${API_URL$s}?action=${endpoint}`, { name: newGroupName.trim() });
+      const res = await axios.post(`${API_URL$t}?action=${endpoint}`, { name: newGroupName.trim() });
       if (res.data.status === "success") {
         setNewGroupName("");
         fetchGroups();
@@ -34722,7 +34745,7 @@ const GroupsModal = ({ type, onClose }) => {
     if (!window.confirm(t2("groupsModal.deleteConfirm"))) return;
     try {
       const del = type === "offer" ? "delete_offer_group" : endpoint;
-      await axios.post(`${API_URL$s}?action=${del}`, { id });
+      await axios.post(`${API_URL$t}?action=${del}`, { id });
       fetchGroups();
     } catch {
       alert(t2("groupsModal.deleteError"));
@@ -34756,7 +34779,7 @@ const GroupsModal = ({ type, onClose }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition", children: t2("groupsModal.close") }) })
   ] }) });
 };
-const API_URL$r = "/api.php";
+const API_URL$s = "/api.php";
 const Offers = ({ offers, refreshData }) => {
   const { t: t2 } = useLanguage();
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
@@ -34785,7 +34808,7 @@ const Offers = ({ offers, refreshData }) => {
   const handleDelete = async (id) => {
     if (window.confirm(t2("common.deleteConfirm"))) {
       try {
-        await axios.post(`${API_URL$r}?action=delete_offer`, { id });
+        await axios.post(`${API_URL$s}?action=delete_offer`, { id });
         refreshData();
       } catch (err) {
         alert(t2("common.error"));
@@ -34984,7 +35007,7 @@ const Offers = ({ offers, refreshData }) => {
     )
   ] });
 };
-const API_URL$q = "/api.php";
+const API_URL$r = "/api.php";
 const TrafficSourceEditor = ({ id, onClose, onSave }) => {
   const { t: t2 } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
@@ -34999,14 +35022,14 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     state: "active"
   });
   reactExports.useEffect(() => {
-    axios.get(`${API_URL$q}?action=traffic_source_templates`).then((res) => {
+    axios.get(`${API_URL$r}?action=traffic_source_templates`).then((res) => {
       if (res.data.status === "success") {
         setTemplates(res.data.data);
       }
     });
     if (id) {
       setLoading(true);
-      axios.get(`${API_URL$q}?action=get_traffic_source&id=${id}`).then((res) => {
+      axios.get(`${API_URL$r}?action=get_traffic_source&id=${id}`).then((res) => {
         if (res.data.status === "success") {
           const data = res.data.data;
           setFormData({
@@ -35063,7 +35086,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     }
     try {
       const payload = { ...formData, id };
-      await axios.post(`${API_URL$q}?action=traffic_sources`, payload);
+      await axios.post(`${API_URL$r}?action=traffic_sources`, payload);
       onSave();
     } catch (error) {
       console.error("Error saving traffic source:", error);
@@ -35261,7 +35284,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     ] })
   ] }) });
 };
-const API_URL$p = "/api.php";
+const API_URL$q = "/api.php";
 const TrafficSources = ({ refreshData }) => {
   const { t: t2 } = useLanguage();
   const [sources, setSources] = reactExports.useState([]);
@@ -35273,7 +35296,7 @@ const TrafficSources = ({ refreshData }) => {
   const fetchSources = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$p}?action=traffic_sources`);
+      const res = await axios.get(`${API_URL$q}?action=traffic_sources`);
       if (res.data.status === "success") {
         setSources(res.data.data);
       }
@@ -35289,7 +35312,7 @@ const TrafficSources = ({ refreshData }) => {
   const handleDelete = async (id) => {
     if (!confirm(t2("sources.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$p}?action=delete_traffic_source`, { id });
+      await axios.post(`${API_URL$q}?action=delete_traffic_source`, { id });
       fetchSources();
       refreshData && refreshData();
     } catch (error) {
@@ -35436,7 +35459,7 @@ const TrafficSources = ({ refreshData }) => {
     )
   ] });
 };
-const API_URL$o = "/api.php";
+const API_URL$p = "/api.php";
 const ConversionsLog = () => {
   const { t: t2 } = useLanguage();
   const [conversions, setConversions] = reactExports.useState([]);
@@ -35457,7 +35480,7 @@ const ConversionsLog = () => {
       if (dateFrom) params.append("date_from", dateFrom);
       if (dateTo) params.append("date_to", dateTo);
       if (campaignId) params.append("campaign_id", campaignId);
-      const res = await axios.get(`${API_URL$o}?${params.toString()}`);
+      const res = await axios.get(`${API_URL$p}?${params.toString()}`);
       if (res.data.status === "success") {
         setConversions(res.data.data);
         setPagination(res.data.pagination);
@@ -35739,7 +35762,7 @@ const ConversionsLog = () => {
     )
   ] });
 };
-const API_URL$n = "/api.php";
+const API_URL$o = "/api.php";
 const PostbackSettings = () => {
   const { t: t2 } = useLanguage();
   const [settings, setSettings] = reactExports.useState({
@@ -35774,8 +35797,8 @@ const PostbackSettings = () => {
     setLoading(true);
     try {
       const [settingsRes, urlRes] = await Promise.all([
-        axios.get(`${API_URL$n}?action=settings`),
-        axios.get(`${API_URL$n}?action=postback_url`)
+        axios.get(`${API_URL$o}?action=settings`),
+        axios.get(`${API_URL$o}?action=postback_url`)
       ]);
       if (settingsRes.data.status === "success") {
         setSettings((prev) => ({ ...prev, ...settingsRes.data.data }));
@@ -35793,7 +35816,7 @@ const PostbackSettings = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await axios.post(`${API_URL$n}?action=save_settings`, {
+      await axios.post(`${API_URL$o}?action=save_settings`, {
         postback_key: settings.postback_key,
         currency: settings.currency,
         postback_aliases: settings.postback_aliases
@@ -35814,7 +35837,7 @@ const PostbackSettings = () => {
     }
     setTestResult(null);
     try {
-      const res = await axios.post(`${API_URL$n}?action=test_postback`, {
+      const res = await axios.post(`${API_URL$o}?action=test_postback`, {
         subid: testSubid,
         status: testStatus,
         payout: parseFloat(testPayout) || 0
@@ -36174,7 +36197,7 @@ const PostbackSettings = () => {
     ) })
   ] });
 };
-const API_URL$m = "/api.php";
+const API_URL$n = "/api.php";
 const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
   const { t: t2 } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
@@ -36197,7 +36220,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
   }, [networkId]);
   const fetchTemplates = async () => {
     try {
-      const res = await axios.get(`${API_URL$m}?action=affiliate_network_templates`);
+      const res = await axios.get(`${API_URL$n}?action=affiliate_network_templates`);
       if (res.data.status === "success") {
         setTemplates(res.data.data);
       }
@@ -36208,7 +36231,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
   const fetchNetwork = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$m}?action=get_affiliate_network&id=${networkId}`);
+      const res = await axios.get(`${API_URL$n}?action=get_affiliate_network&id=${networkId}`);
       if (res.data.status === "success") {
         setFormData({
           name: res.data.data.name || "",
@@ -36246,7 +36269,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
       if (networkId) {
         payload.id = networkId;
       }
-      const res = await axios.post(`${API_URL$m}?action=affiliate_networks`, payload);
+      const res = await axios.post(`${API_URL$n}?action=affiliate_networks`, payload);
       if (res.data.status === "success") {
         onClose(true);
       } else {
@@ -36422,7 +36445,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
     ] })
   ] }) });
 };
-const API_URL$l = "/api.php";
+const API_URL$m = "/api.php";
 const AffiliateNetworks = () => {
   const { t: t2 } = useLanguage();
   const [networks, setNetworks] = reactExports.useState([]);
@@ -36437,7 +36460,7 @@ const AffiliateNetworks = () => {
   }, []);
   const fetchNetworks = async () => {
     try {
-      const res = await axios.get(`${API_URL$l}?action=affiliate_networks`);
+      const res = await axios.get(`${API_URL$m}?action=affiliate_networks`);
       if (res.data.status === "success") {
         setNetworks(res.data.data);
       }
@@ -36449,7 +36472,7 @@ const AffiliateNetworks = () => {
   };
   const fetchPostbackKey = async () => {
     try {
-      const res = await axios.get(`${API_URL$l}?action=settings`);
+      const res = await axios.get(`${API_URL$m}?action=settings`);
       if (res.data.status === "success") {
         setPostbackKey(res.data.data.postback_key || "fd12e72");
       }
@@ -36460,7 +36483,7 @@ const AffiliateNetworks = () => {
   const handleDelete = async (id) => {
     if (!window.confirm(t2("networks.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$l}?action=delete_affiliate_network`, { id });
+      await axios.post(`${API_URL$m}?action=delete_affiliate_network`, { id });
       fetchNetworks();
     } catch (err) {
       console.error(err);
@@ -36599,7 +36622,7 @@ const AffiliateNetworks = () => {
     )
   ] });
 };
-const API_URL$k = "/api.php";
+const API_URL$l = "/api.php";
 const UsersPage = () => {
   const { t: t2, setLanguage: setContextLanguage } = useLanguage();
   const [users, setUsers] = reactExports.useState([]);
@@ -36664,7 +36687,7 @@ const UsersPage = () => {
   }, [showModal, formData.username, formData.password]);
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(`${API_URL$k}?action=users`);
+      const res = await axios.get(`${API_URL$l}?action=users`);
       if (res.data.status === "success") {
         setUsers(res.data.data);
       }
@@ -36718,7 +36741,7 @@ const UsersPage = () => {
   };
   const openApiKeysModal = async (user) => {
     try {
-      const res = await axios.get(`${API_URL$k}?action=get_user&id=${user.id}`);
+      const res = await axios.get(`${API_URL$l}?action=get_user&id=${user.id}`);
       if (res.data.status === "success") {
         setCurrentUser({ ...user, api_keys: res.data.data.api_keys || [] });
         setShowApiKeysModal(true);
@@ -36743,7 +36766,7 @@ const UsersPage = () => {
       if (currentUser) {
         data.id = currentUser.id;
       }
-      const res = await axios.post(`${API_URL$k}?action=save_user`, data);
+      const res = await axios.post(`${API_URL$l}?action=save_user`, data);
       if (res.data.status === "success") {
         showSuccess(currentUser ? t2("common.success") : t2("common.success"));
         if (data.language) {
@@ -36768,7 +36791,7 @@ const UsersPage = () => {
   const handleDelete = async (user) => {
     if (!window.confirm(t2("users.deleteConfirm"))) return;
     try {
-      const res = await axios.post(`${API_URL$k}?action=delete_user`, { id: user.id });
+      const res = await axios.post(`${API_URL$l}?action=delete_user`, { id: user.id });
       if (res.data.status === "success") {
         showSuccess(t2("common.success"));
         fetchUsers();
@@ -36781,7 +36804,7 @@ const UsersPage = () => {
   };
   const handleSavePermissions = async () => {
     try {
-      const res = await axios.post(`${API_URL$k}?action=save_user`, {
+      const res = await axios.post(`${API_URL$l}?action=save_user`, {
         id: currentUser.id,
         username: currentUser.username,
         permissions
@@ -36797,7 +36820,7 @@ const UsersPage = () => {
   };
   const generateApiKey = async () => {
     try {
-      const res = await axios.post(`${API_URL$k}?action=generate_api_key`, {
+      const res = await axios.post(`${API_URL$l}?action=generate_api_key`, {
         user_id: currentUser.id,
         key_name: `Key ${(currentUser.api_keys?.length || 0) + 1}`
       });
@@ -36812,7 +36835,7 @@ const UsersPage = () => {
   const deleteApiKey = async (keyId) => {
     if (!window.confirm(t2("common.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$k}?action=delete_api_key`, { id: keyId });
+      await axios.post(`${API_URL$l}?action=delete_api_key`, { id: keyId });
       showSuccess(t2("common.success"));
       openApiKeysModal(currentUser);
     } catch (err) {
@@ -37145,7 +37168,7 @@ const UsersPage = () => {
     ] }) })
   ] });
 };
-const API_URL$j = "/api.php";
+const API_URL$k = "/api.php";
 const DEFAULT_CUSTOM_COLORS = {
   "--color-primary": "#f05a3e",
   "--color-bg-main": "#f4f5f7",
@@ -37200,7 +37223,7 @@ const BrandingPage = () => {
       if (mode === "custom") {
         localStorage.setItem("orbitra_custom_colors", JSON.stringify(customColors));
       }
-      await axios.post(`${API_URL$j}?action=save_settings`, {
+      await axios.post(`${API_URL$k}?action=save_settings`, {
         mode,
         custom_colors: mode === "custom" ? customColors : null,
         theme: "default"
@@ -37437,7 +37460,7 @@ const BrandingPage = () => {
     ] })
   ] });
 };
-const API_URL$i = "/api.php";
+const API_URL$j = "/api.php";
 const GeoProfilesPage = () => {
   const { t: t2 } = useLanguage();
   const [profiles, setProfiles] = reactExports.useState([]);
@@ -37457,8 +37480,8 @@ const GeoProfilesPage = () => {
   const loadData = async () => {
     try {
       const [profilesRes, countriesRes] = await Promise.all([
-        axios.get(`${API_URL$i}?action=geo_profiles`),
-        axios.get(`${API_URL$i}?action=countries_list`)
+        axios.get(`${API_URL$j}?action=geo_profiles`),
+        axios.get(`${API_URL$j}?action=countries_list`)
       ]);
       setProfiles(profilesRes.data.data || []);
       setCountries(countriesRes.data.data || []);
@@ -37504,7 +37527,7 @@ const GeoProfilesPage = () => {
       if (editingProfile) {
         payload.id = editingProfile.id;
       }
-      await axios.post(`${API_URL$i}?action=save_geo_profile`, payload);
+      await axios.post(`${API_URL$j}?action=save_geo_profile`, payload);
       closeModal();
       loadData();
     } catch (err) {
@@ -37514,7 +37537,7 @@ const GeoProfilesPage = () => {
   const handleDelete = async (id) => {
     if (!confirm(t2("geoProfiles.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$i}?action=delete_geo_profile`, { id });
+      await axios.post(`${API_URL$j}?action=delete_geo_profile`, { id });
       loadData();
     } catch (err) {
       alert(t2("geoProfiles.deleteError") + " " + (err.response?.data?.message || err.message));
@@ -37760,7 +37783,7 @@ const GeoProfilesPage = () => {
     ] }) })
   ] });
 };
-const API_URL$h = "/api.php";
+const API_URL$i = "/api.php";
 const GeneralSettings = () => {
   const { t: t2 } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
@@ -37771,7 +37794,7 @@ const GeneralSettings = () => {
     currency: "USD"
   });
   reactExports.useEffect(() => {
-    fetch(`${API_URL$h}?action=global_settings`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$i}?action=global_settings`).then((res) => res.json()).then((data) => {
       if (data.status === "success" && data.data) {
         setSettings((prev) => ({ ...prev, ...data.data }));
       }
@@ -37786,7 +37809,7 @@ const GeneralSettings = () => {
     setSaving(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$h}?action=global_settings`, {
+      const res = await fetch(`${API_URL$i}?action=global_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -37870,7 +37893,7 @@ const GeneralSettings = () => {
     ) })
   ] });
 };
-const API_URL$g = "/api.php";
+const API_URL$h = "/api.php";
 const ProfileSettings = () => {
   const { t: t2, setLanguage: setContextLanguage } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
@@ -37886,7 +37909,7 @@ const ProfileSettings = () => {
   });
   reactExports.useEffect(() => {
     const userId = currentUser.id || 1;
-    fetch(`${API_URL$g}?action=profile_settings&user_id=${userId}`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$h}?action=profile_settings&user_id=${userId}`).then((res) => res.json()).then((data) => {
       if (data.status === "success" && data.data) {
         setProfile({
           ...profile,
@@ -37914,7 +37937,7 @@ const ProfileSettings = () => {
     setMessage({ text: "", type: "" });
     try {
       const userId = currentUser.id || 1;
-      const res = await fetch(`${API_URL$g}?action=profile_settings`, {
+      const res = await fetch(`${API_URL$h}?action=profile_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -38080,7 +38103,7 @@ const ProfileSettings = () => {
     ) })
   ] });
 };
-const API_URL$f = "/api.php";
+const API_URL$g = "/api.php";
 const BotSettings = () => {
   const { t: t2 } = useLanguage();
   const [ipList, setIpList] = reactExports.useState([]);
@@ -38092,8 +38115,8 @@ const BotSettings = () => {
     setLoading(true);
     try {
       const [ipRes, sigRes] = await Promise.all([
-        fetch(`${API_URL$f}?action=bot_ips`).then((r2) => r2.json()),
-        fetch(`${API_URL$f}?action=bot_signatures`).then((r2) => r2.json())
+        fetch(`${API_URL$g}?action=bot_ips`).then((r2) => r2.json()),
+        fetch(`${API_URL$g}?action=bot_signatures`).then((r2) => r2.json())
       ]);
       if (ipRes.status === "success") setIpList(ipRes.data || []);
       if (sigRes.status === "success") setSigList(sigRes.data || []);
@@ -38110,7 +38133,7 @@ const BotSettings = () => {
     if (!newIps.trim()) return;
     try {
       const items = newIps.split("\n").map((s) => s.trim()).filter(Boolean);
-      const res = await fetch(`${API_URL$f}?action=bot_ips`, {
+      const res = await fetch(`${API_URL$g}?action=bot_ips`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items })
@@ -38129,7 +38152,7 @@ const BotSettings = () => {
     if (!newSigs.trim()) return;
     try {
       const items = newSigs.split("\n").map((s) => s.trim()).filter(Boolean);
-      const res = await fetch(`${API_URL$f}?action=bot_signatures`, {
+      const res = await fetch(`${API_URL$g}?action=bot_signatures`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items })
@@ -38147,7 +38170,7 @@ const BotSettings = () => {
   const handleDelete = async (type, id) => {
     try {
       const action = type === "ip" ? "bot_ips" : "bot_signatures";
-      await fetch(`${API_URL$f}?action=${action}`, {
+      await fetch(`${API_URL$g}?action=${action}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id })
@@ -38161,7 +38184,7 @@ const BotSettings = () => {
     if (!window.confirm(t2("botSettings.confirmClear"))) return;
     try {
       const action = type === "ip" ? "bot_ips" : "bot_signatures";
-      const res = await fetch(`${API_URL$f}?action=${action}`, {
+      const res = await fetch(`${API_URL$g}?action=${action}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ clear_all: true })
@@ -38244,7 +38267,7 @@ const BotSettings = () => {
     ] })
   ] });
 };
-const API_URL$e = "/api.php";
+const API_URL$f = "/api.php";
 const emptyForm$1 = {
   id: null,
   name: "",
@@ -38265,7 +38288,7 @@ const ConversionTypesSettings = () => {
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
   const fetchTypes = async () => {
     try {
-      const res = await fetch(`${API_URL$e}?action=conversion_types`).then((r2) => r2.json());
+      const res = await fetch(`${API_URL$f}?action=conversion_types`).then((r2) => r2.json());
       if (res.status === "success") {
         setTypes(res.data || []);
       }
@@ -38290,7 +38313,7 @@ const ConversionTypesSettings = () => {
     setSaving(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$e}?action=conversion_types`, {
+      const res = await fetch(`${API_URL$f}?action=conversion_types`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
@@ -38312,7 +38335,7 @@ const ConversionTypesSettings = () => {
   const handleDelete = async (id) => {
     if (!confirm(t2("conversionTypes.deleteConfirm"))) return;
     try {
-      await fetch(`${API_URL$e}?action=conversion_types`, {
+      await fetch(`${API_URL$f}?action=conversion_types`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "delete", id })
@@ -38478,7 +38501,7 @@ const ConversionTypesSettings = () => {
     ] })
   ] });
 };
-const API_URL$d = "/api.php";
+const API_URL$e = "/api.php";
 const emptyForm = {
   id: null,
   name: "",
@@ -38496,7 +38519,7 @@ const CustomMetricsSettings = () => {
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
   const fetchMetrics = async () => {
     try {
-      const res = await fetch(`${API_URL$d}?action=custom_metrics`).then((r2) => r2.json());
+      const res = await fetch(`${API_URL$e}?action=custom_metrics`).then((r2) => r2.json());
       if (res.status === "success") {
         setMetrics(res.data || []);
       }
@@ -38521,7 +38544,7 @@ const CustomMetricsSettings = () => {
     setSaving(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$d}?action=custom_metrics`, {
+      const res = await fetch(`${API_URL$e}?action=custom_metrics`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -38549,7 +38572,7 @@ const CustomMetricsSettings = () => {
   const handleDelete = async (id) => {
     if (!confirm(t2("customMetrics.deleteConfirm"))) return;
     try {
-      await fetch(`${API_URL$d}?action=custom_metrics`, {
+      await fetch(`${API_URL$e}?action=custom_metrics`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "delete", id })
@@ -38731,6 +38754,194 @@ const CustomMetricsSettings = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
         saving ? t2("common.saving") : t2("customMetrics.saveMetric")
       ] }) })
+    ] })
+  ] });
+};
+const API_URL$d = "/api.php";
+const formatAge = (t2, seconds) => {
+  if (seconds === null || seconds === void 0) return "-";
+  const s = Math.max(0, Number(seconds) || 0);
+  const days = Math.floor(s / 86400);
+  const hours = Math.floor(s % 86400 / 3600);
+  const mins = Math.floor(s % 3600 / 60);
+  if (days > 0) return `${days} ${t2("automation.days")} ${hours} ${t2("automation.hours")}`;
+  if (hours > 0) return `${hours} ${t2("automation.hours")} ${mins} ${t2("automation.minutes")}`;
+  return `${mins} ${t2("automation.minutes")}`;
+};
+const AutomationSettings = () => {
+  const { t: t2 } = useLanguage();
+  const [loading, setLoading] = reactExports.useState(true);
+  const [saving, setSaving] = reactExports.useState(false);
+  const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
+  const [info, setInfo] = reactExports.useState(null);
+  const [enabled, setEnabled] = reactExports.useState(true);
+  const fetchInfo = async () => {
+    setLoading(true);
+    setMessage({ text: "", type: "" });
+    try {
+      const res = await fetch(`${API_URL$d}?action=backorder_cron_info`);
+      const data = await res.json();
+      if (data.status === "success") {
+        setInfo(data.data || null);
+        setEnabled((data.data?.enabled ?? "1") !== "0");
+      } else {
+        setMessage({ text: data.message || t2("automation.loadError"), type: "error" });
+      }
+    } catch (e) {
+      setMessage({ text: t2("automation.networkError"), type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+  reactExports.useEffect(() => {
+    fetchInfo();
+  }, []);
+  const cronCmd = reactExports.useMemo(() => {
+    const examples = info?.cron_examples || [];
+    const preferred = examples.find((x) => x.id === "every_3_min") || examples[0];
+    return preferred?.value || "";
+  }, [info]);
+  const copyText = async (text) => {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setMessage({ text: t2("automation.copied"), type: "success" });
+      setTimeout(() => setMessage({ text: "", type: "" }), 1500);
+    } catch (e) {
+      setMessage({ text: t2("automation.copyError"), type: "error" });
+    }
+  };
+  const handleSave = async () => {
+    setSaving(true);
+    setMessage({ text: "", type: "" });
+    try {
+      const res = await fetch(`${API_URL$d}?action=save_settings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          backorder_cron_enabled: enabled ? "1" : "0"
+        })
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        setMessage({ text: t2("automation.saveSuccess"), type: "success" });
+        await fetchInfo();
+      } else {
+        setMessage({ text: data.message || t2("automation.saveError"), type: "error" });
+      }
+    } catch (e) {
+      setMessage({ text: t2("automation.networkError"), type: "error" });
+    } finally {
+      setSaving(false);
+    }
+  };
+  if (loading) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[var(--color-text-muted)]", children: t2("common.loading") }) });
+  }
+  const bootstrap = info?.rdap_bootstrap || {};
+  const bootstrapOk = Boolean(bootstrap?.mtime);
+  const bootstrapAge = formatAge(t2, bootstrap?.age_seconds);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 18, className: "text-[var(--color-primary)]" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title m-0", children: t2("automation.title") })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6", style: { maxWidth: "760px" }, children: [
+      message2.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `alert ${message2.type === "success" ? "alert-success" : "alert-danger"} mb-4`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        message2.type === "success" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 16 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: message2.text })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-section", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800", children: t2("automation.backorderCronTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-[var(--color-text-muted)] mt-1", children: t2("automation.backorderCronDesc") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-checkbox-label", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "checkbox",
+              checked: enabled,
+              onChange: (e) => setEnabled(Boolean(e.target.checked))
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-checkbox-content", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "form-checkbox-title", children: t2("automation.enableBackorderCron") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-checkbox-description", children: t2("automation.enableBackorderCronDesc") })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("automation.cronCommand") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-stretch", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "pre",
+              {
+                className: "flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto",
+                style: { fontFamily: "monospace", fontSize: "12px", lineHeight: 1.5, margin: 0 },
+                children: cronCmd || t2("automation.noCronExample")
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                className: "btn btn-secondary",
+                onClick: () => copyText(cronCmd),
+                disabled: !cronCmd,
+                title: t2("automation.copy"),
+                style: { whiteSpace: "nowrap" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 }),
+                  t2("automation.copy")
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint mt-2", children: t2("automation.cronHint") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 grid grid-cols-1 md:grid-cols-2 gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.lastPing") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: info?.last_ping_at || "-" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.lastChecked") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: info?.last_checked_at || "-" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.lastDomain") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: info?.last_domain || "-" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.lastResult") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: info?.last_status ? `${info.last_status} (HTTP ${info?.last_http_code || 0})` : "-" })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 grid grid-cols-1 md:grid-cols-2 gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.domainsTotal") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-800 mt-1", children: info?.domains?.total ?? 0 })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.domainsNeverChecked") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-800 mt-1", children: info?.domains?.never_checked ?? 0 })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 bg-slate-50 border border-slate-100 rounded p-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-slate-800", children: t2("automation.rdapTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-slate-700 mt-1", children: bootstrapOk ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("automation.rdapBootstrapOk").replace("{mtime}", String(bootstrap.mtime)).replace("{age}", String(bootstrapAge)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("automation.rdapBootstrapMissing") }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-slate-600 mt-2", children: t2("automation.rdapHint") })
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6 flex justify-end gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: fetchInfo, className: "btn btn-secondary", disabled: loading, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 18 }),
+        t2("automation.refresh")
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleSave, disabled: saving, className: "btn btn-primary", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
+        saving ? t2("common.saving") : t2("common.save")
+      ] })
     ] })
   ] });
 };
@@ -39024,6 +39235,7 @@ const Settings = () => {
     { id: "bots", title: t2("settings.bots"), icon: ShieldBan, component: BotSettings },
     { id: "conversions", title: t2("settings.conversionTypes"), icon: RefreshCw, component: ConversionTypesSettings },
     { id: "metrics", title: t2("settings.customMetrics"), icon: ChartNoAxesColumn, component: CustomMetricsSettings },
+    { id: "automation", title: t2("settings.automation"), icon: Clock, component: AutomationSettings },
     { id: "system", title: t2("settings.system"), icon: HardDrive, component: SystemSettings },
     { id: "privacy", title: t2("settings.privacy"), icon: Shield, component: PrivacySettings }
   ];

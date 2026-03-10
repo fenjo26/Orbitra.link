@@ -1,0 +1,228 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { Clock, Copy, RefreshCw, Save, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+
+const API_URL = '/api.php';
+
+const formatAge = (t, seconds) => {
+    if (seconds === null || seconds === undefined) return '-';
+    const s = Math.max(0, Number(seconds) || 0);
+    const days = Math.floor(s / 86400);
+    const hours = Math.floor((s % 86400) / 3600);
+    const mins = Math.floor((s % 3600) / 60);
+    if (days > 0) return `${days} ${t('automation.days')} ${hours} ${t('automation.hours')}`;
+    if (hours > 0) return `${hours} ${t('automation.hours')} ${mins} ${t('automation.minutes')}`;
+    return `${mins} ${t('automation.minutes')}`;
+};
+
+const AutomationSettings = () => {
+    const { t } = useLanguage();
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [message, setMessage] = useState({ text: '', type: '' });
+
+    const [info, setInfo] = useState(null);
+    const [enabled, setEnabled] = useState(true);
+
+    const fetchInfo = async () => {
+        setLoading(true);
+        setMessage({ text: '', type: '' });
+        try {
+            const res = await fetch(`${API_URL}?action=backorder_cron_info`);
+            const data = await res.json();
+            if (data.status === 'success') {
+                setInfo(data.data || null);
+                setEnabled((data.data?.enabled ?? '1') !== '0');
+            } else {
+                setMessage({ text: data.message || t('automation.loadError'), type: 'error' });
+            }
+        } catch (e) {
+            setMessage({ text: t('automation.networkError'), type: 'error' });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchInfo();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const cronCmd = useMemo(() => {
+        const examples = info?.cron_examples || [];
+        const preferred = examples.find(x => x.id === 'every_3_min') || examples[0];
+        return preferred?.value || '';
+    }, [info]);
+
+    const copyText = async (text) => {
+        if (!text) return;
+        try {
+            await navigator.clipboard.writeText(text);
+            setMessage({ text: t('automation.copied'), type: 'success' });
+            setTimeout(() => setMessage({ text: '', type: '' }), 1500);
+        } catch (e) {
+            setMessage({ text: t('automation.copyError'), type: 'error' });
+        }
+    };
+
+    const handleSave = async () => {
+        setSaving(true);
+        setMessage({ text: '', type: '' });
+        try {
+            const res = await fetch(`${API_URL}?action=save_settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    backorder_cron_enabled: enabled ? '1' : '0'
+                })
+            });
+            const data = await res.json();
+            if (data.status === 'success') {
+                setMessage({ text: t('automation.saveSuccess'), type: 'success' });
+                await fetchInfo();
+            } else {
+                setMessage({ text: data.message || t('automation.saveError'), type: 'error' });
+            }
+        } catch (e) {
+            setMessage({ text: t('automation.networkError'), type: 'error' });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="page-card">
+                <p className="text-[var(--color-text-muted)]">{t('common.loading')}</p>
+            </div>
+        );
+    }
+
+    const bootstrap = info?.rdap_bootstrap || {};
+    const bootstrapOk = Boolean(bootstrap?.mtime);
+    const bootstrapAge = formatAge(t, bootstrap?.age_seconds);
+
+    return (
+        <div className="page-card">
+            <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0 }}>
+                <div className="flex items-center gap-2">
+                    <Clock size={18} className="text-[var(--color-primary)]" />
+                    <h3 className="page-title m-0">{t('automation.title')}</h3>
+                </div>
+            </div>
+
+            <div className="mt-6" style={{ maxWidth: '760px' }}>
+                {message.text && (
+                    <div className={`alert ${message.type === 'success' ? 'alert-success' : 'alert-danger'} mb-4`}>
+                        <div className="flex items-center gap-2">
+                            {message.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                            <span>{message.text}</span>
+                        </div>
+                    </div>
+                )}
+
+                <div className="form-section">
+                    <div className="mb-3">
+                        <div className="text-sm font-semibold text-gray-800">{t('automation.backorderCronTitle')}</div>
+                        <div className="text-sm text-[var(--color-text-muted)] mt-1">{t('automation.backorderCronDesc')}</div>
+                    </div>
+
+                    <label className="form-checkbox-label">
+                        <input
+                            type="checkbox"
+                            checked={enabled}
+                            onChange={(e) => setEnabled(Boolean(e.target.checked))}
+                        />
+                        <div className="form-checkbox-content">
+                            <span className="form-checkbox-title">{t('automation.enableBackorderCron')}</span>
+                            <p className="form-checkbox-description">{t('automation.enableBackorderCronDesc')}</p>
+                        </div>
+                    </label>
+
+                    <div className="mt-3">
+                        <label className="form-label">{t('automation.cronCommand')}</label>
+                        <div className="flex gap-2 items-stretch">
+                            <pre
+                                className="flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto"
+                                style={{ fontFamily: 'monospace', fontSize: '12px', lineHeight: 1.5, margin: 0 }}
+                            >
+                                {cronCmd || t('automation.noCronExample')}
+                            </pre>
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() => copyText(cronCmd)}
+                                disabled={!cronCmd}
+                                title={t('automation.copy')}
+                                style={{ whiteSpace: 'nowrap' }}
+                            >
+                                <Copy size={16} />
+                                {t('automation.copy')}
+                            </button>
+                        </div>
+                        <p className="form-hint mt-2">{t('automation.cronHint')}</p>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">{t('automation.lastPing')}</div>
+                            <div className="text-sm font-mono text-gray-800 mt-1">{info?.last_ping_at || '-'}</div>
+                        </div>
+                        <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">{t('automation.lastChecked')}</div>
+                            <div className="text-sm font-mono text-gray-800 mt-1">{info?.last_checked_at || '-'}</div>
+                        </div>
+                        <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">{t('automation.lastDomain')}</div>
+                            <div className="text-sm font-mono text-gray-800 mt-1">{info?.last_domain || '-'}</div>
+                        </div>
+                        <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">{t('automation.lastResult')}</div>
+                            <div className="text-sm font-mono text-gray-800 mt-1">
+                                {info?.last_status ? `${info.last_status} (HTTP ${info?.last_http_code || 0})` : '-'}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="bg-white border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">{t('automation.domainsTotal')}</div>
+                            <div className="text-lg font-semibold text-gray-800 mt-1">{info?.domains?.total ?? 0}</div>
+                        </div>
+                        <div className="bg-white border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">{t('automation.domainsNeverChecked')}</div>
+                            <div className="text-lg font-semibold text-gray-800 mt-1">{info?.domains?.never_checked ?? 0}</div>
+                        </div>
+                    </div>
+
+                    <div className="mt-4 bg-slate-50 border border-slate-100 rounded p-3">
+                        <div className="text-sm font-semibold text-slate-800">{t('automation.rdapTitle')}</div>
+                        <div className="text-sm text-slate-700 mt-1">
+                            {bootstrapOk ? (
+                                <span>
+                                    {t('automation.rdapBootstrapOk').replace('{mtime}', String(bootstrap.mtime)).replace('{age}', String(bootstrapAge))}
+                                </span>
+                            ) : (
+                                <span>{t('automation.rdapBootstrapMissing')}</span>
+                            )}
+                        </div>
+                        <div className="text-xs text-slate-600 mt-2">{t('automation.rdapHint')}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-2">
+                <button onClick={fetchInfo} className="btn btn-secondary" disabled={loading}>
+                    <RefreshCw size={18} />
+                    {t('automation.refresh')}
+                </button>
+                <button onClick={handleSave} disabled={saving} className="btn btn-primary">
+                    <Save size={18} />
+                    {saving ? t('common.saving') : t('common.save')}
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default AutomationSettings;
+

@@ -266,21 +266,19 @@ const BackorderDomains = () => {
                             <th className="px-5 py-3 font-semibold text-gray-600">{t('backorder.domain')}</th>
                             <th className="px-5 py-3 font-semibold text-gray-600">{t('backorder.status')}</th>
                             <th className="px-5 py-3 font-semibold text-gray-600">{t('backorder.lastChecked')}</th>
-                            <th className="px-5 py-3 font-semibold text-gray-600">{t('backorder.metrics')}</th>
                             <th className="px-5 py-3 font-semibold text-gray-600">{t('backorder.notes')}</th>
                             <th className="px-5 py-3 font-semibold text-gray-600 text-right">{t('common.actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                         {loading ? (
-                            <tr><td colSpan="7" className="text-center py-8">{t('common.loading')}</td></tr>
+                            <tr><td colSpan="6" className="text-center py-8">{t('common.loading')}</td></tr>
                         ) : filtered.length === 0 ? (
-                            <tr><td colSpan="7" className="text-center py-8 text-gray-500">{t('backorder.noRows')}</td></tr>
+                            <tr><td colSpan="6" className="text-center py-8 text-gray-500">{t('backorder.noRows')}</td></tr>
                         ) : (
                             filtered.map(r => {
                                 const meta = statusMeta(t, r.status || 'unknown');
                                 const checked = selectedIds.has(r.id);
-                                const metricsText = `DR ${r.ahrefs_dr ?? '-'} / UR ${r.ahrefs_ur ?? '-'} / RD ${r.ahrefs_ref_domains ?? '-'}`;
                                 return (
                                     <tr key={r.id} className="hover:bg-gray-50 transition">
                                         <td className="px-4 py-3">
@@ -296,7 +294,6 @@ const BackorderDomains = () => {
                                         <td className="px-5 py-3 text-gray-600 text-xs">
                                             {r.last_checked_at || <span className="text-gray-400 italic">-</span>}
                                         </td>
-                                        <td className="px-5 py-3 text-gray-600 text-xs font-mono">{metricsText}</td>
                                         <td className="px-5 py-3 text-gray-700 text-xs max-w-[360px] truncate" title={r.notes || ''}>
                                             {r.notes ? r.notes : <span className="text-gray-400 italic">-</span>}
                                         </td>
@@ -416,35 +413,6 @@ const BackorderDomains = () => {
                                     className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm"
                                 />
                             </div>
-                            <div className="grid grid-cols-3 gap-3">
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">DR</label>
-                                    <input
-                                        value={editForm.ahrefs_dr}
-                                        onChange={(e) => setEditForm({ ...editForm, ahrefs_dr: e.target.value })}
-                                        className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm"
-                                        inputMode="decimal"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">UR</label>
-                                    <input
-                                        value={editForm.ahrefs_ur}
-                                        onChange={(e) => setEditForm({ ...editForm, ahrefs_ur: e.target.value })}
-                                        className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm"
-                                        inputMode="decimal"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Ref</label>
-                                    <input
-                                        value={editForm.ahrefs_ref_domains}
-                                        onChange={(e) => setEditForm({ ...editForm, ahrefs_ref_domains: e.target.value })}
-                                        className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm"
-                                        inputMode="numeric"
-                                    />
-                                </div>
-                            </div>
                             <div className="flex justify-end gap-2">
                                 <button
                                     type="button"
@@ -469,4 +437,3 @@ const BackorderDomains = () => {
 };
 
 export default BackorderDomains;
-

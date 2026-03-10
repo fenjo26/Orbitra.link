@@ -1902,6 +1902,80 @@ try {
             echo json_encode(['status' => 'success', 'data' => $rows]);
             break;
 
+        case 'backorder_cron_info':
+            // Small helper endpoint for UI: show cron command, status, and a few diagnostics.
+            // Note: cron scheduling still happens at OS level; UI only helps users configure it.
+            $scriptPath = realpath(__DIR__ . '/backorder_cron.php');
+            if (!is_string($scriptPath) || $scriptPath === '') {
+                $scriptPath = __DIR__ . '/backorder_cron.php';
+            }
+
+            $logDir = __DIR__ . '/var/log';
+            if (!is_dir($logDir)) {
+                @mkdir($logDir, 0777, true);
+            }
+            $logPath = $logDir . '/backorder_cron.log';
+
+            $keys = [
+                'backorder_cron_enabled',
+                'backorder_cron_last_ping_at',
+                'backorder_cron_last_checked_at',
+                'backorder_cron_last_domain',
+                'backorder_cron_last_status',
+                'backorder_cron_last_http_code',
+                'backorder_cron_last_error',
+            ];
+            $placeholders = implode(',', array_fill(0, count($keys), '?'));
+            $stmt = $pdo->prepare("SELECT key, value FROM settings WHERE key IN ($placeholders)");
+            $stmt->execute($keys);
+            $s = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $s[(string) $row['key']] = (string) $row['value'];
+            }
+
+            $enabled = $s['backorder_cron_enabled'] ?? '1';
+
+            $total = (int) ($pdo->query("SELECT COUNT(*) FROM backorder_domains")->fetchColumn() ?: 0);
+            $neverChecked = (int) ($pdo->query("SELECT COUNT(*) FROM backorder_domains WHERE last_checked_at IS NULL")->fetchColumn() ?: 0);
+
+            $bootstrapFile = __DIR__ . '/var/cache/rdap_dns_bootstrap.json';
+            $bootstrapMtime = is_file($bootstrapFile) ? (filemtime($bootstrapFile) ?: 0) : 0;
+            $bootstrapMtimeStr = $bootstrapMtime > 0 ? date('Y-m-d H:i:s', $bootstrapMtime) : null;
+            $bootstrapAgeSeconds = $bootstrapMtime > 0 ? max(0, time() - $bootstrapMtime) : null;
+
+            $cronEvery3min = "*/3 * * * * php " . escapeshellarg($scriptPath) . " >> " . escapeshellarg($logPath) . " 2>&1";
+            $cronEvery1min = "* * * * * php " . escapeshellarg($scriptPath) . " >> " . escapeshellarg($logPath) . " 2>&1";
+
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'enabled' => $enabled,
+                    'script_path' => $scriptPath,
+                    'log_path' => $logPath,
+                    'cron_examples' => [
+                        ['id' => 'every_3_min', 'label' => '*/3 * * * *', 'value' => $cronEvery3min],
+                        ['id' => 'every_1_min', 'label' => '* * * * *', 'value' => $cronEvery1min],
+                    ],
+                    'last_ping_at' => $s['backorder_cron_last_ping_at'] ?? null,
+                    'last_checked_at' => $s['backorder_cron_last_checked_at'] ?? null,
+                    'last_domain' => $s['backorder_cron_last_domain'] ?? null,
+                    'last_status' => $s['backorder_cron_last_status'] ?? null,
+                    'last_http_code' => $s['backorder_cron_last_http_code'] ?? null,
+                    'last_error' => $s['backorder_cron_last_error'] ?? null,
+                    'domains' => [
+                        'total' => $total,
+                        'never_checked' => $neverChecked,
+                    ],
+                    'rdap_bootstrap' => [
+                        'cache_file' => $bootstrapFile,
+                        'mtime' => $bootstrapMtimeStr,
+                        'age_seconds' => $bootstrapAgeSeconds,
+                        'ttl_seconds' => 604800,
+                    ],
+                ]
+            ]);
+            break;
+
         case 'backorder_import':
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
@@ -3046,31 +3120,63 @@ try {
                 // Perform a git pull if inside a git repository
                 $isGit = is_dir(__DIR__ . '/.git');
                 if ($isGit) {
+                    $repoDir = __DIR__;
+                    $git = 'git -C ' . escapeshellarg($repoDir);
+
                     // Security: Ensure we are on a safe branch
                     $allowedBranches = ['main', 'master'];
-                    $currentBranch = trim(exec('git rev-parse --abbrev-ref HEAD'));
+                    $currentBranch = trim(exec($git . ' rev-parse --abbrev-ref HEAD 2>&1'));
                     if (!in_array($currentBranch, $allowedBranches)) {
                         echo json_encode(['status' => 'error', 'message' => 'Unsafe branch: ' . htmlspecialchars($currentBranch)]);
                         break;
                     }
 
                     // Stash local changes if any, then pull
-                    $statusCode = trim(exec('git status --porcelain | wc -l'));
-                    $hasLocalChanges = ($statusCode !== '0');
+                    $statusLines = [];
+                    $statusReturn = 0;
+                    exec($git . ' status --porcelain 2>&1', $statusLines, $statusReturn);
+                    $hasLocalChanges = ($statusReturn === 0 && !empty($statusLines));
 
                     if ($hasLocalChanges) {
-                        exec('git stash 2>&1', $stashOutput, $stashReturn);
+                        exec($git . ' stash push -u -m "orbitra-auto-update" 2>&1', $stashOutput, $stashReturn);
                     }
 
                     $output = [];
                     $returnCode = 0;
-                    exec('git pull origin main 2>&1', $output, $returnCode);
+                    exec($git . ' pull --ff-only origin ' . escapeshellarg($currentBranch) . ' 2>&1', $output, $returnCode);
+
+                    // If server has no SSH keys, pulling from git@github.com may fail; retry with HTTPS without changing origin.
+                    if ($returnCode !== 0) {
+                        $joined = strtolower(implode("\n", $output));
+                        if (strpos($joined, 'permission denied (publickey)') !== false || strpos($joined, 'could not read from remote repository') !== false) {
+                            $originUrl = trim(exec($git . ' remote get-url origin 2>&1'));
+                            $httpsUrl = '';
+                            if (preg_match('#^git@github\\.com:([^/]+)/(.+?)(?:\\.git)?$#', $originUrl, $m)) {
+                                $httpsUrl = 'https://github.com/' . $m[1] . '/' . $m[2] . '.git';
+                            } elseif (preg_match('#^ssh://git@github\\.com/([^/]+)/(.+?)(?:\\.git)?$#', $originUrl, $m)) {
+                                $httpsUrl = 'https://github.com/' . $m[1] . '/' . $m[2] . '.git';
+                            }
+
+                            if ($httpsUrl !== '') {
+                                $output[] = '[Retrying via HTTPS]';
+                                $retryOut = [];
+                                $retryCode = 0;
+                                exec($git . ' pull --ff-only ' . escapeshellarg($httpsUrl) . ' ' . escapeshellarg($currentBranch) . ' 2>&1', $retryOut, $retryCode);
+                                $output = array_merge($output, $retryOut);
+                                $returnCode = $retryCode;
+                            } else {
+                                $output[] = '[Hint] Configure origin as https://github.com/<user>/<repo>.git for web-based updates.';
+                            }
+                        }
+                    }
 
                     // Restore stashed changes after pull
                     if ($hasLocalChanges && $returnCode === 0) {
-                        exec('git stash pop 2>&1', $popOutput, $popReturn);
+                        exec($git . ' stash pop 2>&1', $popOutput, $popReturn);
                         if ($popReturn === 0) {
                             $output = array_merge($output, ['[Stash restored]']);
+                        } else {
+                            $output = array_merge($output, ['[Stash restore failed]'], $popOutput ?? []);
                         }
                     }
 

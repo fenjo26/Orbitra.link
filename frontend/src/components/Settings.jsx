@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings as SettingsIcon, User, ShieldBan, RefreshCw, BarChart2, HardDrive, Shield } from 'lucide-react';
+import { Settings as SettingsIcon, User, ShieldBan, RefreshCw, BarChart2, HardDrive, Shield, Clock } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 import GeneralSettings from './GeneralSettings';
@@ -7,6 +7,7 @@ import ProfileSettings from './ProfileSettings';
 import BotSettings from './BotSettings';
 import ConversionTypesSettings from './ConversionTypesSettings';
 import CustomMetricsSettings from './CustomMetricsSettings';
+import AutomationSettings from './AutomationSettings';
 import SystemSettings from './SystemSettings';
 import PrivacySettings from './PrivacySettings';
 
@@ -20,6 +21,7 @@ const Settings = () => {
         { id: 'bots', title: t('settings.bots'), icon: ShieldBan, component: BotSettings },
         { id: 'conversions', title: t('settings.conversionTypes'), icon: RefreshCw, component: ConversionTypesSettings },
         { id: 'metrics', title: t('settings.customMetrics'), icon: BarChart2, component: CustomMetricsSettings },
+        { id: 'automation', title: t('settings.automation'), icon: Clock, component: AutomationSettings },
         { id: 'system', title: t('settings.system'), icon: HardDrive, component: SystemSettings },
         { id: 'privacy', title: t('settings.privacy'), icon: Shield, component: PrivacySettings },
     ];
