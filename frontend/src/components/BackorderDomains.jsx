@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
-import { Check, X, Search, Plus, Trash2, RefreshCw, Edit2, PlayCircle, AlertCircle } from 'lucide-react';
+import { Check, X, Search, Plus, Trash2, RefreshCw, Edit2, PlayCircle, AlertCircle, Download } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import InfoBanner from './InfoBanner';
 
@@ -33,11 +33,13 @@ const BackorderDomains = () => {
     const [selectedIds, setSelectedIds] = useState(new Set());
     const [batchRunning, setBatchRunning] = useState(false);
     const [batchMsg, setBatchMsg] = useState('');
+    const [batchTotalChecked, setBatchTotalChecked] = useState(0);
     const [autoRun, setAutoRun] = useState(() => {
         const v = localStorage.getItem('backorder_auto_run');
         return v === null ? true : (v !== '0');
     });
     const stopRef = useRef(false);
+    const autoLoopRef = useRef(false);
 
     const neverCheckedCount = useMemo(() => {
         return rows.filter(r => !r.last_checked_at).length;
@@ -61,8 +63,8 @@ const BackorderDomains = () => {
         ahrefs_ref_domains: '',
     });
 
-    const fetchRows = async () => {
-        setLoading(true);
+    const fetchRows = async ({ silent = false } = {}) => {
+        if (!silent) setLoading(true);
         try {
             const res = await axios.get(`${API_URL}?action=backorder_domains`);
             if (res.data.status === 'success') {
@@ -71,7 +73,7 @@ const BackorderDomains = () => {
         } catch (e) {
             console.error(e);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
 
@@ -79,9 +81,39 @@ const BackorderDomains = () => {
         fetchRows();
     }, []);
 
+    const runOneStep = async () => {
+        const res = await axios.post(`${API_URL}?action=backorder_check_batch`, { limit: 1 });
+        if (res.data.status !== 'success') {
+            const msg = res.data.message || t('common.error');
+            throw new Error(msg);
+        }
+
+        const data = res.data.data || {};
+        const checked = Number(data.checked || 0);
+        const neverChecked = data.domains?.never_checked;
+        const total = data.domains?.total;
+
+        if (checked > 0) {
+            setBatchTotalChecked(prev => prev + checked);
+        }
+
+        setBatchMsg(
+            t('backorder.batchProgress')
+                .replace('{session_checked}', String(batchTotalChecked + checked))
+                .replace('{never_checked}', String(neverChecked ?? '-'))
+                .replace('{total}', String(total ?? '-'))
+        );
+
+        // Refresh table without flickering the loading placeholder.
+        await fetchRows({ silent: true });
+
+        return { checked, neverChecked, total };
+    };
+
     const runBatch = async () => {
         if (batchRunning) return;
         setBatchRunning(true);
+        setBatchTotalChecked(0);
         setBatchMsg(t('backorder.batchStarting'));
         stopRef.current = false;
 
@@ -93,23 +125,7 @@ const BackorderDomains = () => {
                     break;
                 }
 
-                const res = await axios.post(`${API_URL}?action=backorder_check_batch`, { limit: 1 });
-                if (res.data.status !== 'success') {
-                    setBatchMsg(res.data.message || t('common.error'));
-                    break;
-                }
-
-                const data = res.data.data || {};
-                const checked = Number(data.checked || 0);
-                const neverChecked = data.domains?.never_checked;
-                const total = data.domains?.total;
-                setBatchMsg(t('backorder.batchProgress')
-                    .replace('{checked}', String(checked))
-                    .replace('{never_checked}', String(neverChecked ?? '-'))
-                    .replace('{total}', String(total ?? '-'))
-                );
-
-                await fetchRows();
+                const { checked, neverChecked } = await runOneStep();
 
                 if (checked <= 0) {
                     setBatchMsg(t('backorder.batchNothingToDo'));
@@ -125,7 +141,7 @@ const BackorderDomains = () => {
             }
         } catch (e) {
             console.error(e);
-            setBatchMsg(t('common.networkError'));
+            setBatchMsg(e?.message ? String(e.message) : t('common.networkError'));
         } finally {
             setBatchRunning(false);
         }
@@ -140,15 +156,52 @@ const BackorderDomains = () => {
         if (!autoRun) return;
         if (batchRunning) return;
         if (loading) return;
-
         if (neverCheckedCount <= 0) return;
+        if (autoLoopRef.current) return;
 
-        // Delay a bit so UI is responsive after initial load.
-        const id = setTimeout(() => {
-            runBatch();
-        }, 800);
+        autoLoopRef.current = true;
+        stopRef.current = false;
+        setBatchTotalChecked(0);
+        setBatchMsg(t('backorder.autoStarting'));
 
-        return () => clearTimeout(id);
+        let cancelled = false;
+
+        const loop = async () => {
+            while (!cancelled) {
+                if (!autoRun) break;
+                if (stopRef.current) break;
+
+                // If user started a manual run, let it take over.
+                if (batchRunning) break;
+
+                // Recompute from latest state: if no more pending, stop.
+                const pending = rows.filter(r => !r.last_checked_at).length;
+                if (pending <= 0) {
+                    setBatchMsg(t('backorder.autoIdle'));
+                    break;
+                }
+
+                try {
+                    await runOneStep();
+                } catch (e) {
+                    // If server is busy (lock) or transient error, keep retrying.
+                    setBatchMsg(e?.message ? String(e.message) : t('common.networkError'));
+                }
+
+                await new Promise(r => setTimeout(r, 800));
+            }
+
+            autoLoopRef.current = false;
+        };
+
+        // Run after a short delay so UI renders first.
+        const id = setTimeout(() => { loop(); }, 600);
+
+        return () => {
+            cancelled = true;
+            clearTimeout(id);
+            autoLoopRef.current = false;
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [autoRun, batchRunning, loading, neverCheckedCount]);
 
@@ -273,6 +326,46 @@ const BackorderDomains = () => {
         }
     };
 
+    const downloadText = (filename, content, mime = 'text/plain;charset=utf-8') => {
+        const blob = new Blob([content], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    };
+
+    const exportTxt = () => {
+        const lines = (rows || []).map(r => String(r.name || '').trim()).filter(Boolean);
+        const content = lines.join('\n') + (lines.length ? '\n' : '');
+        downloadText('backorder_domains.txt', content, 'text/plain;charset=utf-8');
+    };
+
+    const csvEscape = (v) => {
+        const s = v === null || v === undefined ? '' : String(v);
+        return `"${s.replace(/\"/g, '""')}"`;
+    };
+
+    const exportCsv = () => {
+        const header = ['domain', 'status', 'last_checked_at', 'last_http_code', 'last_error', 'last_rdap_url', 'notes'];
+        const lines = [header.join(',')];
+        (rows || []).forEach(r => {
+            lines.push([
+                csvEscape(r.name),
+                csvEscape(r.status),
+                csvEscape(r.last_checked_at),
+                csvEscape(r.last_http_code),
+                csvEscape(r.last_error),
+                csvEscape(r.last_rdap_url),
+                csvEscape(r.notes),
+            ].join(','));
+        });
+        downloadText('backorder_domains.csv', lines.join('\n') + '\n', 'text/csv;charset=utf-8');
+    };
+
     return (
         <div className="bg-white rounded shadow-sm p-5 mb-6">
             <InfoBanner storageKey="help_backorder" title={t('backorder.bannerTitle')}>
@@ -335,6 +428,22 @@ const BackorderDomains = () => {
                         />
                         <span className="text-gray-700">{t('backorder.autoRunLabel')}</span>
                     </label>
+
+                    <button
+                        onClick={exportTxt}
+                        className="bg-white hover:bg-gray-50 text-gray-800 px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition border border-gray-200"
+                        title={t('backorder.exportTxtHint')}
+                    >
+                        <Download size={16} /> {t('backorder.exportTxt')}
+                    </button>
+
+                    <button
+                        onClick={exportCsv}
+                        className="bg-white hover:bg-gray-50 text-gray-800 px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition border border-gray-200"
+                        title={t('backorder.exportCsvHint')}
+                    >
+                        <Download size={16} /> {t('backorder.exportCsv')}
+                    </button>
 
                     <button
                         onClick={() => {

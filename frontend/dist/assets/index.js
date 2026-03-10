@@ -16308,7 +16308,7 @@ const ru = {
   },
   backorder: {
     bannerTitle: "Отложенный мониторинг доменов",
-    bannerText: "Добавьте список доменов и проверяйте доступность для регистрации. Проверка идет постепенно (по 1 домену за раз) и может запускаться из интерфейса. Для проверки 24/7 на сервере настройте cron на backorder_cron.php.",
+    bannerText: "Добавьте список доменов и проверяйте доступность для регистрации. По умолчанию включена автопроверка (пока открыта страница) и проверка идет постепенно (по 1 домену за раз). Для проверки 24/7 на сервере настройте cron на backorder_cron.php.",
     import: "Импорт",
     importTitle: "Импорт доменов",
     importPlaceholder: "example.com\nanotherdomain.net\n...",
@@ -16327,11 +16327,17 @@ const ru = {
     batchRun: "Запустить проверку",
     batchRunning: "Проверяем...",
     batchStarting: "Запуск пакетной проверки...",
-    batchProgress: "Проверено: {checked}. Осталось (не проверено): {never_checked} из {total}.",
+    batchProgress: "Проверено за сессию: {session_checked}. Осталось (не проверено): {never_checked} из {total}.",
     batchDone: "Готово: все домены были проверены хотя бы один раз.",
     batchNothingToDo: "Нечего проверять (список пуст или всё уже проверено).",
     batchStopped: "Остановлено",
     autoRunLabel: "Автопроверка (пока открыта страница)",
+    autoStarting: "Автопроверка запущена...",
+    autoIdle: "Автопроверка: нет непроверенных доменов.",
+    exportTxt: "TXT",
+    exportTxtHint: "Скачать список доменов (1 домен на строку). Удобно для Ahrefs/Semrush/скриптов.",
+    exportCsv: "CSV",
+    exportCsvHint: "Скачать таблицу доменов со статусами и ошибками.",
     statusAvailable: "Свободен",
     statusRegistered: "Занят",
     statusUnknown: "Ожидает проверки",
@@ -17927,7 +17933,7 @@ const en = {
   },
   backorder: {
     bannerTitle: "Backorder Domain Monitor",
-    bannerText: "Add a list of domains and check registration availability. Checks run gradually (1 domain per step) and can be started from the UI. For 24/7 checks on the server, set up cron to run backorder_cron.php.",
+    bannerText: "Add a list of domains and check registration availability. Auto-check is enabled by default (while the page is open) and runs gradually (1 domain per step). For 24/7 checks on the server, set up cron to run backorder_cron.php.",
     import: "Import",
     importTitle: "Import domains",
     importPlaceholder: "example.com\nanotherdomain.net\n...",
@@ -17946,11 +17952,17 @@ const en = {
     batchRun: "Run checks",
     batchRunning: "Checking...",
     batchStarting: "Starting batch checks...",
-    batchProgress: "Checked: {checked}. Remaining (never checked): {never_checked} of {total}.",
+    batchProgress: "Checked this session: {session_checked}. Remaining (never checked): {never_checked} of {total}.",
     batchDone: "Done: all domains have been checked at least once.",
     batchNothingToDo: "Nothing to check (empty list or already checked).",
     batchStopped: "Stopped",
     autoRunLabel: "Auto-check (while page is open)",
+    autoStarting: "Auto-check started...",
+    autoIdle: "Auto-check: no pending domains.",
+    exportTxt: "TXT",
+    exportTxtHint: "Download domain list (1 domain per line). Useful for Ahrefs/Semrush/scripts.",
+    exportCsv: "CSV",
+    exportCsvHint: "Download a table with domains, statuses, and errors.",
     statusAvailable: "Available",
     statusRegistered: "Registered",
     statusUnknown: "Pending",
@@ -32805,11 +32817,13 @@ const BackorderDomains = () => {
   const [selectedIds, setSelectedIds] = reactExports.useState(/* @__PURE__ */ new Set());
   const [batchRunning, setBatchRunning] = reactExports.useState(false);
   const [batchMsg, setBatchMsg] = reactExports.useState("");
+  const [batchTotalChecked, setBatchTotalChecked] = reactExports.useState(0);
   const [autoRun, setAutoRun] = reactExports.useState(() => {
     const v = localStorage.getItem("backorder_auto_run");
     return v === null ? true : v !== "0";
   });
   const stopRef = reactExports.useRef(false);
+  const autoLoopRef = reactExports.useRef(false);
   const neverCheckedCount = reactExports.useMemo(() => {
     return rows.filter((r2) => !r2.last_checked_at).length;
   }, [rows]);
@@ -32827,8 +32841,8 @@ const BackorderDomains = () => {
     ahrefs_ur: "",
     ahrefs_ref_domains: ""
   });
-  const fetchRows = async () => {
-    setLoading(true);
+  const fetchRows = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     try {
       const res = await axios.get(`${API_URL$A}?action=backorder_domains`);
       if (res.data.status === "success") {
@@ -32837,15 +32851,35 @@ const BackorderDomains = () => {
     } catch (e) {
       console.error(e);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
   reactExports.useEffect(() => {
     fetchRows();
   }, []);
+  const runOneStep = async () => {
+    const res = await axios.post(`${API_URL$A}?action=backorder_check_batch`, { limit: 1 });
+    if (res.data.status !== "success") {
+      const msg = res.data.message || t2("common.error");
+      throw new Error(msg);
+    }
+    const data = res.data.data || {};
+    const checked = Number(data.checked || 0);
+    const neverChecked = data.domains?.never_checked;
+    const total = data.domains?.total;
+    if (checked > 0) {
+      setBatchTotalChecked((prev) => prev + checked);
+    }
+    setBatchMsg(
+      t2("backorder.batchProgress").replace("{session_checked}", String(batchTotalChecked + checked)).replace("{never_checked}", String(neverChecked ?? "-")).replace("{total}", String(total ?? "-"))
+    );
+    await fetchRows({ silent: true });
+    return { checked, neverChecked, total };
+  };
   const runBatch = async () => {
     if (batchRunning) return;
     setBatchRunning(true);
+    setBatchTotalChecked(0);
     setBatchMsg(t2("backorder.batchStarting"));
     stopRef.current = false;
     try {
@@ -32854,19 +32888,7 @@ const BackorderDomains = () => {
           setBatchMsg(t2("backorder.batchStopped"));
           break;
         }
-        const res = await axios.post(`${API_URL$A}?action=backorder_check_batch`, { limit: 1 });
-        if (res.data.status !== "success") {
-          setBatchMsg(res.data.message || t2("common.error"));
-          break;
-        }
-        const data = res.data.data || {};
-        const checked = Number(data.checked || 0);
-        const neverChecked = data.domains?.never_checked;
-        const total = data.domains?.total;
-        setBatchMsg(
-          t2("backorder.batchProgress").replace("{checked}", String(checked)).replace("{never_checked}", String(neverChecked ?? "-")).replace("{total}", String(total ?? "-"))
-        );
-        await fetchRows();
+        const { checked, neverChecked } = await runOneStep();
         if (checked <= 0) {
           setBatchMsg(t2("backorder.batchNothingToDo"));
           break;
@@ -32879,7 +32901,7 @@ const BackorderDomains = () => {
       }
     } catch (e) {
       console.error(e);
-      setBatchMsg(t2("common.networkError"));
+      setBatchMsg(e?.message ? String(e.message) : t2("common.networkError"));
     } finally {
       setBatchRunning(false);
     }
@@ -32892,10 +32914,39 @@ const BackorderDomains = () => {
     if (batchRunning) return;
     if (loading) return;
     if (neverCheckedCount <= 0) return;
+    if (autoLoopRef.current) return;
+    autoLoopRef.current = true;
+    stopRef.current = false;
+    setBatchTotalChecked(0);
+    setBatchMsg(t2("backorder.autoStarting"));
+    let cancelled = false;
+    const loop = async () => {
+      while (!cancelled) {
+        if (!autoRun) break;
+        if (stopRef.current) break;
+        if (batchRunning) break;
+        const pending = rows.filter((r2) => !r2.last_checked_at).length;
+        if (pending <= 0) {
+          setBatchMsg(t2("backorder.autoIdle"));
+          break;
+        }
+        try {
+          await runOneStep();
+        } catch (e) {
+          setBatchMsg(e?.message ? String(e.message) : t2("common.networkError"));
+        }
+        await new Promise((r2) => setTimeout(r2, 800));
+      }
+      autoLoopRef.current = false;
+    };
     const id = setTimeout(() => {
-      runBatch();
-    }, 800);
-    return () => clearTimeout(id);
+      loop();
+    }, 600);
+    return () => {
+      cancelled = true;
+      clearTimeout(id);
+      autoLoopRef.current = false;
+    };
   }, [autoRun, batchRunning, loading, neverCheckedCount]);
   const filtered = reactExports.useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
@@ -33008,6 +33059,42 @@ const BackorderDomains = () => {
       setImportError(t2("common.networkError"));
     }
   };
+  const downloadText = (filename, content, mime = "text/plain;charset=utf-8") => {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+  const exportTxt = () => {
+    const lines = (rows || []).map((r2) => String(r2.name || "").trim()).filter(Boolean);
+    const content = lines.join("\n") + (lines.length ? "\n" : "");
+    downloadText("backorder_domains.txt", content, "text/plain;charset=utf-8");
+  };
+  const csvEscape = (v) => {
+    const s = v === null || v === void 0 ? "" : String(v);
+    return `"${s.replace(/\"/g, '""')}"`;
+  };
+  const exportCsv = () => {
+    const header = ["domain", "status", "last_checked_at", "last_http_code", "last_error", "last_rdap_url", "notes"];
+    const lines = [header.join(",")];
+    (rows || []).forEach((r2) => {
+      lines.push([
+        csvEscape(r2.name),
+        csvEscape(r2.status),
+        csvEscape(r2.last_checked_at),
+        csvEscape(r2.last_http_code),
+        csvEscape(r2.last_error),
+        csvEscape(r2.last_rdap_url),
+        csvEscape(r2.notes)
+      ].join(","));
+    });
+    downloadText("backorder_domains.csv", lines.join("\n") + "\n", "text/csv;charset=utf-8");
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded shadow-sm p-5 mb-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_backorder", title: t2("backorder.bannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("backorder.bannerText") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-6", children: [
@@ -33082,6 +33169,32 @@ const BackorderDomains = () => {
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-700", children: t2("backorder.autoRunLabel") })
         ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: exportTxt,
+            className: "bg-white hover:bg-gray-50 text-gray-800 px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition border border-gray-200",
+            title: t2("backorder.exportTxtHint"),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16 }),
+              " ",
+              t2("backorder.exportTxt")
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: exportCsv,
+            className: "bg-white hover:bg-gray-50 text-gray-800 px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition border border-gray-200",
+            title: t2("backorder.exportCsvHint"),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16 }),
+              " ",
+              t2("backorder.exportCsv")
+            ]
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
