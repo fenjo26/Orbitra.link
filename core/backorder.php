@@ -1,6 +1,6 @@
 <?php
 // core/backorder.php
-// Lightweight RDAP-based domain availability checks with an optional IANA bootstrap cache.
+// Domain availability checks via RDAP (preferred) with WHOIS fallback for unsupported TLDs.
 
 /**
  * Normalize input into a bare domain name.
@@ -153,6 +153,266 @@ function orbitraBackorderBuildRdapUrl(string $base, string $domain): string
     return $base . 'domain/' . rawurlencode($domain);
 }
 
+function orbitraBackorderGetWhoisTldMap(int $ttlSeconds = 604800): array
+{
+    $cacheDir = orbitraBackorderGetCacheDir();
+    if (!is_dir($cacheDir)) {
+        @mkdir($cacheDir, 0777, true);
+    }
+
+    $cacheFile = $cacheDir . '/whois_tld_map.json';
+    $now = time();
+
+    if (is_readable($cacheFile)) {
+        $mtime = filemtime($cacheFile) ?: 0;
+        if (($now - $mtime) < $ttlSeconds) {
+            $json = @file_get_contents($cacheFile);
+            $data = is_string($json) ? json_decode($json, true) : null;
+            if (is_array($data)) {
+                return $data;
+            }
+        }
+    }
+
+    return [];
+}
+
+function orbitraBackorderSaveWhoisTldMap(array $map): void
+{
+    $cacheDir = orbitraBackorderGetCacheDir();
+    if (!is_dir($cacheDir)) {
+        @mkdir($cacheDir, 0777, true);
+    }
+    $cacheFile = $cacheDir . '/whois_tld_map.json';
+    @file_put_contents($cacheFile, json_encode($map, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+}
+
+/**
+ * Perform a raw WHOIS query (port 43).
+ *
+ * @return array{ok:bool,error:?string,raw:?string}
+ */
+function orbitraBackorderWhoisRawQuery(string $server, string $query, int $timeoutSeconds = 10): array
+{
+    $server = trim($server);
+    if ($server === '') {
+        return ['ok' => false, 'error' => 'WHOIS server is empty', 'raw' => null];
+    }
+
+    $errno = 0;
+    $errstr = '';
+    $fp = @fsockopen($server, 43, $errno, $errstr, max(1, $timeoutSeconds));
+    if (!$fp) {
+        return ['ok' => false, 'error' => $errstr ?: ('WHOIS connection failed (' . $errno . ')'), 'raw' => null];
+    }
+
+    // Apply read/write timeouts.
+    stream_set_timeout($fp, max(1, $timeoutSeconds));
+    @fwrite($fp, $query . "\r\n");
+
+    $buf = '';
+    while (!feof($fp)) {
+        $chunk = fgets($fp, 4096);
+        if ($chunk === false) {
+            break;
+        }
+        $buf .= $chunk;
+        // Safety: cap to avoid huge responses blowing memory/DB.
+        if (strlen($buf) > 200000) {
+            break;
+        }
+    }
+
+    $meta = stream_get_meta_data($fp);
+    fclose($fp);
+
+    if (!empty($meta['timed_out'])) {
+        return ['ok' => false, 'error' => 'WHOIS timed out', 'raw' => null];
+    }
+
+    $raw = trim($buf);
+    if ($raw === '') {
+        return ['ok' => false, 'error' => 'Empty WHOIS response', 'raw' => null];
+    }
+
+    return ['ok' => true, 'error' => null, 'raw' => $raw];
+}
+
+function orbitraBackorderDiscoverWhoisServer(string $tld, int $timeoutSeconds = 8): ?string
+{
+    $tld = strtolower(trim($tld, ". \t\n\r\0\x0B"));
+    if ($tld === '') {
+        return null;
+    }
+
+    // IANA WHOIS meta server returns a record with `whois:` field for many TLDs.
+    $res = orbitraBackorderWhoisRawQuery('whois.iana.org', $tld, $timeoutSeconds);
+    if (!$res['ok'] || !is_string($res['raw'])) {
+        return null;
+    }
+
+    if (preg_match('/^whois:\\s*(\\S+)\\s*$/mi', $res['raw'], $m)) {
+        $server = strtolower(trim($m[1]));
+        return $server !== '' ? $server : null;
+    }
+
+    return null;
+}
+
+function orbitraBackorderGetWhoisServerForTld(string $tld): ?string
+{
+    $tld = strtolower(trim($tld, ". \t\n\r\0\x0B"));
+    if ($tld === '') {
+        return null;
+    }
+
+    $map = orbitraBackorderGetWhoisTldMap();
+    if (isset($map[$tld]) && is_string($map[$tld]) && $map[$tld] !== '') {
+        return $map[$tld];
+    }
+
+    $server = orbitraBackorderDiscoverWhoisServer($tld);
+    if (is_string($server) && $server !== '') {
+        $map[$tld] = $server;
+        orbitraBackorderSaveWhoisTldMap($map);
+        return $server;
+    }
+
+    return null;
+}
+
+/**
+ * Best-effort interpretation of WHOIS response.
+ * Not standardized across registries; keep it conservative.
+ */
+function orbitraBackorderInterpretWhois(string $raw): string
+{
+    $s = strtolower($raw);
+
+    // Strong signals of "not found" across many WHOIS servers.
+    $notFound = [
+        'no match',
+        'not found',
+        'no entries found',
+        'no data found',
+        'nothing found',
+        'no object found',
+        'domain not found',
+        'no such domain',
+        'status: free',
+        'available for registration',
+        'is free',
+        'is available',
+        'no information available about domain name',
+        'the domain has not been registered',
+    ];
+
+    // Strong signals of "registered".
+    $registered = [
+        'domain name:',
+        'registry domain id:',
+        'registrar:',
+        'creation date:',
+        'created:',
+        'paid-till:',
+        'expires:',
+        'expiry date:',
+        'expiration date:',
+        'nserver:',
+        'name server:',
+        'status:',
+        'domain:',
+    ];
+
+    $hasRegistered = false;
+    foreach ($registered as $needle) {
+        if (strpos($s, $needle) !== false) {
+            $hasRegistered = true;
+            break;
+        }
+    }
+
+    $hasNotFound = false;
+    foreach ($notFound as $needle) {
+        if (strpos($s, $needle) !== false) {
+            $hasNotFound = true;
+            break;
+        }
+    }
+
+    // If both appear, prefer "registered" to avoid false availability.
+    if ($hasRegistered) {
+        // Some servers include "not found" as part of policy text; registered signals usually mean it's taken.
+        return 'registered';
+    }
+    if ($hasNotFound) {
+        return 'available';
+    }
+
+    return 'unknown';
+}
+
+/**
+ * WHOIS-based check (fallback for TLDs without RDAP bootstrap entries).
+ *
+ * @return array{status:string,http_code:int,rdap_url:?string,error:?string,result_json:?string}
+ */
+function orbitraBackorderWhoisCheck(string $domain, int $timeoutSeconds = 12): array
+{
+    if (!orbitraBackorderIsValidDomain($domain)) {
+        return [
+            'status' => 'error',
+            'http_code' => 0,
+            'rdap_url' => null,
+            'error' => 'Invalid domain format',
+            'result_json' => null,
+        ];
+    }
+
+    $tld = orbitraBackorderExtractTld($domain);
+    $server = orbitraBackorderGetWhoisServerForTld($tld);
+    if (!is_string($server) || $server === '') {
+        return [
+            'status' => 'unsupported',
+            'http_code' => 0,
+            'rdap_url' => null,
+            'error' => 'No WHOIS server found for this TLD',
+            'result_json' => null,
+        ];
+    }
+
+    $res = orbitraBackorderWhoisRawQuery($server, $domain, $timeoutSeconds);
+    if (!$res['ok'] || !is_string($res['raw'])) {
+        return [
+            'status' => 'error',
+            'http_code' => 0,
+            'rdap_url' => 'whois://' . $server,
+            'error' => $res['error'] ?: 'WHOIS request failed',
+            'result_json' => null,
+        ];
+    }
+
+    $status = orbitraBackorderInterpretWhois($res['raw']);
+    if ($status === 'unknown') {
+        return [
+            'status' => 'error',
+            'http_code' => 0,
+            'rdap_url' => 'whois://' . $server,
+            'error' => 'Unrecognized WHOIS response',
+            // Keep payload small; this column is TEXT but should not grow unbounded.
+            'result_json' => substr($res['raw'], 0, 8192),
+        ];
+    }
+
+    return [
+        'status' => $status,
+        'http_code' => 0,
+        'rdap_url' => 'whois://' . $server,
+        'error' => null,
+        'result_json' => substr($res['raw'], 0, 8192),
+    ];
+}
+
 /**
  * Perform an RDAP check and return a structured result.
  *
@@ -253,4 +513,27 @@ function orbitraBackorderRdapCheck(string $domain, int $timeoutSeconds = 10): ar
         'error' => 'Unexpected RDAP response (HTTP ' . $code . ')',
         'result_json' => $resultJson,
     ];
+}
+
+/**
+ * Full check: RDAP first, WHOIS fallback when RDAP is unsupported for this TLD.
+ *
+ * @return array{status:string,http_code:int,rdap_url:?string,error:?string,result_json:?string}
+ */
+function orbitraBackorderCheck(string $domain, int $timeoutSeconds = 10): array
+{
+    $rdap = orbitraBackorderRdapCheck($domain, $timeoutSeconds);
+    if (($rdap['status'] ?? '') !== 'unsupported') {
+        return $rdap;
+    }
+
+    // RDAP unsupported for this TLD. Try WHOIS as best-effort fallback.
+    $whois = orbitraBackorderWhoisCheck($domain, max(10, $timeoutSeconds));
+
+    // If WHOIS also unsupported, keep original RDAP unsupported reason (more specific).
+    if (($whois['status'] ?? '') === 'unsupported') {
+        return $rdap;
+    }
+
+    return $whois;
 }

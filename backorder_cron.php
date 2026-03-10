@@ -88,7 +88,7 @@ try {
     $id = (int) $row['id'];
     $name = (string) $row['name'];
 
-    $check = orbitraBackorderRdapCheck($name);
+    $check = orbitraBackorderCheck($name);
 
     $pdo->prepare("
         UPDATE backorder_domains

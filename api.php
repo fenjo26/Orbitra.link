@@ -2114,7 +2114,7 @@ try {
             }
 
             $domainName = (string) $row['name'];
-            $check = orbitraBackorderRdapCheck($domainName);
+            $check = orbitraBackorderCheck($domainName);
 
             $pdo->prepare("
                 UPDATE backorder_domains
