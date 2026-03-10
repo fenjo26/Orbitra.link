@@ -1591,6 +1591,7 @@ export default {
         updating: "Updating...",
         updatingTitle: "System Update",
         updateBtn: "Update",
+        forceConfirm: "The system says you're up to date (by version). Run git pull and update files anyway?",
         updateSuccess: "Update installed successfully",
         updateComplete: "Update Complete!",
         updateCompleteDesc: "You have the latest version installed",

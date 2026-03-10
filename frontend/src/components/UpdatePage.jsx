@@ -34,6 +34,13 @@ const UpdatePage = () => {
     }, []);
 
     const handleUpdate = async () => {
+        if (updateInfo && updateInfo.update_available === false) {
+            // Version-based checker may say "up to date" even when the user just wants to pull latest commits.
+            // Allow it for admins, but ask for confirmation to avoid confusing clicks.
+            const ok = window.confirm(t('update.forceConfirm'));
+            if (!ok) return;
+        }
+
         setUpdating(true);
         setUpdateSuccess(false);
         setMessage('');
@@ -265,7 +272,7 @@ const UpdatePage = () => {
                             </div>
                             <button
                                 onClick={handleUpdate}
-                                disabled={updating || !updateInfo?.update_available}
+                                disabled={updating}
                                 className="btn btn-primary"
                                 style={{ minWidth: '140px' }}
                             >

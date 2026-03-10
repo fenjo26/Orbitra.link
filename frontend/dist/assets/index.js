@@ -17295,6 +17295,7 @@ const ru = {
     updating: "Обновление...",
     updatingTitle: "Обновление системы",
     updateBtn: "Обновить",
+    forceConfirm: "Система считает, что обновлений нет (по версии). Всё равно выполнить git pull и обновить файлы?",
     updateSuccess: "Обновление успешно установлено",
     updateComplete: "Обновление завершено!",
     updateCompleteDesc: "У вас установлена актуальная версия",
@@ -19096,6 +19097,7 @@ const en = {
     updating: "Updating...",
     updatingTitle: "System Update",
     updateBtn: "Update",
+    forceConfirm: "The system says you're up to date (by version). Run git pull and update files anyway?",
     updateSuccess: "Update installed successfully",
     updateComplete: "Update Complete!",
     updateCompleteDesc: "You have the latest version installed",
@@ -41681,6 +41683,10 @@ const UpdatePage = () => {
     checkUpdate();
   }, []);
   const handleUpdate = async () => {
+    if (updateInfo && updateInfo.update_available === false) {
+      const ok = window.confirm(t2("update.forceConfirm"));
+      if (!ok) return;
+    }
     setUpdating(true);
     setUpdateSuccess(false);
     setMessage("");
@@ -41847,7 +41853,7 @@ const UpdatePage = () => {
               "button",
               {
                 onClick: handleUpdate,
-                disabled: updating || !updateInfo?.update_available,
+                disabled: updating,
                 className: "btn btn-primary",
                 style: { minWidth: "140px" },
                 children: updating ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [

@@ -1400,6 +1400,7 @@ export default {
         updating: "Обновление...",
         updatingTitle: "Обновление системы",
         updateBtn: "Обновить",
+        forceConfirm: "Система считает, что обновлений нет (по версии). Всё равно выполнить git pull и обновить файлы?",
         updateSuccess: "Обновление успешно установлено",
         updateComplete: "Обновление завершено!",
         updateCompleteDesc: "У вас установлена актуальная версия",
