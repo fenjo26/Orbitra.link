@@ -16308,7 +16308,7 @@ const ru = {
   },
   backorder: {
     bannerTitle: "Отложенный мониторинг доменов",
-    bannerText: "Добавьте список доменов и проверяйте доступность для регистрации. По умолчанию включена автопроверка (пока открыта страница) и проверка идет постепенно (по 1 домену за раз). Для проверки 24/7 на сервере настройте cron на backorder_cron.php.",
+    bannerText: "Добавьте список доменов и проверяйте доступность для регистрации (Свободен/Занят). По умолчанию включена автопроверка (пока открыта страница) и проверка идет постепенно (по 1 домену за раз). Для проверки 24/7 без открытой страницы настройте cron на backorder_cron.php.",
     import: "Импорт",
     importTitle: "Импорт доменов",
     importPlaceholder: "example.com\nanotherdomain.net\n...",
@@ -16327,13 +16327,13 @@ const ru = {
     batchRun: "Запустить проверку",
     batchRunning: "Проверяем...",
     batchStarting: "Запуск пакетной проверки...",
-    batchProgress: "Проверено за сессию: {session_checked}. Осталось (не проверено): {never_checked} из {total}.",
-    batchDone: "Готово: все домены были проверены хотя бы один раз.",
-    batchNothingToDo: "Нечего проверять (список пуст или всё уже проверено).",
+    batchProgress: "Проверено за сессию: {session_checked}. Осталось к проверке: {due_remaining} из {due_total}.",
+    batchDone: "Готово: домены проверены в этом проходе.",
+    batchNothingToDo: "Нечего проверять (сейчас нет доменов к проверке).",
     batchStopped: "Остановлено",
     autoRunLabel: "Автопроверка (пока открыта страница)",
     autoStarting: "Автопроверка запущена...",
-    autoIdle: "Автопроверка: нет непроверенных доменов.",
+    autoIdle: "Автопроверка: сейчас нечего проверять (ожидаем интервал).",
     exportTxt: "TXT",
     exportTxtHint: "Скачать список доменов (1 домен на строку). Удобно для Ahrefs/Semrush/скриптов.",
     exportCsv: "CSV",
@@ -17194,21 +17194,39 @@ const ru = {
     copy: "Копировать",
     copied: "Скопировано",
     copyError: "Не удалось скопировать",
+    yes: "Да",
+    no: "Нет",
     refresh: "Обновить",
     saveSuccess: "Настройки сохранены",
     saveError: "Ошибка сохранения",
     loadError: "Ошибка загрузки",
     networkError: "Ошибка сети",
+    installSuccess: "Cron установлен",
+    installError: "Не удалось установить cron",
+    removeSuccess: "Cron удалён",
+    removeError: "Не удалось удалить cron",
     lastPing: "Последний ping cron",
     lastChecked: "Последняя проверка",
     lastDomain: "Последний домен",
     lastResult: "Последний результат",
     domainsTotal: "Всего доменов",
     domainsNeverChecked: "Не проверено ни разу",
+    cronFileTitle: "Cron из интерфейса (попытка установки)",
+    cronFileDesc: "Обычно веб-сервер (PHP) не имеет прав писать в /etc/cron.d. Если прав нет, используйте команды ниже (нужен root).",
+    cronFile: "Файл /etc/cron.d",
+    cronInstalled: "Установлен",
+    cronWritable: "Можно записать",
+    rootRequired: "Требуются права root",
+    installCron: "Установить cron",
+    removeCron: "Удалить cron",
+    cronUserHint: "Пользователь cron: {user}",
+    rootCommandsHint: "Если кнопки не работают (нет прав), выполните на сервере:",
+    installCommand: "Установка (создать файл):",
+    removeCommand: "Удаление:",
     rdapTitle: "RDAP bootstrap (IANA)",
     rdapBootstrapOk: "Кэш обновлён: {mtime} (возраст: {age})",
-    rdapBootstrapMissing: 'Кэш bootstrap не найден. Если часто видите статус "Нет RDAP", проверьте доступ сервера к https://data.iana.org/rdap/dns.json.',
-    rdapHint: 'Статус "Нет RDAP" появляется, когда для TLD не найден RDAP-сервис (или bootstrap не удалось загрузить, и используется минимальный fallback для .com/.net/.name).',
+    rdapBootstrapMissing: 'Кэш bootstrap не найден. Если часто видите статус "Нельзя проверить", проверьте доступ сервера к https://data.iana.org/rdap/dns.json.',
+    rdapHint: 'Статус "Нельзя проверить" появляется, когда для TLD не найден RDAP-сервис и не удалось определить статус через WHOIS (или bootstrap не удалось загрузить, и используется минимальный fallback для .com/.net/.name).',
     days: "дн",
     hours: "ч",
     minutes: "мин"
@@ -17933,7 +17951,7 @@ const en = {
   },
   backorder: {
     bannerTitle: "Backorder Domain Monitor",
-    bannerText: "Add a list of domains and check registration availability. Auto-check is enabled by default (while the page is open) and runs gradually (1 domain per step). For 24/7 checks on the server, set up cron to run backorder_cron.php.",
+    bannerText: "Add a list of domains and check registration availability (Available/Registered). Auto-check is enabled by default (while the page is open) and runs gradually (1 domain per step). For 24/7 checks without an open page, set up cron to run backorder_cron.php.",
     import: "Import",
     importTitle: "Import domains",
     importPlaceholder: "example.com\nanotherdomain.net\n...",
@@ -17952,13 +17970,13 @@ const en = {
     batchRun: "Run checks",
     batchRunning: "Checking...",
     batchStarting: "Starting batch checks...",
-    batchProgress: "Checked this session: {session_checked}. Remaining (never checked): {never_checked} of {total}.",
-    batchDone: "Done: all domains have been checked at least once.",
-    batchNothingToDo: "Nothing to check (empty list or already checked).",
+    batchProgress: "Checked this session: {session_checked}. Remaining to check: {due_remaining} of {due_total}.",
+    batchDone: "Done: domains checked in this pass.",
+    batchNothingToDo: "Nothing to check (no domains are due right now).",
     batchStopped: "Stopped",
     autoRunLabel: "Auto-check (while page is open)",
     autoStarting: "Auto-check started...",
-    autoIdle: "Auto-check: no pending domains.",
+    autoIdle: "Auto-check: nothing to do right now (waiting for interval).",
     exportTxt: "TXT",
     exportTxtHint: "Download domain list (1 domain per line). Useful for Ahrefs/Semrush/scripts.",
     exportCsv: "CSV",
@@ -18848,21 +18866,39 @@ const en = {
     copy: "Copy",
     copied: "Copied",
     copyError: "Copy failed",
+    yes: "Yes",
+    no: "No",
     refresh: "Refresh",
     saveSuccess: "Settings saved",
     saveError: "Save error",
     loadError: "Load error",
     networkError: "Network error",
+    installSuccess: "Cron installed",
+    installError: "Failed to install cron",
+    removeSuccess: "Cron removed",
+    removeError: "Failed to remove cron",
     lastPing: "Last cron ping",
     lastChecked: "Last check time",
     lastDomain: "Last domain",
     lastResult: "Last result",
     domainsTotal: "Total domains",
     domainsNeverChecked: "Never checked",
+    cronFileTitle: "Cron from UI (install attempt)",
+    cronFileDesc: "Usually the web server (PHP) cannot write to /etc/cron.d. If there are no permissions, use the commands below (root required).",
+    cronFile: "File /etc/cron.d",
+    cronInstalled: "Installed",
+    cronWritable: "Writable",
+    rootRequired: "Root privileges required",
+    installCron: "Install cron",
+    removeCron: "Remove cron",
+    cronUserHint: "Cron user: {user}",
+    rootCommandsHint: "If buttons do not work (no permissions), run on the server:",
+    installCommand: "Install (create file):",
+    removeCommand: "Remove:",
     rdapTitle: "RDAP bootstrap (IANA)",
     rdapBootstrapOk: "Cache updated: {mtime} (age: {age})",
-    rdapBootstrapMissing: 'Bootstrap cache not found. If you often see "No RDAP", check server access to https://data.iana.org/rdap/dns.json.',
-    rdapHint: '"No RDAP" is shown when no RDAP service is found for the TLD (or bootstrap cannot be fetched and a minimal fallback is used for .com/.net/.name).',
+    rdapBootstrapMissing: 'Bootstrap cache not found. If you often see "Cannot check", check server access to https://data.iana.org/rdap/dns.json.',
+    rdapHint: '"Cannot check" is shown when no RDAP service is found for the TLD and WHOIS cannot determine the status (or bootstrap cannot be fetched and a minimal fallback is used for .com/.net/.name).',
     days: "d",
     hours: "h",
     minutes: "min"
@@ -32824,7 +32860,12 @@ const BackorderDomains = () => {
   });
   const stopRef = reactExports.useRef(false);
   const autoLoopRef = reactExports.useRef(false);
-  const neverCheckedCount = reactExports.useMemo(() => {
+  const rowsRef = reactExports.useRef([]);
+  const sessionCheckedRef = reactExports.useRef(0);
+  const loadingRef = reactExports.useRef(true);
+  const batchRunningRef = reactExports.useRef(false);
+  const autoRunRef = reactExports.useRef(true);
+  reactExports.useMemo(() => {
     return rows.filter((r2) => !r2.last_checked_at).length;
   }, [rows]);
   const [showImport, setShowImport] = reactExports.useState(false);
@@ -32857,8 +32898,24 @@ const BackorderDomains = () => {
   reactExports.useEffect(() => {
     fetchRows();
   }, []);
-  const runOneStep = async () => {
-    const res = await axios.post(`${API_URL$A}?action=backorder_check_batch`, { limit: 1 });
+  reactExports.useEffect(() => {
+    rowsRef.current = rows;
+  }, [rows]);
+  reactExports.useEffect(() => {
+    loadingRef.current = loading;
+  }, [loading]);
+  reactExports.useEffect(() => {
+    batchRunningRef.current = batchRunning;
+  }, [batchRunning]);
+  reactExports.useEffect(() => {
+    autoRunRef.current = autoRun;
+  }, [autoRun]);
+  const runOneStep = async ({ runStartedAt = 0 } = {}) => {
+    const payload = { limit: 1 };
+    if (runStartedAt && Number(runStartedAt) > 0) {
+      payload.run_started_at = Number(runStartedAt);
+    }
+    const res = await axios.post(`${API_URL$A}?action=backorder_check_batch`, payload);
     if (res.data.status !== "success") {
       const msg = res.data.message || t2("common.error");
       throw new Error(msg);
@@ -32867,33 +32924,38 @@ const BackorderDomains = () => {
     const checked = Number(data.checked || 0);
     const neverChecked = data.domains?.never_checked;
     const total = data.domains?.total;
+    const dueRemaining = data.domains?.due_remaining;
+    const dueTotal = data.domains?.due_total;
     if (checked > 0) {
-      setBatchTotalChecked((prev) => prev + checked);
+      sessionCheckedRef.current += checked;
+      setBatchTotalChecked(sessionCheckedRef.current);
     }
     setBatchMsg(
-      t2("backorder.batchProgress").replace("{session_checked}", String(batchTotalChecked + checked)).replace("{never_checked}", String(neverChecked ?? "-")).replace("{total}", String(total ?? "-"))
+      t2("backorder.batchProgress").replace("{session_checked}", String(sessionCheckedRef.current)).replace("{due_remaining}", String(dueRemaining ?? "-")).replace("{due_total}", String(dueTotal ?? "-")).replace("{never_checked}", String(neverChecked ?? "-")).replace("{total}", String(total ?? "-"))
     );
     await fetchRows({ silent: true });
-    return { checked, neverChecked, total };
+    return { checked, neverChecked, total, dueRemaining, dueTotal };
   };
   const runBatch = async () => {
     if (batchRunning) return;
     setBatchRunning(true);
+    sessionCheckedRef.current = 0;
     setBatchTotalChecked(0);
     setBatchMsg(t2("backorder.batchStarting"));
     stopRef.current = false;
     try {
+      const runStartedAt = Math.floor(Date.now() / 1e3);
       for (let i = 0; i < 5e3; i++) {
         if (stopRef.current) {
           setBatchMsg(t2("backorder.batchStopped"));
           break;
         }
-        const { checked, neverChecked } = await runOneStep();
+        const { checked, dueRemaining, dueTotal } = await runOneStep({ runStartedAt });
         if (checked <= 0) {
           setBatchMsg(t2("backorder.batchNothingToDo"));
           break;
         }
-        if (neverChecked === 0) {
+        if (dueTotal === 0 || dueRemaining === 0) {
           setBatchMsg(t2("backorder.batchDone"));
           break;
         }
@@ -32910,32 +32972,44 @@ const BackorderDomains = () => {
     localStorage.setItem("backorder_auto_run", autoRun ? "1" : "0");
   }, [autoRun]);
   reactExports.useEffect(() => {
-    if (!autoRun) return;
-    if (batchRunning) return;
-    if (loading) return;
-    if (neverCheckedCount <= 0) return;
+    if (!autoRun) {
+      stopRef.current = true;
+      return;
+    }
     if (autoLoopRef.current) return;
     autoLoopRef.current = true;
     stopRef.current = false;
+    sessionCheckedRef.current = 0;
     setBatchTotalChecked(0);
-    setBatchMsg(t2("backorder.autoStarting"));
+    if (autoRunRef.current) {
+      setBatchMsg(t2("backorder.autoStarting"));
+    }
     let cancelled = false;
+    const sleep = (ms) => new Promise((r2) => setTimeout(r2, ms));
     const loop = async () => {
       while (!cancelled) {
-        if (!autoRun) break;
+        if (!autoRunRef.current) break;
         if (stopRef.current) break;
-        if (batchRunning) break;
-        const pending = rows.filter((r2) => !r2.last_checked_at).length;
-        if (pending <= 0) {
-          setBatchMsg(t2("backorder.autoIdle"));
-          break;
+        if (batchRunningRef.current) {
+          await sleep(800);
+          continue;
+        }
+        if (loadingRef.current) {
+          await sleep(800);
+          continue;
         }
         try {
-          await runOneStep();
+          const { checked } = await runOneStep();
+          if (checked <= 0) {
+            setBatchMsg(t2("backorder.autoIdle"));
+            await sleep(1e4);
+            continue;
+          }
         } catch (e) {
           setBatchMsg(e?.message ? String(e.message) : t2("common.networkError"));
+          await sleep(5e3);
         }
-        await new Promise((r2) => setTimeout(r2, 800));
+        await sleep(800);
       }
       autoLoopRef.current = false;
     };
@@ -32947,7 +33021,7 @@ const BackorderDomains = () => {
       clearTimeout(id);
       autoLoopRef.current = false;
     };
-  }, [autoRun, batchRunning, loading, neverCheckedCount]);
+  }, [autoRun]);
   const filtered = reactExports.useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     return rows.filter((r2) => {
@@ -39019,6 +39093,7 @@ const AutomationSettings = () => {
   const { t: t2 } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
   const [saving, setSaving] = reactExports.useState(false);
+  const [cronBusy, setCronBusy] = reactExports.useState(false);
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
   const [info, setInfo] = reactExports.useState(null);
   const [enabled, setEnabled] = reactExports.useState(true);
@@ -39082,12 +39157,66 @@ const AutomationSettings = () => {
       setSaving(false);
     }
   };
+  const installCron = async () => {
+    setCronBusy(true);
+    setMessage({ text: "", type: "" });
+    try {
+      const res = await fetch(`${API_URL$d}?action=backorder_install_cron`, { method: "POST" });
+      const data = await res.json();
+      if (data.status === "success") {
+        setMessage({ text: t2("automation.installSuccess"), type: "success" });
+        await fetchInfo();
+      } else {
+        setMessage({ text: data.message || t2("automation.installError"), type: "error" });
+      }
+    } catch (e) {
+      setMessage({ text: t2("automation.networkError"), type: "error" });
+    } finally {
+      setCronBusy(false);
+    }
+  };
+  const removeCron = async () => {
+    setCronBusy(true);
+    setMessage({ text: "", type: "" });
+    try {
+      const res = await fetch(`${API_URL$d}?action=backorder_remove_cron`, { method: "POST" });
+      const data = await res.json();
+      if (data.status === "success") {
+        setMessage({ text: t2("automation.removeSuccess"), type: "success" });
+        await fetchInfo();
+      } else {
+        setMessage({ text: data.message || t2("automation.removeError"), type: "error" });
+      }
+    } catch (e) {
+      setMessage({ text: t2("automation.networkError"), type: "error" });
+    } finally {
+      setCronBusy(false);
+    }
+  };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[var(--color-text-muted)]", children: t2("common.loading") }) });
   }
   const bootstrap = info?.rdap_bootstrap || {};
   const bootstrapOk = Boolean(bootstrap?.mtime);
   const bootstrapAge = formatAge(t2, bootstrap?.age_seconds);
+  const cronInstalled = Boolean(info?.cron_file_exists);
+  const cronDirWritable = Boolean(info?.cron_dir_writable);
+  const cronFile = info?.cron_file || "/etc/cron.d/orbitra-backorder";
+  const phpUser = info?.php_user || "www-data";
+  const cronFileInstallCmd = reactExports.useMemo(() => {
+    const script = info?.script_path || "backorder_cron.php";
+    const log = info?.log_path || "/var/log/orbitra_backorder.log";
+    const line = `*/3 * * * * ${phpUser} php ${script} >> ${log} 2>&1`;
+    return [
+      `sudo tee ${cronFile} > /dev/null <<'EOF'`,
+      `# Orbitra backorder checks`,
+      line,
+      `EOF`
+    ].join("\n");
+  }, [info, phpUser, cronFile]);
+  const cronFileRemoveCmd = reactExports.useMemo(() => {
+    return `sudo rm -f ${cronFile}`;
+  }, [cronFile]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 18, className: "text-[var(--color-primary)]" }),
@@ -39144,6 +39273,85 @@ const AutomationSettings = () => {
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint mt-2", children: t2("automation.cronHint") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 bg-white border border-gray-100 rounded p-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800", children: t2("automation.cronFileTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-[var(--color-text-muted)] mt-1", children: t2("automation.cronFileDesc") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 grid grid-cols-1 md:grid-cols-3 gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.cronFile") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: cronFile })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.cronInstalled") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800 mt-1", children: cronInstalled ? t2("automation.yes") : t2("automation.no") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.cronWritable") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800 mt-1", children: cronDirWritable ? t2("automation.yes") : t2("automation.no") }),
+              !cronDirWritable && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mt-1", children: t2("automation.rootRequired") })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex gap-2 flex-wrap", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: installCron,
+                className: "btn btn-primary",
+                disabled: cronBusy,
+                title: t2("automation.installCron"),
+                children: t2("automation.installCron")
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: removeCron,
+                className: "btn btn-secondary",
+                disabled: cronBusy,
+                title: t2("automation.removeCron"),
+                children: t2("automation.removeCron")
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 self-center", children: t2("automation.cronUserHint").replace("{user}", String(phpUser)) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.rootCommandsHint") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mb-1", children: t2("automation.installCommand") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-stretch", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "pre",
+                  {
+                    className: "flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto",
+                    style: { fontFamily: "monospace", fontSize: "12px", lineHeight: 1.5, margin: 0 },
+                    children: cronFileInstallCmd
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary", onClick: () => copyText(cronFileInstallCmd), title: t2("automation.copy"), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 }),
+                  t2("automation.copy")
+                ] })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mb-1", children: t2("automation.removeCommand") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-stretch", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "pre",
+                  {
+                    className: "flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto",
+                    style: { fontFamily: "monospace", fontSize: "12px", lineHeight: 1.5, margin: 0 },
+                    children: cronFileRemoveCmd
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary", onClick: () => copyText(cronFileRemoveCmd), title: t2("automation.copy"), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 }),
+                  t2("automation.copy")
+                ] })
+              ] })
+            ] })
+          ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 grid grid-cols-1 md:grid-cols-2 gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [

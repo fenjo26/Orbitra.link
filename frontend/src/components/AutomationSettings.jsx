@@ -19,6 +19,7 @@ const AutomationSettings = () => {
     const { t } = useLanguage();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [cronBusy, setCronBusy] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
 
     const [info, setInfo] = useState(null);
@@ -90,6 +91,44 @@ const AutomationSettings = () => {
         }
     };
 
+    const installCron = async () => {
+        setCronBusy(true);
+        setMessage({ text: '', type: '' });
+        try {
+            const res = await fetch(`${API_URL}?action=backorder_install_cron`, { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'success') {
+                setMessage({ text: t('automation.installSuccess'), type: 'success' });
+                await fetchInfo();
+            } else {
+                setMessage({ text: data.message || t('automation.installError'), type: 'error' });
+            }
+        } catch (e) {
+            setMessage({ text: t('automation.networkError'), type: 'error' });
+        } finally {
+            setCronBusy(false);
+        }
+    };
+
+    const removeCron = async () => {
+        setCronBusy(true);
+        setMessage({ text: '', type: '' });
+        try {
+            const res = await fetch(`${API_URL}?action=backorder_remove_cron`, { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'success') {
+                setMessage({ text: t('automation.removeSuccess'), type: 'success' });
+                await fetchInfo();
+            } else {
+                setMessage({ text: data.message || t('automation.removeError'), type: 'error' });
+            }
+        } catch (e) {
+            setMessage({ text: t('automation.networkError'), type: 'error' });
+        } finally {
+            setCronBusy(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="page-card">
@@ -101,6 +140,26 @@ const AutomationSettings = () => {
     const bootstrap = info?.rdap_bootstrap || {};
     const bootstrapOk = Boolean(bootstrap?.mtime);
     const bootstrapAge = formatAge(t, bootstrap?.age_seconds);
+    const cronInstalled = Boolean(info?.cron_file_exists);
+    const cronDirWritable = Boolean(info?.cron_dir_writable);
+    const cronFile = info?.cron_file || '/etc/cron.d/orbitra-backorder';
+    const phpUser = info?.php_user || 'www-data';
+
+    const cronFileInstallCmd = useMemo(() => {
+        const script = info?.script_path || 'backorder_cron.php';
+        const log = info?.log_path || '/var/log/orbitra_backorder.log';
+        const line = `*/3 * * * * ${phpUser} php ${script} >> ${log} 2>&1`;
+        return [
+            `sudo tee ${cronFile} > /dev/null <<'EOF'`,
+            `# Orbitra backorder checks`,
+            line,
+            `EOF`
+        ].join('\n');
+    }, [info, phpUser, cronFile]);
+
+    const cronFileRemoveCmd = useMemo(() => {
+        return `sudo rm -f ${cronFile}`;
+    }, [cronFile]);
 
     return (
         <div className="page-card">
@@ -160,6 +219,90 @@ const AutomationSettings = () => {
                             </button>
                         </div>
                         <p className="form-hint mt-2">{t('automation.cronHint')}</p>
+                    </div>
+
+                    <div className="mt-4 bg-white border border-gray-100 rounded p-3">
+                        <div className="text-sm font-semibold text-gray-800">{t('automation.cronFileTitle')}</div>
+                        <div className="text-sm text-[var(--color-text-muted)] mt-1">{t('automation.cronFileDesc')}</div>
+
+                        <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                                <div className="text-xs text-gray-500">{t('automation.cronFile')}</div>
+                                <div className="text-sm font-mono text-gray-800 mt-1">{cronFile}</div>
+                            </div>
+                            <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                                <div className="text-xs text-gray-500">{t('automation.cronInstalled')}</div>
+                                <div className="text-sm font-semibold text-gray-800 mt-1">
+                                    {cronInstalled ? t('automation.yes') : t('automation.no')}
+                                </div>
+                            </div>
+                            <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                                <div className="text-xs text-gray-500">{t('automation.cronWritable')}</div>
+                                <div className="text-sm font-semibold text-gray-800 mt-1">
+                                    {cronDirWritable ? t('automation.yes') : t('automation.no')}
+                                </div>
+                                {!cronDirWritable && (
+                                    <div className="text-xs text-gray-500 mt-1">{t('automation.rootRequired')}</div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="mt-3 flex gap-2 flex-wrap">
+                            <button
+                                onClick={installCron}
+                                className="btn btn-primary"
+                                disabled={cronBusy}
+                                title={t('automation.installCron')}
+                            >
+                                {t('automation.installCron')}
+                            </button>
+                            <button
+                                onClick={removeCron}
+                                className="btn btn-secondary"
+                                disabled={cronBusy}
+                                title={t('automation.removeCron')}
+                            >
+                                {t('automation.removeCron')}
+                            </button>
+                            <div className="text-xs text-gray-500 self-center">
+                                {t('automation.cronUserHint').replace('{user}', String(phpUser))}
+                            </div>
+                        </div>
+
+                        <div className="mt-3">
+                            <div className="text-xs text-gray-500">{t('automation.rootCommandsHint')}</div>
+                            <div className="mt-2">
+                                <div className="text-xs text-gray-500 mb-1">{t('automation.installCommand')}</div>
+                                <div className="flex gap-2 items-stretch">
+                                    <pre
+                                        className="flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto"
+                                        style={{ fontFamily: 'monospace', fontSize: '12px', lineHeight: 1.5, margin: 0 }}
+                                    >
+                                        {cronFileInstallCmd}
+                                    </pre>
+                                    <button className="btn btn-secondary" onClick={() => copyText(cronFileInstallCmd)} title={t('automation.copy')}>
+                                        <Copy size={16} />
+                                        {t('automation.copy')}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="mt-2">
+                                <div className="text-xs text-gray-500 mb-1">{t('automation.removeCommand')}</div>
+                                <div className="flex gap-2 items-stretch">
+                                    <pre
+                                        className="flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto"
+                                        style={{ fontFamily: 'monospace', fontSize: '12px', lineHeight: 1.5, margin: 0 }}
+                                    >
+                                        {cronFileRemoveCmd}
+                                    </pre>
+                                    <button className="btn btn-secondary" onClick={() => copyText(cronFileRemoveCmd)} title={t('automation.copy')}>
+                                        <Copy size={16} />
+                                        {t('automation.copy')}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -225,4 +368,3 @@ const AutomationSettings = () => {
 };
 
 export default AutomationSettings;
-

@@ -1,6 +1,7 @@
 <?php
 // backorder_cron.php
-// Cron worker: checks exactly one domain per run (oldest/never checked first).
+// Cron worker: checks exactly one "due" domain per run.
+// Due = never checked OR last_checked_at older than backorder_check_interval_sec (default 900s).
 //
 // Example cron (every 3 minutes):
 // */3 * * * * php /var/www/orbitra/backorder_cron.php >> /var/log/orbitra_backorder.log 2>&1
@@ -66,20 +67,35 @@ try {
         exit(0);
     }
 
-    // Pick one domain: never checked first, then oldest checked.
-    $stmt = $pdo->query("
+    // Check interval (seconds). No schema changes needed: stored in settings.
+    $intervalSec = 900;
+    try {
+        $v = $pdo->query("SELECT value FROM settings WHERE key='backorder_check_interval_sec'")->fetchColumn();
+        if (is_string($v) && $v !== '' && preg_match('/^\\d+$/', $v)) {
+            $intervalSec = max(15, (int) $v);
+        }
+    } catch (Throwable $e) {
+        // ignore
+    }
+    $cutoffEpoch = time() - $intervalSec;
+
+    // Pick one due domain: never checked first, then oldest checked.
+    $stmt = $pdo->prepare("
         SELECT id, name
         FROM backorder_domains
+        WHERE last_checked_at IS NULL
+           OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
         ORDER BY
             CASE WHEN last_checked_at IS NULL THEN 0 ELSE 1 END,
             COALESCE(last_checked_at, created_at) ASC
         LIMIT 1
     ");
+    $stmt->execute([':cutoff' => $cutoffEpoch]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$row) {
         orbitraCronSetSetting($pdo, 'backorder_cron_last_checked_at', $ts);
         orbitraCronSetSetting($pdo, 'backorder_cron_last_domain', '');
-        orbitraCronSetSetting($pdo, 'backorder_cron_last_status', 'empty');
+        orbitraCronSetSetting($pdo, 'backorder_cron_last_status', 'idle');
         orbitraCronSetSetting($pdo, 'backorder_cron_last_http_code', '0');
         orbitraCronSetSetting($pdo, 'backorder_cron_last_error', '');
         exit(0);

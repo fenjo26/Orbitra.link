@@ -40,6 +40,11 @@ const BackorderDomains = () => {
     });
     const stopRef = useRef(false);
     const autoLoopRef = useRef(false);
+    const rowsRef = useRef([]);
+    const sessionCheckedRef = useRef(0);
+    const loadingRef = useRef(true);
+    const batchRunningRef = useRef(false);
+    const autoRunRef = useRef(true);
 
     const neverCheckedCount = useMemo(() => {
         return rows.filter(r => !r.last_checked_at).length;
@@ -81,8 +86,29 @@ const BackorderDomains = () => {
         fetchRows();
     }, []);
 
-    const runOneStep = async () => {
-        const res = await axios.post(`${API_URL}?action=backorder_check_batch`, { limit: 1 });
+    useEffect(() => {
+        rowsRef.current = rows;
+    }, [rows]);
+
+    useEffect(() => {
+        loadingRef.current = loading;
+    }, [loading]);
+
+    useEffect(() => {
+        batchRunningRef.current = batchRunning;
+    }, [batchRunning]);
+
+    useEffect(() => {
+        autoRunRef.current = autoRun;
+    }, [autoRun]);
+
+    const runOneStep = async ({ runStartedAt = 0 } = {}) => {
+        const payload = { limit: 1 };
+        if (runStartedAt && Number(runStartedAt) > 0) {
+            payload.run_started_at = Number(runStartedAt);
+        }
+
+        const res = await axios.post(`${API_URL}?action=backorder_check_batch`, payload);
         if (res.data.status !== 'success') {
             const msg = res.data.message || t('common.error');
             throw new Error(msg);
@@ -92,14 +118,19 @@ const BackorderDomains = () => {
         const checked = Number(data.checked || 0);
         const neverChecked = data.domains?.never_checked;
         const total = data.domains?.total;
+        const dueRemaining = data.domains?.due_remaining;
+        const dueTotal = data.domains?.due_total;
 
         if (checked > 0) {
-            setBatchTotalChecked(prev => prev + checked);
+            sessionCheckedRef.current += checked;
+            setBatchTotalChecked(sessionCheckedRef.current);
         }
 
         setBatchMsg(
             t('backorder.batchProgress')
-                .replace('{session_checked}', String(batchTotalChecked + checked))
+                .replace('{session_checked}', String(sessionCheckedRef.current))
+                .replace('{due_remaining}', String(dueRemaining ?? '-'))
+                .replace('{due_total}', String(dueTotal ?? '-'))
                 .replace('{never_checked}', String(neverChecked ?? '-'))
                 .replace('{total}', String(total ?? '-'))
         );
@@ -107,17 +138,21 @@ const BackorderDomains = () => {
         // Refresh table without flickering the loading placeholder.
         await fetchRows({ silent: true });
 
-        return { checked, neverChecked, total };
+        return { checked, neverChecked, total, dueRemaining, dueTotal };
     };
 
     const runBatch = async () => {
         if (batchRunning) return;
         setBatchRunning(true);
+        sessionCheckedRef.current = 0;
         setBatchTotalChecked(0);
         setBatchMsg(t('backorder.batchStarting'));
         stopRef.current = false;
 
         try {
+            // Manual run: use a fixed cutoff so each domain is checked at most once per run.
+            const runStartedAt = Math.floor(Date.now() / 1000);
+
             // Reliable mode: check 1 domain per request so the UI can keep going without timeouts.
             for (let i = 0; i < 5000; i++) {
                 if (stopRef.current) {
@@ -125,13 +160,13 @@ const BackorderDomains = () => {
                     break;
                 }
 
-                const { checked, neverChecked } = await runOneStep();
+                const { checked, dueRemaining, dueTotal } = await runOneStep({ runStartedAt });
 
                 if (checked <= 0) {
                     setBatchMsg(t('backorder.batchNothingToDo'));
                     break;
                 }
-                if (neverChecked === 0) {
+                if (dueTotal === 0 || dueRemaining === 0) {
                     setBatchMsg(t('backorder.batchDone'));
                     break;
                 }
@@ -153,42 +188,53 @@ const BackorderDomains = () => {
     }, [autoRun]);
 
     useEffect(() => {
-        if (!autoRun) return;
-        if (batchRunning) return;
-        if (loading) return;
-        if (neverCheckedCount <= 0) return;
+        if (!autoRun) {
+            stopRef.current = true;
+            return;
+        }
         if (autoLoopRef.current) return;
 
         autoLoopRef.current = true;
         stopRef.current = false;
+        sessionCheckedRef.current = 0;
         setBatchTotalChecked(0);
-        setBatchMsg(t('backorder.autoStarting'));
+        if (autoRunRef.current) {
+            setBatchMsg(t('backorder.autoStarting'));
+        }
 
         let cancelled = false;
 
+        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
         const loop = async () => {
             while (!cancelled) {
-                if (!autoRun) break;
+                if (!autoRunRef.current) break;
                 if (stopRef.current) break;
 
                 // If user started a manual run, let it take over.
-                if (batchRunning) break;
-
-                // Recompute from latest state: if no more pending, stop.
-                const pending = rows.filter(r => !r.last_checked_at).length;
-                if (pending <= 0) {
-                    setBatchMsg(t('backorder.autoIdle'));
-                    break;
+                if (batchRunningRef.current) {
+                    await sleep(800);
+                    continue;
+                }
+                if (loadingRef.current) {
+                    await sleep(800);
+                    continue;
                 }
 
                 try {
-                    await runOneStep();
+                    const { checked } = await runOneStep();
+                    if (checked <= 0) {
+                        setBatchMsg(t('backorder.autoIdle'));
+                        await sleep(10000);
+                        continue;
+                    }
                 } catch (e) {
                     // If server is busy (lock) or transient error, keep retrying.
                     setBatchMsg(e?.message ? String(e.message) : t('common.networkError'));
+                    await sleep(5000);
                 }
 
-                await new Promise(r => setTimeout(r, 800));
+                await sleep(800);
             }
 
             autoLoopRef.current = false;
@@ -203,7 +249,7 @@ const BackorderDomains = () => {
             autoLoopRef.current = false;
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [autoRun, batchRunning, loading, neverCheckedCount]);
+    }, [autoRun]);
 
     const filtered = useMemo(() => {
         const q = searchTerm.trim().toLowerCase();

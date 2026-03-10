@@ -1910,11 +1910,24 @@ try {
                 $scriptPath = __DIR__ . '/backorder_cron.php';
             }
 
+            // Best-effort: detect the PHP process user (useful for /etc/cron.d user field).
+            $phpUser = 'www-data';
+            if (function_exists('posix_geteuid') && function_exists('posix_getpwuid')) {
+                $pw = @posix_getpwuid(@posix_geteuid());
+                if (is_array($pw) && !empty($pw['name']) && is_string($pw['name'])) {
+                    $phpUser = $pw['name'];
+                }
+            }
+
             $logDir = __DIR__ . '/var/log';
             if (!is_dir($logDir)) {
                 @mkdir($logDir, 0777, true);
             }
             $logPath = $logDir . '/backorder_cron.log';
+
+            $cronFile = '/etc/cron.d/orbitra-backorder';
+            $cronDirWritable = is_dir('/etc/cron.d') && is_writable('/etc/cron.d');
+            $cronFileExists = is_file($cronFile);
 
             $keys = [
                 'backorder_cron_enabled',
@@ -1935,6 +1948,17 @@ try {
 
             $enabled = $s['backorder_cron_enabled'] ?? '1';
 
+            // Re-check interval for "due" domains (used by cron + UI auto-run). Stored as seconds.
+            $checkIntervalSec = 900;
+            try {
+                $v = $pdo->query("SELECT value FROM settings WHERE key='backorder_check_interval_sec'")->fetchColumn();
+                if (is_string($v) && $v !== '' && preg_match('/^\\d+$/', $v)) {
+                    $checkIntervalSec = max(15, (int) $v);
+                }
+            } catch (Throwable $e) {
+                // ignore
+            }
+
             $total = (int) ($pdo->query("SELECT COUNT(*) FROM backorder_domains")->fetchColumn() ?: 0);
             $neverChecked = (int) ($pdo->query("SELECT COUNT(*) FROM backorder_domains WHERE last_checked_at IS NULL")->fetchColumn() ?: 0);
 
@@ -1950,8 +1974,13 @@ try {
                 'status' => 'success',
                 'data' => [
                     'enabled' => $enabled,
+                    'php_user' => $phpUser,
+                    'check_interval_sec' => $checkIntervalSec,
                     'script_path' => $scriptPath,
                     'log_path' => $logPath,
+                    'cron_file' => $cronFile,
+                    'cron_dir_writable' => $cronDirWritable ? 1 : 0,
+                    'cron_file_exists' => $cronFileExists ? 1 : 0,
                     'cron_examples' => [
                         ['id' => 'every_3_min', 'label' => '*/3 * * * *', 'value' => $cronEvery3min],
                         ['id' => 'every_1_min', 'label' => '* * * * *', 'value' => $cronEvery1min],
@@ -1974,6 +2003,85 @@ try {
                     ],
                 ]
             ]);
+            break;
+
+        case 'backorder_install_cron':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+
+            $cronDir = '/etc/cron.d';
+            $cronFile = $cronDir . '/orbitra-backorder';
+            if (!is_dir($cronDir) || !is_writable($cronDir)) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'No permission to write ' . $cronFile . '. Run the install command on the server as root.',
+                ]);
+                break;
+            }
+
+            $scriptPath = realpath(__DIR__ . '/backorder_cron.php');
+            if (!is_string($scriptPath) || $scriptPath === '') {
+                $scriptPath = __DIR__ . '/backorder_cron.php';
+            }
+
+            $logDir = __DIR__ . '/var/log';
+            if (!is_dir($logDir)) {
+                @mkdir($logDir, 0777, true);
+            }
+            $logPath = $logDir . '/backorder_cron.log';
+
+            $phpPath = trim((string) @shell_exec('command -v php 2>/dev/null'));
+            if ($phpPath === '') {
+                $phpPath = '/usr/bin/php';
+            }
+
+            // cron.d format requires an explicit user field.
+            $runUser = 'www-data';
+            if (function_exists('posix_geteuid') && function_exists('posix_getpwuid')) {
+                $pw = @posix_getpwuid(@posix_geteuid());
+                if (is_array($pw) && !empty($pw['name']) && is_string($pw['name'])) {
+                    $runUser = $pw['name'];
+                }
+            }
+            $line = "*/3 * * * * $runUser $phpPath " . escapeshellarg($scriptPath) . " >> " . escapeshellarg($logPath) . " 2>&1";
+            $content = "# Orbitra backorder checks (installed via UI)\n" . $line . "\n";
+
+            $ok = @file_put_contents($cronFile, $content);
+            if ($ok === false) {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to write cron file: ' . $cronFile]);
+                break;
+            }
+            @chmod($cronFile, 0644);
+
+            echo json_encode(['status' => 'success', 'data' => ['cron_file' => $cronFile, 'line' => $line]]);
+            break;
+
+        case 'backorder_remove_cron':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            $cronFile = '/etc/cron.d/orbitra-backorder';
+            if (!is_file($cronFile)) {
+                echo json_encode(['status' => 'success', 'data' => ['deleted' => 0]]);
+                break;
+            }
+            if (!is_writable($cronFile)) {
+                echo json_encode(['status' => 'error', 'message' => 'No permission to delete ' . $cronFile]);
+                break;
+            }
+            @unlink($cronFile);
+            echo json_encode(['status' => 'success', 'data' => ['deleted' => 1]]);
             break;
 
         case 'backorder_import':
@@ -2139,7 +2247,9 @@ try {
             break;
 
         case 'backorder_check_batch':
-            // Batch checker for UI: checks up to N domains per request (never checked first).
+            // Batch checker for UI: checks up to N "due" domains per request.
+            // Due = never checked OR last_checked_at older than a configured interval,
+            // OR (for manual "one pass") last_checked_at older than run_started_at.
             // This provides a "no-cron" workflow while keeping each request bounded.
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
@@ -2150,6 +2260,21 @@ try {
             $limit = isset($data['limit']) ? (int) $data['limit'] : 3;
             if ($limit <= 0) $limit = 3;
             if ($limit > 10) $limit = 10;
+
+            $runStartedAt = isset($data['run_started_at']) ? (int) $data['run_started_at'] : 0;
+
+            // Default re-check interval (seconds). Stored in settings; no schema changes needed.
+            $checkIntervalSec = 900;
+            try {
+                $v = $pdo->query("SELECT value FROM settings WHERE key='backorder_check_interval_sec'")->fetchColumn();
+                if (is_string($v) && $v !== '' && preg_match('/^\\d+$/', $v)) {
+                    $checkIntervalSec = max(15, (int) $v);
+                }
+            } catch (Throwable $e) {
+                // ignore
+            }
+
+            $cutoffEpoch = $runStartedAt > 0 ? $runStartedAt : (time() - $checkIntervalSec);
 
             $lockDir = __DIR__ . '/var/locks';
             if (!is_dir($lockDir)) {
@@ -2168,15 +2293,27 @@ try {
             $timeBudgetSeconds = 25.0;
 
             try {
+                $stmtDue = $pdo->prepare("
+                    SELECT COUNT(*)
+                    FROM backorder_domains
+                    WHERE last_checked_at IS NULL
+                       OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
+                ");
+                $stmtDue->execute([':cutoff' => $cutoffEpoch]);
+                $dueTotal = (int) ($stmtDue->fetchColumn() ?: 0);
+
                 while ($checked < $limit && (microtime(true) - $startedAt) < $timeBudgetSeconds) {
-                    $stmt = $pdo->query("
+                    $stmt = $pdo->prepare("
                         SELECT id, name
                         FROM backorder_domains
+                        WHERE last_checked_at IS NULL
+                           OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
                         ORDER BY
                             CASE WHEN last_checked_at IS NULL THEN 0 ELSE 1 END,
                             COALESCE(last_checked_at, created_at) ASC
                         LIMIT 1
                     ");
+                    $stmt->execute([':cutoff' => $cutoffEpoch]);
                     $row = $stmt->fetch(PDO::FETCH_ASSOC);
                     if (!$row) {
                         break;
@@ -2220,15 +2357,29 @@ try {
                 $neverChecked = (int) ($pdo->query("SELECT COUNT(*) FROM backorder_domains WHERE last_checked_at IS NULL")->fetchColumn() ?: 0);
                 $total = (int) ($pdo->query("SELECT COUNT(*) FROM backorder_domains")->fetchColumn() ?: 0);
 
+                $stmtDue2 = $pdo->prepare("
+                    SELECT COUNT(*)
+                    FROM backorder_domains
+                    WHERE last_checked_at IS NULL
+                       OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
+                ");
+                $stmtDue2->execute([':cutoff' => $cutoffEpoch]);
+                $dueRemaining = (int) ($stmtDue2->fetchColumn() ?: 0);
+
                 echo json_encode([
                     'status' => 'success',
                     'data' => [
                         'checked' => $checked,
                         'limit' => $limit,
                         'results' => $results,
+                        'run_started_at' => $runStartedAt > 0 ? $runStartedAt : null,
+                        'cutoff_epoch' => $cutoffEpoch,
+                        'check_interval_sec' => $checkIntervalSec,
                         'domains' => [
                             'total' => $total,
                             'never_checked' => $neverChecked,
+                            'due_total' => $dueTotal,
+                            'due_remaining' => $dueRemaining,
                         ],
                         'elapsed_ms' => (int) round((microtime(true) - $startedAt) * 1000),
                     ]
