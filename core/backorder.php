@@ -769,7 +769,12 @@ function orbitraBackorderCheck(string $domain, int $timeoutSeconds = 10): array
 
     $tld = orbitraBackorderExtractTld($domain);
     if (in_array($tld, ['gr', 'xn--qxam'], true)) {
+        // GR web endpoint sometimes returns intermittent 403; retry a couple of times.
         $gr = orbitraBackorderGrWebCheck($domain, max(10, $timeoutSeconds));
+        if (!in_array(($gr['status'] ?? ''), ['available', 'registered'], true)) {
+            usleep(200000);
+            $gr = orbitraBackorderGrWebCheck($domain, max(10, $timeoutSeconds));
+        }
         if (in_array(($gr['status'] ?? ''), ['available', 'registered'], true)) {
             return $gr;
         }

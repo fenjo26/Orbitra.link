@@ -16308,7 +16308,7 @@ const ru = {
   },
   backorder: {
     bannerTitle: "Отложенный мониторинг доменов",
-    bannerText: "Добавьте список доменов и проверяйте доступность через RDAP/WHOIS (без парсинга регистраторов и капчи). Для автоматической проверки можно настроить cron на backorder_cron.php, либо запустить проверку из интерфейса.",
+    bannerText: "Добавьте список доменов и проверяйте доступность для регистрации. Проверка идет постепенно (по 1 домену за раз) и может запускаться из интерфейса. Для проверки 24/7 на сервере настройте cron на backorder_cron.php.",
     import: "Импорт",
     importTitle: "Импорт доменов",
     importPlaceholder: "example.com\nanotherdomain.net\n...",
@@ -16330,6 +16330,8 @@ const ru = {
     batchProgress: "Проверено: {checked}. Осталось (не проверено): {never_checked} из {total}.",
     batchDone: "Готово: все домены были проверены хотя бы один раз.",
     batchNothingToDo: "Нечего проверять (список пуст или всё уже проверено).",
+    batchStopped: "Остановлено",
+    autoRunLabel: "Автопроверка (пока открыта страница)",
     statusAvailable: "Свободен",
     statusRegistered: "Занят",
     statusUnknown: "Ожидает проверки",
@@ -17925,7 +17927,7 @@ const en = {
   },
   backorder: {
     bannerTitle: "Backorder Domain Monitor",
-    bannerText: "Add a list of domains and check availability via RDAP/WHOIS (no registrar scraping, no captcha). For automatic checks you can set up cron to run backorder_cron.php, or run checks from the UI.",
+    bannerText: "Add a list of domains and check registration availability. Checks run gradually (1 domain per step) and can be started from the UI. For 24/7 checks on the server, set up cron to run backorder_cron.php.",
     import: "Import",
     importTitle: "Import domains",
     importPlaceholder: "example.com\nanotherdomain.net\n...",
@@ -17947,6 +17949,8 @@ const en = {
     batchProgress: "Checked: {checked}. Remaining (never checked): {never_checked} of {total}.",
     batchDone: "Done: all domains have been checked at least once.",
     batchNothingToDo: "Nothing to check (empty list or already checked).",
+    batchStopped: "Stopped",
+    autoRunLabel: "Auto-check (while page is open)",
     statusAvailable: "Available",
     statusRegistered: "Registered",
     statusUnknown: "Pending",
@@ -32801,6 +32805,14 @@ const BackorderDomains = () => {
   const [selectedIds, setSelectedIds] = reactExports.useState(/* @__PURE__ */ new Set());
   const [batchRunning, setBatchRunning] = reactExports.useState(false);
   const [batchMsg, setBatchMsg] = reactExports.useState("");
+  const [autoRun, setAutoRun] = reactExports.useState(() => {
+    const v = localStorage.getItem("backorder_auto_run");
+    return v === null ? true : v !== "0";
+  });
+  const stopRef = reactExports.useRef(false);
+  const neverCheckedCount = reactExports.useMemo(() => {
+    return rows.filter((r2) => !r2.last_checked_at).length;
+  }, [rows]);
   const [showImport, setShowImport] = reactExports.useState(false);
   const [importText, setImportText] = reactExports.useState("");
   const [importResult, setImportResult] = reactExports.useState(null);
@@ -32835,9 +32847,14 @@ const BackorderDomains = () => {
     if (batchRunning) return;
     setBatchRunning(true);
     setBatchMsg(t2("backorder.batchStarting"));
+    stopRef.current = false;
     try {
-      for (let i = 0; i < 500; i++) {
-        const res = await axios.post(`${API_URL$A}?action=backorder_check_batch`, { limit: 3 });
+      for (let i = 0; i < 5e3; i++) {
+        if (stopRef.current) {
+          setBatchMsg(t2("backorder.batchStopped"));
+          break;
+        }
+        const res = await axios.post(`${API_URL$A}?action=backorder_check_batch`, { limit: 1 });
         if (res.data.status !== "success") {
           setBatchMsg(res.data.message || t2("common.error"));
           break;
@@ -32858,7 +32875,7 @@ const BackorderDomains = () => {
           setBatchMsg(t2("backorder.batchDone"));
           break;
         }
-        await new Promise((r2) => setTimeout(r2, 300));
+        await new Promise((r2) => setTimeout(r2, 400));
       }
     } catch (e) {
       console.error(e);
@@ -32867,6 +32884,19 @@ const BackorderDomains = () => {
       setBatchRunning(false);
     }
   };
+  reactExports.useEffect(() => {
+    localStorage.setItem("backorder_auto_run", autoRun ? "1" : "0");
+  }, [autoRun]);
+  reactExports.useEffect(() => {
+    if (!autoRun) return;
+    if (batchRunning) return;
+    if (loading) return;
+    if (neverCheckedCount <= 0) return;
+    const id = setTimeout(() => {
+      runBatch();
+    }, 800);
+    return () => clearTimeout(id);
+  }, [autoRun, batchRunning, loading, neverCheckedCount]);
   const filtered = reactExports.useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     return rows.filter((r2) => {
@@ -33041,6 +33071,17 @@ const BackorderDomains = () => {
             ]
           }
         ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 px-3 py-2 rounded text-sm border border-gray-200 bg-white", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "checkbox",
+              checked: autoRun,
+              onChange: (e) => setAutoRun(Boolean(e.target.checked))
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-700", children: t2("backorder.autoRunLabel") })
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
@@ -33075,7 +33116,18 @@ const BackorderDomains = () => {
     ] }),
     batchMsg && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4 text-sm text-gray-700", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-2 bg-gray-50 border border-gray-100 rounded px-3 py-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-gray-400" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: batchMsg })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: batchMsg }),
+      batchRunning && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          onClick: () => {
+            stopRef.current = true;
+          },
+          className: "ml-2 text-xs text-gray-600 underline",
+          children: t2("common.cancel")
+        }
+      )
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left text-sm border-collapse", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-gray-50 border-b border-gray-100", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [

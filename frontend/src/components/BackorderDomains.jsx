@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { Check, X, Search, Plus, Trash2, RefreshCw, Edit2, PlayCircle, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -33,6 +33,15 @@ const BackorderDomains = () => {
     const [selectedIds, setSelectedIds] = useState(new Set());
     const [batchRunning, setBatchRunning] = useState(false);
     const [batchMsg, setBatchMsg] = useState('');
+    const [autoRun, setAutoRun] = useState(() => {
+        const v = localStorage.getItem('backorder_auto_run');
+        return v === null ? true : (v !== '0');
+    });
+    const stopRef = useRef(false);
+
+    const neverCheckedCount = useMemo(() => {
+        return rows.filter(r => !r.last_checked_at).length;
+    }, [rows]);
 
     // Import modal
     const [showImport, setShowImport] = useState(false);
@@ -74,12 +83,17 @@ const BackorderDomains = () => {
         if (batchRunning) return;
         setBatchRunning(true);
         setBatchMsg(t('backorder.batchStarting'));
+        stopRef.current = false;
 
         try {
-            // Keep it simple: loop small batches until all never-checked domains are processed,
-            // or until the server reports nothing was checked (empty list).
-            for (let i = 0; i < 500; i++) {
-                const res = await axios.post(`${API_URL}?action=backorder_check_batch`, { limit: 3 });
+            // Reliable mode: check 1 domain per request so the UI can keep going without timeouts.
+            for (let i = 0; i < 5000; i++) {
+                if (stopRef.current) {
+                    setBatchMsg(t('backorder.batchStopped'));
+                    break;
+                }
+
+                const res = await axios.post(`${API_URL}?action=backorder_check_batch`, { limit: 1 });
                 if (res.data.status !== 'success') {
                     setBatchMsg(res.data.message || t('common.error'));
                     break;
@@ -107,7 +121,7 @@ const BackorderDomains = () => {
                 }
 
                 // Small delay so we don't hammer the server.
-                await new Promise(r => setTimeout(r, 300));
+                await new Promise(r => setTimeout(r, 400));
             }
         } catch (e) {
             console.error(e);
@@ -116,6 +130,27 @@ const BackorderDomains = () => {
             setBatchRunning(false);
         }
     };
+
+    // Auto-run checks while the page is open (default ON).
+    useEffect(() => {
+        localStorage.setItem('backorder_auto_run', autoRun ? '1' : '0');
+    }, [autoRun]);
+
+    useEffect(() => {
+        if (!autoRun) return;
+        if (batchRunning) return;
+        if (loading) return;
+
+        if (neverCheckedCount <= 0) return;
+
+        // Delay a bit so UI is responsive after initial load.
+        const id = setTimeout(() => {
+            runBatch();
+        }, 800);
+
+        return () => clearTimeout(id);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [autoRun, batchRunning, loading, neverCheckedCount]);
 
     const filtered = useMemo(() => {
         const q = searchTerm.trim().toLowerCase();
@@ -292,6 +327,15 @@ const BackorderDomains = () => {
                         <PlayCircle size={16} /> {batchRunning ? t('backorder.batchRunning') : t('backorder.batchRun')}
                     </button>
 
+                    <label className="inline-flex items-center gap-2 px-3 py-2 rounded text-sm border border-gray-200 bg-white">
+                        <input
+                            type="checkbox"
+                            checked={autoRun}
+                            onChange={(e) => setAutoRun(Boolean(e.target.checked))}
+                        />
+                        <span className="text-gray-700">{t('backorder.autoRunLabel')}</span>
+                    </label>
+
                     <button
                         onClick={() => {
                             setImportResult(null);
@@ -322,6 +366,15 @@ const BackorderDomains = () => {
                     <span className="inline-flex items-center gap-2 bg-gray-50 border border-gray-100 rounded px-3 py-2">
                         <AlertCircle size={16} className="text-gray-400" />
                         <span>{batchMsg}</span>
+                        {batchRunning && (
+                            <button
+                                type="button"
+                                onClick={() => { stopRef.current = true; }}
+                                className="ml-2 text-xs text-gray-600 underline"
+                            >
+                                {t('common.cancel')}
+                            </button>
+                        )}
                     </span>
                 </div>
             )}

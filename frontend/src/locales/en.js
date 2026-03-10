@@ -413,7 +413,7 @@ export default {
     },
     backorder: {
         bannerTitle: "Backorder Domain Monitor",
-        bannerText: "Add a list of domains and check availability via RDAP/WHOIS (no registrar scraping, no captcha). For automatic checks you can set up cron to run backorder_cron.php, or run checks from the UI.",
+        bannerText: "Add a list of domains and check registration availability. Checks run gradually (1 domain per step) and can be started from the UI. For 24/7 checks on the server, set up cron to run backorder_cron.php.",
         import: "Import",
         importTitle: "Import domains",
         importPlaceholder: "example.com\nanotherdomain.net\n...",
@@ -435,6 +435,8 @@ export default {
         batchProgress: "Checked: {checked}. Remaining (never checked): {never_checked} of {total}.",
         batchDone: "Done: all domains have been checked at least once.",
         batchNothingToDo: "Nothing to check (empty list or already checked).",
+        batchStopped: "Stopped",
+        autoRunLabel: "Auto-check (while page is open)",
         statusAvailable: "Available",
         statusRegistered: "Registered",
         statusUnknown: "Pending",

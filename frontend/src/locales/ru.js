@@ -413,7 +413,7 @@ export default {
     },
     backorder: {
         bannerTitle: "Отложенный мониторинг доменов",
-        bannerText: "Добавьте список доменов и проверяйте доступность через RDAP/WHOIS (без парсинга регистраторов и капчи). Для автоматической проверки можно настроить cron на backorder_cron.php, либо запустить проверку из интерфейса.",
+        bannerText: "Добавьте список доменов и проверяйте доступность для регистрации. Проверка идет постепенно (по 1 домену за раз) и может запускаться из интерфейса. Для проверки 24/7 на сервере настройте cron на backorder_cron.php.",
         import: "Импорт",
         importTitle: "Импорт доменов",
         importPlaceholder: "example.com\nanotherdomain.net\n...",
@@ -435,6 +435,8 @@ export default {
         batchProgress: "Проверено: {checked}. Осталось (не проверено): {never_checked} из {total}.",
         batchDone: "Готово: все домены были проверены хотя бы один раз.",
         batchNothingToDo: "Нечего проверять (список пуст или всё уже проверено).",
+        batchStopped: "Остановлено",
+        autoRunLabel: "Автопроверка (пока открыта страница)",
         statusAvailable: "Свободен",
         statusRegistered: "Занят",
         statusUnknown: "Ожидает проверки",
