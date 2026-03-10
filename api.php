@@ -2137,6 +2137,111 @@ try {
 
             echo json_encode(['status' => 'success', 'data' => $check]);
             break;
+
+        case 'backorder_check_batch':
+            // Batch checker for UI: checks up to N domains per request (never checked first).
+            // This provides a "no-cron" workflow while keeping each request bounded.
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+
+            $data = json_decode(file_get_contents('php://input'), true);
+            $limit = isset($data['limit']) ? (int) $data['limit'] : 3;
+            if ($limit <= 0) $limit = 3;
+            if ($limit > 10) $limit = 10;
+
+            $lockDir = __DIR__ . '/var/locks';
+            if (!is_dir($lockDir)) {
+                @mkdir($lockDir, 0777, true);
+            }
+            $lockFile = $lockDir . '/backorder_batch.lock';
+            $fp = @fopen($lockFile, 'c+');
+            if ($fp && !flock($fp, LOCK_EX | LOCK_NB)) {
+                echo json_encode(['status' => 'error', 'message' => 'Busy']);
+                break;
+            }
+
+            $checked = 0;
+            $results = [];
+            $startedAt = microtime(true);
+            $timeBudgetSeconds = 25.0;
+
+            try {
+                while ($checked < $limit && (microtime(true) - $startedAt) < $timeBudgetSeconds) {
+                    $stmt = $pdo->query("
+                        SELECT id, name
+                        FROM backorder_domains
+                        ORDER BY
+                            CASE WHEN last_checked_at IS NULL THEN 0 ELSE 1 END,
+                            COALESCE(last_checked_at, created_at) ASC
+                        LIMIT 1
+                    ");
+                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                    if (!$row) {
+                        break;
+                    }
+
+                    $id = (int) $row['id'];
+                    $name = (string) $row['name'];
+
+                    $check = orbitraBackorderCheck($name);
+
+                    $pdo->prepare("
+                        UPDATE backorder_domains
+                        SET
+                            status = ?,
+                            last_checked_at = CURRENT_TIMESTAMP,
+                            last_http_code = ?,
+                            last_error = ?,
+                            last_rdap_url = ?,
+                            last_result_json = ?
+                        WHERE id = ?
+                    ")->execute([
+                        $check['status'],
+                        $check['http_code'],
+                        $check['error'],
+                        $check['rdap_url'],
+                        $check['result_json'],
+                        $id
+                    ]);
+
+                    $results[] = [
+                        'id' => $id,
+                        'name' => $name,
+                        'status' => $check['status'],
+                        'http_code' => $check['http_code'],
+                        'error' => $check['error'],
+                        'rdap_url' => $check['rdap_url'],
+                    ];
+                    $checked++;
+                }
+
+                $neverChecked = (int) ($pdo->query("SELECT COUNT(*) FROM backorder_domains WHERE last_checked_at IS NULL")->fetchColumn() ?: 0);
+                $total = (int) ($pdo->query("SELECT COUNT(*) FROM backorder_domains")->fetchColumn() ?: 0);
+
+                echo json_encode([
+                    'status' => 'success',
+                    'data' => [
+                        'checked' => $checked,
+                        'limit' => $limit,
+                        'results' => $results,
+                        'domains' => [
+                            'total' => $total,
+                            'never_checked' => $neverChecked,
+                        ],
+                        'elapsed_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+                    ]
+                ]);
+            } catch (Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            } finally {
+                if (isset($fp) && is_resource($fp)) {
+                    flock($fp, LOCK_UN);
+                    fclose($fp);
+                }
+            }
+            break;
         // === End Backorder ===
 
         case 'save_domain':

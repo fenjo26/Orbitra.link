@@ -31,6 +31,8 @@ const BackorderDomains = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [selectedIds, setSelectedIds] = useState(new Set());
+    const [batchRunning, setBatchRunning] = useState(false);
+    const [batchMsg, setBatchMsg] = useState('');
 
     // Import modal
     const [showImport, setShowImport] = useState(false);
@@ -67,6 +69,53 @@ const BackorderDomains = () => {
     useEffect(() => {
         fetchRows();
     }, []);
+
+    const runBatch = async () => {
+        if (batchRunning) return;
+        setBatchRunning(true);
+        setBatchMsg(t('backorder.batchStarting'));
+
+        try {
+            // Keep it simple: loop small batches until all never-checked domains are processed,
+            // or until the server reports nothing was checked (empty list).
+            for (let i = 0; i < 500; i++) {
+                const res = await axios.post(`${API_URL}?action=backorder_check_batch`, { limit: 3 });
+                if (res.data.status !== 'success') {
+                    setBatchMsg(res.data.message || t('common.error'));
+                    break;
+                }
+
+                const data = res.data.data || {};
+                const checked = Number(data.checked || 0);
+                const neverChecked = data.domains?.never_checked;
+                const total = data.domains?.total;
+                setBatchMsg(t('backorder.batchProgress')
+                    .replace('{checked}', String(checked))
+                    .replace('{never_checked}', String(neverChecked ?? '-'))
+                    .replace('{total}', String(total ?? '-'))
+                );
+
+                await fetchRows();
+
+                if (checked <= 0) {
+                    setBatchMsg(t('backorder.batchNothingToDo'));
+                    break;
+                }
+                if (neverChecked === 0) {
+                    setBatchMsg(t('backorder.batchDone'));
+                    break;
+                }
+
+                // Small delay so we don't hammer the server.
+                await new Promise(r => setTimeout(r, 300));
+            }
+        } catch (e) {
+            console.error(e);
+            setBatchMsg(t('common.networkError'));
+        } finally {
+            setBatchRunning(false);
+        }
+    };
 
     const filtered = useMemo(() => {
         const q = searchTerm.trim().toLowerCase();
@@ -232,6 +281,18 @@ const BackorderDomains = () => {
                     </button>
 
                     <button
+                        onClick={runBatch}
+                        disabled={batchRunning}
+                        className={`px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition ${batchRunning
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                            }`}
+                        title={t('backorder.batchRun')}
+                    >
+                        <PlayCircle size={16} /> {batchRunning ? t('backorder.batchRunning') : t('backorder.batchRun')}
+                    </button>
+
+                    <button
                         onClick={() => {
                             setImportResult(null);
                             setImportError('');
@@ -255,6 +316,15 @@ const BackorderDomains = () => {
                     </button>
                 </div>
             </div>
+
+            {batchMsg && (
+                <div className="mb-4 text-sm text-gray-700">
+                    <span className="inline-flex items-center gap-2 bg-gray-50 border border-gray-100 rounded px-3 py-2">
+                        <AlertCircle size={16} className="text-gray-400" />
+                        <span>{batchMsg}</span>
+                    </span>
+                </div>
+            )}
 
             <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm border-collapse">

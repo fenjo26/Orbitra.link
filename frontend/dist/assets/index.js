@@ -16308,7 +16308,7 @@ const ru = {
   },
   backorder: {
     bannerTitle: "Отложенный мониторинг доменов",
-    bannerText: "Добавьте список доменов и проверяйте доступность через RDAP (без парсинга регистраторов и капчи). Для автоматической проверки настройте cron на backorder_cron.php.",
+    bannerText: "Добавьте список доменов и проверяйте доступность через RDAP/WHOIS (без парсинга регистраторов и капчи). Для автоматической проверки можно настроить cron на backorder_cron.php, либо запустить проверку из интерфейса.",
     import: "Импорт",
     importTitle: "Импорт доменов",
     importPlaceholder: "example.com\nanotherdomain.net\n...",
@@ -16324,6 +16324,12 @@ const ru = {
     noRows: "Домены не добавлены",
     checkNow: "Проверить сейчас",
     editTitle: "Заметки",
+    batchRun: "Запустить проверку",
+    batchRunning: "Проверяем...",
+    batchStarting: "Запуск пакетной проверки...",
+    batchProgress: "Проверено: {checked}. Осталось (не проверено): {never_checked} из {total}.",
+    batchDone: "Готово: все домены были проверены хотя бы один раз.",
+    batchNothingToDo: "Нечего проверять (список пуст или всё уже проверено).",
     statusAvailable: "Свободен",
     statusRegistered: "Занят",
     statusUnknown: "Ожидает проверки",
@@ -17919,7 +17925,7 @@ const en = {
   },
   backorder: {
     bannerTitle: "Backorder Domain Monitor",
-    bannerText: "Add a list of domains and check availability via RDAP (no registrar scraping, no captcha). For automatic checks, set up cron to run backorder_cron.php.",
+    bannerText: "Add a list of domains and check availability via RDAP/WHOIS (no registrar scraping, no captcha). For automatic checks you can set up cron to run backorder_cron.php, or run checks from the UI.",
     import: "Import",
     importTitle: "Import domains",
     importPlaceholder: "example.com\nanotherdomain.net\n...",
@@ -17935,6 +17941,12 @@ const en = {
     noRows: "No domains added",
     checkNow: "Check now",
     editTitle: "Notes",
+    batchRun: "Run checks",
+    batchRunning: "Checking...",
+    batchStarting: "Starting batch checks...",
+    batchProgress: "Checked: {checked}. Remaining (never checked): {never_checked} of {total}.",
+    batchDone: "Done: all domains have been checked at least once.",
+    batchNothingToDo: "Nothing to check (empty list or already checked).",
     statusAvailable: "Available",
     statusRegistered: "Registered",
     statusUnknown: "Pending",
@@ -32787,6 +32799,8 @@ const BackorderDomains = () => {
   const [searchTerm, setSearchTerm] = reactExports.useState("");
   const [statusFilter, setStatusFilter] = reactExports.useState("all");
   const [selectedIds, setSelectedIds] = reactExports.useState(/* @__PURE__ */ new Set());
+  const [batchRunning, setBatchRunning] = reactExports.useState(false);
+  const [batchMsg, setBatchMsg] = reactExports.useState("");
   const [showImport, setShowImport] = reactExports.useState(false);
   const [importText, setImportText] = reactExports.useState("");
   const [importResult, setImportResult] = reactExports.useState(null);
@@ -32817,6 +32831,42 @@ const BackorderDomains = () => {
   reactExports.useEffect(() => {
     fetchRows();
   }, []);
+  const runBatch = async () => {
+    if (batchRunning) return;
+    setBatchRunning(true);
+    setBatchMsg(t2("backorder.batchStarting"));
+    try {
+      for (let i = 0; i < 500; i++) {
+        const res = await axios.post(`${API_URL$A}?action=backorder_check_batch`, { limit: 3 });
+        if (res.data.status !== "success") {
+          setBatchMsg(res.data.message || t2("common.error"));
+          break;
+        }
+        const data = res.data.data || {};
+        const checked = Number(data.checked || 0);
+        const neverChecked = data.domains?.never_checked;
+        const total = data.domains?.total;
+        setBatchMsg(
+          t2("backorder.batchProgress").replace("{checked}", String(checked)).replace("{never_checked}", String(neverChecked ?? "-")).replace("{total}", String(total ?? "-"))
+        );
+        await fetchRows();
+        if (checked <= 0) {
+          setBatchMsg(t2("backorder.batchNothingToDo"));
+          break;
+        }
+        if (neverChecked === 0) {
+          setBatchMsg(t2("backorder.batchDone"));
+          break;
+        }
+        await new Promise((r2) => setTimeout(r2, 300));
+      }
+    } catch (e) {
+      console.error(e);
+      setBatchMsg(t2("common.networkError"));
+    } finally {
+      setBatchRunning(false);
+    }
+  };
   const filtered = reactExports.useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     return rows.filter((r2) => {
@@ -32980,6 +33030,20 @@ const BackorderDomains = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
+            onClick: runBatch,
+            disabled: batchRunning,
+            className: `px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition ${batchRunning ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700 text-white"}`,
+            title: t2("backorder.batchRun"),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(CirclePlay, { size: 16 }),
+              " ",
+              batchRunning ? t2("backorder.batchRunning") : t2("backorder.batchRun")
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
             onClick: () => {
               setImportResult(null);
               setImportError("");
@@ -33009,6 +33073,10 @@ const BackorderDomains = () => {
         )
       ] })
     ] }),
+    batchMsg && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4 text-sm text-gray-700", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-2 bg-gray-50 border border-gray-100 rounded px-3 py-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-gray-400" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: batchMsg })
+    ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left text-sm border-collapse", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-gray-50 border-b border-gray-100", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: allVisibleSelected, onChange: toggleSelectAllVisible }) }),

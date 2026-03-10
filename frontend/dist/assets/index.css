@@ -103,6 +103,7 @@
     --color-green-700: oklch(52.7% .154 150.069);
     --color-green-800: oklch(44.8% .119 151.328);
     --color-emerald-50: oklch(97.9% .021 166.113);
+    --color-emerald-600: oklch(59.6% .145 163.225);
     --color-emerald-700: oklch(50.8% .118 165.612);
     --color-blue-50: oklch(97% .014 254.604);
     --color-blue-100: oklch(93.2% .032 255.585);
@@ -1680,6 +1681,10 @@
     background-color: var(--color-blue-600);
   }
 
+  .bg-emerald-600 {
+    background-color: var(--color-emerald-600);
+  }
+
   .bg-gray-50 {
     background-color: var(--color-gray-50);
   }
@@ -2721,6 +2726,10 @@
 
     .hover\:bg-emerald-50:hover {
       background-color: var(--color-emerald-50);
+    }
+
+    .hover\:bg-emerald-700:hover {
+      background-color: var(--color-emerald-700);
     }
 
     .hover\:bg-gray-50:hover {
