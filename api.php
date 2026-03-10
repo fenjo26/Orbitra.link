@@ -1929,6 +1929,19 @@ try {
             $cronDirWritable = is_dir('/etc/cron.d') && is_writable('/etc/cron.d');
             $cronFileExists = is_file($cronFile);
 
+            // Detect whether we can manage user crontab from PHP (no root required, but shell_exec must be allowed).
+            $disableFunctions = (string) ini_get('disable_functions');
+            $shellExecAllowed = function_exists('shell_exec') && (stripos($disableFunctions, 'shell_exec') === false);
+            $crontabPath = $shellExecAllowed ? trim((string) @shell_exec('command -v crontab 2>/dev/null')) : '';
+            $crontabAvailable = $crontabPath !== '';
+            $userCrontabInstalled = 0;
+            if ($crontabAvailable) {
+                $existing = (string) @shell_exec('crontab -l 2>/dev/null');
+                if ($existing !== '' && strpos($existing, 'ORBITRA_BACKORDER_BEGIN') !== false) {
+                    $userCrontabInstalled = 1;
+                }
+            }
+
             $keys = [
                 'backorder_cron_enabled',
                 'backorder_cron_last_ping_at',
@@ -1981,6 +1994,9 @@ try {
                     'cron_file' => $cronFile,
                     'cron_dir_writable' => $cronDirWritable ? 1 : 0,
                     'cron_file_exists' => $cronFileExists ? 1 : 0,
+                    'shell_exec_allowed' => $shellExecAllowed ? 1 : 0,
+                    'crontab_path' => $crontabPath ?: null,
+                    'user_crontab_installed' => $userCrontabInstalled,
                     'cron_examples' => [
                         ['id' => 'every_3_min', 'label' => '*/3 * * * *', 'value' => $cronEvery3min],
                         ['id' => 'every_1_min', 'label' => '* * * * *', 'value' => $cronEvery1min],
@@ -2003,6 +2019,116 @@ try {
                     ],
                 ]
             ]);
+            break;
+
+        case 'backorder_install_user_cron':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+
+            $disableFunctions = (string) ini_get('disable_functions');
+            if (!function_exists('shell_exec') || (stripos($disableFunctions, 'shell_exec') !== false)) {
+                echo json_encode(['status' => 'error', 'message' => 'shell_exec is disabled on this server']);
+                break;
+            }
+
+            $crontabPath = trim((string) @shell_exec('command -v crontab 2>/dev/null'));
+            if ($crontabPath === '') {
+                echo json_encode(['status' => 'error', 'message' => 'crontab command not found']);
+                break;
+            }
+
+            $scriptPath = realpath(__DIR__ . '/backorder_cron.php');
+            if (!is_string($scriptPath) || $scriptPath === '') {
+                $scriptPath = __DIR__ . '/backorder_cron.php';
+            }
+            $logDir = __DIR__ . '/var/log';
+            if (!is_dir($logDir)) {
+                @mkdir($logDir, 0777, true);
+            }
+            $logPath = $logDir . '/backorder_cron.log';
+
+            $phpPath = trim((string) @shell_exec('command -v php 2>/dev/null'));
+            if ($phpPath === '') {
+                $phpPath = 'php';
+            }
+
+            $line = "*/3 * * * * $phpPath " . escapeshellarg($scriptPath) . " >> " . escapeshellarg($logPath) . " 2>&1";
+            $block = "# ORBITRA_BACKORDER_BEGIN\n" . $line . "\n# ORBITRA_BACKORDER_END\n";
+
+            $existing = (string) @shell_exec('crontab -l 2>/dev/null');
+            // Remove existing block if present.
+            $new = preg_replace("/\\n?# ORBITRA_BACKORDER_BEGIN[\\s\\S]*?# ORBITRA_BACKORDER_END\\n?/m", "\n", $existing);
+            $new = trim((string) $new);
+            if ($new !== '') {
+                $new .= "\n\n";
+            }
+            $new .= $block;
+
+            $tmp = @tempnam(sys_get_temp_dir(), 'orbitra_crontab_');
+            if (!is_string($tmp) || $tmp === '') {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to create temp file']);
+                break;
+            }
+            @file_put_contents($tmp, $new);
+            $out = (string) @shell_exec('crontab ' . escapeshellarg($tmp) . ' 2>&1');
+            @unlink($tmp);
+
+            // If error, crontab usually prints it.
+            if (stripos($out, 'error') !== false) {
+                echo json_encode(['status' => 'error', 'message' => trim($out) ?: 'crontab failed']);
+                break;
+            }
+
+            echo json_encode(['status' => 'success', 'data' => ['line' => $line]]);
+            break;
+
+        case 'backorder_remove_user_cron':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+
+            $disableFunctions = (string) ini_get('disable_functions');
+            if (!function_exists('shell_exec') || (stripos($disableFunctions, 'shell_exec') !== false)) {
+                echo json_encode(['status' => 'error', 'message' => 'shell_exec is disabled on this server']);
+                break;
+            }
+
+            $crontabPath = trim((string) @shell_exec('command -v crontab 2>/dev/null'));
+            if ($crontabPath === '') {
+                echo json_encode(['status' => 'error', 'message' => 'crontab command not found']);
+                break;
+            }
+
+            $existing = (string) @shell_exec('crontab -l 2>/dev/null');
+            $new = preg_replace("/\\n?# ORBITRA_BACKORDER_BEGIN[\\s\\S]*?# ORBITRA_BACKORDER_END\\n?/m", "\n", $existing);
+            $new = trim((string) $new) . "\n";
+
+            $tmp = @tempnam(sys_get_temp_dir(), 'orbitra_crontab_');
+            if (!is_string($tmp) || $tmp === '') {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to create temp file']);
+                break;
+            }
+            @file_put_contents($tmp, $new);
+            $out = (string) @shell_exec('crontab ' . escapeshellarg($tmp) . ' 2>&1');
+            @unlink($tmp);
+
+            if (stripos($out, 'error') !== false) {
+                echo json_encode(['status' => 'error', 'message' => trim($out) ?: 'crontab failed']);
+                break;
+            }
+
+            echo json_encode(['status' => 'success', 'data' => ['deleted' => 1]]);
             break;
 
         case 'backorder_install_cron':
@@ -2296,8 +2422,11 @@ try {
                 $stmtDue = $pdo->prepare("
                     SELECT COUNT(*)
                     FROM backorder_domains
-                    WHERE last_checked_at IS NULL
-                       OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
+                    WHERE COALESCE(NULLIF(status, ''), 'unknown') != 'available'
+                      AND (
+                          last_checked_at IS NULL
+                          OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
+                      )
                 ");
                 $stmtDue->execute([':cutoff' => $cutoffEpoch]);
                 $dueTotal = (int) ($stmtDue->fetchColumn() ?: 0);
@@ -2306,8 +2435,11 @@ try {
                     $stmt = $pdo->prepare("
                         SELECT id, name
                         FROM backorder_domains
-                        WHERE last_checked_at IS NULL
-                           OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
+                        WHERE COALESCE(NULLIF(status, ''), 'unknown') != 'available'
+                          AND (
+                              last_checked_at IS NULL
+                              OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
+                          )
                         ORDER BY
                             CASE WHEN last_checked_at IS NULL THEN 0 ELSE 1 END,
                             COALESCE(last_checked_at, created_at) ASC
@@ -2360,8 +2492,11 @@ try {
                 $stmtDue2 = $pdo->prepare("
                     SELECT COUNT(*)
                     FROM backorder_domains
-                    WHERE last_checked_at IS NULL
-                       OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
+                    WHERE COALESCE(NULLIF(status, ''), 'unknown') != 'available'
+                      AND (
+                          last_checked_at IS NULL
+                          OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
+                      )
                 ");
                 $stmtDue2->execute([':cutoff' => $cutoffEpoch]);
                 $dueRemaining = (int) ($stmtDue2->fetchColumn() ?: 0);

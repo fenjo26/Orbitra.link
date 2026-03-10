@@ -136,6 +136,44 @@ const AutomationSettings = () => {
         }
     };
 
+    const installUserCron = async () => {
+        setCronBusy(true);
+        setMessage({ text: '', type: '' });
+        try {
+            const res = await fetch(`${API_URL}?action=backorder_install_user_cron`, { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'success') {
+                setMessage({ text: t('automation.installUserSuccess'), type: 'success' });
+                await fetchInfo();
+            } else {
+                setMessage({ text: data.message || t('automation.installUserError'), type: 'error' });
+            }
+        } catch (e) {
+            setMessage({ text: t('automation.networkError'), type: 'error' });
+        } finally {
+            setCronBusy(false);
+        }
+    };
+
+    const removeUserCron = async () => {
+        setCronBusy(true);
+        setMessage({ text: '', type: '' });
+        try {
+            const res = await fetch(`${API_URL}?action=backorder_remove_user_cron`, { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'success') {
+                setMessage({ text: t('automation.removeUserSuccess'), type: 'success' });
+                await fetchInfo();
+            } else {
+                setMessage({ text: data.message || t('automation.removeUserError'), type: 'error' });
+            }
+        } catch (e) {
+            setMessage({ text: t('automation.networkError'), type: 'error' });
+        } finally {
+            setCronBusy(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="page-card">
@@ -151,6 +189,9 @@ const AutomationSettings = () => {
     const cronDirWritable = Boolean(info?.cron_dir_writable);
     const cronFile = info?.cron_file || '/etc/cron.d/orbitra-backorder';
     const phpUser = info?.php_user || 'www-data';
+    const shellExecAllowed = Boolean(info?.shell_exec_allowed);
+    const crontabPath = info?.crontab_path;
+    const userCrontabInstalled = Boolean(info?.user_crontab_installed);
     const intervalSecNow = Number(info?.check_interval_sec ?? 900) || 900;
     const intervalHuman = formatAge(t, intervalSecNow);
 
@@ -352,6 +393,49 @@ const AutomationSettings = () => {
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-4 bg-white border border-gray-100 rounded p-3">
+                        <div className="text-sm font-semibold text-gray-800">{t('automation.userCronTitle')}</div>
+                        <div className="text-sm text-[var(--color-text-muted)] mt-1">{t('automation.userCronDesc')}</div>
+
+                        <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                                <div className="text-xs text-gray-500">{t('automation.shellExec')}</div>
+                                <div className="text-sm font-semibold text-gray-800 mt-1">
+                                    {shellExecAllowed ? t('automation.yes') : t('automation.no')}
+                                </div>
+                            </div>
+                            <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                                <div className="text-xs text-gray-500">{t('automation.crontab')}</div>
+                                <div className="text-sm font-mono text-gray-800 mt-1">{crontabPath || '-'}</div>
+                            </div>
+                            <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                                <div className="text-xs text-gray-500">{t('automation.userCronInstalled')}</div>
+                                <div className="text-sm font-semibold text-gray-800 mt-1">
+                                    {userCrontabInstalled ? t('automation.yes') : t('automation.no')}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-3 flex gap-2 flex-wrap">
+                            <button
+                                onClick={installUserCron}
+                                className="btn btn-primary"
+                                disabled={cronBusy || !shellExecAllowed || !crontabPath}
+                                title={t('automation.installUserCron')}
+                            >
+                                {t('automation.installUserCron')}
+                            </button>
+                            <button
+                                onClick={removeUserCron}
+                                className="btn btn-secondary"
+                                disabled={cronBusy || !shellExecAllowed || !crontabPath}
+                                title={t('automation.removeUserCron')}
+                            >
+                                {t('automation.removeUserCron')}
+                            </button>
                         </div>
                     </div>
 

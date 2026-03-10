@@ -80,11 +80,15 @@ try {
     $cutoffEpoch = time() - $intervalSec;
 
     // Pick one due domain: never checked first, then oldest checked.
+    // Note: status=available is treated as terminal (not re-checked) to save resources.
     $stmt = $pdo->prepare("
         SELECT id, name
         FROM backorder_domains
-        WHERE last_checked_at IS NULL
-           OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
+        WHERE COALESCE(NULLIF(status, ''), 'unknown') != 'available'
+          AND (
+              last_checked_at IS NULL
+              OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
+          )
         ORDER BY
             CASE WHEN last_checked_at IS NULL THEN 0 ELSE 1 END,
             COALESCE(last_checked_at, created_at) ASC

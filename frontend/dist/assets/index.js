@@ -17205,6 +17205,10 @@ const ru = {
     installError: "Не удалось установить cron",
     removeSuccess: "Cron удалён",
     removeError: "Не удалось удалить cron",
+    installUserSuccess: "Cron (crontab) установлен",
+    installUserError: "Не удалось установить cron (crontab)",
+    removeUserSuccess: "Cron (crontab) удалён",
+    removeUserError: "Не удалось удалить cron (crontab)",
     lastPing: "Последний ping cron",
     lastChecked: "Последняя проверка",
     lastDomain: "Последний домен",
@@ -17223,6 +17227,13 @@ const ru = {
     rootCommandsHint: "Если кнопки не работают (нет прав), выполните на сервере:",
     installCommand: "Установка (создать файл):",
     removeCommand: "Удаление:",
+    userCronTitle: "Cron через crontab (без root)",
+    userCronDesc: "Попытка установить задачу в crontab текущего пользователя PHP. На многих VPS это работает без root. Если shell_exec отключен, этот способ недоступен.",
+    shellExec: "shell_exec доступен",
+    crontab: "crontab",
+    userCronInstalled: "Есть запись Orbitra",
+    installUserCron: "Установить в crontab",
+    removeUserCron: "Удалить из crontab",
     intervalTitle: "Интервал перепроверки",
     intervalDesc: "Домен проверяется снова, если прошло больше: {interval}. Это влияет на автопроверку в интерфейсе и на cron.",
     intervalLabel: "Перепроверять каждые",
@@ -18885,6 +18896,10 @@ const en = {
     installError: "Failed to install cron",
     removeSuccess: "Cron removed",
     removeError: "Failed to remove cron",
+    installUserSuccess: "Cron (crontab) installed",
+    installUserError: "Failed to install cron (crontab)",
+    removeUserSuccess: "Cron (crontab) removed",
+    removeUserError: "Failed to remove cron (crontab)",
     lastPing: "Last cron ping",
     lastChecked: "Last check time",
     lastDomain: "Last domain",
@@ -18903,6 +18918,13 @@ const en = {
     rootCommandsHint: "If buttons do not work (no permissions), run on the server:",
     installCommand: "Install (create file):",
     removeCommand: "Remove:",
+    userCronTitle: "Cron via crontab (no root)",
+    userCronDesc: "Attempt to install a job into the current PHP user's crontab. This often works on VPS without root. If shell_exec is disabled, this method is unavailable.",
+    shellExec: "shell_exec available",
+    crontab: "crontab",
+    userCronInstalled: "Orbitra entry present",
+    installUserCron: "Install to crontab",
+    removeUserCron: "Remove from crontab",
     intervalTitle: "Re-check interval",
     intervalDesc: "A domain is checked again when more than: {interval} has passed. This affects UI auto-check and cron.",
     intervalLabel: "Re-check every",
@@ -39215,6 +39237,42 @@ const AutomationSettings = () => {
       setCronBusy(false);
     }
   };
+  const installUserCron = async () => {
+    setCronBusy(true);
+    setMessage({ text: "", type: "" });
+    try {
+      const res = await fetch(`${API_URL$d}?action=backorder_install_user_cron`, { method: "POST" });
+      const data = await res.json();
+      if (data.status === "success") {
+        setMessage({ text: t2("automation.installUserSuccess"), type: "success" });
+        await fetchInfo();
+      } else {
+        setMessage({ text: data.message || t2("automation.installUserError"), type: "error" });
+      }
+    } catch (e) {
+      setMessage({ text: t2("automation.networkError"), type: "error" });
+    } finally {
+      setCronBusy(false);
+    }
+  };
+  const removeUserCron = async () => {
+    setCronBusy(true);
+    setMessage({ text: "", type: "" });
+    try {
+      const res = await fetch(`${API_URL$d}?action=backorder_remove_user_cron`, { method: "POST" });
+      const data = await res.json();
+      if (data.status === "success") {
+        setMessage({ text: t2("automation.removeUserSuccess"), type: "success" });
+        await fetchInfo();
+      } else {
+        setMessage({ text: data.message || t2("automation.removeUserError"), type: "error" });
+      }
+    } catch (e) {
+      setMessage({ text: t2("automation.networkError"), type: "error" });
+    } finally {
+      setCronBusy(false);
+    }
+  };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[var(--color-text-muted)]", children: t2("common.loading") }) });
   }
@@ -39225,6 +39283,9 @@ const AutomationSettings = () => {
   const cronDirWritable = Boolean(info?.cron_dir_writable);
   const cronFile = info?.cron_file || "/etc/cron.d/orbitra-backorder";
   const phpUser = info?.php_user || "www-data";
+  const shellExecAllowed = Boolean(info?.shell_exec_allowed);
+  const crontabPath = info?.crontab_path;
+  const userCrontabInstalled = Boolean(info?.user_crontab_installed);
   const intervalSecNow = Number(info?.check_interval_sec ?? 900) || 900;
   const intervalHuman = formatAge(t2, intervalSecNow);
   const cronFileInstallCmd = reactExports.useMemo(() => {
@@ -39404,6 +39465,46 @@ const AutomationSettings = () => {
                 ] })
               ] })
             ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 bg-white border border-gray-100 rounded p-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800", children: t2("automation.userCronTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-[var(--color-text-muted)] mt-1", children: t2("automation.userCronDesc") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 grid grid-cols-1 md:grid-cols-3 gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.shellExec") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800 mt-1", children: shellExecAllowed ? t2("automation.yes") : t2("automation.no") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.crontab") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: crontabPath || "-" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.userCronInstalled") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800 mt-1", children: userCrontabInstalled ? t2("automation.yes") : t2("automation.no") })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex gap-2 flex-wrap", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: installUserCron,
+                className: "btn btn-primary",
+                disabled: cronBusy || !shellExecAllowed || !crontabPath,
+                title: t2("automation.installUserCron"),
+                children: t2("automation.installUserCron")
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: removeUserCron,
+                className: "btn btn-secondary",
+                disabled: cronBusy || !shellExecAllowed || !crontabPath,
+                title: t2("automation.removeUserCron"),
+                children: t2("automation.removeUserCron")
+              }
+            )
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 grid grid-cols-1 md:grid-cols-2 gap-3", children: [
