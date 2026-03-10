@@ -17223,6 +17223,14 @@ const ru = {
     rootCommandsHint: "Если кнопки не работают (нет прав), выполните на сервере:",
     installCommand: "Установка (создать файл):",
     removeCommand: "Удаление:",
+    intervalTitle: "Интервал перепроверки",
+    intervalDesc: "Домен проверяется снова, если прошло больше: {interval}. Это влияет на автопроверку в интерфейсе и на cron.",
+    intervalLabel: "Перепроверять каждые",
+    intervalExample: "Например: 1, 5, 15, 60",
+    intervalPreset1m: "1 мин",
+    intervalPreset5m: "5 мин",
+    intervalPreset15m: "15 мин",
+    intervalPreset60m: "60 мин",
     rdapTitle: "RDAP bootstrap (IANA)",
     rdapBootstrapOk: "Кэш обновлён: {mtime} (возраст: {age})",
     rdapBootstrapMissing: 'Кэш bootstrap не найден. Если часто видите статус "Нельзя проверить", проверьте доступ сервера к https://data.iana.org/rdap/dns.json.',
@@ -18895,6 +18903,14 @@ const en = {
     rootCommandsHint: "If buttons do not work (no permissions), run on the server:",
     installCommand: "Install (create file):",
     removeCommand: "Remove:",
+    intervalTitle: "Re-check interval",
+    intervalDesc: "A domain is checked again when more than: {interval} has passed. This affects UI auto-check and cron.",
+    intervalLabel: "Re-check every",
+    intervalExample: "For example: 1, 5, 15, 60",
+    intervalPreset1m: "1 min",
+    intervalPreset5m: "5 min",
+    intervalPreset15m: "15 min",
+    intervalPreset60m: "60 min",
     rdapTitle: "RDAP bootstrap (IANA)",
     rdapBootstrapOk: "Cache updated: {mtime} (age: {age})",
     rdapBootstrapMissing: 'Bootstrap cache not found. If you often see "Cannot check", check server access to https://data.iana.org/rdap/dns.json.',
@@ -39097,6 +39113,7 @@ const AutomationSettings = () => {
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
   const [info, setInfo] = reactExports.useState(null);
   const [enabled, setEnabled] = reactExports.useState(true);
+  const [intervalMin, setIntervalMin] = reactExports.useState(15);
   const fetchInfo = async () => {
     setLoading(true);
     setMessage({ text: "", type: "" });
@@ -39106,6 +39123,8 @@ const AutomationSettings = () => {
       if (data.status === "success") {
         setInfo(data.data || null);
         setEnabled((data.data?.enabled ?? "1") !== "0");
+        const sec = Number(data.data?.check_interval_sec ?? 900) || 900;
+        setIntervalMin(Math.max(1, Math.round(sec / 60)));
       } else {
         setMessage({ text: data.message || t2("automation.loadError"), type: "error" });
       }
@@ -39137,11 +39156,14 @@ const AutomationSettings = () => {
     setSaving(true);
     setMessage({ text: "", type: "" });
     try {
+      const cleanMin = Math.max(1, Math.min(1440, Number(intervalMin) || 15));
+      const intervalSec = String(Math.max(15, Math.round(cleanMin * 60)));
       const res = await fetch(`${API_URL$d}?action=save_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          backorder_cron_enabled: enabled ? "1" : "0"
+          backorder_cron_enabled: enabled ? "1" : "0",
+          backorder_check_interval_sec: intervalSec
         })
       });
       const data = await res.json();
@@ -39203,6 +39225,8 @@ const AutomationSettings = () => {
   const cronDirWritable = Boolean(info?.cron_dir_writable);
   const cronFile = info?.cron_file || "/etc/cron.d/orbitra-backorder";
   const phpUser = info?.php_user || "www-data";
+  const intervalSecNow = Number(info?.check_interval_sec ?? 900) || 900;
+  const intervalHuman = formatAge(t2, intervalSecNow);
   const cronFileInstallCmd = reactExports.useMemo(() => {
     const script = info?.script_path || "backorder_cron.php";
     const log = info?.log_path || "/var/log/orbitra_backorder.log";
@@ -39244,6 +39268,35 @@ const AutomationSettings = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-checkbox-content", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "form-checkbox-title", children: t2("automation.enableBackorderCron") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-checkbox-description", children: t2("automation.enableBackorderCronDesc") })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 bg-white border border-gray-100 rounded p-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800", children: t2("automation.intervalTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-[var(--color-text-muted)] mt-1", children: t2("automation.intervalDesc").replace("{interval}", String(intervalHuman)) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex flex-col gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label m-0", children: t2("automation.intervalLabel") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "number",
+                  min: "1",
+                  max: "1440",
+                  value: intervalMin,
+                  onChange: (e) => setIntervalMin(Number(e.target.value)),
+                  className: "input",
+                  style: { width: "140px" }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-gray-600", children: t2("automation.minutes") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.intervalExample") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 flex-wrap", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: () => setIntervalMin(1), children: t2("automation.intervalPreset1m") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: () => setIntervalMin(5), children: t2("automation.intervalPreset5m") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: () => setIntervalMin(15), children: t2("automation.intervalPreset15m") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: () => setIntervalMin(60), children: t2("automation.intervalPreset60m") })
+            ] })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3", children: [

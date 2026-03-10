@@ -24,6 +24,7 @@ const AutomationSettings = () => {
 
     const [info, setInfo] = useState(null);
     const [enabled, setEnabled] = useState(true);
+    const [intervalMin, setIntervalMin] = useState(15);
 
     const fetchInfo = async () => {
         setLoading(true);
@@ -34,6 +35,8 @@ const AutomationSettings = () => {
             if (data.status === 'success') {
                 setInfo(data.data || null);
                 setEnabled((data.data?.enabled ?? '1') !== '0');
+                const sec = Number(data.data?.check_interval_sec ?? 900) || 900;
+                setIntervalMin(Math.max(1, Math.round(sec / 60)));
             } else {
                 setMessage({ text: data.message || t('automation.loadError'), type: 'error' });
             }
@@ -70,11 +73,15 @@ const AutomationSettings = () => {
         setSaving(true);
         setMessage({ text: '', type: '' });
         try {
+            const cleanMin = Math.max(1, Math.min(1440, Number(intervalMin) || 15));
+            const intervalSec = String(Math.max(15, Math.round(cleanMin * 60)));
+
             const res = await fetch(`${API_URL}?action=save_settings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    backorder_cron_enabled: enabled ? '1' : '0'
+                    backorder_cron_enabled: enabled ? '1' : '0',
+                    backorder_check_interval_sec: intervalSec,
                 })
             });
             const data = await res.json();
@@ -144,6 +151,8 @@ const AutomationSettings = () => {
     const cronDirWritable = Boolean(info?.cron_dir_writable);
     const cronFile = info?.cron_file || '/etc/cron.d/orbitra-backorder';
     const phpUser = info?.php_user || 'www-data';
+    const intervalSecNow = Number(info?.check_interval_sec ?? 900) || 900;
+    const intervalHuman = formatAge(t, intervalSecNow);
 
     const cronFileInstallCmd = useMemo(() => {
         const script = info?.script_path || 'backorder_cron.php';
@@ -197,6 +206,47 @@ const AutomationSettings = () => {
                             <p className="form-checkbox-description">{t('automation.enableBackorderCronDesc')}</p>
                         </div>
                     </label>
+
+                    <div className="mt-4 bg-white border border-gray-100 rounded p-3">
+                        <div className="text-sm font-semibold text-gray-800">{t('automation.intervalTitle')}</div>
+                        <div className="text-sm text-[var(--color-text-muted)] mt-1">
+                            {t('automation.intervalDesc').replace('{interval}', String(intervalHuman))}
+                        </div>
+
+                        <div className="mt-3 flex flex-col gap-2">
+                            <label className="form-label m-0">{t('automation.intervalLabel')}</label>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="1440"
+                                    value={intervalMin}
+                                    onChange={(e) => setIntervalMin(Number(e.target.value))}
+                                    className="input"
+                                    style={{ width: '140px' }}
+                                />
+                                <div className="text-sm text-gray-600">{t('automation.minutes')}</div>
+                                <div className="text-xs text-gray-500">
+                                    {t('automation.intervalExample')}
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2 flex-wrap">
+                                <button className="btn btn-secondary" type="button" onClick={() => setIntervalMin(1)}>
+                                    {t('automation.intervalPreset1m')}
+                                </button>
+                                <button className="btn btn-secondary" type="button" onClick={() => setIntervalMin(5)}>
+                                    {t('automation.intervalPreset5m')}
+                                </button>
+                                <button className="btn btn-secondary" type="button" onClick={() => setIntervalMin(15)}>
+                                    {t('automation.intervalPreset15m')}
+                                </button>
+                                <button className="btn btn-secondary" type="button" onClick={() => setIntervalMin(60)}>
+                                    {t('automation.intervalPreset60m')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
                     <div className="mt-3">
                         <label className="form-label">{t('automation.cronCommand')}</label>
