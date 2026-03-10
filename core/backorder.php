@@ -94,7 +94,7 @@ function orbitraBackorderGetRdapTldMap(int $ttlSeconds = 604800): array
         ]);
         $body = curl_exec($ch);
         $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        curl_close($ch);
+        // curl_close() is deprecated since PHP 8.5 and is a no-op since PHP 8.0.
 
         if ($code >= 200 && $code < 300 && is_string($body) && $body !== '') {
             $json = $body;
@@ -200,7 +200,7 @@ function orbitraBackorderRdapCheck(string $domain, int $timeoutSeconds = 10): ar
     $body = curl_exec($ch);
     $curlErr = curl_error($ch);
     $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-    curl_close($ch);
+    // curl_close() is deprecated since PHP 8.5 and is a no-op since PHP 8.0.
 
     if ($body === false) {
         return [
@@ -254,4 +254,3 @@ function orbitraBackorderRdapCheck(string $domain, int $timeoutSeconds = 10): ar
         'result_json' => $resultJson,
     ];
 }
-
