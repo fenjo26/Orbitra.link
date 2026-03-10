@@ -85,6 +85,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         { icon: <Link size={18} />, label: t('nav.sources'), tab: 'sources' },
         { icon: <TrendingUp size={18} />, label: t('nav.trends'), tab: 'trends' },
         { icon: <Globe size={18} />, label: t('nav.domains'), tab: 'domains' },
+        { icon: <Search size={18} />, label: t('nav.backorder'), tab: 'backorder' },
     ];
 
     return (
@@ -106,6 +107,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                         <NavItem icon={<Link size={18} />} label={t('nav.sources')} active={activeTab === 'sources'} onClick={() => setActiveTab('sources')} />
                         <NavItem icon={<TrendingUp size={18} />} label={t('nav.trends')} active={activeTab === 'trends'} onClick={() => setActiveTab('trends')} />
                         <NavItem icon={<Globe size={18} />} label={t('nav.domains')} active={activeTab === 'domains'} onClick={() => setActiveTab('domains')} />
+                        <NavItem icon={<Search size={18} />} label={t('nav.backorder')} active={activeTab === 'backorder'} onClick={() => setActiveTab('backorder')} />
                     </div>
                 </div>
 

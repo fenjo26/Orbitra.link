@@ -36,7 +36,8 @@ export default {
         system: "Система",
         logout: "Выйти",
         trends: "Тренды",
-        domains: "Домены"
+        domains: "Домены",
+        backorder: "Backorder"
     },
     adminMenu: {
         users: "Пользователи",
@@ -409,6 +410,31 @@ export default {
         dnsInstruction: "Перейдите в настройки DNS у вашего регистратора и установите A-запись:",
         dnsNote1: "Регистратор актуализирует DNS записи до 24 часов.",
         dnsNote2: "Следующая проверка при обновлении страницы."
+    },
+    backorder: {
+        bannerTitle: "Отложенный мониторинг доменов",
+        bannerText: "Добавьте список доменов и проверяйте доступность через RDAP (без парсинга регистраторов и капчи). Для автоматической проверки настройте cron на backorder_cron.php.",
+        import: "Импорт",
+        importTitle: "Импорт доменов",
+        importPlaceholder: "example.com\nanotherdomain.net\n...",
+        importResult: "Добавлено: {inserted}, дубликаты: {duplicates}, невалидные: {invalid}",
+        deleteSelected: "Удалить выбранные",
+        deleteSelectedConfirm: "Удалить выбранные ({count})? Отменить действие невозможно.",
+        searchPlaceholder: "Поиск по доменам...",
+        domain: "Домен",
+        status: "Статус",
+        lastChecked: "Последняя проверка",
+        metrics: "Метрики",
+        notes: "Заметки",
+        noRows: "Домены не добавлены",
+        checkNow: "Проверить сейчас",
+        editTitle: "Метрики и заметки",
+        statusAvailable: "Свободен",
+        statusRegistered: "Занят",
+        statusUnknown: "Ожидает проверки",
+        statusRateLimited: "Лимит (429)",
+        statusUnsupported: "Нет RDAP",
+        statusError: "Ошибка"
     },
     admin: {
         users: "Пользователи",
@@ -1433,6 +1459,7 @@ export default {
     app: {
         dashboard: "Дашборд",
         domains: "Управление доменами",
+        backorder: "Backorder мониторинг",
         campaigns: "Кампании",
         offers: "Офферы",
         sources: "Источники трафика",

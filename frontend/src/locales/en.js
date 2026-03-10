@@ -36,7 +36,8 @@ export default {
         system: "System",
         logout: "Logout",
         trends: "Trends",
-        domains: "Domains"
+        domains: "Domains",
+        backorder: "Backorder"
     },
     adminMenu: {
         users: "Users",
@@ -409,6 +410,31 @@ export default {
         dnsInstruction: "Go to DNS settings at your registrar and set the A-record:",
         dnsNote1: "The registrar updates DNS records within 24 hours.",
         dnsNote2: "Next check on page refresh."
+    },
+    backorder: {
+        bannerTitle: "Backorder Domain Monitor",
+        bannerText: "Add a list of domains and check availability via RDAP (no registrar scraping, no captcha). For automatic checks, set up cron to run backorder_cron.php.",
+        import: "Import",
+        importTitle: "Import domains",
+        importPlaceholder: "example.com\nanotherdomain.net\n...",
+        importResult: "Inserted: {inserted}, duplicates: {duplicates}, invalid: {invalid}",
+        deleteSelected: "Delete selected",
+        deleteSelectedConfirm: "Delete selected ({count})? This action cannot be undone.",
+        searchPlaceholder: "Search domains...",
+        domain: "Domain",
+        status: "Status",
+        lastChecked: "Last check",
+        metrics: "Metrics",
+        notes: "Notes",
+        noRows: "No domains added",
+        checkNow: "Check now",
+        editTitle: "Notes and metrics",
+        statusAvailable: "Available",
+        statusRegistered: "Registered",
+        statusUnknown: "Pending",
+        statusRateLimited: "Rate limited (429)",
+        statusUnsupported: "No RDAP",
+        statusError: "Error"
     },
     admin: {
         users: "Users",
@@ -1211,6 +1237,7 @@ export default {
     app: {
         dashboard: "Dashboard",
         domains: "Domain Management",
+        backorder: "Backorder Monitor",
         campaigns: "Campaigns",
         offers: "Offers",
         sources: "Traffic Sources",

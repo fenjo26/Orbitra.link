@@ -21,6 +21,7 @@ if (!is_dir(__DIR__ . '/var/logs')) {
 // api.php - JSON API для React Dashboard
 require_once 'config.php';
 require_once 'version.php';
+require_once __DIR__ . '/core/backorder.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -1867,6 +1868,202 @@ try {
 
             echo json_encode(['status' => 'success', 'data' => $domains, 'server_ip' => $serverIp]);
             break;
+
+        // === Backorder / Domain Availability Tracker ===
+        case 'backorder_domains':
+            $stmt = $pdo->query("
+                SELECT
+                    id,
+                    name,
+                    COALESCE(NULLIF(status, ''), 'unknown') as status,
+                    notes,
+                    ahrefs_dr,
+                    ahrefs_ur,
+                    ahrefs_ref_domains,
+                    created_at,
+                    last_checked_at,
+                    last_http_code,
+                    last_error,
+                    last_rdap_url
+                FROM backorder_domains
+                ORDER BY
+                    CASE COALESCE(NULLIF(status, ''), 'unknown')
+                        WHEN 'available' THEN 0
+                        WHEN 'unknown' THEN 1
+                        WHEN 'rate_limited' THEN 2
+                        WHEN 'error' THEN 3
+                        WHEN 'unsupported' THEN 4
+                        WHEN 'registered' THEN 9
+                        ELSE 5
+                    END,
+                    COALESCE(last_checked_at, created_at) ASC
+            ");
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode(['status' => 'success', 'data' => $rows]);
+            break;
+
+        case 'backorder_import':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+
+            $data = json_decode(file_get_contents('php://input'), true);
+            $text = (string) ($data['domains_text'] ?? '');
+            $lines = preg_split("/\\r\\n|\\n|\\r/", $text);
+
+            $inserted = 0;
+            $ignored = 0;
+            $invalid = 0;
+
+            $stmtIns = $pdo->prepare("INSERT OR IGNORE INTO backorder_domains (name, status) VALUES (?, 'unknown')");
+
+            foreach ($lines as $line) {
+                $norm = orbitraBackorderNormalizeDomain((string) $line);
+                if ($norm === '') {
+                    continue;
+                }
+                if (!orbitraBackorderIsValidDomain($norm)) {
+                    $invalid++;
+                    continue;
+                }
+
+                $stmtIns->execute([$norm]);
+                if ($stmtIns->rowCount() > 0) {
+                    $inserted++;
+                } else {
+                    $ignored++;
+                }
+            }
+
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'inserted' => $inserted,
+                    'duplicates_ignored' => $ignored,
+                    'invalid' => $invalid
+                ]
+            ]);
+            break;
+
+        case 'backorder_update':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = !empty($data['id']) ? (int) $data['id'] : 0;
+            if ($id <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'ID not provided']);
+                break;
+            }
+
+            $notes = isset($data['notes']) ? (string) $data['notes'] : null;
+            $dr = isset($data['ahrefs_dr']) && $data['ahrefs_dr'] !== '' ? (float) $data['ahrefs_dr'] : null;
+            $ur = isset($data['ahrefs_ur']) && $data['ahrefs_ur'] !== '' ? (float) $data['ahrefs_ur'] : null;
+            $refDomains = isset($data['ahrefs_ref_domains']) && $data['ahrefs_ref_domains'] !== '' ? (int) $data['ahrefs_ref_domains'] : null;
+
+            $stmt = $pdo->prepare("
+                UPDATE backorder_domains
+                SET notes = ?, ahrefs_dr = ?, ahrefs_ur = ?, ahrefs_ref_domains = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([$notes, $dr, $ur, $refDomains, $id]);
+            echo json_encode(['status' => 'success']);
+            break;
+
+        case 'backorder_delete':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = !empty($data['id']) ? (int) $data['id'] : 0;
+            if ($id <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'ID not provided']);
+                break;
+            }
+            $pdo->prepare("DELETE FROM backorder_domains WHERE id=?")->execute([$id]);
+            echo json_encode(['status' => 'success']);
+            break;
+
+        case 'backorder_delete_selected':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            $ids = $data['ids'] ?? [];
+            if (!is_array($ids) || empty($ids)) {
+                echo json_encode(['status' => 'error', 'message' => 'No IDs provided']);
+                break;
+            }
+
+            $cleanIds = [];
+            foreach ($ids as $v) {
+                $iv = (int) $v;
+                if ($iv > 0) $cleanIds[] = $iv;
+            }
+            $cleanIds = array_values(array_unique($cleanIds));
+            if (empty($cleanIds)) {
+                echo json_encode(['status' => 'error', 'message' => 'No valid IDs provided']);
+                break;
+            }
+
+            $placeholders = implode(',', array_fill(0, count($cleanIds), '?'));
+            $stmt = $pdo->prepare("DELETE FROM backorder_domains WHERE id IN ($placeholders)");
+            $stmt->execute($cleanIds);
+
+            echo json_encode(['status' => 'success', 'data' => ['deleted' => $stmt->rowCount()]]);
+            break;
+
+        case 'backorder_check_now':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = !empty($data['id']) ? (int) $data['id'] : 0;
+            if ($id <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'ID not provided']);
+                break;
+            }
+
+            $stmt = $pdo->prepare("SELECT id, name FROM backorder_domains WHERE id=? LIMIT 1");
+            $stmt->execute([$id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$row) {
+                echo json_encode(['status' => 'error', 'message' => 'Domain not found']);
+                break;
+            }
+
+            $domainName = (string) $row['name'];
+            $check = orbitraBackorderRdapCheck($domainName);
+
+            $pdo->prepare("
+                UPDATE backorder_domains
+                SET
+                    status = ?,
+                    last_checked_at = CURRENT_TIMESTAMP,
+                    last_http_code = ?,
+                    last_error = ?,
+                    last_rdap_url = ?,
+                    last_result_json = ?
+                WHERE id = ?
+            ")->execute([
+                $check['status'],
+                $check['http_code'],
+                $check['error'],
+                $check['rdap_url'],
+                $check['result_json'],
+                $id
+            ]);
+
+            echo json_encode(['status' => 'success', 'data' => $check]);
+            break;
+        // === End Backorder ===
 
         case 'save_domain':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {

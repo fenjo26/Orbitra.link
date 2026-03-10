@@ -100,6 +100,23 @@ try {
         FOREIGN KEY (group_id) REFERENCES offer_groups(id) ON DELETE SET NULL
     );
 
+    -- Backorder / domain availability tracker (separate from tracking domains)
+    CREATE TABLE IF NOT EXISTS backorder_domains (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        status TEXT DEFAULT 'unknown',                 -- unknown|registered|available|rate_limited|unsupported|error
+        notes TEXT,
+        ahrefs_dr REAL,
+        ahrefs_ur REAL,
+        ahrefs_ref_domains INTEGER,
+        last_checked_at DATETIME,
+        last_http_code INTEGER,
+        last_error TEXT,
+        last_rdap_url TEXT,
+        last_result_json TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE TABLE IF NOT EXISTS campaign_groups (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,

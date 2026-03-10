@@ -1,6 +1,6 @@
 {
-    "version": "0.9.3",
-    "release_notes": "Geo tracking improvements: DB11-only flow, full IPv4+IPv6 auto-update package, richer click geo fields, and log UI enhancements.",
+    "version": "0.9.3.1",
+    "release_notes": "Added Backorder Domain Monitor: bulk import + notes/SEO metrics, RDAP-based availability checks (no registrar scraping/captcha), and a cron worker (backorder_cron.php) that checks one domain per run.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-03-09"
+    "released_at": "2026-03-10"
 }

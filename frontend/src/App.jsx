@@ -10,6 +10,7 @@ import MainChart from './components/MainChart';
 import DataTables from './components/DataTables';
 import RecentClicks from './components/RecentClicks';
 import Domains from './components/Domains';
+import BackorderDomains from './components/BackorderDomains';
 import Campaigns from './components/Campaigns';
 import TrafficSimulation from './components/TrafficSimulation';
 import Landings from './components/Landings';
@@ -317,6 +318,7 @@ function App() {
               <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
                 {activeTab === 'dashboard' && t('app.dashboard')}
                 {activeTab === 'domains' && t('app.domains')}
+                {activeTab === 'backorder' && t('app.backorder')}
                 {activeTab === 'campaigns' && t('app.campaigns')}
                 {activeTab === 'offers' && t('app.offers')}
                 {activeTab === 'sources' && t('app.sources')}
@@ -379,6 +381,10 @@ function App() {
 
             {activeTab === 'domains' && (
               <Domains campaigns={campaigns} />
+            )}
+
+            {activeTab === 'backorder' && (
+              <BackorderDomains />
             )}
 
             {activeTab === 'campaigns' && (

@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1w = [
+const __iconNode$1x = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$1w = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1w);
-const __iconNode$1v = [
+const Activity = createLucideIcon("activity", __iconNode$1x);
+const __iconNode$1w = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1v);
-const __iconNode$1u = [
+const Archive = createLucideIcon("archive", __iconNode$1w);
+const __iconNode$1v = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1u);
-const __iconNode$1t = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1v);
+const __iconNode$1u = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1t);
-const __iconNode$1s = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1u);
+const __iconNode$1t = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1s);
-const __iconNode$1r = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1t);
+const __iconNode$1s = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$1r = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1r);
-const __iconNode$1q = [
+const BellOff = createLucideIcon("bell-off", __iconNode$1s);
+const __iconNode$1r = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$1q = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1q);
-const __iconNode$1p = [
+const Bell = createLucideIcon("bell", __iconNode$1r);
+const __iconNode$1q = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1p);
-const __iconNode$1o = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$1q);
+const __iconNode$1p = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1o);
-const __iconNode$1n = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1p);
+const __iconNode$1o = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1n);
-const __iconNode$1m = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1o);
+const __iconNode$1n = [
   [
     "path",
     {
@@ -15198,33 +15198,44 @@ const __iconNode$1m = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1m);
-const __iconNode$1l = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1l);
-const __iconNode$1k = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1k);
-const __iconNode$1j = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1j);
-const __iconNode$1i = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1i);
-const __iconNode$1h = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1h);
-const __iconNode$1g = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1n);
+const __iconNode$1m = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1m);
+const __iconNode$1l = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1l);
+const __iconNode$1k = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1k);
+const __iconNode$1j = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1j);
+const __iconNode$1i = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1i);
+const __iconNode$1h = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1g);
-const __iconNode$1f = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1h);
+const __iconNode$1g = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1f);
-const __iconNode$1e = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1g);
+const __iconNode$1f = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1e);
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1f);
+const __iconNode$1e = [
+  [
+    "path",
+    {
+      d: "M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z",
+      key: "kmsa83"
+    }
+  ],
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
+];
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1e);
 const __iconNode$1d = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
@@ -15920,7 +15931,8 @@ const ru = {
     system: "Система",
     logout: "Выйти",
     trends: "Тренды",
-    domains: "Домены"
+    domains: "Домены",
+    backorder: "Backorder"
   },
   adminMenu: {
     users: "Пользователи",
@@ -16293,6 +16305,31 @@ const ru = {
     dnsInstruction: "Перейдите в настройки DNS у вашего регистратора и установите A-запись:",
     dnsNote1: "Регистратор актуализирует DNS записи до 24 часов.",
     dnsNote2: "Следующая проверка при обновлении страницы."
+  },
+  backorder: {
+    bannerTitle: "Отложенный мониторинг доменов",
+    bannerText: "Добавьте список доменов и проверяйте доступность через RDAP (без парсинга регистраторов и капчи). Для автоматической проверки настройте cron на backorder_cron.php.",
+    import: "Импорт",
+    importTitle: "Импорт доменов",
+    importPlaceholder: "example.com\nanotherdomain.net\n...",
+    importResult: "Добавлено: {inserted}, дубликаты: {duplicates}, невалидные: {invalid}",
+    deleteSelected: "Удалить выбранные",
+    deleteSelectedConfirm: "Удалить выбранные ({count})? Отменить действие невозможно.",
+    searchPlaceholder: "Поиск по доменам...",
+    domain: "Домен",
+    status: "Статус",
+    lastChecked: "Последняя проверка",
+    metrics: "Метрики",
+    notes: "Заметки",
+    noRows: "Домены не добавлены",
+    checkNow: "Проверить сейчас",
+    editTitle: "Метрики и заметки",
+    statusAvailable: "Свободен",
+    statusRegistered: "Занят",
+    statusUnknown: "Ожидает проверки",
+    statusRateLimited: "Лимит (429)",
+    statusUnsupported: "Нет RDAP",
+    statusError: "Ошибка"
   },
   admin: {
     users: "Пользователи",
@@ -17317,6 +17354,7 @@ const ru = {
   app: {
     dashboard: "Дашборд",
     domains: "Управление доменами",
+    backorder: "Backorder мониторинг",
     campaigns: "Кампании",
     offers: "Офферы",
     sources: "Источники трафика",
@@ -17471,7 +17509,8 @@ const en = {
     system: "System",
     logout: "Logout",
     trends: "Trends",
-    domains: "Domains"
+    domains: "Domains",
+    backorder: "Backorder"
   },
   adminMenu: {
     users: "Users",
@@ -17844,6 +17883,31 @@ const en = {
     dnsInstruction: "Go to DNS settings at your registrar and set the A-record:",
     dnsNote1: "The registrar updates DNS records within 24 hours.",
     dnsNote2: "Next check on page refresh."
+  },
+  backorder: {
+    bannerTitle: "Backorder Domain Monitor",
+    bannerText: "Add a list of domains and check availability via RDAP (no registrar scraping, no captcha). For automatic checks, set up cron to run backorder_cron.php.",
+    import: "Import",
+    importTitle: "Import domains",
+    importPlaceholder: "example.com\nanotherdomain.net\n...",
+    importResult: "Inserted: {inserted}, duplicates: {duplicates}, invalid: {invalid}",
+    deleteSelected: "Delete selected",
+    deleteSelectedConfirm: "Delete selected ({count})? This action cannot be undone.",
+    searchPlaceholder: "Search domains...",
+    domain: "Domain",
+    status: "Status",
+    lastChecked: "Last check",
+    metrics: "Metrics",
+    notes: "Notes",
+    noRows: "No domains added",
+    checkNow: "Check now",
+    editTitle: "Notes and metrics",
+    statusAvailable: "Available",
+    statusRegistered: "Registered",
+    statusUnknown: "Pending",
+    statusRateLimited: "Rate limited (429)",
+    statusUnsupported: "No RDAP",
+    statusError: "Error"
   },
   admin: {
     users: "Users",
@@ -18646,6 +18710,7 @@ const en = {
   app: {
     dashboard: "Dashboard",
     domains: "Domain Management",
+    backorder: "Backorder Monitor",
     campaigns: "Campaigns",
     offers: "Offers",
     sources: "Traffic Sources",
@@ -19111,7 +19176,8 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 18 }), label: t2("nav.networks"), tab: "networks" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 18 }), label: t2("nav.sources"), tab: "sources" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { size: 18 }), label: t2("nav.trends"), tab: "trends" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t2("nav.domains"), tab: "domains" }
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t2("nav.domains"), tab: "domains" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 18 }), label: t2("nav.backorder"), tab: "backorder" }
   ];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full fixed top-0 z-[1000] px-4 pt-4 md:px-6 md:pt-6 transition-all", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { className: "navbar-header h-[72px] flex items-center justify-between px-6 md:px-10 shadow-[var(--shadow-main)] bg-[var(--color-bg-card)] rounded-[24px] w-full mx-auto border-none transition-colors duration-300", children: [
@@ -19128,7 +19194,8 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 18 }), label: t2("nav.networks"), active: activeTab === "networks", onClick: () => setActiveTab("networks") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 18 }), label: t2("nav.sources"), active: activeTab === "sources", onClick: () => setActiveTab("sources") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { size: 18 }), label: t2("nav.trends"), active: activeTab === "trends", onClick: () => setActiveTab("trends") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t2("nav.domains"), active: activeTab === "domains", onClick: () => setActiveTab("domains") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t2("nav.domains"), active: activeTab === "domains", onClick: () => setActiveTab("domains") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 18 }), label: t2("nav.backorder"), active: activeTab === "backorder", onClick: () => setActiveTab("backorder") })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2 md:space-x-4", children: [
@@ -19383,7 +19450,7 @@ const NavItem = ({ icon, label, active, onClick }) => {
     }
   );
 };
-const API_URL$C = "/api.php";
+const API_URL$D = "/api.php";
 const Login = ({ onLogin }) => {
   const { t: t2 } = useLanguage();
   const [username, setUsername] = reactExports.useState("");
@@ -19426,7 +19493,7 @@ const Login = ({ onLogin }) => {
       return;
     }
     try {
-      const res = await fetch(`${API_URL$C}?action=login`, {
+      const res = await fetch(`${API_URL$D}?action=login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
@@ -19595,7 +19662,7 @@ const Login = ({ onLogin }) => {
     ] }) })
   ] });
 };
-const API_URL$B = "/api.php";
+const API_URL$C = "/api.php";
 const SetupWizard = ({ onComplete }) => {
   const { t: t2, setLanguage: setContextLanguage, language } = useLanguage();
   const [step, setStep] = reactExports.useState(1);
@@ -19650,7 +19717,7 @@ const SetupWizard = ({ onComplete }) => {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL$B}?action=setup_first_user`, {
+      const res = await fetch(`${API_URL$C}?action=setup_first_user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
@@ -31862,7 +31929,7 @@ const TableWidget = ({ title, data, t: t2 }) => {
 };
 var reactDomExports = requireReactDom();
 const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(reactDomExports);
-const API_URL$A = "/api.php";
+const API_URL$B = "/api.php";
 const ClickDetailsModal = ({ clickId, onClose }) => {
   const { t: t2 } = useLanguage();
   const [data, setData] = reactExports.useState(null);
@@ -31873,7 +31940,7 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     const fetchDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL$A}?action=click_details&id=${clickId}`);
+        const response = await axios.get(`${API_URL$B}?action=click_details&id=${clickId}`);
         if (response.data.status === "success") {
           setData(response.data.data);
         } else {
@@ -32328,7 +32395,7 @@ const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} })
             ` })
   ] });
 };
-const API_URL$z = "/api.php";
+const API_URL$A = "/api.php";
 const Domains = ({ campaigns }) => {
   const { t: t2 } = useLanguage();
   const [domains, setDomains] = reactExports.useState([]);
@@ -32353,7 +32420,7 @@ const Domains = ({ campaigns }) => {
   }, []);
   const fetchDomains = async () => {
     try {
-      const res = await axios.get(`${API_URL$z}?action=domains`);
+      const res = await axios.get(`${API_URL$A}?action=domains`);
       if (res.data.status === "success") {
         setDomains(res.data.data);
         setFilteredDomains(res.data.data);
@@ -32385,7 +32452,7 @@ const Domains = ({ campaigns }) => {
   const handleDelete = async (id) => {
     if (!window.confirm(t2("domains.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$z}?action=delete_domain`, { id });
+      await axios.post(`${API_URL$A}?action=delete_domain`, { id });
       fetchDomains();
     } catch (e) {
       console.error(e);
@@ -32402,7 +32469,7 @@ const Domains = ({ campaigns }) => {
     e.preventDefault();
     setError("");
     try {
-      const res = await axios.post(`${API_URL$z}?action=save_domain`, formData);
+      const res = await axios.post(`${API_URL$A}?action=save_domain`, formData);
       if (res.data.status === "success") {
         setShowModal(false);
         setFormData({ id: null, name: "", index_campaign_id: "", catch_404: false, group_id: "", is_noindex: true, https_only: false });
@@ -32626,6 +32693,437 @@ const Domains = ({ campaigns }) => {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-t bg-gray-50 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowDnsModal(false), className: "px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded font-medium", children: t2("common.close") }) })
+    ] }) })
+  ] });
+};
+const API_URL$z = "/api.php";
+const statusMeta = (t2, status) => {
+  switch (status) {
+    case "available":
+      return { label: t2("backorder.statusAvailable"), cls: "text-green-700 bg-green-50 border-green-100" };
+    case "registered":
+      return { label: t2("backorder.statusRegistered"), cls: "text-gray-700 bg-gray-50 border-gray-100" };
+    case "rate_limited":
+      return { label: t2("backorder.statusRateLimited"), cls: "text-amber-700 bg-amber-50 border-amber-100" };
+    case "unsupported":
+      return { label: t2("backorder.statusUnsupported"), cls: "text-slate-700 bg-slate-50 border-slate-100" };
+    case "error":
+      return { label: t2("backorder.statusError"), cls: "text-red-700 bg-red-50 border-red-100" };
+    case "unknown":
+    default:
+      return { label: t2("backorder.statusUnknown"), cls: "text-blue-700 bg-blue-50 border-blue-100" };
+  }
+};
+const BackorderDomains = () => {
+  const { t: t2 } = useLanguage();
+  const [rows, setRows] = reactExports.useState([]);
+  const [loading, setLoading] = reactExports.useState(true);
+  const [searchTerm, setSearchTerm] = reactExports.useState("");
+  const [statusFilter, setStatusFilter] = reactExports.useState("all");
+  const [selectedIds, setSelectedIds] = reactExports.useState(/* @__PURE__ */ new Set());
+  const [showImport, setShowImport] = reactExports.useState(false);
+  const [importText, setImportText] = reactExports.useState("");
+  const [importResult, setImportResult] = reactExports.useState(null);
+  const [importError, setImportError] = reactExports.useState("");
+  const [showEdit, setShowEdit] = reactExports.useState(false);
+  const [editError, setEditError] = reactExports.useState("");
+  const [editForm, setEditForm] = reactExports.useState({
+    id: null,
+    name: "",
+    notes: "",
+    ahrefs_dr: "",
+    ahrefs_ur: "",
+    ahrefs_ref_domains: ""
+  });
+  const fetchRows = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_URL$z}?action=backorder_domains`);
+      if (res.data.status === "success") {
+        setRows(res.data.data || []);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+  reactExports.useEffect(() => {
+    fetchRows();
+  }, []);
+  const filtered = reactExports.useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    return rows.filter((r2) => {
+      if (q && !String(r2.name || "").toLowerCase().includes(q)) return false;
+      if (statusFilter !== "all" && (r2.status || "unknown") !== statusFilter) return false;
+      return true;
+    });
+  }, [rows, searchTerm, statusFilter]);
+  const allVisibleSelected = reactExports.useMemo(() => {
+    if (filtered.length === 0) return false;
+    return filtered.every((r2) => selectedIds.has(r2.id));
+  }, [filtered, selectedIds]);
+  const toggleSelectAllVisible = () => {
+    const next = new Set(selectedIds);
+    if (allVisibleSelected) {
+      filtered.forEach((r2) => next.delete(r2.id));
+    } else {
+      filtered.forEach((r2) => next.add(r2.id));
+    }
+    setSelectedIds(next);
+  };
+  const toggleOne = (id) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+  const deleteOne = async (id) => {
+    if (!window.confirm(t2("common.deleteConfirm"))) return;
+    try {
+      await axios.post(`${API_URL$z}?action=backorder_delete`, { id });
+      setSelectedIds((prev) => {
+        const n = new Set(prev);
+        n.delete(id);
+        return n;
+      });
+      fetchRows();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  const deleteSelected = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    if (!window.confirm(t2("backorder.deleteSelectedConfirm").replace("{count}", String(ids.length)))) return;
+    try {
+      await axios.post(`${API_URL$z}?action=backorder_delete_selected`, { ids });
+      setSelectedIds(/* @__PURE__ */ new Set());
+      fetchRows();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  const openEdit = (row) => {
+    setEditError("");
+    setEditForm({
+      id: row.id,
+      name: row.name,
+      notes: row.notes || "",
+      ahrefs_dr: row.ahrefs_dr ?? "",
+      ahrefs_ur: row.ahrefs_ur ?? "",
+      ahrefs_ref_domains: row.ahrefs_ref_domains ?? ""
+    });
+    setShowEdit(true);
+  };
+  const saveEdit = async (e) => {
+    e.preventDefault();
+    setEditError("");
+    try {
+      const payload = {
+        id: editForm.id,
+        notes: editForm.notes,
+        ahrefs_dr: editForm.ahrefs_dr,
+        ahrefs_ur: editForm.ahrefs_ur,
+        ahrefs_ref_domains: editForm.ahrefs_ref_domains
+      };
+      const res = await axios.post(`${API_URL$z}?action=backorder_update`, payload);
+      if (res.data.status === "success") {
+        setShowEdit(false);
+        fetchRows();
+      } else {
+        setEditError(res.data.message || t2("common.error"));
+      }
+    } catch (e2) {
+      setEditError(t2("common.networkError"));
+    }
+  };
+  const checkNow = async (id) => {
+    try {
+      await axios.post(`${API_URL$z}?action=backorder_check_now`, { id });
+      fetchRows();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  const submitImport = async (e) => {
+    e.preventDefault();
+    setImportError("");
+    setImportResult(null);
+    try {
+      const res = await axios.post(`${API_URL$z}?action=backorder_import`, { domains_text: importText });
+      if (res.data.status === "success") {
+        setImportResult(res.data.data);
+        fetchRows();
+      } else {
+        setImportError(res.data.message || t2("common.error"));
+      }
+    } catch (e2) {
+      setImportError(t2("common.networkError"));
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded shadow-sm p-5 mb-6", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_backorder", title: t2("backorder.bannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("backorder.bannerText") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              placeholder: t2("backorder.searchPlaceholder"),
+              value: searchTerm,
+              onChange: (e) => setSearchTerm(e.target.value),
+              className: "pl-9 pr-4 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500 w-64"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "select",
+          {
+            value: statusFilter,
+            onChange: (e) => setStatusFilter(e.target.value),
+            className: "px-3 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: t2("common.all") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "available", children: t2("backorder.statusAvailable") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "unknown", children: t2("backorder.statusUnknown") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "registered", children: t2("backorder.statusRegistered") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "rate_limited", children: t2("backorder.statusRateLimited") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "error", children: t2("backorder.statusError") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "unsupported", children: t2("backorder.statusUnsupported") })
+            ]
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: fetchRows,
+            className: "bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition",
+            title: t2("common.refresh"),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16 }),
+              " ",
+              t2("common.refresh")
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => {
+              setImportResult(null);
+              setImportError("");
+              setImportText("");
+              setShowImport(true);
+            },
+            className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+              " ",
+              t2("backorder.import")
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: deleteSelected,
+            disabled: selectedIds.size === 0,
+            className: `px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition ${selectedIds.size === 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700 text-white"}`,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 }),
+              " ",
+              t2("backorder.deleteSelected")
+            ]
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left text-sm border-collapse", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-gray-50 border-b border-gray-100", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: allVisibleSelected, onChange: toggleSelectAllVisible }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("backorder.domain") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("backorder.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("backorder.lastChecked") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("backorder.metrics") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("backorder.notes") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-right", children: t2("common.actions") })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-100", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center py-8", children: t2("common.loading") }) }) : filtered.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center py-8 text-gray-500", children: t2("backorder.noRows") }) }) : filtered.map((r2) => {
+        const meta = statusMeta(t2, r2.status || "unknown");
+        const checked = selectedIds.has(r2.id);
+        const metricsText = `DR ${r2.ahrefs_dr ?? "-"} / UR ${r2.ahrefs_ur ?? "-"} / RD ${r2.ahrefs_ref_domains ?? "-"}`;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-gray-50 transition", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked, onChange: () => toggleOne(r2.id) }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-medium text-gray-800", children: r2.name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `inline-flex items-center gap-1 text-sm font-medium px-2 py-1 rounded border ${meta.cls}`, children: [
+            r2.status === "available" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }) : r2.status === "registered" ? /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 14 }),
+            meta.label
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-600 text-xs", children: r2.last_checked_at || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400 italic", children: "-" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-600 text-xs font-mono", children: metricsText }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-700 text-xs max-w-[360px] truncate", title: r2.notes || "", children: r2.notes ? r2.notes : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400 italic", children: "-" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => checkNow(r2.id),
+                className: "p-1.5 text-gray-400 hover:text-emerald-700 hover:bg-emerald-50 rounded transition",
+                title: t2("backorder.checkNow"),
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(CirclePlay, { size: 16 })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => openEdit(r2),
+                className: "p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition",
+                title: t2("components.edit") || "Edit",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => deleteOne(r2.id),
+                className: "p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition",
+                title: t2("common.delete"),
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 })
+              }
+            )
+          ] }) })
+        ] }, r2.id);
+      }) })
+    ] }) }),
+    showImport && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-2xl p-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold", children: t2("backorder.importTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "text-gray-400 hover:text-gray-700", onClick: () => setShowImport(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 18 }) })
+      ] }),
+      importError && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-red-50 text-red-600 p-3 rounded text-sm mb-4 flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
+        " ",
+        importError
+      ] }),
+      importResult && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-green-50 text-green-700 p-3 rounded text-sm mb-4", children: t2("backorder.importResult").replace("{inserted}", String(importResult.inserted || 0)).replace("{duplicates}", String(importResult.duplicates_ignored || 0)).replace("{invalid}", String(importResult.invalid || 0)) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: submitImport, className: "space-y-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "textarea",
+          {
+            value: importText,
+            onChange: (e) => setImportText(e.target.value),
+            rows: 10,
+            placeholder: t2("backorder.importPlaceholder"),
+            className: "w-full border border-gray-300 p-3 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-mono"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: () => setShowImport(false),
+              className: "bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded text-sm font-medium transition",
+              children: t2("common.close")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "submit",
+              className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition",
+              children: t2("backorder.import")
+            }
+          )
+        ] })
+      ] })
+    ] }) }),
+    showEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-lg p-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold", children: t2("backorder.editTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "text-gray-400 hover:text-gray-700", onClick: () => setShowEdit(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 18 }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-gray-600 mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: editForm.name }) }),
+      editError && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-red-50 text-red-600 p-3 rounded text-sm mb-4 flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
+        " ",
+        editError
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: saveEdit, className: "space-y-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t2("backorder.notes") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "textarea",
+            {
+              value: editForm.notes,
+              onChange: (e) => setEditForm({ ...editForm, notes: e.target.value }),
+              rows: 4,
+              className: "w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-3 gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: "DR" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                value: editForm.ahrefs_dr,
+                onChange: (e) => setEditForm({ ...editForm, ahrefs_dr: e.target.value }),
+                className: "w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm",
+                inputMode: "decimal"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: "UR" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                value: editForm.ahrefs_ur,
+                onChange: (e) => setEditForm({ ...editForm, ahrefs_ur: e.target.value }),
+                className: "w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm",
+                inputMode: "decimal"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: "Ref" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                value: editForm.ahrefs_ref_domains,
+                onChange: (e) => setEditForm({ ...editForm, ahrefs_ref_domains: e.target.value }),
+                className: "w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm",
+                inputMode: "numeric"
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: () => setShowEdit(false),
+              className: "bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded text-sm font-medium transition",
+              children: t2("common.cancel")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "submit",
+              className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition",
+              children: t2("common.save")
+            }
+          )
+        ] })
+      ] })
     ] }) })
   ] });
 };
@@ -54820,6 +55318,7 @@ function App() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl font-bold", style: { color: "var(--color-text-primary)" }, children: [
           activeTab === "dashboard" && t2("app.dashboard"),
           activeTab === "domains" && t2("app.domains"),
+          activeTab === "backorder" && t2("app.backorder"),
           activeTab === "campaigns" && t2("app.campaigns"),
           activeTab === "offers" && t2("app.offers"),
           activeTab === "sources" && t2("app.sources"),
@@ -54884,6 +55383,7 @@ function App() {
         )
       ] }),
       activeTab === "domains" && /* @__PURE__ */ jsxRuntimeExports.jsx(Domains, { campaigns }),
+      activeTab === "backorder" && /* @__PURE__ */ jsxRuntimeExports.jsx(BackorderDomains, {}),
       activeTab === "campaigns" && /* @__PURE__ */ jsxRuntimeExports.jsx(
         Campaigns,
         {
