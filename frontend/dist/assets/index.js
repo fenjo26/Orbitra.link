@@ -16309,6 +16309,7 @@ const ru = {
   backorder: {
     bannerTitle: "Отложенный мониторинг доменов",
     bannerText: "Добавьте список доменов и проверяйте доступность для регистрации (Свободен/Занят). По умолчанию включена автопроверка (пока открыта страница) и проверка идет постепенно (по 1 домену за раз). Для режима 24/7 без открытой страницы зайдите в Настройки → Автоматизация и включите cron (есть вариант установки в crontab из интерфейса).",
+    openAutomation: "Настроить 24/7 (Automation)",
     import: "Импорт",
     importTitle: "Импорт доменов",
     importPlaceholder: "example.com\nanotherdomain.net\n...",
@@ -17971,6 +17972,7 @@ const en = {
   backorder: {
     bannerTitle: "Backorder Domain Monitor",
     bannerText: "Add a list of domains and check registration availability (Available/Registered). Auto-check is enabled by default (while the page is open) and runs gradually (1 domain per step). For 24/7 checks without an open page, go to Settings → Automation and enable cron (UI can attempt to install into crontab).",
+    openAutomation: "Set up 24/7 (Automation)",
     import: "Import",
     importTitle: "Import domains",
     importPlaceholder: "example.com\nanotherdomain.net\n...",
@@ -32882,7 +32884,7 @@ const statusMeta = (t2, status) => {
       return { label: t2("backorder.statusUnknown"), cls: "text-blue-700 bg-blue-50 border-blue-100" };
   }
 };
-const BackorderDomains = () => {
+const BackorderDomains = ({ onOpenAutomation = null }) => {
   const { t: t2 } = useLanguage();
   const [rows, setRows] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
@@ -33208,7 +33210,10 @@ const BackorderDomains = () => {
     downloadText("backorder_domains.csv", lines.join("\n") + "\n", "text/csv;charset=utf-8");
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded shadow-sm p-5 mb-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_backorder", title: t2("backorder.bannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("backorder.bannerText") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(InfoBanner, { storageKey: "help_backorder", title: t2("backorder.bannerTitle"), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("backorder.bannerText") }),
+      typeof onOpenAutomation === "function" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: onOpenAutomation, children: t2("backorder.openAutomation") }) })
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
@@ -39850,6 +39855,14 @@ const Settings = () => {
   ];
   const activeTabObj = tabs.find((t22) => t22.id === activeTab) || tabs[0];
   const ActiveComponent = activeTabObj.component;
+  reactExports.useEffect(() => {
+    const requested = localStorage.getItem("orbitra_settings_tab") || "";
+    if (!requested) return;
+    if (tabs.some((x) => x.id === requested)) {
+      setActiveTab(requested);
+    }
+    localStorage.removeItem("orbitra_settings_tab");
+  }, []);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "row", gap: "24px" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "240px", flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { padding: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("nav", { style: { display: "flex", flexDirection: "column" }, children: tabs.map((tab) => {
       const Icon2 = tab.icon;
@@ -56208,7 +56221,15 @@ function App() {
         )
       ] }),
       activeTab === "domains" && /* @__PURE__ */ jsxRuntimeExports.jsx(Domains, { campaigns }),
-      activeTab === "backorder" && /* @__PURE__ */ jsxRuntimeExports.jsx(BackorderDomains, {}),
+      activeTab === "backorder" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        BackorderDomains,
+        {
+          onOpenAutomation: () => {
+            localStorage.setItem("orbitra_settings_tab", "automation");
+            setActiveTab("admin_settings");
+          }
+        }
+      ),
       activeTab === "campaigns" && /* @__PURE__ */ jsxRuntimeExports.jsx(
         Campaigns,
         {

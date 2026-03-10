@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Settings as SettingsIcon, User, ShieldBan, RefreshCw, BarChart2, HardDrive, Shield, Clock } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -28,6 +28,17 @@ const Settings = () => {
 
     const activeTabObj = tabs.find(t => t.id === activeTab) || tabs[0];
     const ActiveComponent = activeTabObj.component;
+
+    useEffect(() => {
+        // Allow other pages to request a specific settings tab (e.g. Backorder -> Automation).
+        const requested = localStorage.getItem('orbitra_settings_tab') || '';
+        if (!requested) return;
+        if (tabs.some(x => x.id === requested)) {
+            setActiveTab(requested);
+        }
+        localStorage.removeItem('orbitra_settings_tab');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'row', gap: '24px' }}>

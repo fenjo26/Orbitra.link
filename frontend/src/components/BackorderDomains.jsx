@@ -24,7 +24,7 @@ const statusMeta = (t, status) => {
     }
 };
 
-const BackorderDomains = () => {
+const BackorderDomains = ({ onOpenAutomation = null }) => {
     const { t } = useLanguage();
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -416,6 +416,13 @@ const BackorderDomains = () => {
         <div className="bg-white rounded shadow-sm p-5 mb-6">
             <InfoBanner storageKey="help_backorder" title={t('backorder.bannerTitle')}>
                 <p>{t('backorder.bannerText')}</p>
+                {typeof onOpenAutomation === 'function' && (
+                    <div className="mt-2">
+                        <button className="btn btn-secondary" type="button" onClick={onOpenAutomation}>
+                            {t('backorder.openAutomation')}
+                        </button>
+                    </div>
+                )}
             </InfoBanner>
 
             <div className="flex justify-between items-center mb-6">

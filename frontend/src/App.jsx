@@ -384,7 +384,12 @@ function App() {
             )}
 
             {activeTab === 'backorder' && (
-              <BackorderDomains />
+              <BackorderDomains
+                onOpenAutomation={() => {
+                  localStorage.setItem('orbitra_settings_tab', 'automation');
+                  setActiveTab('admin_settings');
+                }}
+              />
             )}
 
             {activeTab === 'campaigns' && (

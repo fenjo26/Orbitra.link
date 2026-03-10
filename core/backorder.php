@@ -688,11 +688,22 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
             } elseif (strpos($msgLc, 'in use') !== false) {
                 $status = 'registered';
                 $err = null;
+            } elseif (strpos($msgLc, 'pending registration declaration') !== false) {
+                // The registry indicates the name is in a pending/hold state; it should be treated as not available.
+                $status = 'registered';
+                $err = null;
             } elseif (strpos($htmlLc, 'can be provisioned') !== false) {
                 $status = 'available';
                 $err = null;
                 if ($msg === null || $msg === '') {
                     $msg = $domain . ' : The Domain Name can be provisioned.';
+                    $msgLc = strtolower($msg);
+                }
+            } elseif (strpos($htmlLc, 'pending registration declaration') !== false) {
+                $status = 'registered';
+                $err = null;
+                if ($msg === null || $msg === '') {
+                    $msg = $domain . ' : Pending registration declaration';
                     $msgLc = strtolower($msg);
                 }
             } elseif (strpos($htmlLc, ' : in use') !== false) {
