@@ -439,7 +439,7 @@ export default {
         statusRegistered: "Занят",
         statusUnknown: "Ожидает проверки",
         statusRateLimited: "Лимит (429)",
-        statusUnsupported: "Нет RDAP",
+        statusUnsupported: "Нельзя проверить",
         statusError: "Ошибка"
     },
     admin: {

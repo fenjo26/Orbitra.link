@@ -516,6 +516,246 @@ function orbitraBackorderRdapCheck(string $domain, int $timeoutSeconds = 10): ar
 }
 
 /**
+ * .gr registry provides an official web WHOIS/availability UI (no RDAP and no port-43 WHOIS in many cases).
+ * This function performs a minimal form POST against that UI and parses the resulting page.
+ *
+ * @return array{status:string,http_code:int,rdap_url:?string,error:?string,result_json:?string}
+ */
+function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): array
+{
+    $tld = orbitraBackorderExtractTld($domain);
+    if (!in_array($tld, ['gr', 'xn--qxam'], true)) {
+        return [
+            'status' => 'unsupported',
+            'http_code' => 0,
+            'rdap_url' => null,
+            'error' => 'Not a .gr/.ελ domain',
+            'result_json' => null,
+        ];
+    }
+
+    if (!orbitraBackorderIsValidDomain($domain)) {
+        return [
+            'status' => 'error',
+            'http_code' => 0,
+            'rdap_url' => null,
+            'error' => 'Invalid domain format',
+            'result_json' => null,
+        ];
+    }
+
+    $baseUrl = 'https://grweb.ics.forth.gr';
+    $formUrl = $baseUrl . '/public/whois?lang=en';
+    $resultUrl = $baseUrl . '/public/whois';
+    $postUrl = $baseUrl . '/public/whois/query';
+
+    try {
+        $httpVersions = [];
+        if (defined('CURL_HTTP_VERSION_2TLS')) {
+            $httpVersions[] = CURL_HTTP_VERSION_2TLS;
+        }
+        $httpVersions[] = CURL_HTTP_VERSION_1_1;
+
+        $lastError = null;
+        foreach ($httpVersions as $httpVersion) {
+            // Keep a single curl handle so cookies persist in-memory even on PHP versions
+            // where curl_close() is a no-op.
+            $cookieFile = @tempnam(sys_get_temp_dir(), 'orbitra_grwhois_');
+            if (!is_string($cookieFile) || $cookieFile === '') {
+                $cookieFile = __DIR__ . '/../var/cache/grwhois_cookie.txt';
+            }
+
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => $timeoutSeconds,
+                CURLOPT_CONNECTTIMEOUT => 5,
+                CURLOPT_USERAGENT => 'Orbitra-Backorder/0.2',
+                CURLOPT_COOKIEJAR => $cookieFile,
+                CURLOPT_COOKIEFILE => $cookieFile,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
+                CURLOPT_HTTP_VERSION => $httpVersion,
+            ]);
+
+            // 1) GET form to obtain CSRF + session cookies
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $formUrl,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_MAXREDIRS => 3,
+                CURLOPT_HTTPHEADER => ['Accept: text/html'],
+                CURLOPT_POST => false,
+                CURLOPT_HTTPGET => true,
+            ]);
+            $html = curl_exec($ch);
+            $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+            $curlErr = curl_error($ch);
+
+            if ($html === false || !is_string($html) || $html === '' || $code < 200 || $code >= 400) {
+                $lastError = $curlErr ?: ('GR WHOIS form fetch failed (HTTP ' . $code . ')');
+                unset($ch);
+                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0) @unlink($cookieFile);
+                continue;
+            }
+
+            if (!preg_match('/name="_csrf"\\s+value="([^"]+)"/i', $html, $m)) {
+                $lastError = 'GR WHOIS: CSRF token not found';
+                unset($ch);
+                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0) @unlink($cookieFile);
+                continue;
+            }
+            $csrf = $m[1];
+
+            // 2) POST query (it redirects back to /public/whois)
+            $postData = http_build_query([
+                '_csrf' => $csrf,
+                'domain' => $domain,
+            ]);
+
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $postUrl,
+                CURLOPT_FOLLOWLOCATION => false,
+                CURLOPT_HTTPHEADER => [
+                    'Accept: text/html',
+                    'Content-Type: application/x-www-form-urlencoded',
+                    'Referer: ' . $formUrl,
+                    'Expect:',
+                ],
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $postData,
+            ]);
+            $body2 = curl_exec($ch);
+            $code2 = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+            $curlErr2 = curl_error($ch);
+
+            if ($body2 === false) {
+                $lastError = $curlErr2 ?: 'GR WHOIS query failed';
+                unset($ch);
+                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0) @unlink($cookieFile);
+                continue;
+            }
+
+            if ($code2 === 403) {
+                $lastError = 'GR WHOIS blocked request (HTTP 403)';
+                unset($ch);
+                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0) @unlink($cookieFile);
+                continue;
+            }
+
+            // 3) GET results page (POST redirects to /public/whois)
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $resultUrl,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_MAXREDIRS => 3,
+                CURLOPT_HTTPHEADER => ['Accept: text/html', 'Referer: ' . $formUrl],
+                CURLOPT_POST => false,
+                CURLOPT_HTTPGET => true,
+            ]);
+            $htmlRes = curl_exec($ch);
+            $code3 = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+            $curlErr3 = curl_error($ch);
+
+            if ($htmlRes === false || !is_string($htmlRes) || $htmlRes === '' || $code3 < 200 || $code3 >= 400) {
+                $lastError = $curlErr3 ?: ('GR WHOIS result fetch failed (HTTP ' . $code3 . ')');
+                unset($ch);
+                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0) @unlink($cookieFile);
+                continue;
+            }
+
+            // Parse the alert message rendered after query.
+            $msg = null;
+            if (preg_match('/<div\\s+role=\"alert\"[^>]*>.*?<strong>\\s*([^<]+)\\s*<\\/strong>/is', $htmlRes, $mm)) {
+                $msg = trim(html_entity_decode($mm[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            } elseif (preg_match('/<strong>\\s*([^<]+)\\s*<\\/strong>/i', $htmlRes, $mm)) {
+                $msg = trim(html_entity_decode($mm[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            }
+            // As a fallback, try to capture the exact `<strong>domain : ...</strong>` line.
+            if (($msg === null || $msg === '') && preg_match('/<strong>\\s*' . preg_quote($domain, '/') . '\\s*:\\s*([^<]+)\\s*<\\/strong>/i', $htmlRes, $mm2)) {
+                $msg = $domain . ' : ' . trim(html_entity_decode($mm2[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            }
+            $msgLc = is_string($msg) ? strtolower($msg) : '';
+            $htmlLc = strtolower($htmlRes);
+
+            $status = 'error';
+            $err = 'GR WHOIS: unrecognized response';
+
+            if (strpos($msgLc, 'can be provisioned') !== false) {
+                $status = 'available';
+                $err = null;
+            } elseif (strpos($msgLc, 'in use') !== false) {
+                $status = 'registered';
+                $err = null;
+            } elseif (strpos($htmlLc, 'can be provisioned') !== false) {
+                $status = 'available';
+                $err = null;
+                if ($msg === null || $msg === '') {
+                    $msg = $domain . ' : The Domain Name can be provisioned.';
+                    $msgLc = strtolower($msg);
+                }
+            } elseif (strpos($htmlLc, ' : in use') !== false) {
+                $status = 'registered';
+                $err = null;
+                if ($msg === null || $msg === '') {
+                    $msg = $domain . ' : In use';
+                    $msgLc = strtolower($msg);
+                }
+            } elseif ($msg !== null && $msg !== '') {
+                $err = 'GR WHOIS: ' . $msg;
+            }
+
+            // Parse nameservers if present.
+            $ns = [];
+            $needle = 'Nameserver';
+            $pos = stripos($htmlRes, $needle);
+            if ($pos !== false) {
+                $slice = substr($htmlRes, $pos, 4000);
+                if (preg_match_all('/<div class="col-12 text-md-end">\\s*([^<\\s]+)\\s*<\\/div>/i', $slice, $nsM)) {
+                    foreach ($nsM[1] as $v) {
+                        $v = strtolower(trim(html_entity_decode($v, ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+                        if ($v !== '' && strpos($v, '.') !== false && strlen($v) <= 255) {
+                            $ns[] = $v;
+                        }
+                    }
+                    $ns = array_values(array_unique($ns));
+                }
+            }
+
+            $out = [
+                'status' => $status,
+                'http_code' => 0,
+                'rdap_url' => $formUrl,
+                'error' => $err,
+                'result_json' => json_encode([
+                    'method' => 'grweb',
+                    'message' => $msg,
+                    'nameservers' => $ns,
+                ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+            ];
+
+            unset($ch);
+            if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0) @unlink($cookieFile);
+
+            if (in_array($status, ['available', 'registered'], true)) {
+                return $out;
+            }
+
+            $lastError = $err;
+            continue;
+        }
+
+        return [
+            'status' => 'error',
+            'http_code' => 0,
+            'rdap_url' => $formUrl,
+            'error' => $lastError ?: 'GR WHOIS: failed',
+            'result_json' => null,
+        ];
+    } finally {
+        // resources cleaned up per-attempt
+    }
+}
+
+/**
  * Full check: RDAP first, WHOIS fallback when RDAP is unsupported for this TLD.
  *
  * @return array{status:string,http_code:int,rdap_url:?string,error:?string,result_json:?string}
@@ -525,6 +765,15 @@ function orbitraBackorderCheck(string $domain, int $timeoutSeconds = 10): array
     $rdap = orbitraBackorderRdapCheck($domain, $timeoutSeconds);
     if (($rdap['status'] ?? '') !== 'unsupported') {
         return $rdap;
+    }
+
+    $tld = orbitraBackorderExtractTld($domain);
+    if (in_array($tld, ['gr', 'xn--qxam'], true)) {
+        $gr = orbitraBackorderGrWebCheck($domain, max(10, $timeoutSeconds));
+        if (in_array(($gr['status'] ?? ''), ['available', 'registered'], true)) {
+            return $gr;
+        }
+        // If GR web check fails, continue with WHOIS fallback (may still succeed for .ελ in the future).
     }
 
     // RDAP unsupported for this TLD. Try WHOIS as best-effort fallback.

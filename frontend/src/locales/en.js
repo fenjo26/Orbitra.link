@@ -439,7 +439,7 @@ export default {
         statusRegistered: "Registered",
         statusUnknown: "Pending",
         statusRateLimited: "Rate limited (429)",
-        statusUnsupported: "No RDAP",
+        statusUnsupported: "Cannot check",
         statusError: "Error"
     },
     admin: {

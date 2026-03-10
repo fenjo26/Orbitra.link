@@ -16334,7 +16334,7 @@ const ru = {
     statusRegistered: "Занят",
     statusUnknown: "Ожидает проверки",
     statusRateLimited: "Лимит (429)",
-    statusUnsupported: "Нет RDAP",
+    statusUnsupported: "Нельзя проверить",
     statusError: "Ошибка"
   },
   admin: {
@@ -17951,7 +17951,7 @@ const en = {
     statusRegistered: "Registered",
     statusUnknown: "Pending",
     statusRateLimited: "Rate limited (429)",
-    statusUnsupported: "No RDAP",
+    statusUnsupported: "Cannot check",
     statusError: "Error"
   },
   admin: {
@@ -33092,10 +33092,22 @@ const BackorderDomains = () => {
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-gray-50 transition", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked, onChange: () => toggleOne(r2.id) }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-medium text-gray-800", children: r2.name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `inline-flex items-center gap-1 text-sm font-medium px-2 py-1 rounded border ${meta.cls}`, children: [
-            r2.status === "available" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }) : r2.status === "registered" ? /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 14 }),
-            meta.label
-          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "span",
+            {
+              className: `inline-flex items-center gap-1 text-sm font-medium px-2 py-1 rounded border ${meta.cls}`,
+              title: [
+                meta.label,
+                r2.last_http_code ? `HTTP ${r2.last_http_code}` : "",
+                r2.last_error ? `Error: ${r2.last_error}` : "",
+                r2.last_rdap_url ? `Source: ${r2.last_rdap_url}` : ""
+              ].filter(Boolean).join("\n"),
+              children: [
+                r2.status === "available" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }) : r2.status === "registered" ? /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 14 }),
+                meta.label
+              ]
+            }
+          ) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-600 text-xs", children: r2.last_checked_at || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400 italic", children: "-" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-700 text-xs max-w-[360px] truncate", title: r2.notes || "", children: r2.notes ? r2.notes : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400 italic", children: "-" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-2", children: [

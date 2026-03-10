@@ -356,7 +356,15 @@ const BackorderDomains = () => {
                                         </td>
                                         <td className="px-5 py-3 font-medium text-gray-800">{r.name}</td>
                                         <td className="px-5 py-3">
-                                            <span className={`inline-flex items-center gap-1 text-sm font-medium px-2 py-1 rounded border ${meta.cls}`}>
+                                            <span
+                                                className={`inline-flex items-center gap-1 text-sm font-medium px-2 py-1 rounded border ${meta.cls}`}
+                                                title={[
+                                                    meta.label,
+                                                    r.last_http_code ? `HTTP ${r.last_http_code}` : '',
+                                                    r.last_error ? `Error: ${r.last_error}` : '',
+                                                    r.last_rdap_url ? `Source: ${r.last_rdap_url}` : '',
+                                                ].filter(Boolean).join('\n')}
+                                            >
                                                 {r.status === 'available' ? <Check size={14} /> : (r.status === 'registered' ? <X size={14} /> : <AlertCircle size={14} />)}
                                                 {meta.label}
                                             </span>
