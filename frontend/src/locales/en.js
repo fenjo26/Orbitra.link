@@ -413,7 +413,7 @@ export default {
     },
     backorder: {
         bannerTitle: "Backorder Domain Monitor",
-        bannerText: "Add a list of domains and check registration availability (Available/Registered). Auto-check is enabled by default (while the page is open) and runs gradually (1 domain per step). For 24/7 checks without an open page, set up cron to run backorder_cron.php.",
+        bannerText: "Add a list of domains and check registration availability (Available/Registered). Auto-check is enabled by default (while the page is open) and runs gradually (1 domain per step). For 24/7 checks without an open page, go to Settings → Automation and enable cron (UI can attempt to install into crontab).",
         import: "Import",
         importTitle: "Import domains",
         importPlaceholder: "example.com\nanotherdomain.net\n...",

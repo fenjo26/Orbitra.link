@@ -546,7 +546,8 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
 
     $baseUrl = 'https://grweb.ics.forth.gr';
     $formUrl = $baseUrl . '/public/whois?lang=en';
-    $resultUrl = $baseUrl . '/public/whois';
+    // Keep lang=en on results as well (otherwise the UI may default to Greek and parsing becomes unreliable).
+    $resultUrl = $baseUrl . '/public/whois?lang=en';
     $postUrl = $baseUrl . '/public/whois/query';
 
     try {
@@ -576,6 +577,8 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
                 CURLOPT_SSL_VERIFYPEER => true,
                 CURLOPT_SSL_VERIFYHOST => 2,
                 CURLOPT_HTTP_VERSION => $httpVersion,
+                // Some registries return compressed responses. Let curl negotiate + decode.
+                CURLOPT_ENCODING => '',
             ]);
 
             // 1) GET form to obtain CSRF + session cookies
@@ -748,7 +751,11 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
             'http_code' => 0,
             'rdap_url' => $formUrl,
             'error' => $lastError ?: 'GR WHOIS: failed',
-            'result_json' => null,
+            // Store a small hint to help debugging on servers that get blocked by WAF/captcha.
+            'result_json' => json_encode([
+                'method' => 'grweb',
+                'error' => $lastError ?: 'failed',
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
         ];
     } finally {
         // resources cleaned up per-attempt
@@ -778,7 +785,12 @@ function orbitraBackorderCheck(string $domain, int $timeoutSeconds = 10): array
         if (in_array(($gr['status'] ?? ''), ['available', 'registered'], true)) {
             return $gr;
         }
-        // If GR web check fails, continue with WHOIS fallback (may still succeed for .ελ in the future).
+        // For .gr we prefer returning the actual GR registry failure instead of "No RDAP",
+        // otherwise users see a misleading "cannot check" even when the registry endpoint is blocked.
+        if (in_array(($gr['status'] ?? ''), ['error', 'rate_limited'], true)) {
+            return $gr;
+        }
+        // If GR web check fails with "unsupported" for some future corner case, continue with WHOIS fallback.
     }
 
     // RDAP unsupported for this TLD. Try WHOIS as best-effort fallback.
