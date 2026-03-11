@@ -4,9 +4,13 @@ $db_file = __DIR__ . '/orbitra_db.sqlite';
 $postback_key = 'fd12e72';
 
 try {
-    $pdo = new PDO("sqlite:" . $db_file);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    // 5 seconds timeout ensures PHP waits if the database is temporarily locked by another process
+    $pdoOptions = [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_TIMEOUT => 5
+    ];
+    $pdo = new PDO("sqlite:" . $db_file, null, null, $pdoOptions);
 
     // Set busy timeout FIRST so subsequent commands will wait up to 5 seconds if DB is locked
     $pdo->exec("PRAGMA busy_timeout = 5000;");
