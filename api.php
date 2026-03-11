@@ -1884,7 +1884,8 @@ try {
                     last_checked_at,
                     last_http_code,
                     last_error,
-                    last_rdap_url
+                    last_rdap_url,
+                    last_result_json
                 FROM backorder_domains
                 ORDER BY
                     CASE COALESCE(NULLIF(status, ''), 'unknown')

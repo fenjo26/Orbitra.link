@@ -597,14 +597,16 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
             if ($html === false || !is_string($html) || $html === '' || $code < 200 || $code >= 400) {
                 $lastError = $curlErr ?: ('GR WHOIS form fetch failed (HTTP ' . $code . ')');
                 unset($ch);
-                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0) @unlink($cookieFile);
+                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0)
+                    @unlink($cookieFile);
                 continue;
             }
 
             if (!preg_match('/name="_csrf"\\s+value="([^"]+)"/i', $html, $m)) {
                 $lastError = 'GR WHOIS: CSRF token not found';
                 unset($ch);
-                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0) @unlink($cookieFile);
+                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0)
+                    @unlink($cookieFile);
                 continue;
             }
             $csrf = $m[1];
@@ -634,14 +636,16 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
             if ($body2 === false) {
                 $lastError = $curlErr2 ?: 'GR WHOIS query failed';
                 unset($ch);
-                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0) @unlink($cookieFile);
+                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0)
+                    @unlink($cookieFile);
                 continue;
             }
 
             if ($code2 === 403) {
                 $lastError = 'GR WHOIS blocked request (HTTP 403)';
                 unset($ch);
-                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0) @unlink($cookieFile);
+                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0)
+                    @unlink($cookieFile);
                 continue;
             }
 
@@ -661,7 +665,8 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
             if ($htmlRes === false || !is_string($htmlRes) || $htmlRes === '' || $code3 < 200 || $code3 >= 400) {
                 $lastError = $curlErr3 ?: ('GR WHOIS result fetch failed (HTTP ' . $code3 . ')');
                 unset($ch);
-                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0) @unlink($cookieFile);
+                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0)
+                    @unlink($cookieFile);
                 continue;
             }
 
@@ -747,7 +752,8 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
             ];
 
             unset($ch);
-            if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0) @unlink($cookieFile);
+            if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0)
+                @unlink($cookieFile);
 
             if (in_array($status, ['available', 'registered'], true)) {
                 return $out;
@@ -774,17 +780,126 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
 }
 
 /**
- * Full check: RDAP first, WHOIS fallback when RDAP is unsupported for this TLD.
+ * DNS NS pre-check: query NS records for a domain.
+ *
+ * If NS records exist the domain is definitely registered (delegated).
+ * If no NS records are found it *may* be available — needs RDAP/WHOIS
+ * confirmation because some registered domains have no delegation.
+ *
+ * This is extremely fast (< 100ms), free, and never rate-limited.
+ *
+ * @return array{status:string,http_code:int,rdap_url:?string,error:?string,result_json:?string}
+ */
+function orbitraBackorderDnsNsCheck(string $domain): array
+{
+    if (!orbitraBackorderIsValidDomain($domain)) {
+        return [
+            'status' => 'error',
+            'http_code' => 0,
+            'rdap_url' => null,
+            'error' => 'Invalid domain format',
+            'result_json' => null,
+        ];
+    }
+
+    // dns_get_record with DNS_NS returns NS records authoritative for this domain.
+    // Suppress warnings — some environments emit notices for NXDOMAIN.
+    $records = @dns_get_record($domain, DNS_NS);
+
+    if (is_array($records) && count($records) > 0) {
+        // Extract nameserver hostnames.
+        $ns = [];
+        foreach ($records as $rec) {
+            if (isset($rec['target']) && is_string($rec['target']) && $rec['target'] !== '') {
+                $ns[] = strtolower(trim($rec['target']));
+            }
+        }
+        $ns = array_values(array_unique($ns));
+
+        return [
+            'status' => 'registered',
+            'http_code' => 0,
+            'rdap_url' => null,
+            'error' => null,
+            'result_json' => json_encode([
+                'method' => 'dns_ns',
+                'nameservers' => $ns,
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+        ];
+    }
+
+    // No NS records found — domain may be available or parked without delegation.
+    // Also try SOA as extra signal: TLD SOA always exists, but if the domain
+    // itself has a SOA distinct from the TLD it implies delegation somewhere.
+    $soa = @dns_get_record($domain, DNS_SOA);
+    $tld = orbitraBackorderExtractTld($domain);
+    $hasDomainSoa = false;
+    if (is_array($soa)) {
+        foreach ($soa as $rec) {
+            // SOA record whose name matches the domain (not the TLD zone).
+            $soaName = strtolower(trim($rec['host'] ?? ''));
+            if ($soaName === $domain) {
+                $hasDomainSoa = true;
+                break;
+            }
+        }
+    }
+
+    if ($hasDomainSoa) {
+        // Domain has its own SOA but no NS — unusual, treat as registered (parked/hold).
+        return [
+            'status' => 'registered',
+            'http_code' => 0,
+            'rdap_url' => null,
+            'error' => null,
+            'result_json' => json_encode([
+                'method' => 'dns_soa',
+                'note' => 'Domain has SOA but no NS records — likely parked or on hold.',
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+        ];
+    }
+
+    // No NS and no domain-specific SOA — likely available.
+    return [
+        'status' => 'dns_available',
+        'http_code' => 0,
+        'rdap_url' => null,
+        'error' => null,
+        'result_json' => json_encode([
+            'method' => 'dns_ns',
+            'note' => 'No NS records found — domain may be available (needs RDAP/WHOIS confirmation).',
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+    ];
+}
+
+/**
+ * Full check chain:
+ *   1. DNS NS pre-check (instant, free, universal)
+ *      — If NS exist → registered (done)
+ *      — If no NS → continue to step 2
+ *   2. RDAP
+ *   3. .gr web check (for .gr/.ελ TLDs)
+ *   4. WHOIS fallback
  *
  * @return array{status:string,http_code:int,rdap_url:?string,error:?string,result_json:?string}
  */
 function orbitraBackorderCheck(string $domain, int $timeoutSeconds = 10): array
 {
+    // --- Step 1: DNS NS pre-check (fast, no rate limits) ---
+    $dns = orbitraBackorderDnsNsCheck($domain);
+    if (($dns['status'] ?? '') === 'registered') {
+        // NS records found — 100% registered, skip expensive checks.
+        return $dns;
+    }
+    // dns_available or error — need confirmation from RDAP/WHOIS.
+
+    // --- Step 2: RDAP ---
     $rdap = orbitraBackorderRdapCheck($domain, $timeoutSeconds);
     if (($rdap['status'] ?? '') !== 'unsupported') {
         return $rdap;
     }
 
+    // --- Step 3: .gr web check ---
     $tld = orbitraBackorderExtractTld($domain);
     if (in_array($tld, ['gr', 'xn--qxam'], true)) {
         // GR web endpoint sometimes returns intermittent 403; retry a couple of times.
@@ -796,19 +911,29 @@ function orbitraBackorderCheck(string $domain, int $timeoutSeconds = 10): array
         if (in_array(($gr['status'] ?? ''), ['available', 'registered'], true)) {
             return $gr;
         }
-        // For .gr we prefer returning the actual GR registry failure instead of "No RDAP",
-        // otherwise users see a misleading "cannot check" even when the registry endpoint is blocked.
         if (in_array(($gr['status'] ?? ''), ['error', 'rate_limited'], true)) {
             return $gr;
         }
-        // If GR web check fails with "unsupported" for some future corner case, continue with WHOIS fallback.
     }
 
-    // RDAP unsupported for this TLD. Try WHOIS as best-effort fallback.
+    // --- Step 4: WHOIS fallback ---
     $whois = orbitraBackorderWhoisCheck($domain, max(10, $timeoutSeconds));
 
-    // If WHOIS also unsupported, keep original RDAP unsupported reason (more specific).
     if (($whois['status'] ?? '') === 'unsupported') {
+        // Neither RDAP nor WHOIS supports this TLD.
+        // If DNS said dns_available, return that as a best-effort signal.
+        if (($dns['status'] ?? '') === 'dns_available') {
+            return [
+                'status' => 'available',
+                'http_code' => 0,
+                'rdap_url' => null,
+                'error' => null,
+                'result_json' => json_encode([
+                    'method' => 'dns_ns',
+                    'note' => 'No NS records and no RDAP/WHOIS support for this TLD — marked available based on DNS.',
+                ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+            ];
+        }
         return $rdap;
     }
 

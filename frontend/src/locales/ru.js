@@ -445,6 +445,7 @@ export default {
         exportCsv: "CSV",
         exportCsvHint: "Скачать таблицу доменов со статусами и ошибками.",
         statusAvailable: "Свободен",
+        statusDnsAvailable: "Нет NS (вероятно свободен)",
         statusRegistered: "Занят",
         statusUnknown: "Ожидает проверки",
         statusRateLimited: "Лимит (429)",

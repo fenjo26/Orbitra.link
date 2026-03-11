@@ -445,6 +445,7 @@ export default {
         exportCsv: "CSV",
         exportCsvHint: "Download a table with domains, statuses, and errors.",
         statusAvailable: "Available",
+        statusDnsAvailable: "No NS (likely available)",
         statusRegistered: "Registered",
         statusUnknown: "Pending",
         statusRateLimited: "Rate limited (429)",

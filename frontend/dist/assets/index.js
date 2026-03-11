@@ -16340,6 +16340,7 @@ const ru = {
     exportCsv: "CSV",
     exportCsvHint: "Скачать таблицу доменов со статусами и ошибками.",
     statusAvailable: "Свободен",
+    statusDnsAvailable: "Нет NS (вероятно свободен)",
     statusRegistered: "Занят",
     statusUnknown: "Ожидает проверки",
     statusRateLimited: "Лимит (429)",
@@ -18003,6 +18004,7 @@ const en = {
     exportCsv: "CSV",
     exportCsvHint: "Download a table with domains, statuses, and errors.",
     statusAvailable: "Available",
+    statusDnsAvailable: "No NS (likely available)",
     statusRegistered: "Registered",
     statusUnknown: "Pending",
     statusRateLimited: "Rate limited (429)",
@@ -32871,6 +32873,8 @@ const statusMeta = (t2, status) => {
   switch (status) {
     case "available":
       return { label: t2("backorder.statusAvailable"), cls: "text-green-700 bg-green-50 border-green-100" };
+    case "dns_available":
+      return { label: t2("backorder.statusDnsAvailable"), cls: "text-lime-700 bg-lime-50 border-lime-100" };
     case "registered":
       return { label: t2("backorder.statusRegistered"), cls: "text-gray-700 bg-gray-50 border-gray-100" };
     case "rate_limited":
@@ -33238,6 +33242,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: t2("common.all") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "available", children: t2("backorder.statusAvailable") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "dns_available", children: t2("backorder.statusDnsAvailable") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "unknown", children: t2("backorder.statusUnknown") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "registered", children: t2("backorder.statusRegistered") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "rate_limited", children: t2("backorder.statusRateLimited") }),
@@ -33385,7 +33390,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
                 r2.last_rdap_url ? `Source: ${r2.last_rdap_url}` : ""
               ].filter(Boolean).join("\n"),
               children: [
-                r2.status === "available" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }) : r2.status === "registered" ? /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 14 }),
+                r2.status === "available" || r2.status === "dns_available" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }) : r2.status === "registered" ? /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 14 }),
                 meta.label
               ]
             }

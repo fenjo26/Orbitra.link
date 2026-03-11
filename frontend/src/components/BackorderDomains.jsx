@@ -10,6 +10,8 @@ const statusMeta = (t, status) => {
     switch (status) {
         case 'available':
             return { label: t('backorder.statusAvailable'), cls: 'text-green-700 bg-green-50 border-green-100' };
+        case 'dns_available':
+            return { label: t('backorder.statusDnsAvailable'), cls: 'text-lime-700 bg-lime-50 border-lime-100' };
         case 'registered':
             return { label: t('backorder.statusRegistered'), cls: 'text-gray-700 bg-gray-50 border-gray-100' };
         case 'rate_limited':
@@ -444,6 +446,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
                     >
                         <option value="all">{t('common.all')}</option>
                         <option value="available">{t('backorder.statusAvailable')}</option>
+                        <option value="dns_available">{t('backorder.statusDnsAvailable')}</option>
                         <option value="unknown">{t('backorder.statusUnknown')}</option>
                         <option value="registered">{t('backorder.statusRegistered')}</option>
                         <option value="rate_limited">{t('backorder.statusRateLimited')}</option>
@@ -580,7 +583,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
                                                     r.last_rdap_url ? `Source: ${r.last_rdap_url}` : '',
                                                 ].filter(Boolean).join('\n')}
                                             >
-                                                {r.status === 'available' ? <Check size={14} /> : (r.status === 'registered' ? <X size={14} /> : <AlertCircle size={14} />)}
+                                                {(r.status === 'available' || r.status === 'dns_available') ? <Check size={14} /> : (r.status === 'registered' ? <X size={14} /> : <AlertCircle size={14} />)}
                                                 {meta.label}
                                             </span>
                                         </td>
