@@ -96,6 +96,8 @@ try {
     ");
     $stmt->execute([':cutoff' => $cutoffEpoch]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->closeCursor(); // Free SQLite read lock
+
     if (!$row) {
         orbitraCronSetSetting($pdo, 'backorder_cron_last_checked_at', $ts);
         orbitraCronSetSetting($pdo, 'backorder_cron_last_domain', '');
