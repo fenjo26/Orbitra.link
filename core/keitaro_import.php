@@ -273,13 +273,162 @@ function orbitraKeitaroSqliteHasColumn(PDO $pdo, string $table, string $column):
     return false;
 }
 
+function orbitraKeitaroLoadKeitaroIdMap(PDO $pdo, string $table, string $idCol = 'id', string $keitaroIdCol = 'keitaro_id'): array
+{
+    // Returns keitaro_id => orbitra_id mapping for existing DB rows.
+    // Used so imports can be done in multiple steps/runs.
+    $map = [];
+    if (!orbitraKeitaroSqliteHasColumn($pdo, $table, $keitaroIdCol)) {
+        return $map;
+    }
+    try {
+        $stmt = $pdo->query("SELECT {$idCol} AS id, {$keitaroIdCol} AS keitaro_id FROM {$table} WHERE {$keitaroIdCol} IS NOT NULL AND {$keitaroIdCol} > 0");
+        $rows = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+        foreach ($rows as $r) {
+            $kid = (int) ($r['keitaro_id'] ?? 0);
+            $oid = (int) ($r['id'] ?? 0);
+            if ($kid > 0 && $oid > 0) {
+                $map[$kid] = $oid;
+            }
+        }
+    } catch (Throwable $e) {
+        // ignore
+    }
+    return $map;
+}
+
+function orbitraKeitaroJsonDecodeMaybe($value)
+{
+    if (!is_string($value)) return null;
+    $s = trim($value);
+    if ($s === '') return null;
+    if ($s[0] !== '[' && $s[0] !== '{') return null;
+    $j = json_decode($s, true);
+    return (json_last_error() === JSON_ERROR_NONE) ? $j : null;
+}
+
+function orbitraKeitaroParseList($value): array
+{
+    // Parse a payload that might be JSON array, CSV, or a scalar.
+    if ($value === null) return [];
+    if (is_array($value)) return array_values($value);
+    if (is_int($value) || is_float($value)) return [(string) $value];
+    $s = trim((string) $value);
+    if ($s === '' || strtoupper($s) === 'NULL') return [];
+    $j = orbitraKeitaroJsonDecodeMaybe($s);
+    if (is_array($j)) {
+        return array_values($j);
+    }
+    if (strpos($s, ',') !== false) {
+        $parts = array_map('trim', explode(',', $s));
+        $parts = array_values(array_filter($parts, fn($x) => $x !== ''));
+        return $parts;
+    }
+    return [$s];
+}
+
+function orbitraKeitaroMapFilterMode(string $v): string
+{
+    $v = strtolower(trim($v));
+    if ($v === 'exclude' || $v === 'not_in' || $v === 'notin' || $v === '!' || $v === '!=') return 'exclude';
+    return 'include';
+}
+
+function orbitraKeitaroMapDeviceValue(string $v): string
+{
+    $v = strtolower(trim($v));
+    if ($v === 'mobile' || $v === 'm') return 'Mobile';
+    if ($v === 'desktop' || $v === 'd' || $v === 'pc') return 'Desktop';
+    // Keep as-is; Orbitra matcher uses exact strings.
+    return $v !== '' ? ucfirst($v) : '';
+}
+
+function orbitraKeitaroBuildOrbitraFilters(array $keitaroFilters): array
+{
+    // Best-effort conversion of Keitaro stream filters into Orbitra's filters_json schema.
+    // Orbitra supports: Country, Device, Bot, Language (see index.php streamMatchesFilters()).
+    $out = [];
+
+    foreach ($keitaroFilters as $r) {
+        if (!is_array($r)) continue;
+
+        $type = strtolower((string) ($r['type'] ?? $r['name'] ?? $r['filter'] ?? $r['field'] ?? ''));
+        $field = strtolower((string) ($r['field'] ?? $r['name'] ?? $r['param'] ?? ''));
+        $modeRaw = (string) ($r['mode'] ?? $r['operator'] ?? $r['include'] ?? 'include');
+        $mode = orbitraKeitaroMapFilterMode($modeRaw);
+
+        $payloadRaw = $r['payload'] ?? $r['value'] ?? $r['values'] ?? $r['data'] ?? $r['selected'] ?? null;
+        $payload = orbitraKeitaroParseList($payloadRaw);
+
+        $isBot = (strpos($type, 'bot') !== false) || (strpos($field, 'bot') !== false) || ($type === 'is_bot');
+        if ($isBot) {
+            // Orbitra only needs a non-empty payload to evaluate Bot.
+            $out[] = ['name' => 'Bot', 'mode' => $mode, 'payload' => [1]];
+            continue;
+        }
+
+        $isCountry = (strpos($type, 'country') !== false) || (strpos($type, 'geo') !== false) || (strpos($field, 'country') !== false);
+        if ($isCountry) {
+            $cc = [];
+            foreach ($payload as $p) {
+                $p = strtoupper(trim((string) $p));
+                if ($p === '' || $p === '@empty') continue;
+                // Keep 2-letter ISO2 (Orbitra stores country_code).
+                if (preg_match('/^[A-Z]{2}$/', $p)) {
+                    $cc[] = $p;
+                }
+            }
+            $cc = array_values(array_unique($cc));
+            if (!empty($cc)) {
+                $out[] = ['name' => 'Country', 'mode' => $mode, 'payload' => $cc];
+            }
+            continue;
+        }
+
+        $isDevice = (strpos($type, 'device') !== false) || (strpos($field, 'device') !== false);
+        if ($isDevice) {
+            $dv = [];
+            foreach ($payload as $p) {
+                $m = orbitraKeitaroMapDeviceValue((string) $p);
+                if ($m !== '') $dv[] = $m;
+            }
+            $dv = array_values(array_unique($dv));
+            if (!empty($dv)) {
+                $out[] = ['name' => 'Device', 'mode' => $mode, 'payload' => $dv];
+            }
+            continue;
+        }
+
+        $isLang = (strpos($type, 'language') !== false) || (strpos($type, 'lang') !== false) || (strpos($field, 'lang') !== false);
+        if ($isLang) {
+            $lv = [];
+            foreach ($payload as $p) {
+                $p = strtolower(trim((string) $p));
+                $p = preg_split('/[-_]/', $p)[0] ?? $p;
+                $p = preg_replace('/[^a-z]/', '', $p);
+                if ($p !== '') $lv[] = $p;
+            }
+            $lv = array_values(array_unique($lv));
+            if (!empty($lv)) {
+                $out[] = ['name' => 'Language', 'mode' => $mode, 'payload' => $lv];
+            }
+            continue;
+        }
+    }
+
+    return $out;
+}
+
 function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): array
 {
     $dryRun = !empty($opts['dry_run']);
     $doDomains = array_key_exists('import_domains', $opts) ? (bool) $opts['import_domains'] : true;
     $doOffers = array_key_exists('import_offers', $opts) ? (bool) $opts['import_offers'] : true;
     $doCompanies = array_key_exists('import_companies', $opts) ? (bool) $opts['import_companies'] : true;
+    $doTrafficSources = array_key_exists('import_traffic_sources', $opts) ? (bool) $opts['import_traffic_sources'] : false;
+    $doLandings = array_key_exists('import_landings', $opts) ? (bool) $opts['import_landings'] : false;
     $doCampaigns = array_key_exists('import_campaigns', $opts) ? (bool) $opts['import_campaigns'] : false;
+    $doStreams = array_key_exists('import_streams', $opts) ? (bool) $opts['import_streams'] : false;
     $doCampaignPostbacks = array_key_exists('import_campaign_postbacks', $opts) ? (bool) $opts['import_campaign_postbacks'] : false;
 
     $tablesToParse = [];
@@ -289,11 +438,34 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
         $tablesToParse[] = 'keitaro_offers';
     }
     if ($doDomains) $tablesToParse[] = 'keitaro_domains';
+    if ($doTrafficSources) {
+        // Keitaro installs vary: some use keitaro_ref_sources for traffic sources.
+        $tablesToParse[] = 'keitaro_traffic_sources';
+        $tablesToParse[] = 'keitaro_ref_sources';
+    }
+    if ($doLandings) {
+        $tablesToParse[] = 'keitaro_landings';
+    }
     if ($doCampaigns) {
         $tablesToParse[] = 'keitaro_campaigns';
         // campaign groups can also live in keitaro_groups (type='campaign' on some installs)
         $tablesToParse[] = 'keitaro_groups';
         // Needed to map campaign.domain_id -> Orbitra domain_id even if we're not importing domains in this run.
+        $tablesToParse[] = 'keitaro_domains';
+        if ($doTrafficSources) {
+            $tablesToParse[] = 'keitaro_traffic_sources';
+            $tablesToParse[] = 'keitaro_ref_sources';
+        }
+    }
+    if ($doStreams) {
+        $tablesToParse[] = 'keitaro_streams';
+        $tablesToParse[] = 'keitaro_stream_filters';
+        $tablesToParse[] = 'keitaro_stream_offer_associations';
+        $tablesToParse[] = 'keitaro_stream_landing_associations';
+        // Streams need campaigns/offers/landings to be mapped.
+        $tablesToParse[] = 'keitaro_campaigns';
+        $tablesToParse[] = 'keitaro_offers';
+        $tablesToParse[] = 'keitaro_landings';
         $tablesToParse[] = 'keitaro_domains';
     }
     if ($doCampaignPostbacks) {
@@ -314,8 +486,11 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
             'offer_groups' => ['inserted' => 0, 'skipped' => 0],
             'offers' => ['inserted' => 0, 'skipped' => 0],
             'domains' => ['inserted' => 0, 'skipped' => 0],
+            'traffic_sources' => ['inserted' => 0, 'skipped' => 0],
+            'landings' => ['inserted' => 0, 'skipped' => 0],
             'campaign_groups' => ['inserted' => 0, 'skipped' => 0],
             'campaigns' => ['inserted' => 0, 'skipped' => 0],
+            'streams' => ['inserted' => 0, 'skipped' => 0],
             'campaign_postbacks' => ['inserted' => 0, 'skipped' => 0],
         ],
         'warnings' => [],
@@ -336,6 +511,17 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
         $hasAffiliateKeitaroId = orbitraKeitaroSqliteHasColumn($pdo, 'affiliate_networks', 'keitaro_id');
         $hasOfferKeitaroId = orbitraKeitaroSqliteHasColumn($pdo, 'offers', 'keitaro_id');
         $hasCampaignKeitaroId = orbitraKeitaroSqliteHasColumn($pdo, 'campaigns', 'keitaro_id');
+        $hasLandingKeitaroId = orbitraKeitaroSqliteHasColumn($pdo, 'landings', 'keitaro_id');
+        $hasTrafficSourceKeitaroId = orbitraKeitaroSqliteHasColumn($pdo, 'traffic_sources', 'keitaro_id');
+        $hasStreamKeitaroId = orbitraKeitaroSqliteHasColumn($pdo, 'streams', 'keitaro_id');
+
+        $dbDomainsByKeitaroId = orbitraKeitaroLoadKeitaroIdMap($pdo, 'domains');
+        $dbAffiliateByKeitaroId = orbitraKeitaroLoadKeitaroIdMap($pdo, 'affiliate_networks');
+        $dbOffersByKeitaroId = orbitraKeitaroLoadKeitaroIdMap($pdo, 'offers');
+        $dbCampaignsByKeitaroId = orbitraKeitaroLoadKeitaroIdMap($pdo, 'campaigns');
+        $dbLandingsByKeitaroId = orbitraKeitaroLoadKeitaroIdMap($pdo, 'landings');
+        $dbTrafficSourcesByKeitaroId = orbitraKeitaroLoadKeitaroIdMap($pdo, 'traffic_sources');
+        $dbStreamsByKeitaroId = orbitraKeitaroLoadKeitaroIdMap($pdo, 'streams');
 
         $pdo->beginTransaction();
         try {
@@ -395,8 +581,8 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                 }
             }
 
-        // ---- Companies: affiliate networks ----
-        $keitaroAffiliateIdToOrbitraId = [];
+            // ---- Companies: affiliate networks ----
+            $keitaroAffiliateIdToOrbitraId = [];
         if ($doCompanies) {
             $rows = $parsed['keitaro_affiliate_networks']['rows'] ?? [];
             $stmtFind = $pdo->prepare("SELECT id, postback_url, offer_params, keitaro_id FROM affiliate_networks WHERE is_archived = 0 AND name = ? LIMIT 1");
@@ -450,6 +636,112 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
             }
         }
 
+            // ---- Traffic sources ----
+            $keitaroTrafficSourceIdToOrbitraId = [];
+            if ($doTrafficSources) {
+                $rows = $parsed['keitaro_traffic_sources']['rows'] ?? [];
+                if (empty($rows)) {
+                    // Fallback: Keitaro uses ref_sources as "traffic sources" catalog on many installs.
+                    $rows = $parsed['keitaro_ref_sources']['rows'] ?? [];
+                }
+
+                if (!empty($rows)) {
+                    $stmtFind = $pdo->prepare("SELECT id, keitaro_id FROM traffic_sources WHERE name = ? LIMIT 1");
+                    $stmtIns = $pdo->prepare("INSERT INTO traffic_sources (name, template, postback_url, postback_statuses, parameters_json, notes, state, keitaro_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmtUpdK = null;
+                    if ($hasTrafficSourceKeitaroId) {
+                        $stmtUpdK = $pdo->prepare("UPDATE traffic_sources SET keitaro_id = ? WHERE id = ? AND (keitaro_id IS NULL OR keitaro_id = 0)");
+                    }
+
+                    foreach ($rows as $r) {
+                        $kid = (int) ($r['id'] ?? 0);
+                        $name = trim((string) ($r['name'] ?? ''));
+                        if ($name === '') continue;
+
+                        $state = (string) ($r['state'] ?? 'active');
+                        if ($state === '') $state = 'active';
+
+                        // Keitaro has multiple schemas; keep minimal.
+                        $template = (string) ($r['template_name'] ?? ($r['template'] ?? ''));
+                        $postbackUrl = (string) ($r['postback_url'] ?? ($r['postback'] ?? ''));
+                        $paramsJson = (string) ($r['parameters'] ?? ($r['params'] ?? ''));
+                        $notes = (string) ($r['notes'] ?? '');
+                        $postbackStatuses = 'lead,sale,rejected';
+
+                        $stmtFind->execute([$name]);
+                        $existing = $stmtFind->fetch(PDO::FETCH_ASSOC);
+                        if ($existing && isset($existing['id'])) {
+                            $oid = (int) $existing['id'];
+                            $keitaroTrafficSourceIdToOrbitraId[$kid] = $oid;
+                            if ($stmtUpdK && $kid > 0) $stmtUpdK->execute([$kid, $oid]);
+                            $result['imported']['traffic_sources']['skipped']++;
+                            continue;
+                        }
+
+                        $stmtIns->execute([
+                            $name,
+                            $template,
+                            $postbackUrl,
+                            $postbackStatuses,
+                            is_string($paramsJson) && $paramsJson !== '' ? $paramsJson : json_encode(new stdClass()),
+                            $notes,
+                            $state,
+                            $kid > 0 ? $kid : null,
+                        ]);
+                        $oid = (int) ($pdo->lastInsertId() ?: 0);
+                        if ($kid > 0 && $oid > 0) $keitaroTrafficSourceIdToOrbitraId[$kid] = $oid;
+                        $result['imported']['traffic_sources']['inserted']++;
+                    }
+                }
+            }
+
+            // ---- Landings ----
+            $keitaroLandingIdToOrbitraId = [];
+            if ($doLandings) {
+                $rows = $parsed['keitaro_landings']['rows'] ?? [];
+                if (!empty($rows)) {
+                    $stmtFind = $pdo->prepare("SELECT id, keitaro_id FROM landings WHERE url = ? LIMIT 1");
+                    $stmtIns = $pdo->prepare("INSERT INTO landings (name, url, group_id, type, state, action_payload, keitaro_id) VALUES (?, ?, NULL, ?, ?, ?, ?)");
+                    $stmtUpdK = null;
+                    if ($hasLandingKeitaroId) {
+                        $stmtUpdK = $pdo->prepare("UPDATE landings SET keitaro_id = ? WHERE id = ? AND (keitaro_id IS NULL OR keitaro_id = 0)");
+                    }
+
+                    foreach ($rows as $r) {
+                        $kid = (int) ($r['id'] ?? 0);
+                        $name = trim((string) ($r['name'] ?? ''));
+                        $url = trim((string) ($r['url'] ?? ''));
+                        if ($url === '') {
+                            // Some Keitaro builds may store it differently.
+                            $url = trim((string) ($r['action_payload'] ?? ''));
+                        }
+                        if ($url === '') continue;
+                        if ($name === '') $name = $url;
+
+                        $state = (string) ($r['state'] ?? 'active');
+                        if ($state === '') $state = 'active';
+
+                        $type = 'redirect';
+                        $actionPayload = null;
+
+                        $stmtFind->execute([$url]);
+                        $existing = $stmtFind->fetch(PDO::FETCH_ASSOC);
+                        if ($existing && isset($existing['id'])) {
+                            $oid = (int) $existing['id'];
+                            $keitaroLandingIdToOrbitraId[$kid] = $oid;
+                            if ($stmtUpdK && $kid > 0) $stmtUpdK->execute([$kid, $oid]);
+                            $result['imported']['landings']['skipped']++;
+                            continue;
+                        }
+
+                        $stmtIns->execute([$name, $url, $type, $state, $actionPayload, $kid > 0 ? $kid : null]);
+                        $oid = (int) ($pdo->lastInsertId() ?: 0);
+                        if ($kid > 0 && $oid > 0) $keitaroLandingIdToOrbitraId[$kid] = $oid;
+                        $result['imported']['landings']['inserted']++;
+                    }
+                }
+            }
+
         // ---- Offer groups (from keitaro_groups where type='offers') ----
         $keitaroGroupIdToOfferGroupId = [];
         if ($doOffers) {
@@ -480,8 +772,8 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
             }
         }
 
-        // ---- Offers ----
-        $keitaroOfferIdToOrbitraOfferId = [];
+            // ---- Offers ----
+            $keitaroOfferIdToOrbitraOfferId = [];
         if ($doOffers) {
             $rows = $parsed['keitaro_offers']['rows'] ?? [];
             $stmtFind = $pdo->prepare("SELECT id, keitaro_id FROM offers WHERE is_archived = 0 AND name = ? AND COALESCE(url,'') = COALESCE(?, '') LIMIT 1");
@@ -506,6 +798,9 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
 
                 $kAffId = (int) ($r['affiliate_network_id'] ?? 0);
                 if ($kAffId <= 0) $kAffId = 0;
+                if ($kAffId > 0 && !isset($keitaroAffiliateIdToOrbitraId[$kAffId]) && isset($dbAffiliateByKeitaroId[$kAffId])) {
+                    $keitaroAffiliateIdToOrbitraId[$kAffId] = (int) $dbAffiliateByKeitaroId[$kAffId];
+                }
                 $affiliateId = ($kAffId > 0 && isset($keitaroAffiliateIdToOrbitraId[$kAffId])) ? (int) $keitaroAffiliateIdToOrbitraId[$kAffId] : null;
 
                 $url = trim((string) ($r['url'] ?? ''));
@@ -613,21 +908,21 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
             }
         }
 
-        // ---- Campaigns ----
-        $keitaroCampaignIdToOrbitraId = [];
-        if ($doCampaigns) {
-            $rows = $parsed['keitaro_campaigns']['rows'] ?? [];
-            $stmtFindByAlias = $pdo->prepare("SELECT id, domain_id, keitaro_id FROM campaigns WHERE is_archived = 0 AND alias = ? LIMIT 1");
-            $stmtIns = $pdo->prepare("
-                INSERT INTO campaigns
-                (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, catch_404_stream_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
-            ");
-            $stmtUpdDomain = $pdo->prepare("UPDATE campaigns SET domain_id = ? WHERE id = ? AND (domain_id IS NULL OR domain_id = 0)");
-            $stmtUpdK = null;
-            if ($hasCampaignKeitaroId) {
-                $stmtUpdK = $pdo->prepare("UPDATE campaigns SET keitaro_id = ? WHERE id = ? AND (keitaro_id IS NULL OR keitaro_id = 0)");
-            }
+            // ---- Campaigns ----
+            $keitaroCampaignIdToOrbitraId = [];
+            if ($doCampaigns) {
+                $rows = $parsed['keitaro_campaigns']['rows'] ?? [];
+                $stmtFindByAlias = $pdo->prepare("SELECT id, domain_id, keitaro_id FROM campaigns WHERE is_archived = 0 AND alias = ? LIMIT 1");
+                $stmtIns = $pdo->prepare("
+                    INSERT INTO campaigns
+                    (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, catch_404_stream_id)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
+                ");
+                $stmtUpdDomain = $pdo->prepare("UPDATE campaigns SET domain_id = ? WHERE id = ? AND (domain_id IS NULL OR domain_id = 0)");
+                $stmtUpdK = null;
+                if ($hasCampaignKeitaroId) {
+                    $stmtUpdK = $pdo->prepare("UPDATE campaigns SET keitaro_id = ? WHERE id = ? AND (keitaro_id IS NULL OR keitaro_id = 0)");
+                }
 
             foreach ($rows as $r) {
                 $kid = (int) ($r['id'] ?? 0);
@@ -659,7 +954,16 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                 $uniquenessHours = (int) ($r['cookies_ttl'] ?? 24);
                 if ($uniquenessHours <= 0) $uniquenessHours = 24;
 
-                $sourceId = null; // requires keitaro_traffic_sources dump + importer (not in this migration)
+                $sourceId = null;
+                $kSourceId = (int) ($r['traffic_source_id'] ?? 0);
+                if ($kSourceId > 0) {
+                    if (!isset($keitaroTrafficSourceIdToOrbitraId[$kSourceId]) && isset($dbTrafficSourcesByKeitaroId[$kSourceId])) {
+                        $keitaroTrafficSourceIdToOrbitraId[$kSourceId] = (int) $dbTrafficSourcesByKeitaroId[$kSourceId];
+                    }
+                    if (isset($keitaroTrafficSourceIdToOrbitraId[$kSourceId])) {
+                        $sourceId = (int) $keitaroTrafficSourceIdToOrbitraId[$kSourceId];
+                    }
+                }
 
                 $stmtFindByAlias->execute([$alias]);
                 $existing = $stmtFindByAlias->fetch(PDO::FETCH_ASSOC);
@@ -702,6 +1006,177 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                 }
             }
         }
+
+            // ---- Streams (flows) ----
+            if ($doStreams) {
+                $rows = $parsed['keitaro_streams']['rows'] ?? [];
+                $offerAssoc = $parsed['keitaro_stream_offer_associations']['rows'] ?? [];
+                $landingAssoc = $parsed['keitaro_stream_landing_associations']['rows'] ?? [];
+                $filtersRows = $parsed['keitaro_stream_filters']['rows'] ?? [];
+
+                // Index associations by stream_id for fast lookup.
+                $offersByStream = [];
+                foreach ($offerAssoc as $a) {
+                    $sid = (int) ($a['stream_id'] ?? ($a['streamId'] ?? 0));
+                    $oid = (int) ($a['offer_id'] ?? ($a['offerId'] ?? 0));
+                    if ($sid <= 0 || $oid <= 0) continue;
+                    $w = (int) ($a['share'] ?? ($a['weight'] ?? ($a['percentage'] ?? 100)));
+                    if ($w <= 0) $w = 100;
+                    $offersByStream[$sid][] = ['offer_id' => $oid, 'weight' => $w];
+                }
+                $landingsByStream = [];
+                foreach ($landingAssoc as $a) {
+                    $sid = (int) ($a['stream_id'] ?? ($a['streamId'] ?? 0));
+                    $lid = (int) ($a['landing_id'] ?? ($a['landingId'] ?? 0));
+                    if ($sid <= 0 || $lid <= 0) continue;
+                    $w = (int) ($a['share'] ?? ($a['weight'] ?? ($a['percentage'] ?? 100)));
+                    if ($w <= 0) $w = 100;
+                    $landingsByStream[$sid][] = ['landing_id' => $lid, 'weight' => $w];
+                }
+                $filtersByStream = [];
+                foreach ($filtersRows as $f) {
+                    $sid = (int) ($f['stream_id'] ?? ($f['streamId'] ?? 0));
+                    if ($sid <= 0) continue;
+                    $filtersByStream[$sid][] = $f;
+                }
+
+                // Prepare SQL.
+                $stmtFind = null;
+                if ($hasStreamKeitaroId) {
+                    $stmtFind = $pdo->prepare("SELECT id FROM streams WHERE keitaro_id = ? LIMIT 1");
+                } else {
+                    $stmtFind = $pdo->prepare("SELECT id FROM streams WHERE campaign_id = ? AND name = ? AND position = ? LIMIT 1");
+                }
+                $stmtIns = $pdo->prepare("
+                    INSERT INTO streams
+                    (campaign_id, offer_id, name, weight, is_active, type, position, filters_json, schema_type, action_payload, schema_custom_json, keitaro_id)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+
+                foreach ($rows as $r) {
+                    $kStreamId = (int) ($r['id'] ?? 0);
+                    $kCampaignId = (int) ($r['campaign_id'] ?? 0);
+                    if ($kCampaignId <= 0) continue;
+
+                    if (!isset($keitaroCampaignIdToOrbitraId[$kCampaignId]) && isset($dbCampaignsByKeitaroId[$kCampaignId])) {
+                        $keitaroCampaignIdToOrbitraId[$kCampaignId] = (int) $dbCampaignsByKeitaroId[$kCampaignId];
+                    }
+                    $campaignId = $keitaroCampaignIdToOrbitraId[$kCampaignId] ?? null;
+                    if (!$campaignId) {
+                        $result['warnings'][] = "Stream {$kStreamId}: keitaro campaign_id={$kCampaignId} not mapped";
+                        continue;
+                    }
+
+                    $name = trim((string) ($r['name'] ?? ($r['title'] ?? '')));
+                    if ($name === '') $name = 'Stream ' . ($kStreamId > 0 ? $kStreamId : '');
+
+                    $position = (int) ($r['position'] ?? 0);
+                    $weight = (int) ($r['weight'] ?? 100);
+                    if ($weight <= 0) $weight = 100;
+
+                    $state = strtolower(trim((string) ($r['state'] ?? ($r['status'] ?? 'active'))));
+                    $isActive = ($state === '' || $state === 'active' || $state === 'enabled' || $state === 'on') ? 1 : 0;
+
+                    $kType = strtolower(trim((string) ($r['type'] ?? 'regular')));
+                    $type = in_array($kType, ['regular', 'fallback', 'intercepting'], true) ? $kType : 'regular';
+                    if ((int) ($r['is_default'] ?? 0) === 1) {
+                        $type = 'fallback';
+                    }
+
+                    $filters = orbitraKeitaroBuildOrbitraFilters($filtersByStream[$kStreamId] ?? []);
+                    if ($type === 'regular') {
+                        foreach ($filters as $ff) {
+                            if (($ff['name'] ?? '') === 'Bot' && ($ff['mode'] ?? '') === 'include') {
+                                $type = 'intercepting';
+                                break;
+                            }
+                        }
+                    }
+
+                    // Build schema from associations.
+                    $schemaOffers = [];
+                    foreach (($offersByStream[$kStreamId] ?? []) as $a) {
+                        $kOfferId = (int) ($a['offer_id'] ?? 0);
+                        if ($kOfferId <= 0) continue;
+                        if (!isset($keitaroOfferIdToOrbitraOfferId[$kOfferId]) && isset($dbOffersByKeitaroId[$kOfferId])) {
+                            $keitaroOfferIdToOrbitraOfferId[$kOfferId] = (int) $dbOffersByKeitaroId[$kOfferId];
+                        }
+                        $oid = $keitaroOfferIdToOrbitraOfferId[$kOfferId] ?? null;
+                        if ($oid) {
+                            $schemaOffers[] = ['id' => (int) $oid, 'weight' => (int) ($a['weight'] ?? 100)];
+                        }
+                    }
+                    $schemaLandings = [];
+                    foreach (($landingsByStream[$kStreamId] ?? []) as $a) {
+                        $kLandingId = (int) ($a['landing_id'] ?? 0);
+                        if ($kLandingId <= 0) continue;
+                        if (!isset($keitaroLandingIdToOrbitraId[$kLandingId]) && isset($dbLandingsByKeitaroId[$kLandingId])) {
+                            $keitaroLandingIdToOrbitraId[$kLandingId] = (int) $dbLandingsByKeitaroId[$kLandingId];
+                        }
+                        $lid = $keitaroLandingIdToOrbitraId[$kLandingId] ?? null;
+                        if ($lid) {
+                            $schemaLandings[] = ['id' => (int) $lid, 'weight' => (int) ($a['weight'] ?? 100)];
+                        }
+                    }
+
+                    $schemaType = 'redirect';
+                    $actionPayload = null;
+                    $custom = [];
+
+                    // Detect action streams (404/bots).
+                    $kActionType = strtolower(trim((string) ($r['action_type'] ?? ($r['action'] ?? ''))));
+                    if (in_array($kActionType, ['404', 'not_found', 'notfound', 'http_404'], true)) {
+                        $schemaType = 'action';
+                        $actionPayload = 'not_found';
+                    }
+
+                    if ($schemaType !== 'action') {
+                        if (!empty($schemaLandings)) {
+                            $schemaType = 'landing_offer';
+                            $custom['landings'] = $schemaLandings;
+                            $custom['offers'] = $schemaOffers;
+                        } else {
+                            $schemaType = 'redirect';
+                            $custom['offers'] = $schemaOffers;
+                        }
+                    }
+
+                    $filtersJson = json_encode($filters, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                    $customJson = json_encode($custom, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+                    // Try to set legacy offer_id too (for backward compatibility).
+                    $legacyOfferId = null;
+                    if (!empty($schemaOffers)) {
+                        $legacyOfferId = (int) ($schemaOffers[0]['id'] ?? 0) ?: null;
+                    }
+
+                    if ($hasStreamKeitaroId) {
+                        $stmtFind->execute([$kStreamId]);
+                    } else {
+                        $stmtFind->execute([(int) $campaignId, $name, $position]);
+                    }
+                    if ($stmtFind->fetchColumn()) {
+                        $result['imported']['streams']['skipped']++;
+                        continue;
+                    }
+
+                    $stmtIns->execute([
+                        (int) $campaignId,
+                        $legacyOfferId,
+                        $name,
+                        $weight,
+                        $isActive,
+                        $type,
+                        $position,
+                        $filtersJson,
+                        $schemaType,
+                        $actionPayload,
+                        $customJson,
+                        $kStreamId > 0 ? $kStreamId : null,
+                    ]);
+                    $result['imported']['streams']['inserted']++;
+                }
+            }
 
         // ---- Campaign postbacks ----
         if ($doCampaignPostbacks) {

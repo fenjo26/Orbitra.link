@@ -34,7 +34,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 2;
+    $LATEST_SCHEMA_VERSION = 3;
 
     $schemaVersion = 0;
     try {
@@ -765,6 +765,33 @@ try {
             "CREATE UNIQUE INDEX IF NOT EXISTS idx_campaigns_keitaro_id ON campaigns(keitaro_id)",
             "CREATE UNIQUE INDEX IF NOT EXISTS idx_streams_keitaro_id ON streams(keitaro_id)",
             "CREATE UNIQUE INDEX IF NOT EXISTS idx_campaign_postbacks_keitaro_id ON campaign_postbacks(keitaro_id)",
+        ];
+        foreach ($indexes as $sql) {
+            try {
+                $pdo->exec($sql);
+            } catch (Throwable $e) {
+                // ignore
+            }
+        }
+    }
+
+    // ---- v3: extend keitaro_id coverage for full migrations ----
+    if ($schemaVersion < 3) {
+        $alters = [
+            "ALTER TABLE landings ADD COLUMN keitaro_id INTEGER",
+            "ALTER TABLE traffic_sources ADD COLUMN keitaro_id INTEGER",
+        ];
+        foreach ($alters as $sql) {
+            try {
+                $pdo->exec($sql);
+            } catch (Throwable $e) {
+                // Ignore if already exists.
+            }
+        }
+
+        $indexes = [
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_landings_keitaro_id ON landings(keitaro_id)",
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_traffic_sources_keitaro_id ON traffic_sources(keitaro_id)",
         ];
         foreach ($indexes as $sql) {
             try {

@@ -14,7 +14,10 @@ const MigrationsPage = () => {
     const [kImportDomains, setKImportDomains] = useState(true);
     const [kImportOffers, setKImportOffers] = useState(true);
     const [kImportCompanies, setKImportCompanies] = useState(true);
+    const [kImportTrafficSources, setKImportTrafficSources] = useState(false);
+    const [kImportLandings, setKImportLandings] = useState(false);
     const [kImportCampaigns, setKImportCampaigns] = useState(false);
+    const [kImportStreams, setKImportStreams] = useState(false);
     const [kImportCampaignPostbacks, setKImportCampaignPostbacks] = useState(false);
     const [kLoading, setKLoading] = useState(false);
     const [kError, setKError] = useState('');
@@ -73,7 +76,10 @@ const MigrationsPage = () => {
             fd.append('import_domains', kImportDomains ? '1' : '0');
             fd.append('import_offers', kImportOffers ? '1' : '0');
             fd.append('import_companies', kImportCompanies ? '1' : '0');
+            fd.append('import_traffic_sources', kImportTrafficSources ? '1' : '0');
+            fd.append('import_landings', kImportLandings ? '1' : '0');
             fd.append('import_campaigns', kImportCampaigns ? '1' : '0');
+            fd.append('import_streams', kImportStreams ? '1' : '0');
             fd.append('import_campaign_postbacks', kImportCampaignPostbacks ? '1' : '0');
 
             const res = await fetch(`${API_URL}?action=keitaro_import_sql`, {
@@ -254,8 +260,20 @@ const MigrationsPage = () => {
                                 <span>{t('migrations.keitaroDomains')}</span>
                             </label>
                             <label className="flex items-center gap-2">
+                                <input type="checkbox" checked={kImportTrafficSources} onChange={(e) => setKImportTrafficSources(e.target.checked)} />
+                                <span>{t('migrations.keitaroTrafficSources')}</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                                <input type="checkbox" checked={kImportLandings} onChange={(e) => setKImportLandings(e.target.checked)} />
+                                <span>{t('migrations.keitaroLandings')}</span>
+                            </label>
+                            <label className="flex items-center gap-2">
                                 <input type="checkbox" checked={kImportCampaigns} onChange={(e) => setKImportCampaigns(e.target.checked)} />
                                 <span>{t('migrations.keitaroCampaigns')}</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                                <input type="checkbox" checked={kImportStreams} onChange={(e) => setKImportStreams(e.target.checked)} />
+                                <span>{t('migrations.keitaroStreams')}</span>
                             </label>
                             <label className="flex items-center gap-2">
                                 <input type="checkbox" checked={kImportCampaignPostbacks} onChange={(e) => setKImportCampaignPostbacks(e.target.checked)} />

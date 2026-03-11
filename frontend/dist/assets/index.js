@@ -17330,7 +17330,10 @@ const ru = {
     keitaroCompanies: "Импортировать компании (affiliate networks)",
     keitaroOffers: "Импортировать офферы",
     keitaroDomains: "Импортировать домены",
+    keitaroTrafficSources: "Импортировать источники (traffic sources)",
+    keitaroLandings: "Импортировать лендинги",
     keitaroCampaigns: "Импортировать кампании (campaigns)",
+    keitaroStreams: "Импортировать потоки (streams/flows)",
     keitaroCampaignPostbacks: "Импортировать postbacks кампаний",
     keitaroNoFile: "Выберите файл .sql (или .sql.gz)",
     keitaroRunning: "Импорт...",
@@ -19202,7 +19205,10 @@ const en = {
     keitaroCompanies: "Import companies (affiliate networks)",
     keitaroOffers: "Import offers",
     keitaroDomains: "Import domains",
+    keitaroTrafficSources: "Import traffic sources",
+    keitaroLandings: "Import landings",
     keitaroCampaigns: "Import campaigns",
+    keitaroStreams: "Import streams/flows",
     keitaroCampaignPostbacks: "Import campaign postbacks",
     keitaroNoFile: "Please select a .sql (or .sql.gz) file",
     keitaroRunning: "Importing...",
@@ -42297,7 +42303,10 @@ const MigrationsPage = () => {
   const [kImportDomains, setKImportDomains] = reactExports.useState(true);
   const [kImportOffers, setKImportOffers] = reactExports.useState(true);
   const [kImportCompanies, setKImportCompanies] = reactExports.useState(true);
+  const [kImportTrafficSources, setKImportTrafficSources] = reactExports.useState(false);
+  const [kImportLandings, setKImportLandings] = reactExports.useState(false);
   const [kImportCampaigns, setKImportCampaigns] = reactExports.useState(false);
+  const [kImportStreams, setKImportStreams] = reactExports.useState(false);
   const [kImportCampaignPostbacks, setKImportCampaignPostbacks] = reactExports.useState(false);
   const [kLoading, setKLoading] = reactExports.useState(false);
   const [kError, setKError] = reactExports.useState("");
@@ -42349,7 +42358,10 @@ const MigrationsPage = () => {
       fd.append("import_domains", kImportDomains ? "1" : "0");
       fd.append("import_offers", kImportOffers ? "1" : "0");
       fd.append("import_companies", kImportCompanies ? "1" : "0");
+      fd.append("import_traffic_sources", kImportTrafficSources ? "1" : "0");
+      fd.append("import_landings", kImportLandings ? "1" : "0");
       fd.append("import_campaigns", kImportCampaigns ? "1" : "0");
+      fd.append("import_streams", kImportStreams ? "1" : "0");
       fd.append("import_campaign_postbacks", kImportCampaignPostbacks ? "1" : "0");
       const res = await fetch(`${API_URL$6}?action=keitaro_import_sql`, {
         method: "POST",
@@ -42473,8 +42485,20 @@ const MigrationsPage = () => {
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroDomains") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportTrafficSources, onChange: (e) => setKImportTrafficSources(e.target.checked) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroTrafficSources") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportLandings, onChange: (e) => setKImportLandings(e.target.checked) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroLandings") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportCampaigns, onChange: (e) => setKImportCampaigns(e.target.checked) }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroCampaigns") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportStreams, onChange: (e) => setKImportStreams(e.target.checked) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroStreams") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportCampaignPostbacks, onChange: (e) => setKImportCampaignPostbacks(e.target.checked) }),

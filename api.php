@@ -5152,7 +5152,10 @@ try {
             $importDomains = !isset($_POST['import_domains']) || (string) $_POST['import_domains'] === '1';
             $importOffers = !isset($_POST['import_offers']) || (string) $_POST['import_offers'] === '1';
             $importCompanies = !isset($_POST['import_companies']) || (string) $_POST['import_companies'] === '1';
+            $importTrafficSources = isset($_POST['import_traffic_sources']) && (string) $_POST['import_traffic_sources'] === '1';
+            $importLandings = isset($_POST['import_landings']) && (string) $_POST['import_landings'] === '1';
             $importCampaigns = isset($_POST['import_campaigns']) && (string) $_POST['import_campaigns'] === '1';
+            $importStreams = isset($_POST['import_streams']) && (string) $_POST['import_streams'] === '1';
             $importCampaignPostbacks = isset($_POST['import_campaign_postbacks']) && (string) $_POST['import_campaign_postbacks'] === '1';
 
             try {
@@ -5161,7 +5164,10 @@ try {
                     'import_domains' => $importDomains,
                     'import_offers' => $importOffers,
                     'import_companies' => $importCompanies,
+                    'import_traffic_sources' => $importTrafficSources,
+                    'import_landings' => $importLandings,
                     'import_campaigns' => $importCampaigns,
+                    'import_streams' => $importStreams,
                     'import_campaign_postbacks' => $importCampaignPostbacks,
                 ]);
                 echo json_encode(['status' => 'success', 'data' => $res]);
