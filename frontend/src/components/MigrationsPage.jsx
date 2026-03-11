@@ -9,6 +9,16 @@ const MigrationsPage = () => {
     const [migrations, setMigrations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(null);
+    const [kFile, setKFile] = useState(null);
+    const [kDryRun, setKDryRun] = useState(true);
+    const [kImportDomains, setKImportDomains] = useState(true);
+    const [kImportOffers, setKImportOffers] = useState(true);
+    const [kImportCompanies, setKImportCompanies] = useState(true);
+    const [kImportCampaigns, setKImportCampaigns] = useState(false);
+    const [kImportCampaignPostbacks, setKImportCampaignPostbacks] = useState(false);
+    const [kLoading, setKLoading] = useState(false);
+    const [kError, setKError] = useState('');
+    const [kResult, setKResult] = useState(null);
 
     const fetchMigrations = () => {
         setLoading(true);
@@ -45,6 +55,41 @@ const MigrationsPage = () => {
             alert(t('common.networkError') + ': ' + e.message);
         } finally {
             setActionLoading(null);
+        }
+    };
+
+    const handleKeitaroImport = async () => {
+        if (!kFile) {
+            setKError(t('migrations.keitaroNoFile'));
+            return;
+        }
+        setKLoading(true);
+        setKError('');
+        setKResult(null);
+        try {
+            const fd = new FormData();
+            fd.append('sql_file', kFile);
+            fd.append('dry_run', kDryRun ? '1' : '0');
+            fd.append('import_domains', kImportDomains ? '1' : '0');
+            fd.append('import_offers', kImportOffers ? '1' : '0');
+            fd.append('import_companies', kImportCompanies ? '1' : '0');
+            fd.append('import_campaigns', kImportCampaigns ? '1' : '0');
+            fd.append('import_campaign_postbacks', kImportCampaignPostbacks ? '1' : '0');
+
+            const res = await fetch(`${API_URL}?action=keitaro_import_sql`, {
+                method: 'POST',
+                body: fd
+            });
+            const data = await res.json();
+            if (data.status !== 'success') {
+                setKError(data.message || t('common.error'));
+                return;
+            }
+            setKResult(data.data || null);
+        } catch (e) {
+            setKError(e?.message ? String(e.message) : t('common.networkError'));
+        } finally {
+            setKLoading(false);
         }
     };
 
@@ -153,6 +198,94 @@ const MigrationsPage = () => {
                         <p className="empty-state-title">{t('migrations.noMigrations')}</p>
                     </div>
                 )}
+            </div>
+
+            {/* Keitaro import */}
+            <div className="page-card">
+                <div className="page-header">
+                    <div className="flex items-center gap-2">
+                        <Database className="w-5 h-5" style={{ color: 'var(--color-text-secondary)' }} />
+                        <h2 className="page-title">{t('migrations.keitaroTitle')}</h2>
+                    </div>
+                </div>
+
+                <div style={{
+                    background: 'var(--color-info-bg)',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    marginBottom: '16px'
+                }}>
+                    <p style={{ fontSize: '14px', color: 'var(--color-info)' }}>
+                        {t('migrations.keitaroInfo')}
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="form-label">{t('migrations.keitaroFile')}</label>
+                        <input
+                            type="file"
+                            accept=".sql,.sql.gz"
+                            className="form-input"
+                            onChange={(e) => setKFile(e.target.files?.[0] || null)}
+                        />
+                        <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '8px' }}>
+                            {t('migrations.keitaroFileHint')}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="form-label">{t('migrations.keitaroOptions')}</label>
+                        <div className="space-y-2">
+                            <label className="flex items-center gap-2">
+                                <input type="checkbox" checked={kDryRun} onChange={(e) => setKDryRun(e.target.checked)} />
+                                <span>{t('migrations.keitaroDryRun')}</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                                <input type="checkbox" checked={kImportCompanies} onChange={(e) => setKImportCompanies(e.target.checked)} />
+                                <span>{t('migrations.keitaroCompanies')}</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                                <input type="checkbox" checked={kImportOffers} onChange={(e) => setKImportOffers(e.target.checked)} />
+                                <span>{t('migrations.keitaroOffers')}</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                                <input type="checkbox" checked={kImportDomains} onChange={(e) => setKImportDomains(e.target.checked)} />
+                                <span>{t('migrations.keitaroDomains')}</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                                <input type="checkbox" checked={kImportCampaigns} onChange={(e) => setKImportCampaigns(e.target.checked)} />
+                                <span>{t('migrations.keitaroCampaigns')}</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                                <input type="checkbox" checked={kImportCampaignPostbacks} onChange={(e) => setKImportCampaignPostbacks(e.target.checked)} />
+                                <span>{t('migrations.keitaroCampaignPostbacks')}</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                {kError && (
+                    <div className="alert alert-danger mt-4">
+                        {kError}
+                    </div>
+                )}
+
+                {kResult && (
+                    <div className="alert alert-success mt-4" style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '12px' }}>
+                        {JSON.stringify(kResult, null, 2)}
+                    </div>
+                )}
+
+                <div className="mt-4 flex items-center justify-end">
+                    <button
+                        className="btn btn-primary"
+                        onClick={handleKeitaroImport}
+                        disabled={kLoading}
+                    >
+                        {kLoading ? t('migrations.keitaroRunning') : (kDryRun ? t('migrations.keitaroPreviewBtn') : t('migrations.keitaroImportBtn'))}
+                    </button>
+                </div>
             </div>
         </div>
     );

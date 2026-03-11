@@ -22,6 +22,7 @@ if (!is_dir(__DIR__ . '/var/logs')) {
 require_once 'config.php';
 require_once 'version.php';
 require_once __DIR__ . '/core/backorder.php';
+require_once __DIR__ . '/core/keitaro_import.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -4989,6 +4990,57 @@ try {
             });
 
             echo json_encode(['status' => 'success', 'data' => $result]);
+            break;
+
+        case 'keitaro_import_sql':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+
+            if (empty($_FILES) || !isset($_FILES['sql_file'])) {
+                echo json_encode(['status' => 'error', 'message' => 'No file uploaded (sql_file)']);
+                break;
+            }
+            $f = $_FILES['sql_file'];
+            if (!is_array($f) || !isset($f['tmp_name'])) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid upload']);
+                break;
+            }
+            if (!empty($f['error'])) {
+                echo json_encode(['status' => 'error', 'message' => 'Upload error: ' . (int) $f['error']]);
+                break;
+            }
+            $tmp = (string) $f['tmp_name'];
+            if ($tmp === '' || !is_file($tmp)) {
+                echo json_encode(['status' => 'error', 'message' => 'Upload temp file not found']);
+                break;
+            }
+
+            $dryRun = isset($_POST['dry_run']) && (string) $_POST['dry_run'] === '1';
+            $importDomains = !isset($_POST['import_domains']) || (string) $_POST['import_domains'] === '1';
+            $importOffers = !isset($_POST['import_offers']) || (string) $_POST['import_offers'] === '1';
+            $importCompanies = !isset($_POST['import_companies']) || (string) $_POST['import_companies'] === '1';
+            $importCampaigns = isset($_POST['import_campaigns']) && (string) $_POST['import_campaigns'] === '1';
+            $importCampaignPostbacks = isset($_POST['import_campaign_postbacks']) && (string) $_POST['import_campaign_postbacks'] === '1';
+
+            try {
+                $res = orbitraKeitaroImportSqlDump($pdo, $tmp, [
+                    'dry_run' => $dryRun,
+                    'import_domains' => $importDomains,
+                    'import_offers' => $importOffers,
+                    'import_companies' => $importCompanies,
+                    'import_campaigns' => $importCampaigns,
+                    'import_campaign_postbacks' => $importCampaignPostbacks,
+                ]);
+                echo json_encode(['status' => 'success', 'data' => $res]);
+            } catch (Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
             break;
 
         // === TRENDS API ===

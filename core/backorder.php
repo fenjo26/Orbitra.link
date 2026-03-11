@@ -550,6 +550,23 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
     $resultUrl = $baseUrl . '/public/whois?lang=en';
     $postUrl = $baseUrl . '/public/whois/query';
 
+    // The registry UI enforces additional constraints not covered by generic DNS rules.
+    // Example: "a.gr" is syntactically valid but rejected by the service as too short.
+    // Avoid burning requests (and hitting rate limits) for obviously rejected inputs.
+    if ($tld === 'gr' && strlen($domain) < 5) {
+        return [
+            'status' => 'error',
+            'http_code' => 0,
+            'rdap_url' => $formUrl,
+            'error' => 'GR WHOIS: Minimum length is five characters / Please enter a valid domain name',
+            'result_json' => json_encode([
+                'method' => 'grweb',
+                'message' => 'Minimum length is five characters / Please enter a valid domain name',
+                'nameservers' => [],
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+        ];
+    }
+
     try {
         $httpVersions = [];
         if (defined('CURL_HTTP_VERSION_2TLS')) {
@@ -649,25 +666,36 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
                 continue;
             }
 
-            // 3) GET results page (POST redirects to /public/whois)
-            curl_setopt_array($ch, [
-                CURLOPT_URL => $resultUrl,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_MAXREDIRS => 3,
-                CURLOPT_HTTPHEADER => ['Accept: text/html', 'Referer: ' . $formUrl],
-                CURLOPT_POST => false,
-                CURLOPT_HTTPGET => true,
-            ]);
-            $htmlRes = curl_exec($ch);
-            $code3 = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-            $curlErr3 = curl_error($ch);
+            // 3) Some inputs are rejected server-side and the POST returns 200 with
+            // inline validation errors (no redirect / no results stored in session).
+            // Example: "a.gr" yields "Minimum length is five characters".
+            // In this case, parse the POST response; otherwise fetch the results page.
+            $htmlRes = null;
+            $code3 = 0;
+            if ($code2 >= 200 && $code2 < 300 && !in_array($code2, [301, 302, 303, 307, 308], true)) {
+                $htmlRes = $body2;
+                $code3 = $code2;
+            } else {
+                // GET results page (POST typically redirects to /public/whois)
+                curl_setopt_array($ch, [
+                    CURLOPT_URL => $resultUrl,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_MAXREDIRS => 3,
+                    CURLOPT_HTTPHEADER => ['Accept: text/html', 'Referer: ' . $formUrl],
+                    CURLOPT_POST => false,
+                    CURLOPT_HTTPGET => true,
+                ]);
+                $htmlRes = curl_exec($ch);
+                $code3 = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+                $curlErr3 = curl_error($ch);
 
-            if ($htmlRes === false || !is_string($htmlRes) || $htmlRes === '' || $code3 < 200 || $code3 >= 400) {
-                $lastError = $curlErr3 ?: ('GR WHOIS result fetch failed (HTTP ' . $code3 . ')');
-                unset($ch);
-                if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0)
-                    @unlink($cookieFile);
-                continue;
+                if ($htmlRes === false || !is_string($htmlRes) || $htmlRes === '' || $code3 < 200 || $code3 >= 400) {
+                    $lastError = $curlErr3 ?: ('GR WHOIS result fetch failed (HTTP ' . $code3 . ')');
+                    unset($ch);
+                    if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0)
+                        @unlink($cookieFile);
+                    continue;
+                }
             }
 
             // Parse the alert message rendered after query.
@@ -681,13 +709,37 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
             if (($msg === null || $msg === '') && preg_match('/<strong>\\s*' . preg_quote($domain, '/') . '\\s*:\\s*([^<]+)\\s*<\\/strong>/i', $htmlRes, $mm2)) {
                 $msg = $domain . ' : ' . trim(html_entity_decode($mm2[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
             }
+
+            // Inline validation message (rendered next to the input field).
+            $inlineErr = null;
+            if (preg_match('/<span[^>]*class=\"[^\"]*invalid-feedback[^\"]*\"[^>]*>(.*?)<\\/span>/is', $htmlRes, $mi)) {
+                $raw = $mi[1];
+                $raw = preg_replace('/<br\\s*\\/?>/i', "\n", $raw);
+                $raw = strip_tags($raw);
+                $raw = html_entity_decode($raw, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $raw = trim($raw);
+                // Keep it compact for UI.
+                $raw = preg_replace('/\\s*\\n\\s*/', ' / ', $raw);
+                $raw = preg_replace('/\\s{2,}/', ' ', $raw);
+                if ($raw !== '') {
+                    $inlineErr = $raw;
+                }
+            }
             $msgLc = is_string($msg) ? strtolower($msg) : '';
             $htmlLc = strtolower($htmlRes);
 
             $status = 'error';
             $err = 'GR WHOIS: unrecognized response';
 
-            if (strpos($msgLc, 'can be provisioned') !== false) {
+            if (is_string($inlineErr) && $inlineErr !== '') {
+                $status = 'error';
+                $err = 'GR WHOIS: ' . $inlineErr;
+                $msg = $inlineErr;
+                $msgLc = strtolower($inlineErr);
+            } elseif ($msgLc !== '' && (strpos($msgLc, 'allowed request limit') !== false || strpos($msgLc, 'request limit') !== false)) {
+                $status = 'rate_limited';
+                $err = 'GR WHOIS: ' . $msg;
+            } elseif (strpos($msgLc, 'can be provisioned') !== false) {
                 $status = 'available';
                 $err = null;
             } elseif (strpos($msgLc, 'in use') !== false) {
@@ -754,6 +806,10 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
             unset($ch);
             if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0)
                 @unlink($cookieFile);
+
+            if (is_string($inlineErr) && $inlineErr !== '') {
+                return $out;
+            }
 
             if (in_array($status, ['available', 'registered'], true)) {
                 return $out;
