@@ -2341,7 +2341,18 @@ try {
                 break;
             }
 
-            $stmt = $pdo->prepare("SELECT id, name FROM backorder_domains WHERE id=? LIMIT 1");
+            $stmt = $pdo->prepare("
+                SELECT
+                    id,
+                    name,
+                    COALESCE(NULLIF(status, ''), 'unknown') AS status,
+                    last_http_code,
+                    last_error,
+                    last_rdap_url,
+                    last_result_json
+                FROM backorder_domains
+                WHERE id=? LIMIT 1
+            ");
             $stmt->execute([$id]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $stmt->closeCursor(); // Free SQLite read lock
@@ -2354,6 +2365,33 @@ try {
             $domainName = (string) $row['name'];
             $check = orbitraBackorderCheck($domainName);
 
+            $prevStatus = (string) ($row['status'] ?? 'unknown');
+            $transient = orbitraBackorderIsTransientCheckResult($check);
+
+            $statusToStore = (string) ($check['status'] ?? 'unknown');
+            $httpToStore = $check['http_code'] ?? 0;
+            $errorToStore = $check['error'] ?? null;
+            $rdapToStore = $check['rdap_url'] ?? null;
+            $jsonToStore = $check['result_json'] ?? null;
+
+            if ($transient) {
+                // Do not poison a known status with temporary rate limits / WAF blocks.
+                if (in_array($prevStatus, ['registered', 'available'], true)) {
+                    $statusToStore = $prevStatus;
+                    $httpToStore = $row['last_http_code'] ?? 0;
+                    $errorToStore = $row['last_error'] ?? null;
+                    $rdapToStore = $row['last_rdap_url'] ?? null;
+                    $jsonToStore = $row['last_result_json'] ?? null;
+                } else {
+                    // If we previously had only an error/rate_limited, degrade to "unknown".
+                    if (in_array($prevStatus, ['error', 'rate_limited'], true)) {
+                        $statusToStore = 'unknown';
+                    } else {
+                        $statusToStore = $prevStatus ?: 'unknown';
+                    }
+                }
+            }
+
             $pdo->prepare("
                 UPDATE backorder_domains
                 SET
@@ -2365,14 +2403,16 @@ try {
                     last_result_json = ?
                 WHERE id = ?
             ")->execute([
-                $check['status'],
-                $check['http_code'],
-                $check['error'],
-                $check['rdap_url'],
-                $check['result_json'],
+                $statusToStore,
+                $httpToStore,
+                $errorToStore,
+                $rdapToStore,
+                $jsonToStore,
                 $id
             ]);
 
+            $check['stored_status'] = $statusToStore;
+            $check['transient'] = $transient;
             echo json_encode(['status' => 'success', 'data' => $check]);
             break;
 
@@ -2393,8 +2433,12 @@ try {
 
             $runStartedAt = isset($data['run_started_at']) ? (int) $data['run_started_at'] : 0;
 
-            // Default re-check interval (seconds). Stored in settings; no schema changes needed.
-            $checkIntervalSec = 900;
+            // Re-check intervals (seconds). Stored in settings; no schema changes needed.
+            // Goal: do not burn external limits (especially .gr web UI) on already-registered domains.
+            $checkIntervalSec = 900; // unknown/dns_available/unsupported (default)
+            $checkIntervalRegisteredSec = 86400; // registered: check rarely
+            $checkIntervalRateLimitedSec = 3600; // back off on rate limits
+            $checkIntervalErrorSec = 1800; // transient errors: retry later
             try {
                 $v = $pdo->query("SELECT value FROM settings WHERE key='backorder_check_interval_sec'")->fetchColumn();
                 if (is_string($v) && $v !== '' && preg_match('/^\\d+$/', $v)) {
@@ -2404,7 +2448,65 @@ try {
                 // ignore
             }
 
-            $cutoffEpoch = $runStartedAt > 0 ? $runStartedAt : (time() - $checkIntervalSec);
+            try {
+                $v = $pdo->query("SELECT value FROM settings WHERE key='backorder_check_interval_registered_sec'")->fetchColumn();
+                if (is_string($v) && $v !== '' && preg_match('/^\\d+$/', $v)) {
+                    $checkIntervalRegisteredSec = max(60, (int) $v);
+                }
+            } catch (Throwable $e) {
+                // ignore
+            }
+            try {
+                $v = $pdo->query("SELECT value FROM settings WHERE key='backorder_check_interval_rate_limited_sec'")->fetchColumn();
+                if (is_string($v) && $v !== '' && preg_match('/^\\d+$/', $v)) {
+                    $checkIntervalRateLimitedSec = max(60, (int) $v);
+                }
+            } catch (Throwable $e) {
+                // ignore
+            }
+            try {
+                $v = $pdo->query("SELECT value FROM settings WHERE key='backorder_check_interval_error_sec'")->fetchColumn();
+                if (is_string($v) && $v !== '' && preg_match('/^\\d+$/', $v)) {
+                    $checkIntervalErrorSec = max(60, (int) $v);
+                }
+            } catch (Throwable $e) {
+                // ignore
+            }
+
+            $nowEpoch = time();
+            $cutoffDefaultEpoch = $nowEpoch - $checkIntervalSec;
+            $cutoffRegisteredEpoch = $nowEpoch - $checkIntervalRegisteredSec;
+            $cutoffRateLimitedEpoch = $nowEpoch - $checkIntervalRateLimitedSec;
+            $cutoffErrorEpoch = $nowEpoch - $checkIntervalErrorSec;
+
+            $paramsDue = [
+                ':cutoff_default' => $cutoffDefaultEpoch,
+                ':cutoff_registered' => $cutoffRegisteredEpoch,
+                ':cutoff_rate_limited' => $cutoffRateLimitedEpoch,
+                ':cutoff_error' => $cutoffErrorEpoch,
+            ];
+            $runConstraintSql = '';
+            if ($runStartedAt > 0) {
+                // Prevent re-checking the same domain more than once in a single UI run.
+                $runConstraintSql = "CAST(strftime('%s', last_checked_at) AS INTEGER) < :run_started_at AND";
+                $paramsDue[':run_started_at'] = $runStartedAt;
+            }
+
+            $dueWhereSql = "
+                WHERE COALESCE(NULLIF(status, ''), 'unknown') != 'available'
+                  AND (
+                      last_checked_at IS NULL
+                      OR (
+                          $runConstraintSql
+                          (
+                              (COALESCE(NULLIF(status, ''), 'unknown') = 'registered' AND CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff_registered)
+                              OR (COALESCE(NULLIF(status, ''), 'unknown') = 'rate_limited' AND CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff_rate_limited)
+                              OR (COALESCE(NULLIF(status, ''), 'unknown') = 'error' AND CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff_error)
+                              OR (COALESCE(NULLIF(status, ''), 'unknown') NOT IN ('registered','rate_limited','error') AND CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff_default)
+                          )
+                      )
+                  )
+            ";
 
             $lockDir = __DIR__ . '/var/locks';
             if (!is_dir($lockDir)) {
@@ -2426,30 +2528,29 @@ try {
                 $stmtDue = $pdo->prepare("
                     SELECT COUNT(*)
                     FROM backorder_domains
-                    WHERE COALESCE(NULLIF(status, ''), 'unknown') != 'available'
-                      AND (
-                          last_checked_at IS NULL
-                          OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
-                      )
+                    $dueWhereSql
                 ");
-                $stmtDue->execute([':cutoff' => $cutoffEpoch]);
+                $stmtDue->execute($paramsDue);
                 $dueTotal = (int) ($stmtDue->fetchColumn() ?: 0);
 
                 while ($checked < $limit && (microtime(true) - $startedAt) < $timeBudgetSeconds) {
                     $stmt = $pdo->prepare("
-                        SELECT id, name
+                        SELECT
+                            id,
+                            name,
+                            COALESCE(NULLIF(status, ''), 'unknown') AS status,
+                            last_http_code,
+                            last_error,
+                            last_rdap_url,
+                            last_result_json
                         FROM backorder_domains
-                        WHERE COALESCE(NULLIF(status, ''), 'unknown') != 'available'
-                          AND (
-                              last_checked_at IS NULL
-                              OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
-                          )
+                        $dueWhereSql
                         ORDER BY
                             CASE WHEN last_checked_at IS NULL THEN 0 ELSE 1 END,
                             COALESCE(last_checked_at, created_at) ASC
                         LIMIT 1
                     ");
-                    $stmt->execute([':cutoff' => $cutoffEpoch]);
+                    $stmt->execute($paramsDue);
                     $row = $stmt->fetch(PDO::FETCH_ASSOC);
                     $stmt->closeCursor(); // Free SQLite read lock so UPDATE can write
                     
@@ -2462,6 +2563,31 @@ try {
 
                     $check = orbitraBackorderCheck($name);
 
+                    $prevStatus = (string) ($row['status'] ?? 'unknown');
+                    $transient = orbitraBackorderIsTransientCheckResult($check);
+
+                    $statusToStore = (string) ($check['status'] ?? 'unknown');
+                    $httpToStore = $check['http_code'] ?? 0;
+                    $errorToStore = $check['error'] ?? null;
+                    $rdapToStore = $check['rdap_url'] ?? null;
+                    $jsonToStore = $check['result_json'] ?? null;
+
+                    if ($transient) {
+                        if (in_array($prevStatus, ['registered', 'available'], true)) {
+                            $statusToStore = $prevStatus;
+                            $httpToStore = $row['last_http_code'] ?? 0;
+                            $errorToStore = $row['last_error'] ?? null;
+                            $rdapToStore = $row['last_rdap_url'] ?? null;
+                            $jsonToStore = $row['last_result_json'] ?? null;
+                        } else {
+                            if (in_array($prevStatus, ['error', 'rate_limited'], true)) {
+                                $statusToStore = 'unknown';
+                            } else {
+                                $statusToStore = $prevStatus ?: 'unknown';
+                            }
+                        }
+                    }
+
                     $pdo->prepare("
                         UPDATE backorder_domains
                         SET
@@ -2473,21 +2599,21 @@ try {
                             last_result_json = ?
                         WHERE id = ?
                     ")->execute([
-                        $check['status'],
-                        $check['http_code'],
-                        $check['error'],
-                        $check['rdap_url'],
-                        $check['result_json'],
+                        $statusToStore,
+                        $httpToStore,
+                        $errorToStore,
+                        $rdapToStore,
+                        $jsonToStore,
                         $id
                     ]);
 
                     $results[] = [
                         'id' => $id,
                         'name' => $name,
-                        'status' => $check['status'],
-                        'http_code' => $check['http_code'],
-                        'error' => $check['error'],
-                        'rdap_url' => $check['rdap_url'],
+                        'status' => $statusToStore,
+                        'http_code' => $httpToStore,
+                        'error' => $errorToStore,
+                        'rdap_url' => $rdapToStore,
                     ];
                     $checked++;
                 }
@@ -2498,13 +2624,9 @@ try {
                 $stmtDue2 = $pdo->prepare("
                     SELECT COUNT(*)
                     FROM backorder_domains
-                    WHERE COALESCE(NULLIF(status, ''), 'unknown') != 'available'
-                      AND (
-                          last_checked_at IS NULL
-                          OR CAST(strftime('%s', last_checked_at) AS INTEGER) < :cutoff
-                      )
+                    $dueWhereSql
                 ");
-                $stmtDue2->execute([':cutoff' => $cutoffEpoch]);
+                $stmtDue2->execute($paramsDue);
                 $dueRemaining = (int) ($stmtDue2->fetchColumn() ?: 0);
 
                 echo json_encode([
@@ -2514,8 +2636,13 @@ try {
                         'limit' => $limit,
                         'results' => $results,
                         'run_started_at' => $runStartedAt > 0 ? $runStartedAt : null,
-                        'cutoff_epoch' => $cutoffEpoch,
-                        'check_interval_sec' => $checkIntervalSec,
+                        'cutoff_epoch' => $cutoffDefaultEpoch,
+                        'check_intervals' => [
+                            'default' => $checkIntervalSec,
+                            'registered' => $checkIntervalRegisteredSec,
+                            'rate_limited' => $checkIntervalRateLimitedSec,
+                            'error' => $checkIntervalErrorSec,
+                        ],
                         'domains' => [
                             'total' => $total,
                             'never_checked' => $neverChecked,

@@ -567,6 +567,29 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
         ];
     }
 
+    // Global cooldown to avoid hammering the registry UI when it rate-limits the server IP.
+    $cacheDir = orbitraBackorderGetCacheDir();
+    if (!is_dir($cacheDir)) {
+        @mkdir($cacheDir, 0777, true);
+    }
+    $cooldownFile = $cacheDir . '/grwhois_rate_limited_until.txt';
+    if (is_readable($cooldownFile)) {
+        $until = (int) trim((string) @file_get_contents($cooldownFile));
+        if ($until > time()) {
+            return [
+                'status' => 'rate_limited',
+                'http_code' => 0,
+                'rdap_url' => $formUrl,
+                'error' => 'GR WHOIS: The allowed request limit has been exceeded. Please try later.',
+                'result_json' => json_encode([
+                    'method' => 'grweb',
+                    'message' => 'cooldown_active',
+                    'cooldown_until' => $until,
+                ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+            ];
+        }
+    }
+
     try {
         $httpVersions = [];
         if (defined('CURL_HTTP_VERSION_2TLS')) {
@@ -736,8 +759,14 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
                 $err = 'GR WHOIS: ' . $inlineErr;
                 $msg = $inlineErr;
                 $msgLc = strtolower($inlineErr);
-            } elseif ($msgLc !== '' && (strpos($msgLc, 'allowed request limit') !== false || strpos($msgLc, 'request limit') !== false)) {
+            } elseif (
+                ($msgLc !== '' && (strpos($msgLc, 'allowed request limit') !== false || strpos($msgLc, 'request limit') !== false))
+                || (strpos($htmlLc, 'allowed request limit') !== false || strpos($htmlLc, 'request limit') !== false)
+            ) {
                 $status = 'rate_limited';
+                if ($msg === null || $msg === '') {
+                    $msg = 'The allowed request limit has been exceeded. Please try later.';
+                }
                 $err = 'GR WHOIS: ' . $msg;
             } elseif (strpos($msgLc, 'can be provisioned') !== false) {
                 $status = 'available';
@@ -802,6 +831,11 @@ function orbitraBackorderGrWebCheck(string $domain, int $timeoutSeconds = 12): a
                     'nameservers' => $ns,
                 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
             ];
+
+            if ($status === 'rate_limited') {
+                // Back off aggressively; the registry UI limit is usually per IP.
+                @file_put_contents($cooldownFile, (string) (time() + 3600));
+            }
 
             unset($ch);
             if (is_string($cookieFile) && strpos($cookieFile, sys_get_temp_dir()) === 0)
@@ -994,4 +1028,62 @@ function orbitraBackorderCheck(string $domain, int $timeoutSeconds = 10): array
     }
 
     return $whois;
+}
+
+/**
+ * Whether a failed availability check should be treated as transient.
+ * Used by persistence layer to avoid flipping a previously-known status into "error"
+ * due to temporary blocks/rate limits/network issues.
+ */
+function orbitraBackorderIsTransientCheckResult(array $check): bool
+{
+    $status = (string) ($check['status'] ?? '');
+    $err = (string) ($check['error'] ?? '');
+    $errLc = strtolower($err);
+
+    if ($status === 'rate_limited') {
+        return true;
+    }
+
+    if ($status !== 'error') {
+        return false;
+    }
+
+    // Permanent/semantic errors: keep as error so user can fix input.
+    if (strpos($errLc, 'invalid domain') !== false) {
+        return false;
+    }
+    if (strpos($errLc, 'minimum length') !== false) {
+        return false;
+    }
+    if (strpos($errLc, 'please enter a valid domain name') !== false) {
+        return false;
+    }
+
+    // Transient/network/WAF type failures.
+    $transientNeedles = [
+        'rate limited',
+        'request limit',
+        'blocked request',
+        'csrf token not found',
+        'fetch failed',
+        'query failed',
+        'connection failed',
+        'timed out',
+        'timeout',
+        'temporary',
+        'try later',
+        'http 403',
+        'http 429',
+        'unexpected rdap response',
+    ];
+    foreach ($transientNeedles as $needle) {
+        if ($needle !== '' && strpos($errLc, $needle) !== false) {
+            return true;
+        }
+    }
+
+    // Default: assume transient to avoid poisoning the DB with "error"
+    // on flaky external responses.
+    return true;
 }
