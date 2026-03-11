@@ -11,6 +11,11 @@ try {
     // Включаем поддержку внешших ключей в SQLite
     $pdo->exec("PRAGMA foreign_keys = ON;");
 
+    // Enable WAL mode and busy timeout for much better concurrency
+    $pdo->exec("PRAGMA journal_mode = WAL;");
+    $pdo->exec("PRAGMA synchronous = NORMAL;");
+    $pdo->exec("PRAGMA busy_timeout = 5000;");
+
     // Инициализация базы данных, если она пустая
     $init_sql = "
     CREATE TABLE IF NOT EXISTS affiliate_networks (

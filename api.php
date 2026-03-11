@@ -2343,6 +2343,8 @@ try {
             $stmt = $pdo->prepare("SELECT id, name FROM backorder_domains WHERE id=? LIMIT 1");
             $stmt->execute([$id]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->closeCursor(); // Free SQLite read lock
+            
             if (!$row) {
                 echo json_encode(['status' => 'error', 'message' => 'Domain not found']);
                 break;
@@ -2448,6 +2450,8 @@ try {
                     ");
                     $stmt->execute([':cutoff' => $cutoffEpoch]);
                     $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                    $stmt->closeCursor(); // Free SQLite read lock so UPDATE can write
+                    
                     if (!$row) {
                         break;
                     }
