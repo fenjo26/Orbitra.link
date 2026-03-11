@@ -31,7 +31,7 @@ class TabErrorBoundary extends React.Component {
         if (this.state.hasError) {
             return (
                 <div className="page-card" style={{ color: '#b91c1c' }}>
-                    <h3 style={{ margin: '0 0 8px' }}>⚠ Render Error</h3>
+                    <h3 style={{ margin: '0 0 8px' }}>⚠ Render Error (v2)</h3>
                     <pre style={{ whiteSpace: 'pre-wrap', fontSize: 13, background: '#fef2f2', padding: 12, borderRadius: 6 }}>
                         {String(this.state.error)}
                     </pre>

@@ -39867,7 +39867,7 @@ class TabErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { color: "#b91c1c" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { margin: "0 0 8px" }, children: "⚠ Render Error" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { margin: "0 0 8px" }, children: "⚠ Render Error (v2)" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { style: { whiteSpace: "pre-wrap", fontSize: 13, background: "#fef2f2", padding: 12, borderRadius: 6 }, children: String(this.state.error) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
