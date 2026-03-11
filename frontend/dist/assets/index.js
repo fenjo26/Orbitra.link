@@ -16285,6 +16285,8 @@ const ru = {
     status: "Статус",
     ok: "Ок",
     awaitingDns: "Ожидает DNS",
+    ignoreDnsLabel: "Игнорировать DNS (UI)",
+    ignoreDnsHint: "Только в интерфейсе: показывать все домены как OK, даже если DNS еще не настроен. Удобно для миграции/тестов.",
     notSelected: "Не выбрана",
     loading: "Загрузка...",
     noDomains: "Нет добавленных доменов",
@@ -17964,6 +17966,8 @@ const en = {
     status: "Status",
     ok: "OK",
     awaitingDns: "Awaiting DNS",
+    ignoreDnsLabel: "Ignore DNS (UI)",
+    ignoreDnsHint: "UI-only: show all domains as OK even if DNS is not configured yet. Useful for migration/testing.",
     notSelected: "Not selected",
     loading: "Loading...",
     noDomains: "No added domains",
@@ -32608,6 +32612,10 @@ const Domains = ({ campaigns }) => {
   const [searchTerm, setSearchTerm] = reactExports.useState("");
   const [serverIp, setServerIp] = reactExports.useState("");
   const [loading, setLoading] = reactExports.useState(true);
+  const [ignoreDnsUi, setIgnoreDnsUi] = reactExports.useState(() => {
+    const v = localStorage.getItem("domains_ignore_dns_ui");
+    return v === "1";
+  });
   const [showModal, setShowModal] = reactExports.useState(false);
   const [formData, setFormData] = reactExports.useState({
     id: null,
@@ -32641,6 +32649,9 @@ const Domains = ({ campaigns }) => {
     const lowercased = searchTerm.toLowerCase();
     setFilteredDomains(domains.filter((d) => d.name.toLowerCase().includes(lowercased)));
   }, [searchTerm, domains]);
+  reactExports.useEffect(() => {
+    localStorage.setItem("domains_ignore_dns_ui", ignoreDnsUi ? "1" : "0");
+  }, [ignoreDnsUi]);
   const handleEdit = (domain) => {
     setFormData({
       id: domain.id,
@@ -32714,6 +32725,17 @@ const Domains = ({ campaigns }) => {
             }
           )
         ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 px-3 py-2 rounded text-sm border border-gray-200 bg-white", title: t2("domains.ignoreDnsHint"), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "checkbox",
+              checked: ignoreDnsUi,
+              onChange: (e) => setIgnoreDnsUi(Boolean(e.target.checked))
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-700", children: t2("domains.ignoreDnsLabel") })
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
@@ -32742,7 +32764,7 @@ const Domains = ({ campaigns }) => {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-100", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8", children: t2("domains.loading") }) }) : filteredDomains.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8 text-gray-500", children: t2("domains.noDomains") }) }) : filteredDomains.map((domain) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-gray-50 transition", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-medium text-gray-800", children: domain.name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3", children: domain.status === "active" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 text-green-600 text-sm font-medium bg-green-50 px-2 py-1 rounded", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3", children: ignoreDnsUi || domain.status === "active" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 text-green-600 text-sm font-medium bg-green-50 px-2 py-1 rounded", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }),
           " ",
           t2("domains.ok")

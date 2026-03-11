@@ -390,6 +390,8 @@ export default {
         status: "Статус",
         ok: "Ок",
         awaitingDns: "Ожидает DNS",
+        ignoreDnsLabel: "Игнорировать DNS (UI)",
+        ignoreDnsHint: "Только в интерфейсе: показывать все домены как OK, даже если DNS еще не настроен. Удобно для миграции/тестов.",
         notSelected: "Не выбрана",
         loading: "Загрузка...",
         noDomains: "Нет добавленных доменов",

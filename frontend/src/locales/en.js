@@ -390,6 +390,8 @@ export default {
         status: "Status",
         ok: "OK",
         awaitingDns: "Awaiting DNS",
+        ignoreDnsLabel: "Ignore DNS (UI)",
+        ignoreDnsHint: "UI-only: show all domains as OK even if DNS is not configured yet. Useful for migration/testing.",
         notSelected: "Not selected",
         loading: "Loading...",
         noDomains: "No added domains",

@@ -14,6 +14,12 @@ const Domains = ({ campaigns }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [serverIp, setServerIp] = useState('');
     const [loading, setLoading] = useState(true);
+    const [ignoreDnsUi, setIgnoreDnsUi] = useState(() => {
+        // UI-only toggle for migrations/tests when DNS isn't set yet.
+        // Do not use this in production to "fix" misconfigured DNS.
+        const v = localStorage.getItem('domains_ignore_dns_ui');
+        return v === '1';
+    });
 
     // Edit Modal State
     const [showModal, setShowModal] = useState(false);
@@ -48,6 +54,10 @@ const Domains = ({ campaigns }) => {
         const lowercased = searchTerm.toLowerCase();
         setFilteredDomains(domains.filter(d => d.name.toLowerCase().includes(lowercased)));
     }, [searchTerm, domains]);
+
+    useEffect(() => {
+        localStorage.setItem('domains_ignore_dns_ui', ignoreDnsUi ? '1' : '0');
+    }, [ignoreDnsUi]);
 
     const handleEdit = (domain) => {
         setFormData({
@@ -131,6 +141,14 @@ const Domains = ({ campaigns }) => {
                             className="pl-9 pr-4 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500 w-64"
                         />
                     </div>
+                    <label className="inline-flex items-center gap-2 px-3 py-2 rounded text-sm border border-gray-200 bg-white" title={t('domains.ignoreDnsHint')}>
+                        <input
+                            type="checkbox"
+                            checked={ignoreDnsUi}
+                            onChange={(e) => setIgnoreDnsUi(Boolean(e.target.checked))}
+                        />
+                        <span className="text-gray-700">{t('domains.ignoreDnsLabel')}</span>
+                    </label>
                     <button
                         onClick={() => {
                             setFormData({ id: null, name: '', index_campaign_id: '', catch_404: false, group_id: '', is_noindex: true, https_only: false });
@@ -165,7 +183,7 @@ const Domains = ({ campaigns }) => {
                                 <tr key={domain.id} className="hover:bg-gray-50 transition">
                                     <td className="px-5 py-3 font-medium text-gray-800">{domain.name}</td>
                                     <td className="px-5 py-3">
-                                        {domain.status === 'active' ? (
+                                        {(ignoreDnsUi || domain.status === 'active') ? (
                                             <span className="inline-flex items-center gap-1 text-green-600 text-sm font-medium bg-green-50 px-2 py-1 rounded">
                                                 <Check size={14} /> {t('domains.ok')}
                                             </span>
