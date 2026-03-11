@@ -386,8 +386,18 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         URL.revokeObjectURL(url);
     };
 
+    const getExportRows = () => {
+        // If user selected any rows, export exactly those (across filters).
+        // Otherwise, export the currently visible (filtered) list.
+        if (selectedIds.size > 0) {
+            return (rows || []).filter(r => selectedIds.has(r.id));
+        }
+        return filtered || [];
+    };
+
     const exportTxt = () => {
-        const lines = (rows || []).map(r => String(r.name || '').trim()).filter(Boolean);
+        const exportRows = getExportRows();
+        const lines = exportRows.map(r => String(r.name || '').trim()).filter(Boolean);
         const content = lines.join('\n') + (lines.length ? '\n' : '');
         downloadText('backorder_domains.txt', content, 'text/plain;charset=utf-8');
     };
@@ -398,9 +408,10 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     };
 
     const exportCsv = () => {
+        const exportRows = getExportRows();
         const header = ['domain', 'status', 'last_checked_at', 'last_http_code', 'last_error', 'last_rdap_url', 'notes'];
         const lines = [header.join(',')];
-        (rows || []).forEach(r => {
+        exportRows.forEach(r => {
             lines.push([
                 csvEscape(r.name),
                 csvEscape(r.status),
