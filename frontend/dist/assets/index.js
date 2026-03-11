@@ -17339,6 +17339,15 @@ const ru = {
     keitaroRunning: "Импорт...",
     keitaroPreviewBtn: "Показать предпросмотр",
     keitaroImportBtn: "Импортировать в Orbitra",
+    purgeTitle: "Очистка (тестовый сервер)",
+    purgeInfo: "Опасная операция. Удаляет конфигурацию трекера (домены, офферы, компании/партнёрки, кампании, потоки, postbacks, источники, лендинги и группы). Статистика (клики/конверсии) и пользователи не затрагиваются. Используйте на тестовом сервере перед повторным импортом Keitaro.",
+    purgeConfirmLabel: "Подтверждение",
+    purgeConfirmHint: "Введите DELETE (заглавными) чтобы разблокировать кнопку.",
+    purgeWhat: "Что будет удалено",
+    purgeWhatHint: "Домены, офферы, компании/партнёрки, кампании, потоки (streams), postbacks, пиксели, источники, лендинги и группы.",
+    purgeBtn: "Удалить всё и очистить",
+    purgeRunning: "Удаление...",
+    purgeDisabledHint: "Введите DELETE чтобы включить кнопку.",
     descriptions: {
       v1: "Установка базовой схемы БД",
       v2: "Добавление permissions_json в users",
@@ -19214,6 +19223,15 @@ const en = {
     keitaroRunning: "Importing...",
     keitaroPreviewBtn: "Preview",
     keitaroImportBtn: "Import Into Orbitra",
+    purgeTitle: "Reset (test server)",
+    purgeInfo: "Dangerous operation. Removes tracker configuration (domains, offers, affiliate networks, campaigns, streams, postbacks, traffic sources, landings and groups). Does not touch users or statistics (clicks/conversions). Use on a test server before re-importing Keitaro.",
+    purgeConfirmLabel: "Confirmation",
+    purgeConfirmHint: "Type DELETE (uppercase) to enable the button.",
+    purgeWhat: "What will be removed",
+    purgeWhatHint: "Domains, offers, affiliate networks, campaigns, streams, postbacks, pixels, sources, landings and groups.",
+    purgeBtn: "Delete everything",
+    purgeRunning: "Deleting...",
+    purgeDisabledHint: "Type DELETE to enable the button.",
     descriptions: {
       v1: "Base database schema installation",
       v2: "Adding permissions_json to users",
@@ -42311,6 +42329,10 @@ const MigrationsPage = () => {
   const [kLoading, setKLoading] = reactExports.useState(false);
   const [kError, setKError] = reactExports.useState("");
   const [kResult, setKResult] = reactExports.useState(null);
+  const [purgeConfirm, setPurgeConfirm] = reactExports.useState("");
+  const [purgeLoading, setPurgeLoading] = reactExports.useState(false);
+  const [purgeError, setPurgeError] = reactExports.useState("");
+  const [purgeResult, setPurgeResult] = reactExports.useState(null);
   const fetchMigrations = () => {
     setLoading(true);
     fetch(`${API_URL$6}?action=migrations`).then((res) => res.json()).then((data) => {
@@ -42377,6 +42399,42 @@ const MigrationsPage = () => {
       setKError(e?.message ? String(e.message) : t2("common.networkError"));
     } finally {
       setKLoading(false);
+    }
+  };
+  const handlePurgeMetadata = async () => {
+    setPurgeLoading(true);
+    setPurgeError("");
+    setPurgeResult(null);
+    try {
+      const res = await fetch(`${API_URL$6}?action=purge_metadata`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          confirm: purgeConfirm,
+          purge: {
+            companies: 1,
+            offers: 1,
+            domains: 1,
+            campaigns: 1,
+            streams: 1,
+            campaign_postbacks: 1,
+            campaign_pixels: 1,
+            traffic_sources: 1,
+            landings: 1,
+            groups: 1
+          }
+        })
+      });
+      const data = await res.json();
+      if (data.status !== "success") {
+        setPurgeError(data.message || t2("common.error"));
+        return;
+      }
+      setPurgeResult(data.data || null);
+    } catch (e) {
+      setPurgeError(e?.message ? String(e.message) : t2("common.networkError"));
+    } finally {
+      setPurgeLoading(false);
     }
   };
   if (loading && migrations.length === 0) {
@@ -42516,6 +42574,51 @@ const MigrationsPage = () => {
           onClick: handleKeitaroImport,
           disabled: kLoading,
           children: kLoading ? t2("migrations.keitaroRunning") : kDryRun ? t2("migrations.keitaroPreviewBtn") : t2("migrations.keitaroImportBtn")
+        }
+      ) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-5 h-5", style: { color: "var(--color-text-secondary)" } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t2("migrations.purgeTitle") })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        background: "var(--color-warning-bg)",
+        borderRadius: "16px",
+        padding: "16px",
+        marginBottom: "16px",
+        border: "1px solid var(--color-warning-border)"
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-warning)" }, children: t2("migrations.purgeInfo") }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("migrations.purgeConfirmLabel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              className: "form-input",
+              value: purgeConfirm,
+              onChange: (e) => setPurgeConfirm(e.target.value),
+              placeholder: "DELETE"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "8px" }, children: t2("migrations.purgeConfirmHint") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("migrations.purgeWhat") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t2("migrations.purgeWhatHint") })
+        ] })
+      ] }),
+      purgeError && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-danger mt-4", children: purgeError }),
+      purgeResult && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-success mt-4", style: { whiteSpace: "pre-wrap", fontFamily: "monospace", fontSize: "12px" }, children: JSON.stringify(purgeResult, null, 2) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 flex items-center justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          className: "btn btn-danger",
+          onClick: handlePurgeMetadata,
+          disabled: purgeLoading || String(purgeConfirm || "").trim().toUpperCase() !== "DELETE",
+          title: String(purgeConfirm || "").trim().toUpperCase() !== "DELETE" ? t2("migrations.purgeDisabledHint") : "",
+          children: purgeLoading ? t2("migrations.purgeRunning") : t2("migrations.purgeBtn")
         }
       ) })
     ] })

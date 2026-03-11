@@ -5176,6 +5176,118 @@ try {
             }
             break;
 
+        case 'purge_metadata':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+
+            // Safety guard: require explicit confirmation phrase from UI/user.
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!is_array($data)) {
+                $data = [];
+            }
+            $confirm = strtoupper(trim((string) ($data['confirm'] ?? '')));
+            if ($confirm !== 'DELETE') {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Confirmation required. Send {"confirm":"DELETE"}'
+                ]);
+                break;
+            }
+
+            // Default: purge tracker "metadata" (configuration), not statistics.
+            // This intentionally keeps: users, settings, clicks, conversions, logs.
+            $purge = $data['purge'] ?? [];
+            if (!is_array($purge) || empty($purge)) {
+                $purge = [
+                    'companies' => 1,
+                    'offers' => 1,
+                    'domains' => 1,
+                    'campaigns' => 1,
+                    'streams' => 1,
+                    'campaign_postbacks' => 1,
+                    'campaign_pixels' => 1,
+                    'traffic_sources' => 1,
+                    'landings' => 1,
+                    'groups' => 1,
+                ];
+            }
+
+            $tableExists = function (PDO $pdo, string $table): bool {
+                $stmt = $pdo->prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1");
+                $stmt->execute([$table]);
+                return (bool) $stmt->fetchColumn();
+            };
+
+            $deleteAll = function (PDO $pdo, string $table) use ($tableExists): array {
+                if (!$tableExists($pdo, $table)) {
+                    return ['table' => $table, 'deleted' => 0, 'skipped' => 1, 'reason' => 'missing'];
+                }
+                $countStmt = $pdo->query("SELECT COUNT(*) FROM \"$table\"");
+                $count = (int) ($countStmt ? $countStmt->fetchColumn() : 0);
+                $pdo->exec("DELETE FROM \"$table\"");
+                return ['table' => $table, 'deleted' => $count, 'skipped' => 0];
+            };
+
+            // Compute deletion plan (order matters if foreign_keys are off).
+            $plan = [];
+            if (!empty($purge['campaign_postbacks'])) $plan[] = 'campaign_postbacks';
+            if (!empty($purge['campaign_pixels'])) $plan[] = 'campaign_pixels';
+            if (!empty($purge['streams'])) $plan[] = 'streams';
+            if (!empty($purge['campaigns'])) $plan[] = 'campaigns';
+            if (!empty($purge['domains'])) $plan[] = 'domains';
+            if (!empty($purge['offers'])) $plan[] = 'offers';
+            if (!empty($purge['landings'])) $plan[] = 'landings';
+            if (!empty($purge['traffic_sources'])) $plan[] = 'traffic_sources';
+            if (!empty($purge['groups'])) {
+                $plan[] = 'campaign_groups';
+                $plan[] = 'offer_groups';
+                $plan[] = 'landing_groups';
+            }
+            if (!empty($purge['companies'])) $plan[] = 'affiliate_networks';
+
+            // Ensure uniqueness and keep order
+            $seen = [];
+            $tables = [];
+            foreach ($plan as $t) {
+                if (!isset($seen[$t])) {
+                    $seen[$t] = true;
+                    $tables[] = $t;
+                }
+            }
+
+            try {
+                $pdo->beginTransaction();
+                // Best effort: enforce FK behavior in this connection.
+                $pdo->exec("PRAGMA foreign_keys = ON");
+
+                $results = [];
+                foreach ($tables as $t) {
+                    $results[] = $deleteAll($pdo, $t);
+                }
+
+                $pdo->commit();
+                logAudit($pdo, 'DELETE', 'Purge metadata', null, ['tables' => $results]);
+
+                echo json_encode([
+                    'status' => 'success',
+                    'data' => [
+                        'purged' => $results,
+                    ]
+                ]);
+            } catch (Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
         // === TRENDS API ===
         case 'trends':
             $groupBy = $_GET['group_by'] ?? 'day';

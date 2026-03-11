@@ -23,6 +23,11 @@ const MigrationsPage = () => {
     const [kError, setKError] = useState('');
     const [kResult, setKResult] = useState(null);
 
+    const [purgeConfirm, setPurgeConfirm] = useState('');
+    const [purgeLoading, setPurgeLoading] = useState(false);
+    const [purgeError, setPurgeError] = useState('');
+    const [purgeResult, setPurgeResult] = useState(null);
+
     const fetchMigrations = () => {
         setLoading(true);
         fetch(`${API_URL}?action=migrations`)
@@ -96,6 +101,43 @@ const MigrationsPage = () => {
             setKError(e?.message ? String(e.message) : t('common.networkError'));
         } finally {
             setKLoading(false);
+        }
+    };
+
+    const handlePurgeMetadata = async () => {
+        setPurgeLoading(true);
+        setPurgeError('');
+        setPurgeResult(null);
+        try {
+            const res = await fetch(`${API_URL}?action=purge_metadata`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    confirm: purgeConfirm,
+                    purge: {
+                        companies: 1,
+                        offers: 1,
+                        domains: 1,
+                        campaigns: 1,
+                        streams: 1,
+                        campaign_postbacks: 1,
+                        campaign_pixels: 1,
+                        traffic_sources: 1,
+                        landings: 1,
+                        groups: 1,
+                    }
+                })
+            });
+            const data = await res.json();
+            if (data.status !== 'success') {
+                setPurgeError(data.message || t('common.error'));
+                return;
+            }
+            setPurgeResult(data.data || null);
+        } catch (e) {
+            setPurgeError(e?.message ? String(e.message) : t('common.networkError'));
+        } finally {
+            setPurgeLoading(false);
         }
     };
 
@@ -302,6 +344,73 @@ const MigrationsPage = () => {
                         disabled={kLoading}
                     >
                         {kLoading ? t('migrations.keitaroRunning') : (kDryRun ? t('migrations.keitaroPreviewBtn') : t('migrations.keitaroImportBtn'))}
+                    </button>
+                </div>
+            </div>
+
+            {/* Purge / reset metadata */}
+            <div className="page-card">
+                <div className="page-header">
+                    <div className="flex items-center gap-2">
+                        <Database className="w-5 h-5" style={{ color: 'var(--color-text-secondary)' }} />
+                        <h2 className="page-title">{t('migrations.purgeTitle')}</h2>
+                    </div>
+                </div>
+
+                <div style={{
+                    background: 'var(--color-warning-bg)',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    marginBottom: '16px',
+                    border: '1px solid var(--color-warning-border)'
+                }}>
+                    <p style={{ fontSize: '14px', color: 'var(--color-warning)' }}>
+                        {t('migrations.purgeInfo')}
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="form-label">{t('migrations.purgeConfirmLabel')}</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            value={purgeConfirm}
+                            onChange={(e) => setPurgeConfirm(e.target.value)}
+                            placeholder="DELETE"
+                        />
+                        <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '8px' }}>
+                            {t('migrations.purgeConfirmHint')}
+                        </div>
+                    </div>
+                    <div>
+                        <label className="form-label">{t('migrations.purgeWhat')}</label>
+                        <div style={{ fontSize: '13px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                            {t('migrations.purgeWhatHint')}
+                        </div>
+                    </div>
+                </div>
+
+                {purgeError && (
+                    <div className="alert alert-danger mt-4">
+                        {purgeError}
+                    </div>
+                )}
+
+                {purgeResult && (
+                    <div className="alert alert-success mt-4" style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '12px' }}>
+                        {JSON.stringify(purgeResult, null, 2)}
+                    </div>
+                )}
+
+                <div className="mt-4 flex items-center justify-end">
+                    <button
+                        className="btn btn-danger"
+                        onClick={handlePurgeMetadata}
+                        disabled={purgeLoading || String(purgeConfirm || '').trim().toUpperCase() !== 'DELETE'}
+                        title={String(purgeConfirm || '').trim().toUpperCase() !== 'DELETE' ? t('migrations.purgeDisabledHint') : ''}
+                    >
+                        {purgeLoading ? t('migrations.purgeRunning') : t('migrations.purgeBtn')}
                     </button>
                 </div>
             </div>
