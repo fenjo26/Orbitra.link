@@ -362,7 +362,7 @@ const MigrationsPage = () => {
                     borderRadius: '16px',
                     padding: '16px',
                     marginBottom: '16px',
-                    border: '1px solid var(--color-warning-border)'
+                    border: '1px solid var(--color-border)'
                 }}>
                     <p style={{ fontSize: '14px', color: 'var(--color-warning)' }}>
                         {t('migrations.purgeInfo')}

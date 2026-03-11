@@ -42587,7 +42587,7 @@ const MigrationsPage = () => {
         borderRadius: "16px",
         padding: "16px",
         marginBottom: "16px",
-        border: "1px solid var(--color-warning-border)"
+        border: "1px solid var(--color-border)"
       }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-warning)" }, children: t2("migrations.purgeInfo") }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
