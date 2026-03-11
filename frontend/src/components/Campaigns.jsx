@@ -120,7 +120,16 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                                     <td>
                                         <input type="checkbox" />
                                     </td>
-                                    <td className="font-medium">{camp.id}</td>
+                                    <td className="font-medium">
+                                        <div className="flex flex-col">
+                                            <span>{camp.id}</span>
+                                            {camp.keitaro_id ? (
+                                                <span style={{ color: 'var(--color-text-muted)', fontSize: '12px' }}>
+                                                    K:{camp.keitaro_id}
+                                                </span>
+                                            ) : null}
+                                        </div>
+                                    </td>
                                     <td>
                                         <div className="flex flex-col">
                                             <span

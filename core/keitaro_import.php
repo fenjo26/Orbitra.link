@@ -257,6 +257,22 @@ function orbitraKeitaroMapCostModel(string $v): string
     return $v;
 }
 
+function orbitraKeitaroSqliteHasColumn(PDO $pdo, string $table, string $column): bool
+{
+    try {
+        $stmt = $pdo->query("PRAGMA table_info(" . $table . ")");
+        $rows = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+        foreach ($rows as $r) {
+            if (isset($r['name']) && (string) $r['name'] === $column) {
+                return true;
+            }
+        }
+    } catch (Throwable $e) {
+        // ignore
+    }
+    return false;
+}
+
 function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): array
 {
     $dryRun = !empty($opts['dry_run']);
@@ -277,11 +293,15 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
         $tablesToParse[] = 'keitaro_campaigns';
         // campaign groups can also live in keitaro_groups (type='campaign' on some installs)
         $tablesToParse[] = 'keitaro_groups';
+        // Needed to map campaign.domain_id -> Orbitra domain_id even if we're not importing domains in this run.
+        $tablesToParse[] = 'keitaro_domains';
     }
     if ($doCampaignPostbacks) {
         $tablesToParse[] = 'keitaro_campaign_postbacks';
         // needs campaigns mapping
         $tablesToParse[] = 'keitaro_campaigns';
+        // Needed for domain mapping when campaigns already exist and we re-run import.
+        $tablesToParse[] = 'keitaro_domains';
     }
 
     $parsed = orbitraKeitaroParseSqlDump($path, array_values(array_unique($tablesToParse)));
@@ -308,54 +328,83 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
         ];
     }
 
-    if ($dryRun) {
-        return $result;
-    }
+        if ($dryRun) {
+            return $result;
+        }
 
-    $pdo->beginTransaction();
-    try {
-        // ---- Domains (needed by campaigns) ----
-        $keitaroDomainIdToOrbitraDomainId = [];
-        if ($doDomains) {
-            $rows = $parsed['keitaro_domains']['rows'] ?? [];
-            $stmtIns = $pdo->prepare("
-                INSERT OR IGNORE INTO domains
-                (name, index_campaign_id, catch_404, group_id, is_noindex, https_only)
-                VALUES (?, NULL, ?, NULL, ?, ?)
-            ");
-            $stmtFind = $pdo->prepare("SELECT id FROM domains WHERE name = ? LIMIT 1");
+        $hasDomainKeitaroId = orbitraKeitaroSqliteHasColumn($pdo, 'domains', 'keitaro_id');
+        $hasAffiliateKeitaroId = orbitraKeitaroSqliteHasColumn($pdo, 'affiliate_networks', 'keitaro_id');
+        $hasOfferKeitaroId = orbitraKeitaroSqliteHasColumn($pdo, 'offers', 'keitaro_id');
+        $hasCampaignKeitaroId = orbitraKeitaroSqliteHasColumn($pdo, 'campaigns', 'keitaro_id');
 
-            foreach ($rows as $r) {
-                $kid = (int) ($r['id'] ?? 0);
-                $name = trim((string) ($r['name'] ?? ''));
-                if ($name === '') continue;
+        $pdo->beginTransaction();
+        try {
+            // ---- Domains (needed by campaigns) ----
+            // We build the Keitaro domain_id -> Orbitra domain_id map even if import_domains=0,
+            // so campaigns can still be mapped correctly in a separate run.
+            $keitaroDomainIdToOrbitraDomainId = [];
+            $needDomainMap = $doDomains || $doCampaigns || $doCampaignPostbacks;
+            if ($needDomainMap) {
+                $rows = $parsed['keitaro_domains']['rows'] ?? [];
+                $stmtFind = $pdo->prepare("SELECT id, keitaro_id FROM domains WHERE name = ? LIMIT 1");
 
-                $catch404 = (int) ($r['catch_not_found'] ?? 0) ? 1 : 0;
-                $httpsOnly = (int) ($r['is_ssl'] ?? 0) ? 1 : 0;
-                $allowIndexing = (int) ($r['allow_indexing'] ?? 1) ? 1 : 0;
-                $isNoindex = $allowIndexing ? 0 : 1;
-
-                $stmtIns->execute([$name, $catch404, $isNoindex, $httpsOnly]);
-                $stmtFind->execute([$name]);
-                $oid = (int) ($stmtFind->fetchColumn() ?: 0);
-                if ($kid > 0 && $oid > 0) {
-                    $keitaroDomainIdToOrbitraDomainId[$kid] = $oid;
+                $stmtIns = null;
+                if ($doDomains) {
+                    $stmtIns = $pdo->prepare("
+                        INSERT OR IGNORE INTO domains
+                        (name, index_campaign_id, catch_404, group_id, is_noindex, https_only)
+                        VALUES (?, NULL, ?, NULL, ?, ?)
+                    ");
+                }
+                $stmtUpdK = null;
+                if ($hasDomainKeitaroId) {
+                    $stmtUpdK = $pdo->prepare("UPDATE domains SET keitaro_id = ? WHERE id = ? AND (keitaro_id IS NULL OR keitaro_id = 0)");
                 }
 
-                if ($stmtIns->rowCount() > 0) {
-                    $result['imported']['domains']['inserted']++;
-                } else {
-                    if ($oid > 0) $result['imported']['domains']['skipped']++;
+                foreach ($rows as $r) {
+                    $kid = (int) ($r['id'] ?? 0);
+                    $name = trim((string) ($r['name'] ?? ''));
+                    if ($name === '') continue;
+
+                    $catch404 = (int) ($r['catch_not_found'] ?? 0) ? 1 : 0;
+                    $httpsOnly = (int) ($r['is_ssl'] ?? 0) ? 1 : 0;
+                    $allowIndexing = (int) ($r['allow_indexing'] ?? 1) ? 1 : 0;
+                    $isNoindex = $allowIndexing ? 0 : 1;
+
+                    if ($doDomains && $stmtIns) {
+                        $stmtIns->execute([$name, $catch404, $isNoindex, $httpsOnly]);
+                    }
+
+                    $stmtFind->execute([$name]);
+                    $existing = $stmtFind->fetch(PDO::FETCH_ASSOC);
+                    $oid = (int) (($existing['id'] ?? 0) ?: 0);
+                    if ($kid > 0 && $oid > 0) {
+                        $keitaroDomainIdToOrbitraDomainId[$kid] = $oid;
+                        if ($stmtUpdK) {
+                            $stmtUpdK->execute([$kid, $oid]);
+                        }
+                    }
+
+                    if ($doDomains && $stmtIns) {
+                        if ($stmtIns->rowCount() > 0) {
+                            $result['imported']['domains']['inserted']++;
+                        } else {
+                            if ($oid > 0) $result['imported']['domains']['skipped']++;
+                        }
+                    }
                 }
             }
-        }
 
         // ---- Companies: affiliate networks ----
         $keitaroAffiliateIdToOrbitraId = [];
         if ($doCompanies) {
             $rows = $parsed['keitaro_affiliate_networks']['rows'] ?? [];
-            $stmtFind = $pdo->prepare("SELECT id, postback_url, offer_params FROM affiliate_networks WHERE is_archived = 0 AND name = ? LIMIT 1");
+            $stmtFind = $pdo->prepare("SELECT id, postback_url, offer_params, keitaro_id FROM affiliate_networks WHERE is_archived = 0 AND name = ? LIMIT 1");
             $stmtIns = $pdo->prepare("INSERT INTO affiliate_networks (name, template, offer_params, postback_url, notes, state) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmtUpdK = null;
+            if ($hasAffiliateKeitaroId) {
+                $stmtUpdK = $pdo->prepare("UPDATE affiliate_networks SET keitaro_id = ? WHERE id = ? AND (keitaro_id IS NULL OR keitaro_id = 0)");
+            }
 
             foreach ($rows as $r) {
                 $kid = (int) ($r['id'] ?? 0);
@@ -375,6 +424,9 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                 $existing = $stmtFind->fetch(PDO::FETCH_ASSOC);
                 if ($existing && isset($existing['id'])) {
                     $keitaroAffiliateIdToOrbitraId[$kid] = (int) $existing['id'];
+                    if ($stmtUpdK && $kid > 0) {
+                        $stmtUpdK->execute([$kid, (int) $existing['id']]);
+                    }
                     $result['imported']['affiliate_networks']['skipped']++;
                     continue;
                 }
@@ -390,6 +442,9 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                 $oid = (int) ($pdo->lastInsertId() ?: 0);
                 if ($kid > 0 && $oid > 0) {
                     $keitaroAffiliateIdToOrbitraId[$kid] = $oid;
+                    if ($stmtUpdK) {
+                        $stmtUpdK->execute([$kid, $oid]);
+                    }
                 }
                 $result['imported']['affiliate_networks']['inserted']++;
             }
@@ -429,12 +484,16 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
         $keitaroOfferIdToOrbitraOfferId = [];
         if ($doOffers) {
             $rows = $parsed['keitaro_offers']['rows'] ?? [];
-            $stmtFind = $pdo->prepare("SELECT id FROM offers WHERE is_archived = 0 AND name = ? AND COALESCE(url,'') = COALESCE(?, '') LIMIT 1");
+            $stmtFind = $pdo->prepare("SELECT id, keitaro_id FROM offers WHERE is_archived = 0 AND name = ? AND COALESCE(url,'') = COALESCE(?, '') LIMIT 1");
             $stmtIns = $pdo->prepare("
                 INSERT INTO offers
                 (name, group_id, affiliate_network_id, url, redirect_type, is_local, geo, payout_type, payout_value, payout_auto, allow_rebills, capping_limit, capping_timezone, alt_offer_id, notes, values_json, state)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
+            $stmtUpdK = null;
+            if ($hasOfferKeitaroId) {
+                $stmtUpdK = $pdo->prepare("UPDATE offers SET keitaro_id = ? WHERE id = ? AND (keitaro_id IS NULL OR keitaro_id = 0)");
+            }
 
             foreach ($rows as $r) {
                 $kid = (int) ($r['id'] ?? 0);
@@ -478,9 +537,15 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                 $altOfferId = null;
 
                 $stmtFind->execute([$name, $url]);
-                $existingId = $stmtFind->fetchColumn();
-                if ($existingId) {
-                    if ($kid > 0) $keitaroOfferIdToOrbitraOfferId[$kid] = (int) $existingId;
+                $existing = $stmtFind->fetch(PDO::FETCH_ASSOC);
+                $existingId = (int) (($existing['id'] ?? 0) ?: 0);
+                if ($existingId > 0) {
+                    if ($kid > 0) {
+                        $keitaroOfferIdToOrbitraOfferId[$kid] = $existingId;
+                        if ($stmtUpdK) {
+                            $stmtUpdK->execute([$kid, $existingId]);
+                        }
+                    }
                     $result['imported']['offers']['skipped']++;
                     continue;
                 }
@@ -507,6 +572,9 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                 $oid = (int) ($pdo->lastInsertId() ?: 0);
                 if ($kid > 0 && $oid > 0) {
                     $keitaroOfferIdToOrbitraOfferId[$kid] = $oid;
+                    if ($stmtUpdK) {
+                        $stmtUpdK->execute([$kid, $oid]);
+                    }
                 }
                 $result['imported']['offers']['inserted']++;
             }
@@ -549,12 +617,17 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
         $keitaroCampaignIdToOrbitraId = [];
         if ($doCampaigns) {
             $rows = $parsed['keitaro_campaigns']['rows'] ?? [];
-            $stmtFindByAlias = $pdo->prepare("SELECT id FROM campaigns WHERE is_archived = 0 AND alias = ? LIMIT 1");
+            $stmtFindByAlias = $pdo->prepare("SELECT id, domain_id, keitaro_id FROM campaigns WHERE is_archived = 0 AND alias = ? LIMIT 1");
             $stmtIns = $pdo->prepare("
                 INSERT INTO campaigns
                 (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, catch_404_stream_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
             ");
+            $stmtUpdDomain = $pdo->prepare("UPDATE campaigns SET domain_id = ? WHERE id = ? AND (domain_id IS NULL OR domain_id = 0)");
+            $stmtUpdK = null;
+            if ($hasCampaignKeitaroId) {
+                $stmtUpdK = $pdo->prepare("UPDATE campaigns SET keitaro_id = ? WHERE id = ? AND (keitaro_id IS NULL OR keitaro_id = 0)");
+            }
 
             foreach ($rows as $r) {
                 $kid = (int) ($r['id'] ?? 0);
@@ -589,9 +662,17 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                 $sourceId = null; // requires keitaro_traffic_sources dump + importer (not in this migration)
 
                 $stmtFindByAlias->execute([$alias]);
-                $existingId = $stmtFindByAlias->fetchColumn();
-                if ($existingId) {
-                    $keitaroCampaignIdToOrbitraId[$kid] = (int) $existingId;
+                $existing = $stmtFindByAlias->fetch(PDO::FETCH_ASSOC);
+                $existingId = (int) (($existing['id'] ?? 0) ?: 0);
+                if ($existingId > 0) {
+                    $keitaroCampaignIdToOrbitraId[$kid] = $existingId;
+                    // If campaign already exists, we can still fill in missing domain_id and keitaro_id safely.
+                    if ($domainId !== null) {
+                        $stmtUpdDomain->execute([(int) $domainId, $existingId]);
+                    }
+                    if ($stmtUpdK && $kid > 0) {
+                        $stmtUpdK->execute([$kid, $existingId]);
+                    }
                     $result['imported']['campaigns']['skipped']++;
                     continue;
                 }
@@ -610,6 +691,9 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                 $oid = (int) ($pdo->lastInsertId() ?: 0);
                 if ($kid > 0 && $oid > 0) {
                     $keitaroCampaignIdToOrbitraId[$kid] = $oid;
+                    if ($stmtUpdK) {
+                        $stmtUpdK->execute([$kid, $oid]);
+                    }
                 }
                 $result['imported']['campaigns']['inserted']++;
 

@@ -34,7 +34,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 1;
+    $LATEST_SCHEMA_VERSION = 2;
 
     $schemaVersion = 0;
     try {
@@ -738,6 +738,41 @@ try {
     $stmt = $pdo->prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)");
     foreach ($defaultSettings as $s) {
         $stmt->execute($s);
+    }
+
+    // ---- v2: store original Keitaro IDs for easier migration/debugging ----
+    if ($schemaVersion < 2) {
+        $alters = [
+            "ALTER TABLE domains ADD COLUMN keitaro_id INTEGER",
+            "ALTER TABLE offers ADD COLUMN keitaro_id INTEGER",
+            "ALTER TABLE affiliate_networks ADD COLUMN keitaro_id INTEGER",
+            "ALTER TABLE campaigns ADD COLUMN keitaro_id INTEGER",
+            "ALTER TABLE streams ADD COLUMN keitaro_id INTEGER",
+            "ALTER TABLE campaign_postbacks ADD COLUMN keitaro_id INTEGER",
+        ];
+        foreach ($alters as $sql) {
+            try {
+                $pdo->exec($sql);
+            } catch (Throwable $e) {
+                // Ignore on existing installs (column already exists).
+            }
+        }
+
+        $indexes = [
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_domains_keitaro_id ON domains(keitaro_id)",
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_offers_keitaro_id ON offers(keitaro_id)",
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_affiliate_networks_keitaro_id ON affiliate_networks(keitaro_id)",
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_campaigns_keitaro_id ON campaigns(keitaro_id)",
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_streams_keitaro_id ON streams(keitaro_id)",
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_campaign_postbacks_keitaro_id ON campaign_postbacks(keitaro_id)",
+        ];
+        foreach ($indexes as $sql) {
+            try {
+                $pdo->exec($sql);
+            } catch (Throwable $e) {
+                // ignore
+            }
+        }
     }
 
             // Mark schema as up-to-date. This must be last.

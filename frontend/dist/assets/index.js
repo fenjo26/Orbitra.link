@@ -33665,7 +33665,13 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t2("campaigns.createFirstCampaign") })
       ] }) }) }) : campaigns.map((camp) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: camp.id }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: camp.id }),
+          camp.keitaro_id ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)", fontSize: "12px" }, children: [
+            "K:",
+            camp.keitaro_id
+          ] }) : null
+        ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "span",
