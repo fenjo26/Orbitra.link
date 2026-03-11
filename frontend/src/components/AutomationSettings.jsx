@@ -225,7 +225,7 @@ const AutomationSettings = () => {
                     <div className={`alert ${message.type === 'success' ? 'alert-success' : 'alert-danger'} mb-4`}>
                         <div className="flex items-center gap-2">
                             {message.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-                            <span>{message.text}</span>
+                            <span>{String(message.text)}</span>
                         </div>
                     </div>
                 )}
@@ -296,7 +296,7 @@ const AutomationSettings = () => {
                                 className="flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto"
                                 style={{ fontFamily: 'monospace', fontSize: '12px', lineHeight: 1.5, margin: 0 }}
                             >
-                                {cronCmd || t('automation.noCronExample')}
+                                {String(cronCmd || t('automation.noCronExample'))}
                             </pre>
                             <button
                                 className="btn btn-secondary"
@@ -319,7 +319,7 @@ const AutomationSettings = () => {
                         <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div className="bg-gray-50 border border-gray-100 rounded p-3">
                                 <div className="text-xs text-gray-500">{t('automation.cronFile')}</div>
-                                <div className="text-sm font-mono text-gray-800 mt-1">{cronFile}</div>
+                                <div className="text-sm font-mono text-gray-800 mt-1">{String(cronFile)}</div>
                             </div>
                             <div className="bg-gray-50 border border-gray-100 rounded p-3">
                                 <div className="text-xs text-gray-500">{t('automation.cronInstalled')}</div>
@@ -369,7 +369,7 @@ const AutomationSettings = () => {
                                         className="flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto"
                                         style={{ fontFamily: 'monospace', fontSize: '12px', lineHeight: 1.5, margin: 0 }}
                                     >
-                                        {cronFileInstallCmd}
+                                        {String(cronFileInstallCmd)}
                                     </pre>
                                     <button className="btn btn-secondary" onClick={() => copyText(cronFileInstallCmd)} title={t('automation.copy')}>
                                         <Copy size={16} />
@@ -385,7 +385,7 @@ const AutomationSettings = () => {
                                         className="flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto"
                                         style={{ fontFamily: 'monospace', fontSize: '12px', lineHeight: 1.5, margin: 0 }}
                                     >
-                                        {cronFileRemoveCmd}
+                                        {String(cronFileRemoveCmd)}
                                     </pre>
                                     <button className="btn btn-secondary" onClick={() => copyText(cronFileRemoveCmd)} title={t('automation.copy')}>
                                         <Copy size={16} />
@@ -409,7 +409,7 @@ const AutomationSettings = () => {
                             </div>
                             <div className="bg-gray-50 border border-gray-100 rounded p-3">
                                 <div className="text-xs text-gray-500">{t('automation.crontab')}</div>
-                                <div className="text-sm font-mono text-gray-800 mt-1">{crontabPath || '-'}</div>
+                                <div className="text-sm font-mono text-gray-800 mt-1">{String(crontabPath || '-')}</div>
                             </div>
                             <div className="bg-gray-50 border border-gray-100 rounded p-3">
                                 <div className="text-xs text-gray-500">{t('automation.userCronInstalled')}</div>
@@ -442,20 +442,20 @@ const AutomationSettings = () => {
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('automation.lastPing')}</div>
-                            <div className="text-sm font-mono text-gray-800 mt-1">{info?.last_ping_at || '-'}</div>
+                            <div className="text-sm font-mono text-gray-800 mt-1">{String(info?.last_ping_at || '-')}</div>
                         </div>
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('automation.lastChecked')}</div>
-                            <div className="text-sm font-mono text-gray-800 mt-1">{info?.last_checked_at || '-'}</div>
+                            <div className="text-sm font-mono text-gray-800 mt-1">{String(info?.last_checked_at || '-')}</div>
                         </div>
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('automation.lastDomain')}</div>
-                            <div className="text-sm font-mono text-gray-800 mt-1">{info?.last_domain || '-'}</div>
+                            <div className="text-sm font-mono text-gray-800 mt-1">{String(info?.last_domain || '-')}</div>
                         </div>
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('automation.lastResult')}</div>
                             <div className="text-sm font-mono text-gray-800 mt-1">
-                                {info?.last_status ? `${info.last_status} (HTTP ${info?.last_http_code || 0})` : '-'}
+                                {info?.last_status ? `${String(info.last_status)} (HTTP ${String(info?.last_http_code || 0)})` : '-'}
                             </div>
                         </div>
                     </div>
@@ -463,11 +463,11 @@ const AutomationSettings = () => {
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="bg-white border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('automation.domainsTotal')}</div>
-                            <div className="text-lg font-semibold text-gray-800 mt-1">{info?.domains?.total ?? 0}</div>
+                            <div className="text-lg font-semibold text-gray-800 mt-1">{String(info?.domains?.total ?? 0)}</div>
                         </div>
                         <div className="bg-white border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('automation.domainsNeverChecked')}</div>
-                            <div className="text-lg font-semibold text-gray-800 mt-1">{info?.domains?.never_checked ?? 0}</div>
+                            <div className="text-lg font-semibold text-gray-800 mt-1">{String(info?.domains?.never_checked ?? 0)}</div>
                         </div>
                     </div>
 

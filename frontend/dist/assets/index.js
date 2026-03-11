@@ -39323,7 +39323,7 @@ const AutomationSettings = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6", style: { maxWidth: "760px" }, children: [
       message2.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `alert ${message2.type === "success" ? "alert-success" : "alert-danger"} mb-4`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         message2.type === "success" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 16 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: message2.text })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: String(message2.text) })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-section", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
@@ -39381,7 +39381,7 @@ const AutomationSettings = () => {
               {
                 className: "flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto",
                 style: { fontFamily: "monospace", fontSize: "12px", lineHeight: 1.5, margin: 0 },
-                children: cronCmd || t2("automation.noCronExample")
+                children: String(cronCmd || t2("automation.noCronExample"))
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -39407,7 +39407,7 @@ const AutomationSettings = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 grid grid-cols-1 md:grid-cols-3 gap-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.cronFile") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: cronFile })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: String(cronFile) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.cronInstalled") }),
@@ -39452,7 +39452,7 @@ const AutomationSettings = () => {
                   {
                     className: "flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto",
                     style: { fontFamily: "monospace", fontSize: "12px", lineHeight: 1.5, margin: 0 },
-                    children: cronFileInstallCmd
+                    children: String(cronFileInstallCmd)
                   }
                 ),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary", onClick: () => copyText(cronFileInstallCmd), title: t2("automation.copy"), children: [
@@ -39469,7 +39469,7 @@ const AutomationSettings = () => {
                   {
                     className: "flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto",
                     style: { fontFamily: "monospace", fontSize: "12px", lineHeight: 1.5, margin: 0 },
-                    children: cronFileRemoveCmd
+                    children: String(cronFileRemoveCmd)
                   }
                 ),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary", onClick: () => copyText(cronFileRemoveCmd), title: t2("automation.copy"), children: [
@@ -39490,7 +39490,7 @@ const AutomationSettings = () => {
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.crontab") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: crontabPath || "-" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: String(crontabPath || "-") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.userCronInstalled") }),
@@ -39523,29 +39523,29 @@ const AutomationSettings = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 grid grid-cols-1 md:grid-cols-2 gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.lastPing") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: info?.last_ping_at || "-" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: String(info?.last_ping_at || "-") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.lastChecked") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: info?.last_checked_at || "-" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: String(info?.last_checked_at || "-") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.lastDomain") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: info?.last_domain || "-" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: String(info?.last_domain || "-") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.lastResult") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: info?.last_status ? `${info.last_status} (HTTP ${info?.last_http_code || 0})` : "-" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: info?.last_status ? `${String(info.last_status)} (HTTP ${String(info?.last_http_code || 0)})` : "-" })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 grid grid-cols-1 md:grid-cols-2 gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white border border-gray-100 rounded p-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.domainsTotal") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-800 mt-1", children: info?.domains?.total ?? 0 })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-800 mt-1", children: String(info?.domains?.total ?? 0) })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white border border-gray-100 rounded p-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.domainsNeverChecked") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-800 mt-1", children: info?.domains?.never_checked ?? 0 })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-800 mt-1", children: String(info?.domains?.never_checked ?? 0) })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 bg-slate-50 border border-slate-100 rounded p-3", children: [
