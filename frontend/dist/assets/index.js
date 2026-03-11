@@ -16336,9 +16336,9 @@ const ru = {
     autoStarting: "Автопроверка запущена...",
     autoIdle: "Автопроверка: сейчас нечего проверять (ожидаем интервал).",
     exportTxt: "TXT",
-    exportTxtHint: "Скачать список доменов (1 домен на строку). Удобно для Ahrefs/Semrush/скриптов.",
+    exportTxtHint: "Скачать список доменов (1 домен на строку). Если есть выделенные домены, экспортирует только их, иначе экспортирует текущий список (с учетом поиска и фильтров).",
     exportCsv: "CSV",
-    exportCsvHint: "Скачать таблицу доменов со статусами и ошибками.",
+    exportCsvHint: "Скачать таблицу доменов со статусами и ошибками. Если есть выделенные домены, экспортирует только их, иначе экспортирует текущий список (с учетом поиска и фильтров).",
     statusAvailable: "Свободен",
     statusDnsAvailable: "Нет NS (вероятно свободен)",
     statusRegistered: "Занят",
@@ -17319,6 +17319,21 @@ const ru = {
     runError: "Не удалось выполнить миграцию",
     noMigrations: "Миграции не найдены",
     loadingMigrations: "Загрузка миграций...",
+    keitaroTitle: "Импорт из Keitaro (SQL dump)",
+    keitaroInfo: "Загрузите файл mysqldump (.sql или .sql.gz). Orbitra распарсит INSERT-ы и перенесёт выбранные сущности (домены, офферы, компании/партнёрки, кампании и postbacks) в свою SQLite базу. Важно: для переноса потоков/флоу нужны таблицы keitaro_streams и association-таблицы (их можно добавить в дамп отдельно). Рекомендуется сначала сделать предпросмотр (dry-run).",
+    keitaroFile: "Файл Keitaro SQL",
+    keitaroFileHint: "Поддерживаются .sql и .sql.gz. Дамп не выполняется как SQL, он только парсится.",
+    keitaroOptions: "Опции",
+    keitaroDryRun: "Предпросмотр (dry-run, без записи в БД)",
+    keitaroCompanies: "Импортировать компании (affiliate networks)",
+    keitaroOffers: "Импортировать офферы",
+    keitaroDomains: "Импортировать домены",
+    keitaroCampaigns: "Импортировать кампании (campaigns)",
+    keitaroCampaignPostbacks: "Импортировать postbacks кампаний",
+    keitaroNoFile: "Выберите файл .sql (или .sql.gz)",
+    keitaroRunning: "Импорт...",
+    keitaroPreviewBtn: "Показать предпросмотр",
+    keitaroImportBtn: "Импортировать в Orbitra",
     descriptions: {
       v1: "Установка базовой схемы БД",
       v2: "Добавление permissions_json в users",
@@ -18000,9 +18015,9 @@ const en = {
     autoStarting: "Auto-check started...",
     autoIdle: "Auto-check: nothing to do right now (waiting for interval).",
     exportTxt: "TXT",
-    exportTxtHint: "Download domain list (1 domain per line). Useful for Ahrefs/Semrush/scripts.",
+    exportTxtHint: "Download domain list (1 domain per line). Exports selected domains if any, otherwise exports the currently visible list.",
     exportCsv: "CSV",
-    exportCsvHint: "Download a table with domains, statuses, and errors.",
+    exportCsvHint: "Download a table with domains, statuses, and errors. Exports selected domains if any, otherwise exports the currently visible list.",
     statusAvailable: "Available",
     statusDnsAvailable: "No NS (likely available)",
     statusRegistered: "Registered",
@@ -19174,6 +19189,21 @@ const en = {
     runError: "Failed to execute migration",
     noMigrations: "No migrations found",
     loadingMigrations: "Loading migrations...",
+    keitaroTitle: "Import From Keitaro (SQL dump)",
+    keitaroInfo: "Upload a mysqldump file (.sql or .sql.gz). Orbitra will parse INSERT statements and import the selected entities (domains, offers, companies/affiliate networks, campaigns and campaign postbacks) into its SQLite database. Note: to migrate streams/flows you also need keitaro_streams and association tables (add them to the dump separately). A preview (dry-run) is recommended first.",
+    keitaroFile: "Keitaro SQL File",
+    keitaroFileHint: "Supports .sql and .sql.gz. The dump is not executed as SQL, it is only parsed.",
+    keitaroOptions: "Options",
+    keitaroDryRun: "Preview (dry-run, no DB writes)",
+    keitaroCompanies: "Import companies (affiliate networks)",
+    keitaroOffers: "Import offers",
+    keitaroDomains: "Import domains",
+    keitaroCampaigns: "Import campaigns",
+    keitaroCampaignPostbacks: "Import campaign postbacks",
+    keitaroNoFile: "Please select a .sql (or .sql.gz) file",
+    keitaroRunning: "Importing...",
+    keitaroPreviewBtn: "Preview",
+    keitaroImportBtn: "Import Into Orbitra",
     descriptions: {
       v1: "Base database schema installation",
       v2: "Adding permissions_json to users",
@@ -33191,8 +33221,15 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     a.remove();
     URL.revokeObjectURL(url);
   };
+  const getExportRows = () => {
+    if (selectedIds.size > 0) {
+      return (rows || []).filter((r2) => selectedIds.has(r2.id));
+    }
+    return filtered || [];
+  };
   const exportTxt = () => {
-    const lines = (rows || []).map((r2) => String(r2.name || "").trim()).filter(Boolean);
+    const exportRows = getExportRows();
+    const lines = exportRows.map((r2) => String(r2.name || "").trim()).filter(Boolean);
     const content = lines.join("\n") + (lines.length ? "\n" : "");
     downloadText("backorder_domains.txt", content, "text/plain;charset=utf-8");
   };
@@ -33201,9 +33238,10 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     return `"${s.replace(/\"/g, '""')}"`;
   };
   const exportCsv = () => {
+    const exportRows = getExportRows();
     const header = ["domain", "status", "last_checked_at", "last_http_code", "last_error", "last_rdap_url", "notes"];
     const lines = [header.join(",")];
-    (rows || []).forEach((r2) => {
+    exportRows.forEach((r2) => {
       lines.push([
         csvEscape(r2.name),
         csvEscape(r2.status),
@@ -42226,6 +42264,16 @@ const MigrationsPage = () => {
   const [migrations, setMigrations] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
   const [actionLoading, setActionLoading] = reactExports.useState(null);
+  const [kFile, setKFile] = reactExports.useState(null);
+  const [kDryRun, setKDryRun] = reactExports.useState(true);
+  const [kImportDomains, setKImportDomains] = reactExports.useState(true);
+  const [kImportOffers, setKImportOffers] = reactExports.useState(true);
+  const [kImportCompanies, setKImportCompanies] = reactExports.useState(true);
+  const [kImportCampaigns, setKImportCampaigns] = reactExports.useState(false);
+  const [kImportCampaignPostbacks, setKImportCampaignPostbacks] = reactExports.useState(false);
+  const [kLoading, setKLoading] = reactExports.useState(false);
+  const [kError, setKError] = reactExports.useState("");
+  const [kResult, setKResult] = reactExports.useState(null);
   const fetchMigrations = () => {
     setLoading(true);
     fetch(`${API_URL$6}?action=migrations`).then((res) => res.json()).then((data) => {
@@ -42258,66 +42306,168 @@ const MigrationsPage = () => {
       setActionLoading(null);
     }
   };
+  const handleKeitaroImport = async () => {
+    if (!kFile) {
+      setKError(t2("migrations.keitaroNoFile"));
+      return;
+    }
+    setKLoading(true);
+    setKError("");
+    setKResult(null);
+    try {
+      const fd = new FormData();
+      fd.append("sql_file", kFile);
+      fd.append("dry_run", kDryRun ? "1" : "0");
+      fd.append("import_domains", kImportDomains ? "1" : "0");
+      fd.append("import_offers", kImportOffers ? "1" : "0");
+      fd.append("import_companies", kImportCompanies ? "1" : "0");
+      fd.append("import_campaigns", kImportCampaigns ? "1" : "0");
+      fd.append("import_campaign_postbacks", kImportCampaignPostbacks ? "1" : "0");
+      const res = await fetch(`${API_URL$6}?action=keitaro_import_sql`, {
+        method: "POST",
+        body: fd
+      });
+      const data = await res.json();
+      if (data.status !== "success") {
+        setKError(data.message || t2("common.error"));
+        return;
+      }
+      setKResult(data.data || null);
+    } catch (e) {
+      setKError(e?.message ? String(e.message) : t2("common.networkError"));
+    } finally {
+      setKLoading(false);
+    }
+  };
   if (loading && migrations.length === 0) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("migrations.loadingMigrations") }) }) });
   }
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-5 h-5", style: { color: "var(--color-text-secondary)" } }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t2("migrations.title") })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-      background: "var(--color-info-bg)",
-      borderRadius: "16px",
-      padding: "16px",
-      marginBottom: "24px"
-    }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-info)" }, children: t2("migrations.infoText") }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "100px" }, children: t2("migrations.colVersion") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("migrations.colDescription") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "160px" }, children: t2("migrations.colStatus") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "140px", textAlign: "right" }, children: t2("migrations.colActions") })
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-5 h-5", style: { color: "var(--color-text-secondary)" } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t2("migrations.title") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: migrations.map((m) => {
-        const isCompleted = m.status === "completed";
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: {
-            fontFamily: "monospace",
-            fontSize: "14px",
-            color: "var(--color-text-muted)"
-          }, children: [
-            "#",
-            m.version
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: t2(`migrations.descriptions.v${m.version}`) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
-            isCompleted ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "status-badge status-active", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { className: "w-3.5 h-3.5", style: { marginRight: "4px" } }),
-              t2("migrations.completed")
-            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "status-badge status-pending", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "w-3.5 h-3.5", style: { marginRight: "4px" } }),
-              t2("migrations.pending")
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        background: "var(--color-info-bg)",
+        borderRadius: "16px",
+        padding: "16px",
+        marginBottom: "24px"
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-info)" }, children: t2("migrations.infoText") }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "100px" }, children: t2("migrations.colVersion") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("migrations.colDescription") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "160px" }, children: t2("migrations.colStatus") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "140px", textAlign: "right" }, children: t2("migrations.colActions") })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: migrations.map((m) => {
+          const isCompleted = m.status === "completed";
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: {
+              fontFamily: "monospace",
+              fontSize: "14px",
+              color: "var(--color-text-muted)"
+            }, children: [
+              "#",
+              m.version
             ] }),
-            m.executed_at && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "4px" }, children: m.executed_at })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "action-buttons", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: t2(`migrations.descriptions.v${m.version}`) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+              isCompleted ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "status-badge status-active", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { className: "w-3.5 h-3.5", style: { marginRight: "4px" } }),
+                t2("migrations.completed")
+              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "status-badge status-pending", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "w-3.5 h-3.5", style: { marginRight: "4px" } }),
+                t2("migrations.pending")
+              ] }),
+              m.executed_at && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "4px" }, children: m.executed_at })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "action-buttons", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: () => handleRunMigration(m.version),
+                disabled: actionLoading === m.version,
+                className: `btn btn-sm ${isCompleted ? "btn-secondary" : "btn-primary"}`,
+                children: [
+                  actionLoading === m.version ? /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5 animate-spin" }) : isCompleted ? /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { className: "w-3.5 h-3.5" }),
+                  actionLoading === m.version ? t2("migrations.running") : isCompleted ? t2("migrations.repeat") : t2("migrations.execute")
+                ]
+              }
+            ) }) })
+          ] }, m.version);
+        }) })
+      ] }) }),
+      migrations.length === 0 && !loading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("migrations.noMigrations") }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-5 h-5", style: { color: "var(--color-text-secondary)" } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t2("migrations.keitaroTitle") })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        background: "var(--color-info-bg)",
+        borderRadius: "16px",
+        padding: "16px",
+        marginBottom: "16px"
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-info)" }, children: t2("migrations.keitaroInfo") }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("migrations.keitaroFile") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
             {
-              onClick: () => handleRunMigration(m.version),
-              disabled: actionLoading === m.version,
-              className: `btn btn-sm ${isCompleted ? "btn-secondary" : "btn-primary"}`,
-              children: [
-                actionLoading === m.version ? /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5 animate-spin" }) : isCompleted ? /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { className: "w-3.5 h-3.5" }),
-                actionLoading === m.version ? t2("migrations.running") : isCompleted ? t2("migrations.repeat") : t2("migrations.execute")
-              ]
+              type: "file",
+              accept: ".sql,.sql.gz",
+              className: "form-input",
+              onChange: (e) => setKFile(e.target.files?.[0] || null)
             }
-          ) }) })
-        ] }, m.version);
-      }) })
-    ] }) }),
-    migrations.length === 0 && !loading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("migrations.noMigrations") }) })
-  ] }) });
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "8px" }, children: t2("migrations.keitaroFileHint") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("migrations.keitaroOptions") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kDryRun, onChange: (e) => setKDryRun(e.target.checked) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroDryRun") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportCompanies, onChange: (e) => setKImportCompanies(e.target.checked) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroCompanies") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportOffers, onChange: (e) => setKImportOffers(e.target.checked) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroOffers") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportDomains, onChange: (e) => setKImportDomains(e.target.checked) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroDomains") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportCampaigns, onChange: (e) => setKImportCampaigns(e.target.checked) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroCampaigns") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportCampaignPostbacks, onChange: (e) => setKImportCampaignPostbacks(e.target.checked) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroCampaignPostbacks") })
+            ] })
+          ] })
+        ] })
+      ] }),
+      kError && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-danger mt-4", children: kError }),
+      kResult && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-success mt-4", style: { whiteSpace: "pre-wrap", fontFamily: "monospace", fontSize: "12px" }, children: JSON.stringify(kResult, null, 2) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 flex items-center justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          className: "btn btn-primary",
+          onClick: handleKeitaroImport,
+          disabled: kLoading,
+          children: kLoading ? t2("migrations.keitaroRunning") : kDryRun ? t2("migrations.keitaroPreviewBtn") : t2("migrations.keitaroImportBtn")
+        }
+      ) })
+    ] })
+  ] });
 };
 const API_URL$5 = "/api.php";
 const UpdatePage = () => {
