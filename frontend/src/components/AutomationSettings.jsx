@@ -174,14 +174,6 @@ const AutomationSettings = () => {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="page-card">
-                <p className="text-[var(--color-text-muted)]">{t('common.loading')}</p>
-            </div>
-        );
-    }
-
     const bootstrap = info?.rdap_bootstrap || {};
     const bootstrapOk = Boolean(bootstrap?.mtime);
     const bootstrapAge = formatAge(t, bootstrap?.age_seconds);
@@ -210,6 +202,14 @@ const AutomationSettings = () => {
     const cronFileRemoveCmd = useMemo(() => {
         return `sudo rm -f ${cronFile}`;
     }, [cronFile]);
+
+    if (loading) {
+        return (
+            <div className="page-card">
+                <p className="text-[var(--color-text-muted)]">{t('common.loading')}</p>
+            </div>
+        );
+    }
 
     return (
         <div className="page-card">

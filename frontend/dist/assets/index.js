@@ -39286,9 +39286,6 @@ const AutomationSettings = () => {
       setCronBusy(false);
     }
   };
-  if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[var(--color-text-muted)]", children: t2("common.loading") }) });
-  }
   const bootstrap = info?.rdap_bootstrap || {};
   const bootstrapOk = Boolean(bootstrap?.mtime);
   const bootstrapAge = formatAge(t2, bootstrap?.age_seconds);
@@ -39315,6 +39312,9 @@ const AutomationSettings = () => {
   const cronFileRemoveCmd = reactExports.useMemo(() => {
     return `sudo rm -f ${cronFile}`;
   }, [cronFile]);
+  if (loading) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[var(--color-text-muted)]", children: t2("common.loading") }) });
+  }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 18, className: "text-[var(--color-primary)]" }),
@@ -39867,7 +39867,7 @@ class TabErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { color: "#b91c1c" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { margin: "0 0 8px" }, children: "⚠ Render Error (v2)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { margin: "0 0 8px" }, children: "⚠ Render Error (v3)" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { style: { whiteSpace: "pre-wrap", fontSize: 13, background: "#fef2f2", padding: 12, borderRadius: 6 }, children: String(this.state.error) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
