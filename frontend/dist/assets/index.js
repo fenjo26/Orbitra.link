@@ -19271,7 +19271,10 @@ const LanguageProvider = ({ children }) => {
         return fallback || key;
       }
     }
-    return value;
+    if (value && typeof value === "object") {
+      return fallback || key;
+    }
+    return typeof value === "string" ? value : String(value ?? (fallback || key));
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx(LanguageContext.Provider, { value: { language, setLanguage, t: t2 }, children });
 };

@@ -43,7 +43,7 @@ export const LanguageProvider = ({ children }) => {
         }
     };
 
-    // Translation function
+    // Translation function — always returns a string, never an object.
     const t = (key, fallback = '') => {
         const keys = key.split('.');
         let value = translations[language];
@@ -55,7 +55,12 @@ export const LanguageProvider = ({ children }) => {
                 return fallback || key;
             }
         }
-        return value;
+        // Guard: if the resolved value is still an object (e.g. a nested section),
+        // return the key path to avoid React error #310 (objects as children).
+        if (value && typeof value === 'object') {
+            return fallback || key;
+        }
+        return typeof value === 'string' ? value : String(value ?? (fallback || key));
     };
 
     return (
