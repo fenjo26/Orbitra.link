@@ -11,6 +11,41 @@ import AutomationSettings from './AutomationSettings';
 import SystemSettings from './SystemSettings';
 import PrivacySettings from './PrivacySettings';
 
+class TabErrorBoundary extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+    }
+    static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+    }
+    componentDidCatch(error, info) {
+        console.error('[Settings tab crash]', error, info);
+    }
+    componentDidUpdate(prevProps) {
+        if (prevProps.tabKey !== this.props.tabKey) {
+            this.setState({ hasError: false, error: null });
+        }
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="page-card" style={{ color: '#b91c1c' }}>
+                    <h3 style={{ margin: '0 0 8px' }}>⚠ Render Error</h3>
+                    <pre style={{ whiteSpace: 'pre-wrap', fontSize: 13, background: '#fef2f2', padding: 12, borderRadius: 6 }}>
+                        {String(this.state.error)}
+                    </pre>
+                    <button className="btn btn-secondary" style={{ marginTop: 12 }}
+                        onClick={() => this.setState({ hasError: false, error: null })}>
+                        Retry
+                    </button>
+                </div>
+            );
+        }
+        return this.props.children;
+    }
+}
+
 const Settings = () => {
     const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState('general');
@@ -85,7 +120,9 @@ const Settings = () => {
                         {activeTabObj.title}
                     </h2>
                 </div>
-                <ActiveComponent />
+                <TabErrorBoundary tabKey={activeTab}>
+                    <ActiveComponent />
+                </TabErrorBoundary>
             </div>
         </div>
     );

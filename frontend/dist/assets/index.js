@@ -39845,6 +39845,41 @@ const PrivacySettings = () => {
     ] }) })
   ] });
 };
+class TabErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error("[Settings tab crash]", error, info);
+  }
+  componentDidUpdate(prevProps) {
+    if (prevProps.tabKey !== this.props.tabKey) {
+      this.setState({ hasError: false, error: null });
+    }
+  }
+  render() {
+    if (this.state.hasError) {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { color: "#b91c1c" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { margin: "0 0 8px" }, children: "⚠ Render Error" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { style: { whiteSpace: "pre-wrap", fontSize: 13, background: "#fef2f2", padding: 12, borderRadius: 6 }, children: String(this.state.error) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            className: "btn btn-secondary",
+            style: { marginTop: 12 },
+            onClick: () => this.setState({ hasError: false, error: null }),
+            children: "Retry"
+          }
+        )
+      ] });
+    }
+    return this.props.children;
+  }
+}
 const Settings = () => {
   const { t: t2 } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("general");
@@ -39901,7 +39936,7 @@ const Settings = () => {
     }) }) }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginBottom: "16px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { fontSize: "18px", fontWeight: 600, color: "var(--color-text-primary)" }, children: activeTabObj.title }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(ActiveComponent, {})
+      /* @__PURE__ */ jsxRuntimeExports.jsx(TabErrorBoundary, { tabKey: activeTab, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ActiveComponent, {}) })
     ] })
   ] });
 };
