@@ -26,7 +26,52 @@ try {
     // Включаем поддержку внешших ключей в SQLite
     $pdo->exec("PRAGMA foreign_keys = ON;");
 
-    // Инициализация базы данных, если она пустая
+    // ---- Schema init/migrations -------------------------------------------------
+    //
+    // IMPORTANT: Do not run DDL + seed logic on every request.
+    // It causes constant writes/locks in SQLite and breaks concurrent API calls
+    // (e.g. Backorder auto-check loop) with "database is locked".
+    //
+    // We use SQLite PRAGMA user_version as a lightweight schema version marker.
+    // DDL + seed is executed only when user_version is behind.
+    $LATEST_SCHEMA_VERSION = 1;
+
+    $schemaVersion = 0;
+    try {
+        $schemaVersion = (int) ($pdo->query("PRAGMA user_version")->fetchColumn() ?: 0);
+    } catch (\Throwable $e) {
+        $schemaVersion = 0;
+    }
+
+    $runMigrations = function () use ($pdo, $LATEST_SCHEMA_VERSION, &$schemaVersion, &$postback_key) : void {
+        if ($schemaVersion >= $LATEST_SCHEMA_VERSION) {
+            return;
+        }
+
+        // Best-effort single-instance lock for migrations (avoid concurrent DDL attempts).
+        $lockDir = __DIR__ . '/var/locks';
+        if (!is_dir($lockDir)) {
+            @mkdir($lockDir, 0777, true);
+        }
+        $lockFile = $lockDir . '/db_schema_migrate.lock';
+        $fp = @fopen($lockFile, 'c+');
+        if ($fp) {
+            // Blocking lock: only relevant during deployment/first run.
+            @flock($fp, LOCK_EX);
+        }
+
+        try {
+            // Another process may have migrated while we were waiting for the lock.
+            try {
+                $schemaVersion = (int) ($pdo->query("PRAGMA user_version")->fetchColumn() ?: 0);
+            } catch (\Throwable $e) {
+                $schemaVersion = 0;
+            }
+            if ($schemaVersion >= $LATEST_SCHEMA_VERSION) {
+                return;
+            }
+
+            // Инициализация базы данных, если она пустая (or old installs without user_version)
     $init_sql = "
     CREATE TABLE IF NOT EXISTS affiliate_networks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -694,6 +739,19 @@ try {
     foreach ($defaultSettings as $s) {
         $stmt->execute($s);
     }
+
+            // Mark schema as up-to-date. This must be last.
+            $pdo->exec("PRAGMA user_version = " . (int) $LATEST_SCHEMA_VERSION . ";");
+            $schemaVersion = $LATEST_SCHEMA_VERSION;
+        } finally {
+            if (isset($fp) && is_resource($fp)) {
+                @flock($fp, LOCK_UN);
+                @fclose($fp);
+            }
+        }
+    };
+
+    $runMigrations();
 
     // Override hardcoded postback_key with the one from settings table for routers
     try {
