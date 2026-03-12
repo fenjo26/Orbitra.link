@@ -45743,6 +45743,17 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             catch_404_stream_id: data.catch_404_stream_id || "",
             streams: (data.streams || []).map((s) => ({
               ...s,
+              // Persisted stream filters live in filters_json in DB; editor works with stream.filters array.
+              filters: (() => {
+                try {
+                  if (Array.isArray(s.filters)) return s.filters;
+                  if (!s.filters_json) return [];
+                  const parsed = JSON.parse(s.filters_json);
+                  return Array.isArray(parsed) ? parsed : [];
+                } catch (e) {
+                  return [];
+                }
+              })(),
               schema_custom: s.schema_custom_json ? JSON.parse(s.schema_custom_json) : { landings: [], offers: [] }
             })),
             postbacks: data.postbacks || [],
