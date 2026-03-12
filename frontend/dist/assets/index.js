@@ -43429,7 +43429,7 @@ const MigrationsPage = () => {
   const [loading, setLoading] = reactExports.useState(true);
   const [actionLoading, setActionLoading] = reactExports.useState(null);
   const [kFile, setKFile] = reactExports.useState(null);
-  const [kDryRun, setKDryRun] = reactExports.useState(true);
+  const [kDryRun, setKDryRun] = reactExports.useState(false);
   const [kImportDomains, setKImportDomains] = reactExports.useState(true);
   const [kImportOffers, setKImportOffers] = reactExports.useState(true);
   const [kImportCompanies, setKImportCompanies] = reactExports.useState(true);
@@ -43477,7 +43477,7 @@ const MigrationsPage = () => {
       setActionLoading(null);
     }
   };
-  const handleKeitaroImport = async () => {
+  const handleKeitaroImport = async ({ dryRunOverride = null } = {}) => {
     if (!kFile) {
       setKError(t("migrations.keitaroNoFile"));
       return;
@@ -43488,7 +43488,8 @@ const MigrationsPage = () => {
     try {
       const fd = new FormData();
       fd.append("sql_file", kFile);
-      fd.append("dry_run", kDryRun ? "1" : "0");
+      const dryRun = dryRunOverride === null ? kDryRun : !!dryRunOverride;
+      fd.append("dry_run", dryRun ? "1" : "0");
       fd.append("import_domains", kImportDomains ? "1" : "0");
       fd.append("import_offers", kImportOffers ? "1" : "0");
       fd.append("import_companies", kImportCompanies ? "1" : "0");
@@ -43678,16 +43679,36 @@ const MigrationsPage = () => {
         ] })
       ] }),
       kError && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-danger mt-4", children: kError }),
-      kResult && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-success mt-4", style: { whiteSpace: "pre-wrap", fontFamily: "monospace", fontSize: "12px" }, children: JSON.stringify(kResult, null, 2) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 flex items-center justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          className: "btn btn-primary",
-          onClick: handleKeitaroImport,
-          disabled: kLoading,
-          children: kLoading ? t("migrations.keitaroRunning") : kDryRun ? t("migrations.keitaroPreviewBtn") : t("migrations.keitaroImportBtn")
-        }
-      ) })
+      kResult && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        kResult?.dry_run ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-warning mt-4", children: [
+          t("migrations.keitaroDryRun"),
+          ' (dry_run=1). Данные не были записаны в Orbitra. Нажми "',
+          t("migrations.keitaroImportBtn"),
+          '" для реального импорта.'
+        ] }) : null,
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-success mt-4", style: { whiteSpace: "pre-wrap", fontFamily: "monospace", fontSize: "12px" }, children: JSON.stringify(kResult, null, 2) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 flex items-center justify-end gap-2 flex-wrap", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            className: "btn btn-secondary",
+            onClick: () => handleKeitaroImport({ dryRunOverride: true }),
+            disabled: kLoading,
+            title: t("migrations.keitaroPreviewBtn"),
+            children: kLoading ? t("migrations.keitaroRunning") : t("migrations.keitaroPreviewBtn")
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            className: "btn btn-primary",
+            onClick: () => handleKeitaroImport({ dryRunOverride: false }),
+            disabled: kLoading,
+            children: kLoading ? t("migrations.keitaroRunning") : t("migrations.keitaroImportBtn")
+          }
+        )
+      ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [

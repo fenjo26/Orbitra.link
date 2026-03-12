@@ -10,7 +10,8 @@ const MigrationsPage = () => {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(null);
     const [kFile, setKFile] = useState(null);
-    const [kDryRun, setKDryRun] = useState(true);
+    // Default to real import (more intuitive). Preview is available via a separate button.
+    const [kDryRun, setKDryRun] = useState(false);
     const [kImportDomains, setKImportDomains] = useState(true);
     const [kImportOffers, setKImportOffers] = useState(true);
     const [kImportCompanies, setKImportCompanies] = useState(true);
@@ -66,7 +67,7 @@ const MigrationsPage = () => {
         }
     };
 
-    const handleKeitaroImport = async () => {
+    const handleKeitaroImport = async ({ dryRunOverride = null } = {}) => {
         if (!kFile) {
             setKError(t('migrations.keitaroNoFile'));
             return;
@@ -77,7 +78,8 @@ const MigrationsPage = () => {
         try {
             const fd = new FormData();
             fd.append('sql_file', kFile);
-            fd.append('dry_run', kDryRun ? '1' : '0');
+            const dryRun = dryRunOverride === null ? kDryRun : !!dryRunOverride;
+            fd.append('dry_run', dryRun ? '1' : '0');
             fd.append('import_domains', kImportDomains ? '1' : '0');
             fd.append('import_offers', kImportOffers ? '1' : '0');
             fd.append('import_companies', kImportCompanies ? '1' : '0');
@@ -332,18 +334,33 @@ const MigrationsPage = () => {
                 )}
 
                 {kResult && (
-                    <div className="alert alert-success mt-4" style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '12px' }}>
-                        {JSON.stringify(kResult, null, 2)}
-                    </div>
+                    <>
+                        {kResult?.dry_run ? (
+                            <div className="alert alert-warning mt-4">
+                                {t('migrations.keitaroDryRun')} (dry_run=1). Данные не были записаны в Orbitra. Нажми "{t('migrations.keitaroImportBtn')}" для реального импорта.
+                            </div>
+                        ) : null}
+                        <div className="alert alert-success mt-4" style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '12px' }}>
+                            {JSON.stringify(kResult, null, 2)}
+                        </div>
+                    </>
                 )}
 
-                <div className="mt-4 flex items-center justify-end">
+                <div className="mt-4 flex items-center justify-end gap-2 flex-wrap">
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => handleKeitaroImport({ dryRunOverride: true })}
+                        disabled={kLoading}
+                        title={t('migrations.keitaroPreviewBtn')}
+                    >
+                        {kLoading ? t('migrations.keitaroRunning') : t('migrations.keitaroPreviewBtn')}
+                    </button>
                     <button
                         className="btn btn-primary"
-                        onClick={handleKeitaroImport}
+                        onClick={() => handleKeitaroImport({ dryRunOverride: false })}
                         disabled={kLoading}
                     >
-                        {kLoading ? t('migrations.keitaroRunning') : (kDryRun ? t('migrations.keitaroPreviewBtn') : t('migrations.keitaroImportBtn'))}
+                        {kLoading ? t('migrations.keitaroRunning') : t('migrations.keitaroImportBtn')}
                     </button>
                 </div>
             </div>
