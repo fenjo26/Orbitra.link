@@ -35,6 +35,14 @@ const TrafficSources = ({ refreshData }) => {
         fetchSources();
     }, []);
 
+    const filteredSources = sources.filter(s => {
+        const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase());
+        const matchesState = stateFilter === 'all' ||
+            (stateFilter === 'active' && s.state === 'active') ||
+            (stateFilter === 'paused' && s.state !== 'active');
+        return matchesSearch && matchesState;
+    });
+
     const handleDelete = async (id) => {
         if (!confirm(t('sources.deleteConfirm'))) return;
         try {
@@ -105,14 +113,6 @@ const TrafficSources = ({ refreshData }) => {
         fetchSources();
         refreshData && refreshData();
     };
-
-    const filteredSources = sources.filter(s => {
-        const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase());
-        const matchesState = stateFilter === 'all' ||
-            (stateFilter === 'active' && s.state === 'active') ||
-            (stateFilter === 'paused' && s.state !== 'active');
-        return matchesSearch && matchesState;
-    });
 
     const copyUrl = (url) => {
         navigator.clipboard.writeText(url);

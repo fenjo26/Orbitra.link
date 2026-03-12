@@ -35957,6 +35957,11 @@ const TrafficSources = ({ refreshData }) => {
   reactExports.useEffect(() => {
     fetchSources();
   }, []);
+  const filteredSources = sources.filter((s) => {
+    const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase());
+    const matchesState = stateFilter === "all" || stateFilter === "active" && s.state === "active" || stateFilter === "paused" && s.state !== "active";
+    return matchesSearch && matchesState;
+  });
   const handleDelete = async (id) => {
     if (!confirm(t2("sources.deleteConfirm"))) return;
     try {
@@ -36020,11 +36025,6 @@ const TrafficSources = ({ refreshData }) => {
     fetchSources();
     refreshData && refreshData();
   };
-  const filteredSources = sources.filter((s) => {
-    const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase());
-    const matchesState = stateFilter === "all" || stateFilter === "active" && s.state === "active" || stateFilter === "paused" && s.state !== "active";
-    return matchesSearch && matchesState;
-  });
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_traffic_sources", title: t2("help.trafficSourceBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("help.trafficSourceBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col md:flex-row justify-between items-start md:items-center gap-4", children: [
