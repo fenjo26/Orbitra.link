@@ -72,6 +72,7 @@ function App() {
   });
   const [metrics, setMetrics] = useState(null);
   const [chartData, setChartData] = useState(null);
+  const [globalSettings, setGlobalSettings] = useState({ currency: 'USD' });
   const [campaigns, setCampaigns] = useState([]);
   const [offers, setOffers] = useState([]);
   const [landings, setLandings] = useState([]);
@@ -275,6 +276,23 @@ function App() {
     }
   }, [user, dashboardFilters]);
 
+  // Fetch global settings (e.g., default currency) once per session.
+  useEffect(() => {
+    const fetchGlobalSettings = async () => {
+      try {
+        const res = await axios.get(`${API_URL}?action=global_settings`);
+        if (res?.data?.status === 'success' && res?.data?.data) {
+          setGlobalSettings(prev => ({ ...prev, ...res.data.data }));
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+    if (user) {
+      fetchGlobalSettings();
+    }
+  }, [user]);
+
   // Check for updates on mount
   useEffect(() => {
     const checkUpdate = async () => {
@@ -416,7 +434,7 @@ function App() {
                   onOpenSettings={() => setShowSettingsModal(true)}
                 />
                 <StatCards metrics={metrics} preferences={dashboardPreferences} activeMetrics={activeMetrics} setActiveMetrics={setActiveMetrics} />
-                <MainChart chartData={chartData} activeMetrics={activeMetrics} />
+                <MainChart chartData={chartData} activeMetrics={activeMetrics} currency={globalSettings.currency || 'USD'} />
                 <DataTables
                   campaigns={campaigns.slice(0, 10)}
                   offers={offers.slice(0, 10)}

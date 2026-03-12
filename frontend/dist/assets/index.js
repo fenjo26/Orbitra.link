@@ -31979,7 +31979,7 @@ class ChartErrorBoundary extends reactExports.Component {
     return this.props.children;
   }
 }
-const MainChart = ({ chartData, activeMetrics = [] }) => {
+const MainChart = ({ chartData, activeMetrics = [], currency = "USD" }) => {
   const { t } = useLanguage();
   const isValidData = chartData && Array.isArray(chartData.labels) && chartData.labels.length > 0;
   const transformToPercentage = (dataArray) => {
@@ -32027,6 +32027,26 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
       return String(num);
     }
   };
+  const formatMoney = (v, maxFractionDigits = 2) => {
+    const num = Number(v);
+    if (!Number.isFinite(num)) return String(v);
+    try {
+      return new Intl.NumberFormat(void 0, {
+        style: "currency",
+        currency: (currency || "USD").toUpperCase(),
+        maximumFractionDigits: maxFractionDigits
+      }).format(num);
+    } catch (e) {
+      return `${formatNumber2(num, maxFractionDigits)} ${(currency || "USD").toUpperCase()}`;
+    }
+  };
+  const currencyTickFractionDigits = (() => {
+    if (!Number.isFinite(currencyMax) || currencyMax <= 0) return 0;
+    if (currencyMax < 0.1) return 3;
+    if (currencyMax < 10) return 2;
+    if (currencyMax < 100) return 1;
+    return 0;
+  })();
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -32063,7 +32083,7 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
             if (context.parsed.y !== null) {
               const originalLabel = context.dataset.originalLabel || context.dataset.label;
               if (currencyMetrics.has(originalLabel)) {
-                label += `${formatNumber2(context.parsed.y, 2)} $`;
+                label += formatMoney(context.parsed.y, 2);
               } else {
                 label += context.parsed.y + "%";
               }
@@ -32103,11 +32123,11 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
           precision: 0,
           color: getCssVar("--color-text-muted", "#6B7280"),
           callback: function(value) {
-            return formatNumber2(value, 0);
+            return formatNumber2(value, currencyTickFractionDigits);
           }
         },
         border: { dash: [4, 4], color: getCssVar("--color-border", "#1E293B") },
-        title: { display: true, text: "USD", color: getCssVar("--color-text-muted", "#6B7280"), font: { size: 10, family: "Plus Jakarta Sans" }, padding: { bottom: 10 } }
+        title: { display: true, text: (currency || "USD").toUpperCase(), color: getCssVar("--color-text-muted", "#6B7280"), font: { size: 10, family: "Plus Jakarta Sans" }, padding: { bottom: 10 } }
       },
       x: {
         grid: {
@@ -57394,6 +57414,7 @@ function App() {
   });
   const [metrics, setMetrics] = reactExports.useState(null);
   const [chartData, setChartData] = reactExports.useState(null);
+  const [globalSettings, setGlobalSettings] = reactExports.useState({ currency: "USD" });
   const [campaigns, setCampaigns] = reactExports.useState([]);
   const [offers, setOffers] = reactExports.useState([]);
   const [landings, setLandings] = reactExports.useState([]);
@@ -57570,6 +57591,20 @@ function App() {
     }
   }, [user, dashboardFilters]);
   reactExports.useEffect(() => {
+    const fetchGlobalSettings = async () => {
+      try {
+        const res = await axios.get(`${API_URL}?action=global_settings`);
+        if (res?.data?.status === "success" && res?.data?.data) {
+          setGlobalSettings((prev) => ({ ...prev, ...res.data.data }));
+        }
+      } catch (e) {
+      }
+    };
+    if (user) {
+      fetchGlobalSettings();
+    }
+  }, [user]);
+  reactExports.useEffect(() => {
     const checkUpdate = async () => {
       try {
         const res = await axios.get(`${API_URL}?action=check_update`);
@@ -57681,7 +57716,7 @@ function App() {
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(StatCards, { metrics, preferences: dashboardPreferences, activeMetrics, setActiveMetrics }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(MainChart, { chartData, activeMetrics }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(MainChart, { chartData, activeMetrics, currency: globalSettings.currency || "USD" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           DataTables,
           {
