@@ -31,12 +31,45 @@ const API_URL = '/api.php';
 
 function App() {
   const { t } = useLanguage();
+  const ACTIVE_TAB_STORAGE_KEY = 'orbitra_active_tab';
+
+  const normalizeActiveTab = (tab) => {
+    if (!tab || typeof tab !== 'string') return 'dashboard';
+
+    // Avoid restoring the editor on reload: it depends on transient state (editingCampaignId).
+    if (tab === 'campaign_editor') return 'campaigns';
+
+    const baseTabs = new Set([
+      'dashboard',
+      'domains',
+      'backorder',
+      'campaigns',
+      'landings',
+      'offers',
+      'sources',
+      'networks',
+      'conversions',
+      'trends',
+      'postback',
+      'simulation',
+      'logs'
+    ]);
+
+    if (baseTabs.has(tab)) return tab;
+    if (tab.startsWith('admin_')) return tab;
+
+    return 'dashboard';
+  };
+
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('orbitra_user');
     return saved ? JSON.parse(saved) : null;
   });
   const [needsSetup, setNeedsSetup] = useState(null); // null = checking, true = needs setup, false = has users
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(() => {
+    const saved = localStorage.getItem(ACTIVE_TAB_STORAGE_KEY);
+    return normalizeActiveTab(saved);
+  });
   const [metrics, setMetrics] = useState(null);
   const [chartData, setChartData] = useState(null);
   const [campaigns, setCampaigns] = useState([]);
@@ -283,8 +316,28 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('orbitra_user');
+    localStorage.removeItem(ACTIVE_TAB_STORAGE_KEY);
     setUser(null);
   };
+
+  // Persist the current tab so a full page refresh returns the user to the same place.
+  useEffect(() => {
+    if (!user) return;
+    if (activeTab === 'campaign_editor') return;
+    try {
+      localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, normalizeActiveTab(activeTab));
+    } catch (e) {
+      // Ignore storage issues (private mode, quota, etc.)
+    }
+  }, [activeTab, user]);
+
+  // If a non-admin user somehow has an admin tab stored, fall back to dashboard.
+  useEffect(() => {
+    if (!user) return;
+    if (activeTab.startsWith('admin_') && user?.role !== 'admin') {
+      setActiveTab('dashboard');
+    }
+  }, [activeTab, user]);
 
   // Show loading while checking setup
   if (needsSetup === null) {

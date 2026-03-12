@@ -57307,12 +57307,38 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
 const API_URL = "/api.php";
 function App() {
   const { t: t2 } = useLanguage();
+  const ACTIVE_TAB_STORAGE_KEY = "orbitra_active_tab";
+  const normalizeActiveTab = (tab) => {
+    if (!tab || typeof tab !== "string") return "dashboard";
+    if (tab === "campaign_editor") return "campaigns";
+    const baseTabs = /* @__PURE__ */ new Set([
+      "dashboard",
+      "domains",
+      "backorder",
+      "campaigns",
+      "landings",
+      "offers",
+      "sources",
+      "networks",
+      "conversions",
+      "trends",
+      "postback",
+      "simulation",
+      "logs"
+    ]);
+    if (baseTabs.has(tab)) return tab;
+    if (tab.startsWith("admin_")) return tab;
+    return "dashboard";
+  };
   const [user, setUser] = reactExports.useState(() => {
     const saved = localStorage.getItem("orbitra_user");
     return saved ? JSON.parse(saved) : null;
   });
   const [needsSetup, setNeedsSetup] = reactExports.useState(null);
-  const [activeTab, setActiveTab] = reactExports.useState("dashboard");
+  const [activeTab, setActiveTab] = reactExports.useState(() => {
+    const saved = localStorage.getItem(ACTIVE_TAB_STORAGE_KEY);
+    return normalizeActiveTab(saved);
+  });
   const [metrics, setMetrics] = reactExports.useState(null);
   const [chartData, setChartData] = reactExports.useState(null);
   const [campaigns, setCampaigns] = reactExports.useState([]);
@@ -57525,8 +57551,23 @@ function App() {
   };
   const handleLogout = () => {
     localStorage.removeItem("orbitra_user");
+    localStorage.removeItem(ACTIVE_TAB_STORAGE_KEY);
     setUser(null);
   };
+  reactExports.useEffect(() => {
+    if (!user) return;
+    if (activeTab === "campaign_editor") return;
+    try {
+      localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, normalizeActiveTab(activeTab));
+    } catch (e) {
+    }
+  }, [activeTab, user]);
+  reactExports.useEffect(() => {
+    if (!user) return;
+    if (activeTab.startsWith("admin_") && user?.role !== "admin") {
+      setActiveTab("dashboard");
+    }
+  }, [activeTab, user]);
   if (needsSetup === null) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen bg-gray-900 flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" }) });
   }
