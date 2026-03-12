@@ -458,8 +458,9 @@ try {
                 }
 
                 $hourlyData = [];
-                // If the selected day is today, only show hours up to the current hour
-                $maxHour = ($baseDate === date('Y-m-d')) ? (int) date('H') : 23;
+                // Always show the full day timeline (00:00..23:00) on X axis.
+                // Future hours will stay zero until events appear.
+                $maxHour = 23;
 
                 for ($i = 0; $i <= $maxHour; $i++) {
                     $hourStr = str_pad($i, 2, '0', STR_PAD_LEFT);
