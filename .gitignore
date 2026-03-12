@@ -5,6 +5,8 @@ node_modules/
 # SQLite Database - USER DATA (never overwrite)
 *.sqlite
 *.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
 ltt_tracker.sqlite
 orbitra_db.sqlite
 database.sqlite

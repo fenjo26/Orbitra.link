@@ -15,6 +15,7 @@ const AffiliateNetworks = () => {
     const [editId, setEditId] = useState(null);
     const [copiedId, setCopiedId] = useState(null);
     const [postbackKey, setPostbackKey] = useState('');
+    const [selectedIds, setSelectedIds] = useState(() => new Set());
 
     useEffect(() => {
         fetchNetworks();
@@ -52,6 +53,45 @@ const AffiliateNetworks = () => {
             fetchNetworks();
         } catch (err) {
             console.error(err);
+        }
+    };
+
+    const toggleSelected = (id, checked) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (checked) next.add(id);
+            else next.delete(id);
+            return next;
+        });
+    };
+
+    const toggleSelectAll = (checked) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (checked) {
+                networks.forEach(n => next.add(n.id));
+            } else {
+                networks.forEach(n => next.delete(n.id));
+            }
+            return next;
+        });
+    };
+
+    const allSelected = networks.length > 0 && networks.every(n => selectedIds.has(n.id));
+    const someSelected = networks.some(n => selectedIds.has(n.id));
+
+    const handleBulkDeleteSelected = async () => {
+        const ids = Array.from(selectedIds);
+        if (ids.length === 0) return;
+        const msg = (t('common.deleteSelectedConfirm') || t('networks.deleteConfirm') || t('common.deleteConfirm')).replace('{count}', String(ids.length));
+        if (!window.confirm(msg)) return;
+        try {
+            await axios.post(`${API_URL}?action=bulk_delete_affiliate_networks`, { ids });
+            setSelectedIds(new Set());
+            fetchNetworks();
+        } catch (err) {
+            console.error(err);
+            alert(t('common.error'));
         }
     };
 
@@ -96,13 +136,25 @@ const AffiliateNetworks = () => {
                 <p className="text-sm text-gray-500">
                     {t('networks.headerDesc')}
                 </p>
-                <button
-                    onClick={() => openEditor()}
-                    className="btn btn-primary"
-                >
-                    <Plus className="w-4 h-4" />
-                    {t('common.create')}
-                </button>
+                <div className="flex items-center gap-2">
+                    {selectedIds.size > 0 && (
+                        <button
+                            onClick={handleBulkDeleteSelected}
+                            className="btn btn-danger"
+                            title={t('common.deleteSelected')}
+                        >
+                            <Trash2 className="w-4 h-4" />
+                            {(t('common.deleteSelected') || t('common.delete'))} ({selectedIds.size})
+                        </button>
+                    )}
+                    <button
+                        onClick={() => openEditor()}
+                        className="btn btn-primary"
+                    >
+                        <Plus className="w-4 h-4" />
+                        {t('common.create')}
+                    </button>
+                </div>
             </div>
 
             {/* Networks List */}
@@ -115,6 +167,16 @@ const AffiliateNetworks = () => {
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                             <tr>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                    <input
+                                        type="checkbox"
+                                        checked={allSelected}
+                                        ref={(el) => {
+                                            if (el) el.indeterminate = !allSelected && someSelected;
+                                        }}
+                                        onChange={(e) => toggleSelectAll(e.target.checked)}
+                                    />
+                                </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('editor.name')}</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('networks.postbackUrl')}</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('networks.offerParams')}</th>
@@ -126,6 +188,13 @@ const AffiliateNetworks = () => {
                         <tbody className="divide-y divide-gray-200">
                             {networks.map((network) => (
                                 <tr key={network.id} className="hover:bg-gray-50">
+                                    <td className="px-4 py-3">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedIds.has(network.id)}
+                                            onChange={(e) => toggleSelected(network.id, e.target.checked)}
+                                        />
+                                    </td>
                                     <td className="px-4 py-3">
                                         <div className="font-medium text-gray-900">{network.name}</div>
                                         {network.template && (

@@ -15913,6 +15913,8 @@ const ru = {
     delete: "Удалить",
     clearError: "Ошибка очистки",
     deleteConfirm: "Удалить? Отменить действие невозможно.",
+    deleteSelected: "Удалить выбранные",
+    deleteSelectedConfirm: "Удалить выбранные ({count})? Отменить действие невозможно.",
     refresh: "Обновить",
     all: "Все",
     copy: "Копировать",
@@ -17606,6 +17608,8 @@ const en = {
     delete: "Delete",
     clearError: "Error while clearing",
     deleteConfirm: "Delete? This action cannot be undone.",
+    deleteSelected: "Delete selected",
+    deleteSelectedConfirm: "Delete selected ({count})? This action cannot be undone.",
     refresh: "Refresh",
     all: "All",
     copy: "Copy",
@@ -35251,6 +35255,7 @@ const Offers = ({ offers, refreshData }) => {
   const [filterNetwork, setFilterNetwork] = reactExports.useState("");
   const [filterState, setFilterState] = reactExports.useState("");
   const [showFilters, setShowFilters] = reactExports.useState(false);
+  const [selectedOfferIds, setSelectedOfferIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
   const groups = [...new Set(offers.map((o) => o.group_name).filter(Boolean))];
   const networks = [...new Set(offers.map((o) => o.affiliate_network_name).filter(Boolean))];
   const filteredOffers = offers.filter((o) => {
@@ -35275,6 +35280,40 @@ const Offers = ({ offers, refreshData }) => {
       } catch (err) {
         alert(t2("common.error"));
       }
+    }
+  };
+  const toggleSelected = (id, checked) => {
+    setSelectedOfferIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
+  const toggleSelectAllFiltered = (checked) => {
+    setSelectedOfferIds((prev) => {
+      const next = new Set(prev);
+      if (checked) {
+        filteredOffers.forEach((o) => next.add(o.id));
+      } else {
+        filteredOffers.forEach((o) => next.delete(o.id));
+      }
+      return next;
+    });
+  };
+  const allFilteredSelected = filteredOffers.length > 0 && filteredOffers.every((o) => selectedOfferIds.has(o.id));
+  const someFilteredSelected = filteredOffers.some((o) => selectedOfferIds.has(o.id));
+  const handleBulkDeleteSelected = async () => {
+    const ids = Array.from(selectedOfferIds);
+    if (ids.length === 0) return;
+    const msg = (t2("common.deleteSelectedConfirm") || t2("common.deleteConfirm")).replace("{count}", String(ids.length));
+    if (!window.confirm(msg)) return;
+    try {
+      await axios.post(`${API_URL$s}?action=bulk_delete_offers`, { ids });
+      setSelectedOfferIds(/* @__PURE__ */ new Set());
+      refreshData();
+    } catch (err) {
+      alert(t2("common.error"));
     }
   };
   const handleEditorClose = (wasSaved) => {
@@ -35304,7 +35343,14 @@ const Offers = ({ offers, refreshData }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
           t2("common.create")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setIsGroupsModalOpen(true), className: "btn btn-secondary", children: t2("campaigns.groups") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setIsGroupsModalOpen(true), className: "btn btn-secondary", children: t2("campaigns.groups") }),
+        selectedOfferIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t2("common.deleteSelected"), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
+          t2("common.deleteSelected") || t2("common.delete"),
+          " (",
+          selectedOfferIds.size,
+          ")"
+        ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -35390,7 +35436,17 @@ const Offers = ({ offers, refreshData }) => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: allFilteredSelected,
+            ref: (el) => {
+              if (el) el.indeterminate = !allFilteredSelected && someFilteredSelected;
+            },
+            onChange: (e) => toggleSelectAllFiltered(e.target.checked)
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("editor.name") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.group") }),
@@ -35407,7 +35463,14 @@ const Offers = ({ offers, refreshData }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: offers.length === 0 ? t2("offers.noOffers") : t2("offers.noOffersFiltered") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: offers.length === 0 ? t2("offers.noOffersDesc") : t2("offers.changeFilters") })
       ] }) }) }) : filteredOffers.map((offer) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: selectedOfferIds.has(offer.id),
+            onChange: (e) => toggleSelected(offer.id, e.target.checked)
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: offer.id }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -36916,6 +36979,7 @@ const AffiliateNetworks = () => {
   const [editId, setEditId] = reactExports.useState(null);
   const [copiedId, setCopiedId] = reactExports.useState(null);
   const [postbackKey, setPostbackKey] = reactExports.useState("");
+  const [selectedIds, setSelectedIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
   reactExports.useEffect(() => {
     fetchNetworks();
     fetchPostbackKey();
@@ -36951,6 +37015,41 @@ const AffiliateNetworks = () => {
       console.error(err);
     }
   };
+  const toggleSelected = (id, checked) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
+  const toggleSelectAll = (checked) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (checked) {
+        networks.forEach((n) => next.add(n.id));
+      } else {
+        networks.forEach((n) => next.delete(n.id));
+      }
+      return next;
+    });
+  };
+  const allSelected = networks.length > 0 && networks.every((n) => selectedIds.has(n.id));
+  const someSelected = networks.some((n) => selectedIds.has(n.id));
+  const handleBulkDeleteSelected = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    const msg = (t2("common.deleteSelectedConfirm") || t2("networks.deleteConfirm") || t2("common.deleteConfirm")).replace("{count}", String(ids.length));
+    if (!window.confirm(msg)) return;
+    try {
+      await axios.post(`${API_URL$m}?action=bulk_delete_affiliate_networks`, { ids });
+      setSelectedIds(/* @__PURE__ */ new Set());
+      fetchNetworks();
+    } catch (err) {
+      console.error(err);
+      alert(t2("common.error"));
+    }
+  };
   const openEditor = (id = null) => {
     setEditId(id);
     setEditorOpen(true);
@@ -36981,20 +37080,48 @@ const AffiliateNetworks = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_affiliate_networks", title: t2("help.affiliateNetworkBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("help.affiliateNetworkBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500", children: t2("networks.headerDesc") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "button",
-        {
-          onClick: () => openEditor(),
-          className: "btn btn-primary",
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
-            t2("common.create")
-          ]
-        }
-      )
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        selectedIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: handleBulkDeleteSelected,
+            className: "btn btn-danger",
+            title: t2("common.deleteSelected"),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
+              t2("common.deleteSelected") || t2("common.delete"),
+              " (",
+              selectedIds.size,
+              ")"
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => openEditor(),
+            className: "btn btn-primary",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
+              t2("common.create")
+            ]
+          }
+        )
+      ] })
     ] }),
     networks.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10 text-gray-400 bg-white border border-dashed border-gray-300 rounded", children: t2("networks.noNetworksAdd") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white rounded shadow overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "min-w-full divide-y divide-gray-200", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-gray-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: allSelected,
+            ref: (el) => {
+              if (el) el.indeterminate = !allSelected && someSelected;
+            },
+            onChange: (e) => toggleSelectAll(e.target.checked)
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: t2("editor.name") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: t2("networks.postbackUrl") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: t2("networks.offerParams") }),
@@ -37003,6 +37130,14 @@ const AffiliateNetworks = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase", children: t2("common.actions") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-200", children: networks.map((network) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-gray-50", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: selectedIds.has(network.id),
+            onChange: (e) => toggleSelected(network.id, e.target.checked)
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium text-gray-900", children: network.name }),
           network.template && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-gray-400", children: [

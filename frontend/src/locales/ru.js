@@ -18,6 +18,8 @@ export default {
         delete: "Удалить",
         clearError: "Ошибка очистки",
         deleteConfirm: "Удалить? Отменить действие невозможно.",
+        deleteSelected: "Удалить выбранные",
+        deleteSelectedConfirm: "Удалить выбранные ({count})? Отменить действие невозможно.",
         refresh: "Обновить",
         all: "Все",
         copy: "Копировать",

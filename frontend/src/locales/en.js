@@ -18,6 +18,8 @@ export default {
         delete: "Delete",
         clearError: "Error while clearing",
         deleteConfirm: "Delete? This action cannot be undone.",
+        deleteSelected: "Delete selected",
+        deleteSelectedConfirm: "Delete selected ({count})? This action cannot be undone.",
         refresh: "Refresh",
         all: "All",
         copy: "Copy",

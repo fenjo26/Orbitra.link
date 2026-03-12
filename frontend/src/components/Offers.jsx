@@ -17,6 +17,7 @@ const Offers = ({ offers, refreshData }) => {
     const [filterNetwork, setFilterNetwork] = useState('');
     const [filterState, setFilterState] = useState('');
     const [showFilters, setShowFilters] = useState(false);
+    const [selectedOfferIds, setSelectedOfferIds] = useState(() => new Set());
 
     // Get unique values for filters
     const groups = [...new Set(offers.map(o => o.group_name).filter(Boolean))];
@@ -47,6 +48,44 @@ const Offers = ({ offers, refreshData }) => {
             } catch (err) {
                 alert(t('common.error'));
             }
+        }
+    };
+
+    const toggleSelected = (id, checked) => {
+        setSelectedOfferIds(prev => {
+            const next = new Set(prev);
+            if (checked) next.add(id);
+            else next.delete(id);
+            return next;
+        });
+    };
+
+    const toggleSelectAllFiltered = (checked) => {
+        setSelectedOfferIds(prev => {
+            const next = new Set(prev);
+            if (checked) {
+                filteredOffers.forEach(o => next.add(o.id));
+            } else {
+                filteredOffers.forEach(o => next.delete(o.id));
+            }
+            return next;
+        });
+    };
+
+    const allFilteredSelected = filteredOffers.length > 0 && filteredOffers.every(o => selectedOfferIds.has(o.id));
+    const someFilteredSelected = filteredOffers.some(o => selectedOfferIds.has(o.id));
+
+    const handleBulkDeleteSelected = async () => {
+        const ids = Array.from(selectedOfferIds);
+        if (ids.length === 0) return;
+        const msg = (t('common.deleteSelectedConfirm') || t('common.deleteConfirm')).replace('{count}', String(ids.length));
+        if (!window.confirm(msg)) return;
+        try {
+            await axios.post(`${API_URL}?action=bulk_delete_offers`, { ids });
+            setSelectedOfferIds(new Set());
+            refreshData();
+        } catch (err) {
+            alert(t('common.error'));
         }
     };
 
@@ -89,6 +128,12 @@ const Offers = ({ offers, refreshData }) => {
                     <button onClick={() => setIsGroupsModalOpen(true)} className="btn btn-secondary">
                         {t('campaigns.groups')}
                     </button>
+                    {selectedOfferIds.size > 0 && (
+                        <button onClick={handleBulkDeleteSelected} className="btn btn-danger" title={t('common.deleteSelected')}>
+                            <Trash2 className="w-4 h-4" />
+                            {(t('common.deleteSelected') || t('common.delete'))} ({selectedOfferIds.size})
+                        </button>
+                    )}
                 </div>
                 <div className="flex gap-2">
                     <button
@@ -168,7 +213,14 @@ const Offers = ({ offers, refreshData }) => {
                     <thead>
                         <tr>
                             <th className="w-10">
-                                <input type="checkbox" />
+                                <input
+                                    type="checkbox"
+                                    checked={allFilteredSelected}
+                                    ref={(el) => {
+                                        if (el) el.indeterminate = !allFilteredSelected && someFilteredSelected;
+                                    }}
+                                    onChange={(e) => toggleSelectAllFiltered(e.target.checked)}
+                                />
                             </th>
                             <th>ID</th>
                             <th>{t('editor.name')}</th>
@@ -201,7 +253,11 @@ const Offers = ({ offers, refreshData }) => {
                             filteredOffers.map((offer) => (
                                 <tr key={offer.id}>
                                     <td>
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedOfferIds.has(offer.id)}
+                                            onChange={(e) => toggleSelected(offer.id, e.target.checked)}
+                                        />
                                     </td>
                                     <td className="font-medium">{offer.id}</td>
                                     <td>
