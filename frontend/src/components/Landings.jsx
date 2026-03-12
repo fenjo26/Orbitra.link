@@ -26,10 +26,14 @@ const Landings = ({ landings, refreshData }) => {
     const handleDelete = async (id) => {
         if (window.confirm(t('common.deleteConfirm'))) {
             try {
-                await axios.post(`${API_URL}?action=delete_landing`, { id });
+                const res = await axios.post(`${API_URL}?action=delete_landing`, { id });
+                if (res?.data?.status !== 'success') {
+                    alert(res?.data?.message || t('common.error'));
+                    return;
+                }
                 refreshData();
             } catch (err) {
-                alert(t('common.error'));
+                alert(err?.response?.data?.message || err?.message || t('common.error'));
             }
         }
     };

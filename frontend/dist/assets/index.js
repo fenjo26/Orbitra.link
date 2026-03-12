@@ -34348,10 +34348,14 @@ const Landings = ({ landings, refreshData }) => {
   const handleDelete = async (id) => {
     if (window.confirm(t2("common.deleteConfirm"))) {
       try {
-        await axios.post(`${API_URL$w}?action=delete_landing`, { id });
+        const res = await axios.post(`${API_URL$w}?action=delete_landing`, { id });
+        if (res?.data?.status !== "success") {
+          alert(res?.data?.message || t2("common.error"));
+          return;
+        }
         refreshData();
       } catch (err) {
-        alert(t2("common.error"));
+        alert(err?.response?.data?.message || err?.message || t2("common.error"));
       }
     }
   };
@@ -35956,11 +35960,16 @@ const TrafficSources = ({ refreshData }) => {
   const handleDelete = async (id) => {
     if (!confirm(t2("sources.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$q}?action=delete_traffic_source`, { id });
+      const res = await axios.post(`${API_URL$q}?action=delete_traffic_source`, { id });
+      if (res?.data?.status !== "success") {
+        alert(res?.data?.message || t2("common.error"));
+        return;
+      }
       fetchSources();
       refreshData && refreshData();
     } catch (error) {
       console.error("Error deleting traffic source:", error);
+      alert(error?.response?.data?.message || error?.message || t2("common.error"));
     }
   };
   const toggleSelected = (id, checked) => {
@@ -37199,10 +37208,15 @@ const AffiliateNetworks = () => {
   const handleDelete = async (id) => {
     if (!window.confirm(t2("networks.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$m}?action=delete_affiliate_network`, { id });
+      const res = await axios.post(`${API_URL$m}?action=delete_affiliate_network`, { id });
+      if (res?.data?.status !== "success") {
+        alert(res?.data?.message || t2("common.error"));
+        return;
+      }
       fetchNetworks();
     } catch (err) {
       console.error(err);
+      alert(err?.response?.data?.message || err?.message || t2("common.error"));
     }
   };
   const toggleSelected = (id, checked) => {

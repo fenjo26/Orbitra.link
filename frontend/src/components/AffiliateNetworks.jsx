@@ -49,10 +49,15 @@ const AffiliateNetworks = () => {
     const handleDelete = async (id) => {
         if (!window.confirm(t('networks.deleteConfirm'))) return;
         try {
-            await axios.post(`${API_URL}?action=delete_affiliate_network`, { id });
+            const res = await axios.post(`${API_URL}?action=delete_affiliate_network`, { id });
+            if (res?.data?.status !== 'success') {
+                alert(res?.data?.message || t('common.error'));
+                return;
+            }
             fetchNetworks();
         } catch (err) {
             console.error(err);
+            alert(err?.response?.data?.message || err?.message || t('common.error'));
         }
     };
 

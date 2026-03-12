@@ -990,13 +990,29 @@ try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
                 $id = $data['id'] ?? null;
-                if ($id) {
-                    // Reset source_id in campaigns
-                    $pdo->prepare("UPDATE campaigns SET source_id = NULL WHERE source_id = ?")->execute([$id]);
-                    $pdo->prepare("UPDATE traffic_sources SET is_archived = 1, archived_at = datetime('now') WHERE id = ?")->execute([$id]);
-                    echo json_encode(['status' => 'success']);
-                } else {
+                if (!$id) {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
+                    break;
+                }
+                try {
+                    $pdo->beginTransaction();
+                    // Reset source_id in campaigns
+                    $stmtCamp = $pdo->prepare("UPDATE campaigns SET source_id = NULL WHERE source_id = ?");
+                    $stmtCamp->execute([$id]);
+                    $campaignsUpdated = $stmtCamp->rowCount();
+
+                    $stmt = $pdo->prepare("UPDATE traffic_sources SET is_archived = 1, archived_at = datetime('now') WHERE id = ?");
+                    $stmt->execute([$id]);
+                    $updated = $stmt->rowCount();
+
+                    $pdo->commit();
+                    logAudit($pdo, 'DELETE', 'Traffic Source', $id, ['updated' => $updated, 'campaigns_unlinked' => $campaignsUpdated]);
+                    echo json_encode(['status' => 'success', 'data' => ['updated' => $updated]]);
+                } catch (Throwable $e) {
+                    if ($pdo->inTransaction()) {
+                        $pdo->rollBack();
+                    }
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
             }
             break;
@@ -1278,11 +1294,18 @@ try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
                 $id = $data['id'] ?? null;
-                if ($id) {
-                    $pdo->prepare("UPDATE landings SET is_archived = 1, archived_at = datetime('now') WHERE id = ?")->execute([$id]);
-                    echo json_encode(['status' => 'success']);
-                } else {
+                if (!$id) {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
+                    break;
+                }
+                try {
+                    $stmt = $pdo->prepare("UPDATE landings SET is_archived = 1, archived_at = datetime('now') WHERE id = ?");
+                    $stmt->execute([$id]);
+                    $updated = $stmt->rowCount();
+                    logAudit($pdo, 'DELETE', 'Landing', $id, ['updated' => $updated]);
+                    echo json_encode(['status' => 'success', 'data' => ['updated' => $updated]]);
+                } catch (Throwable $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
             }
             break;
@@ -1803,10 +1826,25 @@ try {
                 $data = json_decode(file_get_contents('php://input'), true);
                 $id = $data['id'] ?? null;
                 if ($id) {
-                    $pdo->prepare("UPDATE offers SET affiliate_network_id = NULL WHERE affiliate_network_id = ?")->execute([$id]);
-                    $pdo->prepare("UPDATE affiliate_networks SET is_archived = 1, archived_at = datetime('now') WHERE id = ?")->execute([$id]);
-                    logAudit($pdo, 'DELETE', 'Affiliate Network', $id);
-                    echo json_encode(['status' => 'success']);
+                    try {
+                        $pdo->beginTransaction();
+                        $stmtOffers = $pdo->prepare("UPDATE offers SET affiliate_network_id = NULL WHERE affiliate_network_id = ?");
+                        $stmtOffers->execute([$id]);
+                        $offersDetached = $stmtOffers->rowCount();
+
+                        $stmt = $pdo->prepare("UPDATE affiliate_networks SET is_archived = 1, archived_at = datetime('now') WHERE id = ?");
+                        $stmt->execute([$id]);
+                        $updated = $stmt->rowCount();
+
+                        $pdo->commit();
+                        logAudit($pdo, 'DELETE', 'Affiliate Network', $id, ['updated' => $updated, 'offers_detached' => $offersDetached]);
+                        echo json_encode(['status' => 'success', 'data' => ['updated' => $updated]]);
+                    } catch (Throwable $e) {
+                        if ($pdo->inTransaction()) {
+                            $pdo->rollBack();
+                        }
+                        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                    }
                 } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
                 }

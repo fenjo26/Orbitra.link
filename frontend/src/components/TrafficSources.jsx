@@ -38,11 +38,16 @@ const TrafficSources = ({ refreshData }) => {
     const handleDelete = async (id) => {
         if (!confirm(t('sources.deleteConfirm'))) return;
         try {
-            await axios.post(`${API_URL}?action=delete_traffic_source`, { id });
+            const res = await axios.post(`${API_URL}?action=delete_traffic_source`, { id });
+            if (res?.data?.status !== 'success') {
+                alert(res?.data?.message || t('common.error'));
+                return;
+            }
             fetchSources();
             refreshData && refreshData();
         } catch (error) {
             console.error('Error deleting traffic source:', error);
+            alert(error?.response?.data?.message || error?.message || t('common.error'));
         }
     };
 
