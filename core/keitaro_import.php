@@ -490,7 +490,7 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
             'landings' => ['inserted' => 0, 'skipped' => 0],
             'campaign_groups' => ['inserted' => 0, 'skipped' => 0],
             'campaigns' => ['inserted' => 0, 'skipped' => 0],
-            'streams' => ['inserted' => 0, 'skipped' => 0],
+            'streams' => ['inserted' => 0, 'skipped' => 0, 'updated' => 0],
             'campaign_postbacks' => ['inserted' => 0, 'skipped' => 0],
         ],
         'warnings' => [],
@@ -1052,6 +1052,39 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                     (campaign_id, offer_id, name, weight, is_active, type, position, filters_json, schema_type, action_payload, schema_custom_json, keitaro_id)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ");
+                $stmtUpd = null;
+                if ($hasStreamKeitaroId) {
+                    $stmtUpd = $pdo->prepare("
+                        UPDATE streams
+                        SET offer_id = ?,
+                            name = ?,
+                            weight = ?,
+                            is_active = ?,
+                            type = ?,
+                            position = ?,
+                            filters_json = ?,
+                            schema_type = ?,
+                            action_payload = ?,
+                            schema_custom_json = ?,
+                            keitaro_id = COALESCE(keitaro_id, ?)
+                        WHERE id = ?
+                    ");
+                } else {
+                    $stmtUpd = $pdo->prepare("
+                        UPDATE streams
+                        SET offer_id = ?,
+                            name = ?,
+                            weight = ?,
+                            is_active = ?,
+                            type = ?,
+                            position = ?,
+                            filters_json = ?,
+                            schema_type = ?,
+                            action_payload = ?,
+                            schema_custom_json = ?
+                        WHERE id = ?
+                    ");
+                }
 
                 foreach ($rows as $r) {
                     $kStreamId = (int) ($r['id'] ?? 0);
@@ -1078,9 +1111,16 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                     $isActive = ($state === '' || $state === 'active' || $state === 'enabled' || $state === 'on') ? 1 : 0;
 
                     $kType = strtolower(trim((string) ($r['type'] ?? 'regular')));
-                    $type = in_array($kType, ['regular', 'fallback', 'intercepting'], true) ? $kType : 'regular';
-                    if ((int) ($r['is_default'] ?? 0) === 1) {
-                        $type = 'fallback';
+                    // Keitaro stream.type: regular | default | forced (varies by version)
+                    // Orbitra stream.type: regular | fallback | intercepting
+                    $kTypeNorm = $kType;
+                    if ($kTypeNorm === 'default') $kTypeNorm = 'fallback';
+                    if ($kTypeNorm === 'forced') $kTypeNorm = 'intercepting';
+                    $type = in_array($kTypeNorm, ['regular', 'fallback', 'intercepting'], true) ? $kTypeNorm : 'regular';
+
+                    // Keitaro "default" streams are evaluated last even if position=1. Put them at the end of the list.
+                    if ($type === 'fallback') {
+                        $position = 1000000 + max(0, $position);
                     }
 
                     $filters = orbitraKeitaroBuildOrbitraFilters($filtersByStream[$kStreamId] ?? []);
@@ -1123,11 +1163,24 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                     $actionPayload = null;
                     $custom = [];
 
-                    // Detect action streams (404/bots).
+                    $kSchema = strtolower(trim((string) ($r['schema'] ?? '')));
                     $kActionType = strtolower(trim((string) ($r['action_type'] ?? ($r['action'] ?? ''))));
-                    if (in_array($kActionType, ['404', 'not_found', 'notfound', 'http_404'], true)) {
+
+                    // Keitaro action streams: schema='action', action_type often looks like 'status404'.
+                    $isActionStream = ($kSchema === 'action')
+                        || (strpos($kActionType, '404') !== false)
+                        || in_array($kActionType, ['404', 'not_found', 'notfound', 'http_404'], true);
+
+                    if ($isActionStream) {
                         $schemaType = 'action';
-                        $actionPayload = 'not_found';
+                        if (strpos($kActionType, '404') !== false) {
+                            $actionPayload = 'not_found';
+                        } else if (strpos($kActionType, 'html') !== false) {
+                            $actionPayload = 'show_html';
+                        } else {
+                            // Keep "action" branch, but do nothing.
+                            $actionPayload = 'do_nothing';
+                        }
                     }
 
                     if ($schemaType !== 'action') {
@@ -1150,13 +1203,47 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                         $legacyOfferId = (int) ($schemaOffers[0]['id'] ?? 0) ?: null;
                     }
 
+                    $existingStreamId = null;
                     if ($hasStreamKeitaroId) {
                         $stmtFind->execute([$kStreamId]);
+                        $existingStreamId = (int) ($stmtFind->fetchColumn() ?: 0);
                     } else {
                         $stmtFind->execute([(int) $campaignId, $name, $position]);
+                        $existingStreamId = (int) ($stmtFind->fetchColumn() ?: 0);
                     }
-                    if ($stmtFind->fetchColumn()) {
-                        $result['imported']['streams']['skipped']++;
+                    if ($existingStreamId > 0) {
+                        // Keep import idempotent: re-running import updates the existing stream.
+                        if ($hasStreamKeitaroId) {
+                            $stmtUpd->execute([
+                                $legacyOfferId,
+                                $name,
+                                $weight,
+                                $isActive,
+                                $type,
+                                $position,
+                                $filtersJson,
+                                $schemaType,
+                                $actionPayload,
+                                $customJson,
+                                $kStreamId > 0 ? $kStreamId : null,
+                                $existingStreamId,
+                            ]);
+                        } else {
+                            $stmtUpd->execute([
+                                $legacyOfferId,
+                                $name,
+                                $weight,
+                                $isActive,
+                                $type,
+                                $position,
+                                $filtersJson,
+                                $schemaType,
+                                $actionPayload,
+                                $customJson,
+                                $existingStreamId,
+                            ]);
+                        }
+                        $result['imported']['streams']['updated']++;
                         continue;
                     }
 

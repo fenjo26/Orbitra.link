@@ -571,8 +571,10 @@ if (!$selectedStream) {
 if (!$selectedStream) {
     foreach ($allStreams as $stream) {
         if (($stream['type'] ?? '') === 'fallback') {
-            $selectedStream = $stream;
-            break;
+            if (streamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $pdo)) {
+                $selectedStream = $stream;
+                break;
+            }
         }
     }
 }
