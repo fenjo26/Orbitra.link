@@ -15,6 +15,7 @@ const TrafficSources = ({ refreshData }) => {
     const [stateFilter, setStateFilter] = useState('all');
     const [showEditor, setShowEditor] = useState(false);
     const [editId, setEditId] = useState(null);
+    const [selectedIds, setSelectedIds] = useState(() => new Set());
 
     const fetchSources = async () => {
         setLoading(true);
@@ -42,6 +43,45 @@ const TrafficSources = ({ refreshData }) => {
             refreshData && refreshData();
         } catch (error) {
             console.error('Error deleting traffic source:', error);
+        }
+    };
+
+    const toggleSelected = (id, checked) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (checked) next.add(id);
+            else next.delete(id);
+            return next;
+        });
+    };
+
+    const toggleSelectAllFiltered = (checked) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (checked) {
+                filteredSources.forEach(s => next.add(s.id));
+            } else {
+                filteredSources.forEach(s => next.delete(s.id));
+            }
+            return next;
+        });
+    };
+
+    const allFilteredSelected = filteredSources.length > 0 && filteredSources.every(s => selectedIds.has(s.id));
+    const someFilteredSelected = filteredSources.some(s => selectedIds.has(s.id));
+
+    const handleBulkDeleteSelected = async () => {
+        const ids = Array.from(selectedIds);
+        if (ids.length === 0) return;
+        const msg = (t('common.deleteSelectedConfirm') || t('sources.deleteConfirm')).replace('{count}', String(ids.length));
+        if (!confirm(msg)) return;
+        try {
+            await axios.post(`${API_URL}?action=bulk_delete_traffic_sources`, { ids });
+            setSelectedIds(new Set());
+            fetchSources();
+            refreshData && refreshData();
+        } catch (error) {
+            console.error('Error deleting traffic sources:', error);
         }
     };
 
@@ -109,6 +149,16 @@ const TrafficSources = ({ refreshData }) => {
                     >
                         <RefreshCw size={18} />
                     </button>
+                    {selectedIds.size > 0 && (
+                        <button
+                            onClick={handleBulkDeleteSelected}
+                            className="btn btn-danger"
+                            title={t('common.deleteSelected')}
+                        >
+                            <Trash2 size={18} />
+                            <span>{(t('common.deleteSelected') || t('common.delete'))} ({selectedIds.size})</span>
+                        </button>
+                    )}
                     <button
                         onClick={handleCreate}
                         className="btn btn-primary"
@@ -130,6 +180,16 @@ const TrafficSources = ({ refreshData }) => {
                         <table className="page-table">
                             <thead>
                                 <tr>
+                                    <th className="w-10">
+                                        <input
+                                            type="checkbox"
+                                            checked={allFilteredSelected}
+                                            ref={(el) => {
+                                                if (el) el.indeterminate = !allFilteredSelected && someFilteredSelected;
+                                            }}
+                                            onChange={(e) => toggleSelectAllFiltered(e.target.checked)}
+                                        />
+                                    </th>
                                     <th>{t('editor.name')}</th>
                                     <th>{t('sources.template')}</th>
                                     <th>{t('campaigns.campaigns')}</th>
@@ -142,13 +202,20 @@ const TrafficSources = ({ refreshData }) => {
                             <tbody>
                                 {filteredSources.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
+                                        <td colSpan={8} className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
                                             {search ? t('sources.notFound') : t('sources.noSourcesAdd')}
                                         </td>
                                     </tr>
                                 ) : (
                                     filteredSources.map(source => (
                                         <tr key={source.id}>
+                                            <td>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedIds.has(source.id)}
+                                                    onChange={(e) => toggleSelected(source.id, e.target.checked)}
+                                                />
+                                            </td>
                                             <td>
                                                 <div className="font-medium">{source.name}</div>
                                                 {source.notes && (

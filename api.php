@@ -953,6 +953,7 @@ try {
                     FROM traffic_sources ts
                     LEFT JOIN campaigns c ON ts.id = c.source_id
                     LEFT JOIN clicks cl ON c.id = cl.campaign_id $joinCondition
+                    WHERE ts.is_archived = 0
                     GROUP BY ts.id
                     $havingClause
                     ORDER BY clicks DESC, ts.name ASC
@@ -997,6 +998,50 @@ try {
                 } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
                 }
+            }
+            break;
+
+        case 'bulk_delete_traffic_sources':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            $ids = $data['ids'] ?? [];
+            if (!is_array($ids)) {
+                echo json_encode(['status' => 'error', 'message' => 'ids must be an array']);
+                break;
+            }
+            $ids = array_values(array_unique(array_filter(array_map(function ($v) {
+                return (int) $v;
+            }, $ids), function ($v) {
+                return $v > 0;
+            })));
+            if (empty($ids)) {
+                echo json_encode(['status' => 'success', 'data' => ['updated' => 0]]);
+                break;
+            }
+            try {
+                $pdo->beginTransaction();
+                $placeholders = implode(',', array_fill(0, count($ids), '?'));
+
+                // Reset source_id in campaigns
+                $stmtCamp = $pdo->prepare("UPDATE campaigns SET source_id = NULL WHERE source_id IN ($placeholders)");
+                $stmtCamp->execute($ids);
+                $campaignsUpdated = $stmtCamp->rowCount();
+
+                $stmt = $pdo->prepare("UPDATE traffic_sources SET is_archived = 1, archived_at = datetime('now') WHERE id IN ($placeholders)");
+                $stmt->execute($ids);
+                $updated = $stmt->rowCount();
+
+                $pdo->commit();
+                logAudit($pdo, 'DELETE', 'Traffic Sources (bulk)', null, ['ids' => $ids, 'updated' => $updated, 'campaigns_unlinked' => $campaignsUpdated]);
+                echo json_encode(['status' => 'success', 'data' => ['updated' => $updated, 'campaigns_unlinked' => $campaignsUpdated]]);
+            } catch (Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
             }
             break;
 
@@ -1177,6 +1222,7 @@ try {
                 FROM landings l
                 LEFT JOIN landing_groups lg ON l.group_id = lg.id
                 LEFT JOIN clicks cl ON (l.id = cl.landing_id OR (cl.landing_id IS (NULL) AND cl.id = 'NO_DIRECT_LINK_YET')) $joinCondition
+                WHERE l.is_archived = 0
                 GROUP BY l.id
                 $havingClause
                 $orderBy
@@ -1238,6 +1284,43 @@ try {
                 } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
                 }
+            }
+            break;
+
+        case 'bulk_delete_landings':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            $ids = $data['ids'] ?? [];
+            if (!is_array($ids)) {
+                echo json_encode(['status' => 'error', 'message' => 'ids must be an array']);
+                break;
+            }
+            $ids = array_values(array_unique(array_filter(array_map(function ($v) {
+                return (int) $v;
+            }, $ids), function ($v) {
+                return $v > 0;
+            })));
+            if (empty($ids)) {
+                echo json_encode(['status' => 'success', 'data' => ['updated' => 0]]);
+                break;
+            }
+            try {
+                $pdo->beginTransaction();
+                $placeholders = implode(',', array_fill(0, count($ids), '?'));
+                $stmt = $pdo->prepare("UPDATE landings SET is_archived = 1, archived_at = datetime('now') WHERE id IN ($placeholders)");
+                $stmt->execute($ids);
+                $updated = $stmt->rowCount();
+                $pdo->commit();
+                logAudit($pdo, 'DELETE', 'Landings (bulk)', null, ['ids' => $ids, 'updated' => $updated]);
+                echo json_encode(['status' => 'success', 'data' => ['updated' => $updated]]);
+            } catch (Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
             }
             break;
 

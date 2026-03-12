@@ -11,6 +11,7 @@ const Landings = ({ landings, refreshData }) => {
     const { t } = useLanguage();
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [editingLandingId, setEditingLandingId] = useState(null);
+    const [selectedLandingIds, setSelectedLandingIds] = useState(() => new Set());
 
     const handleCreate = () => {
         setEditingLandingId(null);
@@ -30,6 +31,44 @@ const Landings = ({ landings, refreshData }) => {
             } catch (err) {
                 alert(t('common.error'));
             }
+        }
+    };
+
+    const toggleSelected = (id, checked) => {
+        setSelectedLandingIds(prev => {
+            const next = new Set(prev);
+            if (checked) next.add(id);
+            else next.delete(id);
+            return next;
+        });
+    };
+
+    const toggleSelectAll = (checked) => {
+        setSelectedLandingIds(prev => {
+            const next = new Set(prev);
+            if (checked) {
+                landings.forEach(l => next.add(l.id));
+            } else {
+                landings.forEach(l => next.delete(l.id));
+            }
+            return next;
+        });
+    };
+
+    const allSelected = landings.length > 0 && landings.every(l => selectedLandingIds.has(l.id));
+    const someSelected = landings.some(l => selectedLandingIds.has(l.id));
+
+    const handleBulkDeleteSelected = async () => {
+        const ids = Array.from(selectedLandingIds);
+        if (ids.length === 0) return;
+        const msg = (t('common.deleteSelectedConfirm') || t('common.deleteConfirm')).replace('{count}', String(ids.length));
+        if (!window.confirm(msg)) return;
+        try {
+            await axios.post(`${API_URL}?action=bulk_delete_landings`, { ids });
+            setSelectedLandingIds(new Set());
+            refreshData();
+        } catch (err) {
+            alert(t('common.error'));
         }
     };
 
@@ -54,6 +93,12 @@ const Landings = ({ landings, refreshData }) => {
                     <button className="btn btn-secondary">
                         {t('campaigns.groups')}
                     </button>
+                    {selectedLandingIds.size > 0 && (
+                        <button onClick={handleBulkDeleteSelected} className="btn btn-danger" title={t('common.deleteSelected')}>
+                            <Trash2 className="w-4 h-4" />
+                            {(t('common.deleteSelected') || t('common.delete'))} ({selectedLandingIds.size})
+                        </button>
+                    )}
                 </div>
                 <button className="btn btn-ghost btn-icon">
                     <Settings2 className="w-5 h-5" />
@@ -65,7 +110,14 @@ const Landings = ({ landings, refreshData }) => {
                     <thead>
                         <tr>
                             <th className="w-10">
-                                <input type="checkbox" />
+                                <input
+                                    type="checkbox"
+                                    checked={allSelected}
+                                    ref={(el) => {
+                                        if (el) el.indeterminate = !allSelected && someSelected;
+                                    }}
+                                    onChange={(e) => toggleSelectAll(e.target.checked)}
+                                />
                             </th>
                             <th>ID</th>
                             <th>{t('components.aliasName')}</th>
@@ -91,7 +143,11 @@ const Landings = ({ landings, refreshData }) => {
                             landings.map((landing) => (
                                 <tr key={landing.id}>
                                     <td>
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedLandingIds.has(landing.id)}
+                                            onChange={(e) => toggleSelected(landing.id, e.target.checked)}
+                                        />
                                     </td>
                                     <td className="font-medium">{landing.id}</td>
                                     <td>

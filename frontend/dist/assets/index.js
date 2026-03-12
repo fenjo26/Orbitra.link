@@ -34336,6 +34336,7 @@ const Landings = ({ landings, refreshData }) => {
   const { t: t2 } = useLanguage();
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
   const [editingLandingId, setEditingLandingId] = reactExports.useState(null);
+  const [selectedLandingIds, setSelectedLandingIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
   const handleCreate = () => {
     setEditingLandingId(null);
     setIsEditorOpen(true);
@@ -34354,6 +34355,40 @@ const Landings = ({ landings, refreshData }) => {
       }
     }
   };
+  const toggleSelected = (id, checked) => {
+    setSelectedLandingIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
+  const toggleSelectAll = (checked) => {
+    setSelectedLandingIds((prev) => {
+      const next = new Set(prev);
+      if (checked) {
+        landings.forEach((l) => next.add(l.id));
+      } else {
+        landings.forEach((l) => next.delete(l.id));
+      }
+      return next;
+    });
+  };
+  const allSelected = landings.length > 0 && landings.every((l) => selectedLandingIds.has(l.id));
+  const someSelected = landings.some((l) => selectedLandingIds.has(l.id));
+  const handleBulkDeleteSelected = async () => {
+    const ids = Array.from(selectedLandingIds);
+    if (ids.length === 0) return;
+    const msg = (t2("common.deleteSelectedConfirm") || t2("common.deleteConfirm")).replace("{count}", String(ids.length));
+    if (!window.confirm(msg)) return;
+    try {
+      await axios.post(`${API_URL$w}?action=bulk_delete_landings`, { ids });
+      setSelectedLandingIds(/* @__PURE__ */ new Set());
+      refreshData();
+    } catch (err) {
+      alert(t2("common.error"));
+    }
+  };
   const handleEditorClose = (wasSaved) => {
     setIsEditorOpen(false);
     if (wasSaved) {
@@ -34368,13 +34403,30 @@ const Landings = ({ landings, refreshData }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
           t2("common.create")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t2("campaigns.groups") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t2("campaigns.groups") }),
+        selectedLandingIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t2("common.deleteSelected"), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
+          t2("common.deleteSelected") || t2("common.delete"),
+          " (",
+          selectedLandingIds.size,
+          ")"
+        ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: allSelected,
+            ref: (el) => {
+              if (el) el.indeterminate = !allSelected && someSelected;
+            },
+            onChange: (e) => toggleSelectAll(e.target.checked)
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.aliasName") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.group") }),
@@ -34388,7 +34440,14 @@ const Landings = ({ landings, refreshData }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("landings.noLandings") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t2("landings.noLandingsDesc") })
       ] }) }) }) : landings.map((landing) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: selectedLandingIds.has(landing.id),
+            onChange: (e) => toggleSelected(landing.id, e.target.checked)
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: landing.id }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -35877,6 +35936,7 @@ const TrafficSources = ({ refreshData }) => {
   const [stateFilter, setStateFilter] = reactExports.useState("all");
   const [showEditor, setShowEditor] = reactExports.useState(false);
   const [editId, setEditId] = reactExports.useState(null);
+  const [selectedIds, setSelectedIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
   const fetchSources = async () => {
     setLoading(true);
     try {
@@ -35901,6 +35961,41 @@ const TrafficSources = ({ refreshData }) => {
       refreshData && refreshData();
     } catch (error) {
       console.error("Error deleting traffic source:", error);
+    }
+  };
+  const toggleSelected = (id, checked) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
+  const toggleSelectAllFiltered = (checked) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (checked) {
+        filteredSources.forEach((s) => next.add(s.id));
+      } else {
+        filteredSources.forEach((s) => next.delete(s.id));
+      }
+      return next;
+    });
+  };
+  const allFilteredSelected = filteredSources.length > 0 && filteredSources.every((s) => selectedIds.has(s.id));
+  const someFilteredSelected = filteredSources.some((s) => selectedIds.has(s.id));
+  const handleBulkDeleteSelected = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    const msg = (t2("common.deleteSelectedConfirm") || t2("sources.deleteConfirm")).replace("{count}", String(ids.length));
+    if (!confirm(msg)) return;
+    try {
+      await axios.post(`${API_URL$q}?action=bulk_delete_traffic_sources`, { ids });
+      setSelectedIds(/* @__PURE__ */ new Set());
+      fetchSources();
+      refreshData && refreshData();
+    } catch (error) {
+      console.error("Error deleting traffic sources:", error);
     }
   };
   const handleEdit = (id) => {
@@ -35962,6 +36057,23 @@ const TrafficSources = ({ refreshData }) => {
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 18 })
           }
         ),
+        selectedIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: handleBulkDeleteSelected,
+            className: "btn btn-danger",
+            title: t2("common.deleteSelected"),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 18 }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                t2("common.deleteSelected") || t2("common.delete"),
+                " (",
+                selectedIds.size,
+                ")"
+              ] })
+            ]
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
@@ -35977,6 +36089,17 @@ const TrafficSources = ({ refreshData }) => {
     ] }),
     loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center h-64", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card p-0 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: allFilteredSelected,
+            ref: (el) => {
+              if (el) el.indeterminate = !allFilteredSelected && someFilteredSelected;
+            },
+            onChange: (e) => toggleSelectAllFiltered(e.target.checked)
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("editor.name") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("sources.template") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("campaigns.campaigns") }),
@@ -35985,7 +36108,15 @@ const TrafficSources = ({ refreshData }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.status") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: filteredSources.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 7, className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: search ? t2("sources.notFound") : t2("sources.noSourcesAdd") }) }) : filteredSources.map((source) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: filteredSources.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 8, className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: search ? t2("sources.notFound") : t2("sources.noSourcesAdd") }) }) : filteredSources.map((source) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: selectedIds.has(source.id),
+            onChange: (e) => toggleSelected(source.id, e.target.checked)
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium", children: source.name }),
           source.notes && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: [
