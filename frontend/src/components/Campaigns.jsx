@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
+import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Filter, RefreshCw, X } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -11,6 +11,9 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     const [actionModal, setActionModal] = useState({ type: null, campaignId: null });
     const [selectedCampaignIds, setSelectedCampaignIds] = useState(() => new Set());
     const [sortBy, setSortBy] = useState({ key: null, dir: 'desc' }); // key=null keeps API order
+    const [showFilters, setShowFilters] = useState(false);
+    const [search, setSearch] = useState('');
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     const handleCreate = () => {
         setEditingCampaignId(null);
@@ -42,8 +45,18 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         });
     };
 
+    const filteredCampaigns = useMemo(() => {
+        const q = String(search || '').trim().toLowerCase();
+        if (!q) return campaigns;
+        return campaigns.filter(c => {
+            const n = String(c.name || '').toLowerCase();
+            const a = String(c.alias || '').toLowerCase();
+            return n.includes(q) || a.includes(q);
+        });
+    }, [campaigns, search]);
+
     const visibleCampaigns = useMemo(() => {
-        if (!sortBy.key) return campaigns;
+        if (!sortBy.key) return filteredCampaigns;
         const dirMul = sortBy.dir === 'asc' ? 1 : -1;
 
         const getVal = (c) => {
@@ -60,7 +73,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
 
         const isNumeric = ['id', 'clicks', 'unique_clicks', 'conversions'].includes(sortBy.key);
 
-        return campaigns
+        return filteredCampaigns
             .map((camp, idx) => ({ camp, idx }))
             .sort((a, b) => {
                 const av = getVal(a.camp);
@@ -75,7 +88,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                 return a.idx - b.idx; // stable
             })
             .map(x => x.camp);
-    }, [campaigns, sortBy]);
+    }, [filteredCampaigns, sortBy]);
 
     const toggleSelected = (id, checked) => {
         setSelectedCampaignIds(prev => {
@@ -140,6 +153,39 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         );
     };
 
+    const exportVisibleCsv = () => {
+        const cols = [
+            { key: 'id', label: 'id' },
+            { key: 'name', label: 'name' },
+            { key: 'alias', label: 'alias' },
+            { key: 'group_name', label: 'group' },
+            { key: 'source_name', label: 'source' },
+            { key: 'clicks', label: 'clicks' },
+            { key: 'unique_clicks', label: 'unique_clicks' },
+            { key: 'conversions', label: 'conversions' },
+        ];
+
+        const escape = (v) => {
+            const s = v === null || v === undefined ? '' : String(v);
+            if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+            return s;
+        };
+
+        const header = cols.map(c => escape(c.label)).join(',');
+        const lines = visibleCampaigns.map(c => cols.map(col => escape(c[col.key])).join(','));
+        const csv = [header, ...lines].join('\n');
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `campaigns_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    };
+
     const handleClearStats = async () => {
         try {
             await axios.post(`${API_URL}?action=clear_stats`, { campaign_id: actionModal.campaignId });
@@ -198,10 +244,48 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                         </button>
                     )}
                 </div>
-                <button className="btn btn-ghost btn-icon">
-                    <Settings2 className="w-5 h-5" />
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`btn btn-ghost ${showFilters ? 'bg-[var(--color-primary-light)]' : ''}`}
+                        style={showFilters ? { color: 'var(--color-primary)' } : {}}
+                    >
+                        <Filter className="w-4 h-4" />
+                        {t('editor.filters')}
+                        {search ? (
+                            <span className="ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full">1</span>
+                        ) : null}
+                    </button>
+                    <button type="button" onClick={refreshData} className="btn btn-ghost btn-icon" title={t('common.refresh')}>
+                        <RefreshCw className="w-5 h-5" />
+                    </button>
+                    <button type="button" className="btn btn-ghost btn-icon" title={t('common.settings', 'Settings')} onClick={() => setSettingsOpen(true)}>
+                        <Settings2 className="w-5 h-5" />
+                    </button>
+                </div>
             </div>
+
+            {showFilters && (
+                <div className="flex flex-wrap gap-4 items-center py-4 mb-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('common.search', 'Search')}:</label>
+                        <input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="form-input"
+                            style={{ width: 'auto', minWidth: '260px' }}
+                            placeholder={t('common.searchPlaceholder', 'Name or alias')}
+                        />
+                    </div>
+                    {search && (
+                        <button type="button" onClick={() => setSearch('')} className="btn btn-ghost btn-sm">
+                            <X className="w-4 h-4" />
+                            {t('common.clear')}
+                        </button>
+                    )}
+                </div>
+            )}
 
             <div className="overflow-x-auto">
                 <table className="page-table">
@@ -349,6 +433,30 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {settingsOpen && (
+                <div className="modal-overlay" onClick={() => setSettingsOpen(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '560px' }}>
+                        <div className="modal-header">
+                            <h3 className="modal-title">{t('common.settings', 'Settings')}</h3>
+                            <button type="button" className="btn btn-ghost btn-icon" onClick={() => setSettingsOpen(false)} title={t('common.close')}>
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="space-y-3">
+                            <button type="button" className="btn btn-secondary w-full" onClick={() => { setSortBy({ key: null, dir: 'desc' }); }}>
+                                {t('common.resetSort', 'Reset sorting')}
+                            </button>
+                            <button type="button" className="btn btn-secondary w-full" onClick={() => { setSelectedCampaignIds(new Set()); }}>
+                                {t('common.clearSelection', 'Clear selection')}
+                            </button>
+                            <button type="button" className="btn btn-primary w-full" onClick={exportVisibleCsv}>
+                                {t('common.exportCsv', 'Export CSV')}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

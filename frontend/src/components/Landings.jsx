@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, Edit3, Settings2 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import LandingEditor from './LandingEditor';
 import axios from 'axios';
@@ -12,6 +12,11 @@ const Landings = ({ landings, refreshData }) => {
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [editingLandingId, setEditingLandingId] = useState(null);
     const [selectedLandingIds, setSelectedLandingIds] = useState(() => new Set());
+    const [showFilters, setShowFilters] = useState(false);
+    const [search, setSearch] = useState('');
+    const [typeFilter, setTypeFilter] = useState('');
+    const [stateFilter, setStateFilter] = useState('');
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     const handleCreate = () => {
         setEditingLandingId(null);
@@ -38,6 +43,22 @@ const Landings = ({ landings, refreshData }) => {
         }
     };
 
+    const filteredLandings = useMemo(() => {
+        const q = String(search || '').trim().toLowerCase();
+        return landings.filter(l => {
+            if (q) {
+                const n = String(l.name || '').toLowerCase();
+                const u = String(l.url || '').toLowerCase();
+                if (!n.includes(q) && !u.includes(q)) return false;
+            }
+            if (typeFilter && String(l.type || '') !== typeFilter) return false;
+            if (stateFilter && String(l.state || '') !== stateFilter) return false;
+            return true;
+        });
+    }, [landings, search, typeFilter, stateFilter]);
+
+    const visibleLandings = filteredLandings;
+
     const toggleSelected = (id, checked) => {
         setSelectedLandingIds(prev => {
             const next = new Set(prev);
@@ -51,16 +72,16 @@ const Landings = ({ landings, refreshData }) => {
         setSelectedLandingIds(prev => {
             const next = new Set(prev);
             if (checked) {
-                landings.forEach(l => next.add(l.id));
+                visibleLandings.forEach(l => next.add(l.id));
             } else {
-                landings.forEach(l => next.delete(l.id));
+                visibleLandings.forEach(l => next.delete(l.id));
             }
             return next;
         });
     };
 
-    const allSelected = landings.length > 0 && landings.every(l => selectedLandingIds.has(l.id));
-    const someSelected = landings.some(l => selectedLandingIds.has(l.id));
+    const allSelected = visibleLandings.length > 0 && visibleLandings.every(l => selectedLandingIds.has(l.id));
+    const someSelected = visibleLandings.some(l => selectedLandingIds.has(l.id));
 
     const handleBulkDeleteSelected = async () => {
         const ids = Array.from(selectedLandingIds);
@@ -74,6 +95,39 @@ const Landings = ({ landings, refreshData }) => {
         } catch (err) {
             alert(t('common.error'));
         }
+    };
+
+    const exportVisibleCsv = () => {
+        const cols = [
+            { key: 'id', label: 'id' },
+            { key: 'name', label: 'name' },
+            { key: 'group_name', label: 'group' },
+            { key: 'type', label: 'type' },
+            { key: 'state', label: 'state' },
+            { key: 'clicks', label: 'clicks' },
+            { key: 'unique_clicks', label: 'unique_clicks' },
+            { key: 'url', label: 'url' },
+        ];
+
+        const escape = (v) => {
+            const s = v === null || v === undefined ? '' : String(v);
+            if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+            return s;
+        };
+
+        const header = cols.map(c => escape(c.label)).join(',');
+        const lines = visibleLandings.map(l => cols.map(c => escape(l[c.key])).join(','));
+        const csv = [header, ...lines].join('\n');
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `landings_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
     };
 
     const handleEditorClose = (wasSaved) => {
@@ -104,10 +158,67 @@ const Landings = ({ landings, refreshData }) => {
                         </button>
                     )}
                 </div>
-                <button className="btn btn-ghost btn-icon">
-                    <Settings2 className="w-5 h-5" />
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`btn btn-ghost ${showFilters ? 'bg-[var(--color-primary-light)]' : ''}`}
+                        style={showFilters ? { color: 'var(--color-primary)' } : {}}
+                    >
+                        <Filter className="w-4 h-4" />
+                        {t('editor.filters')}
+                        {(search || typeFilter || stateFilter) ? (
+                            <span className="ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full">
+                                {[search, typeFilter, stateFilter].filter(Boolean).length}
+                            </span>
+                        ) : null}
+                    </button>
+                    <button type="button" onClick={refreshData} className="btn btn-ghost btn-icon" title={t('common.refresh')}>
+                        <RefreshCw className="w-5 h-5" />
+                    </button>
+                    <button type="button" className="btn btn-ghost btn-icon" title={t('common.settings')} onClick={() => setSettingsOpen(true)}>
+                        <Settings2 className="w-5 h-5" />
+                    </button>
+                </div>
             </div>
+
+            {showFilters && (
+                <div className="flex flex-wrap gap-4 items-center py-4 mb-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('common.search')}:</label>
+                        <input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="form-input"
+                            style={{ width: 'auto', minWidth: '260px' }}
+                            placeholder={t('common.searchPlaceholder')}
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('components.type')}:</label>
+                        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="form-select" style={{ width: 'auto', minWidth: '140px' }}>
+                            <option value="">{t('common.all')}</option>
+                            <option value="local">local</option>
+                            <option value="redirect">redirect</option>
+                            <option value="action">action</option>
+                        </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('components.status')}:</label>
+                        <select value={stateFilter} onChange={(e) => setStateFilter(e.target.value)} className="form-select" style={{ width: 'auto', minWidth: '140px' }}>
+                            <option value="">{t('common.all')}</option>
+                            <option value="active">{t('components.active')}</option>
+                            <option value="archived">{t('components.archive')}</option>
+                        </select>
+                    </div>
+                    {(search || typeFilter || stateFilter) && (
+                        <button type="button" onClick={() => { setSearch(''); setTypeFilter(''); setStateFilter(''); }} className="btn btn-ghost btn-sm">
+                            <X className="w-4 h-4" />
+                            {t('common.clear')}
+                        </button>
+                    )}
+                </div>
+            )}
 
             <div className="overflow-x-auto">
                 <table className="page-table">
@@ -134,7 +245,7 @@ const Landings = ({ landings, refreshData }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {landings.length === 0 ? (
+                        {visibleLandings.length === 0 ? (
                             <tr>
                                 <td colSpan="9" className="text-center py-12">
                                     <div className="empty-state">
@@ -144,7 +255,7 @@ const Landings = ({ landings, refreshData }) => {
                                 </td>
                             </tr>
                         ) : (
-                            landings.map((landing) => (
+                            visibleLandings.map((landing) => (
                                 <tr key={landing.id}>
                                     <td>
                                         <input
@@ -207,6 +318,27 @@ const Landings = ({ landings, refreshData }) => {
                     landingId={editingLandingId}
                     onClose={handleEditorClose}
                 />
+            )}
+
+            {settingsOpen && (
+                <div className="modal-overlay" onClick={() => setSettingsOpen(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '560px' }}>
+                        <div className="modal-header">
+                            <h3 className="modal-title">{t('common.settings')}</h3>
+                            <button type="button" className="btn btn-ghost btn-icon" onClick={() => setSettingsOpen(false)} title={t('common.close')}>
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="space-y-3">
+                            <button type="button" className="btn btn-secondary w-full" onClick={() => { setSelectedLandingIds(new Set()); }}>
+                                {t('common.clearSelection')}
+                            </button>
+                            <button type="button" className="btn btn-primary w-full" onClick={exportVisibleCsv}>
+                                {t('common.exportCsv')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

@@ -19,6 +19,7 @@ const Offers = ({ offers, refreshData }) => {
     const [showFilters, setShowFilters] = useState(false);
     const [selectedOfferIds, setSelectedOfferIds] = useState(() => new Set());
     const [sortBy, setSortBy] = useState({ key: null, dir: 'desc' }); // key=null keeps API order
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     // Get unique values for filters
     const groups = [...new Set(offers.map(o => o.group_name).filter(Boolean))];
@@ -187,6 +188,42 @@ const Offers = ({ offers, refreshData }) => {
         );
     };
 
+    const exportVisibleCsv = () => {
+        const cols = [
+            { key: 'id', label: 'id' },
+            { key: 'name', label: 'name' },
+            { key: 'group_name', label: 'group' },
+            { key: 'affiliate_network_name', label: 'affiliate_network' },
+            { key: 'redirect_type', label: 'type' },
+            { key: 'state', label: 'state' },
+            { key: 'clicks', label: 'clicks' },
+            { key: 'unique_clicks', label: 'unique_clicks' },
+            { key: 'conversions', label: 'conversions' },
+            { key: 'revenue', label: 'revenue' },
+            { key: 'url', label: 'url' },
+        ];
+
+        const escape = (v) => {
+            const s = v === null || v === undefined ? '' : String(v);
+            if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+            return s;
+        };
+
+        const header = cols.map(c => escape(c.label)).join(',');
+        const lines = visibleOffers.map(o => cols.map(c => escape(o[c.key])).join(','));
+        const csv = [header, ...lines].join('\n');
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `offers_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="page-card">
             <InfoBanner storageKey="help_offers" title={t('help.offerBannerTitle')}>
@@ -211,6 +248,7 @@ const Offers = ({ offers, refreshData }) => {
                 </div>
                 <div className="flex gap-2">
                     <button
+                        type="button"
                         onClick={() => setShowFilters(!showFilters)}
                         className={`btn btn-ghost ${showFilters ? 'bg-[var(--color-primary-light)]' : ''}`}
                         style={showFilters ? { color: 'var(--color-primary)' } : {}}
@@ -223,10 +261,15 @@ const Offers = ({ offers, refreshData }) => {
                             </span>
                         )}
                     </button>
-                    <button onClick={refreshData} className="btn btn-ghost btn-icon" title={t('common.refresh')}>
+                    <button type="button" onClick={refreshData} className="btn btn-ghost btn-icon" title={t('common.refresh')}>
                         <RefreshCw className="w-5 h-5" />
                     </button>
-                    <button className="btn btn-ghost btn-icon">
+                    <button
+                        type="button"
+                        className="btn btn-ghost btn-icon"
+                        title={t('common.settings', 'Settings')}
+                        onClick={() => setSettingsOpen(true)}
+                    >
                         <Settings2 className="w-5 h-5" />
                     </button>
                 </div>
@@ -423,6 +466,30 @@ const Offers = ({ offers, refreshData }) => {
                     type="offer"
                     onClose={() => setIsGroupsModalOpen(false)}
                 />
+            )}
+
+            {settingsOpen && (
+                <div className="modal-overlay" onClick={() => setSettingsOpen(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '560px' }}>
+                        <div className="modal-header">
+                            <h3 className="modal-title">{t('common.settings', 'Settings')}</h3>
+                            <button type="button" className="btn btn-ghost btn-icon" onClick={() => setSettingsOpen(false)} title={t('common.close')}>
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="space-y-3">
+                            <button type="button" className="btn btn-secondary w-full" onClick={() => { setSortBy({ key: null, dir: 'desc' }); }}>
+                                {t('common.resetSort', 'Reset sorting')}
+                            </button>
+                            <button type="button" className="btn btn-secondary w-full" onClick={() => { setSelectedOfferIds(new Set()); }}>
+                                {t('common.clearSelection', 'Clear selection')}
+                            </button>
+                            <button type="button" className="btn btn-primary w-full" onClick={exportVisibleCsv}>
+                                {t('common.exportCsv', 'Export CSV')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

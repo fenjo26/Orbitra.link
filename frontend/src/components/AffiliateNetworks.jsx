@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { Plus, Edit2, Trash2, Copy, ExternalLink, Check } from 'lucide-react';
+import { Plus, Edit2, Trash2, Copy, ExternalLink, Check, Filter, RefreshCw, Settings2, X } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import AffiliateNetworkEditor from './AffiliateNetworkEditor';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -16,6 +16,10 @@ const AffiliateNetworks = () => {
     const [copiedId, setCopiedId] = useState(null);
     const [postbackKey, setPostbackKey] = useState('');
     const [selectedIds, setSelectedIds] = useState(() => new Set());
+    const [showFilters, setShowFilters] = useState(false);
+    const [search, setSearch] = useState('');
+    const [stateFilter, setStateFilter] = useState('all');
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     useEffect(() => {
         fetchNetworks();
@@ -74,16 +78,32 @@ const AffiliateNetworks = () => {
         setSelectedIds(prev => {
             const next = new Set(prev);
             if (checked) {
-                networks.forEach(n => next.add(n.id));
+                filteredNetworks.forEach(n => next.add(n.id));
             } else {
-                networks.forEach(n => next.delete(n.id));
+                filteredNetworks.forEach(n => next.delete(n.id));
             }
             return next;
         });
     };
 
-    const allSelected = networks.length > 0 && networks.every(n => selectedIds.has(n.id));
-    const someSelected = networks.some(n => selectedIds.has(n.id));
+    const filteredNetworks = useMemo(() => {
+        const q = String(search || '').trim().toLowerCase();
+        return networks.filter(n => {
+            if (q) {
+                const name = String(n.name || '').toLowerCase();
+                if (!name.includes(q)) return false;
+            }
+            if (stateFilter !== 'all') {
+                const isActive = String(n.state || '') === 'active';
+                if (stateFilter === 'active' && !isActive) return false;
+                if (stateFilter === 'paused' && isActive) return false;
+            }
+            return true;
+        });
+    }, [networks, search, stateFilter]);
+
+    const allSelected = filteredNetworks.length > 0 && filteredNetworks.every(n => selectedIds.has(n.id));
+    const someSelected = filteredNetworks.some(n => selectedIds.has(n.id));
 
     const handleBulkDeleteSelected = async () => {
         const ids = Array.from(selectedIds);
@@ -98,6 +118,39 @@ const AffiliateNetworks = () => {
             console.error(err);
             alert(t('common.error'));
         }
+    };
+
+    const exportVisibleCsv = () => {
+        const cols = [
+            { key: 'id', label: 'id' },
+            { key: 'name', label: 'name' },
+            { key: 'template', label: 'template' },
+            { key: 'state', label: 'state' },
+            { key: 'offers_count', label: 'offers_count' },
+            { key: 'offer_params', label: 'offer_params' },
+            { key: 'postback_url', label: 'postback_url' },
+            { key: 'notes', label: 'notes' },
+        ];
+
+        const escape = (v) => {
+            const s = v === null || v === undefined ? '' : String(v);
+            if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+            return s;
+        };
+
+        const header = cols.map(c => escape(c.label)).join(',');
+        const lines = filteredNetworks.map(n => cols.map(c => escape(n[c.key])).join(','));
+        const csv = [header, ...lines].join('\n');
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `affiliate_networks_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
     };
 
     const openEditor = (id = null) => {
@@ -142,6 +195,27 @@ const AffiliateNetworks = () => {
                     {t('networks.headerDesc')}
                 </p>
                 <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`btn btn-ghost ${showFilters ? 'bg-[var(--color-primary-light)]' : ''}`}
+                        style={showFilters ? { color: 'var(--color-primary)' } : {}}
+                        title={t('editor.filters')}
+                    >
+                        <Filter className="w-4 h-4" />
+                        {t('editor.filters')}
+                        {(search || stateFilter !== 'all') ? (
+                            <span className="ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full">
+                                {[search, stateFilter !== 'all' ? '1' : ''].filter(Boolean).length}
+                            </span>
+                        ) : null}
+                    </button>
+                    <button type="button" onClick={fetchNetworks} className="btn btn-ghost btn-icon" title={t('common.refresh')}>
+                        <RefreshCw className="w-5 h-5" />
+                    </button>
+                    <button type="button" onClick={() => setSettingsOpen(true)} className="btn btn-ghost btn-icon" title={t('common.settings')}>
+                        <Settings2 className="w-5 h-5" />
+                    </button>
                     {selectedIds.size > 0 && (
                         <button
                             onClick={handleBulkDeleteSelected}
@@ -162,8 +236,39 @@ const AffiliateNetworks = () => {
                 </div>
             </div>
 
+            {showFilters && (
+                <div className="page-card" style={{ padding: '16px' }}>
+                    <div className="flex flex-wrap gap-4 items-center">
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('common.search')}:</label>
+                            <input
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="form-input"
+                                style={{ width: 'auto', minWidth: '260px' }}
+                                placeholder={t('common.searchPlaceholder')}
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('components.status')}:</label>
+                            <select value={stateFilter} onChange={(e) => setStateFilter(e.target.value)} className="form-select" style={{ width: 'auto', minWidth: '160px' }}>
+                                <option value="all">{t('common.all')}</option>
+                                <option value="active">{t('sources.activePlural')}</option>
+                                <option value="paused">{t('sources.pausedPlural')}</option>
+                            </select>
+                        </div>
+                        {(search || stateFilter !== 'all') && (
+                            <button type="button" onClick={() => { setSearch(''); setStateFilter('all'); }} className="btn btn-ghost btn-sm">
+                                <X className="w-4 h-4" />
+                                {t('common.clear')}
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {/* Networks List */}
-            {networks.length === 0 ? (
+            {filteredNetworks.length === 0 ? (
                 <div className="text-center py-10 text-gray-400 bg-white border border-dashed border-gray-300 rounded">
                     {t('networks.noNetworksAdd')}
                 </div>
@@ -191,7 +296,7 @@ const AffiliateNetworks = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {networks.map((network) => (
+                            {filteredNetworks.map((network) => (
                                 <tr key={network.id} className="hover:bg-gray-50">
                                     <td className="px-4 py-3">
                                         <input
@@ -292,6 +397,27 @@ const AffiliateNetworks = () => {
                     onClose={closeEditor}
                     postbackKey={postbackKey}
                 />
+            )}
+
+            {settingsOpen && (
+                <div className="modal-overlay" onClick={() => setSettingsOpen(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '560px' }}>
+                        <div className="modal-header">
+                            <h3 className="modal-title">{t('common.settings')}</h3>
+                            <button type="button" className="btn btn-ghost btn-icon" onClick={() => setSettingsOpen(false)} title={t('common.close')}>
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="space-y-3">
+                            <button type="button" className="btn btn-secondary w-full" onClick={() => { setSelectedIds(new Set()); }}>
+                                {t('common.clearSelection')}
+                            </button>
+                            <button type="button" className="btn btn-primary w-full" onClick={exportVisibleCsv}>
+                                {t('common.exportCsv')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
