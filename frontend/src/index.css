@@ -513,6 +513,15 @@ tbody tr:hover td {
   margin-bottom: 40px;
 }
 
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE/Edge legacy */
+  scrollbar-width: none; /* Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
 .avatar {
   width: 44px;
   height: 44px;

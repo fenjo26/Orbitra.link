@@ -3499,6 +3499,15 @@ tbody tr:hover td {
   display: flex;
 }
 
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .avatar {
   border-radius: 50%;
   width: 44px;
