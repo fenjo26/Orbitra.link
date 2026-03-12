@@ -19344,7 +19344,7 @@ const LanguageProvider = ({ children }) => {
       localStorage.setItem("orbitra_lang", lang);
     }
   };
-  const t2 = (key, fallback = "") => {
+  const t = (key, fallback = "") => {
     const keys = key.split(".");
     let value = translations[language];
     for (const k of keys) {
@@ -19359,11 +19359,11 @@ const LanguageProvider = ({ children }) => {
     }
     return typeof value === "string" ? value : String(value ?? (fallback || key));
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(LanguageContext.Provider, { value: { language, setLanguage, t: t2 }, children });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(LanguageContext.Provider, { value: { language, setLanguage, t }, children });
 };
 const useLanguage = () => reactExports.useContext(LanguageContext);
 const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [adminMenuOpen, setAdminMenuOpen] = reactExports.useState(false);
   const [userMenuOpen, setUserMenuOpen] = reactExports.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = reactExports.useState(false);
@@ -19400,26 +19400,26 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     window.dispatchEvent(new Event("themeChanged"));
   };
   const adminMenuItems = [
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(UserCog, { size: 16 }), label: t2("adminMenu.users"), tab: "admin_users" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Palette, { size: 16 }), label: t2("adminMenu.branding"), tab: "admin_branding" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Map$1, { size: 16 }), label: t2("adminMenu.geoProfiles"), tab: "admin_geo_profiles" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 16 }), label: t2("adminMenu.postback"), tab: "postback" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { size: 16 }), label: t2("adminMenu.settings"), tab: "admin_settings" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Plug, { size: 16 }), label: t2("adminMenu.integrations"), tab: "admin_integrations" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { size: 16 }), label: t2("adminMenu.aggregator"), tab: "admin_aggregator" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(UserCog, { size: 16 }), label: t("adminMenu.users"), tab: "admin_users" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Palette, { size: 16 }), label: t("adminMenu.branding"), tab: "admin_branding" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Map$1, { size: 16 }), label: t("adminMenu.geoProfiles"), tab: "admin_geo_profiles" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 16 }), label: t("adminMenu.postback"), tab: "postback" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { size: 16 }), label: t("adminMenu.settings"), tab: "admin_settings" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Plug, { size: 16 }), label: t("adminMenu.integrations"), tab: "admin_integrations" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { size: 16 }), label: t("adminMenu.aggregator"), tab: "admin_aggregator" },
     { divider: true },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { size: 16 }), label: t2("adminMenu.conversions"), tab: "conversions" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Server, { size: 16 }), label: t2("adminMenu.status"), tab: "admin_status" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileStack, { size: 16 }), label: t2("adminMenu.logs"), tab: "admin_logs" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Archive, { size: 16 }), label: t2("adminMenu.archive"), tab: "admin_archive" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { size: 16 }), label: t2("adminMenu.import"), tab: "admin_import" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Activity, { size: 16 }), label: t2("adminMenu.simulation"), tab: "simulation" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 }), label: t2("adminMenu.cleanup"), tab: "admin_cleanup" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { size: 16 }), label: t("adminMenu.conversions"), tab: "conversions" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Server, { size: 16 }), label: t("adminMenu.status"), tab: "admin_status" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileStack, { size: 16 }), label: t("adminMenu.logs"), tab: "admin_logs" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Archive, { size: 16 }), label: t("adminMenu.archive"), tab: "admin_archive" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { size: 16 }), label: t("adminMenu.import"), tab: "admin_import" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Activity, { size: 16 }), label: t("adminMenu.simulation"), tab: "simulation" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 }), label: t("adminMenu.cleanup"), tab: "admin_cleanup" },
     { divider: true },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { size: 16 }), label: t2("adminMenu.geoDbs"), tab: "admin_geo_dbs" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRightLeft, { size: 16 }), label: t2("adminMenu.migrations"), tab: "admin_migrations" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16 }), label: t2("adminMenu.update"), tab: "admin_update" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { size: 16 }), label: t2("adminMenu.feedback") || "Feedback & Support", tab: "admin_feedback" }
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { size: 16 }), label: t("adminMenu.geoDbs"), tab: "admin_geo_dbs" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRightLeft, { size: 16 }), label: t("adminMenu.migrations"), tab: "admin_migrations" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16 }), label: t("adminMenu.update"), tab: "admin_update" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { size: 16 }), label: t("adminMenu.feedback") || "Feedback & Support", tab: "admin_feedback" }
   ];
   const handleMenuClick = (tab) => {
     setActiveTab(tab);
@@ -19427,15 +19427,15 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     setMobileMenuOpen(false);
   };
   const mobileNavItems = [
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutDashboard, { size: 18 }), label: t2("nav.dashboard"), tab: "dashboard" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { size: 18 }), label: t2("nav.campaigns"), tab: "campaigns" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t2("nav.landings"), tab: "landings" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { size: 18 }), label: t2("nav.offers"), tab: "offers" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 18 }), label: t2("nav.networks"), tab: "networks" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 18 }), label: t2("nav.sources"), tab: "sources" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { size: 18 }), label: t2("nav.trends"), tab: "trends" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t2("nav.domains"), tab: "domains" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 18 }), label: t2("nav.backorder"), tab: "backorder" }
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutDashboard, { size: 18 }), label: t("nav.dashboard"), tab: "dashboard" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { size: 18 }), label: t("nav.campaigns"), tab: "campaigns" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t("nav.landings"), tab: "landings" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { size: 18 }), label: t("nav.offers"), tab: "offers" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 18 }), label: t("nav.networks"), tab: "networks" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 18 }), label: t("nav.sources"), tab: "sources" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { size: 18 }), label: t("nav.trends"), tab: "trends" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t("nav.domains"), tab: "domains" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 18 }), label: t("nav.backorder"), tab: "backorder" }
   ];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full fixed top-0 z-[1000] px-4 pt-4 md:px-6 md:pt-6 transition-all", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { className: "navbar-header h-[72px] flex items-center justify-between px-6 md:px-10 shadow-[var(--shadow-main)] bg-[var(--color-bg-card)] rounded-[24px] w-full mx-auto border-none transition-colors duration-300", children: [
@@ -19445,15 +19445,15 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-primary)" }, children: ".link" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden md:flex space-x-2 h-full items-center", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutDashboard, { size: 18 }), label: t2("nav.dashboard"), active: activeTab === "dashboard", onClick: () => setActiveTab("dashboard") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { size: 18 }), label: t2("nav.campaigns"), active: activeTab === "campaigns", onClick: () => setActiveTab("campaigns") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t2("nav.landings"), active: activeTab === "landings", onClick: () => setActiveTab("landings") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { size: 18 }), label: t2("nav.offers"), active: activeTab === "offers", onClick: () => setActiveTab("offers") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 18 }), label: t2("nav.networks"), active: activeTab === "networks", onClick: () => setActiveTab("networks") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 18 }), label: t2("nav.sources"), active: activeTab === "sources", onClick: () => setActiveTab("sources") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { size: 18 }), label: t2("nav.trends"), active: activeTab === "trends", onClick: () => setActiveTab("trends") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t2("nav.domains"), active: activeTab === "domains", onClick: () => setActiveTab("domains") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 18 }), label: t2("nav.backorder"), active: activeTab === "backorder", onClick: () => setActiveTab("backorder") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutDashboard, { size: 18 }), label: t("nav.dashboard"), active: activeTab === "dashboard", onClick: () => setActiveTab("dashboard") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { size: 18 }), label: t("nav.campaigns"), active: activeTab === "campaigns", onClick: () => setActiveTab("campaigns") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t("nav.landings"), active: activeTab === "landings", onClick: () => setActiveTab("landings") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { size: 18 }), label: t("nav.offers"), active: activeTab === "offers", onClick: () => setActiveTab("offers") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 18 }), label: t("nav.networks"), active: activeTab === "networks", onClick: () => setActiveTab("networks") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 18 }), label: t("nav.sources"), active: activeTab === "sources", onClick: () => setActiveTab("sources") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { size: 18 }), label: t("nav.trends"), active: activeTab === "trends", onClick: () => setActiveTab("trends") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t("nav.domains"), active: activeTab === "domains", onClick: () => setActiveTab("domains") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 18 }), label: t("nav.backorder"), active: activeTab === "backorder", onClick: () => setActiveTab("backorder") })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2 md:space-x-4", children: [
@@ -19465,7 +19465,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                 onClick: () => setAdminMenuOpen(!adminMenuOpen),
                 className: `flex items-center justify-center w-10 h-10 rounded-2xl cursor-pointer transition-all
                                 ${adminMenuOpen ? "bg-[var(--color-primary-light)] text-[var(--color-primary)]" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]"}`,
-                title: t2("navbar.adminTitle"),
+                title: t("navbar.adminTitle"),
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { size: 18 })
               }
             ),
@@ -19488,7 +19488,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
             {
               onClick: toggleTheme,
               className: "p-2 rounded-xl text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition flex items-center justify-center",
-              title: theme === "light" ? t2("navbar.enableDark") : t2("navbar.enableLight"),
+              title: theme === "light" ? t("navbar.enableDark") : t("navbar.enableLight"),
               children: theme === "light" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Moon, { size: 18 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Sun, { size: 18 })
             }
           ) }),
@@ -19528,7 +19528,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                   className: "w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 transition hover:bg-red-50/10",
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(LogOut, { size: 16 }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("nav.logout") })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("nav.logout") })
                   ]
                 }
               )
@@ -19575,7 +19575,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
               /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setMobileMenuOpen(false), style: { color: "var(--color-text-secondary)", padding: "4px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px", paddingLeft: "12px" }, children: t2("nav.navigation") || "Navigation" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px", paddingLeft: "12px" }, children: t("nav.navigation") || "Navigation" }),
               mobileNavItems.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
@@ -19606,7 +19606,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
               ))
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: "1px", background: "var(--color-border)", margin: "12px 0" } }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px", paddingLeft: "12px" }, children: t2("navbar.adminTitle") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px", paddingLeft: "12px" }, children: t("navbar.adminTitle") }),
             adminMenuItems.filter((i) => !i.divider).map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
               {
@@ -19657,7 +19657,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                 },
                 children: [
                   theme === "light" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Moon, { size: 18 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Sun, { size: 18 }),
-                  theme === "light" ? t2("navbar.enableDark") || "Dark Mode" : t2("navbar.enableLight") || "Light Mode"
+                  theme === "light" ? t("navbar.enableDark") || "Dark Mode" : t("navbar.enableLight") || "Light Mode"
                 ]
               }
             ),
@@ -19684,7 +19684,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(LogOut, { size: 18 }),
                   " ",
-                  t2("nav.logout")
+                  t("nav.logout")
                 ]
               }
             )
@@ -19710,7 +19710,7 @@ const NavItem = ({ icon, label, active, onClick }) => {
 };
 const API_URL$E = "/api.php";
 const Login = ({ onLogin }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [username, setUsername] = reactExports.useState("");
   const [password, setPassword] = reactExports.useState("");
   const [showPassword, setShowPassword] = reactExports.useState(false);
@@ -19735,10 +19735,10 @@ const Login = ({ onLogin }) => {
       }
     };
     const t1 = setTimeout(syncAutofill, 80);
-    const t22 = setTimeout(syncAutofill, 400);
+    const t2 = setTimeout(syncAutofill, 400);
     return () => {
       clearTimeout(t1);
-      clearTimeout(t22);
+      clearTimeout(t2);
     };
   }, []);
   const handleSubmit = async (e) => {
@@ -19746,7 +19746,7 @@ const Login = ({ onLogin }) => {
     setError("");
     setLoading(true);
     if (!username || !password) {
-      setError(t2("login.emptyFields"));
+      setError(t("login.emptyFields"));
       setLoading(false);
       return;
     }
@@ -19763,10 +19763,10 @@ const Login = ({ onLogin }) => {
         }
         onLogin(data.data);
       } else {
-        setError(data.message || t2("login.invalidStatus"));
+        setError(data.message || t("login.invalidStatus"));
       }
     } catch (err) {
-      setError(t2("common.networkError"));
+      setError(t("common.networkError"));
     } finally {
       setLoading(false);
     }
@@ -19778,17 +19778,17 @@ const Login = ({ onLogin }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-indigo-500 mr-1", children: "Orbitra" }),
           ".link"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-slate-400 mt-2", children: t2("login.subtitle") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-slate-400 mt-2", children: t("login.subtitle") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl shadow-2xl p-8", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800 mb-6 text-center", children: t2("login.title") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800 mb-6 text-center", children: t("login.title") }),
         error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-4 text-sm flex items-center gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
           error
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("form", { onSubmit: handleSubmit, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-slate-700 mb-1", children: t2("login.usernameLabel") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-slate-700 mb-1", children: t("login.usernameLabel") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "absolute left-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -19808,13 +19808,13 @@ const Login = ({ onLogin }) => {
                   onMouseDown: () => setUsernameReady(true),
                   onChange: (e) => setUsername(e.target.value),
                   className: "w-full !pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg transition-all placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
-                  placeholder: t2("login.usernamePlaceholder")
+                  placeholder: t("login.usernamePlaceholder")
                 }
               )
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-slate-700 mb-1", children: t2("login.passwordLabel") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-slate-700 mb-1", children: t("login.passwordLabel") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "absolute left-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -19834,7 +19834,7 @@ const Login = ({ onLogin }) => {
                   onMouseDown: () => setPasswordReady(true),
                   onChange: (e) => setPassword(e.target.value),
                   className: "w-full !pl-10 !pr-10 py-2.5 border border-slate-300 rounded-lg transition-all placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
-                  placeholder: t2("login.passwordPlaceholder")
+                  placeholder: t("login.passwordPlaceholder")
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -19851,7 +19851,7 @@ const Login = ({ onLogin }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", className: "w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 text-sm text-gray-600", children: t2("login.rememberMe") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 text-sm text-gray-600", children: t("login.rememberMe") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
@@ -19859,7 +19859,7 @@ const Login = ({ onLogin }) => {
                 type: "button",
                 onClick: () => setShowRecoveryModal(true),
                 className: "text-sm text-blue-600 hover:underline",
-                children: t2("login.forgotPassword")
+                children: t("login.forgotPassword")
               }
             )
           ] }),
@@ -19871,20 +19871,20 @@ const Login = ({ onLogin }) => {
               className: "w-full py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed",
               children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center justify-center", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" }),
-                t2("login.loggingIn")
-              ] }) : t2("login.loginButton")
+                t("login.loggingIn")
+              ] }) : t("login.loginButton")
             }
           )
         ] }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-center text-slate-500 text-sm mt-6", children: [
         "© 2026 Orbitra.link. ",
-        t2("login.allRightsReserved")
+        t("login.allRightsReserved")
       ] })
     ] }),
     showRecoveryModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl shadow-2xl w-full max-w-md p-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-semibold text-gray-800", children: t2("login.recoveryTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-semibold text-gray-800", children: t("login.recoveryTitle") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
@@ -19895,26 +19895,26 @@ const Login = ({ onLogin }) => {
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 text-sm", children: t2("login.recoveryInstruction") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 text-sm", children: t("login.recoveryInstruction") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-900 rounded-lg p-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-gray-400 text-xs mb-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Terminal, { size: 14 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("login.terminal") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("login.terminal") })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-green-400 text-sm block overflow-x-auto whitespace-nowrap", children: t2("login.cliPhp") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-green-400 text-sm block overflow-x-auto whitespace-nowrap", children: t("login.cliPhp") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-amber-50 border border-amber-200 rounded-lg p-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-amber-800 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t2("login.alternativeSqLite") }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-amber-700 text-xs block mt-1 overflow-x-auto whitespace-nowrap", children: t2("login.cliSqlite") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-amber-800 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("login.alternativeSqLite") }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-amber-700 text-xs block mt-1 overflow-x-auto whitespace-nowrap", children: t("login.cliSqlite") })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-xs", children: t2("login.recoveryFooter") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-xs", children: t("login.recoveryFooter") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "button",
         {
           onClick: () => setShowRecoveryModal(false),
           className: "w-full mt-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium",
-          children: t2("common.close")
+          children: t("common.close")
         }
       )
     ] }) })
@@ -19922,7 +19922,7 @@ const Login = ({ onLogin }) => {
 };
 const API_URL$D = "/api.php";
 const SetupWizard = ({ onComplete }) => {
-  const { t: t2, setLanguage: setContextLanguage, language } = useLanguage();
+  const { t, setLanguage: setContextLanguage, language } = useLanguage();
   const [step, setStep] = reactExports.useState(1);
   const [loading, setLoading] = reactExports.useState(false);
   const [error, setError] = reactExports.useState("");
@@ -19959,15 +19959,15 @@ const SetupWizard = ({ onComplete }) => {
     setError("");
     if (step === 1) {
       if (formData.username.length < 3) {
-        setError(t2("common.error"));
+        setError(t("common.error"));
         return;
       }
       if (formData.password.length < 6) {
-        setError(t2("setup.passwordMin"));
+        setError(t("setup.passwordMin"));
         return;
       }
       if (formData.password !== formData.confirmPassword) {
-        setError(t2("profile.passwordsNotMatch"));
+        setError(t("profile.passwordsNotMatch"));
         return;
       }
       setStep(2);
@@ -19985,10 +19985,10 @@ const SetupWizard = ({ onComplete }) => {
         setStep(3);
         setContextLanguage(formData.language);
       } else {
-        setError(data.message || t2("common.error"));
+        setError(data.message || t("common.error"));
       }
     } catch (err) {
-      setError(t2("common.networkError"));
+      setError(t("common.networkError"));
     } finally {
       setLoading(false);
     }
@@ -20019,7 +20019,7 @@ const SetupWizard = ({ onComplete }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-indigo-500 mr-1", children: "Orbitra" }),
           ".link"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-slate-400 mt-2", children: t2("setup.title") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-slate-400 mt-2", children: t("setup.title") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center mb-6", children: [1, 2, 3].map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs(React.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= s ? "bg-indigo-600 text-white" : "bg-gray-700 text-gray-400"}`, children: step > s ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16 }) : s }),
@@ -20027,11 +20027,11 @@ const SetupWizard = ({ onComplete }) => {
       ] }, s)) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl shadow-2xl p-8", children: [
         step === 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800 mb-2 text-center", children: t2("setup.step1Title") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm text-center mb-6", children: t2("setup.step1Desc") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800 mb-2 text-center", children: t("setup.step1Title") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm text-center mb-6", children: t("setup.step1Desc") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t2("setup.username") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("setup.username") }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "absolute left-4 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -20051,7 +20051,7 @@ const SetupWizard = ({ onComplete }) => {
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t2("setup.password") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("setup.password") }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "absolute left-4 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -20064,7 +20064,7 @@ const SetupWizard = ({ onComplete }) => {
                     onChange: handleChange,
                     autoComplete: "new-password",
                     className: "w-full pl-12 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
-                    placeholder: t2("setup.passwordMin")
+                    placeholder: t("setup.passwordMin")
                   }
                 ),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -20079,7 +20079,7 @@ const SetupWizard = ({ onComplete }) => {
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t2("setup.confirmPassword") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("setup.confirmPassword") }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "absolute left-4 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -20092,7 +20092,7 @@ const SetupWizard = ({ onComplete }) => {
                     onChange: handleChange,
                     autoComplete: "new-password",
                     className: "w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
-                    placeholder: t2("setup.confirmPasswordPlaceholder")
+                    placeholder: t("setup.confirmPasswordPlaceholder")
                   }
                 )
               ] })
@@ -20106,19 +20106,19 @@ const SetupWizard = ({ onComplete }) => {
               {
                 type: "submit",
                 className: "w-full py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium",
-                children: t2("setup.continue")
+                children: t("setup.continue")
               }
             )
           ] })
         ] }),
         step === 2 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800 mb-2 text-center", children: t2("setup.step2Title") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm text-center mb-6", children: t2("setup.step2Desc") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800 mb-2 text-center", children: t("setup.step2Title") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm text-center mb-6", children: t("setup.step2Desc") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "inline mr-1" }),
-                t2("setup.timezone")
+                t("setup.timezone")
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "select",
@@ -20134,7 +20134,7 @@ const SetupWizard = ({ onComplete }) => {
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 16, className: "inline mr-1" }),
-                t2("setup.language")
+                t("setup.language")
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "select",
@@ -20161,7 +20161,7 @@ const SetupWizard = ({ onComplete }) => {
                   type: "button",
                   onClick: () => setStep(1),
                   className: "flex-1 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium",
-                  children: t2("common.back")
+                  children: t("common.back")
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -20170,7 +20170,7 @@ const SetupWizard = ({ onComplete }) => {
                   type: "submit",
                   disabled: loading,
                   className: "flex-1 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium disabled:opacity-50",
-                  children: loading ? t2("common.loading") : t2("common.finish")
+                  children: loading ? t("common.loading") : t("common.finish")
                 }
               )
             ] })
@@ -20178,14 +20178,14 @@ const SetupWizard = ({ onComplete }) => {
         ] }),
         step === 3 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 32, className: "text-green-600" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800 mb-2", children: t2("setup.step3Title") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 mb-6", children: t2("setup.step3Desc") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-semibold text-gray-800 mb-2", children: t("setup.step3Title") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 mb-6", children: t("setup.step3Desc") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
               onClick: onComplete,
               className: "w-full py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium",
-              children: t2("setup.login")
+              children: t("setup.login")
             }
           )
         ] })
@@ -20193,9 +20193,9 @@ const SetupWizard = ({ onComplete }) => {
       step === 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 p-4 bg-gray-800/50 rounded-lg border border-gray-700", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2 text-gray-400 text-xs", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Terminal, { size: 14, className: "mt-0.5 flex-shrink-0" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-gray-300 mb-1", children: t2("setup.passwordRecovery") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-mono text-gray-500", children: t2("setup.recoveryHint") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "block mt-1 p-2 bg-gray-900 rounded text-green-400 text-xs overflow-x-auto", children: t2("login.cliSqlite").replace("'login'", `'${formData.username || "user"}'`) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-gray-300 mb-1", children: t("setup.passwordRecovery") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-mono text-gray-500", children: t("setup.recoveryHint") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "block mt-1 p-2 bg-gray-900 rounded text-green-400 text-xs overflow-x-auto", children: t("login.cliSqlite").replace("'login'", `'${formData.username || "user"}'`) })
         ] })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center text-slate-500 text-sm mt-6", children: "© 2026 Orbitra.link" })
@@ -20211,7 +20211,7 @@ const formatCurrency = (num) => {
   return "$" + new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
 };
 const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const isVisible = (metric) => !preferences || !preferences.visible_metrics || preferences.visible_metrics.includes(metric);
   const toggleMetric = (metricName) => {
     if (!setActiveMetrics) return;
@@ -20220,16 +20220,16 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics 
     );
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex overflow-x-auto gap-4 mb-6 mt-6 pb-4 w-full", style: { scrollbarWidth: "none", msOverflowStyle: "none" }, children: [
-    isVisible("clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t2("metrics.clicks"), value: formatNum(metrics?.clicks), isActive: activeMetrics.includes("clicks"), onClick: () => toggleMetric("clicks"), colorVar: "--color-primary" }),
-    isVisible("unique_clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t2("metrics.uniqueClicks"), value: formatNum(metrics?.unique_clicks), isActive: activeMetrics.includes("unique_clicks"), onClick: () => toggleMetric("unique_clicks"), colorVar: "--color-accent-turquoise" }),
-    isVisible("conversions") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t2("metrics.conversions"), value: formatNum(metrics?.conversions), isActive: activeMetrics.includes("conversions"), onClick: () => toggleMetric("conversions"), colorVar: "--color-success" }),
-    isVisible("cost") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t2("metrics.cost"), value: formatCurrency(metrics?.cost), isActive: activeMetrics.includes("cost"), onClick: () => toggleMetric("cost"), colorVar: "--color-danger" }),
-    isVisible("revenue") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t2("metrics.revenue"), value: formatCurrency(metrics?.revenue), isActive: activeMetrics.includes("revenue"), onClick: () => toggleMetric("revenue"), colorVar: "--color-warning" }),
-    isVisible("profit") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t2("metrics.profit"), value: formatCurrency(metrics?.profit), isActive: activeMetrics.includes("profit"), onClick: () => toggleMetric("profit"), colorVar: "--color-info" }),
-    isVisible("roi") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t2("metrics.roi"), value: `${formatNum(metrics?.roi ?? 0)}%`, isActive: activeMetrics.includes("roi"), onClick: () => toggleMetric("roi"), colorVar: "--color-accent-purple" }),
-    isVisible("real_revenue") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t2("metrics.realRevenue") || "Real Rev", value: formatCurrency(metrics?.real_revenue), isActive: activeMetrics.includes("real_revenue"), onClick: () => toggleMetric("real_revenue"), colorVar: "--color-real-rev" }),
-    isVisible("real_roi") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t2("metrics.realRoi") || "Real ROI", value: `${formatNum(metrics?.real_roi ?? 0)}%`, isActive: activeMetrics.includes("real_roi"), onClick: () => toggleMetric("real_roi"), colorVar: "--color-real-roi" }),
-    isVisible("ctr") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t2("metrics.ctr") || "CTR", value: `${formatNum(metrics?.ctr ?? 0)}%`, isActive: activeMetrics.includes("ctr"), onClick: () => toggleMetric("ctr"), colorVar: "--color-ctr" })
+    isVisible("clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.clicks"), value: formatNum(metrics?.clicks), isActive: activeMetrics.includes("clicks"), onClick: () => toggleMetric("clicks"), colorVar: "--color-primary" }),
+    isVisible("unique_clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.uniqueClicks"), value: formatNum(metrics?.unique_clicks), isActive: activeMetrics.includes("unique_clicks"), onClick: () => toggleMetric("unique_clicks"), colorVar: "--color-accent-turquoise" }),
+    isVisible("conversions") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.conversions"), value: formatNum(metrics?.conversions), isActive: activeMetrics.includes("conversions"), onClick: () => toggleMetric("conversions"), colorVar: "--color-success" }),
+    isVisible("cost") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.cost"), value: formatCurrency(metrics?.cost), isActive: activeMetrics.includes("cost"), onClick: () => toggleMetric("cost"), colorVar: "--color-danger" }),
+    isVisible("revenue") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.revenue"), value: formatCurrency(metrics?.revenue), isActive: activeMetrics.includes("revenue"), onClick: () => toggleMetric("revenue"), colorVar: "--color-warning" }),
+    isVisible("profit") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.profit"), value: formatCurrency(metrics?.profit), isActive: activeMetrics.includes("profit"), onClick: () => toggleMetric("profit"), colorVar: "--color-info" }),
+    isVisible("roi") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.roi"), value: `${formatNum(metrics?.roi ?? 0)}%`, isActive: activeMetrics.includes("roi"), onClick: () => toggleMetric("roi"), colorVar: "--color-accent-purple" }),
+    isVisible("real_revenue") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.realRevenue") || "Real Rev", value: formatCurrency(metrics?.real_revenue), isActive: activeMetrics.includes("real_revenue"), onClick: () => toggleMetric("real_revenue"), colorVar: "--color-real-rev" }),
+    isVisible("real_roi") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.realRoi") || "Real ROI", value: `${formatNum(metrics?.real_roi ?? 0)}%`, isActive: activeMetrics.includes("real_roi"), onClick: () => toggleMetric("real_roi"), colorVar: "--color-real-roi" }),
+    isVisible("ctr") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.ctr") || "CTR", value: `${formatNum(metrics?.ctr ?? 0)}%`, isActive: activeMetrics.includes("ctr"), onClick: () => toggleMetric("ctr"), colorVar: "--color-ctr" })
   ] });
 };
 const Card = ({ title, value, isActive, onClick, colorVar }) => {
@@ -20648,15 +20648,15 @@ function rgbString(v) {
 }
 const to = (v) => v <= 31308e-7 ? v * 12.92 : Math.pow(v, 1 / 2.4) * 1.055 - 0.055;
 const from = (v) => v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-function interpolate$1(rgb1, rgb2, t2) {
+function interpolate$1(rgb1, rgb2, t) {
   const r2 = from(b2n(rgb1.r));
   const g = from(b2n(rgb1.g));
   const b = from(b2n(rgb1.b));
   return {
-    r: n2b(to(r2 + t2 * (from(b2n(rgb2.r)) - r2))),
-    g: n2b(to(g + t2 * (from(b2n(rgb2.g)) - g))),
-    b: n2b(to(b + t2 * (from(b2n(rgb2.b)) - b))),
-    a: rgb1.a + t2 * (rgb2.a - rgb1.a)
+    r: n2b(to(r2 + t * (from(b2n(rgb2.r)) - r2))),
+    g: n2b(to(g + t * (from(b2n(rgb2.g)) - g))),
+    b: n2b(to(b + t * (from(b2n(rgb2.b)) - b))),
+    a: rgb1.a + t * (rgb2.a - rgb1.a)
   };
 }
 function modHSL(v, i, ratio) {
@@ -20748,9 +20748,9 @@ class Color {
     }
     return this;
   }
-  interpolate(color2, t2) {
+  interpolate(color2, t) {
     if (color2) {
-      this._rgb = interpolate$1(this._rgb, color2._rgb, t2);
+      this._rgb = interpolate$1(this._rgb, color2._rgb, t);
     }
     return this;
   }
@@ -21318,70 +21318,70 @@ function _scaleRangesChanged(meta) {
   Object.assign(_scaleRanges, newRanges);
   return changed;
 }
-const atEdge = (t2) => t2 === 0 || t2 === 1;
-const elasticIn = (t2, s, p) => -(Math.pow(2, 10 * (t2 -= 1)) * Math.sin((t2 - s) * TAU / p));
-const elasticOut = (t2, s, p) => Math.pow(2, -10 * t2) * Math.sin((t2 - s) * TAU / p) + 1;
+const atEdge = (t) => t === 0 || t === 1;
+const elasticIn = (t, s, p) => -(Math.pow(2, 10 * (t -= 1)) * Math.sin((t - s) * TAU / p));
+const elasticOut = (t, s, p) => Math.pow(2, -10 * t) * Math.sin((t - s) * TAU / p) + 1;
 const effects = {
-  linear: (t2) => t2,
-  easeInQuad: (t2) => t2 * t2,
-  easeOutQuad: (t2) => -t2 * (t2 - 2),
-  easeInOutQuad: (t2) => (t2 /= 0.5) < 1 ? 0.5 * t2 * t2 : -0.5 * (--t2 * (t2 - 2) - 1),
-  easeInCubic: (t2) => t2 * t2 * t2,
-  easeOutCubic: (t2) => (t2 -= 1) * t2 * t2 + 1,
-  easeInOutCubic: (t2) => (t2 /= 0.5) < 1 ? 0.5 * t2 * t2 * t2 : 0.5 * ((t2 -= 2) * t2 * t2 + 2),
-  easeInQuart: (t2) => t2 * t2 * t2 * t2,
-  easeOutQuart: (t2) => -((t2 -= 1) * t2 * t2 * t2 - 1),
-  easeInOutQuart: (t2) => (t2 /= 0.5) < 1 ? 0.5 * t2 * t2 * t2 * t2 : -0.5 * ((t2 -= 2) * t2 * t2 * t2 - 2),
-  easeInQuint: (t2) => t2 * t2 * t2 * t2 * t2,
-  easeOutQuint: (t2) => (t2 -= 1) * t2 * t2 * t2 * t2 + 1,
-  easeInOutQuint: (t2) => (t2 /= 0.5) < 1 ? 0.5 * t2 * t2 * t2 * t2 * t2 : 0.5 * ((t2 -= 2) * t2 * t2 * t2 * t2 + 2),
-  easeInSine: (t2) => -Math.cos(t2 * HALF_PI) + 1,
-  easeOutSine: (t2) => Math.sin(t2 * HALF_PI),
-  easeInOutSine: (t2) => -0.5 * (Math.cos(PI * t2) - 1),
-  easeInExpo: (t2) => t2 === 0 ? 0 : Math.pow(2, 10 * (t2 - 1)),
-  easeOutExpo: (t2) => t2 === 1 ? 1 : -Math.pow(2, -10 * t2) + 1,
-  easeInOutExpo: (t2) => atEdge(t2) ? t2 : t2 < 0.5 ? 0.5 * Math.pow(2, 10 * (t2 * 2 - 1)) : 0.5 * (-Math.pow(2, -10 * (t2 * 2 - 1)) + 2),
-  easeInCirc: (t2) => t2 >= 1 ? t2 : -(Math.sqrt(1 - t2 * t2) - 1),
-  easeOutCirc: (t2) => Math.sqrt(1 - (t2 -= 1) * t2),
-  easeInOutCirc: (t2) => (t2 /= 0.5) < 1 ? -0.5 * (Math.sqrt(1 - t2 * t2) - 1) : 0.5 * (Math.sqrt(1 - (t2 -= 2) * t2) + 1),
-  easeInElastic: (t2) => atEdge(t2) ? t2 : elasticIn(t2, 0.075, 0.3),
-  easeOutElastic: (t2) => atEdge(t2) ? t2 : elasticOut(t2, 0.075, 0.3),
-  easeInOutElastic(t2) {
+  linear: (t) => t,
+  easeInQuad: (t) => t * t,
+  easeOutQuad: (t) => -t * (t - 2),
+  easeInOutQuad: (t) => (t /= 0.5) < 1 ? 0.5 * t * t : -0.5 * (--t * (t - 2) - 1),
+  easeInCubic: (t) => t * t * t,
+  easeOutCubic: (t) => (t -= 1) * t * t + 1,
+  easeInOutCubic: (t) => (t /= 0.5) < 1 ? 0.5 * t * t * t : 0.5 * ((t -= 2) * t * t + 2),
+  easeInQuart: (t) => t * t * t * t,
+  easeOutQuart: (t) => -((t -= 1) * t * t * t - 1),
+  easeInOutQuart: (t) => (t /= 0.5) < 1 ? 0.5 * t * t * t * t : -0.5 * ((t -= 2) * t * t * t - 2),
+  easeInQuint: (t) => t * t * t * t * t,
+  easeOutQuint: (t) => (t -= 1) * t * t * t * t + 1,
+  easeInOutQuint: (t) => (t /= 0.5) < 1 ? 0.5 * t * t * t * t * t : 0.5 * ((t -= 2) * t * t * t * t + 2),
+  easeInSine: (t) => -Math.cos(t * HALF_PI) + 1,
+  easeOutSine: (t) => Math.sin(t * HALF_PI),
+  easeInOutSine: (t) => -0.5 * (Math.cos(PI * t) - 1),
+  easeInExpo: (t) => t === 0 ? 0 : Math.pow(2, 10 * (t - 1)),
+  easeOutExpo: (t) => t === 1 ? 1 : -Math.pow(2, -10 * t) + 1,
+  easeInOutExpo: (t) => atEdge(t) ? t : t < 0.5 ? 0.5 * Math.pow(2, 10 * (t * 2 - 1)) : 0.5 * (-Math.pow(2, -10 * (t * 2 - 1)) + 2),
+  easeInCirc: (t) => t >= 1 ? t : -(Math.sqrt(1 - t * t) - 1),
+  easeOutCirc: (t) => Math.sqrt(1 - (t -= 1) * t),
+  easeInOutCirc: (t) => (t /= 0.5) < 1 ? -0.5 * (Math.sqrt(1 - t * t) - 1) : 0.5 * (Math.sqrt(1 - (t -= 2) * t) + 1),
+  easeInElastic: (t) => atEdge(t) ? t : elasticIn(t, 0.075, 0.3),
+  easeOutElastic: (t) => atEdge(t) ? t : elasticOut(t, 0.075, 0.3),
+  easeInOutElastic(t) {
     const s = 0.1125;
     const p = 0.45;
-    return atEdge(t2) ? t2 : t2 < 0.5 ? 0.5 * elasticIn(t2 * 2, s, p) : 0.5 + 0.5 * elasticOut(t2 * 2 - 1, s, p);
+    return atEdge(t) ? t : t < 0.5 ? 0.5 * elasticIn(t * 2, s, p) : 0.5 + 0.5 * elasticOut(t * 2 - 1, s, p);
   },
-  easeInBack(t2) {
+  easeInBack(t) {
     const s = 1.70158;
-    return t2 * t2 * ((s + 1) * t2 - s);
+    return t * t * ((s + 1) * t - s);
   },
-  easeOutBack(t2) {
+  easeOutBack(t) {
     const s = 1.70158;
-    return (t2 -= 1) * t2 * ((s + 1) * t2 + s) + 1;
+    return (t -= 1) * t * ((s + 1) * t + s) + 1;
   },
-  easeInOutBack(t2) {
+  easeInOutBack(t) {
     let s = 1.70158;
-    if ((t2 /= 0.5) < 1) {
-      return 0.5 * (t2 * t2 * (((s *= 1.525) + 1) * t2 - s));
+    if ((t /= 0.5) < 1) {
+      return 0.5 * (t * t * (((s *= 1.525) + 1) * t - s));
     }
-    return 0.5 * ((t2 -= 2) * t2 * (((s *= 1.525) + 1) * t2 + s) + 2);
+    return 0.5 * ((t -= 2) * t * (((s *= 1.525) + 1) * t + s) + 2);
   },
-  easeInBounce: (t2) => 1 - effects.easeOutBounce(1 - t2),
-  easeOutBounce(t2) {
+  easeInBounce: (t) => 1 - effects.easeOutBounce(1 - t),
+  easeOutBounce(t) {
     const m = 7.5625;
     const d = 2.75;
-    if (t2 < 1 / d) {
-      return m * t2 * t2;
+    if (t < 1 / d) {
+      return m * t * t;
     }
-    if (t2 < 2 / d) {
-      return m * (t2 -= 1.5 / d) * t2 + 0.75;
+    if (t < 2 / d) {
+      return m * (t -= 1.5 / d) * t + 0.75;
     }
-    if (t2 < 2.5 / d) {
-      return m * (t2 -= 2.25 / d) * t2 + 0.9375;
+    if (t < 2.5 / d) {
+      return m * (t -= 2.25 / d) * t + 0.9375;
     }
-    return m * (t2 -= 2.625 / d) * t2 + 0.984375;
+    return m * (t -= 2.625 / d) * t + 0.984375;
   },
-  easeInOutBounce: (t2) => t2 < 0.5 ? effects.easeInBounce(t2 * 2) * 0.5 : effects.easeOutBounce(t2 * 2 - 1) * 0.5 + 0.5
+  easeInOutBounce: (t) => t < 0.5 ? effects.easeInBounce(t * 2) * 0.5 : effects.easeOutBounce(t * 2 - 1) * 0.5 + 0.5
 };
 function isPatternOrGradient(value) {
   if (value && typeof value === "object") {
@@ -22396,7 +22396,7 @@ function resolveKeysFromAllScopes(scopes) {
 const EPSILON = Number.EPSILON || 1e-14;
 const getPoint = (points, i) => i < points.length && !points[i].skip && points[i];
 const getValueAxis = (indexAxis) => indexAxis === "x" ? "y" : "x";
-function splineCurve(firstPoint, middlePoint, afterPoint, t2) {
+function splineCurve(firstPoint, middlePoint, afterPoint, t) {
   const previous = firstPoint.skip ? middlePoint : firstPoint;
   const current = middlePoint;
   const next = afterPoint.skip ? middlePoint : afterPoint;
@@ -22406,8 +22406,8 @@ function splineCurve(firstPoint, middlePoint, afterPoint, t2) {
   let s12 = d12 / (d01 + d12);
   s01 = isNaN(s01) ? 0 : s01;
   s12 = isNaN(s12) ? 0 : s12;
-  const fa = t2 * s01;
-  const fb = t2 * s12;
+  const fa = t * s01;
+  const fb = t * s12;
   return {
     previous: {
       x: current.x - fa * (next.x - previous.x),
@@ -22725,19 +22725,19 @@ function readUsedSize(element, property) {
   const matches = value && value.match(/^(\d+)(\.\d+)?px$/);
   return matches ? +matches[1] : void 0;
 }
-function _pointInLine(p1, p2, t2, mode) {
+function _pointInLine(p1, p2, t, mode) {
   return {
-    x: p1.x + t2 * (p2.x - p1.x),
-    y: p1.y + t2 * (p2.y - p1.y)
+    x: p1.x + t * (p2.x - p1.x),
+    y: p1.y + t * (p2.y - p1.y)
   };
 }
-function _steppedInterpolation(p1, p2, t2, mode) {
+function _steppedInterpolation(p1, p2, t, mode) {
   return {
-    x: p1.x + t2 * (p2.x - p1.x),
-    y: mode === "middle" ? t2 < 0.5 ? p1.y : p2.y : mode === "after" ? t2 < 1 ? p1.y : p2.y : t2 > 0 ? p2.y : p1.y
+    x: p1.x + t * (p2.x - p1.x),
+    y: mode === "middle" ? t < 0.5 ? p1.y : p2.y : mode === "after" ? t < 1 ? p1.y : p2.y : t > 0 ? p2.y : p1.y
   };
 }
-function _bezierInterpolation(p1, p2, t2, mode) {
+function _bezierInterpolation(p1, p2, t, mode) {
   const cp1 = {
     x: p1.cp2x,
     y: p1.cp2y
@@ -22746,12 +22746,12 @@ function _bezierInterpolation(p1, p2, t2, mode) {
     x: p2.cp1x,
     y: p2.cp1y
   };
-  const a = _pointInLine(p1, cp1, t2);
-  const b = _pointInLine(cp1, cp2, t2);
-  const c = _pointInLine(cp2, p2, t2);
-  const d = _pointInLine(a, b, t2);
-  const e = _pointInLine(b, c, t2);
-  return _pointInLine(d, e, t2);
+  const a = _pointInLine(p1, cp1, t);
+  const b = _pointInLine(cp1, cp2, t);
+  const c = _pointInLine(cp2, p2, t);
+  const d = _pointInLine(a, b, t);
+  const e = _pointInLine(b, c, t);
+  return _pointInLine(d, e, t);
 }
 const getRightToLeftAdapter = function(rectX, width) {
   return {
@@ -23525,17 +23525,17 @@ function defaultClip(xScale, yScale, allowedOverflow) {
   };
 }
 function toClip(value) {
-  let t2, r2, b, l;
+  let t, r2, b, l;
   if (isObject(value)) {
-    t2 = value.top;
+    t = value.top;
     r2 = value.right;
     b = value.bottom;
     l = value.left;
   } else {
-    t2 = r2 = b = l = value;
+    t = r2 = b = l = value;
   }
   return {
-    top: t2,
+    top: t,
     right: r2,
     bottom: b,
     left: l,
@@ -26503,7 +26503,7 @@ class Scale extends Element$1 {
       return 0;
     }
     const ticks = this.ticks;
-    const index2 = ticks.findIndex((t2) => t2.value === value);
+    const index2 = ticks.findIndex((t) => t.value === value);
     if (index2 >= 0) {
       const opts = grid.setContext(this.getContext(index2));
       return opts.lineWidth;
@@ -28478,8 +28478,8 @@ class LineElement extends Element$1 {
         result.push(p1);
         continue;
       }
-      const t2 = Math.abs((value - p1[property]) / (p2[property] - p1[property]));
-      const interpolated = _interpolate(p1, p2, t2, options.stepped);
+      const t = Math.abs((value - p1[property]) / (p2[property] - p1[property]));
+      const interpolated = _interpolate(p1, p2, t, options.stepped);
       interpolated[property] = point[property];
       result.push(interpolated);
     }
@@ -31972,15 +31972,15 @@ class ChartErrorBoundary extends reactExports.Component {
     if (this.state.hasError) {
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center justify-center h-full text-red-500", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 32, className: "mb-2" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-semibold", children: t("mainChart.chartError") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500 mt-1", children: t("mainChart.invalidData") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-semibold", children: this.props.t?.("mainChart.chartError") || "Chart error" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500 mt-1", children: this.props.t?.("mainChart.invalidData") || "Invalid chart data" })
       ] });
     }
     return this.props.children;
   }
 }
 const MainChart = ({ chartData, activeMetrics = [] }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const isValidData = chartData && Array.isArray(chartData.labels) && chartData.labels.length > 0;
   const transformToPercentage = (dataArray) => {
     if (!dataArray || dataArray.length === 0) return [];
@@ -31991,12 +31991,41 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
       return Math.round(val / baseValue * 100);
     });
   };
+  const niceCeil = (value) => {
+    const v = Number(value);
+    if (!Number.isFinite(v) || v <= 0) return 0;
+    const exp = Math.floor(Math.log10(v));
+    const base = Math.pow(10, exp);
+    const frac = v / base;
+    let niceFrac = 10;
+    if (frac <= 1) niceFrac = 1;
+    else if (frac <= 2) niceFrac = 2;
+    else if (frac <= 5) niceFrac = 5;
+    return niceFrac * base;
+  };
+  const currencyMetrics = /* @__PURE__ */ new Set(["cost", "revenue", "real_revenue", "profit"]);
+  const defaultDatasets = isValidData && chartData.datasets ? chartData.datasets : [];
+  const activeRawDatasets = defaultDatasets.filter((ds) => activeMetrics.includes(ds.label));
+  const currencyMax = activeRawDatasets.filter((ds) => currencyMetrics.has(ds.label)).reduce((acc, ds) => {
+    const max2 = Array.isArray(ds.data) ? Math.max(0, ...ds.data.map((v) => Number(v) || 0)) : 0;
+    return Math.max(acc, max2);
+  }, 0);
+  const hasCurrencySeries = currencyMax > 0 || activeRawDatasets.some((ds) => currencyMetrics.has(ds.label));
   const getCssVar = (name, fallback) => {
     if (typeof window !== "undefined") {
       const val = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
       if (val) return val;
     }
     return fallback;
+  };
+  const formatNumber2 = (v, maxFractionDigits = 2) => {
+    const num = Number(v);
+    if (!Number.isFinite(num)) return String(v);
+    try {
+      return new Intl.NumberFormat(void 0, { maximumFractionDigits: maxFractionDigits }).format(num);
+    } catch (e) {
+      return String(num);
+    }
   };
   const options = {
     responsive: true,
@@ -32032,7 +32061,12 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
               label += ": ";
             }
             if (context.parsed.y !== null) {
-              label += context.parsed.y + "%";
+              const originalLabel = context.dataset.originalLabel || context.dataset.label;
+              if (currencyMetrics.has(originalLabel)) {
+                label += `${formatNumber2(context.parsed.y, 2)} $`;
+              } else {
+                label += context.parsed.y + "%";
+              }
             }
             return label;
           }
@@ -32053,7 +32087,27 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
           color: getCssVar("--color-text-muted", "#6B7280")
         },
         border: { dash: [4, 4], color: getCssVar("--color-border", "#1E293B") },
-        title: { display: true, text: t2("dashboard.scale"), color: getCssVar("--color-text-muted", "#6B7280"), font: { size: 10, family: "Plus Jakarta Sans" }, padding: { bottom: 10 } }
+        title: { display: true, text: t("dashboard.scale"), color: getCssVar("--color-text-muted", "#6B7280"), font: { size: 10, family: "Plus Jakarta Sans" }, padding: { bottom: 10 } }
+      },
+      y1: {
+        type: "linear",
+        display: hasCurrencySeries,
+        position: "right",
+        beginAtZero: true,
+        suggestedMax: niceCeil(currencyMax * 1.05),
+        grid: {
+          drawOnChartArea: false,
+          color: getCssVar("--color-border", "#1E293B")
+        },
+        ticks: {
+          precision: 0,
+          color: getCssVar("--color-text-muted", "#6B7280"),
+          callback: function(value) {
+            return formatNumber2(value, 0);
+          }
+        },
+        border: { dash: [4, 4], color: getCssVar("--color-border", "#1E293B") },
+        title: { display: true, text: "USD", color: getCssVar("--color-text-muted", "#6B7280"), font: { size: 10, family: "Plus Jakarta Sans" }, padding: { bottom: 10 } }
       },
       x: {
         grid: {
@@ -32077,25 +32131,24 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
     "real_roi": getCssVar("--color-real-roi", "#6366F1"),
     "ctr": getCssVar("--color-ctr", "#EC4899")
   };
-  const defaultDatasets = isValidData && chartData.datasets ? chartData.datasets : [];
   const activeDatasets = defaultDatasets.filter((ds) => activeMetrics.includes(ds.label)).map((ds) => {
     const color2 = chartColors[ds.label] || "#9ca3af";
     let translatedLabel = ds.label;
-    if (ds.label === "unique_clicks") translatedLabel = t2("metrics.uniqueClicks");
-    else if (ds.label === "clicks") translatedLabel = t2("metrics.clicks");
-    else if (ds.label === "conversions") translatedLabel = t2("metrics.conversions");
-    else if (ds.label === "cost") translatedLabel = t2("metrics.cost");
-    else if (ds.label === "revenue") translatedLabel = t2("metrics.revenue");
-    else if (ds.label === "profit") translatedLabel = t2("metrics.profit");
-    else if (ds.label === "roi") translatedLabel = t2("metrics.roi");
-    else if (ds.label === "real_revenue") translatedLabel = t2("metrics.realRevenue") || "Real Rev";
-    else if (ds.label === "real_roi") translatedLabel = t2("metrics.realRoi") || "Real ROI";
-    else if (ds.label === "ctr") translatedLabel = t2("metrics.ctr") || "CTR";
+    if (ds.label === "unique_clicks") translatedLabel = t("metrics.uniqueClicks");
+    else if (ds.label === "clicks") translatedLabel = t("metrics.clicks");
+    else if (ds.label === "conversions") translatedLabel = t("metrics.conversions");
+    else if (ds.label === "cost") translatedLabel = t("metrics.cost");
+    else if (ds.label === "revenue") translatedLabel = t("metrics.revenue");
+    else if (ds.label === "profit") translatedLabel = t("metrics.profit");
+    else if (ds.label === "roi") translatedLabel = t("metrics.roi");
+    else if (ds.label === "real_revenue") translatedLabel = t("metrics.realRevenue") || "Real Rev";
+    else if (ds.label === "real_roi") translatedLabel = t("metrics.realRoi") || "Real ROI";
+    else if (ds.label === "ctr") translatedLabel = t("metrics.ctr") || "CTR";
     return {
       label: translatedLabel,
       originalLabel: ds.label,
       // keep for reference
-      data: transformToPercentage(ds.data),
+      data: currencyMetrics.has(ds.label) ? ds.data || [] : transformToPercentage(ds.data),
       borderColor: color2,
       backgroundColor: (context) => {
         const ctx = context.chart.ctx;
@@ -32122,7 +32175,7 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
         return gradient;
       },
       fill: true,
-      yAxisID: "y",
+      yAxisID: currencyMetrics.has(ds.label) ? "y1" : "y",
       tension: 0.4,
       borderWidth: 2.5,
       pointRadius: 0,
@@ -32132,49 +32185,49 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
   const data = {
     labels: isValidData ? chartData.labels : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     datasets: activeDatasets.length > 0 ? activeDatasets : [{
-      label: t2("dashboard.noData"),
+      label: t("dashboard.noData"),
       data: [0, 0, 0, 0, 0, 0, 0],
       borderColor: "#e5e7eb",
       backgroundColor: "#e5e7eb"
     }]
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card shadow-sm p-5 mb-6", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-primary)" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-between items-center mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold uppercase tracking-wide", style: { color: "var(--color-text-primary)" }, children: t2("dashboard.trafficDynamics") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-between items-center mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold uppercase tracking-wide", style: { color: "var(--color-text-primary)" }, children: t("dashboard.trafficDynamics") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full h-[300px]", children: !isValidData ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center justify-center h-full text-gray-400", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 32, className: "mb-2" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("dashboard.noStatsData") })
-    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChartErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Line, { options, data }) }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("dashboard.noStatsData") })
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChartErrorBoundary, { t, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Line, { options, data }) }) })
   ] });
 };
 const DataTables = ({ campaigns, offers, landings, sources, preferences }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const isVisible = (block) => !preferences || !preferences.visible_blocks || preferences.visible_blocks.includes(block);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-6", children: [
-    isVisible("campaigns") && /* @__PURE__ */ jsxRuntimeExports.jsx(TableWidget, { title: t2("dashboard.topCampaigns"), data: campaigns, t: t2 }),
-    isVisible("offers") && /* @__PURE__ */ jsxRuntimeExports.jsx(TableWidget, { title: t2("dashboard.topOffers"), data: offers, t: t2 }),
-    isVisible("landings") && /* @__PURE__ */ jsxRuntimeExports.jsx(TableWidget, { title: t2("dashboard.topLandings"), data: landings, t: t2 }),
-    isVisible("sources") && /* @__PURE__ */ jsxRuntimeExports.jsx(TableWidget, { title: t2("dashboard.topSources"), data: sources, t: t2 })
+    isVisible("campaigns") && /* @__PURE__ */ jsxRuntimeExports.jsx(TableWidget, { title: t("dashboard.topCampaigns"), data: campaigns, t }),
+    isVisible("offers") && /* @__PURE__ */ jsxRuntimeExports.jsx(TableWidget, { title: t("dashboard.topOffers"), data: offers, t }),
+    isVisible("landings") && /* @__PURE__ */ jsxRuntimeExports.jsx(TableWidget, { title: t("dashboard.topLandings"), data: landings, t }),
+    isVisible("sources") && /* @__PURE__ */ jsxRuntimeExports.jsx(TableWidget, { title: t("dashboard.topSources"), data: sources, t })
   ] });
 };
-const TableWidget = ({ title, data, t: t2 }) => {
+const TableWidget = ({ title, data, t }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card shadow-sm overflow-hidden flex flex-col h-[350px]", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-primary)" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "px-5 py-3 border-b flex justify-between items-center", style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold uppercase tracking-wide", style: { color: "var(--color-text-primary)" }, children: title }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
         data?.length || 0,
         " ",
-        t2("dataTables.records")
+        t("dataTables.records")
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-y-auto flex-1 h-full", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left text-sm whitespace-nowrap", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "sticky top-0 z-10 shadow-sm", style: { backgroundColor: "var(--color-bg-hover)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b", style: { color: "var(--color-text-secondary)", borderColor: "var(--color-border)" }, children: t2("dashboard.tableName") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b text-right", style: { color: "var(--color-text-secondary)", borderColor: "var(--color-border)" }, children: t2("metrics.clicks") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b text-right", style: { color: "var(--color-text-secondary)", borderColor: "var(--color-border)" }, children: t2("dashboard.tableUnique") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b text-right", style: { color: "var(--color-text-secondary)", borderColor: "var(--color-border)" }, children: t2("dashboard.tableConv") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b", style: { color: "var(--color-text-secondary)", borderColor: "var(--color-border)" }, children: t("dashboard.tableName") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b text-right", style: { color: "var(--color-text-secondary)", borderColor: "var(--color-border)" }, children: t("metrics.clicks") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b text-right", style: { color: "var(--color-text-secondary)", borderColor: "var(--color-border)" }, children: t("dashboard.tableUnique") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b text-right", style: { color: "var(--color-text-secondary)", borderColor: "var(--color-border)" }, children: t("dashboard.tableConv") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { style: { divideColor: "var(--color-border)" }, children: [
-        (!data || data.length === 0) && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "4", className: "px-4 py-8 text-center", style: { color: "var(--color-text-muted)" }, children: t2("dashboard.noData") }) }),
+        (!data || data.length === 0) && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "4", className: "px-4 py-8 text-center", style: { color: "var(--color-text-muted)" }, children: t("dashboard.noData") }) }),
         data && data.slice(0, 10).map((row, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-blue-50/10 transition duration-150 group", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-2.5 font-medium group-hover:text-blue-600 cursor-pointer truncate max-w-[200px]", style: { color: "var(--color-text-primary)" }, children: row.name }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-2.5 text-right", style: { color: "var(--color-text-secondary)" }, children: row.clicks || 0 }),
@@ -32189,7 +32242,7 @@ var reactDomExports = requireReactDom();
 const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(reactDomExports);
 const API_URL$C = "/api.php";
 const ClickDetailsModal = ({ clickId, onClose }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [data, setData] = reactExports.useState(null);
   const [loading, setLoading] = reactExports.useState(true);
   const [error, setError] = reactExports.useState(null);
@@ -32261,7 +32314,7 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     return renderInPortal(
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl p-8 flex flex-col items-center w-full max-w-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Loader, { className: "w-8 h-8 text-blue-500 animate-spin mb-4" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 font-medium", children: t2("clickDetails.loading") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 font-medium", children: t("clickDetails.loading") })
       ] })
     );
   }
@@ -32269,11 +32322,11 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     return renderInPortal(
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-md p-6", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-lg font-semibold text-red-600", children: t2("clickDetails.error") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-lg font-semibold text-red-600", children: t("clickDetails.error") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "p-1 hover:bg-gray-100 rounded-full transition", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20, className: "text-gray-500" }) })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-700", children: error || t2("clickDetails.notFound") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-6 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition font-medium text-sm", children: t2("clickDetails.close") }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-700", children: error || t("clickDetails.notFound") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-6 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition font-medium text-sm", children: t("clickDetails.close") }) })
       ] })
     );
   }
@@ -32285,67 +32338,67 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[calc(100vh-3rem)] overflow-hidden", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-lg font-bold text-gray-800 flex items-center gap-2", children: [
-          t2("clickDetails.title"),
+          t("clickDetails.title"),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-mono bg-gray-200 text-gray-600 px-2 py-1 rounded-md ml-2 border border-gray-300", children: data.id })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "p-2 hover:bg-gray-200 rounded-full transition text-gray-500", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6 bg-white", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.data") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.campaign"), value: data.campaign_name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.campaignAlias"), value: data.campaign_alias }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.landing"), value: data.landing_name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.offer"), value: data.offer_name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.affiliateNetwork"), value: data.affiliate_network_name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.source"), value: data.source_name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.streamType"), value: data.stream_type }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.referer"), value: data.referer }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.id") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.clickId"), value: data.id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.campaignId"), value: data.campaign_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.offerId"), value: data.offer_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.landingId"), value: data.landing_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.streamId"), value: data.stream_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.sourceId"), value: data.source_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.connection") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.ip"), value: data.ip }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.botScanner"), value: t2("clickDetails.noData") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.finance") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.cost"), value: formatMoney(data.cost) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.revenue"), value: formatMoney(data.revenue) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.profit"), value: formatMoney(profit) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.data") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.campaign"), value: data.campaign_name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.campaignAlias"), value: data.campaign_alias }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.landing"), value: data.landing_name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.offer"), value: data.offer_name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.affiliateNetwork"), value: data.affiliate_network_name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.source"), value: data.source_name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.streamType"), value: data.stream_type }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.referer"), value: data.referer }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.id") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.clickId"), value: data.id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.campaignId"), value: data.campaign_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.offerId"), value: data.offer_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.landingId"), value: data.landing_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.streamId"), value: data.stream_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.sourceId"), value: data.source_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.connection") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.ip"), value: data.ip }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.botScanner"), value: t("clickDetails.noData") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.finance") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.cost"), value: formatMoney(data.cost) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.revenue"), value: formatMoney(data.revenue) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.profit"), value: formatMoney(profit) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.parameters") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.keyword"), value: data.parameters?.keyword }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.parameters") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.keyword"), value: data.parameters?.keyword }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: "Cost", value: data.parameters?.cost }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: "Currency", value: data.parameters?.currency }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.externalId"), value: data.parameters?.external_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.creativeId"), value: data.parameters?.creative_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.adCampaignId"), value: data.parameters?.ad_campaign_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.sourceParam"), value: data.parameters?.source }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.externalId"), value: data.parameters?.external_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.creativeId"), value: data.parameters?.creative_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.adCampaignId"), value: data.parameters?.ad_campaign_id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.sourceParam"), value: data.parameters?.source }),
           [...Array(30)].map((_, i) => data.parameters && data.parameters[`sub_id_${i + 1}`] ? /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: `Sub ID ${i + 1}`, value: data.parameters[`sub_id_${i + 1}`] }, i) : null),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.geoDevice") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.country"), value: data.country }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.region"), value: data.region }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.city"), value: data.city }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.zipcode"), value: data.zipcode }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.timezone"), value: data.timezone }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.language"), value: data.language }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.acceptLanguageRaw"), value: data.accept_language_raw }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.latitude"), value: data.latitude }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.longitude"), value: data.longitude }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.deviceType"), value: data.device_type }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.os"), value: data.os }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.browser"), value: data.browser }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.userAgent"), value: data.user_agent }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t2("clickDetails.sections.calendar") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.dateTime"), value: data.created_at }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t2("clickDetails.fields.conversion"), value: data.is_conversion ? t2("clickDetails.yes") : t2("clickDetails.no") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.geoDevice") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.country"), value: data.country }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.region"), value: data.region }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.city"), value: data.city }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.zipcode"), value: data.zipcode }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.timezone"), value: data.timezone }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.language"), value: data.language }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.acceptLanguageRaw"), value: data.accept_language_raw }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.latitude"), value: data.latitude }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.longitude"), value: data.longitude }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.deviceType"), value: data.device_type }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.os"), value: data.os }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.browser"), value: data.browser }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.userAgent"), value: data.user_agent }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.calendar") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.dateTime"), value: data.created_at }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.conversion"), value: data.is_conversion ? t("clickDetails.yes") : t("clickDetails.no") })
         ] })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "px-6 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded shadow-sm transition font-medium", children: t2("clickDetails.close") }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "px-6 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded shadow-sm transition font-medium", children: t("clickDetails.close") }) })
     ] })
   );
 };
@@ -32360,12 +32413,12 @@ const getDeviceIcon = (deviceType) => {
   }
 };
 const RecentClicks = ({ logs, preferences, onShowAll }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const isVisible = (col) => !preferences || !preferences.click_columns || preferences.click_columns.includes(col);
   const [selectedClickId, setSelectedClickId] = reactExports.useState(null);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card shadow-sm overflow-hidden mb-8", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-primary)" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "px-5 py-4 border-b flex justify-between items-center", style: { borderColor: "var(--color-border)" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold uppercase tracking-wide", style: { color: "var(--color-text-primary)" }, children: t2("dashboard.recentClicksLog") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold uppercase tracking-wide", style: { color: "var(--color-text-primary)" }, children: t("dashboard.recentClicksLog") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-2 h-2 bg-green-500 rounded-full animate-pulse" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "Live" })
@@ -32373,16 +32426,16 @@ const RecentClicks = ({ logs, preferences, onShowAll }) => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left text-sm", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "border-b", style: { backgroundColor: "var(--color-bg-hover)", borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        isVisible("created_at") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-48", style: { color: "var(--color-text-secondary)" }, children: t2("dashboard.colDate") }),
-        isVisible("campaign_name") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-48", style: { color: "var(--color-text-secondary)" }, children: t2("dashboard.colCampaign") }),
-        isVisible("country_code") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-16 text-center", style: { color: "var(--color-text-secondary)" }, children: t2("dashboard.colGeo") }),
-        isVisible("device_type") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-16 text-center", style: { color: "var(--color-text-secondary)" }, children: t2("dashboard.colOs") }),
-        isVisible("ip") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-32", style: { color: "var(--color-text-secondary)" }, children: t2("dashboard.colIp") }),
-        isVisible("user_agent") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold max-w-xs", style: { color: "var(--color-text-secondary)" }, children: t2("dashboard.colUa") }),
-        isVisible("redirect_url") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold", style: { color: "var(--color-text-secondary)" }, children: t2("dashboard.colDirection") })
+        isVisible("created_at") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-48", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colDate") }),
+        isVisible("campaign_name") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-48", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colCampaign") }),
+        isVisible("country_code") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-16 text-center", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colGeo") }),
+        isVisible("device_type") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-16 text-center", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colOs") }),
+        isVisible("ip") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-32", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colIp") }),
+        isVisible("user_agent") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold max-w-xs", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colUa") }),
+        isVisible("redirect_url") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colDirection") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { style: { divideColor: "var(--color-border)" }, children: [
-        (!logs || logs.length === 0) && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "px-5 py-12 text-center", style: { color: "var(--color-text-muted)" }, children: t2("dashboard.noLogs") }) }),
+        (!logs || logs.length === 0) && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "px-5 py-12 text-center", style: { color: "var(--color-text-muted)" }, children: t("dashboard.noLogs") }) }),
         logs && logs.slice(0, 20).map((log) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-blue-50/10 transition", children: [
           isVisible("created_at") && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-mono text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setSelectedClickId(log.click_id || log.id), className: "text-blue-500 hover:text-blue-700 hover:underline font-medium text-left", children: log.created_at }) }),
           isVisible("campaign_name") && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-medium", style: { color: "var(--color-text-primary)" }, children: log.campaign_name }),
@@ -32410,7 +32463,7 @@ const RecentClicks = ({ logs, preferences, onShowAll }) => {
         onClick: onShowAll,
         className: "text-blue-500 hover:text-blue-700 text-sm font-medium flex items-center gap-1 transition-colors",
         children: [
-          t2("dashboard.viewFullLogs"),
+          t("dashboard.viewFullLogs"),
           " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 14 })
         ]
@@ -32517,12 +32570,12 @@ const InfoBanner = ({ storageKey, title, children, icon: Icon2 = Lightbulb, vari
   ] });
 };
 const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [visible, setVisible] = reactExports.useState(false);
   const [tipCoords, setTipCoords] = reactExports.useState({ left: 0, top: 0 });
   const tipRef = reactExports.useRef(null);
   const btnRef = reactExports.useRef(null);
-  const content = text || (textKey ? t2(textKey) : "");
+  const content = text || (textKey ? t(textKey) : "");
   reactExports.useEffect(() => {
     if (!visible) return;
     const handleClickOutside = (e) => {
@@ -32655,7 +32708,7 @@ const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} })
 };
 const API_URL$B = "/api.php";
 const Domains = ({ campaigns }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [domains, setDomains] = reactExports.useState([]);
   const [filteredDomains, setFilteredDomains] = reactExports.useState([]);
   const [searchTerm, setSearchTerm] = reactExports.useState("");
@@ -32686,7 +32739,7 @@ const Domains = ({ campaigns }) => {
       if (res.data.status === "success") {
         setDomains(res.data.data);
         setFilteredDomains(res.data.data);
-        setServerIp(res.data.server_ip || t2("common.notSet"));
+        setServerIp(res.data.server_ip || t("common.notSet"));
       }
     } catch (e) {
       console.error(e);
@@ -32715,7 +32768,7 @@ const Domains = ({ campaigns }) => {
     setShowModal(true);
   };
   const handleDelete = async (id) => {
-    if (!window.confirm(t2("domains.deleteConfirm"))) return;
+    if (!window.confirm(t("domains.deleteConfirm"))) return;
     try {
       await axios.post(`${API_URL$B}?action=delete_domain`, { id });
       fetchDomains();
@@ -32740,24 +32793,24 @@ const Domains = ({ campaigns }) => {
         setFormData({ id: null, name: "", index_campaign_id: "", catch_404: false, group_id: "", is_noindex: true, https_only: false });
         fetchDomains();
       } else {
-        setError(res.data.message || t2("common.error"));
+        setError(res.data.message || t("common.error"));
       }
     } catch (e2) {
-      setError(t2("common.networkError"));
+      setError(t("common.networkError"));
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded shadow-sm p-5 mb-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_domains", title: t2("help.domainBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("help.domainBanner") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_domains", title: t("help.domainBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.domainBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-lg font-semibold text-gray-800 flex items-center gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 20, className: "text-gray-500" }),
-          t2("domains.title")
+          t("domains.title")
         ] }),
         serverIp && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center bg-blue-50 text-blue-800 px-3 py-1 rounded text-sm border border-blue-100", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium mr-2", children: t2("domains.serverIp") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium mr-2", children: t("domains.serverIp") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: serverIp }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: copyIp, className: "ml-2 hover:text-blue-600 transition", title: t2("common.copy"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 14 }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: copyIp, className: "ml-2 hover:text-blue-600 transition", title: t("common.copy"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 14 }) })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
@@ -32767,14 +32820,14 @@ const Domains = ({ campaigns }) => {
             "input",
             {
               type: "text",
-              placeholder: t2("domains.searchPlaceholder"),
+              placeholder: t("domains.searchPlaceholder"),
               value: searchTerm,
               onChange: (e) => setSearchTerm(e.target.value),
               className: "pl-9 pr-4 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500 w-64"
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 px-3 py-2 rounded text-sm border border-gray-200 bg-white", title: t2("domains.ignoreDnsHint"), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 px-3 py-2 rounded text-sm border border-gray-200 bg-white", title: t("domains.ignoreDnsHint"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -32783,7 +32836,7 @@ const Domains = ({ campaigns }) => {
               onChange: (e) => setIgnoreDnsUi(Boolean(e.target.checked))
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-700", children: t2("domains.ignoreDnsLabel") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-700", children: t("domains.ignoreDnsLabel") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
@@ -32796,7 +32849,7 @@ const Domains = ({ campaigns }) => {
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
               " ",
-              t2("domains.addDomain")
+              t("domains.addDomain")
             ]
           }
         )
@@ -32804,19 +32857,19 @@ const Domains = ({ campaigns }) => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left text-sm border-collapse", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-gray-50 border-b border-gray-100", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("domains.domain") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("domains.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("domains.indexPage") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-center", children: t2("domains.https") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("domains.dateAdded") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-right", children: t2("domains.actions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("domains.domain") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("domains.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("domains.indexPage") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-center", children: t("domains.https") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("domains.dateAdded") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-right", children: t("domains.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-100", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8", children: t2("domains.loading") }) }) : filteredDomains.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8 text-gray-500", children: t2("domains.noDomains") }) }) : filteredDomains.map((domain) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-gray-50 transition", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-100", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8", children: t("domains.loading") }) }) : filteredDomains.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8 text-gray-500", children: t("domains.noDomains") }) }) : filteredDomains.map((domain) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-gray-50 transition", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-medium text-gray-800", children: domain.name }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3", children: ignoreDnsUi || domain.status === "active" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 text-green-600 text-sm font-medium bg-green-50 px-2 py-1 rounded", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }),
           " ",
-          t2("domains.ok")
+          t("domains.ok")
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
@@ -32825,21 +32878,21 @@ const Domains = ({ campaigns }) => {
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { size: 14 }),
               " ",
-              t2("domains.awaitingDns")
+              t("domains.awaitingDns")
             ]
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-600", children: domain.index_campaign_name || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400 italic", children: t2("domains.notSelected") }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-600", children: domain.index_campaign_name || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400 italic", children: t("domains.notSelected") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-center", children: domain.https_only ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "text-gray-300 mx-auto" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-500 text-xs", children: domain.created_at }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(domain), className: "p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition", title: t2("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(domain.id), className: "p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition", title: t2("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(domain), className: "p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition", title: t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(domain.id), className: "p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 }) })
         ] }) })
       ] }, domain.id)) })
     ] }) }),
     showModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-md p-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold mb-4", children: formData.id ? t2("domains.editDomain") : t2("domains.addDomainTitle") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold mb-4", children: formData.id ? t("domains.editDomain") : t("domains.addDomainTitle") }),
       error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-red-50 text-red-600 p-3 rounded text-sm mb-4 flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
         error
@@ -32847,9 +32900,9 @@ const Domains = ({ campaigns }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium mb-1", children: [
-            t2("domains.domainName"),
+            t("domains.domainName"),
             " ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-gray-400 font-normal", children: t2("domains.domainNameHint") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-gray-400 font-normal", children: t("domains.domainNameHint") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
@@ -32864,7 +32917,7 @@ const Domains = ({ campaigns }) => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium mb-1", children: [
-            t2("domains.indexPageLabel"),
+            t("domains.indexPageLabel"),
             " ",
             /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.indexCampaignTooltip" })
           ] }),
@@ -32877,7 +32930,7 @@ const Domains = ({ campaigns }) => {
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "", children: [
                   "-- ",
-                  t2("domains.notSelected"),
+                  t("domains.notSelected"),
                   " --"
                 ] }),
                 campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: c.id, children: [
@@ -32889,7 +32942,7 @@ const Domains = ({ campaigns }) => {
               ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500 mt-1", children: t2("domains.indexPageHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500 mt-1", children: t("domains.indexPageHint") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mt-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -32901,11 +32954,11 @@ const Domains = ({ campaigns }) => {
               onChange: (e) => setFormData({ ...formData, catch_404: e.target.checked })
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "catch404", className: "text-sm font-medium cursor-pointer", children: t2("domains.catch404") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "catch404", className: "text-sm font-medium cursor-pointer", children: t("domains.catch404") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("hr", { className: "my-3" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t2("domains.searchRobots") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t("domains.searchRobots") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
             {
@@ -32913,12 +32966,12 @@ const Domains = ({ campaigns }) => {
               value: formData.is_noindex ? "1" : "0",
               onChange: (e) => setFormData({ ...formData, is_noindex: e.target.value === "1" }),
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "1", children: t2("domains.disallowRobots") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "0", children: t2("domains.allowRobots") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "1", children: t("domains.disallowRobots") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "0", children: t("domains.allowRobots") })
               ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500 mt-1", children: t2("domains.robotsHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500 mt-1", children: t("domains.robotsHint") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 pt-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -32931,14 +32984,14 @@ const Domains = ({ campaigns }) => {
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: "https_only", className: "text-sm font-medium cursor-pointer", children: [
-            t2("domains.httpsOnly"),
+            t("domains.httpsOnly"),
             " ",
             /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.httpsTooltip" })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-3 mt-6 pt-4 border-t", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setShowModal(false), className: "px-4 py-2 text-gray-600 hover:bg-gray-100 rounded", children: t2("common.cancel") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "submit", className: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium", children: t2("common.save") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setShowModal(false), className: "px-4 py-2 text-gray-600 hover:bg-gray-100 rounded", children: t("common.cancel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "submit", className: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium", children: t("common.save") })
         ] })
       ] })
     ] }) }),
@@ -32947,12 +33000,12 @@ const Domains = ({ campaigns }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-lg font-bold flex items-center gap-2 text-gray-800", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "text-orange-500" }),
           " ",
-          t2("domains.dnsTitle")
+          t("domains.dnsTitle")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowDnsModal(false), className: "text-gray-400 hover:text-gray-600", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600 mb-4", children: t2("domains.dnsInstruction") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600 mb-4", children: t("domains.dnsInstruction") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-200 rounded p-4 mb-4 font-mono text-sm text-center", children: [
           "@    IN    ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-blue-600", children: serverIp })
@@ -32960,40 +33013,40 @@ const Domains = ({ campaigns }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-gray-500 mb-2 items-center flex gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-1.5 h-1.5 rounded-full bg-gray-400" }),
           " ",
-          t2("domains.dnsNote1")
+          t("domains.dnsNote1")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-gray-500 items-center flex gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" }),
           " ",
-          t2("domains.dnsNote2")
+          t("domains.dnsNote2")
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-t bg-gray-50 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowDnsModal(false), className: "px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded font-medium", children: t2("common.close") }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-t bg-gray-50 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowDnsModal(false), className: "px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded font-medium", children: t("common.close") }) })
     ] }) })
   ] });
 };
 const API_URL$A = "/api.php";
-const statusMeta = (t2, status) => {
+const statusMeta = (t, status) => {
   switch (status) {
     case "available":
-      return { label: t2("backorder.statusAvailable"), cls: "text-green-700 bg-green-50 border-green-100" };
+      return { label: t("backorder.statusAvailable"), cls: "text-green-700 bg-green-50 border-green-100" };
     case "dns_available":
-      return { label: t2("backorder.statusDnsAvailable"), cls: "text-lime-700 bg-lime-50 border-lime-100" };
+      return { label: t("backorder.statusDnsAvailable"), cls: "text-lime-700 bg-lime-50 border-lime-100" };
     case "registered":
-      return { label: t2("backorder.statusRegistered"), cls: "text-gray-700 bg-gray-50 border-gray-100" };
+      return { label: t("backorder.statusRegistered"), cls: "text-gray-700 bg-gray-50 border-gray-100" };
     case "rate_limited":
-      return { label: t2("backorder.statusRateLimited"), cls: "text-amber-700 bg-amber-50 border-amber-100" };
+      return { label: t("backorder.statusRateLimited"), cls: "text-amber-700 bg-amber-50 border-amber-100" };
     case "unsupported":
-      return { label: t2("backorder.statusUnsupported"), cls: "text-slate-700 bg-slate-50 border-slate-100" };
+      return { label: t("backorder.statusUnsupported"), cls: "text-slate-700 bg-slate-50 border-slate-100" };
     case "error":
-      return { label: t2("backorder.statusError"), cls: "text-red-700 bg-red-50 border-red-100" };
+      return { label: t("backorder.statusError"), cls: "text-red-700 bg-red-50 border-red-100" };
     case "unknown":
     default:
-      return { label: t2("backorder.statusUnknown"), cls: "text-blue-700 bg-blue-50 border-blue-100" };
+      return { label: t("backorder.statusUnknown"), cls: "text-blue-700 bg-blue-50 border-blue-100" };
   }
 };
 const BackorderDomains = ({ onOpenAutomation = null }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [rows, setRows] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
   const [searchTerm, setSearchTerm] = reactExports.useState("");
@@ -33065,7 +33118,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     }
     const res = await axios.post(`${API_URL$A}?action=backorder_check_batch`, payload);
     if (res.data.status !== "success") {
-      const msg = res.data.message || t2("common.error");
+      const msg = res.data.message || t("common.error");
       throw new Error(msg);
     }
     const data = res.data.data || {};
@@ -33079,7 +33132,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
       setBatchTotalChecked(sessionCheckedRef.current);
     }
     setBatchMsg(
-      t2("backorder.batchProgress").replace("{session_checked}", String(sessionCheckedRef.current)).replace("{due_remaining}", String(dueRemaining ?? "-")).replace("{due_total}", String(dueTotal ?? "-")).replace("{never_checked}", String(neverChecked ?? "-")).replace("{total}", String(total ?? "-"))
+      t("backorder.batchProgress").replace("{session_checked}", String(sessionCheckedRef.current)).replace("{due_remaining}", String(dueRemaining ?? "-")).replace("{due_total}", String(dueTotal ?? "-")).replace("{never_checked}", String(neverChecked ?? "-")).replace("{total}", String(total ?? "-"))
     );
     await fetchRows({ silent: true });
     return { checked, neverChecked, total, dueRemaining, dueTotal };
@@ -33089,29 +33142,29 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     setBatchRunning(true);
     sessionCheckedRef.current = 0;
     setBatchTotalChecked(0);
-    setBatchMsg(t2("backorder.batchStarting"));
+    setBatchMsg(t("backorder.batchStarting"));
     stopRef.current = false;
     try {
       const runStartedAt = Math.floor(Date.now() / 1e3);
       for (let i = 0; i < 5e3; i++) {
         if (stopRef.current) {
-          setBatchMsg(t2("backorder.batchStopped"));
+          setBatchMsg(t("backorder.batchStopped"));
           break;
         }
         const { checked, dueRemaining, dueTotal } = await runOneStep({ runStartedAt });
         if (checked <= 0) {
-          setBatchMsg(t2("backorder.batchNothingToDo"));
+          setBatchMsg(t("backorder.batchNothingToDo"));
           break;
         }
         if (dueTotal === 0 || dueRemaining === 0) {
-          setBatchMsg(t2("backorder.batchDone"));
+          setBatchMsg(t("backorder.batchDone"));
           break;
         }
         await new Promise((r2) => setTimeout(r2, 400));
       }
     } catch (e) {
       console.error(e);
-      setBatchMsg(e?.message ? String(e.message) : t2("common.networkError"));
+      setBatchMsg(e?.message ? String(e.message) : t("common.networkError"));
     } finally {
       setBatchRunning(false);
     }
@@ -33130,7 +33183,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     sessionCheckedRef.current = 0;
     setBatchTotalChecked(0);
     if (autoRunRef.current) {
-      setBatchMsg(t2("backorder.autoStarting"));
+      setBatchMsg(t("backorder.autoStarting"));
     }
     let cancelled = false;
     const sleep = (ms) => new Promise((r2) => setTimeout(r2, ms));
@@ -33149,12 +33202,12 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         try {
           const { checked } = await runOneStep();
           if (checked <= 0) {
-            setBatchMsg(t2("backorder.autoIdle"));
+            setBatchMsg(t("backorder.autoIdle"));
             await sleep(1e4);
             continue;
           }
         } catch (e) {
-          setBatchMsg(e?.message ? String(e.message) : t2("common.networkError"));
+          setBatchMsg(e?.message ? String(e.message) : t("common.networkError"));
           await sleep(5e3);
         }
         await sleep(800);
@@ -33198,7 +33251,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     setSelectedIds(next);
   };
   const deleteOne = async (id) => {
-    if (!window.confirm(t2("common.deleteConfirm"))) return;
+    if (!window.confirm(t("common.deleteConfirm"))) return;
     try {
       await axios.post(`${API_URL$A}?action=backorder_delete`, { id });
       setSelectedIds((prev) => {
@@ -33214,7 +33267,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   const deleteSelected = async () => {
     const ids = Array.from(selectedIds);
     if (ids.length === 0) return;
-    if (!window.confirm(t2("backorder.deleteSelectedConfirm").replace("{count}", String(ids.length)))) return;
+    if (!window.confirm(t("backorder.deleteSelectedConfirm").replace("{count}", String(ids.length)))) return;
     try {
       await axios.post(`${API_URL$A}?action=backorder_delete_selected`, { ids });
       setSelectedIds(/* @__PURE__ */ new Set());
@@ -33251,10 +33304,10 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         setShowEdit(false);
         fetchRows();
       } else {
-        setEditError(res.data.message || t2("common.error"));
+        setEditError(res.data.message || t("common.error"));
       }
     } catch (e2) {
-      setEditError(t2("common.networkError"));
+      setEditError(t("common.networkError"));
     }
   };
   const checkNow = async (id) => {
@@ -33275,10 +33328,10 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         setImportResult(res.data.data);
         fetchRows();
       } else {
-        setImportError(res.data.message || t2("common.error"));
+        setImportError(res.data.message || t("common.error"));
       }
     } catch (e2) {
-      setImportError(t2("common.networkError"));
+      setImportError(t("common.networkError"));
     }
   };
   const downloadText = (filename, content, mime = "text/plain;charset=utf-8") => {
@@ -33326,9 +33379,9 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     downloadText("backorder_domains.csv", lines.join("\n") + "\n", "text/csv;charset=utf-8");
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded shadow-sm p-5 mb-6", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(InfoBanner, { storageKey: "help_backorder", title: t2("backorder.bannerTitle"), children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("backorder.bannerText") }),
-      typeof onOpenAutomation === "function" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: onOpenAutomation, children: t2("backorder.openAutomation") }) })
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(InfoBanner, { storageKey: "help_backorder", title: t("backorder.bannerTitle"), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("backorder.bannerText") }),
+      typeof onOpenAutomation === "function" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: onOpenAutomation, children: t("backorder.openAutomation") }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
@@ -33338,7 +33391,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
             "input",
             {
               type: "text",
-              placeholder: t2("backorder.searchPlaceholder"),
+              placeholder: t("backorder.searchPlaceholder"),
               value: searchTerm,
               onChange: (e) => setSearchTerm(e.target.value),
               className: "pl-9 pr-4 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500 w-64"
@@ -33352,14 +33405,14 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
             onChange: (e) => setStatusFilter(e.target.value),
             className: "px-3 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500",
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: t2("common.all") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "available", children: t2("backorder.statusAvailable") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "dns_available", children: t2("backorder.statusDnsAvailable") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "unknown", children: t2("backorder.statusUnknown") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "registered", children: t2("backorder.statusRegistered") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "rate_limited", children: t2("backorder.statusRateLimited") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "error", children: t2("backorder.statusError") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "unsupported", children: t2("backorder.statusUnsupported") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: t("common.all") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "available", children: t("backorder.statusAvailable") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "dns_available", children: t("backorder.statusDnsAvailable") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "unknown", children: t("backorder.statusUnknown") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "registered", children: t("backorder.statusRegistered") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "rate_limited", children: t("backorder.statusRateLimited") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "error", children: t("backorder.statusError") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "unsupported", children: t("backorder.statusUnsupported") })
             ]
           }
         )
@@ -33370,11 +33423,11 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
           {
             onClick: fetchRows,
             className: "bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition",
-            title: t2("common.refresh"),
+            title: t("common.refresh"),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16 }),
               " ",
-              t2("common.refresh")
+              t("common.refresh")
             ]
           }
         ),
@@ -33384,11 +33437,11 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
             onClick: runBatch,
             disabled: batchRunning,
             className: `px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition ${batchRunning ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700 text-white"}`,
-            title: t2("backorder.batchRun"),
+            title: t("backorder.batchRun"),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(CirclePlay, { size: 16 }),
               " ",
-              batchRunning ? t2("backorder.batchRunning") : t2("backorder.batchRun")
+              batchRunning ? t("backorder.batchRunning") : t("backorder.batchRun")
             ]
           }
         ),
@@ -33401,18 +33454,18 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
               onChange: (e) => setAutoRun(Boolean(e.target.checked))
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-700", children: t2("backorder.autoRunLabel") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-700", children: t("backorder.autoRunLabel") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
             onClick: exportTxt,
             className: "bg-white hover:bg-gray-50 text-gray-800 px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition border border-gray-200",
-            title: t2("backorder.exportTxtHint"),
+            title: t("backorder.exportTxtHint"),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16 }),
               " ",
-              t2("backorder.exportTxt")
+              t("backorder.exportTxt")
             ]
           }
         ),
@@ -33421,11 +33474,11 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
           {
             onClick: exportCsv,
             className: "bg-white hover:bg-gray-50 text-gray-800 px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition border border-gray-200",
-            title: t2("backorder.exportCsvHint"),
+            title: t("backorder.exportCsvHint"),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16 }),
               " ",
-              t2("backorder.exportCsv")
+              t("backorder.exportCsv")
             ]
           }
         ),
@@ -33442,7 +33495,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
               " ",
-              t2("backorder.import")
+              t("backorder.import")
             ]
           }
         ),
@@ -33455,7 +33508,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 }),
               " ",
-              t2("backorder.deleteSelected")
+              t("backorder.deleteSelected")
             ]
           }
         )
@@ -33472,21 +33525,21 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
             stopRef.current = true;
           },
           className: "ml-2 text-xs text-gray-600 underline",
-          children: t2("common.cancel")
+          children: t("common.cancel")
         }
       )
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left text-sm border-collapse", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-gray-50 border-b border-gray-100", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: allVisibleSelected, onChange: toggleSelectAllVisible }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("backorder.domain") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("backorder.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("backorder.lastChecked") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t2("backorder.notes") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-right", children: t2("common.actions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("backorder.domain") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("backorder.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("backorder.lastChecked") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("backorder.notes") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-right", children: t("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-100", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8", children: t2("common.loading") }) }) : filtered.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8 text-gray-500", children: t2("backorder.noRows") }) }) : filtered.map((r2) => {
-        const meta = statusMeta(t2, r2.status || "unknown");
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-100", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8", children: t("common.loading") }) }) : filtered.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8 text-gray-500", children: t("backorder.noRows") }) }) : filtered.map((r2) => {
+        const meta = statusMeta(t, r2.status || "unknown");
         const checked = selectedIds.has(r2.id);
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-gray-50 transition", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked, onChange: () => toggleOne(r2.id) }) }),
@@ -33515,7 +33568,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
               {
                 onClick: () => checkNow(r2.id),
                 className: "p-1.5 text-gray-400 hover:text-emerald-700 hover:bg-emerald-50 rounded transition",
-                title: t2("backorder.checkNow"),
+                title: t("backorder.checkNow"),
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(CirclePlay, { size: 16 })
               }
             ),
@@ -33524,7 +33577,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
               {
                 onClick: () => openEdit(r2),
                 className: "p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition",
-                title: t2("components.edit") || "Edit",
+                title: t("components.edit") || "Edit",
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 })
               }
             ),
@@ -33533,7 +33586,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
               {
                 onClick: () => deleteOne(r2.id),
                 className: "p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition",
-                title: t2("common.delete"),
+                title: t("common.delete"),
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 })
               }
             )
@@ -33543,7 +33596,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     ] }) }),
     showImport && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-2xl p-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold", children: t2("backorder.importTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold", children: t("backorder.importTitle") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "text-gray-400 hover:text-gray-700", onClick: () => setShowImport(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 18 }) })
       ] }),
       importError && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-red-50 text-red-600 p-3 rounded text-sm mb-4 flex items-center gap-2", children: [
@@ -33551,7 +33604,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         " ",
         importError
       ] }),
-      importResult && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-green-50 text-green-700 p-3 rounded text-sm mb-4", children: t2("backorder.importResult").replace("{inserted}", String(importResult.inserted || 0)).replace("{duplicates}", String(importResult.duplicates_ignored || 0)).replace("{invalid}", String(importResult.invalid || 0)) }),
+      importResult && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-green-50 text-green-700 p-3 rounded text-sm mb-4", children: t("backorder.importResult").replace("{inserted}", String(importResult.inserted || 0)).replace("{duplicates}", String(importResult.duplicates_ignored || 0)).replace("{invalid}", String(importResult.invalid || 0)) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: submitImport, className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "textarea",
@@ -33559,7 +33612,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
             value: importText,
             onChange: (e) => setImportText(e.target.value),
             rows: 10,
-            placeholder: t2("backorder.importPlaceholder"),
+            placeholder: t("backorder.importPlaceholder"),
             className: "w-full border border-gray-300 p-3 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-mono"
           }
         ),
@@ -33570,7 +33623,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
               type: "button",
               onClick: () => setShowImport(false),
               className: "bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded text-sm font-medium transition",
-              children: t2("common.close")
+              children: t("common.close")
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -33578,7 +33631,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
             {
               type: "submit",
               className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition",
-              children: t2("backorder.import")
+              children: t("backorder.import")
             }
           )
         ] })
@@ -33586,7 +33639,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     ] }) }),
     showEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-lg p-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold", children: t2("backorder.editTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold", children: t("backorder.editTitle") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "text-gray-400 hover:text-gray-700", onClick: () => setShowEdit(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 18 }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-gray-600 mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: editForm.name }) }),
@@ -33597,7 +33650,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: saveEdit, className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t2("backorder.notes") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t("backorder.notes") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "textarea",
             {
@@ -33615,7 +33668,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
               type: "button",
               onClick: () => setShowEdit(false),
               className: "bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded text-sm font-medium transition",
-              children: t2("common.cancel")
+              children: t("common.cancel")
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -33623,7 +33676,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
             {
               type: "submit",
               className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition",
-              children: t2("common.save")
+              children: t("common.save")
             }
           )
         ] })
@@ -33633,7 +33686,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
 };
 const API_URL$z = "/api.php";
 const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [actionModal, setActionModal] = reactExports.useState({ type: null, campaignId: null });
   const [selectedCampaignIds, setSelectedCampaignIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
   const [sortBy, setSortBy] = reactExports.useState({ key: null, dir: "desc" });
@@ -33650,12 +33703,12 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     setActiveTab("campaign_editor");
   };
   const handleDelete = async (id) => {
-    if (window.confirm(t2("campaigns.deleteConfirm"))) {
+    if (window.confirm(t("campaigns.deleteConfirm"))) {
       try {
         await axios.post(`${API_URL$z}?action=delete_campaign`, { id });
         refreshData();
       } catch (err) {
-        alert(t2("common.deleteError"));
+        alert(t("common.deleteError"));
       }
     }
   };
@@ -33735,14 +33788,14 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   const handleBulkDeleteSelected = async () => {
     const ids = Array.from(selectedCampaignIds);
     if (ids.length === 0) return;
-    const msg = (t2("common.deleteSelectedConfirm") || t2("campaigns.deleteConfirm")).replace("{count}", String(ids.length));
+    const msg = (t("common.deleteSelectedConfirm") || t("campaigns.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
       await axios.post(`${API_URL$z}?action=bulk_delete_campaigns`, { ids });
       setSelectedCampaignIds(/* @__PURE__ */ new Set());
       refreshData();
     } catch (err) {
-      alert(t2("common.deleteError"));
+      alert(t("common.deleteError"));
     }
   };
   const SortIcon = ({ colKey }) => {
@@ -33758,7 +33811,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         onClick: () => requestSort(colKey, defaultDir),
         className: `inline-flex items-center gap-1 select-none ${alignRight ? "justify-end w-full" : ""}`,
         style: { color: isActive ? "var(--color-text-primary)" : "var(--color-text-secondary)" },
-        title: t2("common.sort", "Sort"),
+        title: t("common.sort", "Sort"),
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey })
@@ -33810,7 +33863,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
       refreshData();
       setActionModal({ type: null, campaignId: null });
     } catch (err) {
-      alert(t2("common.clearError"));
+      alert(t("common.clearError"));
     }
   };
   const handleUpdateCosts = async (e) => {
@@ -33826,29 +33879,29 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     try {
       const res = await axios.post(`${API_URL$z}?action=update_costs`, data);
       if (res.data.status === "success") {
-        alert(t2("campaigns.updatedClicks").replace("{count}", res.data.updated_clicks));
+        alert(t("campaigns.updatedClicks").replace("{count}", res.data.updated_clicks));
         refreshData();
         setActionModal({ type: null, campaignId: null });
       } else {
         alert(res.data.message);
       }
     } catch (err) {
-      alert(t2("common.networkError"));
+      alert(t("common.networkError"));
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_campaigns", title: t2("help.campaignBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("help.campaignBanner") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_campaigns", title: t("help.campaignBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.campaignBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleCreate, className: "btn btn-primary", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
-          t2("common.create")
+          t("common.create")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t2("campaigns.groups") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t2("campaigns.sources") }),
-        selectedCampaignIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t2("common.deleteSelected"), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t("campaigns.groups") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t("campaigns.sources") }),
+        selectedCampaignIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t("common.deleteSelected"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
-          t2("common.deleteSelected") || t2("common.delete"),
+          t("common.deleteSelected") || t("common.delete"),
           " (",
           selectedCampaignIds.size,
           ")"
@@ -33864,7 +33917,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
             style: showFilters ? { color: "var(--color-primary)" } : {},
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "w-4 h-4" }),
-              t2("editor.filters"),
+              t("editor.filters"),
               search ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full", children: "1" }) : null
             ]
           }
@@ -33875,18 +33928,18 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
             type: "button",
             onClick: handleRefresh,
             className: "btn btn-ghost btn-icon",
-            title: t2("common.refresh"),
+            title: t("common.refresh"),
             disabled: refreshing,
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-5 h-5 ${refreshing ? "animate-spin" : ""}` })
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", title: t2("common.settings", "Settings"), onClick: () => setSettingsOpen(true), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", title: t("common.settings", "Settings"), onClick: () => setSettingsOpen(true), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) })
       ] })
     ] }),
     showFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-4 items-center py-4 mb-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-          t2("common.search", "Search"),
+          t("common.search", "Search"),
           ":"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -33896,13 +33949,13 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
             onChange: (e) => setSearch(e.target.value),
             className: "form-input",
             style: { width: "auto", minWidth: "260px" },
-            placeholder: t2("common.searchPlaceholder", "Name or alias")
+            placeholder: t("common.searchPlaceholder", "Name or alias")
           }
         )
       ] }),
       search && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => setSearch(""), className: "btn btn-ghost btn-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }),
-        t2("common.clear")
+        t("common.clear")
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
@@ -33919,16 +33972,16 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
           }
         ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "id", label: "ID", defaultDir: "desc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "name", label: t2("campaigns.campaign"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "group_name", label: t2("campaigns.group"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "clicks", label: t2("metrics.clicks"), defaultDir: "desc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "unique_clicks", label: t2("campaigns.unique"), defaultDir: "desc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "conversions", label: t2("metrics.conversions"), defaultDir: "desc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("common.actions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "name", label: t("campaigns.campaign"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "group_name", label: t("campaigns.group"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "clicks", label: t("metrics.clicks"), defaultDir: "desc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "unique_clicks", label: t("campaigns.unique"), defaultDir: "desc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "conversions", label: t("metrics.conversions"), defaultDir: "desc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleCampaigns.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "8", className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("campaigns.noCampaignsCreated") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t2("campaigns.createFirstCampaign") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("campaigns.noCampaignsCreated") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("campaigns.createFirstCampaign") })
       ] }) }) }) : visibleCampaigns.map((camp) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
@@ -33963,73 +34016,73 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: camp.conversions }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(camp.id), className: "action-btn text-blue", children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: "update_costs", campaignId: camp.id }), className: "action-btn text-green", title: t2("campaigns.updateCosts"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-4 h-4" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: "clear_stats", campaignId: camp.id }), className: "action-btn text-orange", title: t2("common.clearStats"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "w-4 h-4" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(camp.id), className: "action-btn text-red", title: t2("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: "update_costs", campaignId: camp.id }), className: "action-btn text-green", title: t("campaigns.updateCosts"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-4 h-4" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: "clear_stats", campaignId: camp.id }), className: "action-btn text-orange", title: t("common.clearStats"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "w-4 h-4" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(camp.id), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
         ] }) })
       ] }, camp.id)) })
     ] }) }),
     actionModal.type === "clear_stats" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title", children: [
-        t2("common.clearStats"),
+        t("common.clearStats"),
         "?"
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-secondary)", fontSize: "14px", marginBottom: "24px" }, children: t2("campaigns.clearStatsWarning") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-secondary)", fontSize: "14px", marginBottom: "24px" }, children: t("campaigns.clearStatsWarning") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: null, campaignId: null }), className: "btn btn-secondary", children: t2("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleClearStats, className: "btn btn-danger", children: t2("common.clear") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: null, campaignId: null }), className: "btn btn-secondary", children: t("common.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleClearStats, className: "btn btn-danger", children: t("common.clear") })
       ] })
     ] }) }),
     actionModal.type === "update_costs" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "520px" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t2("campaigns.updateCosts") }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("campaigns.updateCosts") }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleUpdateCosts, className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("campaigns.costAmount") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("campaigns.costAmount") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", step: "0.01", name: "cost", required: true, className: "form-input", placeholder: "0.00" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("campaigns.startDate") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("campaigns.startDate") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", name: "start_date", required: true, className: "form-input" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("campaigns.endDate") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("campaigns.endDate") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", name: "end_date", required: true, className: "form-input" })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)", fontSize: "14px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", name: "unique_only" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("campaigns.distributeUniqueOnly") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("campaigns.distributeUniqueOnly") })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setActionModal({ type: null, campaignId: null }), className: "btn btn-secondary", children: t2("common.cancel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setActionModal({ type: null, campaignId: null }), className: "btn btn-secondary", children: t("common.cancel") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "submit", className: "btn btn-primary", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-4 h-4" }),
-            t2("common.apply")
+            t("common.apply")
           ] })
         ] })
       ] })
     ] }) }),
     settingsOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => setSettingsOpen(false), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", onClick: (e) => e.stopPropagation(), style: { maxWidth: "560px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t2("common.settings", "Settings") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setSettingsOpen(false), title: t2("common.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("common.settings", "Settings") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setSettingsOpen(false), title: t("common.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary w-full", onClick: () => {
           setSortBy({ key: null, dir: "desc" });
-        }, children: t2("common.resetSort", "Reset sorting") }),
+        }, children: t("common.resetSort", "Reset sorting") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary w-full", onClick: () => {
           setSelectedCampaignIds(/* @__PURE__ */ new Set());
-        }, children: t2("common.clearSelection", "Clear selection") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-primary w-full", onClick: exportVisibleCsv, children: t2("common.exportCsv", "Export CSV") })
+        }, children: t("common.clearSelection", "Clear selection") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-primary w-full", onClick: exportVisibleCsv, children: t("common.exportCsv", "Export CSV") })
       ] })
     ] }) })
   ] });
 };
 const API_URL$y = "/api.php";
 const TrafficSimulation = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [campaigns, setCampaigns] = reactExports.useState([]);
   const [formData, setFormData] = reactExports.useState({
     campaign_id: "",
@@ -34063,7 +34116,7 @@ const TrafficSimulation = () => {
         alert(res.data.message);
       }
     } catch (err) {
-      alert(t2("common.networkError") + ": " + err.message);
+      alert(t("common.networkError") + ": " + err.message);
     } finally {
       setLoading(false);
     }
@@ -34071,12 +34124,12 @@ const TrafficSimulation = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Activity, { className: "w-5 h-5", style: { color: "var(--color-primary)" } }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t2("simulation.title") })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t("simulation.title") })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "32px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { maxWidth: "400px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSimulate, className: "form-section", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("simulation.campaign") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("simulation.campaign") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "select",
             {
@@ -34089,7 +34142,7 @@ const TrafficSimulation = () => {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("simulation.ipAddress") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("simulation.ipAddress") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -34102,7 +34155,7 @@ const TrafficSimulation = () => {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("simulation.userAgent") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("simulation.userAgent") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -34115,7 +34168,7 @@ const TrafficSimulation = () => {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("simulation.geoCode") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("simulation.geoCode") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -34128,7 +34181,7 @@ const TrafficSimulation = () => {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("simulation.deviceType") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("simulation.deviceType") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
             {
@@ -34136,15 +34189,15 @@ const TrafficSimulation = () => {
               onChange: (e) => setFormData({ ...formData, device_type: e.target.value }),
               className: "form-select",
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "desktop", children: t2("simulation.desktop") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "mobile", children: t2("simulation.mobile") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tablet", children: t2("simulation.tablet") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "desktop", children: t("simulation.desktop") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "mobile", children: t("simulation.mobile") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tablet", children: t("simulation.tablet") })
               ]
             }
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("simulation.language") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("simulation.language") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -34158,7 +34211,7 @@ const TrafficSimulation = () => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "submit", disabled: loading, className: "btn btn-primary", style: { width: "100%" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { className: "w-4 h-4" }),
-          loading ? t2("simulation.simulating") : t2("simulation.runTest")
+          loading ? t("simulation.simulating") : t("simulation.runTest")
         ] })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
@@ -34170,7 +34223,7 @@ const TrafficSimulation = () => {
           marginBottom: "12px",
           paddingBottom: "8px",
           borderBottom: "1px solid var(--color-border)"
-        }, children: t2("simulation.resultTitle") }),
+        }, children: t("simulation.resultTitle") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
           background: "#1a1a1a",
           borderRadius: "16px",
@@ -34186,7 +34239,7 @@ const TrafficSimulation = () => {
           height: "100%",
           alignItems: "center",
           justifyContent: "center"
-        }, children: t2("simulation.runToSee") }) : trace.map((line, idx) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        }, children: t("simulation.runToSee") }) : trace.map((line, idx) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           "div",
           {
             style: {
@@ -34204,7 +34257,7 @@ const TrafficSimulation = () => {
 };
 const API_URL$x = "/api.php";
 const LandingEditor = ({ landingId, onClose }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [landing, setLanding] = reactExports.useState({
     name: "",
     group_id: "",
@@ -34242,7 +34295,7 @@ const LandingEditor = ({ landingId, onClose }) => {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-        alert(t2("landingEditor.loadError"));
+        alert(t("landingEditor.loadError"));
       } finally {
         setLoading(false);
       }
@@ -34267,17 +34320,17 @@ const LandingEditor = ({ landingId, onClose }) => {
       const res = await axios.post(`${API_URL$x}?action=save_landing`, payload);
       if (res.data.status === "success") {
         if (!landingId && res.data.data.id && landing.type === "local") {
-          alert(t2("landingEditor.savedFiles"));
+          alert(t("landingEditor.savedFiles"));
           onClose(true);
         } else {
-          alert(t2("landingEditor.savedSuccess"));
+          alert(t("landingEditor.savedSuccess"));
           onClose(true);
         }
       } else {
-        alert(res.data.message || t2("landingEditor.saveError"));
+        alert(res.data.message || t("landingEditor.saveError"));
       }
     } catch (error) {
-      alert(t2("landingEditor.networkError"));
+      alert(t("landingEditor.networkError"));
     }
   };
   const handleZipUpload = async (e) => {
@@ -34292,13 +34345,13 @@ const LandingEditor = ({ landingId, onClose }) => {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status === "success") {
-        alert(t2("landingEditor.archiveUploaded"));
+        alert(t("landingEditor.archiveUploaded"));
         fetchLandingFiles(landingId);
       } else {
-        alert(res.data.message || t2("landingEditor.archiveError"));
+        alert(res.data.message || t("landingEditor.archiveError"));
       }
     } catch (error) {
-      alert(t2("landingEditor.archiveError"));
+      alert(t("landingEditor.archiveError"));
     } finally {
       setUploadingZip(false);
       e.target.value = null;
@@ -34311,10 +34364,10 @@ const LandingEditor = ({ landingId, onClose }) => {
         setSelectedFile(path);
         setFileContent(res.data.data);
       } else {
-        alert(t2("landingEditor.fileUploadError"));
+        alert(t("landingEditor.fileUploadError"));
       }
     } catch (error) {
-      alert(t2("landingEditor.fileReadError"));
+      alert(t("landingEditor.fileReadError"));
     }
   };
   const saveFileContent = async () => {
@@ -34328,25 +34381,25 @@ const LandingEditor = ({ landingId, onClose }) => {
       });
       if (res.data.status === "success") {
       } else {
-        alert(t2("landingEditor.fileSaveError"));
+        alert(t("landingEditor.fileSaveError"));
       }
     } catch (error) {
-      alert(t2("landingEditor.fileSaveError2"));
+      alert(t("landingEditor.fileSaveError2"));
     } finally {
       setSavingFile(false);
     }
   };
-  if (loading) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-content", style: { maxWidth: "300px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-6", style: { color: "var(--color-text-muted)" }, children: t2("common.loading") }) }) });
+  if (loading) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-content", style: { maxWidth: "300px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-6", style: { color: "var(--color-text-muted)" }, children: t("common.loading") }) }) });
   const isLocal = landing.type === "local";
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "1200px", width: "100%" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: landingId ? t2("landingEditor.saveChanges") : t2("landingEditor.createLanding") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: landingId ? t("landingEditor.saveChanges") : t("landingEditor.createLanding") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-0 flex flex-col md:flex-row", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-6 ${isLocal && landingId ? "md:w-1/3" : "w-full"} flex flex-col pt-4`, style: { borderRight: isLocal && landingId ? "1px solid var(--color-border)" : "none" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { id: "landing-form", onSubmit: handleFormSubmit, className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("landingEditor.name") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.name") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -34355,13 +34408,13 @@ const LandingEditor = ({ landingId, onClose }) => {
               value: landing.name,
               onChange: (e) => setLanding({ ...landing, name: e.target.value }),
               className: "form-input",
-              placeholder: t2("landingEditor.namePlaceholder")
+              placeholder: t("landingEditor.namePlaceholder")
             }
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("landingEditor.group") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.group") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "select",
               {
@@ -34369,14 +34422,14 @@ const LandingEditor = ({ landingId, onClose }) => {
                 onChange: (e) => setLanding({ ...landing, group_id: e.target.value }),
                 className: "form-select",
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("landingEditor.noGroup") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("landingEditor.noGroup") }),
                   groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
                 ]
               }
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("landingEditor.status") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.status") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "select",
               {
@@ -34384,15 +34437,15 @@ const LandingEditor = ({ landingId, onClose }) => {
                 onChange: (e) => setLanding({ ...landing, state: e.target.value }),
                 className: "form-select",
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t2("landingEditor.active") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "archived", children: t2("landingEditor.archived") })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("landingEditor.active") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "archived", children: t("landingEditor.archived") })
                 ]
               }
             )
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("landingEditor.landingType") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.landingType") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
             {
@@ -34401,16 +34454,16 @@ const LandingEditor = ({ landingId, onClose }) => {
               className: "form-select font-medium",
               style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" },
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "local", children: t2("landingEditor.localZip") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t2("landingEditor.redirect") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t2("landingEditor.preload") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "action", children: t2("landingEditor.action") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "local", children: t("landingEditor.localZip") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("landingEditor.redirect") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t("landingEditor.preload") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "action", children: t("landingEditor.action") })
               ]
             }
           )
         ] }),
         (landing.type === "redirect" || landing.type === "preload") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("landingEditor.urlLabel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.urlLabel") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -34419,13 +34472,13 @@ const LandingEditor = ({ landingId, onClose }) => {
               value: landing.url || "",
               onChange: (e) => setLanding({ ...landing, url: e.target.value }),
               className: "form-input",
-              placeholder: t2("landingEditor.urlPlaceholder")
+              placeholder: t("landingEditor.urlPlaceholder")
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: landing.type === "preload" && t2("landingEditor.preloadHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: landing.type === "preload" && t("landingEditor.preloadHint") })
         ] }),
         landing.type === "action" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("landingEditor.actionPayloadLabel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.actionPayloadLabel") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "textarea",
             {
@@ -34434,7 +34487,7 @@ const LandingEditor = ({ landingId, onClose }) => {
               value: landing.action_payload || "",
               onChange: (e) => setLanding({ ...landing, action_payload: e.target.value }),
               className: "form-input font-mono text-sm",
-              placeholder: t2("landingEditor.actionPayloadPlaceholder")
+              placeholder: t("landingEditor.actionPayloadPlaceholder")
             }
           )
         ] }),
@@ -34442,14 +34495,14 @@ const LandingEditor = ({ landingId, onClose }) => {
           backgroundColor: "var(--color-warning-bg)",
           border: "1px solid var(--color-warning)",
           color: "var(--color-warning)"
-        }, children: t2("landingEditor.saveFirst") })
+        }, children: t("landingEditor.saveFirst") })
       ] }) }),
       isLocal && landingId && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden min-h-[400px]", style: { backgroundColor: "var(--color-bg-soft)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center p-3", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "font-semibold flex items-center", style: { color: "var(--color-text-primary)" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-4 h-4 mr-2", style: { color: "var(--color-accent-purple)" } }),
-              t2("landingEditor.title")
+              t("landingEditor.title")
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
@@ -34469,7 +34522,7 @@ const LandingEditor = ({ landingId, onClose }) => {
                 className: "btn btn-secondary btn-sm",
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "w-4 h-4" }),
-                  uploadingZip ? t2("common.loading") : t2("landingEditor.uploadZip")
+                  uploadingZip ? t("common.loading") : t("landingEditor.uploadZip")
                 ]
               }
             )
@@ -34480,10 +34533,10 @@ const LandingEditor = ({ landingId, onClose }) => {
               onClick: saveFileContent,
               disabled: savingFile,
               className: "btn btn-primary btn-sm",
-              children: savingFile ? t2("common.saving") : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              children: savingFile ? t("common.saving") : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "w-4 h-4 mr-1" }),
                 " ",
-                t2("landingEditor.save"),
+                t("landingEditor.save"),
                 " ",
                 selectedFile
               ] })
@@ -34491,7 +34544,7 @@ const LandingEditor = ({ landingId, onClose }) => {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-1 overflow-hidden", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1/4 overflow-y-auto", style: { borderRight: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: files.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 text-sm text-center italic", style: { color: "var(--color-text-muted)" }, children: t2("landingEditor.selectFile") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "py-2", children: files.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1/4 overflow-y-auto", style: { borderRight: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: files.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 text-sm text-center italic", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.selectFile") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "py-2", children: files.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
               onClick: () => loadFileContent(file),
@@ -34518,23 +34571,23 @@ const LandingEditor = ({ landingId, onClose }) => {
             }
           ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full items-center justify-center", style: { color: "var(--color-text-muted)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-12 h-12 mx-auto mb-3 opacity-20" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("landingEditor.selectFile") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("landingEditor.selectFile") })
           ] }) }) })
         ] })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), type: "button", className: "btn btn-secondary", children: t2("landingEditor.cancel") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), type: "button", className: "btn btn-secondary", children: t("landingEditor.cancel") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "submit", form: "landing-form", className: "btn btn-primary", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 mr-2" }),
-        landingId ? t2("landingEditor.saveChanges") : t2("landingEditor.createLanding")
+        landingId ? t("landingEditor.saveChanges") : t("landingEditor.createLanding")
       ] })
     ] })
   ] }) });
 };
 const API_URL$w = "/api.php";
 const Landings = ({ landings, refreshData }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
   const [editingLandingId, setEditingLandingId] = reactExports.useState(null);
   const [selectedLandingIds, setSelectedLandingIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
@@ -34553,16 +34606,16 @@ const Landings = ({ landings, refreshData }) => {
     setIsEditorOpen(true);
   };
   const handleDelete = async (id) => {
-    if (window.confirm(t2("common.deleteConfirm"))) {
+    if (window.confirm(t("common.deleteConfirm"))) {
       try {
         const res = await axios.post(`${API_URL$w}?action=delete_landing`, { id });
         if (res?.data?.status !== "success") {
-          alert(res?.data?.message || t2("common.error"));
+          alert(res?.data?.message || t("common.error"));
           return;
         }
         refreshData();
       } catch (err) {
-        alert(err?.response?.data?.message || err?.message || t2("common.error"));
+        alert(err?.response?.data?.message || err?.message || t("common.error"));
       }
     }
   };
@@ -34604,14 +34657,14 @@ const Landings = ({ landings, refreshData }) => {
   const handleBulkDeleteSelected = async () => {
     const ids = Array.from(selectedLandingIds);
     if (ids.length === 0) return;
-    const msg = (t2("common.deleteSelectedConfirm") || t2("common.deleteConfirm")).replace("{count}", String(ids.length));
+    const msg = (t("common.deleteSelectedConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
       await axios.post(`${API_URL$w}?action=bulk_delete_landings`, { ids });
       setSelectedLandingIds(/* @__PURE__ */ new Set());
       refreshData();
     } catch (err) {
-      alert(t2("common.error"));
+      alert(t("common.error"));
     }
   };
   const exportVisibleCsv = () => {
@@ -34659,17 +34712,17 @@ const Landings = ({ landings, refreshData }) => {
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_landings", title: t2("help.landingBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("help.landingBanner") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_landings", title: t("help.landingBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.landingBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleCreate, className: "btn btn-primary", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
-          t2("common.create")
+          t("common.create")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t2("campaigns.groups") }),
-        selectedLandingIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t2("common.deleteSelected"), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t("campaigns.groups") }),
+        selectedLandingIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t("common.deleteSelected"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
-          t2("common.deleteSelected") || t2("common.delete"),
+          t("common.deleteSelected") || t("common.delete"),
           " (",
           selectedLandingIds.size,
           ")"
@@ -34685,7 +34738,7 @@ const Landings = ({ landings, refreshData }) => {
             style: showFilters ? { color: "var(--color-primary)" } : {},
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "w-4 h-4" }),
-              t2("editor.filters"),
+              t("editor.filters"),
               search || typeFilter || stateFilter ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full", children: [search, typeFilter, stateFilter].filter(Boolean).length }) : null
             ]
           }
@@ -34696,18 +34749,18 @@ const Landings = ({ landings, refreshData }) => {
             type: "button",
             onClick: handleRefresh,
             className: "btn btn-ghost btn-icon",
-            title: t2("common.refresh"),
+            title: t("common.refresh"),
             disabled: refreshing,
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-5 h-5 ${refreshing ? "animate-spin" : ""}` })
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", title: t2("common.settings"), onClick: () => setSettingsOpen(true), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", title: t("common.settings"), onClick: () => setSettingsOpen(true), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) })
       ] })
     ] }),
     showFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-4 items-center py-4 mb-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-          t2("common.search"),
+          t("common.search"),
           ":"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -34717,17 +34770,17 @@ const Landings = ({ landings, refreshData }) => {
             onChange: (e) => setSearch(e.target.value),
             className: "form-input",
             style: { width: "auto", minWidth: "260px" },
-            placeholder: t2("common.searchPlaceholder")
+            placeholder: t("common.searchPlaceholder")
           }
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-          t2("components.type"),
+          t("components.type"),
           ":"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { value: typeFilter, onChange: (e) => setTypeFilter(e.target.value), className: "form-select", style: { width: "auto", minWidth: "140px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("common.all") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("common.all") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "local", children: "local" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: "redirect" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "action", children: "action" })
@@ -34735,13 +34788,13 @@ const Landings = ({ landings, refreshData }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-          t2("components.status"),
+          t("components.status"),
           ":"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { value: stateFilter, onChange: (e) => setStateFilter(e.target.value), className: "form-select", style: { width: "auto", minWidth: "140px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("common.all") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t2("components.active") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "archived", children: t2("components.archive") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("common.all") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("components.active") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "archived", children: t("components.archive") })
         ] })
       ] }),
       (search || typeFilter || stateFilter) && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => {
@@ -34750,7 +34803,7 @@ const Landings = ({ landings, refreshData }) => {
         setStateFilter("");
       }, className: "btn btn-ghost btn-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }),
-        t2("common.clear")
+        t("common.clear")
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
@@ -34767,17 +34820,17 @@ const Landings = ({ landings, refreshData }) => {
           }
         ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.aliasName") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.group") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.type") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.clicks") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.uniques") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("common.actions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.aliasName") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.group") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.type") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.clicks") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.uniques") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleLandings.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "9", className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("landings.noLandings") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t2("landings.noLandingsDesc") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("landings.noLandings") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("landings.noLandingsDesc") })
       ] }) }) }) : visibleLandings.map((landing) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
@@ -34804,13 +34857,13 @@ const Landings = ({ landings, refreshData }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `px-2 py-1 rounded text-xs font-semibold ${landing.type === "local" ? "bg-indigo-100 text-indigo-800" : "bg-gray-100 text-gray-800"}`, children: landing.type }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center text-xs font-medium", style: { color: landing.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-2 h-2 rounded-full mr-1.5", style: { backgroundColor: landing.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" } }),
-          landing.state === "active" ? t2("components.active") : t2("components.archive")
+          landing.state === "active" ? t("components.active") : t("components.archive")
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing.clicks || 0 }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing.unique_clicks || 0 }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(landing.id), className: "action-btn text-blue", title: t2("common.edit") || t2("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(landing.id), className: "action-btn text-red", title: t2("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(landing.id), className: "action-btn text-blue", title: t("common.edit") || t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(landing.id), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
         ] }) })
       ] }, landing.id)) })
     ] }) }),
@@ -34823,14 +34876,14 @@ const Landings = ({ landings, refreshData }) => {
     ),
     settingsOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => setSettingsOpen(false), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", onClick: (e) => e.stopPropagation(), style: { maxWidth: "560px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t2("common.settings") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setSettingsOpen(false), title: t2("common.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("common.settings") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setSettingsOpen(false), title: t("common.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary w-full", onClick: () => {
           setSelectedLandingIds(/* @__PURE__ */ new Set());
-        }, children: t2("common.clearSelection") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-primary w-full", onClick: exportVisibleCsv, children: t2("common.exportCsv") })
+        }, children: t("common.clearSelection") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-primary w-full", onClick: exportVisibleCsv, children: t("common.exportCsv") })
       ] })
     ] }) })
   ] });
@@ -34845,7 +34898,7 @@ const getCountryFlag = (code) => {
   );
 };
 const GeoSelector = ({ value = "", onChange, placeholder }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [mode, setMode] = reactExports.useState("select");
   const [isOpen, setIsOpen] = reactExports.useState(false);
   const [search, setSearch] = reactExports.useState("");
@@ -34925,7 +34978,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
     setIsOpen(false);
   };
   const getCountryName = (code) => {
-    if (code === "Unknown") return t2("geoSelector.unknown");
+    if (code === "Unknown") return t("geoSelector.unknown");
     const c = countries.find((x) => x.code === code);
     return c ? c.name : code;
   };
@@ -34971,7 +35024,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
                 setShowProfiles(false);
               },
               className: "w-full bg-transparent border-none outline-none text-sm p-1 text-gray-700 placeholder-gray-400",
-              placeholder: selectedCodes.length === 0 ? placeholder || t2("geoSelector.placeholder") : ""
+              placeholder: selectedCodes.length === 0 ? placeholder || t("geoSelector.placeholder") : ""
             }
           ) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { size: 16 }) })
@@ -34984,7 +35037,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
         onChange: handleTextareaChange,
         onBlur: handleTextareaBlur,
         className: "w-full border border-gray-300 rounded-[4px] px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 outline-none transition uppercase min-h-[84px] resize-y",
-        placeholder: t2("geoSelector.placeholder")
+        placeholder: t("geoSelector.placeholder")
       }
     ),
     mode === "select" && isOpen && !showProfiles && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-full left-0 w-full mt-1 bg-white border border-gray-200 rounded-[4px] shadow-lg z-50 max-h-60 overflow-y-auto", children: filteredCountries.length > 0 ? filteredCountries.map((country) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -35006,9 +35059,9 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
         ]
       },
       country.code
-    )) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-3 text-sm text-gray-500 text-center", children: t2("geoSelector.nothingFound") }) }),
+    )) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-3 text-sm text-gray-500 text-center", children: t("geoSelector.nothingFound") }) }),
     mode === "select" && showProfiles && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute top-full left-0 w-full mt-1 bg-white border border-gray-200 rounded-[4px] shadow-lg z-50 max-h-60 overflow-y-auto", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-2 border-b border-gray-100 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider", children: t2("geoSelector.geoProfiles") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-2 border-b border-gray-100 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider", children: t("geoSelector.geoProfiles") }),
       profiles.length > 0 ? profiles.map((profile) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
         {
@@ -35027,7 +35080,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
           ]
         },
         profile.id
-      )) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-3 text-sm text-gray-500 text-center", children: t2("geoSelector.noProfiles") })
+      )) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-3 text-sm text-gray-500 text-center", children: t("geoSelector.noProfiles") })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mt-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -35038,7 +35091,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
           className: "text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 font-medium transition-colors",
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Type, { size: 12 }),
-            mode === "select" ? t2("geoSelector.switchToTextarea") : t2("geoSelector.switchToSelect")
+            mode === "select" ? t("geoSelector.switchToTextarea") : t("geoSelector.switchToSelect")
           ]
         }
       ),
@@ -35055,7 +35108,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
             className: "text-xs text-gray-600 hover:text-gray-900 hover:underline flex items-center gap-1 transition-colors",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { size: 12 }),
-              t2("geoSelector.insertFromProfile")
+              t("geoSelector.insertFromProfile")
             ]
           }
         ),
@@ -35070,7 +35123,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
             className: "text-xs text-gray-600 hover:text-gray-900 hover:underline flex items-center gap-1 transition-colors",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 12 }),
-              t2("geoSelector.addUnknown")
+              t("geoSelector.addUnknown")
             ]
           }
         )
@@ -35080,7 +35133,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
 };
 const API_URL$u = "/api.php";
 const OfferEditor = ({ offerId, onClose }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
   const [activeTab, setActiveTab] = reactExports.useState("general");
   const [groups, setGroups] = reactExports.useState([]);
@@ -35156,11 +35209,11 @@ const OfferEditor = ({ offerId, onClose }) => {
   }, [offerId]);
   const handleSave = async () => {
     if (!formData.name) {
-      alert(t2("offerEditor.fillName"));
+      alert(t("offerEditor.fillName"));
       return;
     }
     if (!formData.is_local && !formData.url) {
-      alert(t2("offerEditor.fillUrl"));
+      alert(t("offerEditor.fillUrl"));
       return;
     }
     try {
@@ -35171,17 +35224,17 @@ const OfferEditor = ({ offerId, onClose }) => {
       if (res.data.status === "success") {
         onClose(true);
       } else {
-        alert(t2("offerEditor.saveError") + " " + res.data.message);
+        alert(t("offerEditor.saveError") + " " + res.data.message);
       }
     } catch (err) {
-      alert(t2("offerEditor.networkError"));
+      alert(t("offerEditor.networkError"));
     } finally {
       setLoading(false);
     }
   };
   const addValue = () => {
     if (formData.values.length >= 10) {
-      alert(t2("offerEditor.maxValues"));
+      alert(t("offerEditor.maxValues"));
       return;
     }
     setFormData({
@@ -35211,11 +35264,11 @@ const OfferEditor = ({ offerId, onClose }) => {
     "Asia/Tokyo"
   ];
   if (loading && offerId && !formData.name) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-content", style: { maxWidth: "300px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-6", style: { color: "var(--color-text-muted)" }, children: t2("common.loading") }) }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-content", style: { maxWidth: "300px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-6", style: { color: "var(--color-text-muted)" }, children: t("common.loading") }) }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "800px", width: "100%" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: offerId ? `${t2("offers.title")}: ${formData.name}` : t2("offers.title") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: offerId ? `${t("offers.title")}: ${formData.name}` : t("offers.title") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex px-5 pt-1 gap-6", style: { borderBottom: "1px solid var(--color-border)" }, children: ["general", "settings", "values", "notes"].map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -35228,10 +35281,10 @@ const OfferEditor = ({ offerId, onClose }) => {
         },
         onClick: () => setActiveTab(tab),
         children: [
-          tab === "general" && t2("editor.general"),
-          tab === "settings" && t2("editor.params"),
-          tab === "values" && t2("editor.notes"),
-          tab === "notes" && t2("editor.notes")
+          tab === "general" && t("editor.general"),
+          tab === "settings" && t("editor.params"),
+          tab === "values" && t("editor.notes"),
+          tab === "notes" && t("editor.notes")
         ]
       },
       tab
@@ -35240,7 +35293,7 @@ const OfferEditor = ({ offerId, onClose }) => {
       activeTab === "general" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-            t2("offerEditor.nameLabel"),
+            t("offerEditor.nameLabel"),
             " ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-danger)" }, children: "*" })
           ] }),
@@ -35252,13 +35305,13 @@ const OfferEditor = ({ offerId, onClose }) => {
               value: formData.name,
               onChange: (e) => setFormData({ ...formData, name: e.target.value }),
               className: "form-input",
-              placeholder: t2("offerEditor.namePlaceholder")
+              placeholder: t("offerEditor.namePlaceholder")
             }
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("offerEditor.group") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.group") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "select",
@@ -35267,7 +35320,7 @@ const OfferEditor = ({ offerId, onClose }) => {
                   onChange: (e) => setFormData({ ...formData, group_id: e.target.value }),
                   className: "form-select rounded-r-none",
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("offerEditor.noGroup") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.noGroup") }),
                     groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
                   ]
                 }
@@ -35277,10 +35330,10 @@ const OfferEditor = ({ offerId, onClose }) => {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-              t2("offerEditor.affiliateNetwork"),
+              t("offerEditor.affiliateNetwork"),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 relative group cursor-pointer inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold rounded-full", style: { color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: [
                 "?",
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute bottom-full mb-2 hidden group-hover:block w-48 rounded-xl p-2 z-10 shadow-lg text-xs", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }, children: t2("offerEditor.networkTooltip") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute bottom-full mb-2 hidden group-hover:block w-48 rounded-xl p-2 z-10 shadow-lg text-xs", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }, children: t("offerEditor.networkTooltip") })
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
@@ -35291,7 +35344,7 @@ const OfferEditor = ({ offerId, onClose }) => {
                   onChange: (e) => setFormData({ ...formData, affiliate_network_id: e.target.value }),
                   className: "form-select rounded-r-none",
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("offerEditor.noNetwork") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.noNetwork") }),
                     affiliateNetworks.map((an) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: an.id, children: an.name }, an.id))
                   ]
                 }
@@ -35302,7 +35355,7 @@ const OfferEditor = ({ offerId, onClose }) => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-            t2("offerEditor.redirectType"),
+            t("offerEditor.redirectType"),
             " ",
             /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.redirectTypeTooltip" })
           ] }),
@@ -35317,7 +35370,7 @@ const OfferEditor = ({ offerId, onClose }) => {
                   color: formData.is_local ? "var(--color-primary)" : "var(--color-text-primary)",
                   borderRight: "1px solid var(--color-border)"
                 },
-                children: t2("offers.local")
+                children: t("offers.local")
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -35330,7 +35383,7 @@ const OfferEditor = ({ offerId, onClose }) => {
                   color: !formData.is_local && formData.redirect_type === "redirect" ? "var(--color-primary)" : "var(--color-text-primary)",
                   borderRight: "1px solid var(--color-border)"
                 },
-                children: t2("offers.redirect")
+                children: t("offers.redirect")
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -35343,7 +35396,7 @@ const OfferEditor = ({ offerId, onClose }) => {
                   color: !formData.is_local && formData.redirect_type === "preload" ? "var(--color-primary)" : "var(--color-text-primary)",
                   borderRight: "1px solid var(--color-border)"
                 },
-                children: t2("landingEditor.preload").split(" ")[0]
+                children: t("landingEditor.preload").split(" ")[0]
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -35355,7 +35408,7 @@ const OfferEditor = ({ offerId, onClose }) => {
                   backgroundColor: !formData.is_local && formData.redirect_type === "action" ? "var(--color-primary-light)" : "var(--color-bg-card)",
                   color: !formData.is_local && formData.redirect_type === "action" ? "var(--color-primary)" : "var(--color-text-primary)"
                 },
-                children: t2("editor.action")
+                children: t("editor.action")
               }
             )
           ] }),
@@ -35366,9 +35419,9 @@ const OfferEditor = ({ offerId, onClose }) => {
               onChange: (e) => setFormData({ ...formData, redirect_type: e.target.value }),
               className: "form-select",
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t2("offerEditor.httpRedirect") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("offerEditor.httpRedirect") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "frame", children: "Iframe" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t2("offerEditor.preloadCurl") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t("offerEditor.preloadCurl") })
               ]
             }
           )
@@ -35393,18 +35446,18 @@ const OfferEditor = ({ offerId, onClose }) => {
       ] }),
       activeTab === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("offerEditor.countries") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.countries") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             GeoSelector,
             {
               value: formData.geo,
               onChange: (geo) => setFormData({ ...formData, geo }),
-              placeholder: t2("offerEditor.countriesPlaceholder")
+              placeholder: t("offerEditor.countriesPlaceholder")
             }
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold mb-3", style: { color: "var(--color-text-primary)" }, children: t2("offerEditor.payouts") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold mb-3", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.payouts") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 mb-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -35460,12 +35513,12 @@ const OfferEditor = ({ offerId, onClose }) => {
                   className: "rounded"
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: t2("offerEditor.payoutByParam") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.payoutByParam") })
             ] })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2 flex items-center justify-between", style: { borderTop: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t2("offerEditor.rebills") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.rebills") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "relative inline-flex items-center cursor-pointer", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
@@ -35481,7 +35534,7 @@ const OfferEditor = ({ offerId, onClose }) => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t2("offerEditor.conversionCap") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.conversionCap") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "relative inline-flex items-center cursor-pointer", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
@@ -35498,7 +35551,7 @@ const OfferEditor = ({ offerId, onClose }) => {
           showCapping && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 p-4 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("offerEditor.dailyLimit") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.dailyLimit") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "input",
                   {
@@ -35511,7 +35564,7 @@ const OfferEditor = ({ offerId, onClose }) => {
                 )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("offerEditor.timezone") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.timezone") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "select",
                   {
@@ -35524,7 +35577,7 @@ const OfferEditor = ({ offerId, onClose }) => {
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("offerEditor.altOffer") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.altOffer") }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "select",
                 {
@@ -35532,7 +35585,7 @@ const OfferEditor = ({ offerId, onClose }) => {
                   onChange: (e) => setFormData({ ...formData, alt_offer_id: e.target.value }),
                   className: "form-select",
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("offerEditor.notSelected") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.notSelected") }),
                     allOffers.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o.id, children: o.name }, o.id))
                   ]
                 }
@@ -35544,8 +35597,8 @@ const OfferEditor = ({ offerId, onClose }) => {
       activeTab === "values" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center pb-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t2("offerEditor.valuesTitle") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t2("offerEditor.valuesDesc") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.valuesTitle") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("offerEditor.valuesDesc") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
@@ -35555,12 +35608,12 @@ const OfferEditor = ({ offerId, onClose }) => {
               className: "btn btn-secondary btn-sm",
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
-                t2("offerEditor.add")
+                t("offerEditor.add")
               ]
             }
           )
         ] }),
-        formData.values.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10 rounded-xl border-2 border-dashed", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", children: t2("offerEditor.noValues") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: formData.values.map((val, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+        formData.values.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10 rounded-xl border-2 border-dashed", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", children: t("offerEditor.noValues") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: formData.values.map((val, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -35568,7 +35621,7 @@ const OfferEditor = ({ offerId, onClose }) => {
               value: val.name,
               onChange: (e) => updateValue(idx, "name", e.target.value),
               className: "form-input",
-              placeholder: t2("offerEditor.paramNamePlaceholder")
+              placeholder: t("offerEditor.paramNamePlaceholder")
             }
           ) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-[2]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -35578,7 +35631,7 @@ const OfferEditor = ({ offerId, onClose }) => {
               value: val.value,
               onChange: (e) => updateValue(idx, "value", e.target.value),
               className: "form-input",
-              placeholder: t2("offerEditor.paramValuePlaceholder")
+              placeholder: t("offerEditor.paramValuePlaceholder")
             }
           ) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -35591,16 +35644,16 @@ const OfferEditor = ({ offerId, onClose }) => {
           )
         ] }, idx)) }),
         formData.values.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 pt-4", style: { borderTop: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-semibold text-xs mb-2", style: { color: "var(--color-text-primary)" }, children: t2("offerEditor.usageExamples") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-semibold text-xs mb-2", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.usageExamples") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "text-xs space-y-1 font-mono p-3 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)", color: "var(--color-text-secondary)" }, children: formData.values.filter((v) => v.name).map((v, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
             `{offer_value:${v.name}}`,
             " → ",
-            v.value || t2("offerEditor.empty")
+            v.value || t("offerEditor.empty")
           ] }, idx)) })
         ] })
       ] }),
       activeTab === "notes" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("editor.notes") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.notes") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "textarea",
           {
@@ -35608,20 +35661,20 @@ const OfferEditor = ({ offerId, onClose }) => {
             value: formData.notes,
             onChange: (e) => setFormData({ ...formData, notes: e.target.value }),
             className: "form-input resize-none",
-            placeholder: t2("offerEditor.notesPlaceholder")
+            placeholder: t("offerEditor.notesPlaceholder")
           }
         )
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t2("common.cancel") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, disabled: loading, className: "btn btn-primary", children: offerId ? t2("common.save") : t2("common.create") })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("common.cancel") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, disabled: loading, className: "btn btn-primary", children: offerId ? t("common.save") : t("common.create") })
     ] }) })
   ] }) });
 };
 const API_URL$t = "/api.php";
 const GroupsModal = ({ type, onClose }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [groups, setGroups] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
   const [newGroupName, setNewGroupName] = reactExports.useState("");
@@ -35640,13 +35693,13 @@ const GroupsModal = ({ type, onClose }) => {
   const getTitle = () => {
     switch (type) {
       case "offer":
-        return t2("groupsModal.offerGroups");
+        return t("groupsModal.offerGroups");
       case "landing":
-        return t2("groupsModal.landingGroups");
+        return t("groupsModal.landingGroups");
       case "campaign":
-        return t2("groupsModal.campaignGroups");
+        return t("groupsModal.campaignGroups");
       default:
-        return t2("groupsModal.groups");
+        return t("groupsModal.groups");
     }
   };
   const endpoint = getEndpoint();
@@ -35671,19 +35724,19 @@ const GroupsModal = ({ type, onClose }) => {
       if (res.data.status === "success") {
         setNewGroupName("");
         fetchGroups();
-      } else alert(res.data.message || t2("groupsModal.createError"));
+      } else alert(res.data.message || t("groupsModal.createError"));
     } catch {
-      alert(t2("groupsModal.networkError"));
+      alert(t("groupsModal.networkError"));
     }
   };
   const handleDelete = async (id) => {
-    if (!window.confirm(t2("groupsModal.deleteConfirm"))) return;
+    if (!window.confirm(t("groupsModal.deleteConfirm"))) return;
     try {
       const del = type === "offer" ? "delete_offer_group" : endpoint;
       await axios.post(`${API_URL$t}?action=${del}`, { id });
       fetchGroups();
     } catch {
-      alert(t2("groupsModal.deleteError"));
+      alert(t("groupsModal.deleteError"));
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-md", children: [
@@ -35692,15 +35745,15 @@ const GroupsModal = ({ type, onClose }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "text-gray-500 hover:text-gray-700", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-b border-gray-200", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", value: newGroupName, onChange: (e) => setNewGroupName(e.target.value), onKeyPress: (e) => e.key === "Enter" && handleCreate(), placeholder: t2("groups.placeholder"), className: "flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", value: newGroupName, onChange: (e) => setNewGroupName(e.target.value), onKeyPress: (e) => e.key === "Enter" && handleCreate(), placeholder: t("groups.placeholder"), className: "flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleCreate, disabled: !newGroupName.trim(), className: "flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4 mr-1" }),
-        t2("groupsModal.add")
+        t("groupsModal.add")
       ] })
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-h-80 overflow-y-auto", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-8 text-center text-gray-500", children: t2("groupsModal.loading") }) : groups.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-8 text-center text-gray-400", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("groupsModal.noGroups") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-1", children: t2("groupsModal.createFirst") })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-h-80 overflow-y-auto", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-8 text-center text-gray-500", children: t("groupsModal.loading") }) : groups.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-8 text-center text-gray-400", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("groupsModal.noGroups") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-1", children: t("groupsModal.createFirst") })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-gray-200", children: groups.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center justify-between px-6 py-3 hover:bg-gray-50 transition", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-gray-700", children: group.name }),
@@ -35709,14 +35762,14 @@ const GroupsModal = ({ type, onClose }) => {
           group.id
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(group.id), className: "text-gray-400 hover:text-red-600 p-1", title: t2("groups.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(group.id), className: "text-gray-400 hover:text-red-600 p-1", title: t("groups.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
     ] }, group.id)) }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition", children: t2("groupsModal.close") }) })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition", children: t("groupsModal.close") }) })
   ] }) });
 };
 const API_URL$s = "/api.php";
 const Offers = ({ offers, refreshData }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
   const [editingOfferId, setEditingOfferId] = reactExports.useState(null);
   const [isGroupsModalOpen, setIsGroupsModalOpen] = reactExports.useState(false);
@@ -35796,12 +35849,12 @@ const Offers = ({ offers, refreshData }) => {
     setIsEditorOpen(true);
   };
   const handleDelete = async (id) => {
-    if (window.confirm(t2("common.deleteConfirm"))) {
+    if (window.confirm(t("common.deleteConfirm"))) {
       try {
         await axios.post(`${API_URL$s}?action=delete_offer`, { id });
         refreshData();
       } catch (err) {
-        alert(t2("common.error"));
+        alert(t("common.error"));
       }
     }
   };
@@ -35829,14 +35882,14 @@ const Offers = ({ offers, refreshData }) => {
   const handleBulkDeleteSelected = async () => {
     const ids = Array.from(selectedOfferIds);
     if (ids.length === 0) return;
-    const msg = (t2("common.deleteSelectedConfirm") || t2("common.deleteConfirm")).replace("{count}", String(ids.length));
+    const msg = (t("common.deleteSelectedConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
       await axios.post(`${API_URL$s}?action=bulk_delete_offers`, { ids });
       setSelectedOfferIds(/* @__PURE__ */ new Set());
       refreshData();
     } catch (err) {
-      alert(t2("common.error"));
+      alert(t("common.error"));
     }
   };
   const handleEditorClose = (wasSaved) => {
@@ -35871,7 +35924,7 @@ const Offers = ({ offers, refreshData }) => {
         onClick: () => requestSort(colKey, defaultDir),
         className: `inline-flex items-center gap-1 select-none ${alignRight ? "justify-end w-full" : ""}`,
         style: { color: isActive ? "var(--color-text-primary)" : "var(--color-text-secondary)" },
-        title: t2("common.sort", "Sort"),
+        title: t("common.sort", "Sort"),
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey })
@@ -35921,17 +35974,17 @@ const Offers = ({ offers, refreshData }) => {
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_offers", title: t2("help.offerBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("help.offerBanner") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_offers", title: t("help.offerBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.offerBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleCreate, className: "btn btn-primary", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
-          t2("common.create")
+          t("common.create")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setIsGroupsModalOpen(true), className: "btn btn-secondary", children: t2("campaigns.groups") }),
-        selectedOfferIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t2("common.deleteSelected"), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setIsGroupsModalOpen(true), className: "btn btn-secondary", children: t("campaigns.groups") }),
+        selectedOfferIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t("common.deleteSelected"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
-          t2("common.deleteSelected") || t2("common.delete"),
+          t("common.deleteSelected") || t("common.delete"),
           " (",
           selectedOfferIds.size,
           ")"
@@ -35947,7 +36000,7 @@ const Offers = ({ offers, refreshData }) => {
             style: showFilters ? { color: "var(--color-primary)" } : {},
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "w-4 h-4" }),
-              t2("editor.filters"),
+              t("editor.filters"),
               hasActiveFilters && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full", children: [filterGroup, filterNetwork, filterState].filter(Boolean).length })
             ]
           }
@@ -35958,7 +36011,7 @@ const Offers = ({ offers, refreshData }) => {
             type: "button",
             onClick: handleRefresh,
             className: "btn btn-ghost btn-icon",
-            title: t2("common.refresh"),
+            title: t("common.refresh"),
             disabled: refreshing,
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-5 h-5 ${refreshing ? "animate-spin" : ""}` })
           }
@@ -35968,7 +36021,7 @@ const Offers = ({ offers, refreshData }) => {
           {
             type: "button",
             className: "btn btn-ghost btn-icon",
-            title: t2("common.settings", "Settings"),
+            title: t("common.settings", "Settings"),
             onClick: () => setSettingsOpen(true),
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" })
           }
@@ -35978,7 +36031,7 @@ const Offers = ({ offers, refreshData }) => {
     showFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-4 items-center py-4 mb-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-          t2("components.group"),
+          t("components.group"),
           ":"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -35989,7 +36042,7 @@ const Offers = ({ offers, refreshData }) => {
             className: "form-select",
             style: { width: "auto", minWidth: "140px" },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("common.all") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("common.all") }),
               groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g, children: g }, g))
             ]
           }
@@ -35997,7 +36050,7 @@ const Offers = ({ offers, refreshData }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-          t2("offers.network"),
+          t("offers.network"),
           ":"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -36008,7 +36061,7 @@ const Offers = ({ offers, refreshData }) => {
             className: "form-select",
             style: { width: "auto", minWidth: "160px" },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("common.all") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("common.all") }),
               networks.map((n) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: n, children: n }, n))
             ]
           }
@@ -36016,7 +36069,7 @@ const Offers = ({ offers, refreshData }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-          t2("components.status"),
+          t("components.status"),
           ":"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -36027,16 +36080,16 @@ const Offers = ({ offers, refreshData }) => {
             className: "form-select",
             style: { width: "auto", minWidth: "120px" },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("common.all") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t2("components.active") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "archived", children: t2("components.archive") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("common.all") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("components.active") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "archived", children: t("components.archive") })
             ]
           }
         )
       ] }),
       hasActiveFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: clearFilters, className: "btn btn-ghost btn-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }),
-        t2("common.clear")
+        t("common.clear")
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
@@ -36053,20 +36106,20 @@ const Offers = ({ offers, refreshData }) => {
           }
         ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "id", label: "ID", defaultDir: "desc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "name", label: t2("editor.name"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "group_name", label: t2("components.group"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "affiliate_network_name", label: t2("offers.network"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "redirect_type", label: t2("components.type"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "state", label: t2("components.status"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "clicks", label: t2("components.clicks"), defaultDir: "desc", alignRight: true }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "unique_clicks", label: t2("components.uniques"), defaultDir: "desc", alignRight: true }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "conversions", label: t2("metrics.conversions"), defaultDir: "desc", alignRight: true }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "revenue", label: t2("metrics.revenue"), defaultDir: "desc", alignRight: true }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("common.actions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "name", label: t("editor.name"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "group_name", label: t("components.group"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "affiliate_network_name", label: t("offers.network"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "redirect_type", label: t("components.type"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "state", label: t("components.status"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "clicks", label: t("components.clicks"), defaultDir: "desc", alignRight: true }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "unique_clicks", label: t("components.uniques"), defaultDir: "desc", alignRight: true }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "conversions", label: t("metrics.conversions"), defaultDir: "desc", alignRight: true }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "revenue", label: t("metrics.revenue"), defaultDir: "desc", alignRight: true }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleOffers.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "12", className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: offers.length === 0 ? t2("offers.noOffers") : t2("offers.noOffersFiltered") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: offers.length === 0 ? t2("offers.noOffersDesc") : t2("offers.changeFilters") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: offers.length === 0 ? t("offers.noOffers") : t("offers.noOffersFiltered") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: offers.length === 0 ? t("offers.noOffersDesc") : t("offers.changeFilters") })
       ] }) }) }) : visibleOffers.map((offer) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
@@ -36088,14 +36141,14 @@ const Offers = ({ offers, refreshData }) => {
             }
           ),
           !offer.is_local && offer.url && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontSize: "12px" }, className: "truncate max-w-[200px]", title: offer.url, children: offer.url }),
-          offer.is_local && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-accent-purple)", fontSize: "12px" }, children: t2("offers.localOffer") })
+          offer.is_local && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-accent-purple)", fontSize: "12px" }, children: t("offers.localOffer") })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: offer.group_name || "-" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: offer.affiliate_network_name || "-" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `px-2 py-1 rounded text-xs font-semibold ${offer.redirect_type === "redirect" ? "bg-blue-100 text-blue-800" : offer.redirect_type === "frame" ? "bg-purple-100 text-purple-800" : offer.redirect_type === "local" ? "bg-indigo-100 text-indigo-800" : "bg-gray-100 text-gray-800"}`, children: offer.redirect_type === "redirect" ? t2("offers.redirect") : offer.redirect_type === "frame" ? t2("offers.iframe") : offer.redirect_type === "local" ? t2("offers.local") : offer.redirect_type }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `px-2 py-1 rounded text-xs font-semibold ${offer.redirect_type === "redirect" ? "bg-blue-100 text-blue-800" : offer.redirect_type === "frame" ? "bg-purple-100 text-purple-800" : offer.redirect_type === "local" ? "bg-indigo-100 text-indigo-800" : "bg-gray-100 text-gray-800"}`, children: offer.redirect_type === "redirect" ? t("offers.redirect") : offer.redirect_type === "frame" ? t("offers.iframe") : offer.redirect_type === "local" ? t("offers.local") : offer.redirect_type }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center text-xs font-medium", style: { color: offer.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `w-2 h-2 rounded-full mr-1.5`, style: { backgroundColor: offer.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" } }),
-          offer.state === "active" ? t2("components.active") : t2("components.archive")
+          offer.state === "active" ? t("components.active") : t("components.archive")
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right font-medium", children: offer.clicks || 0 }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: offer.unique_clicks || 0 }),
@@ -36105,12 +36158,12 @@ const Offers = ({ offers, refreshData }) => {
           parseFloat(offer.revenue || 0).toFixed(2)
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(offer.id), className: "action-btn text-blue", title: t2("common.edit") || t2("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(offer.id), className: "action-btn text-red", title: t2("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(offer.id), className: "action-btn text-blue", title: t("common.edit") || t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(offer.id), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
         ] }) })
       ] }, offer.id)) }),
       filteredOffers.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tfoot", { style: { background: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", colSpan: "7", children: t2("offers.total").replace("{count}", filteredOffers.length) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", colSpan: "7", children: t("offers.total").replace("{count}", filteredOffers.length) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-right", children: totals.clicks }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-right", children: totals.unique_clicks }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-right", style: { color: "var(--color-success)" }, children: totals.conversions }),
@@ -36137,24 +36190,24 @@ const Offers = ({ offers, refreshData }) => {
     ),
     settingsOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => setSettingsOpen(false), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", onClick: (e) => e.stopPropagation(), style: { maxWidth: "560px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t2("common.settings", "Settings") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setSettingsOpen(false), title: t2("common.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("common.settings", "Settings") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setSettingsOpen(false), title: t("common.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary w-full", onClick: () => {
           setSortBy({ key: null, dir: "desc" });
-        }, children: t2("common.resetSort", "Reset sorting") }),
+        }, children: t("common.resetSort", "Reset sorting") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary w-full", onClick: () => {
           setSelectedOfferIds(/* @__PURE__ */ new Set());
-        }, children: t2("common.clearSelection", "Clear selection") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-primary w-full", onClick: exportVisibleCsv, children: t2("common.exportCsv", "Export CSV") })
+        }, children: t("common.clearSelection", "Clear selection") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-primary w-full", onClick: exportVisibleCsv, children: t("common.exportCsv", "Export CSV") })
       ] })
     ] }) })
   ] });
 };
 const API_URL$r = "/api.php";
 const TrafficSourceEditor = ({ id, onClose, onSave }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
   const [templates, setTemplates] = reactExports.useState([]);
   const [formData, setFormData] = reactExports.useState({
@@ -36192,7 +36245,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     }
   }, [id]);
   const handleTemplateChange = (templateName) => {
-    const template = templates.find((t22) => t22.name === templateName);
+    const template = templates.find((t2) => t2.name === templateName);
     if (template) {
       setFormData((prev) => ({
         ...prev,
@@ -36226,7 +36279,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
   };
   const handleSubmit = async () => {
     if (!formData.name) {
-      alert(t2("botSettings.fillName"));
+      alert(t("botSettings.fillName"));
       return;
     }
     try {
@@ -36235,7 +36288,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
       onSave();
     } catch (error) {
       console.error("Error saving traffic source:", error);
-      alert(t2("common.error"));
+      alert(t("common.error"));
     }
   };
   const statusOptions = ["lead", "sale", "rejected", "rebill", "trash"];
@@ -36255,12 +36308,12 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "800px" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: id ? t2("sources.title") : t2("sources.title") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: id ? t("sources.title") : t("sources.title") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("sourceEditor.templateLabel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.templateLabel") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "select",
           {
@@ -36268,15 +36321,15 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
             onChange: (e) => handleTemplateChange(e.target.value),
             className: "form-select",
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("sourceEditor.selectTemplate") }),
-              templates.map((t22) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: t22.name, children: t22.display_name }, t22.name))
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("sourceEditor.selectTemplate") }),
+              templates.map((t2) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: t2.name, children: t2.display_name }, t2.name))
             ]
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t2("sourceEditor.templateHint") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("sourceEditor.templateHint") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("sourceEditor.nameLabel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.nameLabel") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
@@ -36284,12 +36337,12 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
             value: formData.name,
             onChange: (e) => setFormData((prev) => ({ ...prev, name: e.target.value })),
             className: "form-input",
-            placeholder: t2("sourceEditor.namePlaceholder")
+            placeholder: t("sourceEditor.namePlaceholder")
           }
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("sourceEditor.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.status") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "select",
           {
@@ -36297,15 +36350,15 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
             onChange: (e) => setFormData((prev) => ({ ...prev, state: e.target.value })),
             className: "form-select",
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t2("sourceEditor.active") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t2("sourceEditor.paused") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("sourceEditor.active") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("sourceEditor.paused") })
             ]
           }
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium mb-3", style: { color: "var(--color-text-primary)" }, children: "S2S Postback" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mb-3", style: { color: "var(--color-text-secondary)" }, children: t2("sourceEditor.postbackDesc") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mb-3", style: { color: "var(--color-text-secondary)" }, children: t("sourceEditor.postbackDesc") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "Postback URL" }),
@@ -36321,7 +36374,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("sourceEditor.sendStatuses") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.sendStatuses") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-3", children: statusOptions.map((status) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
@@ -36337,13 +36390,13 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 p-3 rounded-xl text-xs", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mb-1", style: { color: "var(--color-text-primary)" }, children: t2("sourceEditor.availableMacros") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mb-1", style: { color: "var(--color-text-primary)" }, children: t("sourceEditor.availableMacros") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { color: "var(--color-primary)" }, children: "{clickid} {external_id} {payout} {status} {offer_id} {campaign_id} {campaign_name}" })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t2("sourceEditor.parameters") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t("sourceEditor.parameters") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
@@ -36351,17 +36404,17 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
               className: "btn btn-primary btn-sm",
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("sourceEditor.addParam") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("sourceEditor.addParam") })
               ]
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mb-3", style: { color: "var(--color-text-secondary)" }, children: t2("sourceEditor.paramsDesc") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mb-3", style: { color: "var(--color-text-secondary)" }, children: t("sourceEditor.paramsDesc") }),
         formData.parameters.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-12 gap-2 text-xs px-2", style: { color: "var(--color-text-muted)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-3", children: t2("sourceEditor.alias") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-4", children: t2("sourceEditor.param") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-4", children: t2("sourceEditor.sourceMacro") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-3", children: t("sourceEditor.alias") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-4", children: t("sourceEditor.param") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-4", children: t("sourceEditor.sourceMacro") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-1" })
           ] }),
           formData.parameters.map((param, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-12 gap-2 items-center", children: [
@@ -36404,10 +36457,10 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
               }
             )
           ] }, index2))
-        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm italic", style: { color: "var(--color-text-muted)" }, children: t2("sourceEditor.noParams") })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm italic", style: { color: "var(--color-text-muted)" }, children: t("sourceEditor.noParams") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("sourceEditor.notes") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.notes") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "textarea",
           {
@@ -36415,23 +36468,23 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
             onChange: (e) => setFormData((prev) => ({ ...prev, notes: e.target.value })),
             rows: 3,
             className: "form-input resize-none",
-            placeholder: t2("sourceEditor.notesPlaceholder")
+            placeholder: t("sourceEditor.notesPlaceholder")
           }
         )
       ] })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "btn btn-secondary", children: t2("common.cancel") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "btn btn-secondary", children: t("common.cancel") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleSubmit, className: "btn btn-primary", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("common.save") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("common.save") })
       ] })
     ] })
   ] }) });
 };
 const API_URL$q = "/api.php";
 const TrafficSources = ({ refreshData }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [sources, setSources] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
   const [search, setSearch] = reactExports.useState("");
@@ -36474,18 +36527,18 @@ const TrafficSources = ({ refreshData }) => {
     return matchesSearch && matchesState;
   });
   const handleDelete = async (id) => {
-    if (!confirm(t2("sources.deleteConfirm"))) return;
+    if (!confirm(t("sources.deleteConfirm"))) return;
     try {
       const res = await axios.post(`${API_URL$q}?action=delete_traffic_source`, { id });
       if (res?.data?.status !== "success") {
-        alert(res?.data?.message || t2("common.error"));
+        alert(res?.data?.message || t("common.error"));
         return;
       }
       fetchSources();
       refreshData && refreshData();
     } catch (error) {
       console.error("Error deleting traffic source:", error);
-      alert(error?.response?.data?.message || error?.message || t2("common.error"));
+      alert(error?.response?.data?.message || error?.message || t("common.error"));
     }
   };
   const toggleSelected = (id, checked) => {
@@ -36512,7 +36565,7 @@ const TrafficSources = ({ refreshData }) => {
   const handleBulkDeleteSelected = async () => {
     const ids = Array.from(selectedIds);
     if (ids.length === 0) return;
-    const msg = (t2("common.deleteSelectedConfirm") || t2("sources.deleteConfirm")).replace("{count}", String(ids.length));
+    const msg = (t("common.deleteSelectedConfirm") || t("sources.deleteConfirm")).replace("{count}", String(ids.length));
     if (!confirm(msg)) return;
     try {
       await axios.post(`${API_URL$q}?action=bulk_delete_traffic_sources`, { ids });
@@ -36567,7 +36620,7 @@ const TrafficSources = ({ refreshData }) => {
     refreshData && refreshData();
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_traffic_sources", title: t2("help.trafficSourceBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("help.trafficSourceBanner") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_traffic_sources", title: t("help.trafficSourceBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.trafficSourceBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col md:flex-row justify-between items-start md:items-center gap-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
@@ -36578,7 +36631,7 @@ const TrafficSources = ({ refreshData }) => {
           style: showFilters ? { color: "var(--color-primary)" } : {},
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "w-4 h-4" }),
-            t2("editor.filters"),
+            t("editor.filters"),
             search || stateFilter !== "all" ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full", children: [search, stateFilter !== "all" ? "1" : ""].filter(Boolean).length }) : null
           ]
         }
@@ -36590,16 +36643,16 @@ const TrafficSources = ({ refreshData }) => {
             type: "button",
             onClick: handleRefresh,
             className: "btn btn-ghost btn-icon",
-            title: t2("common.refresh"),
+            title: t("common.refresh"),
             disabled: refreshing,
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-5 h-5 ${refreshing ? "animate-spin" : ""}` })
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setSettingsOpen(true), className: "btn btn-ghost btn-icon", title: t2("common.settings"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) }),
-        selectedIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t2("common.deleteSelected"), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setSettingsOpen(true), className: "btn btn-ghost btn-icon", title: t("common.settings"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) }),
+        selectedIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t("common.deleteSelected"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 18 }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-            t2("common.deleteSelected") || t2("common.delete"),
+            t("common.deleteSelected") || t("common.delete"),
             " (",
             selectedIds.size,
             ")"
@@ -36607,7 +36660,7 @@ const TrafficSources = ({ refreshData }) => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: handleCreate, className: "btn btn-primary", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 18 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("common.create") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("common.create") })
         ] })
       ] })
     ] }),
@@ -36618,7 +36671,7 @@ const TrafficSources = ({ refreshData }) => {
           "input",
           {
             type: "text",
-            placeholder: t2("sources.search"),
+            placeholder: t("sources.search"),
             value: search,
             onChange: (e) => setSearch(e.target.value),
             className: "form-input pl-10"
@@ -36633,9 +36686,9 @@ const TrafficSources = ({ refreshData }) => {
           className: "form-select",
           style: { width: "auto", minWidth: "160px" },
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: t2("common.all") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t2("sources.activePlural") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t2("sources.pausedPlural") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: t("common.all") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("sources.activePlural") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("sources.pausedPlural") })
           ]
         }
       ),
@@ -36644,7 +36697,7 @@ const TrafficSources = ({ refreshData }) => {
         setStateFilter("all");
       }, className: "btn btn-ghost btn-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }),
-        t2("common.clear")
+        t("common.clear")
       ] })
     ] }) }),
     loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center h-64", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card p-0 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
@@ -36660,15 +36713,15 @@ const TrafficSources = ({ refreshData }) => {
             onChange: (e) => toggleSelectAllFiltered(e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("editor.name") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("sources.template") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("campaigns.campaigns") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.clicks") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("metrics.conversions") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("common.actions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("editor.name") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("sources.template") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("campaigns.campaigns") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.clicks") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("metrics.conversions") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: filteredSources.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 8, className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: search ? t2("sources.notFound") : t2("sources.noSourcesAdd") }) }) : filteredSources.map((source) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: filteredSources.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 8, className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: search ? t("sources.notFound") : t("sources.noSourcesAdd") }) }) : filteredSources.map((source) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
@@ -36684,18 +36737,18 @@ const TrafficSources = ({ refreshData }) => {
             "..."
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-secondary)" }, children: source.template || t2("sources.customTemplate") }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-secondary)" }, children: source.template || t("sources.customTemplate") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: source.campaigns_count || 0 }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: source.clicks || 0 }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: source.conversions || 0 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${source.state === "active" ? "status-active" : "status-pending"}`, children: source.state === "active" ? t2("components.active") : t2("components.paused") }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${source.state === "active" ? "status-active" : "status-pending"}`, children: source.state === "active" ? t("components.active") : t("components.paused") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
               onClick: () => handleEdit(source.id),
               className: "action-btn",
-              title: t2("components.edit"),
+              title: t("components.edit"),
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(SquarePen, { size: 16 })
             }
           ),
@@ -36704,7 +36757,7 @@ const TrafficSources = ({ refreshData }) => {
             {
               onClick: () => handleDelete(source.id),
               className: "action-btn text-red",
-              title: t2("common.delete"),
+              title: t("common.delete"),
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 })
             }
           )
@@ -36714,14 +36767,14 @@ const TrafficSources = ({ refreshData }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-xl", style: { backgroundColor: "var(--color-primary-light)", border: "1px solid var(--color-primary)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-medium mb-2", style: { color: "var(--color-primary)" }, children: [
         "💡 ",
-        t2("sources.title")
+        t("sources.title")
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mb-2", style: { color: "var(--color-text-secondary)" }, children: t2("sources.infoDesc") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mb-2", style: { color: "var(--color-text-secondary)" }, children: t("sources.infoDesc") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "text-sm space-y-1", style: { color: "var(--color-text-secondary)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t2("sources.infoList1") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t2("sources.infoList2") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t2("sources.infoList3") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t2("sources.infoList4") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("sources.infoList1") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("sources.infoList2") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("sources.infoList3") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("sources.infoList4") })
       ] })
     ] }),
     showEditor && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -36734,25 +36787,25 @@ const TrafficSources = ({ refreshData }) => {
     ),
     settingsOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => setSettingsOpen(false), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", onClick: (e) => e.stopPropagation(), style: { maxWidth: "560px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t2("common.settings") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setSettingsOpen(false), title: t2("common.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("common.settings") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setSettingsOpen(false), title: t("common.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary w-full", onClick: () => {
           setSelectedIds(/* @__PURE__ */ new Set());
-        }, children: t2("common.clearSelection") }),
+        }, children: t("common.clearSelection") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary w-full", onClick: () => {
           setSearch("");
           setStateFilter("all");
-        }, children: t2("common.clear") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-primary w-full", onClick: exportVisibleCsv, children: t2("common.exportCsv") })
+        }, children: t("common.clear") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-primary w-full", onClick: exportVisibleCsv, children: t("common.exportCsv") })
       ] })
     ] }) })
   ] });
 };
 const API_URL$p = "/api.php";
 const ConversionsLog = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [conversions, setConversions] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
   const [pagination, setPagination] = reactExports.useState({ total: 0, page: 1, per_page: 50, total_pages: 0 });
@@ -36833,27 +36886,27 @@ const ConversionsLog = () => {
       trash: { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" }
     };
     const statusLabels = {
-      lead: t2("conversions.lead"),
-      sale: t2("conversions.sale"),
-      rejected: t2("conversions.rejected"),
-      registration: t2("conversions.registration"),
-      deposit: t2("conversions.deposit"),
-      trash: t2("conversions.trash")
+      lead: t("conversions.lead"),
+      sale: t("conversions.sale"),
+      rejected: t("conversions.rejected"),
+      registration: t("conversions.registration"),
+      deposit: t("conversions.deposit"),
+      trash: t("conversions.trash")
     };
     return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { ...baseStyle, ...styles[status] || styles.trash }, children: statusLabels[status] || status });
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_conversions", title: t2("help.conversionsBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("help.conversionsBanner") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_conversions", title: t("help.conversionsBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.conversionsBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px", alignItems: "end" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { gridColumn: "span 2" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("conversions.search") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversions.search") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
               type: "text",
-              placeholder: t2("conversions.searchPlaceholder"),
+              placeholder: t("conversions.searchPlaceholder"),
               value: search,
               onChange: (e) => setSearch(e.target.value),
               onKeyDown: (e) => e.key === "Enter" && handleSearch(),
@@ -36863,7 +36916,7 @@ const ConversionsLog = () => {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("conversions.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversions.status") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "select",
           {
@@ -36871,19 +36924,19 @@ const ConversionsLog = () => {
             onChange: (e) => setStatusFilter(e.target.value),
             className: "form-select",
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("conversions.allStatuses") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "lead", children: t2("conversions.lead") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sale", children: t2("conversions.sale") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "rejected", children: t2("conversions.rejected") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "registration", children: t2("conversions.registration") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "deposit", children: t2("conversions.deposit") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "trash", children: t2("conversions.trash") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("conversions.allStatuses") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "lead", children: t("conversions.lead") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sale", children: t("conversions.sale") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "rejected", children: t("conversions.rejected") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "registration", children: t("conversions.registration") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "deposit", children: t("conversions.deposit") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "trash", children: t("conversions.trash") })
             ]
           }
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("conversions.dateFrom") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversions.dateFrom") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
@@ -36895,7 +36948,7 @@ const ConversionsLog = () => {
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("conversions.dateTo") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversions.dateTo") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
@@ -36912,7 +36965,7 @@ const ConversionsLog = () => {
           {
             onClick: () => fetchConversions(pagination.page),
             className: "btn btn-secondary btn-icon",
-            title: t2("common.refresh"),
+            title: t("common.refresh"),
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 18 })
           }
         ),
@@ -36933,16 +36986,16 @@ const ConversionsLog = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Click ID" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "TID" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("conversions.status") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("conversions.payout") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("conversions.campaign") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("conversions.offer") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversions.status") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversions.payout") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversions.campaign") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversions.offer") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "IP" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("conversions.date") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversions.date") })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: conversions.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 9, className: "text-center", style: { padding: "48px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("conversions.noConversions") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t2("conversions.noConversionsText") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("conversions.noConversions") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("conversions.noConversionsText") })
         ] }) }) }) : conversions.map((conv) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: conv.id }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -36998,13 +37051,13 @@ const ConversionsLog = () => {
         borderTop: "1px solid var(--color-border)"
       }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "14px", color: "var(--color-text-secondary)" }, children: [
-          t2("conversions.shown"),
+          t("conversions.shown"),
           " ",
           (pagination.page - 1) * pagination.per_page + 1,
           " - ",
           Math.min(pagination.page * pagination.per_page, pagination.total),
           " ",
-          t2("conversions.of"),
+          t("conversions.of"),
           " ",
           pagination.total
         ] }),
@@ -37040,8 +37093,8 @@ const ConversionsLog = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { background: "var(--color-info-bg)", borderColor: "var(--color-info)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: "12px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 20, style: { color: "var(--color-info)", flexShrink: 0, marginTop: "2px" } }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontWeight: 500, marginBottom: "4px", color: "var(--color-text-primary)" }, children: t2("conversions.title") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)", margin: 0 }, children: t2("conversions.logInfo") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontWeight: 500, marginBottom: "4px", color: "var(--color-text-primary)" }, children: t("conversions.title") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)", margin: 0 }, children: t("conversions.logInfo") })
       ] })
     ] }) }),
     selectedClickId && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -37055,7 +37108,7 @@ const ConversionsLog = () => {
 };
 const API_URL$o = "/api.php";
 const PostbackSettings = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [settings, setSettings] = reactExports.useState({
     postback_key: "fd12e72",
     currency: "USD",
@@ -37099,7 +37152,7 @@ const PostbackSettings = () => {
       }
     } catch (err) {
       console.error("Error fetching settings:", err);
-      setError(t2("common.networkError"));
+      setError(t("common.networkError"));
     } finally {
       setLoading(false);
     }
@@ -37112,18 +37165,18 @@ const PostbackSettings = () => {
         currency: settings.currency,
         postback_aliases: settings.postback_aliases
       });
-      showSuccess(t2("postback.copied"));
+      showSuccess(t("postback.copied"));
       fetchSettings();
     } catch (err) {
       console.error("Error saving settings:", err);
-      setError(t2("common.networkError"));
+      setError(t("common.networkError"));
     } finally {
       setSaving(false);
     }
   };
   const handleTestPostback = async () => {
     if (!testSubid) {
-      setError(t2("postback.clickSubid"));
+      setError(t("postback.clickSubid"));
       return;
     }
     setTestResult(null);
@@ -37147,11 +37200,11 @@ const PostbackSettings = () => {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
-    showSuccess(t2("postback.copied"));
+    showSuccess(t("postback.copied"));
     setTimeout(() => setCopied(false), 2e3);
   };
   const addAlias = (param) => {
-    const newAlias = prompt(t2("common.create") + ":");
+    const newAlias = prompt(t("common.create") + ":");
     if (newAlias) {
       setAliases((prev) => prev.map(
         (a) => a.param === param ? { ...a, aliases: [...a.aliases, newAlias] } : a
@@ -37164,19 +37217,19 @@ const PostbackSettings = () => {
     ));
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t2("common.loading") }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("common.loading") }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
     success && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-success", children: success }),
     error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-danger", children: error }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(InfoBanner, { storageKey: "help_postback", title: t2("help.postbackBannerTitle"), children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("help.postbackBanner") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { marginTop: "6px", fontStyle: "italic" }, children: t2("help.postbackMacros") })
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(InfoBanner, { storageKey: "help_postback", title: t("help.postbackBannerTitle"), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.postbackBanner") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { marginTop: "6px", fontStyle: "italic" }, children: t("help.postbackMacros") })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { marginBottom: "4px" }, children: t2("postback.title") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)" }, children: t2("postback.subtitle") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { marginBottom: "4px" }, children: t("postback.title") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)" }, children: t("postback.subtitle") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "16px", display: "flex", gap: "8px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -37197,7 +37250,7 @@ const PostbackSettings = () => {
             style: { flexShrink: 0 },
             children: [
               copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { size: 18 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 18 }),
-              copied ? t2("postback.copied") : t2("postback.copy")
+              copied ? t("postback.copied") : t("postback.copy")
             ]
           }
         )
@@ -37206,11 +37259,11 @@ const PostbackSettings = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { size: 20, style: { color: "var(--color-primary)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t2("postback.examplesTitle") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("postback.examplesTitle") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "12px 16px", background: "var(--color-bg-soft)", borderRadius: "12px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "4px" }, children: t2("postback.basicPostback") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "4px" }, children: t("postback.basicPostback") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { style: { color: "var(--color-success)" }, children: [
             postbackUrl,
             "?subid=",
@@ -37219,7 +37272,7 @@ const PostbackSettings = () => {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "12px 16px", background: "var(--color-bg-soft)", borderRadius: "12px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "4px" }, children: t2("postback.withPayout") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "4px" }, children: t("postback.withPayout") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { style: { color: "var(--color-success)" }, children: [
             postbackUrl,
             "?subid=",
@@ -37229,7 +37282,7 @@ const PostbackSettings = () => {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "12px 16px", background: "var(--color-bg-soft)", borderRadius: "12px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "4px" }, children: t2("postback.withTid") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "4px" }, children: t("postback.withTid") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { style: { color: "var(--color-success)" }, children: [
             postbackUrl,
             "?subid=",
@@ -37241,7 +37294,7 @@ const PostbackSettings = () => {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "12px 16px", background: "var(--color-bg-soft)", borderRadius: "12px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "4px" }, children: t2("postback.statusMapping") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "4px" }, children: t("postback.statusMapping") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { style: { color: "var(--color-success)" }, children: [
             postbackUrl,
             "?subid=",
@@ -37256,12 +37309,12 @@ const PostbackSettings = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { size: 20, style: { color: "var(--color-primary)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t2("postback.settingsTitle") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("postback.settingsTitle") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-            t2("postback.postbackKey"),
+            t("postback.postbackKey"),
             " ",
             /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.postbackKeyTooltip" })
           ] }),
@@ -37277,10 +37330,10 @@ const PostbackSettings = () => {
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { marginTop: "4px", fontSize: "12px", color: "var(--color-text-muted)" }, children: t2("postback.postbackKeyHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { marginTop: "4px", fontSize: "12px", color: "var(--color-text-muted)" }, children: t("postback.postbackKeyHint") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("postback.defaultCurrency") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("postback.defaultCurrency") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
             {
@@ -37302,12 +37355,12 @@ const PostbackSettings = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 20, style: { color: "var(--color-primary)" } }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "page-title", style: { margin: 0 }, children: [
-          t2("postback.aliasesTitle"),
+          t("postback.aliasesTitle"),
           " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.postbackAliasesTooltip" })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)", marginBottom: "16px" }, children: t2("postback.aliasesDesc") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)", marginBottom: "16px" }, children: t("postback.aliasesDesc") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: aliases.map(({ param, aliases: aliasList }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "16px", padding: "12px 0", borderBottom: "1px solid var(--color-border)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "80px", fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: param }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, display: "flex", flexWrap: "wrap", gap: "8px" }, children: [
@@ -37345,7 +37398,7 @@ const PostbackSettings = () => {
               style: { padding: "4px 10px" },
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 12 }),
-                t2("common.create")
+                t("common.create")
               ]
             }
           )
@@ -37355,24 +37408,24 @@ const PostbackSettings = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(TestTubeDiagonal, { size: 20, style: { color: "var(--color-primary)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t2("postback.testTitle") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("postback.testTitle") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("postback.clickSubid") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("postback.clickSubid") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
               type: "text",
               value: testSubid,
               onChange: (e) => setTestSubid(e.target.value),
-              placeholder: t2("postback.clickIdPlaceholder"),
+              placeholder: t("postback.clickIdPlaceholder"),
               className: "form-input"
             }
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("conversions.status") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversions.status") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
             {
@@ -37380,17 +37433,17 @@ const PostbackSettings = () => {
               onChange: (e) => setTestStatus(e.target.value),
               className: "form-select",
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "lead", children: t2("conversions.lead") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sale", children: t2("conversions.sale") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "rejected", children: t2("conversions.rejected") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "registration", children: t2("conversions.registration") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "deposit", children: t2("conversions.deposit") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "lead", children: t("conversions.lead") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sale", children: t("conversions.sale") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "rejected", children: t("conversions.rejected") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "registration", children: t("conversions.registration") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "deposit", children: t("conversions.deposit") })
               ]
             }
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("conversions.payout") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversions.payout") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -37409,7 +37462,7 @@ const PostbackSettings = () => {
             style: { width: "100%" },
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(TestTube, { size: 18 }),
-              t2("postback.test")
+              t("postback.test")
             ]
           }
         ) })
@@ -37422,54 +37475,54 @@ const PostbackSettings = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px", padding: "24px 24px 0 24px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Table, { size: 20, style: { color: "var(--color-primary)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t2("postback.paramsTitle") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("postback.paramsTitle") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", style: { padding: "16px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("postback.param") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("postback.required") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("postback.description") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("postback.param") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("postback.required") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("postback.description") })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { background: "transparent", padding: 0, color: "var(--color-accent-turquoise)" }, children: "subid" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge status-active", children: t2("clickDetails.yes") }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t2("postback.subidDesc") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge status-active", children: t("clickDetails.yes") }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t("postback.subidDesc") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { background: "transparent", padding: 0, color: "var(--color-accent-turquoise)" }, children: "status" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge status-active", children: t2("clickDetails.yes") }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t2("postback.statusDesc") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge status-active", children: t("clickDetails.yes") }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t("postback.statusDesc") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { background: "transparent", padding: 0, color: "var(--color-accent-turquoise)" }, children: "payout" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge", style: { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: t2("clickDetails.no") }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t2("postback.payoutDesc") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge", style: { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: t("clickDetails.no") }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t("postback.payoutDesc") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { background: "transparent", padding: 0, color: "var(--color-accent-turquoise)" }, children: "tid" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge", style: { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: t2("clickDetails.no") }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t2("postback.tidDesc") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge", style: { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: t("clickDetails.no") }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t("postback.tidDesc") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { background: "transparent", padding: 0, color: "var(--color-accent-turquoise)" }, children: "currency" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge", style: { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: t2("clickDetails.no") }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t2("postback.currencyDesc") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge", style: { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: t("clickDetails.no") }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t("postback.currencyDesc") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { background: "transparent", padding: 0, color: "var(--color-accent-turquoise)" }, children: "sub_id_1-30" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge", style: { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: t2("clickDetails.no") }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t2("postback.subIdDesc") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge", style: { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: t("clickDetails.no") }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t("postback.subIdDesc") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { background: "transparent", padding: 0, color: "var(--color-accent-turquoise)" }, children: "sale_status" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge", style: { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: t2("clickDetails.no") }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t2("postback.saleStatusDesc") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge", style: { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: t("clickDetails.no") }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t("postback.saleStatusDesc") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { background: "transparent", padding: 0, color: "var(--color-accent-turquoise)" }, children: "lead_status" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge", style: { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: t2("clickDetails.no") }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t2("postback.leadStatusDesc") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge", style: { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: t("clickDetails.no") }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: t("postback.leadStatusDesc") })
           ] })
         ] })
       ] }) })
@@ -37482,7 +37535,7 @@ const PostbackSettings = () => {
         className: "btn btn-primary",
         children: [
           saving ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "animate-spin", size: 18 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("postback.saveSettings") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("postback.saveSettings") })
         ]
       }
     ) })
@@ -37490,7 +37543,7 @@ const PostbackSettings = () => {
 };
 const API_URL$n = "/api.php";
 const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
   const [saving, setSaving] = reactExports.useState(false);
   const [templates, setTemplates] = reactExports.useState([]);
@@ -37540,7 +37593,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
     }
   };
   const handleTemplateChange = (templateName) => {
-    const template = templates.find((t22) => t22.name === templateName);
+    const template = templates.find((t2) => t2.name === templateName);
     if (template) {
       setFormData({
         ...formData,
@@ -37551,7 +37604,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
   };
   const handleSave = async () => {
     if (!formData.name) {
-      alert(t2("botSettings.fillName"));
+      alert(t("botSettings.fillName"));
       return;
     }
     setSaving(true);
@@ -37564,10 +37617,10 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
       if (res.data.status === "success") {
         onClose(true);
       } else {
-        alert(t2("offerEditor.saveError") + " " + res.data.message);
+        alert(t("offerEditor.saveError") + " " + res.data.message);
       }
     } catch (err) {
-      alert(t2("offerEditor.networkError"));
+      alert(t("offerEditor.networkError"));
     } finally {
       setSaving(false);
     }
@@ -37587,29 +37640,29 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
     }
   };
   const availableMacros = [
-    { macro: "{subid}", description: t2("networkEditor.macroSubid") },
-    { macro: "{ip}", description: t2("networkEditor.macroIp") },
+    { macro: "{subid}", description: t("networkEditor.macroSubid") },
+    { macro: "{ip}", description: t("networkEditor.macroIp") },
     { macro: "{user_agent}", description: "User Agent" },
-    { macro: "{country}", description: t2("networkEditor.macroCountry") },
-    { macro: "{device}", description: t2("networkEditor.macroDevice") },
-    { macro: "{referer}", description: t2("networkEditor.macroReferer") },
-    { macro: "{keyword}", description: t2("networkEditor.macroKeyword") },
-    { macro: "{cost}", description: t2("networkEditor.macroCost") },
-    { macro: "{external_id}", description: t2("networkEditor.macroExternalId") },
-    { macro: "{creative}", description: t2("networkEditor.macroCreative") },
-    { macro: "{ad_campaign}", description: t2("networkEditor.macroAdCampaign") }
+    { macro: "{country}", description: t("networkEditor.macroCountry") },
+    { macro: "{device}", description: t("networkEditor.macroDevice") },
+    { macro: "{referer}", description: t("networkEditor.macroReferer") },
+    { macro: "{keyword}", description: t("networkEditor.macroKeyword") },
+    { macro: "{cost}", description: t("networkEditor.macroCost") },
+    { macro: "{external_id}", description: t("networkEditor.macroExternalId") },
+    { macro: "{creative}", description: t("networkEditor.macroCreative") },
+    { macro: "{ad_campaign}", description: t("networkEditor.macroAdCampaign") }
   ];
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "700px" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: networkId ? `${t2("networks.title")}: ${formData.name}` : t2("networks.title") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: networkId ? `${t("networks.title")}: ${formData.name}` : t("networks.title") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: t2("common.loading") }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: t("common.loading") }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded border border-gray-200 space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t2("networkEditor.basicSettings") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t("networkEditor.basicSettings") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t2("networkEditor.nameLabel") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.nameLabel") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
@@ -37617,25 +37670,25 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                 value: formData.name,
                 onChange: (e) => setFormData({ ...formData, name: e.target.value }),
                 className: "w-full border border-gray-300 rounded px-3 py-2 text-sm",
-                placeholder: t2("networkEditor.namePlaceholder")
+                placeholder: t("networkEditor.namePlaceholder")
               }
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t2("networkEditor.template") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.template") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "select",
               {
                 value: formData.template,
                 onChange: (e) => handleTemplateChange(e.target.value),
                 className: "w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white",
-                children: templates.map((t22) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: t22.name, children: t22.display_name }, t22.name))
+                children: templates.map((t2) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: t2.name, children: t2.display_name }, t2.name))
               }
             )
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t2("networkEditor.status") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.status") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
             {
@@ -37643,8 +37696,8 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
               onChange: (e) => setFormData({ ...formData, state: e.target.value }),
               className: "w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white",
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t2("networkEditor.active") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t2("networkEditor.disabled") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("networkEditor.active") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("networkEditor.disabled") })
               ]
             }
           )
@@ -37652,7 +37705,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-blue-50 p-4 rounded border border-blue-200 space-y-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-blue-800", children: "Postback URL" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-blue-600", children: t2("networkEditor.postbackHint") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-blue-600", children: t("networkEditor.postbackHint") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "flex-1 bg-white px-3 py-2 rounded border border-blue-200 text-sm", children: getPostbackUrl() }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -37665,7 +37718,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-blue-600", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t2("networkEditor.paramsToAdd") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("networkEditor.paramsToAdd") }),
           " ?subid=",
           "{макрос_субид}",
           "&status=",
@@ -37675,10 +37728,10 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded border border-gray-200 space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t2("networkEditor.offerParams") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500", children: t2("networkEditor.offerParamsDesc") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t("networkEditor.offerParams") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500", children: t("networkEditor.offerParamsDesc") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t2("networkEditor.offerParamsLabel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.offerParamsLabel") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -37690,7 +37743,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-gray-400 mt-1", children: [
-            t2("networkEditor.example"),
+            t("networkEditor.example"),
             " &sub1=",
             "{subid}",
             "&ip=",
@@ -37698,7 +37751,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: t2("networkEditor.availableMacros") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: t("networkEditor.availableMacros") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: availableMacros.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "div",
             {
@@ -37717,7 +37770,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded border border-gray-200 space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t2("networkEditor.notes") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t("networkEditor.notes") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "textarea",
           {
@@ -37725,20 +37778,20 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
             onChange: (e) => setFormData({ ...formData, notes: e.target.value }),
             className: "w-full border border-gray-300 rounded px-3 py-2 text-sm",
             rows: 3,
-            placeholder: t2("networkEditor.notesPlaceholder")
+            placeholder: t("networkEditor.notesPlaceholder")
           }
         )
       ] })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t2("common.cancel") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, disabled: saving, className: "btn btn-primary", children: saving ? t2("common.saving") : t2("common.save") })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("common.cancel") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, disabled: saving, className: "btn btn-primary", children: saving ? t("common.saving") : t("common.save") })
     ] })
   ] }) });
 };
 const API_URL$m = "/api.php";
 const AffiliateNetworks = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [networks, setNetworks] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
   const [editorOpen, setEditorOpen] = reactExports.useState(false);
@@ -37787,17 +37840,17 @@ const AffiliateNetworks = () => {
     }
   };
   const handleDelete = async (id) => {
-    if (!window.confirm(t2("networks.deleteConfirm"))) return;
+    if (!window.confirm(t("networks.deleteConfirm"))) return;
     try {
       const res = await axios.post(`${API_URL$m}?action=delete_affiliate_network`, { id });
       if (res?.data?.status !== "success") {
-        alert(res?.data?.message || t2("common.error"));
+        alert(res?.data?.message || t("common.error"));
         return;
       }
       fetchNetworks();
     } catch (err) {
       console.error(err);
-      alert(err?.response?.data?.message || err?.message || t2("common.error"));
+      alert(err?.response?.data?.message || err?.message || t("common.error"));
     }
   };
   const toggleSelected = (id, checked) => {
@@ -37839,7 +37892,7 @@ const AffiliateNetworks = () => {
   const handleBulkDeleteSelected = async () => {
     const ids = Array.from(selectedIds);
     if (ids.length === 0) return;
-    const msg = (t2("common.deleteSelectedConfirm") || t2("networks.deleteConfirm") || t2("common.deleteConfirm")).replace("{count}", String(ids.length));
+    const msg = (t("common.deleteSelectedConfirm") || t("networks.deleteConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
       await axios.post(`${API_URL$m}?action=bulk_delete_affiliate_networks`, { ids });
@@ -37847,7 +37900,7 @@ const AffiliateNetworks = () => {
       fetchNetworks();
     } catch (err) {
       console.error(err);
-      alert(t2("common.error"));
+      alert(t("common.error"));
     }
   };
   const exportVisibleCsv = () => {
@@ -37903,12 +37956,12 @@ const AffiliateNetworks = () => {
     }
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: t2("common.loading") });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: t("common.loading") });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_affiliate_networks", title: t2("help.affiliateNetworkBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("help.affiliateNetworkBanner") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_affiliate_networks", title: t("help.affiliateNetworkBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.affiliateNetworkBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500", children: t2("networks.headerDesc") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500", children: t("networks.headerDesc") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
@@ -37917,10 +37970,10 @@ const AffiliateNetworks = () => {
             onClick: () => setShowFilters(!showFilters),
             className: `btn btn-ghost ${showFilters ? "bg-[var(--color-primary-light)]" : ""}`,
             style: showFilters ? { color: "var(--color-primary)" } : {},
-            title: t2("editor.filters"),
+            title: t("editor.filters"),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "w-4 h-4" }),
-              t2("editor.filters"),
+              t("editor.filters"),
               search || stateFilter !== "all" ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full", children: [search, stateFilter !== "all" ? "1" : ""].filter(Boolean).length }) : null
             ]
           }
@@ -37931,21 +37984,21 @@ const AffiliateNetworks = () => {
             type: "button",
             onClick: handleRefresh,
             className: "btn btn-ghost btn-icon",
-            title: t2("common.refresh"),
+            title: t("common.refresh"),
             disabled: refreshing,
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-5 h-5 ${refreshing ? "animate-spin" : ""}` })
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setSettingsOpen(true), className: "btn btn-ghost btn-icon", title: t2("common.settings"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setSettingsOpen(true), className: "btn btn-ghost btn-icon", title: t("common.settings"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) }),
         selectedIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
             onClick: handleBulkDeleteSelected,
             className: "btn btn-danger",
-            title: t2("common.deleteSelected"),
+            title: t("common.deleteSelected"),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
-              t2("common.deleteSelected") || t2("common.delete"),
+              t("common.deleteSelected") || t("common.delete"),
               " (",
               selectedIds.size,
               ")"
@@ -37959,7 +38012,7 @@ const AffiliateNetworks = () => {
             className: "btn btn-primary",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
-              t2("common.create")
+              t("common.create")
             ]
           }
         )
@@ -37968,7 +38021,7 @@ const AffiliateNetworks = () => {
     showFilters && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { padding: "16px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-4 items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-          t2("common.search"),
+          t("common.search"),
           ":"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -37978,19 +38031,19 @@ const AffiliateNetworks = () => {
             onChange: (e) => setSearch(e.target.value),
             className: "form-input",
             style: { width: "auto", minWidth: "260px" },
-            placeholder: t2("common.searchPlaceholder")
+            placeholder: t("common.searchPlaceholder")
           }
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-          t2("components.status"),
+          t("components.status"),
           ":"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { value: stateFilter, onChange: (e) => setStateFilter(e.target.value), className: "form-select", style: { width: "auto", minWidth: "160px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: t2("common.all") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t2("sources.activePlural") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t2("sources.pausedPlural") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: t("common.all") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("sources.activePlural") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("sources.pausedPlural") })
         ] })
       ] }),
       (search || stateFilter !== "all") && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => {
@@ -37998,10 +38051,10 @@ const AffiliateNetworks = () => {
         setStateFilter("all");
       }, className: "btn btn-ghost btn-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }),
-        t2("common.clear")
+        t("common.clear")
       ] })
     ] }) }),
-    filteredNetworks.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10 text-gray-400 bg-white border border-dashed border-gray-300 rounded", children: t2("networks.noNetworksAdd") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white rounded shadow overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "min-w-full divide-y divide-gray-200", children: [
+    filteredNetworks.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10 text-gray-400 bg-white border border-dashed border-gray-300 rounded", children: t("networks.noNetworksAdd") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white rounded shadow overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "min-w-full divide-y divide-gray-200", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-gray-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
@@ -38014,12 +38067,12 @@ const AffiliateNetworks = () => {
             onChange: (e) => toggleSelectAll(e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: t2("editor.name") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: t2("networks.postbackUrl") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: t2("networks.offerParams") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase", children: t2("networks.offersCount") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase", children: t2("components.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase", children: t2("common.actions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: t("editor.name") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: t("networks.postbackUrl") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: t("networks.offerParams") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase", children: t("networks.offersCount") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase", children: t("components.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase", children: t("common.actions") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-200", children: filteredNetworks.map((network) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-gray-50", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -38033,7 +38086,7 @@ const AffiliateNetworks = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium text-gray-900", children: network.name }),
           network.template && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-gray-400", children: [
-            t2("sources.template"),
+            t("sources.template"),
             ": ",
             network.template
           ] })
@@ -38045,21 +38098,21 @@ const AffiliateNetworks = () => {
             {
               onClick: () => copyToClipboard(getPostbackUrl(), `pb-${network.id}`),
               className: "text-gray-400 hover:text-blue-600",
-              title: t2("common.copy"),
+              title: t("common.copy"),
               children: copiedId === `pb-${network.id}` ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 text-green-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
             }
           )
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-xs bg-gray-100 px-2 py-1 rounded", children: network.offer_params || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400", children: t2("common.notSet") }) }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-xs bg-gray-100 px-2 py-1 rounded", children: network.offer_params || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400", children: t("common.notSet") }) }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800", children: network.offers_count || 0 }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `inline-flex items-center px-2 py-1 rounded text-xs font-medium ${network.state === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`, children: network.state === "active" ? t2("components.active") : t2("common.disabled") }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `inline-flex items-center px-2 py-1 rounded text-xs font-medium ${network.state === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`, children: network.state === "active" ? t("components.active") : t("common.disabled") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-center space-x-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
               onClick: () => openEditor(network.id),
               className: "text-gray-400 hover:text-blue-600",
-              title: t2("common.edit"),
+              title: t("common.edit"),
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { className: "w-4 h-4" })
             }
           ),
@@ -38068,7 +38121,7 @@ const AffiliateNetworks = () => {
             {
               onClick: () => handleDelete(network.id),
               className: "text-gray-400 hover:text-red-600",
-              title: t2("common.delete"),
+              title: t("common.delete"),
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
             }
           )
@@ -38076,17 +38129,17 @@ const AffiliateNetworks = () => {
       ] }, network.id)) })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-blue-50 border border-blue-200 rounded p-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-blue-800 mb-2", children: t2("networks.setupPostback") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-blue-800 mb-2", children: t("networks.setupPostback") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("ol", { className: "text-sm text-blue-700 space-y-1 list-decimal list-inside", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t2("networks.step1") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t2("networks.step2") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t2("networks.step3") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t2("networks.step4") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t2("networks.step5") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("networks.step1") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("networks.step2") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("networks.step3") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("networks.step4") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("networks.step5") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 text-xs text-blue-600", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
-          t2("networks.examplePostback"),
+          t("networks.examplePostback"),
           ":"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { className: "ml-2 bg-blue-100 px-2 py-1 rounded", children: [
@@ -38111,21 +38164,21 @@ const AffiliateNetworks = () => {
     ),
     settingsOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => setSettingsOpen(false), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", onClick: (e) => e.stopPropagation(), style: { maxWidth: "560px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t2("common.settings") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setSettingsOpen(false), title: t2("common.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("common.settings") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setSettingsOpen(false), title: t("common.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary w-full", onClick: () => {
           setSelectedIds(/* @__PURE__ */ new Set());
-        }, children: t2("common.clearSelection") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-primary w-full", onClick: exportVisibleCsv, children: t2("common.exportCsv") })
+        }, children: t("common.clearSelection") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-primary w-full", onClick: exportVisibleCsv, children: t("common.exportCsv") })
       ] })
     ] }) })
   ] });
 };
 const API_URL$l = "/api.php";
 const UsersPage = () => {
-  const { t: t2, setLanguage: setContextLanguage } = useLanguage();
+  const { t, setLanguage: setContextLanguage } = useLanguage();
   const [users, setUsers] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
   const [showModal, setShowModal] = reactExports.useState(false);
@@ -38180,10 +38233,10 @@ const UsersPage = () => {
       }
     };
     const t1 = setTimeout(syncAutofill, 80);
-    const t22 = setTimeout(syncAutofill, 400);
+    const t2 = setTimeout(syncAutofill, 400);
     return () => {
       clearTimeout(t1);
-      clearTimeout(t22);
+      clearTimeout(t2);
     };
   }, [showModal, formData.username, formData.password]);
   const fetchUsers = async () => {
@@ -38193,7 +38246,7 @@ const UsersPage = () => {
         setUsers(res.data.data);
       }
     } catch (err) {
-      setError(t2("common.error"));
+      setError(t("common.error"));
     } finally {
       setLoading(false);
     }
@@ -38248,18 +38301,18 @@ const UsersPage = () => {
         setShowApiKeysModal(true);
       }
     } catch (err) {
-      setError(t2("common.error"));
+      setError(t("common.error"));
     }
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     if (!formData.username) {
-      setError(t2("users.usernamePlaceholder"));
+      setError(t("users.usernamePlaceholder"));
       return;
     }
     if (!currentUser && !formData.password) {
-      setError(t2("users.passwordPlaceholderNew"));
+      setError(t("users.passwordPlaceholderNew"));
       return;
     }
     try {
@@ -38269,7 +38322,7 @@ const UsersPage = () => {
       }
       const res = await axios.post(`${API_URL$l}?action=save_user`, data);
       if (res.data.status === "success") {
-        showSuccess(currentUser ? t2("common.success") : t2("common.success"));
+        showSuccess(currentUser ? t("common.success") : t("common.success"));
         if (data.language) {
           setContextLanguage(data.language);
           try {
@@ -38286,21 +38339,21 @@ const UsersPage = () => {
         setError(res.data.message);
       }
     } catch (err) {
-      setError(err.response?.data?.message || t2("common.error"));
+      setError(err.response?.data?.message || t("common.error"));
     }
   };
   const handleDelete = async (user) => {
-    if (!window.confirm(t2("users.deleteConfirm"))) return;
+    if (!window.confirm(t("users.deleteConfirm"))) return;
     try {
       const res = await axios.post(`${API_URL$l}?action=delete_user`, { id: user.id });
       if (res.data.status === "success") {
-        showSuccess(t2("common.success"));
+        showSuccess(t("common.success"));
         fetchUsers();
       } else {
         setError(res.data.message);
       }
     } catch (err) {
-      setError(err.response?.data?.message || t2("common.error"));
+      setError(err.response?.data?.message || t("common.error"));
     }
   };
   const handleSavePermissions = async () => {
@@ -38311,12 +38364,12 @@ const UsersPage = () => {
         permissions
       });
       if (res.data.status === "success") {
-        showSuccess(t2("common.success"));
+        showSuccess(t("common.success"));
         setShowPermissionsModal(false);
         fetchUsers();
       }
     } catch (err) {
-      setError(t2("common.error"));
+      setError(t("common.error"));
     }
   };
   const generateApiKey = async () => {
@@ -38326,59 +38379,59 @@ const UsersPage = () => {
         key_name: `Key ${(currentUser.api_keys?.length || 0) + 1}`
       });
       if (res.data.status === "success") {
-        showSuccess(t2("common.success"));
+        showSuccess(t("common.success"));
         openApiKeysModal(currentUser);
       }
     } catch (err) {
-      setError(t2("common.error"));
+      setError(t("common.error"));
     }
   };
   const deleteApiKey = async (keyId) => {
-    if (!window.confirm(t2("common.deleteConfirm"))) return;
+    if (!window.confirm(t("common.deleteConfirm"))) return;
     try {
       await axios.post(`${API_URL$l}?action=delete_api_key`, { id: keyId });
-      showSuccess(t2("common.success"));
+      showSuccess(t("common.success"));
       openApiKeysModal(currentUser);
     } catch (err) {
-      setError(t2("common.error"));
+      setError(t("common.error"));
     }
   };
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
-    showSuccess(t2("common.copy"));
+    showSuccess(t("common.copy"));
   };
   const resources = [
-    { key: "campaigns", label: t2("nav.campaigns") },
-    { key: "offers", label: t2("nav.offers") },
-    { key: "landings", label: t2("nav.landings") },
-    { key: "sources", label: t2("nav.sources") },
-    { key: "networks", label: t2("nav.networks") }
+    { key: "campaigns", label: t("nav.campaigns") },
+    { key: "offers", label: t("nav.offers") },
+    { key: "landings", label: t("nav.landings") },
+    { key: "sources", label: t("nav.sources") },
+    { key: "networks", label: t("nav.networks") }
   ];
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t2("users.loading") }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("users.loading") }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
     success && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-success", children: success }),
     error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-danger", children: error }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)" }, children: t2("users.title") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)" }, children: t("users.title") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: openCreateModal, className: "btn btn-primary btn-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 18 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("common.create") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("common.create") })
       ] })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { padding: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("users.username") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("users.language") || "Language" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("users.role") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("users.createdAt") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("users.username") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("users.language") || "Language" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("users.role") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("users.createdAt") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { children: [
           "API ",
-          t2("common.actions")
+          t("common.actions")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("common.actions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
         users.map((user) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -38399,7 +38452,7 @@ const UsersPage = () => {
               children: user.role === "admin" ? "Admin" : "User"
             }
           ) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${user.is_active ? "status-active" : "status-inactive"}`, children: user.is_active ? t2("components.active") : t2("components.paused") }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${user.is_active ? "status-active" : "status-inactive"}`, children: user.is_active ? t("components.active") : t("components.paused") }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)", fontSize: "14px" }, children: user.last_login || "-" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
@@ -38415,7 +38468,7 @@ const UsersPage = () => {
               {
                 onClick: () => openPermissionsModal(user),
                 className: "action-btn text-blue",
-                title: t2("users.permissions"),
+                title: t("users.permissions"),
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { size: 16 })
               }
             ),
@@ -38433,7 +38486,7 @@ const UsersPage = () => {
               {
                 onClick: () => openEditModal(user),
                 className: "action-btn text-blue",
-                title: t2("users.edit"),
+                title: t("users.edit"),
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 })
               }
             ),
@@ -38442,21 +38495,21 @@ const UsersPage = () => {
               {
                 onClick: () => handleDelete(user),
                 className: "action-btn text-red",
-                title: t2("users.delete"),
+                title: t("users.delete"),
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 })
               }
             )
           ] }) })
         ] }, user.id)),
-        users.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 7, className: "text-center", style: { padding: "32px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("users.noUsers") }) }) }) })
+        users.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 7, className: "text-center", style: { padding: "32px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("users.noUsers") }) }) }) })
       ] })
     ] }) }) }),
     showModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: currentUser ? t2("users.edit") : t2("users.addUser") }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: currentUser ? t("users.edit") : t("users.addUser") }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-            t2("users.username"),
+            t("users.username"),
             " *"
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
@@ -38478,14 +38531,14 @@ const UsersPage = () => {
                 onMouseDown: () => setCredentialFieldReady((prev) => ({ ...prev, username: true })),
                 onChange: (e) => setFormData({ ...formData, username: e.target.value }),
                 className: "form-input pl-12",
-                placeholder: t2("users.usernamePlaceholder")
+                placeholder: t("users.usernamePlaceholder")
               }
             )
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-            t2("profile.newPassword"),
+            t("profile.newPassword"),
             " ",
             !currentUser && "*"
           ] }),
@@ -38508,13 +38561,13 @@ const UsersPage = () => {
                 onMouseDown: () => setCredentialFieldReady((prev) => ({ ...prev, password: true })),
                 onChange: (e) => setFormData({ ...formData, password: e.target.value }),
                 className: "form-input pl-12",
-                placeholder: currentUser ? t2("users.passwordPlaceholder") : t2("users.passwordPlaceholderNew")
+                placeholder: currentUser ? t("users.passwordPlaceholder") : t("users.passwordPlaceholderNew")
               }
             )
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("users.language") || "Language" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("users.language") || "Language" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -38532,7 +38585,7 @@ const UsersPage = () => {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("users.role") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("users.role") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
             {
@@ -38556,7 +38609,7 @@ const UsersPage = () => {
               onChange: (e) => setFormData({ ...formData, is_active: e.target.checked ? 1 : 0 })
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "is_active", className: "form-label", style: { margin: 0 }, children: t2("components.active") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "is_active", className: "form-label", style: { margin: 0 }, children: t("components.active") })
         ] }),
         error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-danger", children: error }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
@@ -38566,21 +38619,21 @@ const UsersPage = () => {
               type: "button",
               onClick: () => setShowModal(false),
               className: "btn btn-secondary",
-              children: t2("common.cancel")
+              children: t("common.cancel")
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "submit", className: "btn btn-primary", children: currentUser ? t2("common.save") : t2("common.create") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "submit", className: "btn btn-primary", children: currentUser ? t("common.save") : t("common.create") })
         ] })
       ] })
     ] }) }),
     showPermissionsModal && currentUser && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "640px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title", children: [
-        t2("users.permissions"),
+        t("users.permissions"),
         ": ",
         currentUser.username
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, marginBottom: "12px" }, children: t2("users.permissions") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, marginBottom: "12px" }, children: t("users.permissions") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: resources.map((res) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", style: { padding: "8px 0", borderBottom: "1px solid var(--color-border)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: res.label }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -38610,10 +38663,10 @@ const UsersPage = () => {
           {
             onClick: () => setShowPermissionsModal(false),
             className: "btn btn-secondary",
-            children: t2("common.cancel")
+            children: t("common.cancel")
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSavePermissions, className: "btn btn-primary", children: t2("common.save") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSavePermissions, className: "btn btn-primary", children: t("common.save") })
       ] })
     ] }) }),
     showApiKeysModal && currentUser && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", children: [
@@ -38636,7 +38689,7 @@ const UsersPage = () => {
               {
                 onClick: () => copyToClipboard(key.api_key),
                 className: "action-btn text-blue",
-                title: t2("common.copy"),
+                title: t("common.copy"),
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 })
               }
             ),
@@ -38645,7 +38698,7 @@ const UsersPage = () => {
               {
                 onClick: () => deleteApiKey(key.id),
                 className: "action-btn text-red",
-                title: t2("common.delete"),
+                title: t("common.delete"),
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 })
               }
             )
@@ -38661,11 +38714,11 @@ const UsersPage = () => {
           style: { width: "100%", borderStyle: "dashed" },
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
-            t2("common.create")
+            t("common.create")
           ]
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowApiKeysModal(false), className: "btn btn-secondary", children: t2("common.close") }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowApiKeysModal(false), className: "btn btn-secondary", children: t("common.close") }) })
     ] }) })
   ] });
 };
@@ -38677,7 +38730,7 @@ const DEFAULT_CUSTOM_COLORS = {
   "--color-text-primary": "#111111"
 };
 const BrandingPage = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [mode, setMode] = reactExports.useState("light");
   const [saved, setSaved] = reactExports.useState(false);
   const [customColors, setCustomColors] = reactExports.useState(DEFAULT_CUSTOM_COLORS);
@@ -38741,7 +38794,7 @@ const BrandingPage = () => {
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 fade-in", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card shadow-sm p-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-semibold mb-4", style: { color: "var(--color-text-primary)" }, children: t2("branding.themeTitle") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-semibold mb-4", style: { color: "var(--color-text-primary)" }, children: t("branding.themeTitle") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
@@ -38752,8 +38805,8 @@ const BrandingPage = () => {
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-2 rounded-full ${mode === "light" ? "bg-[var(--color-primary)] text-white" : "bg-gray-100 text-gray-500"}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Sun, { size: 20 }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t2("branding.light") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t2("branding.lightDesc") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t("branding.light") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("branding.lightDesc") })
               ] })
             ]
           }
@@ -38767,8 +38820,8 @@ const BrandingPage = () => {
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-2 rounded-full ${mode === "dark" ? "bg-[var(--color-primary)] text-white" : "bg-gray-800 text-gray-400"}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Moon, { size: 20 }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t2("branding.dark") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t2("branding.darkDesc") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t("branding.dark") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("branding.darkDesc") })
               ] })
             ]
           }
@@ -38782,8 +38835,8 @@ const BrandingPage = () => {
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-2 rounded-full ${mode === "green" ? "bg-[var(--color-primary)] text-white" : "bg-green-100 text-green-600"}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Droplet, { size: 20 }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t2("branding.green") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t2("branding.greenDesc") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t("branding.green") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("branding.greenDesc") })
               ] })
             ]
           }
@@ -38797,8 +38850,8 @@ const BrandingPage = () => {
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-2 rounded-full ${mode === "neon" ? "bg-[var(--color-primary)] text-black" : "bg-gray-800 text-[#a3e635]"}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Monitor, { size: 20 }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t2("branding.neon") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t2("branding.neonDesc") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t("branding.neon") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("branding.neonDesc") })
               ] })
             ]
           }
@@ -38812,8 +38865,8 @@ const BrandingPage = () => {
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-2 rounded-full ${mode === "custom" ? "bg-[var(--color-primary)] text-white" : "bg-blue-100 text-blue-600"}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Palette, { size: 20 }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t2("branding.custom") || "Custom Theme" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t2("branding.customDesc") || "Customize colors to match your brand exactly." })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t("branding.custom") || "Custom Theme" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("branding.customDesc") || "Customize colors to match your brand exactly." })
               ] })
             ]
           }
@@ -38823,12 +38876,12 @@ const BrandingPage = () => {
     mode === "custom" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card shadow-sm p-6 fade-in border-t-4 border-[var(--color-primary)]", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-6", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold", style: { color: "var(--color-text-primary)" }, children: t2("branding.customColorsTitle") || "Custom Color Palette" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-1", style: { color: "var(--color-text-muted)" }, children: t2("branding.customColorsDesc") || "Click on the color circles to pick your brand colors." })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold", style: { color: "var(--color-text-primary)" }, children: t("branding.customColorsTitle") || "Custom Color Palette" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-1", style: { color: "var(--color-text-muted)" }, children: t("branding.customColorsDesc") || "Click on the color circles to pick your brand colors." })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: resetCustomColors, className: "text-sm flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--color-bg-soft)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 14 }),
-          t2("branding.resetColors") || "Reset Colors"
+          t("branding.resetColors") || "Reset Colors"
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4", children: [
@@ -38843,7 +38896,7 @@ const BrandingPage = () => {
             }
           ) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-semibold", style: { color: "var(--color-text-primary)" }, children: t2("branding.primaryAccent") || "Primary Accent" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-semibold", style: { color: "var(--color-text-primary)" }, children: t("branding.primaryAccent") || "Primary Accent" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs uppercase font-mono mt-0.5", style: { color: "var(--color-text-muted)" }, children: customColors["--color-primary"] })
           ] })
         ] }),
@@ -38858,7 +38911,7 @@ const BrandingPage = () => {
             }
           ) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-semibold", style: { color: "var(--color-text-primary)" }, children: t2("branding.mainBg") || "Main Background" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-semibold", style: { color: "var(--color-text-primary)" }, children: t("branding.mainBg") || "Main Background" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs uppercase font-mono mt-0.5", style: { color: "var(--color-text-muted)" }, children: customColors["--color-bg-main"] })
           ] })
         ] }),
@@ -38873,7 +38926,7 @@ const BrandingPage = () => {
             }
           ) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-semibold", style: { color: "var(--color-text-primary)" }, children: t2("branding.cardBg") || "Card Background" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-semibold", style: { color: "var(--color-text-primary)" }, children: t("branding.cardBg") || "Card Background" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs uppercase font-mono mt-0.5", style: { color: "var(--color-text-muted)" }, children: customColors["--color-bg-card"] })
           ] })
         ] }),
@@ -38888,14 +38941,14 @@ const BrandingPage = () => {
             }
           ) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-semibold", style: { color: "var(--color-text-primary)" }, children: t2("branding.textPrimary") || "Primary Text" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-semibold", style: { color: "var(--color-text-primary)" }, children: t("branding.textPrimary") || "Primary Text" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs uppercase font-mono mt-0.5", style: { color: "var(--color-text-muted)" }, children: customColors["--color-text-primary"] })
           ] })
         ] })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card p-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-semibold mb-4", children: t2("branding.preview") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-semibold mb-4", children: t("branding.preview") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "div",
         {
@@ -38906,14 +38959,14 @@ const BrandingPage = () => {
           },
           children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-medium mb-2", style: { color: "var(--color-text-primary)" }, children: t2("branding.buttons") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-medium mb-2", style: { color: "var(--color-text-primary)" }, children: t("branding.buttons") }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn-primary", children: "Primary" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn-secondary", children: "Secondary" })
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-medium mb-2", style: { color: "var(--color-text-primary)" }, children: t2("branding.badges") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-medium mb-2", style: { color: "var(--color-text-primary)" }, children: t("branding.badges") }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-success", children: "Success" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-warning", children: "Warning" }),
@@ -38921,12 +38974,12 @@ const BrandingPage = () => {
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-medium mb-2", style: { color: "var(--color-text-primary)" }, children: t2("branding.forms") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-medium mb-2", style: { color: "var(--color-text-primary)" }, children: t("branding.forms") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", placeholder: "Input example", className: "w-full" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-medium mb-2", style: { color: "var(--color-text-primary)" }, children: t2("branding.links") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "#", children: t2("branding.linkExample") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-medium mb-2", style: { color: "var(--color-text-primary)" }, children: t("branding.links") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "#", children: t("branding.linkExample") })
             ] })
           ] })
         }
@@ -38940,7 +38993,7 @@ const BrandingPage = () => {
           className: "flex items-center gap-2 px-4 py-2 border rounded hover:bg-[var(--color-bg-hover)] transition-colors",
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 18 }),
-            t2("branding.reset")
+            t("branding.reset")
           ]
         }
       ),
@@ -38951,10 +39004,10 @@ const BrandingPage = () => {
           className: `flex items-center gap-2 px-6 py-2 rounded text-white transition-all ${saved ? "bg-green-500" : "btn-primary"}`,
           children: saved ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 18 }),
-            t2("branding.saved")
+            t("branding.saved")
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
-            t2("branding.saveSettings")
+            t("branding.saveSettings")
           ] })
         }
       )
@@ -38963,7 +39016,7 @@ const BrandingPage = () => {
 };
 const API_URL$j = "/api.php";
 const GeoProfilesPage = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [profiles, setProfiles] = reactExports.useState([]);
   const [countries, setCountries] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
@@ -39013,11 +39066,11 @@ const GeoProfilesPage = () => {
   };
   const handleSave = async () => {
     if (!formData.name.trim()) {
-      alert(t2("geoProfiles.enterProfileName"));
+      alert(t("geoProfiles.enterProfileName"));
       return;
     }
     if (formData.countries.length === 0) {
-      alert(t2("geoProfiles.selectAtLeastOne"));
+      alert(t("geoProfiles.selectAtLeastOne"));
       return;
     }
     try {
@@ -39032,16 +39085,16 @@ const GeoProfilesPage = () => {
       closeModal();
       loadData();
     } catch (err) {
-      alert(t2("geoProfiles.saveError") + " " + (err.response?.data?.message || err.message));
+      alert(t("geoProfiles.saveError") + " " + (err.response?.data?.message || err.message));
     }
   };
   const handleDelete = async (id) => {
-    if (!confirm(t2("geoProfiles.deleteConfirm"))) return;
+    if (!confirm(t("geoProfiles.deleteConfirm"))) return;
     try {
       await axios.post(`${API_URL$j}?action=delete_geo_profile`, { id });
       loadData();
     } catch (err) {
-      alert(t2("geoProfiles.deleteError") + " " + (err.response?.data?.message || err.message));
+      alert(t("geoProfiles.deleteError") + " " + (err.response?.data?.message || err.message));
     }
   };
   const toggleCountry = (code) => {
@@ -39075,7 +39128,7 @@ const GeoProfilesPage = () => {
     );
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10", children: t2("geoProfiles.loading") });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10", children: t("geoProfiles.loading") });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 fade-in", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center", children: [
@@ -39085,7 +39138,7 @@ const GeoProfilesPage = () => {
           "input",
           {
             type: "text",
-            placeholder: t2("geoProfiles.searchPlaceholder"),
+            placeholder: t("geoProfiles.searchPlaceholder"),
             value: searchTerm,
             onChange: (e) => setSearchTerm(e.target.value),
             className: "w-full pl-10 pr-4 py-2 border rounded-lg"
@@ -39099,22 +39152,22 @@ const GeoProfilesPage = () => {
           className: "btn-primary flex items-center gap-2",
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 18 }),
-            t2("geoProfiles.createProfile")
+            t("geoProfiles.createProfile")
           ]
         }
       )
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "card overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("geoProfiles.profileName") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("geoProfiles.countriesSelected").replace(":", "") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-24", children: t2("geoDb.colActions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("geoProfiles.profileName") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("geoProfiles.countriesSelected").replace(":", "") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-24", children: t("geoDb.colActions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: filteredProfiles.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "3", className: "text-center py-8 text-gray-500", children: profiles.length === 0 ? t2("geoProfiles.noProfiles") : t2("geoProfiles.notFound") }) }) : filteredProfiles.map((profile) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: filteredProfiles.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "3", className: "text-center py-8 text-gray-500", children: profiles.length === 0 ? t("geoProfiles.noProfiles") : t("geoProfiles.notFound") }) }) : filteredProfiles.map((profile) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18, className: "text-blue-500" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: profile.name }),
-          profile.is_template && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs px-2 py-0.5 bg-blue-100 text-blue-600 rounded", children: t2("geoProfiles.template") })
+          profile.is_template && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs px-2 py-0.5 bg-blue-100 text-blue-600 rounded", children: t("geoProfiles.template") })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1 max-w-lg", children: [
           (profile.countries || []).slice(0, 10).map((code) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -39134,7 +39187,7 @@ const GeoProfilesPage = () => {
             "+",
             (profile.countries || []).length - 10,
             " ",
-            t2("geoProfiles.more")
+            t("geoProfiles.more")
           ] })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
@@ -39143,7 +39196,7 @@ const GeoProfilesPage = () => {
             {
               onClick: () => openModal(profile),
               className: "p-1 hover:bg-gray-100 rounded",
-              title: t2("geoProfiles.edit"),
+              title: t("geoProfiles.edit"),
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 })
             }
           ),
@@ -39152,7 +39205,7 @@ const GeoProfilesPage = () => {
             {
               onClick: () => handleDelete(profile.id),
               className: "p-1 hover:bg-red-50 text-red-500 rounded",
-              title: t2("geoProfiles.delete"),
+              title: t("geoProfiles.delete"),
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 })
             }
           )
@@ -39163,13 +39216,13 @@ const GeoProfilesPage = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center p-4 border-b", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-lg font-semibold flex items-center gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { size: 20, className: "text-blue-500" }),
-          editingProfile ? t2("geoProfiles.editProfile") : t2("geoProfiles.createProfile")
+          editingProfile ? t("geoProfiles.editProfile") : t("geoProfiles.createProfile")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: closeModal, className: "p-1 hover:bg-gray-100 rounded", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t2("geoProfiles.profileName") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t("geoProfiles.profileName") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -39177,13 +39230,13 @@ const GeoProfilesPage = () => {
               value: formData.name,
               onChange: (e) => setFormData((prev) => ({ ...prev, name: e.target.value })),
               className: "w-full border rounded px-3 py-2",
-              placeholder: t2("geoProfiles.namePlaceholder")
+              placeholder: t("geoProfiles.namePlaceholder")
             }
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2 flex justify-between items-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm font-medium", children: [
-            t2("geoProfiles.countriesSelected"),
+            t("geoProfiles.countriesSelected"),
             " ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-blue-600", children: formData.countries.length })
           ] }),
@@ -39194,7 +39247,7 @@ const GeoProfilesPage = () => {
                 type: "button",
                 onClick: selectAllVisible,
                 className: "text-sm text-blue-600 hover:underline",
-                children: t2("geoProfiles.selectAll")
+                children: t("geoProfiles.selectAll")
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -39203,7 +39256,7 @@ const GeoProfilesPage = () => {
                 type: "button",
                 onClick: deselectAll,
                 className: "text-sm text-red-600 hover:underline",
-                children: t2("geoProfiles.clear")
+                children: t("geoProfiles.clear")
               }
             )
           ] })
@@ -39215,7 +39268,7 @@ const GeoProfilesPage = () => {
               "input",
               {
                 type: "text",
-                placeholder: t2("geoProfiles.countrySearch"),
+                placeholder: t("geoProfiles.countrySearch"),
                 value: countrySearch,
                 onChange: (e) => setCountrySearch(e.target.value),
                 className: "w-full pl-9 pr-4 py-2 border rounded text-sm"
@@ -39237,7 +39290,7 @@ const GeoProfilesPage = () => {
           )) }) })
         ] }),
         formData.countries.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border rounded-lg p-3 bg-gray-50", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium mb-2", children: t2("geoProfiles.selectedCountries") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium mb-2", children: t("geoProfiles.selectedCountries") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1 max-h-32 overflow-y-auto", children: formData.countries.map((code) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "span",
             {
@@ -39266,7 +39319,7 @@ const GeoProfilesPage = () => {
           {
             onClick: closeModal,
             className: "px-4 py-2 border rounded hover:bg-gray-100",
-            children: t2("geoProfiles.cancel")
+            children: t("geoProfiles.cancel")
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -39276,7 +39329,7 @@ const GeoProfilesPage = () => {
             className: "btn-primary flex items-center gap-2",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 18 }),
-              editingProfile ? t2("geoProfiles.save") : t2("geoProfiles.createProfile")
+              editingProfile ? t("geoProfiles.save") : t("geoProfiles.createProfile")
             ]
           }
         )
@@ -39286,7 +39339,7 @@ const GeoProfilesPage = () => {
 };
 const API_URL$i = "/api.php";
 const GeneralSettings = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
   const [saving, setSaving] = reactExports.useState(false);
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
@@ -39322,26 +39375,26 @@ const GeneralSettings = () => {
       });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage({ text: t2("generalSettings.saveSuccess"), type: "success" });
+        setMessage({ text: t("generalSettings.saveSuccess"), type: "success" });
       } else {
-        setMessage({ text: data.message || t2("generalSettings.saveError"), type: "error" });
+        setMessage({ text: data.message || t("generalSettings.saveError"), type: "error" });
       }
     } catch (error) {
-      setMessage({ text: t2("generalSettings.networkError"), type: "error" });
+      setMessage({ text: t("generalSettings.networkError"), type: "error" });
     } finally {
       setSaving(false);
     }
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t2("common.loading") }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("common.loading") }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t2("generalSettings.title") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("generalSettings.title") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "24px", maxWidth: "480px" }, children: [
       message2.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `alert ${message2.type === "success" ? "alert-success" : "alert-danger"}`, style: { marginBottom: "16px" }, children: message2.text }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "20px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("generalSettings.postbackKey") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("generalSettings.postbackKey") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Key, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -39355,10 +39408,10 @@ const GeneralSettings = () => {
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px" }, children: t2("generalSettings.postbackKeyHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px" }, children: t("generalSettings.postbackKeyHint") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("generalSettings.defaultCurrency") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("generalSettings.defaultCurrency") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -39388,7 +39441,7 @@ const GeneralSettings = () => {
         className: "btn btn-primary",
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
-          saving ? t2("common.saving") : t2("common.save")
+          saving ? t("common.saving") : t("common.save")
         ]
       }
     ) })
@@ -39396,7 +39449,7 @@ const GeneralSettings = () => {
 };
 const API_URL$h = "/api.php";
 const ProfileSettings = () => {
-  const { t: t2, setLanguage: setContextLanguage } = useLanguage();
+  const { t, setLanguage: setContextLanguage } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
   const [saving, setSaving] = reactExports.useState(false);
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
@@ -39431,7 +39484,7 @@ const ProfileSettings = () => {
   };
   const handleSave = async () => {
     if (profile.new_password && profile.new_password !== profile.confirm_password) {
-      setMessage({ text: t2("profile.passwordsNotMatch"), type: "error" });
+      setMessage({ text: t("profile.passwordsNotMatch"), type: "error" });
       return;
     }
     setSaving(true);
@@ -39451,7 +39504,7 @@ const ProfileSettings = () => {
       });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage({ text: t2("profile.saveSuccess"), type: "success" });
+        setMessage({ text: t("profile.saveSuccess"), type: "success" });
         setProfile((prev) => ({ ...prev, new_password: "", confirm_password: "" }));
         setContextLanguage(profile.language);
         if (currentUser) {
@@ -39460,24 +39513,24 @@ const ProfileSettings = () => {
           window.dispatchEvent(new Event("userUpdated"));
         }
       } else {
-        setMessage({ text: data.message || t2("common.error"), type: "error" });
+        setMessage({ text: data.message || t("common.error"), type: "error" });
       }
     } catch (error) {
-      setMessage({ text: t2("common.networkError"), type: "error" });
+      setMessage({ text: t("common.networkError"), type: "error" });
     } finally {
       setSaving(false);
     }
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t2("common.loading") }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("common.loading") }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t2("profile.title") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("profile.title") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "24px", maxWidth: "600px" }, children: [
       message2.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `alert ${message2.type === "success" ? "alert-success" : "alert-danger"}`, style: { marginBottom: "16px" }, children: message2.text }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("profile.language") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("profile.language") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -39496,7 +39549,7 @@ const ProfileSettings = () => {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("profile.timezone") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("profile.timezone") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -39531,7 +39584,7 @@ const ProfileSettings = () => {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("profile.firstDayOfWeek") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("profile.firstDayOfWeek") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar$1, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -39542,8 +39595,8 @@ const ProfileSettings = () => {
                 onChange: handleChange,
                 className: "form-select pl-12",
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "1", children: t2("profile.monday") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "0", children: t2("profile.sunday") })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "1", children: t("profile.monday") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "0", children: t("profile.sunday") })
                 ]
               }
             )
@@ -39551,10 +39604,10 @@ const ProfileSettings = () => {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "32px", paddingTop: "24px", borderTop: "1px solid var(--color-border)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, marginBottom: "16px", color: "var(--color-text-primary)" }, children: t2("profile.changePassword") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, marginBottom: "16px", color: "var(--color-text-primary)" }, children: t("profile.changePassword") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("profile.newPassword") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("profile.newPassword") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(KeyRound, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -39564,14 +39617,14 @@ const ProfileSettings = () => {
                   name: "new_password",
                   value: profile.new_password,
                   onChange: handleChange,
-                  placeholder: t2("profile.newPasswordPlaceholder"),
+                  placeholder: t("profile.newPasswordPlaceholder"),
                   className: "form-input pl-12"
                 }
               )
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("profile.confirmPassword") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("profile.confirmPassword") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -39581,7 +39634,7 @@ const ProfileSettings = () => {
                   name: "confirm_password",
                   value: profile.confirm_password,
                   onChange: handleChange,
-                  placeholder: t2("profile.confirmPasswordPlaceholder"),
+                  placeholder: t("profile.confirmPasswordPlaceholder"),
                   className: "form-input pl-12"
                 }
               )
@@ -39598,7 +39651,7 @@ const ProfileSettings = () => {
         className: "btn btn-primary",
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
-          saving ? t2("common.saving") : t2("common.save")
+          saving ? t("common.saving") : t("common.save")
         ]
       }
     ) })
@@ -39606,7 +39659,7 @@ const ProfileSettings = () => {
 };
 const API_URL$g = "/api.php";
 const BotSettings = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [ipList, setIpList] = reactExports.useState([]);
   const [sigList, setSigList] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
@@ -39622,7 +39675,7 @@ const BotSettings = () => {
       if (ipRes.status === "success") setIpList(ipRes.data || []);
       if (sigRes.status === "success") setSigList(sigRes.data || []);
     } catch (e) {
-      alert(t2("botSettings.loadError"));
+      alert(t("botSettings.loadError"));
     } finally {
       setLoading(false);
     }
@@ -39643,10 +39696,10 @@ const BotSettings = () => {
       if (data.status === "success") {
         setNewIps("");
         fetchData();
-        alert(`${t2("botSettings.addedCount")} ${data.count || items.length}`);
+        alert(`${t("botSettings.addedCount")} ${data.count || items.length}`);
       }
     } catch (e) {
-      alert(t2("botSettings.networkError"));
+      alert(t("botSettings.networkError"));
     }
   };
   const handleAddSigs = async () => {
@@ -39662,10 +39715,10 @@ const BotSettings = () => {
       if (data.status === "success") {
         setNewSigs("");
         fetchData();
-        alert(`${t2("botSettings.addedCount")} ${data.count || items.length}`);
+        alert(`${t("botSettings.addedCount")} ${data.count || items.length}`);
       }
     } catch (e) {
-      alert(t2("botSettings.networkError"));
+      alert(t("botSettings.networkError"));
     }
   };
   const handleDelete = async (type, id) => {
@@ -39678,11 +39731,11 @@ const BotSettings = () => {
       });
       fetchData();
     } catch (e) {
-      alert(t2("botSettings.deleteError"));
+      alert(t("botSettings.deleteError"));
     }
   };
   const handleClear = async (type) => {
-    if (!window.confirm(t2("botSettings.confirmClear"))) return;
+    if (!window.confirm(t("botSettings.confirmClear"))) return;
     try {
       const action = type === "ip" ? "bot_ips" : "bot_signatures";
       const res = await fetch(`${API_URL$g}?action=${action}`, {
@@ -39692,26 +39745,26 @@ const BotSettings = () => {
       });
       const data = await res.json();
       if (data.status === "success") {
-        alert(t2("botSettings.cleared"));
+        alert(t("botSettings.cleared"));
         fetchData();
       }
     } catch (e) {
-      alert(t2("botSettings.clearError"));
+      alert(t("botSettings.clearError"));
     }
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t2("botSettings.loading") }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("botSettings.loading") }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldBan, { size: 18, style: { color: "var(--color-primary)" } }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t2("botSettings.ipTitle") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("botSettings.ipTitle") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleClear("ip"), className: "btn btn-ghost btn-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { size: 14 }),
-          t2("botSettings.clearAll")
+          t("botSettings.clearAll")
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "16px" }, children: [
@@ -39720,7 +39773,7 @@ const BotSettings = () => {
           {
             value: newIps,
             onChange: (e) => setNewIps(e.target.value),
-            placeholder: t2("botSettings.ipPlaceholder"),
+            placeholder: t("botSettings.ipPlaceholder"),
             rows: 4,
             className: "form-input",
             style: { fontFamily: "monospace", fontSize: "13px" }
@@ -39728,20 +39781,20 @@ const BotSettings = () => {
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleAddIps, className: "btn btn-primary btn-sm", style: { marginTop: "8px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
-          t2("botSettings.addIp")
+          t("botSettings.addIp")
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "16px", maxHeight: "300px", overflowY: "auto" }, children: ipList.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)", fontSize: "14px" }, children: t2("botSettings.noRecords") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("table", { className: "page-table", children: /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: ipList.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "16px", maxHeight: "300px", overflowY: "auto" }, children: ipList.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)", fontSize: "14px" }, children: t("botSettings.noRecords") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("table", { className: "page-table", children: /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: ipList.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontFamily: "monospace", fontSize: "13px" }, children: item.value || item.ip }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { width: "40px", textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete("ip", item.id), className: "btn btn-ghost btn-sm", style: { color: "var(--color-danger)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 }) }) })
       ] }, item.id)) }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t2("botSettings.signaturesTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("botSettings.signaturesTitle") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleClear("sig"), className: "btn btn-ghost btn-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { size: 14 }),
-          t2("botSettings.clearAll")
+          t("botSettings.clearAll")
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "16px" }, children: [
@@ -39750,7 +39803,7 @@ const BotSettings = () => {
           {
             value: newSigs,
             onChange: (e) => setNewSigs(e.target.value),
-            placeholder: t2("botSettings.signaturePlaceholder"),
+            placeholder: t("botSettings.signaturePlaceholder"),
             rows: 4,
             className: "form-input",
             style: { fontFamily: "monospace", fontSize: "13px" }
@@ -39758,10 +39811,10 @@ const BotSettings = () => {
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleAddSigs, className: "btn btn-primary btn-sm", style: { marginTop: "8px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
-          t2("botSettings.addSignature")
+          t("botSettings.addSignature")
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "16px", maxHeight: "300px", overflowY: "auto" }, children: sigList.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)", fontSize: "14px" }, children: t2("botSettings.noRecords") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("table", { className: "page-table", children: /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: sigList.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "16px", maxHeight: "300px", overflowY: "auto" }, children: sigList.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)", fontSize: "14px" }, children: t("botSettings.noRecords") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("table", { className: "page-table", children: /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: sigList.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontFamily: "monospace", fontSize: "13px" }, children: item.value || item.signature }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { width: "40px", textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete("sig", item.id), className: "btn btn-ghost btn-sm", style: { color: "var(--color-danger)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 }) }) })
       ] }, item.id)) }) }) })
@@ -39780,7 +39833,7 @@ const emptyForm$1 = {
   affect_cap: 1
 };
 const ConversionTypesSettings = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
   const [types, setTypes] = reactExports.useState([]);
   const [showForm, setShowForm] = reactExports.useState(false);
@@ -39808,7 +39861,7 @@ const ConversionTypesSettings = () => {
   };
   const handleSave = async () => {
     if (!formData.name.trim() || !formData.status_values.trim()) {
-      setMessage({ text: t2("conversionTypes.nameAndMacrosRequired"), type: "error" });
+      setMessage({ text: t("conversionTypes.nameAndMacrosRequired"), type: "error" });
       return;
     }
     setSaving(true);
@@ -39821,20 +39874,20 @@ const ConversionTypesSettings = () => {
       });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage({ text: t2("common.success"), type: "success" });
+        setMessage({ text: t("common.success"), type: "success" });
         setShowForm(false);
         fetchTypes();
       } else {
-        setMessage({ text: data.message || t2("common.error"), type: "error" });
+        setMessage({ text: data.message || t("common.error"), type: "error" });
       }
     } catch (error) {
-      setMessage({ text: t2("common.networkError"), type: "error" });
+      setMessage({ text: t("common.networkError"), type: "error" });
     } finally {
       setSaving(false);
     }
   };
   const handleDelete = async (id) => {
-    if (!confirm(t2("conversionTypes.deleteConfirm"))) return;
+    if (!confirm(t("conversionTypes.deleteConfirm"))) return;
     try {
       await fetch(`${API_URL$f}?action=conversion_types`, {
         method: "POST",
@@ -39843,7 +39896,7 @@ const ConversionTypesSettings = () => {
       });
       fetchTypes();
     } catch (e) {
-      alert(t2("conversionTypes.deleteError"));
+      alert(t("conversionTypes.deleteError"));
     }
   };
   const handleEdit = (type) => {
@@ -39857,7 +39910,7 @@ const ConversionTypesSettings = () => {
     setMessage({ text: "", type: "" });
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t2("conversionTypes.loading") }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("conversionTypes.loading") }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
     message2.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `alert ${message2.type === "success" ? "alert-success" : "alert-danger"}`, children: message2.text }),
@@ -39865,24 +39918,24 @@ const ConversionTypesSettings = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "1px solid var(--color-border)", marginBottom: 0 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 18, style: { color: "var(--color-primary)" } }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t2("conversionTypes.title") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("conversionTypes.title") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleNew, className: "btn btn-primary btn-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
-          t2("conversionTypes.addType")
+          t("conversionTypes.addType")
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("conversionTypes.name") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("conversionTypes.statusMacros") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t2("conversionTypes.conversionTitle"), children: t2("conversionTypes.conversion") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t2("conversionTypes.profitTitle"), children: t2("conversionTypes.profit") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t2("conversionTypes.s2sTitle"), children: t2("conversionTypes.s2s") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t2("conversionTypes.capTitle"), children: t2("conversionTypes.cap") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversionTypes.name") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversionTypes.statusMacros") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t("conversionTypes.conversionTitle"), children: t("conversionTypes.conversion") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t("conversionTypes.profitTitle"), children: t("conversionTypes.profit") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t("conversionTypes.s2sTitle"), children: t("conversionTypes.s2s") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t("conversionTypes.capTitle"), children: t("conversionTypes.cap") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "80px" } })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: types.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center", style: { padding: "32px", color: "var(--color-text-muted)" }, children: t2("conversionTypes.noTypes") }) }) : types.map((type) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: types.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center", style: { padding: "32px", color: "var(--color-text-muted)" }, children: t("conversionTypes.noTypes") }) }) : types.map((type) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: type.name }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontFamily: "monospace", fontSize: "12px", color: "var(--color-text-secondary)" }, children: type.status_values }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: type.record_conversion === 1 ? "✅" : "❌" }),
@@ -39897,12 +39950,12 @@ const ConversionTypesSettings = () => {
       ] }) })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "1px solid var(--color-border)", marginBottom: 0 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: formData.id ? t2("conversionTypes.editType") : t2("conversionTypes.newType") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowForm(false), style: { color: "var(--color-text-secondary)", background: "none", border: "none", cursor: "pointer", fontSize: "14px" }, children: t2("conversionTypes.cancel") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: formData.id ? t("conversionTypes.editType") : t("conversionTypes.newType") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowForm(false), style: { color: "var(--color-text-secondary)", background: "none", border: "none", cursor: "pointer", fontSize: "14px" }, children: t("conversionTypes.cancel") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "24px", maxWidth: "600px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "20px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("conversionTypes.metricName") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversionTypes.metricName") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -39910,13 +39963,13 @@ const ConversionTypesSettings = () => {
               name: "name",
               value: formData.name,
               onChange: handleChange,
-              placeholder: t2("conversionTypes.metricNamePlaceholder"),
+              placeholder: t("conversionTypes.metricNamePlaceholder"),
               className: "form-input"
             }
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("conversionTypes.expectedMacros") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversionTypes.expectedMacros") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -39924,12 +39977,12 @@ const ConversionTypesSettings = () => {
               name: "status_values",
               value: formData.status_values,
               onChange: handleChange,
-              placeholder: t2("conversionTypes.expectedMacrosPlaceholder"),
+              placeholder: t("conversionTypes.expectedMacrosPlaceholder"),
               className: "form-input",
               style: { fontFamily: "monospace" }
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px" }, children: t2("conversionTypes.expectedMacrosHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px" }, children: t("conversionTypes.expectedMacrosHint") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { paddingTop: "16px", borderTop: "1px solid var(--color-border)", display: "flex", flexDirection: "column", gap: "16px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "flex-start", gap: "12px", cursor: "pointer" }, children: [
@@ -39944,8 +39997,8 @@ const ConversionTypesSettings = () => {
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 500 }, children: t2("conversionTypes.affectConversions") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", margin: "2px 0 0 0" }, children: t2("conversionTypes.affectConversionsDesc") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 500 }, children: t("conversionTypes.affectConversions") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", margin: "2px 0 0 0" }, children: t("conversionTypes.affectConversionsDesc") })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "flex-start", gap: "12px", cursor: "pointer" }, children: [
@@ -39960,8 +40013,8 @@ const ConversionTypesSettings = () => {
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 500 }, children: t2("conversionTypes.affectProfit") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", margin: "2px 0 0 0" }, children: t2("conversionTypes.affectProfitDesc") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 500 }, children: t("conversionTypes.affectProfit") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", margin: "2px 0 0 0" }, children: t("conversionTypes.affectProfitDesc") })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "flex-start", gap: "12px", cursor: "pointer" }, children: [
@@ -39976,8 +40029,8 @@ const ConversionTypesSettings = () => {
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 500 }, children: t2("conversionTypes.sendS2s") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", margin: "2px 0 0 0" }, children: t2("conversionTypes.sendS2sDesc") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 500 }, children: t("conversionTypes.sendS2s") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", margin: "2px 0 0 0" }, children: t("conversionTypes.sendS2sDesc") })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "flex-start", gap: "12px", cursor: "pointer" }, children: [
@@ -39991,13 +40044,13 @@ const ConversionTypesSettings = () => {
                 style: { marginTop: "2px" }
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 500 }, children: t2("conversionTypes.affectCap") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 500 }, children: t("conversionTypes.affectCap") })
           ] })
         ] })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "24px", display: "flex", justifyContent: "flex-end" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleSave, disabled: saving, className: "btn btn-primary", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
-        saving ? t2("common.saving") : t2("conversionTypes.saveType")
+        saving ? t("common.saving") : t("conversionTypes.saveType")
       ] }) })
     ] })
   ] });
@@ -40011,7 +40064,7 @@ const emptyForm = {
   decimals: 2
 };
 const CustomMetricsSettings = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
   const [metrics, setMetrics] = reactExports.useState([]);
   const [showForm, setShowForm] = reactExports.useState(false);
@@ -40039,7 +40092,7 @@ const CustomMetricsSettings = () => {
   };
   const handleSave = async () => {
     if (!formData.name.trim() || !formData.formula.trim()) {
-      setMessage({ text: t2("customMetrics.nameAndFormulaRequired"), type: "error" });
+      setMessage({ text: t("customMetrics.nameAndFormulaRequired"), type: "error" });
       return;
     }
     setSaving(true);
@@ -40058,20 +40111,20 @@ const CustomMetricsSettings = () => {
       });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage({ text: t2("customMetrics.saved"), type: "success" });
+        setMessage({ text: t("customMetrics.saved"), type: "success" });
         setShowForm(false);
         fetchMetrics();
       } else {
-        setMessage({ text: data.message || t2("customMetrics.saveError"), type: "error" });
+        setMessage({ text: data.message || t("customMetrics.saveError"), type: "error" });
       }
     } catch (error) {
-      setMessage({ text: t2("customMetrics.networkError"), type: "error" });
+      setMessage({ text: t("customMetrics.networkError"), type: "error" });
     } finally {
       setSaving(false);
     }
   };
   const handleDelete = async (id) => {
-    if (!confirm(t2("customMetrics.deleteConfirm"))) return;
+    if (!confirm(t("customMetrics.deleteConfirm"))) return;
     try {
       await fetch(`${API_URL$e}?action=custom_metrics`, {
         method: "POST",
@@ -40080,7 +40133,7 @@ const CustomMetricsSettings = () => {
       });
       fetchMetrics();
     } catch (e) {
-      alert(t2("customMetrics.deleteError"));
+      alert(t("customMetrics.deleteError"));
     }
   };
   const handleEdit = (metric) => {
@@ -40096,17 +40149,17 @@ const CustomMetricsSettings = () => {
   const getFormatLabel = (format2) => {
     switch (format2) {
       case "number":
-        return t2("customMetrics.number");
+        return t("customMetrics.number");
       case "currency":
-        return t2("customMetrics.currency");
+        return t("customMetrics.currency");
       case "percent":
-        return t2("customMetrics.percent");
+        return t("customMetrics.percent");
       default:
         return format2;
     }
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t2("common.loading") }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("common.loading") }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
     message2.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `alert ${message2.type === "success" ? "alert-success" : "alert-danger"}`, children: message2.text }),
@@ -40114,21 +40167,21 @@ const CustomMetricsSettings = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "1px solid var(--color-border)", marginBottom: 0 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(ChartNoAxesColumn, { size: 18, style: { color: "var(--color-primary)" } }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t2("customMetrics.title") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("customMetrics.title") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleNew, className: "btn btn-primary btn-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
-          t2("customMetrics.createMetric")
+          t("customMetrics.createMetric")
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("customMetrics.name") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("customMetrics.formula") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, children: t2("customMetrics.format") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("customMetrics.name") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("customMetrics.formula") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, children: t("customMetrics.format") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "80px" } })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: metrics.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "4", className: "text-center", style: { padding: "32px", color: "var(--color-text-muted)" }, children: t2("customMetrics.noMetrics") }) }) : metrics.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: metrics.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "4", className: "text-center", style: { padding: "32px", color: "var(--color-text-muted)" }, children: t("customMetrics.noMetrics") }) }) : metrics.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: m.name }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontFamily: "monospace", fontSize: "12px", color: "var(--color-text-secondary)" }, children: m.formula }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "text-center", style: { fontSize: "12px", color: "var(--color-text-secondary)" }, children: [
@@ -40145,43 +40198,43 @@ const CustomMetricsSettings = () => {
       ] }) })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "1px solid var(--color-border)", marginBottom: 0 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: formData.id ? t2("customMetrics.editMetric") : t2("customMetrics.newMetric") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowForm(false), style: { color: "var(--color-text-secondary)", background: "none", border: "none", cursor: "pointer", fontSize: "14px" }, children: t2("common.cancel") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: formData.id ? t("customMetrics.editMetric") : t("customMetrics.newMetric") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowForm(false), style: { color: "var(--color-text-secondary)", background: "none", border: "none", cursor: "pointer", fontSize: "14px" }, children: t("common.cancel") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "24px", maxWidth: "700px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginBottom: "24px", padding: "16px", background: "var(--color-primary-light)", borderRadius: "12px", border: "1px solid var(--color-primary)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "12px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(CircleQuestionMark, { size: 20, style: { color: "var(--color-primary)", flexShrink: 0, marginTop: "2px" } }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontWeight: 500, marginBottom: "8px", color: "var(--color-primary)" }, children: t2("customMetrics.formulaVarsTitle") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontWeight: 500, marginBottom: "8px", color: "var(--color-primary)" }, children: t("customMetrics.formulaVarsTitle") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "4px 16px", fontFamily: "monospace", fontSize: "12px", color: "var(--color-text-secondary)" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "clicks" }),
                 " — ",
-                t2("customMetrics.totalClicks")
+                t("customMetrics.totalClicks")
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "unique_clicks" }),
                 " — ",
-                t2("customMetrics.uniqueClicks")
+                t("customMetrics.uniqueClicks")
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "conversions" }),
                 " — ",
-                t2("customMetrics.conversionsVar")
+                t("customMetrics.conversionsVar")
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "revenue" }),
                 " — ",
-                t2("customMetrics.revenueVar")
+                t("customMetrics.revenueVar")
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "cost" }),
                 " — ",
-                t2("customMetrics.costVar")
+                t("customMetrics.costVar")
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { fontSize: "12px", marginTop: "12px", color: "var(--color-text-secondary)" }, children: [
-              t2("customMetrics.operatorsHint"),
+              t("customMetrics.operatorsHint"),
               " ",
               /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { background: "var(--color-bg)", padding: "2px 6px", borderRadius: "4px" }, children: "(revenue - cost) / cost * 100" })
             ] })
@@ -40189,7 +40242,7 @@ const CustomMetricsSettings = () => {
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { gridColumn: "1 / -1" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("customMetrics.metricNameInReports") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("customMetrics.metricNameInReports") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
@@ -40197,13 +40250,13 @@ const CustomMetricsSettings = () => {
                 name: "name",
                 value: formData.name,
                 onChange: handleChange,
-                placeholder: t2("customMetrics.placeholder"),
+                placeholder: t("customMetrics.placeholder"),
                 className: "form-input"
               }
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { gridColumn: "1 / -1" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("customMetrics.calculationFormula") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("customMetrics.calculationFormula") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
@@ -40218,7 +40271,7 @@ const CustomMetricsSettings = () => {
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("customMetrics.outputFormat") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("customMetrics.outputFormat") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "select",
               {
@@ -40227,15 +40280,15 @@ const CustomMetricsSettings = () => {
                 onChange: handleChange,
                 className: "form-select",
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "number", children: t2("customMetrics.number") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "currency", children: t2("customMetrics.currency") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "percent", children: t2("customMetrics.percent") })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "number", children: t("customMetrics.number") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "currency", children: t("customMetrics.currency") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "percent", children: t("customMetrics.percent") })
                 ]
               }
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("customMetrics.decimalPlaces") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("customMetrics.decimalPlaces") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
@@ -40253,24 +40306,24 @@ const CustomMetricsSettings = () => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "24px", display: "flex", justifyContent: "flex-end" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleSave, disabled: saving, className: "btn btn-primary", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
-        saving ? t2("common.saving") : t2("customMetrics.saveMetric")
+        saving ? t("common.saving") : t("customMetrics.saveMetric")
       ] }) })
     ] })
   ] });
 };
 const API_URL$d = "/api.php";
-const formatAge = (t2, seconds) => {
+const formatAge = (t, seconds) => {
   if (seconds === null || seconds === void 0) return "-";
   const s = Math.max(0, Number(seconds) || 0);
   const days = Math.floor(s / 86400);
   const hours = Math.floor(s % 86400 / 3600);
   const mins = Math.floor(s % 3600 / 60);
-  if (days > 0) return `${days} ${t2("automation.days")} ${hours} ${t2("automation.hours")}`;
-  if (hours > 0) return `${hours} ${t2("automation.hours")} ${mins} ${t2("automation.minutes")}`;
-  return `${mins} ${t2("automation.minutes")}`;
+  if (days > 0) return `${days} ${t("automation.days")} ${hours} ${t("automation.hours")}`;
+  if (hours > 0) return `${hours} ${t("automation.hours")} ${mins} ${t("automation.minutes")}`;
+  return `${mins} ${t("automation.minutes")}`;
 };
 const AutomationSettings = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
   const [saving, setSaving] = reactExports.useState(false);
   const [cronBusy, setCronBusy] = reactExports.useState(false);
@@ -40290,10 +40343,10 @@ const AutomationSettings = () => {
         const sec = Number(data.data?.check_interval_sec ?? 900) || 900;
         setIntervalMin(Math.max(1, Math.round(sec / 60)));
       } else {
-        setMessage({ text: data.message || t2("automation.loadError"), type: "error" });
+        setMessage({ text: data.message || t("automation.loadError"), type: "error" });
       }
     } catch (e) {
-      setMessage({ text: t2("automation.networkError"), type: "error" });
+      setMessage({ text: t("automation.networkError"), type: "error" });
     } finally {
       setLoading(false);
     }
@@ -40310,10 +40363,10 @@ const AutomationSettings = () => {
     if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
-      setMessage({ text: t2("automation.copied"), type: "success" });
+      setMessage({ text: t("automation.copied"), type: "success" });
       setTimeout(() => setMessage({ text: "", type: "" }), 1500);
     } catch (e) {
-      setMessage({ text: t2("automation.copyError"), type: "error" });
+      setMessage({ text: t("automation.copyError"), type: "error" });
     }
   };
   const handleSave = async () => {
@@ -40332,13 +40385,13 @@ const AutomationSettings = () => {
       });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage({ text: t2("automation.saveSuccess"), type: "success" });
+        setMessage({ text: t("automation.saveSuccess"), type: "success" });
         await fetchInfo();
       } else {
-        setMessage({ text: data.message || t2("automation.saveError"), type: "error" });
+        setMessage({ text: data.message || t("automation.saveError"), type: "error" });
       }
     } catch (e) {
-      setMessage({ text: t2("automation.networkError"), type: "error" });
+      setMessage({ text: t("automation.networkError"), type: "error" });
     } finally {
       setSaving(false);
     }
@@ -40350,13 +40403,13 @@ const AutomationSettings = () => {
       const res = await fetch(`${API_URL$d}?action=backorder_install_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage({ text: t2("automation.installSuccess"), type: "success" });
+        setMessage({ text: t("automation.installSuccess"), type: "success" });
         await fetchInfo();
       } else {
-        setMessage({ text: data.message || t2("automation.installError"), type: "error" });
+        setMessage({ text: data.message || t("automation.installError"), type: "error" });
       }
     } catch (e) {
-      setMessage({ text: t2("automation.networkError"), type: "error" });
+      setMessage({ text: t("automation.networkError"), type: "error" });
     } finally {
       setCronBusy(false);
     }
@@ -40368,13 +40421,13 @@ const AutomationSettings = () => {
       const res = await fetch(`${API_URL$d}?action=backorder_remove_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage({ text: t2("automation.removeSuccess"), type: "success" });
+        setMessage({ text: t("automation.removeSuccess"), type: "success" });
         await fetchInfo();
       } else {
-        setMessage({ text: data.message || t2("automation.removeError"), type: "error" });
+        setMessage({ text: data.message || t("automation.removeError"), type: "error" });
       }
     } catch (e) {
-      setMessage({ text: t2("automation.networkError"), type: "error" });
+      setMessage({ text: t("automation.networkError"), type: "error" });
     } finally {
       setCronBusy(false);
     }
@@ -40386,13 +40439,13 @@ const AutomationSettings = () => {
       const res = await fetch(`${API_URL$d}?action=backorder_install_user_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage({ text: t2("automation.installUserSuccess"), type: "success" });
+        setMessage({ text: t("automation.installUserSuccess"), type: "success" });
         await fetchInfo();
       } else {
-        setMessage({ text: data.message || t2("automation.installUserError"), type: "error" });
+        setMessage({ text: data.message || t("automation.installUserError"), type: "error" });
       }
     } catch (e) {
-      setMessage({ text: t2("automation.networkError"), type: "error" });
+      setMessage({ text: t("automation.networkError"), type: "error" });
     } finally {
       setCronBusy(false);
     }
@@ -40404,20 +40457,20 @@ const AutomationSettings = () => {
       const res = await fetch(`${API_URL$d}?action=backorder_remove_user_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage({ text: t2("automation.removeUserSuccess"), type: "success" });
+        setMessage({ text: t("automation.removeUserSuccess"), type: "success" });
         await fetchInfo();
       } else {
-        setMessage({ text: data.message || t2("automation.removeUserError"), type: "error" });
+        setMessage({ text: data.message || t("automation.removeUserError"), type: "error" });
       }
     } catch (e) {
-      setMessage({ text: t2("automation.networkError"), type: "error" });
+      setMessage({ text: t("automation.networkError"), type: "error" });
     } finally {
       setCronBusy(false);
     }
   };
   const bootstrap = info?.rdap_bootstrap || {};
   const bootstrapOk = Boolean(bootstrap?.mtime);
-  const bootstrapAge = formatAge(t2, bootstrap?.age_seconds);
+  const bootstrapAge = formatAge(t, bootstrap?.age_seconds);
   const cronInstalled = Boolean(info?.cron_file_exists);
   const cronDirWritable = Boolean(info?.cron_dir_writable);
   const cronFile = info?.cron_file || "/etc/cron.d/orbitra-backorder";
@@ -40426,7 +40479,7 @@ const AutomationSettings = () => {
   const crontabPath = info?.crontab_path;
   const userCrontabInstalled = Boolean(info?.user_crontab_installed);
   const intervalSecNow = Number(info?.check_interval_sec ?? 900) || 900;
-  const intervalHuman = formatAge(t2, intervalSecNow);
+  const intervalHuman = formatAge(t, intervalSecNow);
   const cronFileInstallCmd = reactExports.useMemo(() => {
     const script = info?.script_path || "backorder_cron.php";
     const log = info?.log_path || "/var/log/orbitra_backorder.log";
@@ -40442,12 +40495,12 @@ const AutomationSettings = () => {
     return `sudo rm -f ${cronFile}`;
   }, [cronFile]);
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[var(--color-text-muted)]", children: t2("common.loading") }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[var(--color-text-muted)]", children: t("common.loading") }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 18, className: "text-[var(--color-primary)]" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title m-0", children: t2("automation.title") })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title m-0", children: t("automation.title") })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6", style: { maxWidth: "760px" }, children: [
       message2.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `alert ${message2.type === "success" ? "alert-success" : "alert-danger"} mb-4`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
@@ -40456,8 +40509,8 @@ const AutomationSettings = () => {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-section", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800", children: t2("automation.backorderCronTitle") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-[var(--color-text-muted)] mt-1", children: t2("automation.backorderCronDesc") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800", children: t("automation.backorderCronTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-[var(--color-text-muted)] mt-1", children: t("automation.backorderCronDesc") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-checkbox-label", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -40469,15 +40522,15 @@ const AutomationSettings = () => {
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-checkbox-content", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "form-checkbox-title", children: t2("automation.enableBackorderCron") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-checkbox-description", children: t2("automation.enableBackorderCronDesc") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "form-checkbox-title", children: t("automation.enableBackorderCron") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-checkbox-description", children: t("automation.enableBackorderCronDesc") })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 bg-white border border-gray-100 rounded p-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800", children: t2("automation.intervalTitle") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-[var(--color-text-muted)] mt-1", children: t2("automation.intervalDesc").replace("{interval}", String(intervalHuman)) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800", children: t("automation.intervalTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-[var(--color-text-muted)] mt-1", children: t("automation.intervalDesc").replace("{interval}", String(intervalHuman)) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex flex-col gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label m-0", children: t2("automation.intervalLabel") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label m-0", children: t("automation.intervalLabel") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
@@ -40491,26 +40544,26 @@ const AutomationSettings = () => {
                   style: { width: "140px" }
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-gray-600", children: t2("automation.minutes") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.intervalExample") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-gray-600", children: t("automation.minutes") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.intervalExample") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 flex-wrap", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: () => setIntervalMin(1), children: t2("automation.intervalPreset1m") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: () => setIntervalMin(5), children: t2("automation.intervalPreset5m") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: () => setIntervalMin(15), children: t2("automation.intervalPreset15m") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: () => setIntervalMin(60), children: t2("automation.intervalPreset60m") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: () => setIntervalMin(1), children: t("automation.intervalPreset1m") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: () => setIntervalMin(5), children: t("automation.intervalPreset5m") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: () => setIntervalMin(15), children: t("automation.intervalPreset15m") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: () => setIntervalMin(60), children: t("automation.intervalPreset60m") })
             ] })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("automation.cronCommand") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("automation.cronCommand") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-stretch", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "pre",
               {
                 className: "flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto",
                 style: { fontFamily: "monospace", fontSize: "12px", lineHeight: 1.5, margin: 0 },
-                children: String(cronCmd || t2("automation.noCronExample"))
+                children: String(cronCmd || t("automation.noCronExample"))
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -40519,33 +40572,33 @@ const AutomationSettings = () => {
                 className: "btn btn-secondary",
                 onClick: () => copyText(cronCmd),
                 disabled: !cronCmd,
-                title: t2("automation.copy"),
+                title: t("automation.copy"),
                 style: { whiteSpace: "nowrap" },
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 }),
-                  t2("automation.copy")
+                  t("automation.copy")
                 ]
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint mt-2", children: t2("automation.cronHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint mt-2", children: t("automation.cronHint") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 bg-white border border-gray-100 rounded p-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800", children: t2("automation.cronFileTitle") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-[var(--color-text-muted)] mt-1", children: t2("automation.cronFileDesc") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800", children: t("automation.cronFileTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-[var(--color-text-muted)] mt-1", children: t("automation.cronFileDesc") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 grid grid-cols-1 md:grid-cols-3 gap-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.cronFile") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.cronFile") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: String(cronFile) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.cronInstalled") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800 mt-1", children: cronInstalled ? t2("automation.yes") : t2("automation.no") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.cronInstalled") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800 mt-1", children: cronInstalled ? t("automation.yes") : t("automation.no") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.cronWritable") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800 mt-1", children: cronDirWritable ? t2("automation.yes") : t2("automation.no") }),
-              !cronDirWritable && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mt-1", children: t2("automation.rootRequired") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.cronWritable") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800 mt-1", children: cronDirWritable ? t("automation.yes") : t("automation.no") }),
+              !cronDirWritable && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mt-1", children: t("automation.rootRequired") })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex gap-2 flex-wrap", children: [
@@ -40555,8 +40608,8 @@ const AutomationSettings = () => {
                 onClick: installCron,
                 className: "btn btn-primary",
                 disabled: cronBusy,
-                title: t2("automation.installCron"),
-                children: t2("automation.installCron")
+                title: t("automation.installCron"),
+                children: t("automation.installCron")
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -40565,16 +40618,16 @@ const AutomationSettings = () => {
                 onClick: removeCron,
                 className: "btn btn-secondary",
                 disabled: cronBusy,
-                title: t2("automation.removeCron"),
-                children: t2("automation.removeCron")
+                title: t("automation.removeCron"),
+                children: t("automation.removeCron")
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 self-center", children: t2("automation.cronUserHint").replace("{user}", String(phpUser)) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 self-center", children: t("automation.cronUserHint").replace("{user}", String(phpUser)) })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.rootCommandsHint") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.rootCommandsHint") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mb-1", children: t2("automation.installCommand") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mb-1", children: t("automation.installCommand") }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-stretch", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "pre",
@@ -40584,14 +40637,14 @@ const AutomationSettings = () => {
                     children: String(cronFileInstallCmd)
                   }
                 ),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary", onClick: () => copyText(cronFileInstallCmd), title: t2("automation.copy"), children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary", onClick: () => copyText(cronFileInstallCmd), title: t("automation.copy"), children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 }),
-                  t2("automation.copy")
+                  t("automation.copy")
                 ] })
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mb-1", children: t2("automation.removeCommand") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mb-1", children: t("automation.removeCommand") }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-stretch", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "pre",
@@ -40601,29 +40654,29 @@ const AutomationSettings = () => {
                     children: String(cronFileRemoveCmd)
                   }
                 ),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary", onClick: () => copyText(cronFileRemoveCmd), title: t2("automation.copy"), children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary", onClick: () => copyText(cronFileRemoveCmd), title: t("automation.copy"), children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 }),
-                  t2("automation.copy")
+                  t("automation.copy")
                 ] })
               ] })
             ] })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 bg-white border border-gray-100 rounded p-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800", children: t2("automation.userCronTitle") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-[var(--color-text-muted)] mt-1", children: t2("automation.userCronDesc") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800", children: t("automation.userCronTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-[var(--color-text-muted)] mt-1", children: t("automation.userCronDesc") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 grid grid-cols-1 md:grid-cols-3 gap-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.shellExec") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800 mt-1", children: shellExecAllowed ? t2("automation.yes") : t2("automation.no") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.shellExec") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800 mt-1", children: shellExecAllowed ? t("automation.yes") : t("automation.no") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.crontab") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.crontab") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: String(crontabPath || "-") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.userCronInstalled") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800 mt-1", children: userCrontabInstalled ? t2("automation.yes") : t2("automation.no") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.userCronInstalled") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800 mt-1", children: userCrontabInstalled ? t("automation.yes") : t("automation.no") })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex gap-2 flex-wrap", children: [
@@ -40633,8 +40686,8 @@ const AutomationSettings = () => {
                 onClick: installUserCron,
                 className: "btn btn-primary",
                 disabled: cronBusy || !shellExecAllowed || !crontabPath,
-                title: t2("automation.installUserCron"),
-                children: t2("automation.installUserCron")
+                title: t("automation.installUserCron"),
+                children: t("automation.installUserCron")
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -40643,62 +40696,62 @@ const AutomationSettings = () => {
                 onClick: removeUserCron,
                 className: "btn btn-secondary",
                 disabled: cronBusy || !shellExecAllowed || !crontabPath,
-                title: t2("automation.removeUserCron"),
-                children: t2("automation.removeUserCron")
+                title: t("automation.removeUserCron"),
+                children: t("automation.removeUserCron")
               }
             )
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 grid grid-cols-1 md:grid-cols-2 gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.lastPing") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.lastPing") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: String(info?.last_ping_at || "-") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.lastChecked") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.lastChecked") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: String(info?.last_checked_at || "-") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.lastDomain") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.lastDomain") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: String(info?.last_domain || "-") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.lastResult") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.lastResult") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: info?.last_status ? `${String(info.last_status)} (HTTP ${String(info?.last_http_code || 0)})` : "-" })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 grid grid-cols-1 md:grid-cols-2 gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white border border-gray-100 rounded p-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.domainsTotal") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.domainsTotal") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-800 mt-1", children: String(info?.domains?.total ?? 0) })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white border border-gray-100 rounded p-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t2("automation.domainsNeverChecked") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.domainsNeverChecked") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-800 mt-1", children: String(info?.domains?.never_checked ?? 0) })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 bg-slate-50 border border-slate-100 rounded p-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-slate-800", children: t2("automation.rdapTitle") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-slate-700 mt-1", children: bootstrapOk ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("automation.rdapBootstrapOk").replace("{mtime}", String(bootstrap.mtime)).replace("{age}", String(bootstrapAge)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("automation.rdapBootstrapMissing") }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-slate-600 mt-2", children: t2("automation.rdapHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-slate-800", children: t("automation.rdapTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-slate-700 mt-1", children: bootstrapOk ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("automation.rdapBootstrapOk").replace("{mtime}", String(bootstrap.mtime)).replace("{age}", String(bootstrapAge)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("automation.rdapBootstrapMissing") }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-slate-600 mt-2", children: t("automation.rdapHint") })
         ] })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6 flex justify-end gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: fetchInfo, className: "btn btn-secondary", disabled: loading, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 18 }),
-        t2("automation.refresh")
+        t("automation.refresh")
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleSave, disabled: saving, className: "btn btn-primary", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
-        saving ? t2("common.saving") : t2("common.save")
+        saving ? t("common.saving") : t("common.save")
       ] })
     ] })
   ] });
 };
 const API_URL$c = "/api.php";
 const SystemSettings = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
   const [saving, setSaving] = reactExports.useState(false);
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
@@ -40740,23 +40793,23 @@ const SystemSettings = () => {
       });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage({ text: t2("systemSettings.saveSuccess"), type: "success" });
+        setMessage({ text: t("systemSettings.saveSuccess"), type: "success" });
       } else {
-        setMessage({ text: data.message || t2("systemSettings.saveError"), type: "error" });
+        setMessage({ text: data.message || t("systemSettings.saveError"), type: "error" });
       }
     } catch (error) {
-      setMessage({ text: t2("systemSettings.networkError"), type: "error" });
+      setMessage({ text: t("systemSettings.networkError"), type: "error" });
     } finally {
       setSaving(false);
     }
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[var(--color-text-muted)]", children: t2("systemSettings.loading") }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[var(--color-text-muted)]", children: t("systemSettings.loading") }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(HardDrive, { size: 18, className: "text-[var(--color-primary)]" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title m-0", children: t2("systemSettings.title") })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title m-0", children: t("systemSettings.title") })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6", style: { maxWidth: "600px" }, children: [
       message2.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `alert ${message2.type === "success" ? "alert-success" : "alert-danger"} mb-4`, children: message2.text }),
@@ -40772,8 +40825,8 @@ const SystemSettings = () => {
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-checkbox-content", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "form-checkbox-title", children: t2("systemSettings.statsCollection") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-checkbox-description", children: t2("systemSettings.statsCollectionDesc") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "form-checkbox-title", children: t("systemSettings.statsCollection") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-checkbox-description", children: t("systemSettings.statsCollectionDesc") })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-checkbox-label", children: [
@@ -40787,12 +40840,12 @@ const SystemSettings = () => {
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-checkbox-content", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "form-checkbox-title", children: t2("systemSettings.ignorePrefetch") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-checkbox-description", children: t2("systemSettings.ignorePrefetchDesc") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "form-checkbox-title", children: t("systemSettings.ignorePrefetch") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-checkbox-description", children: t("systemSettings.ignorePrefetchDesc") })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("systemSettings.logRetention") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("systemSettings.logRetention") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -40806,10 +40859,10 @@ const SystemSettings = () => {
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint", children: t2("systemSettings.logRetentionHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint", children: t("systemSettings.logRetentionHint") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("systemSettings.archiveRetention") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("systemSettings.archiveRetention") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Archive, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -40823,10 +40876,10 @@ const SystemSettings = () => {
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint", children: t2("systemSettings.archiveRetentionHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint", children: t("systemSettings.archiveRetentionHint") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("systemSettings.adminAccess") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("systemSettings.adminAccess") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "absolute left-4 top-4 h-5 w-5 text-gray-400 pointer-events-none" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -40836,25 +40889,25 @@ const SystemSettings = () => {
                 value: settings.admin_ip_access || "",
                 onChange: handleChange,
                 rows: 3,
-                placeholder: t2("systemSettings.adminAccessPlaceholder"),
+                placeholder: t("systemSettings.adminAccessPlaceholder"),
                 className: "form-input pl-12",
                 style: { fontFamily: "monospace", fontSize: "13px", resize: "none" }
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint", children: t2("systemSettings.adminAccessHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint", children: t("systemSettings.adminAccessHint") })
         ] })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-6 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleSave, disabled: saving, className: "btn btn-primary", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
-      saving ? t2("common.saving") : t2("common.save")
+      saving ? t("common.saving") : t("common.save")
     ] }) })
   ] });
 };
 const API_URL$b = "/api.php";
 const PrivacySettings = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
   const [saving, setSaving] = reactExports.useState(false);
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
@@ -40892,23 +40945,23 @@ const PrivacySettings = () => {
       });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage({ text: t2("privacy.saveSuccess"), type: "success" });
+        setMessage({ text: t("privacy.saveSuccess"), type: "success" });
       } else {
-        setMessage({ text: data.message || t2("privacy.saveError"), type: "error" });
+        setMessage({ text: data.message || t("privacy.saveError"), type: "error" });
       }
     } catch (error) {
-      setMessage({ text: t2("privacy.networkError"), type: "error" });
+      setMessage({ text: t("privacy.networkError"), type: "error" });
     } finally {
       setSaving(false);
     }
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t2("common.loading") }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("common.loading") }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { size: 18, style: { color: "var(--color-primary)" } }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t2("privacy.title") })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("privacy.title") })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "24px", maxWidth: "600px" }, children: [
       message2.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `alert ${message2.type === "success" ? "alert-success" : "alert-danger"}`, style: { marginBottom: "16px" }, children: message2.text }),
@@ -40925,13 +40978,13 @@ const PrivacySettings = () => {
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 500 }, children: t2("privacy.scanProtection") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", margin: "2px 0 0 0" }, children: t2("privacy.scanProtectionDesc") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 500 }, children: t("privacy.scanProtection") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", margin: "2px 0 0 0" }, children: t("privacy.scanProtectionDesc") })
           ] })
         ] }),
         settings.privacy_enabled === "1" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { paddingLeft: "28px", borderLeft: "2px solid var(--color-primary-light)", display: "flex", flexDirection: "column", gap: "20px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("privacy.directAccessAction") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("privacy.directAccessAction") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -40942,16 +40995,16 @@ const PrivacySettings = () => {
                   onChange: handleChange,
                   className: "form-select pl-12",
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t2("privacy.redirect302") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "404", children: t2("privacy.show404") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "blank", children: t2("privacy.blankPage") })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("privacy.redirect302") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "404", children: t("privacy.show404") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "blank", children: t("privacy.blankPage") })
                   ]
                 }
               )
             ] })
           ] }),
           settings.privacy_action === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("privacy.redirectUrl") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("privacy.redirectUrl") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -40966,14 +41019,14 @@ const PrivacySettings = () => {
                 }
               )
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px" }, children: t2("privacy.redirectUrlHint") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px" }, children: t("privacy.redirectUrlHint") })
           ] })
         ] })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "24px", display: "flex", justifyContent: "flex-end" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleSave, disabled: saving, className: "btn btn-primary", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
-      saving ? t2("common.saving") : t2("common.save")
+      saving ? t("common.saving") : t("common.save")
     ] }) })
   ] });
 };
@@ -41013,19 +41066,19 @@ class TabErrorBoundary extends React.Component {
   }
 }
 const Settings = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("general");
   const tabs = [
-    { id: "general", title: t2("settings.general"), icon: Settings$1, component: GeneralSettings },
-    { id: "profile", title: t2("settings.profile"), icon: User, component: ProfileSettings },
-    { id: "bots", title: t2("settings.bots"), icon: ShieldBan, component: BotSettings },
-    { id: "conversions", title: t2("settings.conversionTypes"), icon: RefreshCw, component: ConversionTypesSettings },
-    { id: "metrics", title: t2("settings.customMetrics"), icon: ChartNoAxesColumn, component: CustomMetricsSettings },
-    { id: "automation", title: t2("settings.automation"), icon: Clock, component: AutomationSettings },
-    { id: "system", title: t2("settings.system"), icon: HardDrive, component: SystemSettings },
-    { id: "privacy", title: t2("settings.privacy"), icon: Shield, component: PrivacySettings }
+    { id: "general", title: t("settings.general"), icon: Settings$1, component: GeneralSettings },
+    { id: "profile", title: t("settings.profile"), icon: User, component: ProfileSettings },
+    { id: "bots", title: t("settings.bots"), icon: ShieldBan, component: BotSettings },
+    { id: "conversions", title: t("settings.conversionTypes"), icon: RefreshCw, component: ConversionTypesSettings },
+    { id: "metrics", title: t("settings.customMetrics"), icon: ChartNoAxesColumn, component: CustomMetricsSettings },
+    { id: "automation", title: t("settings.automation"), icon: Clock, component: AutomationSettings },
+    { id: "system", title: t("settings.system"), icon: HardDrive, component: SystemSettings },
+    { id: "privacy", title: t("settings.privacy"), icon: Shield, component: PrivacySettings }
   ];
-  const activeTabObj = tabs.find((t22) => t22.id === activeTab) || tabs[0];
+  const activeTabObj = tabs.find((t2) => t2.id === activeTab) || tabs[0];
   const ActiveComponent = activeTabObj.component;
   reactExports.useEffect(() => {
     const requested = localStorage.getItem("orbitra_settings_tab") || "";
@@ -41074,7 +41127,7 @@ const Settings = () => {
 };
 const API_URL$a = "/api.php";
 const IntegrationsPage = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("kclient_php");
   const [copied, setCopied] = reactExports.useState("");
   const [tgToken, setTgToken] = reactExports.useState("");
@@ -41129,14 +41182,14 @@ const IntegrationsPage = () => {
         daily_time: tgDailyTime
       });
       if (res.data.status === "success") {
-        setTgMessage({ type: "success", text: t2("telegram.connected") + (res.data.data?.bot_username ? ` @${res.data.data.bot_username}` : "") });
+        setTgMessage({ type: "success", text: t("telegram.connected") + (res.data.data?.bot_username ? ` @${res.data.data.bot_username}` : "") });
         setTgToken("");
         fetchTelegramSettings();
       } else {
         setTgMessage({ type: "error", text: res.data.message });
       }
     } catch (err) {
-      setTgMessage({ type: "error", text: t2("telegram.connectionError") });
+      setTgMessage({ type: "error", text: t("telegram.connectionError") });
     } finally {
       setTgSaving(false);
     }
@@ -41146,10 +41199,10 @@ const IntegrationsPage = () => {
     try {
       await axios.post(`${API_URL$a}?action=save_telegram_settings`, { action: "disconnect" });
       setTgSettings(null);
-      setTgMessage({ type: "success", text: t2("telegram.disconnected") });
+      setTgMessage({ type: "success", text: t("telegram.disconnected") });
       fetchTelegramSettings();
     } catch (err) {
-      setTgMessage({ type: "error", text: t2("common.error") });
+      setTgMessage({ type: "error", text: t("common.error") });
     } finally {
       setTgSaving(false);
     }
@@ -41161,10 +41214,10 @@ const IntegrationsPage = () => {
       const res = await axios.post(`${API_URL$a}?action=telegram_test`);
       setTgMessage({
         type: res.data.status === "success" ? "success" : "error",
-        text: res.data.message || (res.data.status === "success" ? t2("telegram.testSent") : t2("telegram.testFailed"))
+        text: res.data.message || (res.data.status === "success" ? t("telegram.testSent") : t("telegram.testFailed"))
       });
     } catch (err) {
-      setTgMessage({ type: "error", text: t2("telegram.testFailed") });
+      setTgMessage({ type: "error", text: t("telegram.testFailed") });
     } finally {
       setTgTesting(false);
     }
@@ -41176,9 +41229,9 @@ const IntegrationsPage = () => {
         notify_conversions: tgNotifyConversions,
         daily_time: tgDailyTime
       });
-      setTgMessage({ type: "success", text: t2("telegram.settingsSaved") });
+      setTgMessage({ type: "success", text: t("telegram.settingsSaved") });
     } catch (err) {
-      setTgMessage({ type: "error", text: t2("common.error") });
+      setTgMessage({ type: "error", text: t("common.error") });
     } finally {
       setTgSaving(false);
     }
@@ -41219,7 +41272,7 @@ const IntegrationsPage = () => {
     try {
       JSON.parse(configForm.config_json);
     } catch (e) {
-      setConfigMessage({ type: "error", text: t2("appConfig.invalidJson") });
+      setConfigMessage({ type: "error", text: t("appConfig.invalidJson") });
       return;
     }
     try {
@@ -41227,7 +41280,7 @@ const IntegrationsPage = () => {
       if (editingConfig && editingConfig !== "new") payload.id = editingConfig;
       const res = await axios.post(`${API_URL$a}?action=save_app_config`, payload);
       if (res.data.status === "success") {
-        setConfigMessage({ type: "success", text: t2("appConfig.saved") });
+        setConfigMessage({ type: "success", text: t("appConfig.saved") });
         setEditingConfig(null);
         fetchConfigs();
       }
@@ -41236,9 +41289,9 @@ const IntegrationsPage = () => {
     }
   };
   const handleDeleteConfig = async (id) => {
-    if (!confirm(t2("appConfig.confirmDelete"))) return;
+    if (!confirm(t("appConfig.confirmDelete"))) return;
     await axios.post(`${API_URL$a}?action=delete_app_config`, { id });
-    setConfigMessage({ type: "success", text: t2("appConfig.deleted") });
+    setConfigMessage({ type: "success", text: t("appConfig.deleted") });
     fetchConfigs();
   };
   const renderAppConfigPanel = () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: configLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", style: { maxWidth: "700px" }, children: [
@@ -41251,22 +41304,22 @@ const IntegrationsPage = () => {
       border: `1px solid ${configMessage.type === "success" ? "#86efac" : "#fca5a5"}`
     }, children: configMessage.text }),
     editingConfig ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px solid var(--color-primary)", borderRadius: "16px", padding: "20px", background: "var(--color-bg-card)" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px" }, children: editingConfig === "new" ? t2("appConfig.create") : t2("appConfig.edit") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px" }, children: editingConfig === "new" ? t("appConfig.create") : t("appConfig.edit") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("appConfig.name") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("appConfig.name") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", value: configForm.name, onChange: (e) => setConfigForm({ ...configForm, name: e.target.value }), className: "form-input", placeholder: "My App Config" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("appConfig.campaign") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("appConfig.campaign") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { value: configForm.campaign_id, onChange: (e) => setConfigForm({ ...configForm, campaign_id: e.target.value }), className: "form-select", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "—" }),
             campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: c.id, children: c.name }, c.id))
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("appConfig.jsonEditor") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "6px", marginBottom: "8px", flexWrap: "wrap" }, children: Object.entries(configTemplates).map(([key, val]) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setConfigForm({ ...configForm, config_json: val }), className: "btn btn-secondary btn-sm", style: { fontSize: "11px", padding: "4px 10px" }, children: t2(`appConfig.template${key.charAt(0).toUpperCase() + key.slice(1)}`) }, key)) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("appConfig.jsonEditor") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "6px", marginBottom: "8px", flexWrap: "wrap" }, children: Object.entries(configTemplates).map(([key, val]) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setConfigForm({ ...configForm, config_json: val }), className: "btn btn-secondary btn-sm", style: { fontSize: "11px", padding: "4px 10px" }, children: t(`appConfig.template${key.charAt(0).toUpperCase() + key.slice(1)}`) }, key)) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "textarea",
             {
@@ -41292,9 +41345,9 @@ const IntegrationsPage = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setEditingConfig(null), className: "btn btn-secondary btn-sm", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
             " ",
-            t2("common.cancel")
+            t("common.cancel")
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSaveConfig, className: "btn btn-primary btn-sm", disabled: !configForm.name, children: t2("common.save") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSaveConfig, className: "btn btn-primary btn-sm", disabled: !configForm.name, children: t("common.save") })
         ] })
       ] })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
@@ -41303,7 +41356,7 @@ const IntegrationsPage = () => {
     }, className: "btn btn-primary", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
       " ",
-      t2("appConfig.create")
+      t("appConfig.create")
     ] }),
     configs.map((cfg) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
       border: "1px solid var(--color-border)",
@@ -41320,7 +41373,7 @@ const IntegrationsPage = () => {
             cfg.campaign_name
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "6px", alignItems: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px", padding: "2px 8px", borderRadius: "6px", background: cfg.is_active ? "#dcfce7" : "#fee2e2", color: cfg.is_active ? "#166534" : "#991b1b" }, children: cfg.is_active ? t2("appConfig.active") : t2("appConfig.inactive") }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "6px", alignItems: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px", padding: "2px 8px", borderRadius: "6px", background: cfg.is_active ? "#dcfce7" : "#fee2e2", color: cfg.is_active ? "#166534" : "#991b1b" }, children: cfg.is_active ? t("appConfig.active") : t("appConfig.inactive") }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", fontFamily: "monospace", marginBottom: "10px", wordBreak: "break-all" }, children: [
         trackerUrl,
@@ -41331,11 +41384,11 @@ const IntegrationsPage = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => copyToClipboard(`${trackerUrl}/api.php?action=app_config&key=${cfg.config_key}`, `url_${cfg.id}`), className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: copied === `url_${cfg.id}` ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12, style: { color: "var(--color-success)" } }),
           " ",
-          t2("integrations.copied")
+          t("integrations.copied")
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 }),
           " ",
-          t2("appConfig.copyUrl")
+          t("appConfig.copyUrl")
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
           const blob = new Blob([cfg.config_json], { type: "application/json" });
@@ -41348,7 +41401,7 @@ const IntegrationsPage = () => {
         }, className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 12 }),
           " ",
-          t2("appConfig.download")
+          t("appConfig.download")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
           setConfigForm({ name: cfg.name, campaign_id: cfg.campaign_id || "", config_json: cfg.config_json, is_active: cfg.is_active });
@@ -41356,7 +41409,7 @@ const IntegrationsPage = () => {
         }, className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 12 }),
           " ",
-          t2("appConfig.edit")
+          t("appConfig.edit")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: async () => {
           await axios.post(`${API_URL$a}?action=save_app_config`, { id: cfg.id, name: cfg.name, config_json: cfg.config_json, is_active: cfg.is_active ? 0 : 1 });
@@ -41364,20 +41417,20 @@ const IntegrationsPage = () => {
         }, className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Power, { size: 12 }),
           " ",
-          cfg.is_active ? t2("appConfig.inactive") : t2("appConfig.active")
+          cfg.is_active ? t("appConfig.inactive") : t("appConfig.active")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDeleteConfig(cfg.id), className: "btn btn-secondary btn-sm", style: { fontSize: "11px", color: "#ef4444" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 12 }) })
       ] })
     ] }, cfg.id)),
-    configs.length === 0 && !editingConfig && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", padding: "30px 0" }, children: t2("appConfig.noConfigsDesc") })
+    configs.length === 0 && !editingConfig && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", padding: "30px 0" }, children: t("appConfig.noConfigsDesc") })
   ] }) });
   const scripts = {
     kclient_php: {
       title: "KClient PHP",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Terminal, { className: "w-5 h-5" }),
-      description: t2("integrations.kclientPhpDesc"),
+      description: t("integrations.kclientPhpDesc"),
       code: `<?php
-// ${t2("integrations.codeToInsert")}
+// ${t("integrations.codeToInsert")}
 require_once 'kclient.php';
 $client = new KClient('${trackerUrl}');
 $client->sendAllParams(); 
@@ -41387,7 +41440,7 @@ $client->execute();
     kclient_js: {
       title: "KClient JS",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "w-5 h-5" }),
-      description: t2("integrations.kclientJsDesc"),
+      description: t("integrations.kclientJsDesc"),
       code: `<script type="application/javascript">
   var orbitra_db_url = '${trackerUrl}';
   (function(d, s, id) {
@@ -41401,16 +41454,16 @@ $client->execute();
 <noscript><img src="${trackerUrl}/pixel.gif?js=0" alt="" /></noscript>`
     },
     js_banner: {
-      title: t2("integrations.jsBannerTitle"),
+      title: t("integrations.jsBannerTitle"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-5 h-5" }),
-      description: t2("integrations.jsBannerDesc"),
+      description: t("integrations.jsBannerDesc"),
       code: `<div id="ltt-banner-container"></div>
 <script src="${trackerUrl}/banner.js?campaign_id=YOUR_ID" async><\/script>`
     },
     tracking_pixel: {
       title: "Tracking Pixel",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Image, { className: "w-5 h-5" }),
-      description: t2("integrations.pixelDesc"),
+      description: t("integrations.pixelDesc"),
       code: `<!-- Tracking impressions -->
 <img src="${trackerUrl}/pixel.gif?campaign_id=YOUR_ID" width="1" height="1" border="0" alt="" />
 
@@ -41420,21 +41473,21 @@ $client->execute();
     telegram: {
       title: "Telegram Bot",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { className: "w-5 h-5" }),
-      description: t2("telegram.description"),
+      description: t("telegram.description"),
       isTelegram: true
     },
     app_config: {
-      title: t2("appConfig.title"),
+      title: t("appConfig.title"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "w-5 h-5" }),
-      description: t2("appConfig.subtitle"),
+      description: t("appConfig.subtitle"),
       isAppConfig: true
     },
     wordpress: {
-      title: t2("wordpress.title"),
+      title: t("wordpress.title"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "w-5 h-5" }),
-      description: t2("wordpress.description"),
+      description: t("wordpress.description"),
       code: `<?php
-// ${t2("wordpress.instruction")}
+// ${t("wordpress.instruction")}
 function ltt_check_remote_config() {
     $config_url = '${trackerUrl}/api.php?action=app_config&key=CONFIG_KEY';
     $response = wp_remote_get($config_url, ['timeout' => 5]);
@@ -41469,11 +41522,11 @@ add_action('wp_head', 'ltt_webview_redirect');
 ?>`
     },
     static_site: {
-      title: t2("staticSite.title"),
+      title: t("staticSite.title"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-5 h-5" }),
-      description: t2("staticSite.description"),
+      description: t("staticSite.description"),
       code: `<script>
-// ${t2("staticSite.instruction")}
+// ${t("staticSite.instruction")}
 (async function() {
     const CONFIG_URL = '${trackerUrl}/api.php?action=app_config&key=CONFIG_KEY';
     try {
@@ -41508,9 +41561,9 @@ add_action('wp_head', 'ltt_webview_redirect');
 <\/script>`
     },
     geo_redirect: {
-      title: t2("integrations.geoRedirectTitle"),
+      title: t("integrations.geoRedirectTitle"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "w-5 h-5" }),
-      description: t2("integrations.geoRedirectDesc"),
+      description: t("integrations.geoRedirectDesc"),
       code: `<script>
 // Geo Redirect Script - redirect users based on country
 (function() {
@@ -41547,9 +41600,9 @@ add_action('wp_head', 'ltt_webview_redirect');
 <\/script>`
     },
     device_redirect: {
-      title: t2("integrations.deviceRedirectTitle"),
+      title: t("integrations.deviceRedirectTitle"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Smartphone, { className: "w-5 h-5" }),
-      description: t2("integrations.deviceRedirectDesc"),
+      description: t("integrations.deviceRedirectDesc"),
       code: `<script>
 // Device Redirect Script - redirect based on device type
 (function() {
@@ -41582,9 +41635,9 @@ add_action('wp_head', 'ltt_webview_redirect');
 <\/script>`
     },
     countdown_timer: {
-      title: t2("integrations.countdownTitle"),
+      title: t("integrations.countdownTitle"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Timer, { className: "w-5 h-5" }),
-      description: t2("integrations.countdownDesc"),
+      description: t("integrations.countdownDesc"),
       code: `<div id="ltt-countdown" style="font-family:sans-serif;text-align:center;padding:20px;
     background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border-radius:12px;max-width:400px;
     margin:0 auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
@@ -41636,9 +41689,9 @@ add_action('wp_head', 'ltt_webview_redirect');
 <\/script>`
     },
     back_button_trap: {
-      title: t2("integrations.backButtonTitle"),
+      title: t("integrations.backButtonTitle"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { className: "w-5 h-5" }),
-      description: t2("integrations.backButtonDesc"),
+      description: t("integrations.backButtonDesc"),
       code: `<script>
 // Back Button Trap - intercept browser back button
 (function() {
@@ -41665,9 +41718,9 @@ add_action('wp_head', 'ltt_webview_redirect');
 <\/script>`
     },
     exit_popup: {
-      title: t2("integrations.exitPopupTitle"),
+      title: t("integrations.exitPopupTitle"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "w-5 h-5" }),
-      description: t2("integrations.exitPopupDesc"),
+      description: t("integrations.exitPopupDesc"),
       code: `<style>
 .ltt-exit-popup { display:none; position:fixed; top:0; left:0; width:100%; height:100%;
     background:rgba(0,0,0,0.7); z-index:99999; justify-content:center; align-items:center; }
@@ -41713,9 +41766,9 @@ add_action('wp_head', 'ltt_webview_redirect');
 <\/script>`
     },
     wordpress_plugin: {
-      title: t2("integrations.wpPluginTitle"),
+      title: t("integrations.wpPluginTitle"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "w-5 h-5" }),
-      description: t2("integrations.wpPluginDesc"),
+      description: t("integrations.wpPluginDesc"),
       isWpPlugin: true
     }
   };
@@ -42208,11 +42261,11 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
       textAlign: "center"
     }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "48px", marginBottom: "16px" }, children: "📦" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "20px", fontWeight: 600, marginBottom: "8px" }, children: t2("wpPlugin.downloadTitle") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", opacity: 0.9, marginBottom: "20px" }, children: t2("wpPlugin.downloadDesc") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "20px", fontWeight: 600, marginBottom: "8px" }, children: t("wpPlugin.downloadTitle") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", opacity: 0.9, marginBottom: "20px" }, children: t("wpPlugin.downloadDesc") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: generateWpPlugin, className: "btn btn-primary", style: { background: "#22c55e", borderColor: "#22c55e" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 18 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("wpPlugin.downloadBtn") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("wpPlugin.downloadBtn") })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
@@ -42221,7 +42274,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
       background: "var(--color-bg-soft)",
       border: "1px solid var(--color-border)"
     }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "4px" }, children: t2("wpPlugin.trackerUrl") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "4px" }, children: t("wpPlugin.trackerUrl") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { fontSize: "14px", color: "var(--color-primary)" }, children: trackerUrl })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
@@ -42230,13 +42283,13 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
       background: "var(--color-bg-soft)",
       border: "1px solid var(--color-border)"
     }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px", color: "var(--color-text-primary)" }, children: t2("wpPlugin.featuresTitle") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px", color: "var(--color-text-primary)" }, children: t("wpPlugin.featuresTitle") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: [
-        { icon: "🌍", title: t2("wpPlugin.feature1Title"), desc: t2("wpPlugin.feature1Desc") },
-        { icon: "📊", title: t2("wpPlugin.feature2Title"), desc: t2("wpPlugin.feature2Desc") },
-        { icon: "🖼️", title: t2("wpPlugin.feature3Title"), desc: t2("wpPlugin.feature3Desc") },
-        { icon: "⏱️", title: t2("wpPlugin.feature4Title"), desc: t2("wpPlugin.feature4Desc") },
-        { icon: "🎯", title: t2("wpPlugin.feature5Title"), desc: t2("wpPlugin.feature5Desc") }
+        { icon: "🌍", title: t("wpPlugin.feature1Title"), desc: t("wpPlugin.feature1Desc") },
+        { icon: "📊", title: t("wpPlugin.feature2Title"), desc: t("wpPlugin.feature2Desc") },
+        { icon: "🖼️", title: t("wpPlugin.feature3Title"), desc: t("wpPlugin.feature3Desc") },
+        { icon: "⏱️", title: t("wpPlugin.feature4Title"), desc: t("wpPlugin.feature4Desc") },
+        { icon: "🎯", title: t("wpPlugin.feature5Title"), desc: t("wpPlugin.feature5Desc") }
       ].map((f, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "12px", alignItems: "flex-start" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "20px" }, children: f.icon }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -42251,13 +42304,13 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
       background: "var(--color-bg-soft)",
       border: "1px solid var(--color-border)"
     }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px", color: "var(--color-text-primary)" }, children: t2("wpPlugin.shortcodesTitle") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px", color: "var(--color-text-primary)" }, children: t("wpPlugin.shortcodesTitle") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", style: { fontSize: "13px" }, children: [
-        { code: '[orbitra_link campaign_id="1" text="Click" text_uk="Тисни" text_ru="Жми" geo_redirect="RU:https://..."]', desc: t2("wpPlugin.shortcodeLink") },
-        { code: '[orbitra_button campaign_id="1" text_uk="Грати" text_ru="Играть" text_de="Spielen" bg="#22c55e" size="lg"]', desc: t2("wpPlugin.shortcodeButton") || "Styled CTA button with design and multilingual support" },
-        { code: '[orbitra_banner campaign_id="1" image="https://..."]', desc: t2("wpPlugin.shortcodeBanner") },
-        { code: '[orbitra_if_geo countries="RU,DE"]...[/orbitra_if_geo]', desc: t2("wpPlugin.shortcodeGeo") },
-        { code: '[orbitra_countdown campaign_id="1" hours="2" button_uk="Забрати" button_ru="Забрать"]', desc: t2("wpPlugin.shortcodeCountdown") }
+        { code: '[orbitra_link campaign_id="1" text="Click" text_uk="Тисни" text_ru="Жми" geo_redirect="RU:https://..."]', desc: t("wpPlugin.shortcodeLink") },
+        { code: '[orbitra_button campaign_id="1" text_uk="Грати" text_ru="Играть" text_de="Spielen" bg="#22c55e" size="lg"]', desc: t("wpPlugin.shortcodeButton") || "Styled CTA button with design and multilingual support" },
+        { code: '[orbitra_banner campaign_id="1" image="https://..."]', desc: t("wpPlugin.shortcodeBanner") },
+        { code: '[orbitra_if_geo countries="RU,DE"]...[/orbitra_if_geo]', desc: t("wpPlugin.shortcodeGeo") },
+        { code: '[orbitra_countdown campaign_id="1" hours="2" button_uk="Забрати" button_ru="Забрать"]', desc: t("wpPlugin.shortcodeCountdown") }
       ].map((s, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "12px", background: "var(--color-bg-card)", borderRadius: "8px", border: "1px solid var(--color-border)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { color: "var(--color-primary)", display: "block", marginBottom: "4px", wordBreak: "break-all" }, children: s.code }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: s.desc })
@@ -42269,12 +42322,12 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
       background: "var(--color-bg-soft)",
       border: "1px solid var(--color-border)"
     }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px", color: "var(--color-text-primary)" }, children: t2("wpPlugin.installTitle") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px", color: "var(--color-text-primary)" }, children: t("wpPlugin.installTitle") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("ol", { style: { fontSize: "14px", lineHeight: 2, marginLeft: "20px", color: "var(--color-text-secondary)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t2("wpPlugin.install1") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t2("wpPlugin.install2") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t2("wpPlugin.install3") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t2("wpPlugin.install4") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("wpPlugin.install1") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("wpPlugin.install2") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("wpPlugin.install3") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("wpPlugin.install4") })
       ] })
     ] })
   ] }) });
@@ -42302,11 +42355,11 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
             background: tgSettings.webhook_set ? "#22c55e" : "#ef4444",
             boxShadow: tgSettings.webhook_set ? "0 0 8px #22c55e80" : "0 0 8px #ef444480"
           } }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600, color: "var(--color-text-primary)" }, children: tgSettings.webhook_set ? t2("telegram.statusConnected") : t2("telegram.statusError") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600, color: "var(--color-text-primary)" }, children: tgSettings.webhook_set ? t("telegram.statusConnected") : t("telegram.statusError") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleTelegramDisconnect, disabled: tgSaving, className: "btn btn-secondary btn-sm", style: { color: "#ef4444" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("telegram.disconnect") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("telegram.disconnect") })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "13px", color: "var(--color-text-muted)" }, children: [
@@ -42317,7 +42370,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 16, style: { color: "var(--color-text-muted)" } }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: [
-            t2("telegram.connectedChats"),
+            t("telegram.connectedChats"),
             " (",
             tgSettings.chats.length,
             ")"
@@ -42346,11 +42399,11 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "16px", paddingTop: "16px", borderTop: "1px solid var(--color-border)" }, className: "flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleTelegramTest, disabled: tgTesting, className: "btn btn-primary btn-sm", children: [
           tgTesting ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 14, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { size: 14 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("telegram.sendTest") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("telegram.sendTest") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: fetchTelegramSettings, className: "btn btn-secondary btn-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 14 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("telegram.refresh") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("telegram.refresh") })
         ] })
       ] })
     ] }) : (
@@ -42361,8 +42414,8 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
         background: "var(--color-bg-soft)",
         border: "1px solid var(--color-border)"
       }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "12px", color: "var(--color-text-primary)" }, children: t2("telegram.connectBot") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13px", color: "var(--color-text-secondary)", marginBottom: "16px", lineHeight: 1.6 }, children: t2("telegram.connectInstructions") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "12px", color: "var(--color-text-primary)" }, children: t("telegram.connectBot") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13px", color: "var(--color-text-secondary)", marginBottom: "16px", lineHeight: 1.6 }, children: t("telegram.connectInstructions") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative", flex: 1 }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -42371,7 +42424,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
                 type: tgShowToken ? "text" : "password",
                 value: tgToken,
                 onChange: (e) => setTgToken(e.target.value),
-                placeholder: t2("telegram.tokenPlaceholder"),
+                placeholder: t("telegram.tokenPlaceholder"),
                 className: "form-input",
                 style: { paddingRight: "40px", fontFamily: "monospace", fontSize: "13px" }
               }
@@ -42397,7 +42450,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleTelegramConnect, disabled: tgSaving || !tgToken.trim(), className: "btn btn-primary", children: [
             tgSaving ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { size: 16 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("telegram.connect") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("telegram.connect") })
           ] })
         ] })
       ] })
@@ -42408,14 +42461,14 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
       background: "var(--color-bg-soft)",
       border: "1px solid var(--color-border)"
     }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px", color: "var(--color-text-primary)" }, children: t2("telegram.notificationSettings") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px", color: "var(--color-text-primary)" }, children: t("telegram.notificationSettings") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center justify-between cursor-pointer", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
             tgNotifyConversions ? /* @__PURE__ */ jsxRuntimeExports.jsx(Bell, { size: 18, style: { color: "#22c55e" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(BellOff, { size: 18, style: { color: "var(--color-text-muted)" } }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: t2("telegram.notifyConversions") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)" }, children: t2("telegram.notifyConversionsDesc") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: t("telegram.notifyConversions") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)" }, children: t("telegram.notifyConversionsDesc") })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "relative inline-flex items-center cursor-pointer", children: [
@@ -42427,8 +42480,8 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 18, style: { color: "var(--color-primary)" } }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: t2("telegram.dailySummary") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)" }, children: t2("telegram.dailySummaryDesc") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: t("telegram.dailySummary") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)" }, children: t("telegram.dailySummaryDesc") })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -42442,7 +42495,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSaveSettings, disabled: tgSaving, className: "btn btn-primary btn-sm", style: { marginTop: "8px" }, children: t2("common.save") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSaveSettings, disabled: tgSaving, className: "btn btn-primary btn-sm", style: { marginTop: "8px" }, children: t("common.save") })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
@@ -42451,18 +42504,18 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
       background: "var(--color-bg-soft)",
       border: "1px solid var(--color-border)"
     }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "12px", color: "var(--color-text-primary)" }, children: t2("telegram.commandsTitle") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "12px", color: "var(--color-text-primary)" }, children: t("telegram.commandsTitle") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", lineHeight: 2 }, children: [
-        ["/start", t2("telegram.cmdStart")],
-        ["/stats", t2("telegram.cmdStats")],
-        ["/stats 7d", t2("telegram.cmdStats7d")],
-        ["/campaigns", t2("telegram.cmdCampaigns")],
-        ["/campaign ID", t2("telegram.cmdCampaignId")],
-        ["/top", t2("telegram.cmdTop")],
-        ["/conversions", t2("telegram.cmdConversions")],
-        ["/notify on|off", t2("telegram.cmdNotify")],
-        ["/daily on|off", t2("telegram.cmdDaily")],
-        ["/lang ru|en", t2("telegram.cmdLang")]
+        ["/start", t("telegram.cmdStart")],
+        ["/stats", t("telegram.cmdStats")],
+        ["/stats 7d", t("telegram.cmdStats7d")],
+        ["/campaigns", t("telegram.cmdCampaigns")],
+        ["/campaign ID", t("telegram.cmdCampaignId")],
+        ["/top", t("telegram.cmdTop")],
+        ["/conversions", t("telegram.cmdConversions")],
+        ["/notify on|off", t("telegram.cmdNotify")],
+        ["/daily on|off", t("telegram.cmdDaily")],
+        ["/lang ru|en", t("telegram.cmdLang")]
       ].map(([cmd, desc]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { color: "var(--color-primary)", fontWeight: 500, minWidth: "140px", flexShrink: 0 }, children: cmd }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-secondary)" }, children: [
@@ -42473,40 +42526,40 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
     ] })
   ] }) });
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_integrations", title: t2("help.integrationsBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("help.integrationsBanner") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_integrations", title: t("help.integrationsBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.integrationsBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 18, style: { color: "var(--color-primary)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t2("integrations.howItWorks") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("integrations.howItWorks") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "20px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-secondary)", lineHeight: 1.6, marginBottom: "16px" }, children: t2("integrations.introText") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-secondary)", lineHeight: 1.6, marginBottom: "16px" }, children: t("integrations.introText") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
           background: "var(--color-primary-light)",
           borderLeft: `4px solid var(--color - primary)`,
           padding: "16px",
           borderRadius: "0 12px 12px 0"
         }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, marginBottom: "8px", color: "var(--color-text-primary)" }, children: t2("integrations.usageExamples") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, marginBottom: "8px", color: "var(--color-text-primary)" }, children: t("integrations.usageExamples") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { style: { listStyle: "disc", marginLeft: "20px", fontSize: "14px", color: "var(--color-text-secondary)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { marginBottom: "4px" }, children: t2("integrations.usageList1") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { marginBottom: "4px" }, children: t2("integrations.usageList2") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t2("integrations.usageList3") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { marginBottom: "4px" }, children: t("integrations.usageList1") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { marginBottom: "4px" }, children: t("integrations.usageList2") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("integrations.usageList3") })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { color: "var(--color-text-secondary)", lineHeight: 1.6, marginTop: "16px", fontSize: "14px" }, children: [
-          t2("integrations.introFooter"),
+          t("integrations.introFooter"),
           " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "KClient PHP" }),
           " ",
-          t2("integrations.kclientPhpIntro"),
+          t("integrations.kclientPhpIntro"),
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: " KClient JS" }),
           " ",
-          t2("integrations.kclientJsIntro"),
+          t("integrations.kclientJsIntro"),
           " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t2("integrations.jsBannerTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("integrations.jsBannerTitle") }),
           " ",
-          t2("integrations.jsBannerIntro")
+          t("integrations.jsBannerIntro")
         ] })
       ] })
     ] }),
@@ -42581,7 +42634,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
         ] }),
         activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 24px", flex: 1, display: "flex", flexDirection: "column" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: t2("integrations.codeToInsert") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: t("integrations.codeToInsert") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
@@ -42589,10 +42642,10 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
                 className: "btn btn-secondary btn-sm",
                 children: copied === activeTab ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 16, style: { color: "var(--color-success)" } }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-success)" }, children: t2("integrations.copied") })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-success)" }, children: t("integrations.copied") })
                 ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("integrations.copyCode") })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("integrations.copyCode") })
                 ] })
               }
             )
@@ -42639,9 +42692,9 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
           }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Server, { size: 18, style: { color: "var(--color-warning)", flexShrink: 0, marginTop: "2px" } }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "14px", color: "#92400e" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t2("integrations.important") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("integrations.important") }),
               " ",
-              t2("integrations.phpWarning")
+              t("integrations.phpWarning")
             ] })
           ] })
         ] })
@@ -42651,16 +42704,16 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
 };
 const API_URL$9 = "/api.php";
 const LogsPage = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("traffic");
   const [logs, setLogs] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
   const tabs = {
-    traffic: { name: t2("logs.traffic"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Activity, { className: "w-4 h-4" }) },
-    postbacks: { name: t2("logs.incomingPostbacks"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRightLeft, { className: "w-4 h-4" }) },
-    s2s: { name: t2("logs.sentS2s"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ServerCrash, { className: "w-4 h-4" }) },
-    system: { name: t2("logs.systemLog"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(SquareTerminal, { className: "w-4 h-4" }) },
-    audit: { name: t2("logs.auditLog"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { className: "w-4 h-4" }) }
+    traffic: { name: t("logs.traffic"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Activity, { className: "w-4 h-4" }) },
+    postbacks: { name: t("logs.incomingPostbacks"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRightLeft, { className: "w-4 h-4" }) },
+    s2s: { name: t("logs.sentS2s"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ServerCrash, { className: "w-4 h-4" }) },
+    system: { name: t("logs.systemLog"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(SquareTerminal, { className: "w-4 h-4" }) },
+    audit: { name: t("logs.auditLog"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { className: "w-4 h-4" }) }
   };
   reactExports.useEffect(() => {
     setLoading(true);
@@ -42677,25 +42730,25 @@ const LogsPage = () => {
     });
   }, [activeTab]);
   const renderTable = () => {
-    if (loading) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-8 text-center text-[var(--color-text-muted)]", children: t2("logs.loadingLogs") });
-    if (!logs.length) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-8 text-center text-[var(--color-text-muted)]", children: t2("logs.noData") });
+    if (loading) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-8 text-center text-[var(--color-text-muted)]", children: t("logs.loadingLogs") });
+    if (!logs.length) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-8 text-center text-[var(--color-text-muted)]", children: t("logs.noData") });
     switch (activeTab) {
       case "traffic":
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colTime") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colClickId") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colSubid") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colCampaign") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colIp") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colGeo") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colDevice") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colTime") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colClickId") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colSubid") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colCampaign") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colIp") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colGeo") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colDevice") })
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: logs.map((log, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.created_at }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-mono text-xs", children: log.click_id }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.subid || "-" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.campaign_name || t2("logs.direct") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.campaign_name || t("logs.direct") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.ip }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: log.country_code || "-" }),
@@ -42708,12 +42761,12 @@ const LogsPage = () => {
       case "postbacks":
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colTime") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colClickId") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colCampaign") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colStatus") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colOrigStatus") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("logs.colPayout") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colTime") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colClickId") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colCampaign") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colStatus") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colOrigStatus") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("logs.colPayout") })
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: logs.map((log, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.created_at }),
@@ -42727,9 +42780,9 @@ const LogsPage = () => {
       case "system":
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colTime") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colLevel") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colMessage") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colTime") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colLevel") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colMessage") })
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: logs.map((log, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.created_at }),
@@ -42740,11 +42793,11 @@ const LogsPage = () => {
       case "audit":
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colTime") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colEvent") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colResource") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colIp") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("logs.colStatus") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colTime") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colEvent") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colResource") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colIp") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("logs.colStatus") })
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: logs.map((log, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.created_at }),
@@ -42761,10 +42814,10 @@ const LogsPage = () => {
       case "s2s":
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colTime") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colConversionId") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("logs.colUrl") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("logs.colResponseCode") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colTime") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colConversionId") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colUrl") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("logs.colResponseCode") })
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: logs.map((log, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.created_at }),
@@ -42783,7 +42836,7 @@ const LogsPage = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(FileStack, { size: 18, className: "text-[var(--color-primary)]" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title m-0", children: t2("logs.title") })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title m-0", children: t("logs.title") })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-1 mb-4 p-1 bg-[var(--color-bg-soft)] rounded-lg overflow-x-auto", children: Object.entries(tabs).map(([id, tab]) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "button",
@@ -42798,12 +42851,12 @@ const LogsPage = () => {
       id
     )) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto rounded-lg border border-[var(--color-border)]", children: renderTable() }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 text-xs text-[var(--color-text-muted)]", children: t2("logs.lastRecords") })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 text-xs text-[var(--color-text-muted)]", children: t("logs.lastRecords") })
   ] });
 };
 const API_URL$8 = "/api.php";
 const ArchivePage = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("campaigns");
   const [items, setItems] = reactExports.useState({
     campaigns: [],
@@ -42815,11 +42868,11 @@ const ArchivePage = () => {
   const [loading, setLoading] = reactExports.useState(true);
   const [actionLoading, setActionLoading] = reactExports.useState(false);
   const tabs = [
-    { id: "campaigns", label: t2("archive.tabs.campaigns") },
-    { id: "offers", label: t2("archive.tabs.offers") },
-    { id: "landings", label: t2("archive.tabs.landings") },
-    { id: "traffic_sources", label: t2("archive.tabs.sources") },
-    { id: "affiliate_networks", label: t2("archive.tabs.networks") }
+    { id: "campaigns", label: t("archive.tabs.campaigns") },
+    { id: "offers", label: t("archive.tabs.offers") },
+    { id: "landings", label: t("archive.tabs.landings") },
+    { id: "traffic_sources", label: t("archive.tabs.sources") },
+    { id: "affiliate_networks", label: t("archive.tabs.networks") }
   ];
   const fetchArchive = () => {
     setLoading(true);
@@ -42834,7 +42887,7 @@ const ArchivePage = () => {
     fetchArchive();
   }, []);
   const handleAction = async (endpointAction, payload) => {
-    if (!window.confirm(t2("archive.confirmAction"))) return;
+    if (!window.confirm(t("archive.confirmAction"))) return;
     setActionLoading(true);
     try {
       const res = await fetch(`${API_URL$8}?action=${endpointAction}`, {
@@ -42846,10 +42899,10 @@ const ArchivePage = () => {
       if (data.status === "success") {
         fetchArchive();
       } else {
-        alert(data.message || t2("archive.actionError"));
+        alert(data.message || t("archive.actionError"));
       }
     } catch (e) {
-      alert(t2("archive.networkError") + ": " + e.message);
+      alert(t("archive.networkError") + ": " + e.message);
     } finally {
       setActionLoading(false);
     }
@@ -42860,13 +42913,13 @@ const ArchivePage = () => {
   const handlePurgeSection = () => handleAction("archive_purge", { type: activeTab, action: "purge_section" });
   const handlePurgeEverything = () => handleAction("archive_purge", { action: "purge_all" });
   if (loading && !items[activeTab]) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("archive.loading") }) }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("archive.loading") }) }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Archive, { className: "w-5 h-5", style: { color: "var(--color-text-secondary)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t2("archive.title") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t("archive.title") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
@@ -42876,7 +42929,7 @@ const ArchivePage = () => {
           className: "btn btn-danger",
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { className: "w-4 h-4" }),
-            t2("archive.deleteAll")
+            t("archive.deleteAll")
           ]
         }
       )
@@ -42927,9 +42980,9 @@ const ArchivePage = () => {
       marginBottom: "16px"
     }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "14px", color: "var(--color-text-secondary)", fontWeight: 500 }, children: [
-        t2("archive.sectionManagement"),
+        t("archive.sectionManagement"),
         " ",
-        tabs.find((t22) => t22.id === activeTab)?.label
+        tabs.find((t2) => t2.id === activeTab)?.label
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -42940,7 +42993,7 @@ const ArchivePage = () => {
             className: "btn btn-secondary",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-4 h-4", style: { color: "var(--color-success)" } }),
-              t2("archive.restoreAll")
+              t("archive.restoreAll")
             ]
           }
         ),
@@ -42952,7 +43005,7 @@ const ArchivePage = () => {
             className: "btn btn-danger",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Trash, { className: "w-4 h-4" }),
-              t2("archive.clearSection")
+              t("archive.clearSection")
             ]
           }
         )
@@ -42960,14 +43013,14 @@ const ArchivePage = () => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "80px" }, children: t2("archive.id") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("archive.name") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "180px" }, children: t2("archive.deletedAt") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "120px", textAlign: "right" }, children: t2("archive.actions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "80px" }, children: t("archive.id") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("archive.name") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "180px" }, children: t("archive.deletedAt") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "120px", textAlign: "right" }, children: t("archive.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "4", className: "text-center", style: { padding: "32px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-secondary)", fontSize: "14px" }, children: t2("archive.loadingData") }) }) }) : !items[activeTab] || items[activeTab].length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "4", className: "text-center", style: { padding: "48px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "4", className: "text-center", style: { padding: "32px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-secondary)", fontSize: "14px" }, children: t("archive.loadingData") }) }) }) : !items[activeTab] || items[activeTab].length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "4", className: "text-center", style: { padding: "48px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Archive, { className: "w-10 h-10 mx-auto mb-3", style: { color: "var(--color-text-muted)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("archive.emptySection") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("archive.emptySection") })
       ] }) }) }) : items[activeTab].map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { color: "var(--color-text-muted)", fontSize: "14px" }, children: [
           "#",
@@ -42988,7 +43041,7 @@ const ArchivePage = () => {
               onClick: () => handleRestoreItem(item.id),
               disabled: actionLoading,
               className: "action-btn",
-              title: t2("archive.restore"),
+              title: t("archive.restore"),
               style: { color: "var(--color-success)" },
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-4 h-4" })
             }
@@ -42999,7 +43052,7 @@ const ArchivePage = () => {
               onClick: () => handlePurgeItem(item.id),
               disabled: actionLoading,
               className: "action-btn",
-              title: t2("archive.deleteForever"),
+              title: t("archive.deleteForever"),
               style: { color: "var(--color-danger)" },
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
             }
@@ -43011,7 +43064,7 @@ const ArchivePage = () => {
 };
 const API_URL$7 = "/api.php";
 const GeoDBPage = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [dbs, setDbs] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
   const [updateProgress, setUpdateProgress] = reactExports.useState({});
@@ -43063,15 +43116,15 @@ const GeoDBPage = () => {
       });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage(t2("geoDb.updateSuccess") || "База успешно обновлена");
+        setMessage(t("geoDb.updateSuccess") || "База успешно обновлена");
         setUpdateProgress((prev) => ({ ...prev, [id]: { status: "success", progress: 100 } }));
         fetchDbs();
       } else {
-        setError(data.message || t2("geoDb.updateError"));
+        setError(data.message || t("geoDb.updateError"));
         setUpdateProgress((prev) => ({ ...prev, [id]: { status: "error", message: data.message } }));
       }
     } catch (e) {
-      setError(t2("common.networkError") + ": " + e.message);
+      setError(t("common.networkError") + ": " + e.message);
       setUpdateProgress((prev) => ({ ...prev, [id]: { status: "error", message: e.message } }));
     }
   };
@@ -43091,13 +43144,13 @@ const GeoDBPage = () => {
       });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage(data.message || t2("geoDb.updateSuccess"));
+        setMessage(data.message || t("geoDb.updateSuccess"));
         fetchDbs();
       } else {
-        setError(data.message || t2("geoDb.updateError"));
+        setError(data.message || t("geoDb.updateError"));
       }
     } catch (e2) {
-      setError(t2("common.networkError") + ": " + e2.message);
+      setError(t("common.networkError") + ": " + e2.message);
     } finally {
       setUploadLoading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -43115,80 +43168,80 @@ const GeoDBPage = () => {
       });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage(t2("geoDb.keysSaved"));
+        setMessage(t("geoDb.keysSaved"));
       } else {
-        setError(data.message || t2("geoDb.keySaveError"));
+        setError(data.message || t("geoDb.keySaveError"));
       }
     } catch (e) {
-      setError(t2("common.networkError") + ": " + e.message);
+      setError(t("common.networkError") + ": " + e.message);
     } finally {
       setSavingKey(false);
     }
   };
   if (loading && dbs.length === 0) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("geoDb.loadingDbs") }) }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("geoDb.loadingDbs") }) }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-5 h-5", style: { color: "var(--color-text-secondary)" } }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t2("geoDb.title") })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t("geoDb.title") })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
       background: "var(--color-info-bg)",
       borderRadius: "16px",
       padding: "16px",
       marginBottom: "24px"
-    }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-info)" }, children: t2("geoDb.infoText") }) }),
+    }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-info)" }, children: t("geoDb.infoText") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
       background: "var(--color-bg-soft)",
       borderRadius: "16px",
       padding: "16px",
       marginBottom: "24px"
     }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, marginBottom: "12px", color: "var(--color-text-primary)" }, children: t2("geoDb.supportedTitle") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, marginBottom: "12px", color: "var(--color-text-primary)" }, children: t("geoDb.supportedTitle") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "12px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", fontWeight: 500, color: "var(--color-success)", marginBottom: "4px" }, children: t2("geoDb.recommendedFree") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", fontWeight: 500, color: "var(--color-success)", marginBottom: "4px" }, children: t("geoDb.recommendedFree") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { style: { fontSize: "13px", color: "var(--color-text-secondary)", marginLeft: "16px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
             "• ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Sypex Geo City Lite" }),
             " — ",
-            t2("geoDb.sypexDesc")
+            t("geoDb.sypexDesc")
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
             "• ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "IP2Location LITE (DB11 IPv4+IPv6)" }),
             " — ",
-            t2("geoDb.ip2locLiteDesc")
+            t("geoDb.ip2locLiteDesc")
           ] })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "12px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", fontWeight: 500, color: "var(--color-accent-turquoise)", marginBottom: "4px" }, children: t2("geoDb.paidDbs") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", fontWeight: 500, color: "var(--color-accent-turquoise)", marginBottom: "4px" }, children: t("geoDb.paidDbs") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { style: { fontSize: "13px", color: "var(--color-text-secondary)", marginLeft: "16px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
             "• ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "IP2Location DB4" }),
             " — ",
-            t2("geoDb.ip2locDb4Desc")
+            t("geoDb.ip2locDb4Desc")
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
             "• ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "IP2Location PX2" }),
             " — ",
-            t2("geoDb.ip2locPx2Desc")
+            t("geoDb.ip2locPx2Desc")
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
             "• ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Sypex Geo City" }),
             " — ",
-            t2("geoDb.sypexFullDesc")
+            t("geoDb.sypexFullDesc")
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
             "• ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "MaxMind City" }),
             " — ",
-            t2("geoDb.maxmindFullDesc")
+            t("geoDb.maxmindFullDesc")
           ] })
         ] })
       ] }),
@@ -43200,9 +43253,9 @@ const GeoDBPage = () => {
         fontSize: "13px",
         color: "var(--color-warning)"
       }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t2("geoDb.downloadFrom") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("geoDb.downloadFrom") }),
         " ",
-        /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://sypexgeo.net/files/SxGeoCity_utf8.zip", target: "_blank", rel: "noopener", style: { color: "var(--color-primary)" }, children: t2("geoDb.sypexFree") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://sypexgeo.net/files/SxGeoCity_utf8.zip", target: "_blank", rel: "noopener", style: { color: "var(--color-primary)" }, children: t("geoDb.sypexFree") }),
         ",",
         " ",
         /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://lite.ip2location.com/", target: "_blank", rel: "noopener", style: { color: "var(--color-primary)" }, children: "IP2Location LITE" }),
@@ -43220,12 +43273,12 @@ const GeoDBPage = () => {
             type: "text",
             value: maxmindKey,
             onChange: (e) => setMaxmindKey(e.target.value),
-            placeholder: t2("geoDb.maxmindPlaceholder"),
+            placeholder: t("geoDb.maxmindPlaceholder"),
             className: "form-input",
             style: { maxWidth: "400px" }
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint", children: t2("geoDb.maxmindHint") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint", children: t("geoDb.maxmindHint") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "IP2Location Download Token" }),
@@ -43236,7 +43289,7 @@ const GeoDBPage = () => {
               type: "text",
               value: ip2locationToken,
               onChange: (e) => setIp2locationToken(e.target.value),
-              placeholder: t2("geoDb.ip2locationPlaceholder"),
+              placeholder: t("geoDb.ip2locationPlaceholder"),
               className: "form-input",
               style: { maxWidth: "400px" }
             }
@@ -43247,11 +43300,11 @@ const GeoDBPage = () => {
               onClick: handleSaveKey,
               disabled: savingKey,
               className: "btn btn-secondary",
-              children: savingKey ? t2("geoDb.savingKeys") : t2("geoDb.saveKeys")
+              children: savingKey ? t("geoDb.savingKeys") : t("geoDb.saveKeys")
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint", children: t2("geoDb.ip2locationHint") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint", children: t("geoDb.ip2locationHint") })
       ] })
     ] }) }),
     message2 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
@@ -43294,26 +43347,26 @@ const GeoDBPage = () => {
           className: "btn btn-secondary",
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "w-4 h-4" }),
-            uploadLoading ? t2("geoDb.uploading") : t2("geoDb.uploadFile")
+            uploadLoading ? t("geoDb.uploading") : t("geoDb.uploadFile")
           ]
         }
       ),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "12px", color: "var(--color-text-muted)" }, children: [
-        t2("geoDb.downloadAndUpload"),
+        t("geoDb.downloadAndUpload"),
         " ",
         /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://sypexgeo.net/files/SxGeoCity_utf8.zip", target: "_blank", rel: "noopener", style: { color: "var(--color-primary)" }, children: "SxGeoCity_utf8.zip" }),
         " ",
-        t2("geoDb.andUploadHere")
+        t("geoDb.andUploadHere")
       ] })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("geoDb.colName") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("geoDb.colType") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("geoDb.colStatus") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("geoDb.colUpdated") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("geoDb.colSize") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "right" }, children: t2("geoDb.colActions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("geoDb.colName") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("geoDb.colType") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("geoDb.colStatus") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("geoDb.colUpdated") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("geoDb.colSize") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "right" }, children: t("geoDb.colActions") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: dbs.map((db) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: db.name }),
@@ -43330,7 +43383,7 @@ const GeoDBPage = () => {
           background: "var(--color-bg-soft)",
           borderRadius: "8px",
           fontSize: "12px"
-        }, children: db.updated_at }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontStyle: "italic" }, children: t2("geoDb.never") }) }),
+        }, children: db.updated_at }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontStyle: "italic" }, children: t("geoDb.never") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: db.size > 0 ? formatBytes(db.size) : "0 B" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "action-buttons", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
@@ -43340,18 +43393,18 @@ const GeoDBPage = () => {
             className: "btn btn-primary btn-sm",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-3.5 h-3.5 ${updateProgress[db.id]?.status === "loading" ? "animate-spin" : ""}` }),
-              updateProgress[db.id]?.status === "loading" ? t2("geoDb.downloading") : t2("geoDb.update")
+              updateProgress[db.id]?.status === "loading" ? t("geoDb.downloading") : t("geoDb.update")
             ]
           }
         ) }) })
       ] }, db.id)) })
     ] }) }),
-    dbs.length === 0 && !loading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("geoDb.noDbs") }) })
+    dbs.length === 0 && !loading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("geoDb.noDbs") }) })
   ] }) });
 };
 const API_URL$6 = "/api.php";
 const MigrationsPage = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [migrations, setMigrations] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
   const [actionLoading, setActionLoading] = reactExports.useState(null);
@@ -43396,17 +43449,17 @@ const MigrationsPage = () => {
       if (data.status === "success") {
         fetchMigrations();
       } else {
-        alert(t2("common.error") + ": " + (data.message || t2("migrations.runError")));
+        alert(t("common.error") + ": " + (data.message || t("migrations.runError")));
       }
     } catch (e) {
-      alert(t2("common.networkError") + ": " + e.message);
+      alert(t("common.networkError") + ": " + e.message);
     } finally {
       setActionLoading(null);
     }
   };
   const handleKeitaroImport = async () => {
     if (!kFile) {
-      setKError(t2("migrations.keitaroNoFile"));
+      setKError(t("migrations.keitaroNoFile"));
       return;
     }
     setKLoading(true);
@@ -43430,12 +43483,12 @@ const MigrationsPage = () => {
       });
       const data = await res.json();
       if (data.status !== "success") {
-        setKError(data.message || t2("common.error"));
+        setKError(data.message || t("common.error"));
         return;
       }
       setKResult(data.data || null);
     } catch (e) {
-      setKError(e?.message ? String(e.message) : t2("common.networkError"));
+      setKError(e?.message ? String(e.message) : t("common.networkError"));
     } finally {
       setKLoading(false);
     }
@@ -43466,37 +43519,37 @@ const MigrationsPage = () => {
       });
       const data = await res.json();
       if (data.status !== "success") {
-        setPurgeError(data.message || t2("common.error"));
+        setPurgeError(data.message || t("common.error"));
         return;
       }
       setPurgeResult(data.data || null);
     } catch (e) {
-      setPurgeError(e?.message ? String(e.message) : t2("common.networkError"));
+      setPurgeError(e?.message ? String(e.message) : t("common.networkError"));
     } finally {
       setPurgeLoading(false);
     }
   };
   if (loading && migrations.length === 0) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("migrations.loadingMigrations") }) }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("migrations.loadingMigrations") }) }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-5 h-5", style: { color: "var(--color-text-secondary)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t2("migrations.title") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t("migrations.title") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
         background: "var(--color-info-bg)",
         borderRadius: "16px",
         padding: "16px",
         marginBottom: "24px"
-      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-info)" }, children: t2("migrations.infoText") }) }),
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-info)" }, children: t("migrations.infoText") }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "100px" }, children: t2("migrations.colVersion") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("migrations.colDescription") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "160px" }, children: t2("migrations.colStatus") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "140px", textAlign: "right" }, children: t2("migrations.colActions") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "100px" }, children: t("migrations.colVersion") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("migrations.colDescription") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "160px" }, children: t("migrations.colStatus") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "140px", textAlign: "right" }, children: t("migrations.colActions") })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: migrations.map((m) => {
           const isCompleted = m.status === "completed";
@@ -43509,14 +43562,14 @@ const MigrationsPage = () => {
               "#",
               m.version
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: t2(`migrations.descriptions.v${m.version}`) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: t(`migrations.descriptions.v${m.version}`) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
               isCompleted ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "status-badge status-active", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { className: "w-3.5 h-3.5", style: { marginRight: "4px" } }),
-                t2("migrations.completed")
+                t("migrations.completed")
               ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "status-badge status-pending", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "w-3.5 h-3.5", style: { marginRight: "4px" } }),
-                t2("migrations.pending")
+                t("migrations.pending")
               ] }),
               m.executed_at && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "4px" }, children: m.executed_at })
             ] }),
@@ -43528,29 +43581,29 @@ const MigrationsPage = () => {
                 className: `btn btn-sm ${isCompleted ? "btn-secondary" : "btn-primary"}`,
                 children: [
                   actionLoading === m.version ? /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5 animate-spin" }) : isCompleted ? /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { className: "w-3.5 h-3.5" }),
-                  actionLoading === m.version ? t2("migrations.running") : isCompleted ? t2("migrations.repeat") : t2("migrations.execute")
+                  actionLoading === m.version ? t("migrations.running") : isCompleted ? t("migrations.repeat") : t("migrations.execute")
                 ]
               }
             ) }) })
           ] }, m.version);
         }) })
       ] }) }),
-      migrations.length === 0 && !loading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("migrations.noMigrations") }) })
+      migrations.length === 0 && !loading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("migrations.noMigrations") }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-5 h-5", style: { color: "var(--color-text-secondary)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t2("migrations.keitaroTitle") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t("migrations.keitaroTitle") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
         background: "var(--color-info-bg)",
         borderRadius: "16px",
         padding: "16px",
         marginBottom: "16px"
-      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-info)" }, children: t2("migrations.keitaroInfo") }) }),
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-info)" }, children: t("migrations.keitaroInfo") }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("migrations.keitaroFile") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("migrations.keitaroFile") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -43560,46 +43613,46 @@ const MigrationsPage = () => {
               onChange: (e) => setKFile(e.target.files?.[0] || null)
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "8px" }, children: t2("migrations.keitaroFileHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "8px" }, children: t("migrations.keitaroFileHint") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("migrations.keitaroOptions") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("migrations.keitaroOptions") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kDryRun, onChange: (e) => setKDryRun(e.target.checked) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroDryRun") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("migrations.keitaroDryRun") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportCompanies, onChange: (e) => setKImportCompanies(e.target.checked) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroCompanies") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("migrations.keitaroCompanies") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportOffers, onChange: (e) => setKImportOffers(e.target.checked) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroOffers") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("migrations.keitaroOffers") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportDomains, onChange: (e) => setKImportDomains(e.target.checked) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroDomains") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("migrations.keitaroDomains") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportTrafficSources, onChange: (e) => setKImportTrafficSources(e.target.checked) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroTrafficSources") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("migrations.keitaroTrafficSources") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportLandings, onChange: (e) => setKImportLandings(e.target.checked) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroLandings") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("migrations.keitaroLandings") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportCampaigns, onChange: (e) => setKImportCampaigns(e.target.checked) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroCampaigns") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("migrations.keitaroCampaigns") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportStreams, onChange: (e) => setKImportStreams(e.target.checked) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroStreams") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("migrations.keitaroStreams") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportCampaignPostbacks, onChange: (e) => setKImportCampaignPostbacks(e.target.checked) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("migrations.keitaroCampaignPostbacks") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("migrations.keitaroCampaignPostbacks") })
             ] })
           ] })
         ] })
@@ -43612,14 +43665,14 @@ const MigrationsPage = () => {
           className: "btn btn-primary",
           onClick: handleKeitaroImport,
           disabled: kLoading,
-          children: kLoading ? t2("migrations.keitaroRunning") : kDryRun ? t2("migrations.keitaroPreviewBtn") : t2("migrations.keitaroImportBtn")
+          children: kLoading ? t("migrations.keitaroRunning") : kDryRun ? t("migrations.keitaroPreviewBtn") : t("migrations.keitaroImportBtn")
         }
       ) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-5 h-5", style: { color: "var(--color-text-secondary)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t2("migrations.purgeTitle") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t("migrations.purgeTitle") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
         background: "var(--color-warning-bg)",
@@ -43627,10 +43680,10 @@ const MigrationsPage = () => {
         padding: "16px",
         marginBottom: "16px",
         border: "1px solid var(--color-border)"
-      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-warning)" }, children: t2("migrations.purgeInfo") }) }),
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-warning)" }, children: t("migrations.purgeInfo") }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("migrations.purgeConfirmLabel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("migrations.purgeConfirmLabel") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -43641,11 +43694,11 @@ const MigrationsPage = () => {
               placeholder: "DELETE"
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "8px" }, children: t2("migrations.purgeConfirmHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "8px" }, children: t("migrations.purgeConfirmHint") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("migrations.purgeWhat") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t2("migrations.purgeWhatHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("migrations.purgeWhat") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("migrations.purgeWhatHint") })
         ] })
       ] }),
       purgeError && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-danger mt-4", children: purgeError }),
@@ -43656,8 +43709,8 @@ const MigrationsPage = () => {
           className: "btn btn-danger",
           onClick: handlePurgeMetadata,
           disabled: purgeLoading || String(purgeConfirm || "").trim().toUpperCase() !== "DELETE",
-          title: String(purgeConfirm || "").trim().toUpperCase() !== "DELETE" ? t2("migrations.purgeDisabledHint") : "",
-          children: purgeLoading ? t2("migrations.purgeRunning") : t2("migrations.purgeBtn")
+          title: String(purgeConfirm || "").trim().toUpperCase() !== "DELETE" ? t("migrations.purgeDisabledHint") : "",
+          children: purgeLoading ? t("migrations.purgeRunning") : t("migrations.purgeBtn")
         }
       ) })
     ] })
@@ -43665,7 +43718,7 @@ const MigrationsPage = () => {
 };
 const API_URL$5 = "/api.php";
 const UpdatePage = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [updateInfo, setUpdateInfo] = reactExports.useState(null);
   const [loading, setLoading] = reactExports.useState(true);
   const [updating, setUpdating] = reactExports.useState(false);
@@ -43681,7 +43734,7 @@ const UpdatePage = () => {
         setUpdateInfo(res.data.data);
       }
     } catch (e) {
-      setError(t2("update.checkError"));
+      setError(t("update.checkError"));
     } finally {
       setLoading(false);
     }
@@ -43691,7 +43744,7 @@ const UpdatePage = () => {
   }, []);
   const handleUpdate = async () => {
     if (updateInfo && updateInfo.update_available === false) {
-      const ok = window.confirm(t2("update.forceConfirm"));
+      const ok = window.confirm(t("update.forceConfirm"));
       if (!ok) return;
     }
     setUpdating(true);
@@ -43707,17 +43760,17 @@ const UpdatePage = () => {
       if (data.status === "success") {
         setUpdateStep("complete");
         setUpdateSuccess(true);
-        setMessage(data.message || t2("update.updateSuccess"));
+        setMessage(data.message || t("update.updateSuccess"));
         setTimeout(() => {
           checkUpdate();
         }, 1500);
       } else {
         setUpdateStep("");
-        setError(data.message || t2("update.updateError"));
+        setError(data.message || t("update.updateError"));
       }
     } catch (e) {
       setUpdateStep("");
-      setError(t2("common.networkError") + ": " + e.message);
+      setError(t("common.networkError") + ": " + e.message);
     } finally {
       setUpdating(false);
     }
@@ -43725,13 +43778,13 @@ const UpdatePage = () => {
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-8 h-8 animate-spin", style: { color: "var(--color-primary)" } }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { marginTop: "16px", color: "var(--color-text-secondary)" }, children: t2("update.checkingUpdates") })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { marginTop: "16px", color: "var(--color-text-secondary)" }, children: t("update.checkingUpdates") })
     ] }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t2("update.versionInfo") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t("update.versionInfo") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
@@ -43739,18 +43792,18 @@ const UpdatePage = () => {
             className: "btn btn-ghost",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" }),
-              t2("update.checkUpdates")
+              t("update.checkUpdates")
             ]
           }
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "24px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)", marginBottom: "4px" }, children: t2("update.currentVersion") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)", marginBottom: "4px" }, children: t("update.currentVersion") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "24px", fontWeight: 600, color: "var(--color-text-primary)" }, children: updateInfo?.current_version || "—" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)", marginBottom: "4px" }, children: t2("update.latestVersion") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)", marginBottom: "4px" }, children: t("update.latestVersion") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "24px", fontWeight: 600, color: "var(--color-text-primary)" }, children: updateInfo?.latest_version || "—" })
         ] })
       ] })
@@ -43762,13 +43815,13 @@ const UpdatePage = () => {
     }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: "12px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "w-6 h-6 flex-shrink-0", style: { color: "var(--color-warning)" } }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, color: "var(--color-warning)", marginBottom: "4px" }, children: t2("update.updateAvailable") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, color: "var(--color-warning)", marginBottom: "4px" }, children: t("update.updateAvailable") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { fontSize: "14px", color: "var(--color-warning)", opacity: 0.8 }, children: [
-          t2("update.newVersionText"),
+          t("update.newVersionText"),
           " ",
           updateInfo.latest_version,
           ". ",
-          t2("update.recommendUpdate")
+          t("update.recommendUpdate")
         ] }),
         updateInfo.release_notes && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
           marginTop: "12px",
@@ -43778,7 +43831,7 @@ const UpdatePage = () => {
           fontSize: "14px",
           color: "var(--color-text-primary)"
         }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontWeight: 500, marginBottom: "8px" }, children: t2("update.changelog") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontWeight: 500, marginBottom: "8px" }, children: t("update.changelog") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { style: { whiteSpace: "pre-wrap", fontFamily: "inherit", margin: 0 }, children: updateInfo.release_notes })
         ] })
       ] })
@@ -43789,8 +43842,8 @@ const UpdatePage = () => {
     }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { className: "w-6 h-6", style: { color: "var(--color-success)" } }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, color: "var(--color-success)", marginBottom: "4px" }, children: t2("update.upToDate") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-success)", opacity: 0.8 }, children: t2("update.noUpdates") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, color: "var(--color-success)", marginBottom: "4px" }, children: t("update.upToDate") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-success)", opacity: 0.8 }, children: t("update.noUpdates") })
       ] })
     ] }) }),
     updateSuccess && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
@@ -43811,9 +43864,9 @@ const UpdatePage = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { style: { fontWeight: 600, color: "var(--color-success)", marginBottom: "4px", fontSize: "16px" }, children: [
           "✅ ",
-          t2("update.updateComplete")
+          t("update.updateComplete")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-success)", opacity: 0.9 }, children: t2("update.updateCompleteDesc") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-success)", opacity: 0.9 }, children: t("update.updateCompleteDesc") })
       ] })
     ] }) }),
     message2 && !updateSuccess && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
@@ -43831,7 +43884,7 @@ const UpdatePage = () => {
       fontSize: "14px"
     }, children: error }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t2("update.updateMethods") }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t("update.updateMethods") }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "16px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
           border: updating ? "2px solid var(--color-primary)" : "1px solid var(--color-border)",
@@ -43852,8 +43905,8 @@ const UpdatePage = () => {
                 transition: "all 0.3s ease"
               }, children: updating ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-5 h-5 animate-spin", style: { color: "white" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "w-5 h-5", style: { color: "var(--color-primary)" } }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontWeight: 500, color: "var(--color-text-primary)" }, children: updating ? t2("update.updatingTitle") : t2("update.autoUpdate") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)" }, children: updating ? updateStep === "downloading" ? t2("update.downloading") : updateStep === "installing" ? t2("update.installing") : updateStep === "complete" ? t2("update.complete") : "" : t2("update.autoUpdateDesc") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontWeight: 500, color: "var(--color-text-primary)" }, children: updating ? t("update.updatingTitle") : t("update.autoUpdate") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)" }, children: updating ? updateStep === "downloading" ? t("update.downloading") : updateStep === "installing" ? t("update.installing") : updateStep === "complete" ? t("update.complete") : "" : t("update.autoUpdateDesc") })
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -43865,10 +43918,10 @@ const UpdatePage = () => {
                 style: { minWidth: "140px" },
                 children: updating ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4 animate-spin" }),
-                  t2("update.updating")
+                  t("update.updating")
                 ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "w-4 h-4" }),
-                  t2("update.updateBtn")
+                  t("update.updateBtn")
                 ] })
               }
             )
@@ -43895,15 +43948,15 @@ const UpdatePage = () => {
             }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: updateStep === "downloading" ? "var(--color-primary)" : "var(--color-text-muted)" }, children: [
                 "1. ",
-                t2("update.stepDownload")
+                t("update.stepDownload")
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: updateStep === "installing" ? "var(--color-primary)" : "var(--color-text-muted)" }, children: [
                 "2. ",
-                t2("update.stepInstall")
+                t("update.stepInstall")
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: updateStep === "complete" ? "var(--color-success)" : "var(--color-text-muted)" }, children: [
                 "3. ",
-                t2("update.stepComplete")
+                t("update.stepComplete")
               ] })
             ] })
           ] })
@@ -43923,8 +43976,8 @@ const UpdatePage = () => {
             justifyContent: "center"
           }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "16px" }, children: "📦" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontWeight: 500, color: "var(--color-text-primary)", marginBottom: "4px" }, children: t2("update.gitUpdate") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "12px" }, children: t2("update.gitUpdateDesc") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontWeight: 500, color: "var(--color-text-primary)", marginBottom: "4px" }, children: t("update.gitUpdate") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "12px" }, children: t("update.gitUpdateDesc") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
               background: "#1a1a1a",
               borderRadius: "12px",
@@ -43954,15 +44007,15 @@ const UpdatePage = () => {
             justifyContent: "center"
           }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "w-4 h-4", style: { color: "var(--color-text-muted)" } }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontWeight: 500, color: "var(--color-text-primary)", marginBottom: "4px" }, children: t2("update.downloadArchive") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "12px" }, children: t2("update.downloadArchiveDesc") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontWeight: 500, color: "var(--color-text-primary)", marginBottom: "4px" }, children: t("update.downloadArchive") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "12px" }, children: t("update.downloadArchiveDesc") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "a",
               {
                 href: "#",
                 style: { fontSize: "14px", color: "var(--color-primary)" },
                 onClick: (e) => e.preventDefault(),
-                children: t2("update.downloadLink")
+                children: t("update.downloadLink")
               }
             )
           ] })
@@ -43976,9 +44029,9 @@ const UpdatePage = () => {
     }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: "12px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Info, { className: "w-5 h-5 flex-shrink-0", style: { color: "var(--color-info)" } }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "14px", color: "var(--color-info)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontWeight: 500, marginBottom: "4px" }, children: t2("update.serverConfig") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontWeight: 500, marginBottom: "4px" }, children: t("update.serverConfig") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { opacity: 0.8 }, children: [
-          t2("update.serverConfigDesc"),
+          t("update.serverConfigDesc"),
           " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: {
             background: "var(--color-bg-card)",
@@ -43987,7 +44040,7 @@ const UpdatePage = () => {
             fontSize: "13px"
           }, children: "api.php" }),
           " ",
-          t2("update.serverConfigBlock"),
+          t("update.serverConfigBlock"),
           " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: {
             background: "var(--color-bg-card)",
@@ -44003,7 +44056,7 @@ const UpdatePage = () => {
 };
 const API = "/api.php";
 function AggregatorPage() {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("connections");
   const [connections, setConnections] = reactExports.useState([]);
   const [revenueRecords, setRevenueRecords] = reactExports.useState([]);
@@ -44137,7 +44190,7 @@ function AggregatorPage() {
     setLoading(false);
   };
   const deleteConnection = async (id) => {
-    if (!confirm(t2("aggregator.confirmDelete"))) return;
+    if (!confirm(t("aggregator.confirmDelete"))) return;
     try {
       await axios.post(`${API}?action=aggregator_connections`, { action: "delete", id });
       loadConnections();
@@ -44159,9 +44212,9 @@ function AggregatorPage() {
     try {
       const res = await axios.post(`${API}?action=aggregator_sync`, { connection_id: connId, date_from: dateFrom, date_to: dateTo });
       if (res.data.status === "success") {
-        alert(`${t2("aggregator.syncSuccess")}: ${res.data.data.fetched} ${t2("aggregator.fetched")}, ${res.data.data.matched} ${t2("aggregator.matched")}, ${res.data.data.new} ${t2("aggregator.new")}`);
+        alert(`${t("aggregator.syncSuccess")}: ${res.data.data.fetched} ${t("aggregator.fetched")}, ${res.data.data.matched} ${t("aggregator.matched")}, ${res.data.data.new} ${t("aggregator.new")}`);
       } else {
-        alert(`${t2("aggregator.syncError")}: ${res.data.message}`);
+        alert(`${t("aggregator.syncError")}: ${res.data.message}`);
       }
       loadConnections();
     } catch (e) {
@@ -44184,36 +44237,36 @@ function AggregatorPage() {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "badge badge-secondary", style: { display: "inline-flex", alignItems: "center", gap: 4 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 12 }),
       " ",
-      t2("aggregator.pending")
+      t("aggregator.pending")
     ] });
   };
   const tabs = [
-    { key: "connections", label: t2("aggregator.connections"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { size: 16 }) },
-    { key: "revenue", label: t2("aggregator.revenue"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 16 }) },
-    { key: "logs", label: t2("aggregator.syncLogs"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { size: 16 }) }
+    { key: "connections", label: t("aggregator.connections"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { size: 16 }) },
+    { key: "revenue", label: t("aggregator.revenue"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 16 }) },
+    { key: "logs", label: t("aggregator.syncLogs"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { size: 16 }) }
   ];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "0" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_aggregator", title: t2("aggregator.manualTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px", marginTop: "8px" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_aggregator", title: t("aggregator.manualTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px", marginTop: "8px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 8px 0", fontSize: "0.95rem", color: "var(--text-primary)" }, children: t2("aggregator.manualStep1") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)" }, children: t2("aggregator.manualStep1Desc") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 8px 0", fontSize: "0.95rem", color: "var(--text-primary)" }, children: t("aggregator.manualStep1") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)" }, children: t("aggregator.manualStep1Desc") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 8px 0", fontSize: "0.95rem", color: "var(--text-primary)" }, children: t2("aggregator.manualStep2") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)" }, children: t2("aggregator.manualStep2Desc") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 8px 0", fontSize: "0.95rem", color: "var(--text-primary)" }, children: t("aggregator.manualStep2") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)" }, children: t("aggregator.manualStep2Desc") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 8px 0", fontSize: "0.95rem", color: "var(--text-primary)" }, children: t2("aggregator.manualStep3") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)" }, children: t2("aggregator.manualStep3Desc") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 8px 0", fontSize: "0.95rem", color: "var(--text-primary)" }, children: t("aggregator.manualStep3") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)" }, children: t("aggregator.manualStep3Desc") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 8px 0", fontSize: "0.95rem", color: "var(--text-primary)" }, children: t2("aggregator.manualStep4") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)" }, children: t2("aggregator.manualStep4Desc") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 8px 0", fontSize: "0.95rem", color: "var(--text-primary)" }, children: t("aggregator.manualStep4") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)" }, children: t("aggregator.manualStep4Desc") })
       ] })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { size: 24, style: { color: "var(--primary)" } }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { margin: 0, fontSize: "1.4rem" }, children: t2("aggregator.title") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { margin: 0, fontSize: "1.4rem" }, children: t("aggregator.title") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-primary", style: { fontSize: "0.7rem" }, children: "BETA" })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: 0, marginBottom: 24, borderBottom: "2px solid var(--card-border, #e0e0e0)" }, children: tabs.map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -44245,37 +44298,37 @@ function AggregatorPage() {
     )) }),
     activeTab === "connections" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", marginBottom: 16 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--text-secondary)", margin: 0, fontSize: "0.85rem" }, children: t2("aggregator.connectionsDesc") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--text-secondary)", margin: 0, fontSize: "0.85rem" }, children: t("aggregator.connectionsDesc") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-primary", onClick: openNewForm, style: { display: "flex", alignItems: "center", gap: 6 }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
           " ",
-          t2("aggregator.addConnection")
+          t("aggregator.addConnection")
         ] })
       ] }),
       connections.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card", style: { textAlign: "center", padding: "60px 20px", color: "var(--text-secondary)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { size: 48, style: { opacity: 0.3, marginBottom: 12 } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "1rem" }, children: t2("aggregator.noConnections") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "1rem" }, children: t("aggregator.noConnections") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-primary", onClick: openNewForm, style: { marginTop: 8 }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
           " ",
-          t2("aggregator.addFirst")
+          t("aggregator.addFirst")
         ] })
       ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "table-container", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.connectionName") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.engine") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.network") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.dealType") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.lastSync") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.status") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.actions") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.connectionName") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.engine") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.network") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.dealType") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.lastSync") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.status") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.actions") })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: connections.map((conn) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 600 }, children: conn.name }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-secondary", children: conn.engine }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: conn.network_name || "—" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: conn.deal_type?.toUpperCase() }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontSize: "0.8rem", color: "var(--text-secondary)" }, children: conn.last_sync_at || t2("aggregator.never") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontSize: "0.8rem", color: "var(--text-secondary)" }, children: conn.last_sync_at || t("aggregator.never") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBadge, { status: conn.last_sync_status }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 6 }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -44284,13 +44337,13 @@ function AggregatorPage() {
                 className: "btn btn-sm",
                 onClick: () => syncNow(conn.id),
                 disabled: syncingId === conn.id,
-                title: t2("aggregator.syncNow"),
+                title: t("aggregator.syncNow"),
                 style: { padding: "4px 8px", display: "flex", alignItems: "center", gap: 4 },
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 14, className: syncingId === conn.id ? "spin" : "" })
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-sm", onClick: () => openEditForm(conn), title: t2("aggregator.edit"), style: { padding: "4px 8px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { size: 14 }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-sm btn-danger", onClick: () => deleteConnection(conn.id), title: t2("aggregator.delete"), style: { padding: "4px 8px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 }) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-sm", onClick: () => openEditForm(conn), title: t("aggregator.edit"), style: { padding: "4px 8px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { size: 14 }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-sm btn-danger", onClick: () => deleteConnection(conn.id), title: t("aggregator.delete"), style: { padding: "4px 8px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 }) })
           ] }) })
         ] }, conn.id)) })
       ] }) })
@@ -44298,22 +44351,22 @@ function AggregatorPage() {
     activeTab === "revenue" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 20 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card", style: { padding: 16, textAlign: "center" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: 4 }, children: t2("aggregator.totalRecords") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: 4 }, children: t("aggregator.totalRecords") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "1.6rem", fontWeight: 700 }, children: totals.total || 0 })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card", style: { padding: 16, textAlign: "center" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: 4 }, children: t2("aggregator.totalRevenue") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: 4 }, children: t("aggregator.totalRevenue") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "1.6rem", fontWeight: 700, color: "var(--success, #10b981)" }, children: [
             "$",
             parseFloat(totals.total_amount || 0).toFixed(2)
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card", style: { padding: 16, textAlign: "center" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: 4 }, children: t2("aggregator.matchedClicks") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: 4 }, children: t("aggregator.matchedClicks") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "1.6rem", fontWeight: 700, color: "var(--primary)" }, children: totals.matched_count || 0 })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card", style: { padding: 16, textAlign: "center" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: 4 }, children: t2("aggregator.matchRate") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: 4 }, children: t("aggregator.matchRate") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "1.6rem", fontWeight: 700 }, children: [
             totals.total > 0 ? (totals.matched_count / totals.total * 100).toFixed(1) : 0,
             "%"
@@ -44325,7 +44378,7 @@ function AggregatorPage() {
           /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", value: dateFrom, onChange: (e) => setDateFrom(e.target.value), className: "input" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--text-secondary)" }, children: "→" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", value: dateTo, onChange: (e) => setDateTo(e.target.value), className: "input" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-sm", onClick: loadRevenue, title: t2("aggregator.refresh"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 14 }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-sm", onClick: loadRevenue, title: t("aggregator.refresh"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 14 }) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginLeft: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-sm btn-secondary", onClick: exportRevenueCSV, style: { display: "flex", alignItems: "center", gap: 6 }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 14 }),
@@ -44334,14 +44387,14 @@ function AggregatorPage() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "table-container", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.date") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.connection") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.date") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.connection") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Click ID" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Player ID" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.eventType") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.amount") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.country") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.matched") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.eventType") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.amount") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.country") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.matched") })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
           revenueRecords.map((rec) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -44357,20 +44410,20 @@ function AggregatorPage() {
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: rec.country || "—" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: rec.is_matched ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { size: 16, style: { color: "var(--success, #10b981)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { size: 16, style: { color: "var(--text-secondary)", opacity: 0.4 } }) })
           ] }, rec.id)),
-          revenueRecords.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 8, style: { textAlign: "center", padding: 40, color: "var(--text-secondary)" }, children: t2("aggregator.noRecords") }) })
+          revenueRecords.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 8, style: { textAlign: "center", padding: 40, color: "var(--text-secondary)" }, children: t("aggregator.noRecords") }) })
         ] })
       ] }) })
     ] }),
     activeTab === "logs" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "table-container", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.date") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.connection") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.fetched") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.matched") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.new") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.duration") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("aggregator.error") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.date") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.connection") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.fetched") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.matched") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.new") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.duration") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("aggregator.error") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
         syncLogs.map((log) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -44386,29 +44439,29 @@ function AggregatorPage() {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontSize: "0.75rem", color: "var(--danger, #ef4444)", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis" }, children: log.error_message || "—" })
         ] }, log.id)),
-        syncLogs.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 8, style: { textAlign: "center", padding: 40, color: "var(--text-secondary)" }, children: t2("aggregator.noLogs") }) })
+        syncLogs.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 8, style: { textAlign: "center", padding: 40, color: "var(--text-secondary)" }, children: t("aggregator.noLogs") }) })
       ] })
     ] }) }),
     showForm && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => setShowForm(false), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", onClick: (e) => e.stopPropagation(), style: { maxWidth: 640, maxHeight: "85vh", overflow: "auto" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: { marginTop: 0, display: "flex", alignItems: "center", gap: 8 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 20, style: { color: "var(--primary)" } }),
-        editingConn ? t2("aggregator.editConnection") : t2("aggregator.addConnection")
+        editingConn ? t("aggregator.editConnection") : t("aggregator.addConnection")
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gap: 16 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("aggregator.connectionName") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("aggregator.connectionName") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: "input", value: form.name, onChange: (e) => setForm({ ...form, name: e.target.value }), placeholder: "Pin-Up Partners CPA" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("aggregator.network") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("aggregator.network") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "input", value: form.affiliate_network_id, onChange: (e) => setForm({ ...form, affiliate_network_id: e.target.value }), children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("aggregator.selectNetwork") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("aggregator.selectNetwork") }),
               networks.map((n) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: n.id, children: n.name }, n.id))
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("aggregator.engine") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("aggregator.engine") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "input", value: form.engine, onChange: (e) => {
               setForm({ ...form, engine: e.target.value });
               loadEngineFields(e.target.value);
@@ -44422,7 +44475,7 @@ function AggregatorPage() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("aggregator.dealType") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("aggregator.dealType") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "input", value: form.deal_type, onChange: (e) => setForm({ ...form, deal_type: e.target.value }), children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "cpa", children: "CPA" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "revshare", children: "RevShare" }),
@@ -44435,7 +44488,7 @@ function AggregatorPage() {
             /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", className: "input", value: form.baseline, onChange: (e) => setForm({ ...form, baseline: e.target.value }) })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("aggregator.syncInterval") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("aggregator.syncInterval") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "input", value: form.sync_interval_hours, onChange: (e) => setForm({ ...form, sync_interval_hours: parseInt(e.target.value) }), children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 1, children: "1h" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 2, children: "2h" }),
@@ -44447,12 +44500,12 @@ function AggregatorPage() {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("aggregator.clickIdParam") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("aggregator.clickIdParam") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: "input", value: form.click_id_param, onChange: (e) => setForm({ ...form, click_id_param: e.target.value }), placeholder: "sub_id" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { style: { color: "var(--text-secondary)" }, children: t2("aggregator.clickIdParamHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { style: { color: "var(--text-secondary)" }, children: t("aggregator.clickIdParamHint") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { borderTop: "1px solid var(--card-border, #e0e0e0)", paddingTop: 16 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", style: { fontWeight: 700, fontSize: "0.95rem" }, children: t2("aggregator.credentials") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", style: { fontWeight: 700, fontSize: "0.95rem" }, children: t("aggregator.credentials") }),
           engineFields.map((field) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 12 }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", style: { fontSize: "0.8rem" }, children: [
               field.label,
@@ -44469,11 +44522,11 @@ function AggregatorPage() {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn", onClick: testConnection, style: { display: "flex", alignItems: "center", gap: 6 }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 16 }),
             " ",
-            t2("aggregator.testConnection")
+            t("aggregator.testConnection")
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 8 }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn", onClick: () => setShowForm(false), children: t2("aggregator.cancel") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-primary", onClick: saveConnection, disabled: !form.name, children: editingConn ? t2("aggregator.save") : t2("aggregator.create") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn", onClick: () => setShowForm(false), children: t("aggregator.cancel") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-primary", onClick: saveConnection, disabled: !form.name, children: editingConn ? t("aggregator.save") : t("aggregator.create") })
           ] })
         ] })
       ] })
@@ -44485,7 +44538,7 @@ function AggregatorPage() {
   ] });
 }
 const FeedbackPage = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [copied, setCopied] = reactExports.useState(false);
   const cryptoAddress = "TN7v2NArTXd5J2eMuGFpXmgzAFsoZpWcZu";
   const handleCopy = () => {
@@ -44498,9 +44551,9 @@ const FeedbackPage = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-6 z-10", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-2xl font-bold mb-2 flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { className: "text-orange-500" }),
-          t2("feedback.formTitle") || "Contact Us"
+          t("feedback.formTitle") || "Contact Us"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-secondary)" }, children: t2("feedback.formDesc") || "Have a question, suggestion, or found a bug? Check out these contact options to reach the developer directly." })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-secondary)" }, children: t("feedback.formDesc") || "Have a question, suggestion, or found a bug? Check out these contact options to reach the developer directly." })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 z-10 mb-8 flex-grow", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -44553,15 +44606,15 @@ const FeedbackPage = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6 md:p-8 rounded-[24px] shadow-sm border border-[var(--color-border)] relative overflow-hidden", style: { background: "var(--color-bg-card)", backdropFilter: "blur(10px)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-6 right-6 text-orange-100 opacity-20 transform rotate-12", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Heart, { size: 80, fill: "currentColor" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold mb-4 relative z-10", style: { color: "var(--color-text-primary)" }, children: t2("feedback.appreciationTitle") || "Thanks for choosing Orbitra.link!" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[15px] leading-relaxed relative z-10 mb-6", style: { color: "var(--color-text-secondary)" }, children: t2("feedback.appreciationText") || "I'm developing this tracker as a lightweight, independent alternative for the community. Your support helps me keep the project alive and add new features." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold mb-4 relative z-10", style: { color: "var(--color-text-primary)" }, children: t("feedback.appreciationTitle") || "Thanks for choosing Orbitra.link!" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[15px] leading-relaxed relative z-10 mb-6", style: { color: "var(--color-text-secondary)" }, children: t("feedback.appreciationText") || "I'm developing this tracker as a lightweight, independent alternative for the community. Your support helps me keep the project alive and add new features." }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute -bottom-10 -right-10 opacity-10 pointer-events-none w-[150px] h-[150px] flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "/favicon.svg", alt: "", className: "w-full h-full object-contain grayscale" }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6 md:p-8 rounded-[24px] shadow-sm border border-[var(--color-border)] relative overflow-hidden flex-grow flex flex-col justify-center", style: { background: "var(--color-bg-card)", backdropFilter: "blur(10px)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4 mb-5", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-12 h-12 rounded-full flex justify-center items-center shadow-inner", style: { background: "#26A17B", color: "white" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M12.029 17.56c-4.4 0-8.084-1.12-8.084-2.5 0-1.38 3.684-2.5 8.084-2.5 4.4 0 8.084 1.12 8.084 2.5 0 1.38-3.684 2.5-8.084 2.5zM12.029 4.316v18.156c-4.4 0-8.084-1.12-8.084-2.5v-13.156c0-1.38 3.684-2.5 8.084-2.5 4.4 0 8.084 1.12 8.084 2.5v13.156c0 1.38-3.684 2.5-8.084 2.5V4.316C21.6 3.606 24 6.7 24 8.78c0 2.08-2.4 5.174-11.971 4.464C2.4 13.954 0 10.86 0 8.78c0-2.08 2.4-5.174 11.971-4.464h.058z" }) }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xl font-bold", style: { color: "var(--color-text-primary)" }, children: t2("feedback.cryptoTitle") || "Support the Project" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xl font-bold", style: { color: "var(--color-text-primary)" }, children: t("feedback.cryptoTitle") || "Support the Project" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-medium", style: { color: "#26A17B" }, children: "Donate via Crypto (USDT TRC20)" })
           ] })
         ] }),
@@ -44580,10 +44633,10 @@ const FeedbackPage = () => {
                 style: !copied ? { background: "var(--color-bg-main)", borderColor: "var(--color-border)", color: "var(--color-text-primary)" } : {},
                 children: copied ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16 }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("feedback.copied") || "Copied!" })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("feedback.copied") || "Copied!" })
                 ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2("feedback.copy") || "Copy" })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("feedback.copy") || "Copy" })
                 ] })
               }
             )
@@ -44595,7 +44648,7 @@ const FeedbackPage = () => {
 };
 const API_URL$4 = "/api.php";
 const StatusContent = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [statusData, setStatusData] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   React.useEffect(() => {
@@ -44620,19 +44673,19 @@ const StatusContent = () => {
     return "bg-green-500";
   };
   const getStatusIcon = (score) => {
-    if (score >= 80) return { icon: "🟢", text: t2("admin.systemNormal") };
-    if (score >= 50) return { icon: "🟡", text: t2("admin.attention") };
-    return { icon: "🔴", text: t2("admin.critical") };
+    if (score >= 80) return { icon: "🟢", text: t("admin.systemNormal") };
+    if (score >= 50) return { icon: "🟡", text: t("admin.attention") };
+    return { icon: "🔴", text: t("admin.critical") };
   };
-  if (loading) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card text-[var(--color-text-muted)]", children: t2("admin.detectingSystem") });
-  if (!statusData) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card alert alert-danger", children: t2("admin.errorGettingStatus") });
+  if (loading) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card text-[var(--color-text-muted)]", children: t("admin.detectingSystem") });
+  if (!statusData) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card alert alert-danger", children: t("admin.errorGettingStatus") });
   const statusInfo = getStatusIcon(statusData.capacity_score || 100);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Server, { size: 18, className: "text-[var(--color-primary)]" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title m-0", children: t2("admin.systemStatus") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title m-0", children: t("admin.systemStatus") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-lg", children: statusInfo.icon }),
@@ -44646,12 +44699,12 @@ const StatusContent = () => {
       ] }),
       statusData.warnings && statusData.warnings.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4 space-y-2", children: statusData.warnings.map((w, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `alert ${w.level === "critical" ? "alert-danger" : "alert-warning"} flex items-start gap-2`, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: w.level === "critical" ? "🔴" : "🟡" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: w.messageKey ? t2(`admin.${w.messageKey}`) : w.message })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: w.messageKey ? t(`admin.${w.messageKey}`) : w.message })
       ] }, idx)) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-3 gap-4 mb-6", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-lg bg-[var(--color-bg-soft)] border border-[var(--color-border)]", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-[var(--color-text-secondary)]", children: t2("admin.disk") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-[var(--color-text-secondary)]", children: t("admin.disk") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-mono", children: [
               statusData.disk_used_percent,
               "%"
@@ -44667,14 +44720,14 @@ const StatusContent = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-[var(--color-text-muted)] mt-1", children: [
             formatBytes(statusData.disk_free_bytes),
             " ",
-            t2("admin.free"),
+            t("admin.free"),
             " из ",
             formatBytes(statusData.disk_total_bytes)
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-lg bg-[var(--color-bg-soft)] border border-[var(--color-border)]", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-[var(--color-text-secondary)]", children: t2("admin.ram") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-[var(--color-text-secondary)]", children: t("admin.ram") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-mono", children: [
               statusData.system_memory_used_percent || 0,
               "%"
@@ -44687,11 +44740,11 @@ const StatusContent = () => {
               style: { width: `${statusData.system_memory_used_percent || 0}%` }
             }
           ) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)] mt-1", children: statusData.system_total_memory ? formatBytes(statusData.system_free_memory) + " " + t2("admin.free") : "N/A" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)] mt-1", children: statusData.system_total_memory ? formatBytes(statusData.system_free_memory) + " " + t("admin.free") : "N/A" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-lg bg-[var(--color-bg-soft)] border border-[var(--color-border)]", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-[var(--color-text-secondary)]", children: t2("admin.cpuLoad") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm text-[var(--color-text-secondary)]", children: t("admin.cpuLoad") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-mono", children: statusData.cpu_load_per_core || statusData.cpu_load })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full h-2 bg-gray-200 rounded-full overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -44704,7 +44757,7 @@ const StatusContent = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-[var(--color-text-muted)] mt-1", children: [
             statusData.cpu_cores,
             " ",
-            t2("admin.cores"),
+            t("admin.cores"),
             " • LA: ",
             statusData.cpu_load,
             ", ",
@@ -44717,33 +44770,33 @@ const StatusContent = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 md:grid-cols-4 gap-4 text-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-lg bg-[var(--color-bg-soft)] border border-[var(--color-border)] text-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold text-[var(--color-primary)]", children: statusData.clicks?.toLocaleString("ru-RU") || 0 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)]", children: t2("admin.clicks") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)]", children: t("admin.clicks") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-lg bg-[var(--color-bg-soft)] border border-[var(--color-border)] text-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold text-[var(--color-success)]", children: statusData.conversions?.toLocaleString("ru-RU") || 0 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)]", children: t2("admin.conversions") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)]", children: t("admin.conversions") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-lg bg-[var(--color-bg-soft)] border border-[var(--color-border)] text-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold text-[var(--color-text-primary)]", children: formatBytes(statusData.db_size_bytes) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)]", children: t2("admin.dbSize") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)]", children: t("admin.dbSize") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-lg bg-[var(--color-bg-soft)] border border-[var(--color-border)] text-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold text-[var(--color-text-primary)]", children: statusData.version }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)]", children: t2("admin.version") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)]", children: t("admin.version") })
         ] })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "text-sm font-semibold mb-4 flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(HardDrive, { size: 16, className: "text-[var(--color-primary)]" }),
-        t2("admin.systemComponents")
+        t("admin.systemComponents")
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto rounded-xl border border-[var(--color-border)]", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("admin.component") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("admin.versionDetails") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("common.size") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("common.status") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("admin.component") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("admin.versionDetails") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.size") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.status") })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: statusData.components && statusData.components.map((comp, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: comp.name }),
@@ -44778,24 +44831,24 @@ const StatusContent = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "text-sm font-semibold mb-4 flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { size: 16, className: "text-[var(--color-primary)]" }),
-        t2("admin.environment")
+        t("admin.environment")
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4 text-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between border-b border-[var(--color-border)] pb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t2("admin.phpVersion") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t("admin.phpVersion") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: statusData.php_version })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between border-b border-[var(--color-border)] pb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t2("admin.phpSapi") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t("admin.phpSapi") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: statusData.php_sapi })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between border-b border-[var(--color-border)] pb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t2("admin.memoryLimit") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t("admin.memoryLimit") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: statusData.php_memory_limit })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between border-b border-[var(--color-border)] pb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t2("admin.phpMemory") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t("admin.phpMemory") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium", children: [
               formatBytes(statusData.php_memory_bytes),
               " / ",
@@ -44806,7 +44859,7 @@ const StatusContent = () => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between border-b border-[var(--color-border)] pb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t2("admin.webServer") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t("admin.webServer") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium", children: [
               statusData.web_server,
               " ",
@@ -44814,15 +44867,15 @@ const StatusContent = () => {
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between border-b border-[var(--color-border)] pb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t2("admin.serverSoftware") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t("admin.serverSoftware") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-xs truncate max-w-[200px]", title: statusData.server_software, children: statusData.server_software })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between border-b border-[var(--color-border)] pb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t2("admin.cpuCores") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t("admin.cpuCores") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: statusData.cpu_cores })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between border-b border-[var(--color-border)] pb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t2("admin.extensions") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: t("admin.extensions") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-xs", children: statusData.php_extensions && Object.entries(statusData.php_extensions).filter(([k, v]) => v).map(([k]) => k).join(", ") })
           ] })
         ] })
@@ -44831,7 +44884,7 @@ const StatusContent = () => {
     statusData.recommendations && statusData.recommendations.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "text-sm font-semibold mb-4 flex items-center gap-2", children: [
         "💡 ",
-        t2("admin.recommendations")
+        t("admin.recommendations")
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: statusData.recommendations.map((r2, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-info flex items-start gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "ℹ️" }),
@@ -44841,14 +44894,14 @@ const StatusContent = () => {
   ] });
 };
 const ImportContent = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [csvData, setCsvData] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [message2, setMessage] = React.useState("");
   const [errorMsg, setErrorMsg] = React.useState("");
   const handleImport = async () => {
     if (!csvData.trim()) {
-      setErrorMsg(t2("admin.enterImportData"));
+      setErrorMsg(t("admin.enterImportData"));
       return;
     }
     setLoading(true);
@@ -44864,69 +44917,69 @@ const ImportContent = () => {
       if (data.status === "success") {
         setMessage(data.message);
         if (data.errors && data.errors.length > 0) {
-          setErrorMsg(t2("admin.errorsInRows") + "\n" + data.errors.join("\n"));
+          setErrorMsg(t("admin.errorsInRows") + "\n" + data.errors.join("\n"));
         } else {
           setCsvData("");
         }
       } else {
-        setErrorMsg(data.message || t2("admin.networkError"));
+        setErrorMsg(data.message || t("admin.networkError"));
       }
     } catch (e) {
-      setErrorMsg(t2("admin.networkErrorSending") + " " + e.message);
+      setErrorMsg(t("admin.networkErrorSending") + " " + e.message);
     } finally {
       setLoading(false);
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title m-0", children: t2("admin.importTitle") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title m-0", children: t("admin.importTitle") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6 alert alert-info", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mb-2", children: t2("admin.importDesc") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mt-3 mb-1", children: t2("admin.formatList") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mb-2", children: t("admin.importDesc") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mt-3 mb-1", children: t("admin.formatList") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "subid,payout,tid,status" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "list-disc pl-5 mt-2 space-y-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "subid" }),
           ": ",
-          t2("admin.subid")
+          t("admin.subid")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "payout (revenue)" }),
           ": ",
-          t2("admin.payoutOrRevenue")
+          t("admin.payoutOrRevenue")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "tid" }),
           ": ",
-          t2("admin.tidOptional")
+          t("admin.tidOptional")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "status" }),
           ": ",
-          t2("admin.statusField")
+          t("admin.statusField")
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mt-3 mb-1", children: t2("admin.exampleWithoutTid") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mt-3 mb-1", children: t("admin.exampleWithoutTid") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("pre", { className: "bg-[var(--color-bg-soft)] p-2 rounded text-xs", children: [
         "19j4mhg1br4sa6nhc0,100,,lead",
         "\n",
         "19j4mhg1br4sa7m1u1,2.5,,sale"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mt-3 mb-1", children: t2("admin.exampleWithTid") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mt-3 mb-1", children: t("admin.exampleWithTid") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("pre", { className: "bg-[var(--color-bg-soft)] p-2 rounded text-xs", children: [
         "19j4mhg1br4sa6nhc0,100,1234567890,lead",
         "\n",
         "19j4mhg1br4sa7m1u1,2.5,0987654321,sale"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mt-3 mb-1 text-[var(--color-danger)]", children: t2("admin.warningTitle") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mt-3 mb-1 text-[var(--color-danger)]", children: t("admin.warningTitle") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "list-disc pl-5 mt-1", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
-        t2("admin.warningText"),
+        t("admin.warningText"),
         " ",
         /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "subid,0,tid,rejected" }),
         "."
       ] }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("admin.csvData") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("admin.csvData") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "textarea",
         {
@@ -44949,158 +45002,158 @@ const ImportContent = () => {
         className: "btn btn-primary",
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { size: 18 }),
-          loading ? t2("admin.importing") : t2("admin.importButton")
+          loading ? t("admin.importing") : t("admin.importButton")
         ]
       }
     ) })
   ] });
 };
 const CleanupContent = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title m-0", children: t2("admin.cleanupTitle") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title m-0", children: t("admin.cleanupTitle") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-danger mt-6 flex items-start gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "w-5 h-5 flex-shrink-0 mt-0.5" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-medium", children: t2("admin.warningTitle") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", children: t2("admin.cleanupWarning") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-medium", children: t("admin.warningTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", children: t("admin.cleanupWarning") })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6 form-section", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("admin.deleteData") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("admin.deleteData") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "form-select", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: t2("admin.olderThan30") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: t2("admin.olderThan60") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: t2("admin.olderThan90") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: t2("admin.allStatistics") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: t("admin.olderThan30") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: t("admin.olderThan60") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: t("admin.olderThan90") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: t("admin.allStatistics") })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 flex-wrap", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t2("admin.clearClicks") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t2("admin.clearConversions") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-danger", children: t2("admin.clearAll") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t("admin.clearClicks") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t("admin.clearConversions") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-danger", children: t("admin.clearAll") })
       ] })
     ] })
   ] });
 };
 const AdminPage = ({ page }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const adminPages = {
     admin_users: {
-      title: t2("admin.users"),
+      title: t("admin.users"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(UserCog, { className: "w-6 h-6" }),
-      description: t2("nav.adminUsers") || t2("admin.users"),
+      description: t("nav.adminUsers") || t("admin.users"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(UsersPage, {})
     },
     admin_branding: {
-      title: t2("admin.branding"),
+      title: t("admin.branding"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Palette, { className: "w-6 h-6" }),
-      description: t2("nav.adminBranding") || t2("admin.branding"),
+      description: t("nav.adminBranding") || t("admin.branding"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(BrandingPage, {})
     },
     admin_geo_profiles: {
-      title: t2("admin.geoProfiles"),
+      title: t("admin.geoProfiles"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Map$1, { className: "w-6 h-6" }),
-      description: t2("nav.adminGeoProfiles") || t2("admin.geoProfiles"),
+      description: t("nav.adminGeoProfiles") || t("admin.geoProfiles"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(GeoProfilesPage, {})
     },
     admin_settings: {
-      title: t2("admin.settings"),
+      title: t("admin.settings"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "w-6 h-6" }),
-      description: t2("nav.adminSettings") || t2("admin.settings"),
+      description: t("nav.adminSettings") || t("admin.settings"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, {})
     },
     admin_integrations: {
-      title: t2("admin.integrations"),
+      title: t("admin.integrations"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Plug, { className: "w-6 h-6" }),
-      description: t2("nav.adminIntegrations") || t2("admin.integrations"),
+      description: t("nav.adminIntegrations") || t("admin.integrations"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(IntegrationsPage, {})
     },
     admin_status: {
-      title: t2("admin.status"),
+      title: t("admin.status"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Server, { className: "w-6 h-6" }),
-      description: t2("nav.adminStatus") || t2("admin.status"),
+      description: t("nav.adminStatus") || t("admin.status"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(StatusContent, {})
     },
     admin_logs: {
-      title: t2("admin.logs"),
+      title: t("admin.logs"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileStack, { className: "w-6 h-6" }),
-      description: t2("nav.adminLogs") || t2("admin.logs"),
+      description: t("nav.adminLogs") || t("admin.logs"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(LogsPage, {})
     },
     admin_archive: {
-      title: t2("admin.archive"),
+      title: t("admin.archive"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Archive, { className: "w-6 h-6" }),
-      description: t2("nav.adminArchive") || t2("admin.archive"),
+      description: t("nav.adminArchive") || t("admin.archive"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(ArchivePage, {})
     },
     admin_import: {
-      title: t2("admin.import"),
+      title: t("admin.import"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "w-6 h-6" }),
-      description: t2("nav.adminImport") || t2("admin.import"),
+      description: t("nav.adminImport") || t("admin.import"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(ImportContent, {})
     },
     admin_geo_dbs: {
-      title: t2("admin.geoDbs"),
+      title: t("admin.geoDbs"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-6 h-6" }),
-      description: t2("nav.adminGeoDbs") || t2("admin.geoDbs"),
+      description: t("nav.adminGeoDbs") || t("admin.geoDbs"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(GeoDBPage, {})
     },
     admin_migrations: {
-      title: t2("admin.migrations"),
+      title: t("admin.migrations"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRightLeft, { className: "w-6 h-6" }),
-      description: t2("nav.adminMigrations") || t2("admin.migrations"),
+      description: t("nav.adminMigrations") || t("admin.migrations"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(MigrationsPage, {})
     },
     admin_cleanup: {
-      title: t2("admin.cleanup"),
+      title: t("admin.cleanup"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-6 h-6" }),
-      description: t2("nav.adminCleanup") || t2("admin.cleanup"),
+      description: t("nav.adminCleanup") || t("admin.cleanup"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(CleanupContent, {})
     },
     admin_geo_db: {
-      title: t2("admin.geoDbs"),
+      title: t("admin.geoDbs"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-6 h-6" }),
-      description: t2("nav.adminGeoDbs") || t2("admin.geoDbs"),
+      description: t("nav.adminGeoDbs") || t("admin.geoDbs"),
       comingSoon: true
     },
     admin_migration: {
-      title: t2("admin.migrations"),
+      title: t("admin.migrations"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRightLeft, { className: "w-6 h-6" }),
-      description: t2("nav.adminMigrations") || t2("admin.migrations"),
+      description: t("nav.adminMigrations") || t("admin.migrations"),
       comingSoon: true
     },
     admin_update: {
-      title: t2("admin.update"),
+      title: t("admin.update"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-6 h-6" }),
-      description: t2("nav.adminUpdate") || t2("admin.update"),
+      description: t("nav.adminUpdate") || t("admin.update"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(UpdatePage, {})
     },
     admin_aggregator: {
-      title: t2("admin.aggregator"),
+      title: t("admin.aggregator"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-6 h-6" }),
-      description: t2("nav.adminAggregator") || t2("admin.aggregator"),
+      description: t("nav.adminAggregator") || t("admin.aggregator"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(AggregatorPage, {})
     },
     admin_feedback: {
-      title: t2("adminMenu.feedback") || "Feedback & Support",
+      title: t("adminMenu.feedback") || "Feedback & Support",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { className: "w-6 h-6" }),
-      description: t2("adminMenu.feedback") || "Feedback & Support",
+      description: t("adminMenu.feedback") || "Feedback & Support",
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(FeedbackPage, {})
     }
@@ -45113,15 +45166,15 @@ const AdminPage = ({ page }) => {
     ] }),
     config.comingSoon ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded border p-8 text-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-gray-400 mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "w-16 h-16 mx-auto opacity-50" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-medium text-gray-700 mb-2", children: t2("admin.sectionInDevelopment") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500", children: t2("admin.comingSoonText") })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-medium text-gray-700 mb-2", children: t("admin.sectionInDevelopment") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500", children: t("admin.comingSoonText") })
     ] }) : config.content
   ] });
 };
 Chart$1.register(CategoryScale, LinearScale, PointElement, LineElement, plugin_title, plugin_tooltip, plugin_legend, index$2);
 const API_URL$3 = "/api.php";
 const TrendsPage = () => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [groupBy, setGroupBy] = reactExports.useState("day");
   const [dateFrom, setDateFrom] = reactExports.useState(() => {
     const d = /* @__PURE__ */ new Date();
@@ -45137,35 +45190,35 @@ const TrendsPage = () => {
   const [chartData, setChartData] = reactExports.useState(null);
   const [tableData, setTableData] = reactExports.useState([]);
   const availableMetrics = [
-    { key: "clicks", label: t2("trends.clicks"), color: "#3B82F6" },
-    { key: "unique_clicks", label: t2("trends.uniqueClicks"), color: "#10B981" },
-    { key: "conversions", label: t2("trends.conversions"), color: "#F59E0B" },
-    { key: "revenue", label: t2("trends.revenue"), color: "#8B5CF6" },
+    { key: "clicks", label: t("trends.clicks"), color: "#3B82F6" },
+    { key: "unique_clicks", label: t("trends.uniqueClicks"), color: "#10B981" },
+    { key: "conversions", label: t("trends.conversions"), color: "#F59E0B" },
+    { key: "revenue", label: t("trends.revenue"), color: "#8B5CF6" },
     { key: "real_revenue", label: "Real Rev", color: "#4338CA" },
-    { key: "cost", label: t2("trends.cost"), color: "#EF4444" },
-    { key: "profit", label: t2("trends.profit"), color: "#06B6D4" },
+    { key: "cost", label: t("trends.cost"), color: "#EF4444" },
+    { key: "profit", label: t("trends.profit"), color: "#06B6D4" },
     { key: "real_roi", label: "Real ROI", color: "#6366F1" },
-    { key: "ctr", label: t2("trends.ctr"), color: "#EC4899" },
-    { key: "cr", label: t2("trends.cr"), color: "#84CC16" }
+    { key: "ctr", label: t("trends.ctr"), color: "#EC4899" },
+    { key: "cr", label: t("trends.cr"), color: "#84CC16" }
   ];
   const filterFields = [
-    { value: "country_code", label: t2("trends.country") },
-    { value: "device_type", label: t2("trends.device") },
-    { value: "campaign_id", label: t2("trends.campaignId") },
-    { value: "offer_id", label: t2("trends.offerId") },
-    { value: "ip", label: t2("trends.ipAddress") },
-    { value: "browser", label: t2("trends.browser") },
-    { value: "os", label: t2("trends.os") }
+    { value: "country_code", label: t("trends.country") },
+    { value: "device_type", label: t("trends.device") },
+    { value: "campaign_id", label: t("trends.campaignId") },
+    { value: "offer_id", label: t("trends.offerId") },
+    { value: "ip", label: t("trends.ipAddress") },
+    { value: "browser", label: t("trends.browser") },
+    { value: "os", label: t("trends.os") }
   ];
   const filterOperators = [
-    { value: "contains", label: t2("trends.contains") },
-    { value: "not_contains", label: t2("trends.notContains") },
-    { value: "equals", label: t2("trends.equals") },
-    { value: "not_equals", label: t2("trends.notEquals") },
-    { value: "starts_with", label: t2("trends.startsWith") },
-    { value: "ends_with", label: t2("trends.endsWith") },
-    { value: "regexp", label: t2("trends.regexp") },
-    { value: "regexp_exclude", label: t2("trends.regexpExclude") }
+    { value: "contains", label: t("trends.contains") },
+    { value: "not_contains", label: t("trends.notContains") },
+    { value: "equals", label: t("trends.equals") },
+    { value: "not_equals", label: t("trends.notEquals") },
+    { value: "starts_with", label: t("trends.startsWith") },
+    { value: "ends_with", label: t("trends.endsWith") },
+    { value: "regexp", label: t("trends.regexp") },
+    { value: "regexp_exclude", label: t("trends.regexpExclude") }
   ];
   const fetchTrends = async () => {
     setLoading(true);
@@ -45208,7 +45261,7 @@ const TrendsPage = () => {
   };
   const exportCSV = () => {
     if (!tableData.length) return;
-    const headers = [t2("trends.period"), ...selectedMetrics.map((m) => availableMetrics.find((am) => am.key === m)?.label || m)];
+    const headers = [t("trends.period"), ...selectedMetrics.map((m) => availableMetrics.find((am) => am.key === m)?.label || m)];
     const rows = tableData.map((row) => [row.period, ...selectedMetrics.map((m) => row[m] || 0)]);
     const csv = [headers.join(";"), ...rows.map((r2) => r2.join(";"))].join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
@@ -45225,17 +45278,17 @@ const TrendsPage = () => {
     interaction: { mode: "nearest", axis: "x", intersect: false }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_trends", title: t2("help.trendsBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("help.trendsBanner") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_trends", title: t("help.trendsBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.trendsBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(ChartPie, { className: "w-4 h-4", style: { color: "var(--color-text-muted)" } }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", style: { margin: 0, marginBottom: 0 }, children: t2("trends.grouping") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", style: { margin: 0, marginBottom: 0 }, children: t("trends.grouping") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { value: groupBy, onChange: (e) => setGroupBy(e.target.value), className: "form-select", style: { width: "auto", padding: "8px 12px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "month", children: t2("trends.months") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "day_of_week", children: t2("trends.daysOfWeek") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "day", children: t2("trends.days") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "hour", children: t2("trends.hours") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "month", children: t("trends.months") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "day_of_week", children: t("trends.daysOfWeek") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "day", children: t("trends.days") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "hour", children: t("trends.hours") })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
@@ -45246,11 +45299,11 @@ const TrendsPage = () => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setShowFilterModal(true), className: "btn btn-secondary btn-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "w-4 h-4" }),
-          t2("trends.addFilter")
+          t("trends.addFilter")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: exportCSV, className: "btn btn-secondary btn-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "w-4 h-4" }),
-          t2("trends.exportCsv")
+          t("trends.exportCsv")
         ] })
       ] }),
       filters.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-2", style: { marginTop: "12px" }, children: filters.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "status-badge", style: { background: "var(--color-info-bg)", color: "var(--color-info)" }, children: [
@@ -45263,7 +45316,7 @@ const TrendsPage = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", style: { marginBottom: "12px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "w-4 h-4", style: { color: "var(--color-text-muted)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "form-label", style: { margin: 0 }, children: t2("trends.metrics") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "form-label", style: { margin: 0 }, children: t("trends.metrics") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-2", children: availableMetrics.map((metric) => /* @__PURE__ */ jsxRuntimeExports.jsx(
         "button",
@@ -45279,30 +45332,30 @@ const TrendsPage = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: "16px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { className: "w-5 h-5", style: { color: "var(--color-text-muted)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", children: t2("trends.chartTitle") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", children: t("trends.chartTitle") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: "320px" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t2("trends.loading") }) }) : chartData ? /* @__PURE__ */ jsxRuntimeExports.jsx(Line, { data: chartData, options: chartOptions }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t2("trends.noData") }) }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: "320px" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("trends.loading") }) }) : chartData ? /* @__PURE__ */ jsxRuntimeExports.jsx(Line, { data: chartData, options: chartOptions }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("trends.noData") }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { padding: "16px 24px", marginBottom: 0 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { className: "w-5 h-5", style: { color: "var(--color-text-muted)" } }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", children: t2("trends.reportTitle") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", children: t("trends.reportTitle") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "14px", color: "var(--color-text-muted)" }, children: [
           tableData.length,
           " ",
-          t2("trends.records")
+          t("trends.records")
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("trends.period") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("trends.period") }),
           selectedMetrics.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: availableMetrics.find((am) => am.key === m)?.label || m }, m))
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: selectedMetrics.length + 1, className: "text-center", style: { padding: "32px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t2("trends.loading") }) }) }) }) : tableData.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: selectedMetrics.length + 1, className: "text-center", style: { padding: "32px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("trends.noDataTitle") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t2("trends.noDataPeriod") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: selectedMetrics.length + 1, className: "text-center", style: { padding: "32px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("trends.loading") }) }) }) }) : tableData.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: selectedMetrics.length + 1, className: "text-center", style: { padding: "32px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("trends.noDataTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("trends.noDataPeriod") })
         ] }) }) }) : tableData.map((row, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: row.period }),
           selectedMetrics.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", style: { color: "var(--color-text-secondary)" }, children: m === "revenue" || m === "real_revenue" || m === "cost" || m === "profit" ? `$${Number(row[m] || 0).toFixed(2)}` : m === "ctr" || m === "cr" || m === "real_roi" ? `${Number(row[m] || 0).toFixed(2)}%` : Number(row[m] || 0).toLocaleString("ru-RU") }, m))
@@ -45310,31 +45363,31 @@ const TrendsPage = () => {
       ] }) })
     ] }),
     showFilterModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t2("trends.addFilterTitle") }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("trends.addFilterTitle") }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("trends.field") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("trends.field") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("select", { value: newFilter.field, onChange: (e) => setNewFilter({ ...newFilter, field: e.target.value }), className: "form-select", children: filterFields.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: f.value, children: f.label }, f.value)) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("trends.condition") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("trends.condition") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("select", { value: newFilter.operator, onChange: (e) => setNewFilter({ ...newFilter, operator: e.target.value }), className: "form-select", children: filterOperators.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o.value, children: o.label }, o.value)) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("trends.value") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", value: newFilter.value, onChange: (e) => setNewFilter({ ...newFilter, value: e.target.value }), className: "form-input", placeholder: t2("trends.valuePlaceholder") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("trends.value") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", value: newFilter.value, onChange: (e) => setNewFilter({ ...newFilter, value: e.target.value }), className: "form-input", placeholder: t("trends.valuePlaceholder") })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowFilterModal(false), className: "btn btn-secondary", children: t2("trends.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: addFilter, className: "btn btn-primary", children: t2("trends.add") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowFilterModal(false), className: "btn btn-secondary", children: t("trends.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: addFilter, className: "btn btn-primary", children: t("trends.add") })
       ] })
     ] }) })
   ] });
 };
 const API_URL$2 = "/api.php";
 const CampaignReports = ({ campaignId, campaignName, onClose }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
   const [reportData, setReportData] = reactExports.useState([]);
   const [groupBy, setGroupBy] = reactExports.useState("country");
@@ -45345,11 +45398,11 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   });
   const [dateTo, setDateTo] = reactExports.useState(() => (/* @__PURE__ */ new Date()).toISOString().split("T")[0]);
   const dimensions = [
-    { value: "country", label: t2("campaignReports.geoCountry") },
-    { value: "device_type", label: t2("campaignReports.deviceType") },
-    { value: "language", label: t2("campaignReports.language") },
-    { value: "stream_id", label: t2("campaignReports.stream") },
-    { value: "source_id", label: t2("campaignReports.source") },
+    { value: "country", label: t("campaignReports.geoCountry") },
+    { value: "device_type", label: t("campaignReports.deviceType") },
+    { value: "language", label: t("campaignReports.language") },
+    { value: "stream_id", label: t("campaignReports.stream") },
+    { value: "source_id", label: t("campaignReports.source") },
     { value: "sub_id_1", label: "Sub ID 1" },
     { value: "sub_id_2", label: "Sub ID 2" },
     { value: "sub_id_3", label: "Sub ID 3" },
@@ -45363,10 +45416,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         params: { campaign_id: campaignId, group_by: groupBy, date_from: dateFrom, date_to: dateTo }
       });
       if (res.data.status === "success") setReportData(res.data.data);
-      else alert(t2("campaignReports.loadError") + res.data.message);
+      else alert(t("campaignReports.loadError") + res.data.message);
     } catch (e) {
       console.error(e);
-      alert(t2("campaignReports.networkError"));
+      alert(t("campaignReports.networkError"));
     } finally {
       setLoading(false);
     }
@@ -45378,15 +45431,15 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     if (!reportData.length) return;
     const headers = [
       dimensions.find((d) => d.value === groupBy)?.label || groupBy,
-      t2("campaignReports.clicks"),
-      t2("campaignReports.unique"),
-      t2("campaignReports.conversions"),
+      t("campaignReports.clicks"),
+      t("campaignReports.unique"),
+      t("campaignReports.conversions"),
       "CR (%)",
       "EPC",
-      t2("campaignReports.revenue"),
+      t("campaignReports.revenue"),
       "Real Rev",
-      t2("campaignReports.cost"),
-      t2("campaignReports.profit"),
+      t("campaignReports.cost"),
+      t("campaignReports.profit"),
       "Real ROI (%)"
     ];
     const csvContent = [
@@ -45420,7 +45473,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 20 }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-xl font-semibold", children: [
-          t2("campaignReports.report"),
+          t("campaignReports.report"),
           " ",
           campaignName
         ] }) })
@@ -45429,19 +45482,19 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: exportToCSV, className: "px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center gap-2 text-sm font-medium transition-colors", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16 }),
           " ",
-          t2("campaignReports.exportCsv")
+          t("campaignReports.exportCsv")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "p-2 hover:bg-white/10 rounded transition-colors", title: t2("campaignReports.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 24 }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "p-2 hover:bg-white/10 rounded transition-colors", title: t("campaignReports.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 24 }) })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 bg-[var(--color-bg-card)] border-b shadow-sm flex flex-wrap gap-4 items-center text-[var(--color-text-primary)]", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { size: 16, className: "text-gray-400" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: t2("campaignReports.grouping") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: t("campaignReports.grouping") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("select", { value: groupBy, onChange: (e) => setGroupBy(e.target.value), className: "border rounded px-3 py-1.5 text-sm bg-white text-gray-800 outline-none", children: dimensions.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: d.value, children: d.label }, d.value)) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 ml-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: t2("campaignReports.period") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: t("campaignReports.period") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", value: dateFrom, onChange: (e) => setDateFrom(e.target.value), className: "border rounded px-3 py-1.5 text-sm bg-white text-gray-800 outline-none" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "-" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", value: dateTo, onChange: (e) => setDateTo(e.target.value), className: "border rounded px-3 py-1.5 text-sm bg-white text-gray-800 outline-none" })
@@ -45450,18 +45503,18 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-auto p-6 text-[var(--color-text-primary)]", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center h-64", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)]" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "card shadow-sm border border-[var(--color-primary-light)] overflow-hidden rounded", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left border-collapse", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "bg-gray-50 border-b text-sm text-gray-500 uppercase", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold", children: dimensions.find((d) => d.value === groupBy)?.label }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t2("campaignReports.clicks") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t2("campaignReports.unique") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t2("campaignReports.conversions") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t("campaignReports.clicks") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t("campaignReports.unique") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t("campaignReports.conversions") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: "CR" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: "EPC" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t2("campaignReports.revenue") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t("campaignReports.revenue") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right text-indigo-600 bg-indigo-50/50", children: "Real Rev" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t2("campaignReports.cost") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t2("campaignReports.profit") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t("campaignReports.cost") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t("campaignReports.profit") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right text-indigo-600 bg-indigo-50/50", children: "Real ROI" })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: reportData.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "11", className: "p-8 text-center text-gray-500", children: t2("campaignReports.noDataFilters") }) }) : reportData.map((row, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b last:border-0 hover:bg-gray-50/50 transition-colors text-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: reportData.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "11", className: "p-8 text-center text-gray-500", children: t("campaignReports.noDataFilters") }) }) : reportData.map((row, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b last:border-0 hover:bg-gray-50/50 transition-colors text-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "p-3 font-medium text-[var(--color-primary)]", children: row.dimension_name }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "p-3 text-right", children: parseInt(row.clicks).toLocaleString("ru-RU") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "p-3 text-right text-gray-500", children: parseInt(row.unique_clicks).toLocaleString("ru-RU") }),
@@ -45497,7 +45550,7 @@ const generateAlias = () => {
   return result;
 };
 const CampaignEditor = ({ campaignId, onClose }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("general");
   const [loading, setLoading] = reactExports.useState(false);
   const [saveSuccess, setSaveSuccess] = reactExports.useState(false);
@@ -45517,7 +45570,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [allOffers, setAllOffers] = reactExports.useState([]);
   const [allLandings, setAllLandings] = reactExports.useState([]);
   const [formData, setFormData] = reactExports.useState({
-    name: t2("editor.newCampaign"),
+    name: t("editor.newCampaign"),
     alias: generateAlias(),
     group_id: "",
     source_id: "",
@@ -45534,21 +45587,21 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   });
   const [expandedStream, setExpandedStream] = reactExports.useState(null);
   const costModels = [
-    { value: "CPC", label: t2("costModels.cpc") },
-    { value: "CPuC", label: t2("costModels.cpuc") },
-    { value: "CPM", label: t2("costModels.cpm") },
-    { value: "CPA", label: t2("costModels.cpa") },
-    { value: "CPS", label: t2("costModels.cps") },
-    { value: "RevShare", label: t2("costModels.revShare") }
+    { value: "CPC", label: t("costModels.cpc") },
+    { value: "CPuC", label: t("costModels.cpuc") },
+    { value: "CPM", label: t("costModels.cpm") },
+    { value: "CPA", label: t("costModels.cpa") },
+    { value: "CPS", label: t("costModels.cps") },
+    { value: "RevShare", label: t("costModels.revShare") }
   ];
   const availableParameters = [
-    { key: "keyword", label: t2("parameters.keyword") },
-    { key: "cost", label: t2("parameters.cost") },
-    { key: "currency", label: t2("parameters.currency") },
-    { key: "external_id", label: t2("parameters.externalId") },
-    { key: "creative_id", label: t2("parameters.creativeId") },
-    { key: "ad_campaign_id", label: t2("parameters.adCampaignId") },
-    { key: "source", label: t2("parameters.source") },
+    { key: "keyword", label: t("parameters.keyword") },
+    { key: "cost", label: t("parameters.cost") },
+    { key: "currency", label: t("parameters.currency") },
+    { key: "external_id", label: t("parameters.externalId") },
+    { key: "creative_id", label: t("parameters.creativeId") },
+    { key: "ad_campaign_id", label: t("parameters.adCampaignId") },
+    { key: "source", label: t("parameters.source") },
     ...Array.from({ length: 30 }, (_, i) => ({ key: "sub_id_" + (i + 1), label: "Sub ID " + (i + 1) }))
   ];
   const pixelPlatforms = [
@@ -45556,7 +45609,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     { id: "google_ads", name: "Google Ads", icon: "🔎", placeholder: "AW-123456789" },
     { id: "tiktok", name: "TikTok Pixel", icon: "🎵", placeholder: "C1234567890" },
     { id: "vk", name: "VK Pixel", icon: "💬", placeholder: "VK-RTRG-123456-abc" },
-    { id: "yandex", name: t2("integrations.yandex"), icon: "🔍", placeholder: "12345678" }
+    { id: "yandex", name: t("integrations.yandex"), icon: "🔍", placeholder: "12345678" }
   ];
   const getCampaignUrl = () => {
     const domain = domains.find((d) => d.id == formData.domain_id);
@@ -45595,7 +45648,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 1500);
     } else {
-      alert(t2("common.error"));
+      alert(t("common.error"));
     }
   };
   const fetchClickLogs = async () => {
@@ -45672,7 +45725,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   }, [campaignId]);
   const handleSave = async () => {
     if (!formData.name || !formData.alias) {
-      alert(t2("editor.fillNameAndAlias"));
+      alert(t("editor.fillNameAndAlias"));
       return;
     }
     try {
@@ -45685,33 +45738,33 @@ const CampaignEditor = ({ campaignId, onClose }) => {
           if (onClose) onClose(true);
         }, 1e3);
       } else {
-        alert(`${t2("common.error")}: ${res.data.message}`);
+        alert(`${t("common.error")}: ${res.data.message}`);
       }
     } catch (err) {
-      alert(t2("common.networkError"));
+      alert(t("common.networkError"));
     } finally {
       setLoading(false);
     }
   };
   const clearStats = async () => {
     if (!campaignId) return;
-    if (!window.confirm(t2("campaigns.clearStatsWarning"))) return;
+    if (!window.confirm(t("campaigns.clearStatsWarning"))) return;
     try {
       const res = await axios.post(`${API_URL$1}?action=clear_campaign_stats`, { campaign_id: campaignId });
       if (res.data.status === "success") {
-        alert(t2("editor.saved"));
+        alert(t("editor.saved"));
         setShowClearModal(false);
         if (onClose) onClose(true);
       }
     } catch (e) {
-      alert(t2("common.clearError"));
+      alert(t("common.clearError"));
     }
   };
   const addStream = (type) => {
     const newStream = {
       id: "temp_" + Date.now(),
       type,
-      name: t2("editor.newStream"),
+      name: t("editor.newStream"),
       position: formData.streams.length + 1,
       is_active: 1,
       schema_type: "redirect",
@@ -45736,7 +45789,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const sourceStream = formData.streams[index2];
     const newStream = JSON.parse(JSON.stringify(sourceStream));
     newStream.id = "temp_" + Date.now();
-    newStream.name = `${sourceStream.name} (${t2("editor.copy")})`;
+    newStream.name = `${sourceStream.name} (${t("editor.copy")})`;
     const s = [...formData.streams];
     s.splice(index2 + 1, 0, newStream);
     s.forEach((stream, i) => {
@@ -45801,18 +45854,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [filterModal, setFilterModal] = reactExports.useState({ open: false, streamIdx: null });
   const [newFilter, setNewFilter] = reactExports.useState({ name: "Country", mode: "include", payload: "" });
   const availableFilters = [
-    { name: "Country", label: t2("filters.country"), placeholder: "RU, US, UK..." },
-    { name: "Device", label: t2("filters.device"), placeholder: "mobile, desktop, tablet..." },
-    { name: "OS", label: t2("filters.os"), placeholder: "windows, macos, ios, android..." },
-    { name: "Browser", label: t2("filters.browser"), placeholder: "chrome, firefox, safari..." },
-    { name: "Language", label: t2("filters.language"), placeholder: "ru, en, de (from browser header)" },
-    { name: "ISP", label: t2("filters.isp"), placeholder: t2("filters.ispPlaceholder") },
-    { name: "Connection", label: t2("filters.connection"), placeholder: "mobile, wifi, cable..." },
-    { name: "IP", label: t2("filters.ip"), placeholder: "192.168.1.1, 10.0.0.*..." },
-    { name: "Keyword", label: t2("filters.keyword"), placeholder: "keyword1, keyword2..." },
-    { name: "Referer", label: t2("filters.referer"), placeholder: "google.com, facebook.com..." },
-    { name: "Weekday", label: t2("filters.weekday"), placeholder: "monday, tuesday..." },
-    { name: "Time", label: t2("filters.time"), placeholder: "9-18, 10:00-20:00..." }
+    { name: "Country", label: t("filters.country"), placeholder: "RU, US, UK..." },
+    { name: "Device", label: t("filters.device"), placeholder: "mobile, desktop, tablet..." },
+    { name: "OS", label: t("filters.os"), placeholder: "windows, macos, ios, android..." },
+    { name: "Browser", label: t("filters.browser"), placeholder: "chrome, firefox, safari..." },
+    { name: "Language", label: t("filters.language"), placeholder: "ru, en, de (from browser header)" },
+    { name: "ISP", label: t("filters.isp"), placeholder: t("filters.ispPlaceholder") },
+    { name: "Connection", label: t("filters.connection"), placeholder: "mobile, wifi, cable..." },
+    { name: "IP", label: t("filters.ip"), placeholder: "192.168.1.1, 10.0.0.*..." },
+    { name: "Keyword", label: t("filters.keyword"), placeholder: "keyword1, keyword2..." },
+    { name: "Referer", label: t("filters.referer"), placeholder: "google.com, facebook.com..." },
+    { name: "Weekday", label: t("filters.weekday"), placeholder: "monday, tuesday..." },
+    { name: "Time", label: t("filters.time"), placeholder: "9-18, 10:00-20:00..." }
   ];
   const openFilterModal = (streamIdx) => {
     setFilterModal({ open: true, streamIdx });
@@ -45839,7 +45892,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "h-[calc(100vh-80px)] w-full flex flex-col overflow-hidden rounded-[24px] shadow-lg", style: { backgroundColor: "var(--color-bg-card)", border: "none" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-6 py-4 flex-shrink-0", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-bold", style: { color: "var(--color-text-primary)" }, children: campaignId ? `${t2("editor.campaign")}: ${formData.name}` : t2("editor.createCampaign") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-bold", style: { color: "var(--color-text-primary)" }, children: campaignId ? `${t("editor.campaign")}: ${formData.name}` : t("editor.createCampaign") }),
           formData.alias && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-mono px-2 py-1 rounded-lg", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-hover)" }, children: [
             "/",
             formData.alias
@@ -45855,19 +45908,19 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               style: saveSuccess ? { backgroundColor: "var(--color-success)" } : {},
               children: [
                 saveSuccess ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "w-4 h-4" }),
-                saveSuccess ? t2("editor.saved") : t2("editor.save")
+                saveSuccess ? t("editor.saved") : t("editor.save")
               ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: copyUrl, className: "btn btn-ghost btn-icon", title: t2("editor.copyUrl"), children: copySuccess ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-5 h-5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-5 h-5" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: copyUrl, className: "btn btn-ghost btn-icon", title: t("editor.copyUrl"), children: copySuccess ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-5 h-5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-5 h-5" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => {
             fetchClickLogs();
             setShowLogModal(true);
-          }, className: "btn btn-ghost btn-icon", title: t2("campaignEditor.clickLog"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-5 h-5" }) }),
+          }, className: "btn btn-ghost btn-icon", title: t("campaignEditor.clickLog"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-5 h-5" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowReportsMenu(!showReportsMenu), className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(EllipsisVertical, { className: "w-5 h-5" }) }),
             showReportsMenu && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute right-0 top-full mt-1 w-56 rounded-2xl shadow-xl z-50 py-2", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-2 text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: t2("campaignEditor.reports") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-2 text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: t("campaignEditor.reports") }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
@@ -45880,7 +45933,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { className: "w-4 h-4" }),
                     " ",
-                    t2("editor.fullReportCsv")
+                    t("editor.fullReportCsv")
                   ]
                 }
               ),
@@ -45893,12 +45946,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(Activity, { className: "w-4 h-4" }),
                     " ",
-                    t2("editor.conversionsLog")
+                    t("editor.conversionsLog")
                   ]
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "my-1", style: { borderTop: "1px solid var(--color-border)" } }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-2 text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: t2("common.actions") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-2 text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: t("common.actions") }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
@@ -45911,14 +45964,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-4 h-4" }),
                     " ",
-                    t2("campaigns.updateCosts")
+                    t("campaigns.updateCosts")
                   ]
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "w-full text-left px-4 py-2 text-sm flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { className: "w-4 h-4" }),
                 " ",
-                t2("editor.trafficSimulation")
+                t("editor.trafficSimulation")
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
@@ -45932,7 +45985,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
                     " ",
-                    t2("common.clearStats")
+                    t("common.clearStats")
                   ]
                 }
               )
@@ -45941,18 +45994,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => onClose(true), className: "btn btn-secondary", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5 mr-2" }),
-          t2("common.close")
+          t("common.close")
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex overflow-hidden", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-[30%] min-w-[300px] flex flex-col", style: { borderRight: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex px-2 pt-2 overflow-x-auto no-scrollbar", style: { borderBottom: "1px solid var(--color-border)" }, children: [
-            { key: "general", label: t2("editor.general") },
-            { key: "finance", label: t2("editor.finance") },
-            { key: "params", label: t2("editor.params") },
-            { key: "integrations", label: t2("editor.integrations") },
+            { key: "general", label: t("editor.general") },
+            { key: "finance", label: t("editor.finance") },
+            { key: "params", label: t("editor.params") },
+            { key: "integrations", label: t("editor.integrations") },
             { key: "postbacks", label: "S2S Postbacks" },
-            { key: "notes", label: t2("editor.notes") }
+            { key: "notes", label: t("editor.notes") }
           ].map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
@@ -45969,14 +46022,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
           )) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-5", style: { backgroundColor: "var(--color-bg-card)" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-10 flex flex-col items-center", style: { color: "var(--color-text-muted)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2 mb-2", style: { borderColor: "var(--color-primary)" } }),
-            t2("common.loading")
+            t("common.loading")
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             activeTab === "general" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "md:col-span-1 border rounded-xl overflow-hidden", style: { borderColor: "var(--color-border)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 py-2", style: { backgroundColor: "var(--color-bg-hover)", borderBottom: "1px solid var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-semibold text-sm", style: { color: "var(--color-text-primary)" }, children: t2("editor.general") }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 py-2", style: { backgroundColor: "var(--color-bg-hover)", borderBottom: "1px solid var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-semibold text-sm", style: { color: "var(--color-text-primary)" }, children: t("editor.general") }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 space-y-4", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("editor.name") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.name") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "input",
                       {
@@ -45989,7 +46042,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-                      t2("editor.alias"),
+                      t("editor.alias"),
                       " ",
                       /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.aliasTooltip" })
                     ] }),
@@ -46008,14 +46061,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         {
                           onClick: () => setFormData({ ...formData, alias: generateAlias() }),
                           className: "btn btn-secondary",
-                          title: t2("editor.generateRandom"),
+                          title: t("editor.generateRandom"),
                           children: "🎲"
                         }
                       )
                     ] })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("campaigns.group") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("campaigns.group") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs(
                         "select",
@@ -46024,7 +46077,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           onChange: (e) => setFormData({ ...formData, group_id: e.target.value }),
                           className: "form-select",
                           children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("editor.noGroup") }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.noGroup") }),
                             groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
                           ]
                         }
@@ -46036,13 +46089,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "md:col-span-1 border rounded-xl overflow-hidden", style: { borderColor: "var(--color-border)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 py-2", style: { backgroundColor: "var(--color-bg-hover)", borderBottom: "1px solid var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-semibold text-sm", style: { color: "var(--color-text-primary)" }, children: [
-                  t2("editor.domain"),
+                  t("editor.domain"),
                   " & ",
-                  t2("editor.trafficSource")
+                  t("editor.trafficSource")
                 ] }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 space-y-4", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("editor.domain") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.domain") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs(
                       "select",
                       {
@@ -46050,14 +46103,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         onChange: (e) => setFormData({ ...formData, domain_id: e.target.value }),
                         className: "form-select",
                         children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("editor.indexDomain") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.indexDomain") }),
                           domains.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: d.id, children: d.name }, d.id))
                         ]
                       }
                     )
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("editor.trafficSource") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.trafficSource") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs(
                         "select",
@@ -46066,7 +46119,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           onChange: (e) => setFormData({ ...formData, source_id: e.target.value }),
                           className: "form-select",
                           children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("editor.organicTraffic") }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.organicTraffic") }),
                             sources.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: s.id, children: s.name }, s.id))
                           ]
                         }
@@ -46079,7 +46132,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-4 flex flex-col gap-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-                    t2("editor.uniqueness"),
+                    t("editor.uniqueness"),
                     " ",
                     /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.uniquenessTooltip" })
                   ] }),
@@ -46090,15 +46143,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                       onChange: (e) => setFormData({ ...formData, uniqueness_method: e.target.value }),
                       className: "form-select",
                       children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "IP", children: t2("editor.uniquenessIp") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "IP_UA", children: t2("editor.uniquenessIpUa") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Cookies", children: t2("editor.uniquenessCookies") })
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "IP", children: t("editor.uniquenessIp") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "IP_UA", children: t("editor.uniquenessIpUa") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Cookies", children: t("editor.uniquenessCookies") })
                       ]
                     }
                   )
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("editor.uniquenessHours") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.uniquenessHours") }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "input",
                     {
@@ -46113,7 +46166,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 ] })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-4 mt-4", style: { borderTop: "1px solid var(--color-border)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("editor.campaignUrl") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.campaignUrl") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "input",
@@ -46132,7 +46185,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             activeTab === "finance" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-                  t2("editor.rewardModel"),
+                  t("editor.rewardModel"),
                   " ",
                   /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.costModelTooltip" })
                 ] }),
@@ -46147,7 +46200,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("editor.costValue") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.costValue") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "input",
                   {
@@ -46161,7 +46214,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               ] })
             ] }),
             activeTab === "params" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mb-4", style: { color: "var(--color-text-secondary)" }, children: t2("editor.setupParams") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mb-4", style: { color: "var(--color-text-secondary)" }, children: t("editor.setupParams") }),
               availableParameters.map((param) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-24 text-xs truncate", style: { color: "var(--color-text-secondary)" }, children: param.label }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: param.key }),
@@ -46181,7 +46234,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               ] }, param.key))
             ] }),
             activeTab === "integrations" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mb-2", style: { color: "var(--color-text-secondary)" }, children: t2("pixels.selectPlatform") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mb-2", style: { color: "var(--color-text-secondary)" }, children: t("pixels.selectPlatform") }),
               pixels.map((px) => {
                 const platform2 = pixelPlatforms.find((p) => p.id === px.type) || { name: px.type, icon: "📊" };
                 return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
@@ -46207,17 +46260,17 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             console.error(err);
                           }
                         } }),
-                        t2("pixels.active")
+                        t("pixels.active")
                       ] }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => {
-                        if (confirm(t2("pixels.confirmDelete"))) {
+                        if (confirm(t("pixels.confirmDelete"))) {
                           axios.post(`${API_URL$1}?action=delete_campaign_pixel`, { id: px.id }).then(() => fetchPixels());
                         }
                       }, className: "action-btn text-red", style: { padding: "4px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 }) })
                     ] })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "12px", color: "var(--color-text-muted)" }, children: [
-                    t2("pixels.events"),
+                    t("pixels.events"),
                     ": ",
                     px.events,
                     px.token && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
@@ -46234,7 +46287,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("pixels.pixelId") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("pixels.pixelId") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "input",
                       {
@@ -46247,7 +46300,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     )
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("pixels.apiToken") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("pixels.apiToken") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "input",
                       {
@@ -46260,7 +46313,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     )
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("pixels.events") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("pixels.events") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "input",
                       {
@@ -46270,13 +46323,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         className: "form-input text-sm"
                       }
                     ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px" }, children: t2("pixels.eventsHint") })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px" }, children: t("pixels.eventsHint") })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", justifyContent: "flex-end" }, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setEditingPixel(null), className: "btn btn-secondary btn-sm", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
                       " ",
-                      t2("common.cancel")
+                      t("common.cancel")
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs(
                       "button",
@@ -46300,7 +46353,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         children: [
                           /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }),
                           " ",
-                          t2("common.save")
+                          t("common.save")
                         ]
                       }
                     )
@@ -46324,7 +46377,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 },
                 platform2.id
               )) }),
-              pixels.length === 0 && !editingPixel && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", padding: "20px 0" }, children: t2("pixels.noPixelsDesc") })
+              pixels.length === 0 && !editingPixel && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", padding: "20px 0" }, children: t("pixels.noPixelsDesc") })
             ] }),
             activeTab === "postbacks" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -46333,7 +46386,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   onClick: addPostback,
                   className: "w-full py-2 border-2 border-dashed rounded-2xl text-sm",
                   style: { color: "var(--color-text-muted)", borderColor: "var(--color-border)" },
-                  children: t2("editor.addPostback")
+                  children: t("editor.addPostback")
                 }
               ),
               formData.postbacks.map((pb, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl p-3 space-y-2", style: { border: "1px solid var(--color-border)" }, children: [
@@ -46367,7 +46420,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                       type: "text",
                       value: pb.statuses,
                       onChange: (e) => updatePostback(idx, "statuses", e.target.value),
-                      placeholder: t2("editor.statuses"),
+                      placeholder: t("editor.statuses"),
                       className: "form-input text-xs"
                     }
                   ),
@@ -46380,7 +46433,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               {
                 value: formData.notes,
                 onChange: (e) => setFormData({ ...formData, notes: e.target.value }),
-                placeholder: t2("editor.yourNotes"),
+                placeholder: t("editor.yourNotes"),
                 className: "form-input h-64 resize-none"
               }
             ) })
@@ -46389,7 +46442,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden", style: { backgroundColor: "var(--color-bg-main)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 flex justify-between items-center shadow-sm z-10", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-bold text-lg", style: { color: "var(--color-text-primary)" }, children: [
-              t2("editor.streams"),
+              t("editor.streams"),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-normal text-sm ml-1", style: { color: "var(--color-text-muted)" }, children: [
                 "(",
                 formData.streams.length,
@@ -46399,29 +46452,29 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative group", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-primary", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
-                t2("editor.createStream"),
+                t("editor.createStream"),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-4 h-4 ml-1 opacity-70" })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute right-0 top-full mt-1 w-48 rounded-2xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => addStream("intercepting"), className: "w-full text-left px-4 py-2 text-sm flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-2 h-2 rounded-full bg-orange-500" }),
-                  t2("editor.streamIntercepting")
+                  t("editor.streamIntercepting")
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => addStream("regular"), className: "w-full text-left px-4 py-2 text-sm flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-2 h-2 rounded-full bg-blue-500" }),
-                  t2("editor.streamRegular")
+                  t("editor.streamRegular")
                 ] }),
                 !formData.streams.find((s) => s.type === "fallback") && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => addStream("fallback"), className: "w-full text-left px-4 py-2 text-sm flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-2 h-2 rounded-full", style: { backgroundColor: "var(--color-text-muted)" } }),
-                  t2("editor.streamFallback")
+                  t("editor.streamFallback")
                 ] })
               ] })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: formData.streams.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-20 h-20 rounded-full flex items-center justify-center mb-6", style: { backgroundColor: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-8 h-8", style: { color: "var(--color-text-muted)" } }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-lg font-bold mb-2", style: { color: "var(--color-text-primary)" }, children: t2("editor.noStreamsTitle") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t2("editor.noStreamsDesc") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-lg font-bold mb-2", style: { color: "var(--color-text-primary)" }, children: t("editor.noStreamsTitle") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("editor.noStreamsDesc") })
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-4", children: formData.streams.map((stream, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl overflow-hidden shadow-sm", style: {
             backgroundColor: "var(--color-bg-card)",
             border: "1px solid var(--color-border)",
@@ -46432,7 +46485,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-bold uppercase", style: {
                   color: stream.type === "intercepting" ? "#f97316" : stream.type === "fallback" ? "var(--color-text-muted)" : "#3b82f6"
-                }, children: stream.type === "intercepting" ? t2("editor.streamInterceptingShort") : stream.type === "fallback" ? t2("editor.streamFallbackShort") : t2("editor.streamRegularShort") }),
+                }, children: stream.type === "intercepting" ? t("editor.streamInterceptingShort") : stream.type === "fallback" ? t("editor.streamFallbackShort") : t("editor.streamRegularShort") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "input",
                   {
@@ -46441,7 +46494,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     onChange: (e) => updateStream(idx, "name", e.target.value),
                     className: "bg-transparent border-none font-semibold px-0 w-48",
                     style: { color: "var(--color-text-primary)" },
-                    placeholder: t2("editor.streamName")
+                    placeholder: t("editor.streamName")
                   }
                 )
               ] }),
@@ -46455,7 +46508,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     className: "rounded"
                   }
                 ),
-                t2("editor.on")
+                t("editor.on")
               ] }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -46464,7 +46517,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     onClick: () => moveStreamUp(idx),
                     disabled: idx === 0,
                     className: "action-btn",
-                    title: t2("editor.moveUp"),
+                    title: t("editor.moveUp"),
                     children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-5 h-5" })
                   }
                 ),
@@ -46474,7 +46527,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     onClick: () => moveStreamDown(idx),
                     disabled: idx === formData.streams.length - 1,
                     className: "action-btn",
-                    title: t2("editor.moveDown"),
+                    title: t("editor.moveDown"),
                     children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-5 h-5" })
                   }
                 ),
@@ -46487,13 +46540,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: `w-5 h-5 transition-transform duration-200 ${expandedStream === idx ? "rotate-180" : ""}` })
                   }
                 ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => duplicateStream(idx), className: "action-btn text-blue", title: t2("editor.duplicate"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeStream(idx), className: "action-btn text-red", title: t2("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => duplicateStream(idx), className: "action-btn text-blue", title: t("editor.duplicate"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeStream(idx), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 space-y-4", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-2 block", style: { color: "var(--color-text-muted)" }, children: t2("editor.schema") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-2 block", style: { color: "var(--color-text-muted)" }, children: t("editor.schema") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "select",
                   {
@@ -46501,9 +46554,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     onChange: (e) => updateStream(idx, "schema_type", e.target.value),
                     className: "form-select",
                     children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t2("editor.directLinking") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "landing_offer", children: t2("editor.landingOffer") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "action", children: t2("editor.action") })
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("editor.directLinking") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "landing_offer", children: t("editor.landingOffer") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "action", children: t("editor.action") })
                     ]
                   }
                 )
@@ -46516,18 +46569,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   className: "form-select",
                   style: { backgroundColor: "var(--color-bg-soft)" },
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("editor.selectAction") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "do_nothing", children: t2("editor.doNothing") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "not_found", children: t2("editor.show404") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_html", children: t2("editor.showHtml") })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.selectAction") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "do_nothing", children: t("editor.doNothing") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "not_found", children: t("editor.show404") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_html", children: t("editor.showHtml") })
                   ]
                 }
               ),
               stream.schema_type === "landing_offer" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-2xl p-3", style: { border: "1px solid var(--color-border)", backgroundColor: "rgba(59, 130, 246, 0.05)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t2("editor.landings") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "landings"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t2("editor.add") })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.landings") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "landings"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") })
                   ] }),
                   (stream.schema_custom?.landings || []).map((l, lIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mb-2", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -46537,7 +46590,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         onChange: (e) => updateSchemaItem(idx, "landings", lIdx, "id", parseInt(e.target.value)),
                         className: "form-select text-sm",
                         children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("editor.landingInfo") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.landingInfo") }),
                           allLandings.map((al) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: al.id, children: al.name }, al.id))
                         ]
                       }
@@ -46552,7 +46605,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           onChange: (e) => updateSchemaItem(idx, "landings", lIdx, "weight", parseInt(e.target.value)),
                           className: "w-16 text-center rounded-lg px-1 py-1 text-sm",
                           style: { backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)", border: "1px solid var(--color-border)", color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)" },
-                          title: t2("editor.weight")
+                          title: t("editor.weight")
                         }
                       ),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
@@ -46562,8 +46615,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t2("editor.offers") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "offers"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t2("editor.add") })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "offers"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") })
                   ] }),
                   (stream.schema_custom?.offers || []).map((o, oIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mb-2", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -46573,7 +46626,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "id", parseInt(e.target.value)),
                         className: "form-select text-sm",
                         children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("editor.offerInfo") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.offerInfo") }),
                           allOffers.map((ao) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: ao.id, children: ao.name }, ao.id))
                         ]
                       }
@@ -46588,7 +46641,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "weight", parseInt(e.target.value)),
                           className: "w-16 text-center rounded-lg px-1 py-1 text-sm",
                           style: { backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)", border: "1px solid var(--color-border)", color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)" },
-                          title: t2("editor.weight")
+                          title: t("editor.weight")
                         }
                       ),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
@@ -46599,20 +46652,20 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               ] }),
               stream.schema_type === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-2xl p-3", style: { border: "1px solid var(--color-border)", backgroundColor: "rgba(59, 130, 246, 0.05)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2 items-center", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t2("editor.offers") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "offers"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t2("editor.add") })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "offers"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") })
                 ] }),
                 (() => {
                   const offers = stream.schema_custom?.offers || [];
                   const totalWeight = offers.reduce((sum, o) => sum + (parseInt(o.weight) || 0), 0);
                   const isOverWeight = totalWeight > 100 && offers.length > 1;
                   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    offers.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-center py-2", style: { color: "var(--color-text-muted)" }, children: t2("editor.addOffersHelp") }),
+                    offers.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-center py-2", style: { color: "var(--color-text-muted)" }, children: t("editor.addOffersHelp") }),
                     isOverWeight && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs rounded-lg p-2", style: { color: "var(--color-warning)", backgroundColor: "var(--color-warning-bg)", border: "1px solid var(--color-warning)" }, children: [
-                      t2("editor.weightWarning"),
+                      t("editor.weightWarning"),
                       " ",
                       totalWeight,
-                      t2("editor.weightWarningEnd")
+                      t("editor.weightWarningEnd")
                     ] }),
                     offers.map((o, oIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mb-2", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -46622,7 +46675,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "id", parseInt(e.target.value)),
                           className: "form-select text-sm",
                           children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("editor.offerInfo") }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.offerInfo") }),
                             allOffers.map((ao) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: ao.id, children: ao.name }, ao.id))
                           ]
                         }
@@ -46641,7 +46694,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                               border: `1px solid ${isOverWeight ? "var(--color-warning)" : "var(--color-border)"}`,
                               color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)"
                             },
-                            title: t2("editor.weight"),
+                            title: t("editor.weight"),
                             max: "100",
                             min: "1"
                           }
@@ -46655,15 +46708,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               ] }),
               stream.type !== "fallback" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: t2("editor.filters") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => openFilterModal(idx), className: "text-xs", style: { color: "var(--color-primary)" }, children: t2("editor.addFilter") })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: t("editor.filters") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => openFilterModal(idx), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.addFilter") })
                 ] }),
                 stream.filters && stream.filters.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: stream.filters.map((f, fIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex rounded-lg text-sm overflow-hidden", style: { border: "1px solid var(--color-border)" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-2 py-1 font-semibold", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-primary)" }, children: f.name }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-2 py-1 font-bold", style: { color: f.mode === "include" ? "var(--color-success)" : "var(--color-danger)" }, children: f.mode === "include" ? "✓" : "✗" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 px-2 py-1 truncate", style: { color: "var(--color-text-secondary)" }, children: f.payload.join(", ") }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeFilter(idx, fIdx), className: "px-2", style: { color: "var(--color-danger)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3 h-3" }) })
-                ] }, fIdx)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs rounded-lg p-3 text-center border-2 border-dashed", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: t2("editor.noFilters") })
+                ] }, fIdx)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs rounded-lg p-3 text-center border-2 border-dashed", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: t("editor.noFilters") })
               ] })
             ] })
           ] }, stream.id || idx)) }) })
@@ -46672,12 +46725,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     ] }),
     filterModal.open && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "600px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t2("editor.addFilter") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.addFilter") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setFilterModal({ open: false, streamIdx: null }), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("editor.filterType") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.filterType") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "select",
             {
@@ -46689,7 +46742,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("editor.filterMode") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.filterMode") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center cursor-pointer", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -46701,7 +46754,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   className: "mr-2"
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", style: { color: "var(--color-success)" }, children: t2("editor.allow") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", style: { color: "var(--color-success)" }, children: t("editor.allow") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center cursor-pointer", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -46713,18 +46766,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   className: "mr-2"
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", style: { color: "var(--color-danger)" }, children: t2("editor.deny") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", style: { color: "var(--color-danger)" }, children: t("editor.deny") })
             ] })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("editor.values") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.values") }),
           newFilter.name === "Country" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
             GeoSelector,
             {
               value: newFilter.payload,
               onChange: (payload) => setNewFilter({ ...newFilter, payload }),
-              placeholder: t2("editor.geoPlaceholder")
+              placeholder: t("editor.geoPlaceholder")
             }
           ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
@@ -46739,28 +46792,28 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setFilterModal({ open: false, streamIdx: null }), className: "btn btn-secondary", children: t2("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: addFilter, disabled: !newFilter.payload?.trim(), className: "btn btn-primary", children: t2("common.add") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setFilterModal({ open: false, streamIdx: null }), className: "btn btn-secondary", children: t("common.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: addFilter, disabled: !newFilter.payload?.trim(), className: "btn btn-primary", children: t("common.add") })
       ] })
     ] }) }),
     showLogModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "800px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t2("editor.clickLog") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.clickLog") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowLogModal(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-y-auto", style: { maxHeight: "60vh" }, children: clickLogs.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10", style: { color: "var(--color-text-muted)" }, children: t2("editor.noLogs") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-4", children: clickLogs.map((log, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl p-4 text-xs font-mono", style: { border: "1px solid var(--color-border)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-y-auto", style: { maxHeight: "60vh" }, children: clickLogs.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10", style: { color: "var(--color-text-muted)" }, children: t("editor.noLogs") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-4", children: clickLogs.map((log, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl p-4 text-xs font-mono", style: { border: "1px solid var(--color-border)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-2", style: { color: "var(--color-text-secondary)" }, children: log.created_at }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "whitespace-pre-wrap", style: { color: "var(--color-text-primary)" }, children: log.log_text })
       ] }, idx)) }) })
     ] }) }),
     showCostModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t2("campaigns.updateCosts") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("campaigns.updateCosts") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowCostModal(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("editor.timePeriod") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.timePeriod") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", className: "form-input", style: { flex: 1 } }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "time", className: "form-input", style: { width: "100px" } }),
@@ -46769,7 +46822,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t2("editor.costAmount") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.costAmount") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", step: "0.01", className: "form-input", placeholder: "0.00" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "form-select", style: { width: "auto" }, children: [
@@ -46781,25 +46834,25 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-sm", style: { color: "var(--color-text-primary)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", className: "rounded" }),
-          t2("editor.onlyUniqueClicks")
+          t("editor.onlyUniqueClicks")
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowCostModal(false), className: "btn btn-secondary", children: t2("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-primary", children: t2("common.update") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowCostModal(false), className: "btn btn-secondary", children: t("common.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-primary", children: t("common.update") })
       ] })
     ] }) }),
     showClearModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", style: { color: "var(--color-danger)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "w-8 h-8" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", style: { color: "var(--color-text-primary)" }, children: t2("common.clearStats") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t2("campaigns.clearStatsWarning") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", style: { color: "var(--color-text-primary)" }, children: t("common.clearStats") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("campaigns.clearStatsWarning") })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowClearModal(false), className: "btn btn-secondary", children: t2("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: clearStats, className: "btn btn-danger", children: t2("common.clear") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowClearModal(false), className: "btn btn-secondary", children: t("common.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: clearStats, className: "btn btn-danger", children: t("common.clear") })
       ] })
     ] }) }),
     showReports && campaignId && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -46813,16 +46866,16 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   ] });
 };
 function r(e) {
-  var t2, f, n = "";
+  var t, f, n = "";
   if ("string" == typeof e || "number" == typeof e) n += e;
   else if ("object" == typeof e) if (Array.isArray(e)) {
     var o = e.length;
-    for (t2 = 0; t2 < o; t2++) e[t2] && (f = r(e[t2])) && (n && (n += " "), n += f);
+    for (t = 0; t < o; t++) e[t] && (f = r(e[t])) && (n && (n += " "), n += f);
   } else for (f in e) e[f] && (n && (n += " "), n += f);
   return n;
 }
 function clsx() {
-  for (var e, t2, f = 0, n = "", o = arguments.length; f < o; f++) (e = arguments[f]) && (t2 = r(e)) && (n && (n += " "), n += t2);
+  for (var e, t, f = 0, n = "", o = arguments.length; f < o; f++) (e = arguments[f]) && (t = r(e)) && (n && (n += " "), n += t);
   return n;
 }
 const millisecondsInWeek = 6048e5;
@@ -52147,7 +52200,7 @@ const FloatingArrow = /* @__PURE__ */ reactExports.forwardRef(function FloatingA
       [xOffsetProp]: arrowX,
       [yOffsetProp]: arrowY,
       [side]: isVerticalSide || isCustomShape ? "100%" : "calc(100% - " + computedStrokeWidth / 2 + "px)",
-      transform: [rotation, transform].filter((t2) => !!t2).join(" "),
+      transform: [rotation, transform].filter((t) => !!t).join(" "),
       ...restStyle
     },
     children: [computedStrokeWidth > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("path", {
@@ -52343,12 +52396,12 @@ function __extends(d, b) {
   d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 }
 var _assign = function __assign() {
-  _assign = Object.assign || function __assign2(t2) {
+  _assign = Object.assign || function __assign2(t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
       s = arguments[i];
-      for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t2[p] = s[p];
+      for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
     }
-    return t2;
+    return t;
   };
   return _assign.apply(this, arguments);
 };
@@ -57055,17 +57108,17 @@ var DatePicker = (
 var PRESELECT_CHANGE_VIA_INPUT = "input";
 var PRESELECT_CHANGE_VIA_NAVIGATE = "navigate";
 const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [showRangeMenu, setShowRangeMenu] = reactExports.useState(false);
   const [showCustomRange, setShowCustomRange] = reactExports.useState(false);
   const ranges = [
-    { id: "today", label: t2("dashboard.today") },
-    { id: "yesterday", label: t2("dashboard.yesterday") },
-    { id: "this_week", label: t2("dashboard.thisWeek") },
-    { id: "last_7_days", label: t2("dashboard.last7Days") },
-    { id: "this_month", label: t2("dashboard.thisMonth") },
-    { id: "last_30_days", label: t2("dashboard.last30Days") },
-    { id: "custom", label: t2("dashboard.customRange") }
+    { id: "today", label: t("dashboard.today") },
+    { id: "yesterday", label: t("dashboard.yesterday") },
+    { id: "this_week", label: t("dashboard.thisWeek") },
+    { id: "last_7_days", label: t("dashboard.last7Days") },
+    { id: "this_month", label: t("dashboard.thisMonth") },
+    { id: "last_30_days", label: t("dashboard.last30Days") },
+    { id: "custom", label: t("dashboard.customRange") }
   ];
   const handleRangeSelect = (id) => {
     if (id === "custom") {
@@ -57087,7 +57140,7 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
     if (filters.date_range === "custom" && filters.custom_from && filters.custom_to) {
       return `${filters.custom_from.toLocaleDateString()} - ${filters.custom_to.toLocaleDateString()}`;
     }
-    return ranges.find((r2) => r2.id === (filters.date_range || "today"))?.label || t2("dashboard.allTime");
+    return ranges.find((r2) => r2.id === (filters.date_range || "today"))?.label || t("dashboard.allTime");
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card shadow-sm p-5 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between bg-white w-full rounded-[24px]", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row gap-4 w-full md:w-auto", children: [
@@ -57101,7 +57154,7 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
             className: "w-full h-12 bg-[var(--color-bg-soft)] text-[var(--color-text-primary)] text-sm rounded-2xl pr-10 appearance-none cursor-pointer outline-none transition-all hover:bg-[var(--color-border)] focus:ring-2 focus:ring-[var(--color-border)]",
             style: { paddingLeft: "48px" },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t2("dashboard.allCampaigns") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("dashboard.allCampaigns") }),
               campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: c.id, children: c.name }, c.id))
             ]
           }
@@ -57139,18 +57192,18 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
       {
         onClick: onOpenSettings,
         className: "btn-secondary transition shadow-sm flex items-center gap-2 text-sm font-medium w-full md:w-auto mt-2 md:mt-0 justify-center",
-        title: t2("dashboard.dashboardSettings"),
+        title: t("dashboard.dashboardSettings"),
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { size: 16 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "md:hidden", children: t2("dashboard.dashboardSettings") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "md:hidden", children: t("dashboard.dashboardSettings") })
         ]
       }
     ),
     showCustomRange && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card shadow-xl p-6 w-96 relative", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-primary)" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-semibold mb-4 text-center", style: { color: "var(--color-text-primary)" }, children: t2("dashboard.selectRangeTitle") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-semibold mb-4 text-center", style: { color: "var(--color-text-primary)" }, children: t("dashboard.selectRangeTitle") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs text-gray-500 mb-1", children: t2("dashboard.from") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs text-gray-500 mb-1", children: t("dashboard.from") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             DatePicker,
             {
@@ -57163,7 +57216,7 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs text-gray-500 mb-1", children: t2("dashboard.to") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs text-gray-500 mb-1", children: t("dashboard.to") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             DatePicker,
             {
@@ -57177,14 +57230,14 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6 flex justify-end gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowCustomRange(false), className: "px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded text-gray-800", children: t2("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleCustomApply, className: "px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700", children: t2("common.apply") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowCustomRange(false), className: "px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded text-gray-800", children: t("common.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleCustomApply, className: "px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700", children: t("common.apply") })
       ] })
     ] }) })
   ] });
 };
 const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const [localPrefs, setLocalPrefs] = reactExports.useState(() => ({
     visible_metrics: preferences?.visible_metrics || ["clicks", "unique_clicks", "conversions", "revenue", "cost", "profit", "roi", "real_revenue", "real_roi", "ctr", "cpc", "cpa"],
     visible_blocks: preferences?.visible_blocks || ["campaigns", "offers", "landings", "sources"],
@@ -57220,33 +57273,33 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
     onClose();
   };
   const metricsList = [
-    { id: "clicks", label: t2("metrics.clicks") },
-    { id: "unique_clicks", label: t2("metrics.uniqueClicks") },
-    { id: "conversions", label: t2("metrics.conversions") },
-    { id: "revenue", label: t2("metrics.revenue") },
-    { id: "cost", label: t2("metrics.cost") },
-    { id: "profit", label: t2("metrics.profit") },
-    { id: "roi", label: t2("metrics.roi") },
-    { id: "real_revenue", label: t2("metrics.realRevenue") || "Real Rev" },
-    { id: "real_roi", label: t2("metrics.realRoi") || "Real ROI" },
-    { id: "ctr", label: t2("metrics.ctr") || "CTR" },
-    { id: "cpc", label: t2("metrics.cpc") },
-    { id: "cpa", label: t2("metrics.cpa") }
+    { id: "clicks", label: t("metrics.clicks") },
+    { id: "unique_clicks", label: t("metrics.uniqueClicks") },
+    { id: "conversions", label: t("metrics.conversions") },
+    { id: "revenue", label: t("metrics.revenue") },
+    { id: "cost", label: t("metrics.cost") },
+    { id: "profit", label: t("metrics.profit") },
+    { id: "roi", label: t("metrics.roi") },
+    { id: "real_revenue", label: t("metrics.realRevenue") || "Real Rev" },
+    { id: "real_roi", label: t("metrics.realRoi") || "Real ROI" },
+    { id: "ctr", label: t("metrics.ctr") || "CTR" },
+    { id: "cpc", label: t("metrics.cpc") },
+    { id: "cpa", label: t("metrics.cpa") }
   ];
   const blocksList = [
-    { id: "campaigns", label: t2("nav.campaigns") },
-    { id: "offers", label: t2("nav.offers") },
-    { id: "landings", label: t2("nav.landings") },
-    { id: "sources", label: t2("nav.sources") }
+    { id: "campaigns", label: t("nav.campaigns") },
+    { id: "offers", label: t("nav.offers") },
+    { id: "landings", label: t("nav.landings") },
+    { id: "sources", label: t("nav.sources") }
   ];
   const columnsList = [
-    { id: "created_at", label: t2("dashboard.colDate") },
-    { id: "campaign_name", label: t2("dashboard.colCampaign") },
-    { id: "country_code", label: t2("dashboard.colGeo") },
-    { id: "device_type", label: t2("dashboard.colOs") },
-    { id: "ip", label: t2("dashboard.colIp") },
-    { id: "user_agent", label: t2("dashboard.colUa") },
-    { id: "redirect_url", label: t2("dashboard.colUrl") }
+    { id: "created_at", label: t("dashboard.colDate") },
+    { id: "campaign_name", label: t("dashboard.colCampaign") },
+    { id: "country_code", label: t("dashboard.colGeo") },
+    { id: "device_type", label: t("dashboard.colOs") },
+    { id: "ip", label: t("dashboard.colIp") },
+    { id: "user_agent", label: t("dashboard.colUa") },
+    { id: "redirect_url", label: t("dashboard.colUrl") }
   ];
   const CheckboxItem = ({ checked, onChange, label }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { onClick: (e) => {
     e.preventDefault();
@@ -57257,12 +57310,12 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
   ] });
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center p-5 border-b border-gray-100", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-bold text-gray-800", children: t2("dashboard.dashboardSettings") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-bold text-gray-800", children: t("dashboard.dashboardSettings") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "text-gray-400 hover:text-gray-600 p-1 rounded transition", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 24 }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "overflow-y-auto p-6 space-y-8 flex-1", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100", children: t2("dashboard.metricsCards") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100", children: t("dashboard.metricsCards") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 sm:grid-cols-3 gap-2", children: metricsList.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           CheckboxItem,
           {
@@ -57274,7 +57327,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
         )) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100", children: t2("dashboard.dataBlocks") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100", children: t("dashboard.dataBlocks") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: blocksList.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           CheckboxItem,
           {
@@ -57286,7 +57339,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
         )) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100", children: t2("dashboard.recentClicksColumns") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100", children: t("dashboard.recentClicksColumns") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: columnsList.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           CheckboxItem,
           {
@@ -57299,14 +57352,14 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-5 border-t border-gray-100 bg-gray-50 flex justify-end gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "px-5 py-2 text-gray-700 bg-white border border-gray-300 rounded font-medium hover:bg-gray-50 transition", children: t2("common.cancel") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, className: "px-5 py-2 text-white bg-blue-600 rounded font-medium hover:bg-blue-700 transition shadow-sm", children: t2("dashboard.saveSettings") })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "px-5 py-2 text-gray-700 bg-white border border-gray-300 rounded font-medium hover:bg-gray-50 transition", children: t("common.cancel") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, className: "px-5 py-2 text-white bg-blue-600 rounded font-medium hover:bg-blue-700 transition shadow-sm", children: t("dashboard.saveSettings") })
     ] })
   ] }) });
 };
 const API_URL = "/api.php";
 function App() {
-  const { t: t2 } = useLanguage();
+  const { t } = useLanguage();
   const ACTIVE_TAB_STORAGE_KEY = "orbitra_active_tab";
   const normalizeActiveTab = (tab) => {
     if (!tab || typeof tab !== "string") return "dashboard";
@@ -57582,20 +57635,20 @@ function App() {
     /* @__PURE__ */ jsxRuntimeExports.jsx("main", { className: "pt-32 px-4 md:px-6 w-full mx-auto", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center h-64", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl font-bold", style: { color: "var(--color-text-primary)" }, children: [
-          activeTab === "dashboard" && t2("app.dashboard"),
-          activeTab === "domains" && t2("app.domains"),
-          activeTab === "backorder" && t2("app.backorder"),
-          activeTab === "campaigns" && t2("app.campaigns"),
-          activeTab === "offers" && t2("app.offers"),
-          activeTab === "sources" && t2("app.sources"),
-          activeTab === "networks" && t2("app.networks"),
-          activeTab === "conversions" && t2("app.conversions"),
-          activeTab === "postback" && t2("app.postback"),
-          activeTab === "landings" && t2("app.landings"),
-          activeTab === "simulation" && t2("app.simulation")
+          activeTab === "dashboard" && t("app.dashboard"),
+          activeTab === "domains" && t("app.domains"),
+          activeTab === "backorder" && t("app.backorder"),
+          activeTab === "campaigns" && t("app.campaigns"),
+          activeTab === "offers" && t("app.offers"),
+          activeTab === "sources" && t("app.sources"),
+          activeTab === "networks" && t("app.networks"),
+          activeTab === "conversions" && t("app.conversions"),
+          activeTab === "postback" && t("app.postback"),
+          activeTab === "landings" && t("app.landings"),
+          activeTab === "simulation" && t("app.simulation")
         ] }),
         activeTab === "dashboard" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm hidden md:block", style: { color: "var(--color-text-secondary)" }, children: [
-          t2("app.updated"),
+          t("app.updated"),
           " ",
           serverTime ? serverTime : (/* @__PURE__ */ new Date()).toLocaleTimeString()
         ] })
@@ -57604,8 +57657,8 @@ function App() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 cursor-pointer", onClick: () => setActiveTab("admin_update"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "w-6 h-6 text-amber-600" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-amber-800", children: t2("app.updateAvailable") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-amber-700 ml-2", children: t2("app.updateDesc").replace("{version}", updateAvailable.latest_version) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-amber-800", children: t("app.updateAvailable") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-amber-700 ml-2", children: t("app.updateDesc").replace("{version}", updateAvailable.latest_version) })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(

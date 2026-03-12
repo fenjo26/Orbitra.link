@@ -44,8 +44,8 @@ class ChartErrorBoundary extends Component {
             return (
                 <div className="flex flex-col items-center justify-center h-full text-red-500">
                     <AlertCircle size={32} className="mb-2" />
-                    <p className="font-semibold">{t('mainChart.chartError')}</p>
-                    <p className="text-sm text-gray-500 mt-1">{t('mainChart.invalidData')}</p>
+                    <p className="font-semibold">{this.props.t?.('mainChart.chartError') || 'Chart error'}</p>
+                    <p className="text-sm text-gray-500 mt-1">{this.props.t?.('mainChart.invalidData') || 'Invalid chart data'}</p>
                 </div>
             );
         }
@@ -68,6 +68,33 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
         });
     };
 
+    const niceCeil = (value) => {
+        const v = Number(value);
+        if (!Number.isFinite(v) || v <= 0) return 0;
+        const exp = Math.floor(Math.log10(v));
+        const base = Math.pow(10, exp);
+        const frac = v / base;
+        let niceFrac = 10;
+        if (frac <= 1) niceFrac = 1;
+        else if (frac <= 2) niceFrac = 2;
+        else if (frac <= 5) niceFrac = 5;
+        return niceFrac * base;
+    };
+
+    const currencyMetrics = new Set(['cost', 'revenue', 'real_revenue', 'profit']);
+
+    const defaultDatasets = isValidData && chartData.datasets ? chartData.datasets : [];
+    const activeRawDatasets = defaultDatasets.filter(ds => activeMetrics.includes(ds.label));
+
+    const currencyMax = activeRawDatasets
+        .filter(ds => currencyMetrics.has(ds.label))
+        .reduce((acc, ds) => {
+            const max = Array.isArray(ds.data) ? Math.max(0, ...ds.data.map(v => Number(v) || 0)) : 0;
+            return Math.max(acc, max);
+        }, 0);
+
+    const hasCurrencySeries = currencyMax > 0 || activeRawDatasets.some(ds => currencyMetrics.has(ds.label));
+
     // Resolve CSS variables dynamically for Canvas 2D context
     const getCssVar = (name, fallback) => {
         if (typeof window !== 'undefined') {
@@ -75,6 +102,16 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
             if (val) return val;
         }
         return fallback;
+    };
+
+    const formatNumber = (v, maxFractionDigits = 2) => {
+        const num = Number(v);
+        if (!Number.isFinite(num)) return String(v);
+        try {
+            return new Intl.NumberFormat(undefined, { maximumFractionDigits: maxFractionDigits }).format(num);
+        } catch (e) {
+            return String(num);
+        }
     };
 
     const options = {
@@ -111,7 +148,12 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
                             label += ': ';
                         }
                         if (context.parsed.y !== null) {
-                            label += context.parsed.y + '%';
+                            const originalLabel = context.dataset.originalLabel || context.dataset.label;
+                            if (currencyMetrics.has(originalLabel)) {
+                                label += `${formatNumber(context.parsed.y, 2)} $`;
+                            } else {
+                                label += context.parsed.y + '%';
+                            }
                         }
                         return label;
                     }
@@ -133,6 +175,26 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
                 },
                 border: { dash: [4, 4], color: getCssVar('--color-border', '#1E293B') },
                 title: { display: true, text: t('dashboard.scale'), color: getCssVar('--color-text-muted', '#6B7280'), font: { size: 10, family: 'Plus Jakarta Sans' }, padding: { bottom: 10 } }
+            },
+            y1: {
+                type: 'linear',
+                display: hasCurrencySeries,
+                position: 'right',
+                beginAtZero: true,
+                suggestedMax: niceCeil(currencyMax * 1.05),
+                grid: {
+                    drawOnChartArea: false,
+                    color: getCssVar('--color-border', '#1E293B'),
+                },
+                ticks: {
+                    precision: 0,
+                    color: getCssVar('--color-text-muted', '#6B7280'),
+                    callback: function (value) {
+                        return formatNumber(value, 0);
+                    }
+                },
+                border: { dash: [4, 4], color: getCssVar('--color-border', '#1E293B') },
+                title: { display: true, text: 'USD', color: getCssVar('--color-text-muted', '#6B7280'), font: { size: 10, family: 'Plus Jakarta Sans' }, padding: { bottom: 10 } }
             },
             x: {
                 grid: {
@@ -158,8 +220,6 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
         'ctr': getCssVar('--color-ctr', '#EC4899'),
     };
 
-    const defaultDatasets = isValidData && chartData.datasets ? chartData.datasets : [];
-
     // Filter by active metrics and apply the same percentage transformation and colors
     const activeDatasets = defaultDatasets
         .filter(ds => activeMetrics.includes(ds.label))
@@ -182,7 +242,7 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
             return {
                 label: translatedLabel,
                 originalLabel: ds.label, // keep for reference
-                data: transformToPercentage(ds.data),
+                data: currencyMetrics.has(ds.label) ? (ds.data || []) : transformToPercentage(ds.data),
                 borderColor: color,
                 backgroundColor: (context) => {
                     const ctx = context.chart.ctx;
@@ -211,7 +271,7 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
                     return gradient;
                 },
                 fill: true,
-                yAxisID: 'y',
+                yAxisID: currencyMetrics.has(ds.label) ? 'y1' : 'y',
                 tension: 0.4,
                 borderWidth: 2.5,
                 pointRadius: 0,
@@ -241,7 +301,7 @@ const MainChart = ({ chartData, activeMetrics = [] }) => {
                         <p>{t('dashboard.noStatsData')}</p>
                     </div>
                 ) : (
-                    <ChartErrorBoundary>
+                    <ChartErrorBoundary t={t}>
                         <Line options={options} data={data} />
                     </ChartErrorBoundary>
                 )}
