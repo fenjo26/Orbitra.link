@@ -327,6 +327,91 @@ function orbitraKeitaroParseList($value): array
     return [$s];
 }
 
+function orbitraKeitaroExtractWeight(array $row): ?int
+{
+    // Keitaro association tables may use different column names for weights.
+    // Important: 0 is a valid weight (Keitaro can show 0%).
+    foreach (['share', 'weight', 'percentage', 'percent'] as $k) {
+        if (!array_key_exists($k, $row)) continue;
+        $v = $row[$k];
+        if ($v === null) return null;
+        if ($v === '') return null;
+        if (!is_numeric($v)) return null;
+        return (int) $v;
+    }
+    return null;
+}
+
+function orbitraKeitaroNormalizeWeights(array $items, string $weightKey = 'weight', int $targetSum = 100): array
+{
+    // Goal: keep weights stable when present, but avoid invalid sums (>100) when a dump lacks weights.
+    // Important: weight=0 is a valid value.
+    $specifiedIdx = [];
+    $unspecifiedIdx = [];
+    $sumSpecified = 0;
+
+    foreach ($items as $i => $it) {
+        $w = $it[$weightKey] ?? null;
+        if ($w === null) {
+            $unspecifiedIdx[] = $i;
+            continue;
+        }
+        $w = (int) $w;
+        if ($w < 0) $w = 0;
+        $items[$i][$weightKey] = $w;
+        $specifiedIdx[] = $i;
+        $sumSpecified += $w;
+    }
+
+    if ($sumSpecified > $targetSum && $sumSpecified > 0) {
+        // Scale down proportionally to fit into targetSum.
+        $newSum = 0;
+        foreach ($specifiedIdx as $i) {
+            $w = (int) ($items[$i][$weightKey] ?? 0);
+            $nw = (int) floor($w * $targetSum / $sumSpecified);
+            if ($nw < 0) $nw = 0;
+            $items[$i][$weightKey] = $nw;
+            $newSum += $nw;
+        }
+        $left = $targetSum - $newSum;
+        if ($left > 0) {
+            // Add remaining points to the largest weights first (stable-ish).
+            usort($specifiedIdx, function ($a, $b) use ($items, $weightKey) {
+                $wa = (int) ($items[$a][$weightKey] ?? 0);
+                $wb = (int) ($items[$b][$weightKey] ?? 0);
+                return $wb <=> $wa;
+            });
+            $j = 0;
+            $n = count($specifiedIdx);
+            while ($left > 0 && $n > 0) {
+                $idx = $specifiedIdx[$j % $n];
+                $items[$idx][$weightKey] = (int) ($items[$idx][$weightKey] ?? 0) + 1;
+                $left--;
+                $j++;
+            }
+        }
+        // Anything unspecified becomes 0 in this case (no remaining budget).
+        foreach ($unspecifiedIdx as $i) {
+            $items[$i][$weightKey] = 0;
+        }
+        return $items;
+    }
+
+    // Distribute remaining budget to unspecified weights.
+    $remaining = $targetSum - $sumSpecified;
+    if ($remaining < 0) $remaining = 0;
+    $m = count($unspecifiedIdx);
+    if ($m > 0) {
+        $base = intdiv($remaining, $m);
+        $rem = $remaining - ($base * $m);
+        foreach ($unspecifiedIdx as $k => $i) {
+            $items[$i][$weightKey] = $base + ($k < $rem ? 1 : 0);
+        }
+    }
+
+    return $items;
+}
+
 function orbitraKeitaroMapFilterMode(string $v): string
 {
     $v = strtolower(trim($v));
@@ -1080,8 +1165,7 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                     $sid = (int) ($a['stream_id'] ?? ($a['streamId'] ?? 0));
                     $oid = (int) ($a['offer_id'] ?? ($a['offerId'] ?? 0));
                     if ($sid <= 0 || $oid <= 0) continue;
-                    $w = (int) ($a['share'] ?? ($a['weight'] ?? ($a['percentage'] ?? 100)));
-                    if ($w <= 0) $w = 100;
+                    $w = orbitraKeitaroExtractWeight($a);
                     $offersByStream[$sid][] = ['offer_id' => $oid, 'weight' => $w];
                 }
                 $landingsByStream = [];
@@ -1089,9 +1173,16 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                     $sid = (int) ($a['stream_id'] ?? ($a['streamId'] ?? 0));
                     $lid = (int) ($a['landing_id'] ?? ($a['landingId'] ?? 0));
                     if ($sid <= 0 || $lid <= 0) continue;
-                    $w = (int) ($a['share'] ?? ($a['weight'] ?? ($a['percentage'] ?? 100)));
-                    if ($w <= 0) $w = 100;
+                    $w = orbitraKeitaroExtractWeight($a);
                     $landingsByStream[$sid][] = ['landing_id' => $lid, 'weight' => $w];
+                }
+
+                // Normalize weights per stream to avoid invalid sums (e.g. when weights are missing in dump).
+                foreach ($offersByStream as $sid => $items) {
+                    $offersByStream[$sid] = orbitraKeitaroNormalizeWeights($items, 'weight', 100);
+                }
+                foreach ($landingsByStream as $sid => $items) {
+                    $landingsByStream[$sid] = orbitraKeitaroNormalizeWeights($items, 'weight', 100);
                 }
                 $filtersByStream = [];
                 foreach ($filtersRows as $f) {
@@ -1164,8 +1255,12 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                     if ($name === '') $name = 'Stream ' . ($kStreamId > 0 ? $kStreamId : '');
 
                     $position = (int) ($r['position'] ?? 0);
-                    $weight = (int) ($r['weight'] ?? 100);
-                    if ($weight <= 0) $weight = 100;
+                    $weightRaw = $r['weight'] ?? null;
+                    $weight = 100;
+                    if ($weightRaw !== null && $weightRaw !== '' && is_numeric($weightRaw)) {
+                        $weight = (int) $weightRaw;
+                    }
+                    if ($weight < 0) $weight = 0;
 
                     $state = strtolower(trim((string) ($r['state'] ?? ($r['status'] ?? 'active'))));
                     $isActive = ($state === '' || $state === 'active' || $state === 'enabled' || $state === 'on') ? 1 : 0;
