@@ -691,6 +691,7 @@ try {
                 LEFT JOIN campaign_groups cg ON c.group_id = cg.id
                 LEFT JOIN traffic_sources ts ON c.source_id = ts.id
                 LEFT JOIN clicks cl ON c.id = cl.campaign_id $joinCondition
+                WHERE c.is_archived = 0
                 GROUP BY c.id
                 $havingClause
                 ORDER BY clicks DESC, c.created_at DESC
@@ -851,6 +852,43 @@ try {
                 } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
                 }
+            }
+            break;
+
+        case 'bulk_delete_campaigns':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            $ids = $data['ids'] ?? [];
+            if (!is_array($ids)) {
+                echo json_encode(['status' => 'error', 'message' => 'ids must be an array']);
+                break;
+            }
+            $ids = array_values(array_unique(array_filter(array_map(function ($v) {
+                return (int) $v;
+            }, $ids), function ($v) {
+                return $v > 0;
+            })));
+            if (empty($ids)) {
+                echo json_encode(['status' => 'success', 'data' => ['updated' => 0]]);
+                break;
+            }
+            try {
+                $pdo->beginTransaction();
+                $placeholders = implode(',', array_fill(0, count($ids), '?'));
+                $stmt = $pdo->prepare("UPDATE campaigns SET is_archived = 1, archived_at = datetime('now') WHERE id IN ($placeholders)");
+                $stmt->execute($ids);
+                $updated = $stmt->rowCount();
+                $pdo->commit();
+                logAudit($pdo, 'DELETE', 'Campaigns (bulk)', null, ['ids' => $ids, 'updated' => $updated]);
+                echo json_encode(['status' => 'success', 'data' => ['updated' => $updated]]);
+            } catch (Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
             }
             break;
 

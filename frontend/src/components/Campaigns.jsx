@@ -9,6 +9,7 @@ const API_URL = '/api.php';
 const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId }) => {
     const { t } = useLanguage();
     const [actionModal, setActionModal] = useState({ type: null, campaignId: null });
+    const [selectedCampaignIds, setSelectedCampaignIds] = useState(() => new Set());
 
     const handleCreate = () => {
         setEditingCampaignId(null);
@@ -28,6 +29,44 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
             } catch (err) {
                 alert(t('common.deleteError'));
             }
+        }
+    };
+
+    const toggleSelected = (id, checked) => {
+        setSelectedCampaignIds(prev => {
+            const next = new Set(prev);
+            if (checked) next.add(id);
+            else next.delete(id);
+            return next;
+        });
+    };
+
+    const toggleSelectAll = (checked) => {
+        setSelectedCampaignIds(prev => {
+            const next = new Set(prev);
+            if (checked) {
+                campaigns.forEach(c => next.add(c.id));
+            } else {
+                campaigns.forEach(c => next.delete(c.id));
+            }
+            return next;
+        });
+    };
+
+    const allSelected = campaigns.length > 0 && campaigns.every(c => selectedCampaignIds.has(c.id));
+    const someSelected = campaigns.some(c => selectedCampaignIds.has(c.id));
+
+    const handleBulkDeleteSelected = async () => {
+        const ids = Array.from(selectedCampaignIds);
+        if (ids.length === 0) return;
+        const msg = (t('common.deleteSelectedConfirm') || t('campaigns.deleteConfirm')).replace('{count}', String(ids.length));
+        if (!window.confirm(msg)) return;
+        try {
+            await axios.post(`${API_URL}?action=bulk_delete_campaigns`, { ids });
+            setSelectedCampaignIds(new Set());
+            refreshData();
+        } catch (err) {
+            alert(t('common.deleteError'));
         }
     };
 
@@ -82,6 +121,12 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                     <button className="btn btn-secondary">
                         {t('campaigns.sources')}
                     </button>
+                    {selectedCampaignIds.size > 0 && (
+                        <button onClick={handleBulkDeleteSelected} className="btn btn-danger" title={t('common.deleteSelected')}>
+                            <Trash2 className="w-4 h-4" />
+                            {(t('common.deleteSelected') || t('common.delete'))} ({selectedCampaignIds.size})
+                        </button>
+                    )}
                 </div>
                 <button className="btn btn-ghost btn-icon">
                     <Settings2 className="w-5 h-5" />
@@ -93,7 +138,14 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                     <thead>
                         <tr>
                             <th className="w-10">
-                                <input type="checkbox" />
+                                <input
+                                    type="checkbox"
+                                    checked={allSelected}
+                                    ref={(el) => {
+                                        if (el) el.indeterminate = !allSelected && someSelected;
+                                    }}
+                                    onChange={(e) => toggleSelectAll(e.target.checked)}
+                                />
                             </th>
                             <th>ID</th>
                             <th>{t('campaigns.campaign')}</th>
@@ -118,7 +170,11 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                             campaigns.map((camp) => (
                                 <tr key={camp.id}>
                                     <td>
-                                        <input type="checkbox" />
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedCampaignIds.has(camp.id)}
+                                            onChange={(e) => toggleSelected(camp.id, e.target.checked)}
+                                        />
                                     </td>
                                     <td className="font-medium">
                                         <div className="flex flex-col">

@@ -33614,6 +33614,7 @@ const API_URL$z = "/api.php";
 const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId }) => {
   const { t: t2 } = useLanguage();
   const [actionModal, setActionModal] = reactExports.useState({ type: null, campaignId: null });
+  const [selectedCampaignIds, setSelectedCampaignIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
   const handleCreate = () => {
     setEditingCampaignId(null);
     setActiveTab("campaign_editor");
@@ -33630,6 +33631,40 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
       } catch (err) {
         alert(t2("common.deleteError"));
       }
+    }
+  };
+  const toggleSelected = (id, checked) => {
+    setSelectedCampaignIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
+  const toggleSelectAll = (checked) => {
+    setSelectedCampaignIds((prev) => {
+      const next = new Set(prev);
+      if (checked) {
+        campaigns.forEach((c) => next.add(c.id));
+      } else {
+        campaigns.forEach((c) => next.delete(c.id));
+      }
+      return next;
+    });
+  };
+  const allSelected = campaigns.length > 0 && campaigns.every((c) => selectedCampaignIds.has(c.id));
+  const someSelected = campaigns.some((c) => selectedCampaignIds.has(c.id));
+  const handleBulkDeleteSelected = async () => {
+    const ids = Array.from(selectedCampaignIds);
+    if (ids.length === 0) return;
+    const msg = (t2("common.deleteSelectedConfirm") || t2("campaigns.deleteConfirm")).replace("{count}", String(ids.length));
+    if (!window.confirm(msg)) return;
+    try {
+      await axios.post(`${API_URL$z}?action=bulk_delete_campaigns`, { ids });
+      setSelectedCampaignIds(/* @__PURE__ */ new Set());
+      refreshData();
+    } catch (err) {
+      alert(t2("common.deleteError"));
     }
   };
   const handleClearStats = async () => {
@@ -33673,13 +33708,30 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
           t2("common.create")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t2("campaigns.groups") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t2("campaigns.sources") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t2("campaigns.sources") }),
+        selectedCampaignIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t2("common.deleteSelected"), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
+          t2("common.deleteSelected") || t2("common.delete"),
+          " (",
+          selectedCampaignIds.size,
+          ")"
+        ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: allSelected,
+            ref: (el) => {
+              if (el) el.indeterminate = !allSelected && someSelected;
+            },
+            onChange: (e) => toggleSelectAll(e.target.checked)
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("campaigns.campaign") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("campaigns.group") }),
@@ -33692,7 +33744,14 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("campaigns.noCampaignsCreated") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t2("campaigns.createFirstCampaign") })
       ] }) }) }) : campaigns.map((camp) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: selectedCampaignIds.has(camp.id),
+            onChange: (e) => toggleSelected(camp.id, e.target.checked)
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: camp.id }),
           camp.keitaro_id ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)", fontSize: "12px" }, children: [
