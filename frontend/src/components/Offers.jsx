@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, Edit3, Settings2, RefreshCw, Filter, X } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Plus, Trash2, Edit3, Settings2, RefreshCw, Filter, X, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import OfferEditor from './OfferEditor';
 import GroupsModal from './GroupsModal';
@@ -18,6 +18,7 @@ const Offers = ({ offers, refreshData }) => {
     const [filterState, setFilterState] = useState('');
     const [showFilters, setShowFilters] = useState(false);
     const [selectedOfferIds, setSelectedOfferIds] = useState(() => new Set());
+    const [sortBy, setSortBy] = useState({ key: null, dir: 'desc' }); // key=null keeps API order
 
     // Get unique values for filters
     const groups = [...new Set(offers.map(o => o.group_name).filter(Boolean))];
@@ -29,6 +30,54 @@ const Offers = ({ offers, refreshData }) => {
         if (filterState && o.state !== filterState) return false;
         return true;
     });
+
+    const requestSort = (key, defaultDir = 'asc') => {
+        setSortBy(prev => {
+            if (prev.key === key) {
+                return { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' };
+            }
+            return { key, dir: defaultDir };
+        });
+    };
+
+    const visibleOffers = useMemo(() => {
+        if (!sortBy.key) return filteredOffers;
+        const dirMul = sortBy.dir === 'asc' ? 1 : -1;
+
+        const getVal = (o) => {
+            switch (sortBy.key) {
+                case 'id': return Number(o.id) || 0;
+                case 'name': return String(o.name || '');
+                case 'group_name': return String(o.group_name || '');
+                case 'affiliate_network_name': return String(o.affiliate_network_name || '');
+                case 'redirect_type': return String(o.redirect_type || '');
+                case 'state': return String(o.state || '');
+                case 'clicks': return Number(o.clicks) || 0;
+                case 'unique_clicks': return Number(o.unique_clicks) || 0;
+                case 'conversions': return Number(o.conversions) || 0;
+                case 'revenue': return Number(o.revenue) || 0;
+                default: return '';
+            }
+        };
+
+        const isNumeric = ['id', 'clicks', 'unique_clicks', 'conversions', 'revenue'].includes(sortBy.key);
+
+        return filteredOffers
+            .map((offer, idx) => ({ offer, idx }))
+            .sort((a, b) => {
+                const av = getVal(a.offer);
+                const bv = getVal(b.offer);
+                let cmp = 0;
+                if (isNumeric) {
+                    cmp = (Number(av) || 0) - (Number(bv) || 0);
+                } else {
+                    cmp = String(av).localeCompare(String(bv), undefined, { sensitivity: 'base' });
+                }
+                if (cmp !== 0) return cmp * dirMul;
+                return a.idx - b.idx; // stable
+            })
+            .map(x => x.offer);
+    }, [filteredOffers, sortBy]);
 
     const handleCreate = () => {
         setEditingOfferId(null);
@@ -64,16 +113,16 @@ const Offers = ({ offers, refreshData }) => {
         setSelectedOfferIds(prev => {
             const next = new Set(prev);
             if (checked) {
-                filteredOffers.forEach(o => next.add(o.id));
+                visibleOffers.forEach(o => next.add(o.id));
             } else {
-                filteredOffers.forEach(o => next.delete(o.id));
+                visibleOffers.forEach(o => next.delete(o.id));
             }
             return next;
         });
     };
 
-    const allFilteredSelected = filteredOffers.length > 0 && filteredOffers.every(o => selectedOfferIds.has(o.id));
-    const someFilteredSelected = filteredOffers.some(o => selectedOfferIds.has(o.id));
+    const allFilteredSelected = visibleOffers.length > 0 && visibleOffers.every(o => selectedOfferIds.has(o.id));
+    const someFilteredSelected = visibleOffers.some(o => selectedOfferIds.has(o.id));
 
     const handleBulkDeleteSelected = async () => {
         const ids = Array.from(selectedOfferIds);
@@ -112,6 +161,31 @@ const Offers = ({ offers, refreshData }) => {
         acc.revenue += parseFloat(o.revenue || 0);
         return acc;
     }, { clicks: 0, unique_clicks: 0, conversions: 0, revenue: 0 });
+
+    const SortIcon = ({ colKey }) => {
+        if (sortBy.key !== colKey) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-60" />;
+        return sortBy.dir === 'asc'
+            ? <ChevronUp className="w-3.5 h-3.5" />
+            : <ChevronDown className="w-3.5 h-3.5" />;
+    };
+
+    const SortableTh = ({ colKey, label, defaultDir = 'asc', alignRight = false }) => {
+        const isActive = sortBy.key === colKey;
+        return (
+            <th className={alignRight ? 'text-right' : ''} aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+                <button
+                    type="button"
+                    onClick={() => requestSort(colKey, defaultDir)}
+                    className={`inline-flex items-center gap-1 select-none ${alignRight ? 'justify-end w-full' : ''}`}
+                    style={{ color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }}
+                    title={t('common.sort', 'Sort')}
+                >
+                    <span>{label}</span>
+                    <SortIcon colKey={colKey} />
+                </button>
+            </th>
+        );
+    };
 
     return (
         <div className="page-card">
@@ -222,21 +296,21 @@ const Offers = ({ offers, refreshData }) => {
                                     onChange={(e) => toggleSelectAllFiltered(e.target.checked)}
                                 />
                             </th>
-                            <th>ID</th>
-                            <th>{t('editor.name')}</th>
-                            <th>{t('components.group')}</th>
-                            <th>{t('offers.network')}</th>
-                            <th>{t('components.type')}</th>
-                            <th>{t('components.status')}</th>
-                            <th className="text-right">{t('components.clicks')}</th>
-                            <th className="text-right">{t('components.uniques')}</th>
-                            <th className="text-right">{t('metrics.conversions')}</th>
-                            <th className="text-right">{t('metrics.revenue')}</th>
+                            <SortableTh colKey="id" label="ID" defaultDir="desc" />
+                            <SortableTh colKey="name" label={t('editor.name')} defaultDir="asc" />
+                            <SortableTh colKey="group_name" label={t('components.group')} defaultDir="asc" />
+                            <SortableTh colKey="affiliate_network_name" label={t('offers.network')} defaultDir="asc" />
+                            <SortableTh colKey="redirect_type" label={t('components.type')} defaultDir="asc" />
+                            <SortableTh colKey="state" label={t('components.status')} defaultDir="asc" />
+                            <SortableTh colKey="clicks" label={t('components.clicks')} defaultDir="desc" alignRight />
+                            <SortableTh colKey="unique_clicks" label={t('components.uniques')} defaultDir="desc" alignRight />
+                            <SortableTh colKey="conversions" label={t('metrics.conversions')} defaultDir="desc" alignRight />
+                            <SortableTh colKey="revenue" label={t('metrics.revenue')} defaultDir="desc" alignRight />
                             <th className="text-right">{t('common.actions')}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredOffers.length === 0 ? (
+                        {visibleOffers.length === 0 ? (
                             <tr>
                                 <td colSpan="12" className="text-center py-12">
                                     <div className="empty-state">
@@ -250,7 +324,7 @@ const Offers = ({ offers, refreshData }) => {
                                 </td>
                             </tr>
                         ) : (
-                            filteredOffers.map((offer) => (
+                            visibleOffers.map((offer) => (
                                 <tr key={offer.id}>
                                     <td>
                                         <input

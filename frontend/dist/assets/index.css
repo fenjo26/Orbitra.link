@@ -2425,6 +2425,10 @@
     opacity: .5;
   }
 
+  .opacity-60 {
+    opacity: .6;
+  }
+
   .opacity-70 {
     opacity: .7;
   }

@@ -20,6 +20,7 @@ export default {
         deleteConfirm: "Delete? This action cannot be undone.",
         deleteSelected: "Delete selected",
         deleteSelectedConfirm: "Delete selected ({count})? This action cannot be undone.",
+        sort: "Sort",
         refresh: "Refresh",
         all: "All",
         copy: "Copy",

@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1x = [
+const __iconNode$1y = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$1x = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1x);
-const __iconNode$1w = [
+const Activity = createLucideIcon("activity", __iconNode$1y);
+const __iconNode$1x = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1w);
-const __iconNode$1v = [
+const Archive = createLucideIcon("archive", __iconNode$1x);
+const __iconNode$1w = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1v);
-const __iconNode$1u = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1w);
+const __iconNode$1v = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1u);
-const __iconNode$1t = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1v);
+const __iconNode$1u = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1t);
-const __iconNode$1s = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1u);
+const __iconNode$1t = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$1s = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1s);
-const __iconNode$1r = [
+const BellOff = createLucideIcon("bell-off", __iconNode$1t);
+const __iconNode$1s = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$1r = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1r);
-const __iconNode$1q = [
+const Bell = createLucideIcon("bell", __iconNode$1s);
+const __iconNode$1r = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1q);
-const __iconNode$1p = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$1r);
+const __iconNode$1q = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1p);
-const __iconNode$1o = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1q);
+const __iconNode$1p = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1o);
-const __iconNode$1n = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1p);
+const __iconNode$1o = [
   [
     "path",
     {
@@ -15198,17 +15198,22 @@ const __iconNode$1n = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1n);
-const __iconNode$1m = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1m);
-const __iconNode$1l = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1l);
-const __iconNode$1k = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1k);
-const __iconNode$1j = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1j);
-const __iconNode$1i = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1i);
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1o);
+const __iconNode$1n = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1n);
+const __iconNode$1m = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1m);
+const __iconNode$1l = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1l);
+const __iconNode$1k = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1k);
+const __iconNode$1j = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1j);
+const __iconNode$1i = [
+  ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
+  ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
+];
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1i);
 const __iconNode$1h = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
@@ -15915,6 +15920,7 @@ const ru = {
     deleteConfirm: "Удалить? Отменить действие невозможно.",
     deleteSelected: "Удалить выбранные",
     deleteSelectedConfirm: "Удалить выбранные ({count})? Отменить действие невозможно.",
+    sort: "Сортировать",
     refresh: "Обновить",
     all: "Все",
     copy: "Копировать",
@@ -17610,6 +17616,7 @@ const en = {
     deleteConfirm: "Delete? This action cannot be undone.",
     deleteSelected: "Delete selected",
     deleteSelectedConfirm: "Delete selected ({count})? This action cannot be undone.",
+    sort: "Sort",
     refresh: "Refresh",
     all: "All",
     copy: "Copy",
@@ -33615,6 +33622,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   const { t: t2 } = useLanguage();
   const [actionModal, setActionModal] = reactExports.useState({ type: null, campaignId: null });
   const [selectedCampaignIds, setSelectedCampaignIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
+  const [sortBy, setSortBy] = reactExports.useState({ key: null, dir: "desc" });
   const handleCreate = () => {
     setEditingCampaignId(null);
     setActiveTab("campaign_editor");
@@ -33633,6 +33641,49 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
       }
     }
   };
+  const requestSort = (key, defaultDir = "asc") => {
+    setSortBy((prev) => {
+      if (prev.key === key) {
+        return { key, dir: prev.dir === "asc" ? "desc" : "asc" };
+      }
+      return { key, dir: defaultDir };
+    });
+  };
+  const visibleCampaigns = reactExports.useMemo(() => {
+    if (!sortBy.key) return campaigns;
+    const dirMul = sortBy.dir === "asc" ? 1 : -1;
+    const getVal = (c) => {
+      switch (sortBy.key) {
+        case "id":
+          return Number(c.id) || 0;
+        case "name":
+          return String(c.name || "");
+        case "group_name":
+          return String(c.group_name || "");
+        case "clicks":
+          return Number(c.clicks) || 0;
+        case "unique_clicks":
+          return Number(c.unique_clicks) || 0;
+        case "conversions":
+          return Number(c.conversions) || 0;
+        default:
+          return "";
+      }
+    };
+    const isNumeric = ["id", "clicks", "unique_clicks", "conversions"].includes(sortBy.key);
+    return campaigns.map((camp, idx) => ({ camp, idx })).sort((a, b) => {
+      const av = getVal(a.camp);
+      const bv = getVal(b.camp);
+      let cmp = 0;
+      if (isNumeric) {
+        cmp = (Number(av) || 0) - (Number(bv) || 0);
+      } else {
+        cmp = String(av).localeCompare(String(bv), void 0, { sensitivity: "base" });
+      }
+      if (cmp !== 0) return cmp * dirMul;
+      return a.idx - b.idx;
+    }).map((x) => x.camp);
+  }, [campaigns, sortBy]);
   const toggleSelected = (id, checked) => {
     setSelectedCampaignIds((prev) => {
       const next = new Set(prev);
@@ -33645,15 +33696,15 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     setSelectedCampaignIds((prev) => {
       const next = new Set(prev);
       if (checked) {
-        campaigns.forEach((c) => next.add(c.id));
+        visibleCampaigns.forEach((c) => next.add(c.id));
       } else {
-        campaigns.forEach((c) => next.delete(c.id));
+        visibleCampaigns.forEach((c) => next.delete(c.id));
       }
       return next;
     });
   };
-  const allSelected = campaigns.length > 0 && campaigns.every((c) => selectedCampaignIds.has(c.id));
-  const someSelected = campaigns.some((c) => selectedCampaignIds.has(c.id));
+  const allSelected = visibleCampaigns.length > 0 && visibleCampaigns.every((c) => selectedCampaignIds.has(c.id));
+  const someSelected = visibleCampaigns.some((c) => selectedCampaignIds.has(c.id));
   const handleBulkDeleteSelected = async () => {
     const ids = Array.from(selectedCampaignIds);
     if (ids.length === 0) return;
@@ -33666,6 +33717,27 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     } catch (err) {
       alert(t2("common.deleteError"));
     }
+  };
+  const SortIcon = ({ colKey }) => {
+    if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-60" });
+    return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5" });
+  };
+  const SortableTh = ({ colKey, label, defaultDir = "asc", alignRight = false }) => {
+    const isActive = sortBy.key === colKey;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: alignRight ? "text-right" : "", "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: () => requestSort(colKey, defaultDir),
+        className: `inline-flex items-center gap-1 select-none ${alignRight ? "justify-end w-full" : ""}`,
+        style: { color: isActive ? "var(--color-text-primary)" : "var(--color-text-secondary)" },
+        title: t2("common.sort", "Sort"),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey })
+        ]
+      }
+    ) });
   };
   const handleClearStats = async () => {
     try {
@@ -33732,18 +33804,18 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
             onChange: (e) => toggleSelectAll(e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("campaigns.campaign") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("campaigns.group") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("metrics.clicks") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("campaigns.unique") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("metrics.conversions") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "id", label: "ID", defaultDir: "desc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "name", label: t2("campaigns.campaign"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "group_name", label: t2("campaigns.group"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "clicks", label: t2("metrics.clicks"), defaultDir: "desc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "unique_clicks", label: t2("campaigns.unique"), defaultDir: "desc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "conversions", label: t2("metrics.conversions"), defaultDir: "desc" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: campaigns.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "8", className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleCampaigns.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "8", className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t2("campaigns.noCampaignsCreated") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t2("campaigns.createFirstCampaign") })
-      ] }) }) }) : campaigns.map((camp) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+      ] }) }) }) : visibleCampaigns.map((camp) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
@@ -35378,6 +35450,7 @@ const Offers = ({ offers, refreshData }) => {
   const [filterState, setFilterState] = reactExports.useState("");
   const [showFilters, setShowFilters] = reactExports.useState(false);
   const [selectedOfferIds, setSelectedOfferIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
+  const [sortBy, setSortBy] = reactExports.useState({ key: null, dir: "desc" });
   const groups = [...new Set(offers.map((o) => o.group_name).filter(Boolean))];
   const networks = [...new Set(offers.map((o) => o.affiliate_network_name).filter(Boolean))];
   const filteredOffers = offers.filter((o) => {
@@ -35386,6 +35459,57 @@ const Offers = ({ offers, refreshData }) => {
     if (filterState && o.state !== filterState) return false;
     return true;
   });
+  const requestSort = (key, defaultDir = "asc") => {
+    setSortBy((prev) => {
+      if (prev.key === key) {
+        return { key, dir: prev.dir === "asc" ? "desc" : "asc" };
+      }
+      return { key, dir: defaultDir };
+    });
+  };
+  const visibleOffers = reactExports.useMemo(() => {
+    if (!sortBy.key) return filteredOffers;
+    const dirMul = sortBy.dir === "asc" ? 1 : -1;
+    const getVal = (o) => {
+      switch (sortBy.key) {
+        case "id":
+          return Number(o.id) || 0;
+        case "name":
+          return String(o.name || "");
+        case "group_name":
+          return String(o.group_name || "");
+        case "affiliate_network_name":
+          return String(o.affiliate_network_name || "");
+        case "redirect_type":
+          return String(o.redirect_type || "");
+        case "state":
+          return String(o.state || "");
+        case "clicks":
+          return Number(o.clicks) || 0;
+        case "unique_clicks":
+          return Number(o.unique_clicks) || 0;
+        case "conversions":
+          return Number(o.conversions) || 0;
+        case "revenue":
+          return Number(o.revenue) || 0;
+        default:
+          return "";
+      }
+    };
+    const isNumeric = ["id", "clicks", "unique_clicks", "conversions", "revenue"].includes(sortBy.key);
+    return filteredOffers.map((offer, idx) => ({ offer, idx })).sort((a, b) => {
+      const av = getVal(a.offer);
+      const bv = getVal(b.offer);
+      let cmp = 0;
+      if (isNumeric) {
+        cmp = (Number(av) || 0) - (Number(bv) || 0);
+      } else {
+        cmp = String(av).localeCompare(String(bv), void 0, { sensitivity: "base" });
+      }
+      if (cmp !== 0) return cmp * dirMul;
+      return a.idx - b.idx;
+    }).map((x) => x.offer);
+  }, [filteredOffers, sortBy]);
   const handleCreate = () => {
     setEditingOfferId(null);
     setIsEditorOpen(true);
@@ -35416,15 +35540,15 @@ const Offers = ({ offers, refreshData }) => {
     setSelectedOfferIds((prev) => {
       const next = new Set(prev);
       if (checked) {
-        filteredOffers.forEach((o) => next.add(o.id));
+        visibleOffers.forEach((o) => next.add(o.id));
       } else {
-        filteredOffers.forEach((o) => next.delete(o.id));
+        visibleOffers.forEach((o) => next.delete(o.id));
       }
       return next;
     });
   };
-  const allFilteredSelected = filteredOffers.length > 0 && filteredOffers.every((o) => selectedOfferIds.has(o.id));
-  const someFilteredSelected = filteredOffers.some((o) => selectedOfferIds.has(o.id));
+  const allFilteredSelected = visibleOffers.length > 0 && visibleOffers.every((o) => selectedOfferIds.has(o.id));
+  const someFilteredSelected = visibleOffers.some((o) => selectedOfferIds.has(o.id));
   const handleBulkDeleteSelected = async () => {
     const ids = Array.from(selectedOfferIds);
     if (ids.length === 0) return;
@@ -35457,6 +35581,27 @@ const Offers = ({ offers, refreshData }) => {
     acc.revenue += parseFloat(o.revenue || 0);
     return acc;
   }, { clicks: 0, unique_clicks: 0, conversions: 0, revenue: 0 });
+  const SortIcon = ({ colKey }) => {
+    if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-60" });
+    return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5" });
+  };
+  const SortableTh = ({ colKey, label, defaultDir = "asc", alignRight = false }) => {
+    const isActive = sortBy.key === colKey;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: alignRight ? "text-right" : "", "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: () => requestSort(colKey, defaultDir),
+        className: `inline-flex items-center gap-1 select-none ${alignRight ? "justify-end w-full" : ""}`,
+        style: { color: isActive ? "var(--color-text-primary)" : "var(--color-text-secondary)" },
+        title: t2("common.sort", "Sort"),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey })
+        ]
+      }
+    ) });
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_offers", title: t2("help.offerBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("help.offerBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", children: [
@@ -35569,22 +35714,22 @@ const Offers = ({ offers, refreshData }) => {
             onChange: (e) => toggleSelectAllFiltered(e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("editor.name") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.group") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("offers.network") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.type") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t2("components.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("components.clicks") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("components.uniques") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("metrics.conversions") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("metrics.revenue") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "id", label: "ID", defaultDir: "desc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "name", label: t2("editor.name"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "group_name", label: t2("components.group"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "affiliate_network_name", label: t2("offers.network"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "redirect_type", label: t2("components.type"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "state", label: t2("components.status"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "clicks", label: t2("components.clicks"), defaultDir: "desc", alignRight: true }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "unique_clicks", label: t2("components.uniques"), defaultDir: "desc", alignRight: true }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "conversions", label: t2("metrics.conversions"), defaultDir: "desc", alignRight: true }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "revenue", label: t2("metrics.revenue"), defaultDir: "desc", alignRight: true }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t2("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: filteredOffers.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "12", className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleOffers.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "12", className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: offers.length === 0 ? t2("offers.noOffers") : t2("offers.noOffersFiltered") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: offers.length === 0 ? t2("offers.noOffersDesc") : t2("offers.changeFilters") })
-      ] }) }) }) : filteredOffers.map((offer) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+      ] }) }) }) : visibleOffers.map((offer) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {

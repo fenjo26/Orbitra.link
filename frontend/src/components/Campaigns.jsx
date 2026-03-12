@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -10,6 +10,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     const { t } = useLanguage();
     const [actionModal, setActionModal] = useState({ type: null, campaignId: null });
     const [selectedCampaignIds, setSelectedCampaignIds] = useState(() => new Set());
+    const [sortBy, setSortBy] = useState({ key: null, dir: 'desc' }); // key=null keeps API order
 
     const handleCreate = () => {
         setEditingCampaignId(null);
@@ -32,6 +33,50 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         }
     };
 
+    const requestSort = (key, defaultDir = 'asc') => {
+        setSortBy(prev => {
+            if (prev.key === key) {
+                return { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' };
+            }
+            return { key, dir: defaultDir };
+        });
+    };
+
+    const visibleCampaigns = useMemo(() => {
+        if (!sortBy.key) return campaigns;
+        const dirMul = sortBy.dir === 'asc' ? 1 : -1;
+
+        const getVal = (c) => {
+            switch (sortBy.key) {
+                case 'id': return Number(c.id) || 0;
+                case 'name': return String(c.name || '');
+                case 'group_name': return String(c.group_name || '');
+                case 'clicks': return Number(c.clicks) || 0;
+                case 'unique_clicks': return Number(c.unique_clicks) || 0;
+                case 'conversions': return Number(c.conversions) || 0;
+                default: return '';
+            }
+        };
+
+        const isNumeric = ['id', 'clicks', 'unique_clicks', 'conversions'].includes(sortBy.key);
+
+        return campaigns
+            .map((camp, idx) => ({ camp, idx }))
+            .sort((a, b) => {
+                const av = getVal(a.camp);
+                const bv = getVal(b.camp);
+                let cmp = 0;
+                if (isNumeric) {
+                    cmp = (Number(av) || 0) - (Number(bv) || 0);
+                } else {
+                    cmp = String(av).localeCompare(String(bv), undefined, { sensitivity: 'base' });
+                }
+                if (cmp !== 0) return cmp * dirMul;
+                return a.idx - b.idx; // stable
+            })
+            .map(x => x.camp);
+    }, [campaigns, sortBy]);
+
     const toggleSelected = (id, checked) => {
         setSelectedCampaignIds(prev => {
             const next = new Set(prev);
@@ -45,16 +90,16 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         setSelectedCampaignIds(prev => {
             const next = new Set(prev);
             if (checked) {
-                campaigns.forEach(c => next.add(c.id));
+                visibleCampaigns.forEach(c => next.add(c.id));
             } else {
-                campaigns.forEach(c => next.delete(c.id));
+                visibleCampaigns.forEach(c => next.delete(c.id));
             }
             return next;
         });
     };
 
-    const allSelected = campaigns.length > 0 && campaigns.every(c => selectedCampaignIds.has(c.id));
-    const someSelected = campaigns.some(c => selectedCampaignIds.has(c.id));
+    const allSelected = visibleCampaigns.length > 0 && visibleCampaigns.every(c => selectedCampaignIds.has(c.id));
+    const someSelected = visibleCampaigns.some(c => selectedCampaignIds.has(c.id));
 
     const handleBulkDeleteSelected = async () => {
         const ids = Array.from(selectedCampaignIds);
@@ -68,6 +113,31 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         } catch (err) {
             alert(t('common.deleteError'));
         }
+    };
+
+    const SortIcon = ({ colKey }) => {
+        if (sortBy.key !== colKey) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-60" />;
+        return sortBy.dir === 'asc'
+            ? <ChevronUp className="w-3.5 h-3.5" />
+            : <ChevronDown className="w-3.5 h-3.5" />;
+    };
+
+    const SortableTh = ({ colKey, label, defaultDir = 'asc', alignRight = false }) => {
+        const isActive = sortBy.key === colKey;
+        return (
+            <th className={alignRight ? 'text-right' : ''} aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+                <button
+                    type="button"
+                    onClick={() => requestSort(colKey, defaultDir)}
+                    className={`inline-flex items-center gap-1 select-none ${alignRight ? 'justify-end w-full' : ''}`}
+                    style={{ color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }}
+                    title={t('common.sort', 'Sort')}
+                >
+                    <span>{label}</span>
+                    <SortIcon colKey={colKey} />
+                </button>
+            </th>
+        );
     };
 
     const handleClearStats = async () => {
@@ -147,17 +217,17 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                                     onChange={(e) => toggleSelectAll(e.target.checked)}
                                 />
                             </th>
-                            <th>ID</th>
-                            <th>{t('campaigns.campaign')}</th>
-                            <th>{t('campaigns.group')}</th>
-                            <th>{t('metrics.clicks')}</th>
-                            <th>{t('campaigns.unique')}</th>
-                            <th>{t('metrics.conversions')}</th>
+                            <SortableTh colKey="id" label="ID" defaultDir="desc" />
+                            <SortableTh colKey="name" label={t('campaigns.campaign')} defaultDir="asc" />
+                            <SortableTh colKey="group_name" label={t('campaigns.group')} defaultDir="asc" />
+                            <SortableTh colKey="clicks" label={t('metrics.clicks')} defaultDir="desc" />
+                            <SortableTh colKey="unique_clicks" label={t('campaigns.unique')} defaultDir="desc" />
+                            <SortableTh colKey="conversions" label={t('metrics.conversions')} defaultDir="desc" />
                             <th className="text-right">{t('common.actions')}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {campaigns.length === 0 ? (
+                        {visibleCampaigns.length === 0 ? (
                             <tr>
                                 <td colSpan="8" className="text-center py-12">
                                     <div className="empty-state">
@@ -167,7 +237,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                                 </td>
                             </tr>
                         ) : (
-                            campaigns.map((camp) => (
+                            visibleCampaigns.map((camp) => (
                                 <tr key={camp.id}>
                                     <td>
                                         <input

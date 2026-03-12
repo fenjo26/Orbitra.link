@@ -20,6 +20,7 @@ export default {
         deleteConfirm: "Удалить? Отменить действие невозможно.",
         deleteSelected: "Удалить выбранные",
         deleteSelectedConfirm: "Удалить выбранные ({count})? Отменить действие невозможно.",
+        sort: "Сортировать",
         refresh: "Обновить",
         all: "Все",
         copy: "Копировать",
