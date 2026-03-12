@@ -18,6 +18,7 @@ const TrafficSources = ({ refreshData }) => {
     const [selectedIds, setSelectedIds] = useState(() => new Set());
     const [showFilters, setShowFilters] = useState(true);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     const fetchSources = async () => {
         setLoading(true);
@@ -30,6 +31,17 @@ const TrafficSources = ({ refreshData }) => {
             console.error('Error fetching traffic sources:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleRefresh = async () => {
+        if (refreshing) return;
+        setRefreshing(true);
+        try {
+            await fetchSources();
+            refreshData && await Promise.resolve(refreshData());
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -178,8 +190,14 @@ const TrafficSources = ({ refreshData }) => {
                     </button>
                 </div>
                 <div className="flex gap-2 flex-wrap justify-end">
-                    <button type="button" onClick={fetchSources} className="btn btn-ghost btn-icon" title={t('common.refresh')}>
-                        <RefreshCw className="w-5 h-5" />
+                    <button
+                        type="button"
+                        onClick={handleRefresh}
+                        className="btn btn-ghost btn-icon"
+                        title={t('common.refresh')}
+                        disabled={refreshing}
+                    >
+                        <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
                     </button>
                     <button type="button" onClick={() => setSettingsOpen(true)} className="btn btn-ghost btn-icon" title={t('common.settings')}>
                         <Settings2 className="w-5 h-5" />

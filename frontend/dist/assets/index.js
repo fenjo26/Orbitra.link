@@ -33640,6 +33640,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   const [showFilters, setShowFilters] = reactExports.useState(false);
   const [search, setSearch] = reactExports.useState("");
   const [settingsOpen, setSettingsOpen] = reactExports.useState(false);
+  const [refreshing, setRefreshing] = reactExports.useState(false);
   const handleCreate = () => {
     setEditingCampaignId(null);
     setActiveTab("campaign_editor");
@@ -33794,6 +33795,15 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     a.remove();
     URL.revokeObjectURL(url);
   };
+  const handleRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await Promise.resolve(refreshData?.());
+    } finally {
+      setRefreshing(false);
+    }
+  };
   const handleClearStats = async () => {
     try {
       await axios.post(`${API_URL$z}?action=clear_stats`, { campaign_id: actionModal.campaignId });
@@ -33859,7 +33869,17 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
             ]
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: refreshData, className: "btn btn-ghost btn-icon", title: t2("common.refresh"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-5 h-5" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: handleRefresh,
+            className: "btn btn-ghost btn-icon",
+            title: t2("common.refresh"),
+            disabled: refreshing,
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-5 h-5 ${refreshing ? "animate-spin" : ""}` })
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", title: t2("common.settings", "Settings"), onClick: () => setSettingsOpen(true), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) })
       ] })
     ] }),
@@ -34523,6 +34543,7 @@ const Landings = ({ landings, refreshData }) => {
   const [typeFilter, setTypeFilter] = reactExports.useState("");
   const [stateFilter, setStateFilter] = reactExports.useState("");
   const [settingsOpen, setSettingsOpen] = reactExports.useState(false);
+  const [refreshing, setRefreshing] = reactExports.useState(false);
   const handleCreate = () => {
     setEditingLandingId(null);
     setIsEditorOpen(true);
@@ -34622,6 +34643,15 @@ const Landings = ({ landings, refreshData }) => {
     a.remove();
     URL.revokeObjectURL(url);
   };
+  const handleRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await Promise.resolve(refreshData?.());
+    } finally {
+      setRefreshing(false);
+    }
+  };
   const handleEditorClose = (wasSaved) => {
     setIsEditorOpen(false);
     if (wasSaved) {
@@ -34660,7 +34690,17 @@ const Landings = ({ landings, refreshData }) => {
             ]
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: refreshData, className: "btn btn-ghost btn-icon", title: t2("common.refresh"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-5 h-5" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: handleRefresh,
+            className: "btn btn-ghost btn-icon",
+            title: t2("common.refresh"),
+            disabled: refreshing,
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-5 h-5 ${refreshing ? "animate-spin" : ""}` })
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", title: t2("common.settings"), onClick: () => setSettingsOpen(true), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) })
       ] })
     ] }),
@@ -35687,6 +35727,7 @@ const Offers = ({ offers, refreshData }) => {
   const [selectedOfferIds, setSelectedOfferIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
   const [sortBy, setSortBy] = reactExports.useState({ key: null, dir: "desc" });
   const [settingsOpen, setSettingsOpen] = reactExports.useState(false);
+  const [refreshing, setRefreshing] = reactExports.useState(false);
   const groups = [...new Set(offers.map((o) => o.group_name).filter(Boolean))];
   const networks = [...new Set(offers.map((o) => o.affiliate_network_name).filter(Boolean))];
   const filteredOffers = offers.filter((o) => {
@@ -35870,6 +35911,15 @@ const Offers = ({ offers, refreshData }) => {
     a.remove();
     URL.revokeObjectURL(url);
   };
+  const handleRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await Promise.resolve(refreshData?.());
+    } finally {
+      setRefreshing(false);
+    }
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_offers", title: t2("help.offerBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t2("help.offerBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", children: [
@@ -35902,7 +35952,17 @@ const Offers = ({ offers, refreshData }) => {
             ]
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: refreshData, className: "btn btn-ghost btn-icon", title: t2("common.refresh"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-5 h-5" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: handleRefresh,
+            className: "btn btn-ghost btn-icon",
+            title: t2("common.refresh"),
+            disabled: refreshing,
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-5 h-5 ${refreshing ? "animate-spin" : ""}` })
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
@@ -36381,6 +36441,7 @@ const TrafficSources = ({ refreshData }) => {
   const [selectedIds, setSelectedIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
   const [showFilters, setShowFilters] = reactExports.useState(true);
   const [settingsOpen, setSettingsOpen] = reactExports.useState(false);
+  const [refreshing, setRefreshing] = reactExports.useState(false);
   const fetchSources = async () => {
     setLoading(true);
     try {
@@ -36392,6 +36453,16 @@ const TrafficSources = ({ refreshData }) => {
       console.error("Error fetching traffic sources:", error);
     } finally {
       setLoading(false);
+    }
+  };
+  const handleRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await fetchSources();
+      refreshData && await Promise.resolve(refreshData());
+    } finally {
+      setRefreshing(false);
     }
   };
   reactExports.useEffect(() => {
@@ -36513,7 +36584,17 @@ const TrafficSources = ({ refreshData }) => {
         }
       ) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 flex-wrap justify-end", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: fetchSources, className: "btn btn-ghost btn-icon", title: t2("common.refresh"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-5 h-5" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: handleRefresh,
+            className: "btn btn-ghost btn-icon",
+            title: t2("common.refresh"),
+            disabled: refreshing,
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-5 h-5 ${refreshing ? "animate-spin" : ""}` })
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setSettingsOpen(true), className: "btn btn-ghost btn-icon", title: t2("common.settings"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) }),
         selectedIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t2("common.deleteSelected"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 18 }),
@@ -37669,6 +37750,7 @@ const AffiliateNetworks = () => {
   const [search, setSearch] = reactExports.useState("");
   const [stateFilter, setStateFilter] = reactExports.useState("all");
   const [settingsOpen, setSettingsOpen] = reactExports.useState(false);
+  const [refreshing, setRefreshing] = reactExports.useState(false);
   reactExports.useEffect(() => {
     fetchNetworks();
     fetchPostbackKey();
@@ -37683,6 +37765,15 @@ const AffiliateNetworks = () => {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+  const handleRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await fetchNetworks();
+    } finally {
+      setRefreshing(false);
     }
   };
   const fetchPostbackKey = async () => {
@@ -37834,7 +37925,17 @@ const AffiliateNetworks = () => {
             ]
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: fetchNetworks, className: "btn btn-ghost btn-icon", title: t2("common.refresh"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-5 h-5" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: handleRefresh,
+            className: "btn btn-ghost btn-icon",
+            title: t2("common.refresh"),
+            disabled: refreshing,
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-5 h-5 ${refreshing ? "animate-spin" : ""}` })
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setSettingsOpen(true), className: "btn btn-ghost btn-icon", title: t2("common.settings"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) }),
         selectedIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",

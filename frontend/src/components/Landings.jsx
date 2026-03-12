@@ -17,6 +17,7 @@ const Landings = ({ landings, refreshData }) => {
     const [typeFilter, setTypeFilter] = useState('');
     const [stateFilter, setStateFilter] = useState('');
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     const handleCreate = () => {
         setEditingLandingId(null);
@@ -130,6 +131,16 @@ const Landings = ({ landings, refreshData }) => {
         URL.revokeObjectURL(url);
     };
 
+    const handleRefresh = async () => {
+        if (refreshing) return;
+        setRefreshing(true);
+        try {
+            await Promise.resolve(refreshData?.());
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
     const handleEditorClose = (wasSaved) => {
         setIsEditorOpen(false);
         if (wasSaved) {
@@ -173,8 +184,14 @@ const Landings = ({ landings, refreshData }) => {
                             </span>
                         ) : null}
                     </button>
-                    <button type="button" onClick={refreshData} className="btn btn-ghost btn-icon" title={t('common.refresh')}>
-                        <RefreshCw className="w-5 h-5" />
+                    <button
+                        type="button"
+                        onClick={handleRefresh}
+                        className="btn btn-ghost btn-icon"
+                        title={t('common.refresh')}
+                        disabled={refreshing}
+                    >
+                        <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
                     </button>
                     <button type="button" className="btn btn-ghost btn-icon" title={t('common.settings')} onClick={() => setSettingsOpen(true)}>
                         <Settings2 className="w-5 h-5" />

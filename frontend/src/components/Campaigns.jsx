@@ -14,6 +14,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     const [showFilters, setShowFilters] = useState(false);
     const [search, setSearch] = useState('');
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     const handleCreate = () => {
         setEditingCampaignId(null);
@@ -186,6 +187,16 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         URL.revokeObjectURL(url);
     };
 
+    const handleRefresh = async () => {
+        if (refreshing) return;
+        setRefreshing(true);
+        try {
+            await Promise.resolve(refreshData?.());
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
     const handleClearStats = async () => {
         try {
             await axios.post(`${API_URL}?action=clear_stats`, { campaign_id: actionModal.campaignId });
@@ -257,8 +268,14 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                             <span className="ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full">1</span>
                         ) : null}
                     </button>
-                    <button type="button" onClick={refreshData} className="btn btn-ghost btn-icon" title={t('common.refresh')}>
-                        <RefreshCw className="w-5 h-5" />
+                    <button
+                        type="button"
+                        onClick={handleRefresh}
+                        className="btn btn-ghost btn-icon"
+                        title={t('common.refresh')}
+                        disabled={refreshing}
+                    >
+                        <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
                     </button>
                     <button type="button" className="btn btn-ghost btn-icon" title={t('common.settings', 'Settings')} onClick={() => setSettingsOpen(true)}>
                         <Settings2 className="w-5 h-5" />

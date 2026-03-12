@@ -20,6 +20,7 @@ const Offers = ({ offers, refreshData }) => {
     const [selectedOfferIds, setSelectedOfferIds] = useState(() => new Set());
     const [sortBy, setSortBy] = useState({ key: null, dir: 'desc' }); // key=null keeps API order
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     // Get unique values for filters
     const groups = [...new Set(offers.map(o => o.group_name).filter(Boolean))];
@@ -224,6 +225,16 @@ const Offers = ({ offers, refreshData }) => {
         URL.revokeObjectURL(url);
     };
 
+    const handleRefresh = async () => {
+        if (refreshing) return;
+        setRefreshing(true);
+        try {
+            await Promise.resolve(refreshData?.());
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
     return (
         <div className="page-card">
             <InfoBanner storageKey="help_offers" title={t('help.offerBannerTitle')}>
@@ -261,8 +272,14 @@ const Offers = ({ offers, refreshData }) => {
                             </span>
                         )}
                     </button>
-                    <button type="button" onClick={refreshData} className="btn btn-ghost btn-icon" title={t('common.refresh')}>
-                        <RefreshCw className="w-5 h-5" />
+                    <button
+                        type="button"
+                        onClick={handleRefresh}
+                        className="btn btn-ghost btn-icon"
+                        title={t('common.refresh')}
+                        disabled={refreshing}
+                    >
+                        <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
                     </button>
                     <button
                         type="button"

@@ -20,6 +20,7 @@ const AffiliateNetworks = () => {
     const [search, setSearch] = useState('');
     const [stateFilter, setStateFilter] = useState('all');
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         fetchNetworks();
@@ -36,6 +37,16 @@ const AffiliateNetworks = () => {
             console.error(err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleRefresh = async () => {
+        if (refreshing) return;
+        setRefreshing(true);
+        try {
+            await fetchNetworks();
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -210,8 +221,14 @@ const AffiliateNetworks = () => {
                             </span>
                         ) : null}
                     </button>
-                    <button type="button" onClick={fetchNetworks} className="btn btn-ghost btn-icon" title={t('common.refresh')}>
-                        <RefreshCw className="w-5 h-5" />
+                    <button
+                        type="button"
+                        onClick={handleRefresh}
+                        className="btn btn-ghost btn-icon"
+                        title={t('common.refresh')}
+                        disabled={refreshing}
+                    >
+                        <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
                     </button>
                     <button type="button" onClick={() => setSettingsOpen(true)} className="btn btn-ghost btn-icon" title={t('common.settings')}>
                         <Settings2 className="w-5 h-5" />
