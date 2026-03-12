@@ -1639,6 +1639,8 @@ export default {
         keitaroTrafficSources: "Import traffic sources",
         keitaroLandings: "Import landings",
         keitaroCampaigns: "Import campaigns",
+        keitaroPreserveCampaignIds: "Preserve campaign IDs (Orbitra id = Keitaro id)",
+        keitaroPreserveCampaignIdsHint: "Only works on a fresh Orbitra: campaigns table must be empty (including archived).",
         keitaroStreams: "Import streams/flows",
         keitaroCampaignPostbacks: "Import campaign postbacks",
         keitaroNoFile: "Please select a .sql (or .sql.gz) file",

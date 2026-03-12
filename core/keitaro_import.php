@@ -430,6 +430,7 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
     $doCampaigns = array_key_exists('import_campaigns', $opts) ? (bool) $opts['import_campaigns'] : false;
     $doStreams = array_key_exists('import_streams', $opts) ? (bool) $opts['import_streams'] : false;
     $doCampaignPostbacks = array_key_exists('import_campaign_postbacks', $opts) ? (bool) $opts['import_campaign_postbacks'] : false;
+    $preserveCampaignIds = !empty($opts['preserve_campaign_ids']);
 
     $tablesToParse = [];
     if ($doCompanies) $tablesToParse[] = 'keitaro_affiliate_networks';
@@ -505,6 +506,15 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
 
         if ($dryRun) {
             return $result;
+        }
+
+        if ($preserveCampaignIds && $doCampaigns) {
+            // This is a one-time migration mode to keep Keitaro campaign IDs intact for existing links/scripts.
+            // It is only safe if campaigns table is empty (including archived rows).
+            $cnt = (int) ($pdo->query("SELECT COUNT(*) FROM campaigns")->fetchColumn() ?: 0);
+            if ($cnt > 0) {
+                throw new RuntimeException("preserve_campaign_ids requires empty campaigns table (found {$cnt} rows). Purge campaigns first, then import.");
+            }
         }
 
         $hasDomainKeitaroId = orbitraKeitaroSqliteHasColumn($pdo, 'domains', 'keitaro_id');
@@ -913,11 +923,28 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
             if ($doCampaigns) {
                 $rows = $parsed['keitaro_campaigns']['rows'] ?? [];
                 $stmtFindByAlias = $pdo->prepare("SELECT id, domain_id, keitaro_id FROM campaigns WHERE is_archived = 0 AND alias = ? LIMIT 1");
-                $stmtIns = $pdo->prepare("
-                    INSERT INTO campaigns
-                    (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, catch_404_stream_id)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
-                ");
+                $stmtIns = null;
+                if ($preserveCampaignIds) {
+                    if ($hasCampaignKeitaroId) {
+                        $stmtIns = $pdo->prepare("
+                            INSERT INTO campaigns
+                            (id, name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, catch_404_stream_id, keitaro_id)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)
+                        ");
+                    } else {
+                        $stmtIns = $pdo->prepare("
+                            INSERT INTO campaigns
+                            (id, name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, catch_404_stream_id)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
+                        ");
+                    }
+                } else {
+                    $stmtIns = $pdo->prepare("
+                        INSERT INTO campaigns
+                        (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, catch_404_stream_id)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
+                    ");
+                }
                 $stmtUpdDomain = $pdo->prepare("UPDATE campaigns SET domain_id = ? WHERE id = ? AND (domain_id IS NULL OR domain_id = 0)");
                 $stmtUpdK = null;
                 if ($hasCampaignKeitaroId) {
@@ -981,22 +1008,55 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                     continue;
                 }
 
-                $stmtIns->execute([
-                    $name,
-                    $alias,
-                    $domainId,
-                    $groupId,
-                    $sourceId,
-                    $costModel,
-                    $costValue,
-                    $uniquenessMethod,
-                    $uniquenessHours,
-                ]);
-                $oid = (int) ($pdo->lastInsertId() ?: 0);
-                if ($kid > 0 && $oid > 0) {
+                if ($preserveCampaignIds && $kid > 0) {
+                    if ($hasCampaignKeitaroId) {
+                        $stmtIns->execute([
+                            $kid,
+                            $name,
+                            $alias,
+                            $domainId,
+                            $groupId,
+                            $sourceId,
+                            $costModel,
+                            $costValue,
+                            $uniquenessMethod,
+                            $uniquenessHours,
+                            $kid,
+                        ]);
+                    } else {
+                        $stmtIns->execute([
+                            $kid,
+                            $name,
+                            $alias,
+                            $domainId,
+                            $groupId,
+                            $sourceId,
+                            $costModel,
+                            $costValue,
+                            $uniquenessMethod,
+                            $uniquenessHours,
+                        ]);
+                    }
+                    $oid = $kid;
                     $keitaroCampaignIdToOrbitraId[$kid] = $oid;
-                    if ($stmtUpdK) {
-                        $stmtUpdK->execute([$kid, $oid]);
+                } else {
+                    $stmtIns->execute([
+                        $name,
+                        $alias,
+                        $domainId,
+                        $groupId,
+                        $sourceId,
+                        $costModel,
+                        $costValue,
+                        $uniquenessMethod,
+                        $uniquenessHours,
+                    ]);
+                    $oid = (int) ($pdo->lastInsertId() ?: 0);
+                    if ($kid > 0 && $oid > 0) {
+                        $keitaroCampaignIdToOrbitraId[$kid] = $oid;
+                        if ($stmtUpdK) {
+                            $stmtUpdK->execute([$kid, $oid]);
+                        }
                     }
                 }
                 $result['imported']['campaigns']['inserted']++;

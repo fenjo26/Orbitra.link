@@ -348,14 +348,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                                         />
                                     </td>
                                     <td className="font-medium">
-                                        <div className="flex flex-col">
-                                            <span>{camp.id}</span>
-                                            {camp.keitaro_id ? (
-                                                <span style={{ color: 'var(--color-text-muted)', fontSize: '12px' }}>
-                                                    K:{camp.keitaro_id}
-                                                </span>
-                                            ) : null}
-                                        </div>
+                                        <span title={camp.keitaro_id ? `Keitaro ID: ${camp.keitaro_id}` : ''}>{camp.id}</span>
                                     </td>
                                     <td>
                                         <div className="flex flex-col">

@@ -17348,6 +17348,8 @@ const ru = {
     keitaroTrafficSources: "Импортировать источники (traffic sources)",
     keitaroLandings: "Импортировать лендинги",
     keitaroCampaigns: "Импортировать кампании (campaigns)",
+    keitaroPreserveCampaignIds: "Сохранять ID кампаний (Orbitra id = Keitaro id)",
+    keitaroPreserveCampaignIdsHint: "Работает только при чистой Orbitra: таблица campaigns должна быть пустой (включая архив).",
     keitaroStreams: "Импортировать потоки (streams/flows)",
     keitaroCampaignPostbacks: "Импортировать postbacks кампаний",
     keitaroNoFile: "Выберите файл .sql (или .sql.gz)",
@@ -19242,6 +19244,8 @@ const en = {
     keitaroTrafficSources: "Import traffic sources",
     keitaroLandings: "Import landings",
     keitaroCampaigns: "Import campaigns",
+    keitaroPreserveCampaignIds: "Preserve campaign IDs (Orbitra id = Keitaro id)",
+    keitaroPreserveCampaignIdsHint: "Only works on a fresh Orbitra: campaigns table must be empty (including archived).",
     keitaroStreams: "Import streams/flows",
     keitaroCampaignPostbacks: "Import campaign postbacks",
     keitaroNoFile: "Please select a .sql (or .sql.gz) file",
@@ -34011,13 +34015,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
             onChange: (e) => toggleSelected(camp.id, e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: camp.id }),
-          camp.keitaro_id ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)", fontSize: "12px" }, children: [
-            "K:",
-            camp.keitaro_id
-          ] }) : null
-        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: camp.keitaro_id ? `Keitaro ID: ${camp.keitaro_id}` : "", children: camp.id }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "span",
@@ -43438,6 +43436,7 @@ const MigrationsPage = () => {
   const [kImportCampaigns, setKImportCampaigns] = reactExports.useState(false);
   const [kImportStreams, setKImportStreams] = reactExports.useState(false);
   const [kImportCampaignPostbacks, setKImportCampaignPostbacks] = reactExports.useState(false);
+  const [kPreserveCampaignIds, setKPreserveCampaignIds] = reactExports.useState(false);
   const [kLoading, setKLoading] = reactExports.useState(false);
   const [kError, setKError] = reactExports.useState("");
   const [kResult, setKResult] = reactExports.useState(null);
@@ -43498,6 +43497,7 @@ const MigrationsPage = () => {
       fd.append("import_campaigns", kImportCampaigns ? "1" : "0");
       fd.append("import_streams", kImportStreams ? "1" : "0");
       fd.append("import_campaign_postbacks", kImportCampaignPostbacks ? "1" : "0");
+      fd.append("preserve_campaign_ids", kPreserveCampaignIds && kImportCampaigns ? "1" : "0");
       const res = await fetch(`${API_URL$6}?action=keitaro_import_sql`, {
         method: "POST",
         body: fd
@@ -43666,6 +43666,10 @@ const MigrationsPage = () => {
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportCampaigns, onChange: (e) => setKImportCampaigns(e.target.checked) }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("migrations.keitaroCampaigns") })
+            ] }),
+            kImportCampaigns && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", title: t("migrations.keitaroPreserveCampaignIdsHint"), children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kPreserveCampaignIds, onChange: (e) => setKPreserveCampaignIds(e.target.checked) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("migrations.keitaroPreserveCampaignIds") })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: kImportStreams, onChange: (e) => setKImportStreams(e.target.checked) }),

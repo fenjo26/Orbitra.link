@@ -1448,6 +1448,8 @@ export default {
         keitaroTrafficSources: "Импортировать источники (traffic sources)",
         keitaroLandings: "Импортировать лендинги",
         keitaroCampaigns: "Импортировать кампании (campaigns)",
+        keitaroPreserveCampaignIds: "Сохранять ID кампаний (Orbitra id = Keitaro id)",
+        keitaroPreserveCampaignIdsHint: "Работает только при чистой Orbitra: таблица campaigns должна быть пустой (включая архив).",
         keitaroStreams: "Импортировать потоки (streams/flows)",
         keitaroCampaignPostbacks: "Импортировать postbacks кампаний",
         keitaroNoFile: "Выберите файл .sql (или .sql.gz)",

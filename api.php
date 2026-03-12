@@ -5397,6 +5397,7 @@ try {
             $importCampaigns = isset($_POST['import_campaigns']) && (string) $_POST['import_campaigns'] === '1';
             $importStreams = isset($_POST['import_streams']) && (string) $_POST['import_streams'] === '1';
             $importCampaignPostbacks = isset($_POST['import_campaign_postbacks']) && (string) $_POST['import_campaign_postbacks'] === '1';
+            $preserveCampaignIds = isset($_POST['preserve_campaign_ids']) && (string) $_POST['preserve_campaign_ids'] === '1';
 
             try {
                 $res = orbitraKeitaroImportSqlDump($pdo, $tmp, [
@@ -5409,6 +5410,7 @@ try {
                     'import_campaigns' => $importCampaigns,
                     'import_streams' => $importStreams,
                     'import_campaign_postbacks' => $importCampaignPostbacks,
+                    'preserve_campaign_ids' => $preserveCampaignIds,
                 ]);
                 echo json_encode(['status' => 'success', 'data' => $res]);
             } catch (Throwable $e) {

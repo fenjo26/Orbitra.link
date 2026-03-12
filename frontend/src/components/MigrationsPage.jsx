@@ -20,6 +20,7 @@ const MigrationsPage = () => {
     const [kImportCampaigns, setKImportCampaigns] = useState(false);
     const [kImportStreams, setKImportStreams] = useState(false);
     const [kImportCampaignPostbacks, setKImportCampaignPostbacks] = useState(false);
+    const [kPreserveCampaignIds, setKPreserveCampaignIds] = useState(false);
     const [kLoading, setKLoading] = useState(false);
     const [kError, setKError] = useState('');
     const [kResult, setKResult] = useState(null);
@@ -88,6 +89,7 @@ const MigrationsPage = () => {
             fd.append('import_campaigns', kImportCampaigns ? '1' : '0');
             fd.append('import_streams', kImportStreams ? '1' : '0');
             fd.append('import_campaign_postbacks', kImportCampaignPostbacks ? '1' : '0');
+            fd.append('preserve_campaign_ids', (kPreserveCampaignIds && kImportCampaigns) ? '1' : '0');
 
             const res = await fetch(`${API_URL}?action=keitaro_import_sql`, {
                 method: 'POST',
@@ -315,6 +317,12 @@ const MigrationsPage = () => {
                                 <input type="checkbox" checked={kImportCampaigns} onChange={(e) => setKImportCampaigns(e.target.checked)} />
                                 <span>{t('migrations.keitaroCampaigns')}</span>
                             </label>
+                            {kImportCampaigns && (
+                                <label className="flex items-center gap-2" title={t('migrations.keitaroPreserveCampaignIdsHint')}>
+                                    <input type="checkbox" checked={kPreserveCampaignIds} onChange={(e) => setKPreserveCampaignIds(e.target.checked)} />
+                                    <span>{t('migrations.keitaroPreserveCampaignIds')}</span>
+                                </label>
+                            )}
                             <label className="flex items-center gap-2">
                                 <input type="checkbox" checked={kImportStreams} onChange={(e) => setKImportStreams(e.target.checked)} />
                                 <span>{t('migrations.keitaroStreams')}</span>
