@@ -17,7 +17,7 @@ const MigrationsPage = () => {
     const [kImportCompanies, setKImportCompanies] = useState(true);
     const [kImportTrafficSources, setKImportTrafficSources] = useState(false);
     const [kImportLandings, setKImportLandings] = useState(false);
-    const [kImportCampaigns, setKImportCampaigns] = useState(false);
+    const [kImportCampaigns, setKImportCampaigns] = useState(true);
     const [kImportStreams, setKImportStreams] = useState(false);
     const [kImportCampaignPostbacks, setKImportCampaignPostbacks] = useState(false);
     const [kPreserveCampaignIds, setKPreserveCampaignIds] = useState(false);

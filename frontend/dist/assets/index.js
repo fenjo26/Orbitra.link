@@ -43453,7 +43453,7 @@ const MigrationsPage = () => {
   const [kImportCompanies, setKImportCompanies] = reactExports.useState(true);
   const [kImportTrafficSources, setKImportTrafficSources] = reactExports.useState(false);
   const [kImportLandings, setKImportLandings] = reactExports.useState(false);
-  const [kImportCampaigns, setKImportCampaigns] = reactExports.useState(false);
+  const [kImportCampaigns, setKImportCampaigns] = reactExports.useState(true);
   const [kImportStreams, setKImportStreams] = reactExports.useState(false);
   const [kImportCampaignPostbacks, setKImportCampaignPostbacks] = reactExports.useState(false);
   const [kPreserveCampaignIds, setKPreserveCampaignIds] = reactExports.useState(false);
@@ -45810,7 +45810,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     }
     try {
       setLoading(true);
-      const res = await axios.post(`${API_URL$1}?action=save_campaign`, formData);
+      const payload = { ...formData };
+      delete payload.token;
+      const res = await axios.post(`${API_URL$1}?action=save_campaign`, payload);
       if (res.data.status === "success") {
         setSaveSuccess(true);
         setTimeout(() => {
@@ -45824,6 +45826,62 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       alert(t("common.networkError"));
     } finally {
       setLoading(false);
+    }
+  };
+  const [tokenCopySuccess, setTokenCopySuccess] = reactExports.useState(false);
+  const [tokenBusy, setTokenBusy] = reactExports.useState(false);
+  const copyToken = async () => {
+    const val = (formData.token || "").trim();
+    if (!val) return;
+    let copied = false;
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(val);
+        copied = true;
+      } catch (e) {
+        copied = false;
+      }
+    }
+    if (!copied) {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = val;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        textarea.style.pointerEvents = "none";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        copied = document.execCommand("copy");
+        document.body.removeChild(textarea);
+      } catch (e) {
+        copied = false;
+      }
+    }
+    if (copied) {
+      setTokenCopySuccess(true);
+      setTimeout(() => setTokenCopySuccess(false), 1500);
+    } else {
+      alert(t("common.error"));
+    }
+  };
+  const regenerateToken = async () => {
+    const id = formData.id || campaignId;
+    if (!id) return;
+    if (!window.confirm(t("editor.regenerateTokenConfirm"))) return;
+    try {
+      setTokenBusy(true);
+      const res = await axios.post(`${API_URL$1}?action=regenerate_campaign_token`, { campaign_id: id });
+      if (res.data.status === "success") {
+        setFormData((prev) => ({ ...prev, token: res.data.data?.token || "" }));
+      } else {
+        alert(`${t("common.error")}: ${res.data.message || "Unknown error"}`);
+      }
+    } catch (e) {
+      alert(t("common.networkError"));
+    } finally {
+      setTokenBusy(false);
     }
   };
   const clearStats = async () => {
@@ -46182,16 +46240,42 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.clickApiToken") || "Токен Click API" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "input",
-                      {
-                        type: "text",
-                        value: formData.token,
-                        onChange: (e) => setFormData({ ...formData, token: e.target.value }),
-                        className: "form-input font-mono text-sm",
-                        placeholder: "3pTKR1fmNNHgp4X9"
-                      }
-                    )
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "text",
+                          value: formData.token || "",
+                          readOnly: true,
+                          className: "form-input font-mono text-sm",
+                          placeholder: "3pTKR1fmNNHgp4X9",
+                          title: t("editor.clickApiTokenHint")
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          className: "btn btn-secondary btn-icon",
+                          onClick: copyToken,
+                          disabled: !formData.token,
+                          title: t("common.copy"),
+                          children: tokenCopySuccess ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          className: "btn btn-secondary btn-icon",
+                          onClick: regenerateToken,
+                          disabled: tokenBusy || !(formData.id || campaignId),
+                          title: t("editor.regenerateToken") || t("common.refresh"),
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-4 h-4 ${tokenBusy ? "animate-spin" : ""}` })
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-2", style: { color: "var(--color-text-muted)" }, children: t("editor.clickApiTokenHint") })
                   ] })
                 ] })
               ] }),
