@@ -10,6 +10,7 @@ node_modules/
 ltt_tracker.sqlite
 orbitra_db.sqlite
 database.sqlite
+orbitra.db
 
 
 

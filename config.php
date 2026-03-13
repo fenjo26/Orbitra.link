@@ -16,9 +16,19 @@ try {
     $pdo->exec("PRAGMA busy_timeout = 5000;");
 
     try {
-        // Enable WAL mode and synchronous=NORMAL for much better concurrency
-        $pdo->exec("PRAGMA journal_mode = WAL;");
-        $pdo->exec("PRAGMA synchronous = NORMAL;");
+        // SQLite journal mode affects the presence of `*.sqlite-wal/*.sqlite-shm` files.
+        // WAL improves concurrency, but some setups prefer DELETE to avoid extra files in the project dir.
+        //
+        // Override via env (server-level): ORBITRA_SQLITE_JOURNAL_MODE=WAL|DELETE
+        $journalMode = getenv('ORBITRA_SQLITE_JOURNAL_MODE');
+        $journalMode = is_string($journalMode) ? strtoupper(trim($journalMode)) : '';
+        if ($journalMode !== 'WAL' && $journalMode !== 'DELETE') {
+            $journalMode = 'DELETE';
+        }
+
+        $pdo->exec("PRAGMA journal_mode = {$journalMode};");
+        // WAL works best with NORMAL; DELETE is safer with FULL (less risk on power loss).
+        $pdo->exec("PRAGMA synchronous = " . ($journalMode === 'WAL' ? "NORMAL" : "FULL") . ";");
     } catch (\Throwable $e) {
         // Ignore if we can't switch mode right now (it's persistent anyway)
     }
