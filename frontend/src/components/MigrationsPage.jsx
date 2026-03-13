@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Database, CheckCircle, Clock, RotateCcw, Play } from 'lucide-react';
+import { Database, CheckCircle, Clock, RotateCcw, Play, Terminal, Download, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
@@ -258,6 +258,225 @@ const MigrationsPage = () => {
                     <div className="flex items-center gap-2">
                         <Database className="w-5 h-5" style={{ color: 'var(--color-text-secondary)' }} />
                         <h2 className="page-title">{t('migrations.keitaroTitle')}</h2>
+                    </div>
+                </div>
+
+                {/* Backup Instruction */}
+                <div style={{
+                    background: 'var(--color-bg-soft)',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    marginBottom: '20px',
+                    border: '1px solid var(--color-border)'
+                }}>
+                    <div className="flex items-center gap-2 mb-4">
+                        <Terminal className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
+                        <h3 className="font-semibold" style={{ fontSize: '16px', color: 'var(--color-text-primary)' }}>
+                            {t('migrations.keitaroBackupTitle')}
+                        </h3>
+                    </div>
+
+                    <div className="space-y-4">
+                        {/* Step 1 */}
+                        <div style={{ paddingLeft: '12px', borderLeft: '3px solid var(--color-primary)' }}>
+                            <div className="flex items-start gap-3">
+                                <div style={{
+                                    width: '24px',
+                                    height: '24px',
+                                    borderRadius: '50%',
+                                    background: 'var(--color-primary)',
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    flexShrink: 0
+                                }}>1</div>
+                                <div style={{ flex: 1 }}>
+                                    <p className="font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                                        {t('migrations.backupStep1Title')}
+                                    </p>
+                                    <p className="text-sm mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+                                        {t('migrations.backupStep1Desc')}
+                                    </p>
+                                    <div style={{
+                                        background: '#1e1e1e',
+                                        borderRadius: '8px',
+                                        padding: '12px',
+                                        overflow: 'auto'
+                                    }}>
+                                        <code style={{
+                                            fontSize: '12px',
+                                            color: '#d4d4d4',
+                                            whiteSpace: 'pre-wrap',
+                                            fontFamily: 'monospace'
+                                        }}>
+{`ssh root@YOUR_KEITARO_SERVER_IP`}
+                                        </code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Step 2 */}
+                        <div style={{ paddingLeft: '12px', borderLeft: '3px solid var(--color-primary)' }}>
+                            <div className="flex items-start gap-3">
+                                <div style={{
+                                    width: '24px',
+                                    height: '24px',
+                                    borderRadius: '50%',
+                                    background: 'var(--color-primary)',
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    flexShrink: 0
+                                }}>2</div>
+                                <div style={{ flex: 1 }}>
+                                    <p className="font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                                        {t('migrations.backupStep2Title')}
+                                    </p>
+                                    <p className="text-sm mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+                                        {t('migrations.backupStep2Desc')}
+                                    </p>
+                                    <button
+                                        onClick={() => {
+                                            const command = `bash -lc '
+set -euo pipefail
+
+source /etc/keitaro/env/inventory.env
+
+# Конфиг чтобы не светить пароль в командной строке
+cat > /root/keitaro-mariadb.cnf <<EOF
+[client]
+user=$MARIADB_KEITARO_USER
+password=$MARIADB_KEITARO_PASSWORD
+host=127.0.0.1
+port=3306
+protocol=tcp
+EOF
+chmod 600 /root/keitaro-mariadb.cnf
+
+# Список "настроечных" таблиц, которые нужны для миграции (без логов/кликов/рефов и т.п.)
+SQL_LIST="
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = \\'\\'$MARIADB_KEITARO_DATABASE\\'\\'
+AND table_name IN (
+  \\'\\'keitaro_affiliate_networks\\'\\',
+  \\'\\'keitaro_groups\\'\\',
+  \\'\\'keitaro_offers\\'\\',
+  \\'\\'keitaro_domains\\'\\',
+  \\'\\'keitaro_campaigns\\'\\',
+  \\'\\'keitaro_campaign_postbacks\\'\\',
+  \\'\\'keitaro_landings\\'\\',
+  \\'\\'keitaro_streams\\'\\',
+  \\'\\'keitaro_stream_filters\\'\\',
+  \\'\\'keitaro_stream_offer_associations\\'\\',
+  \\'\\'keitaro_stream_landing_associations\\'\\',
+  \\'\\'keitaro_traffic_sources\\'\\',
+  \\'\\'keitaro_ref_sources\\'\\'
+)
+ORDER BY table_name;
+"
+
+TABLES=$(mariadb --defaults-extra-file=/root/keitaro-mariadb.cnf -N -e "$SQL_LIST" "$MARIADB_KEITARO_DATABASE" | tr "\\n" " ")
+
+OUT="/root/keitaro_orbitra_full.sql.gz"
+echo "Dumping tables: $TABLES"
+mysqldump --defaults-extra-file=/root/keitaro-mariadb.cnf \\
+  --single-transaction --quick --skip-lock-tables \\
+  "$MARIADB_KEITARO_DATABASE" $TABLES \\
+  | gzip -1 > "$OUT"
+
+ls -lah "$OUT"
+echo "DONE: $OUT"
+'`;
+                                            navigator.clipboard.writeText(command);
+                                        }}
+                                        className="text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
+                                        style={{
+                                            background: 'var(--color-bg-hover)',
+                                            color: 'var(--color-primary)',
+                                            border: '1px solid var(--color-border)',
+                                            cursor: 'pointer'
+                                        }}
+                                        title={t('migrations.copyCommand')}
+                                    >
+                                        <Terminal size={12} /> {t('migrations.copyCommand')}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div style={{ paddingLeft: '12px', borderLeft: '3px solid var(--color-primary)' }}>
+                            <div className="flex items-start gap-3">
+                                <div style={{
+                                    width: '24px',
+                                    height: '24px',
+                                    borderRadius: '50%',
+                                    background: 'var(--color-primary)',
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    flexShrink: 0
+                                }}>3</div>
+                                <div style={{ flex: 1 }}>
+                                    <p className="font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                                        {t('migrations.backupStep3Title')}
+                                    </p>
+                                    <p className="text-sm mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+                                        {t('migrations.backupStep3Desc')}
+                                    </p>
+                                    <div style={{
+                                        background: '#1e1e1e',
+                                        borderRadius: '8px',
+                                        padding: '12px',
+                                        overflow: 'auto'
+                                    }}>
+                                        <code style={{
+                                            fontSize: '12px',
+                                            color: '#d4d4d4',
+                                            whiteSpace: 'pre-wrap',
+                                            fontFamily: 'monospace'
+                                        }}>
+{`# Скачать в текущую папку:
+scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz .
+
+# Скачать в Downloads (macOS/Linux):
+scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz ~/Downloads/
+
+# Скачать в Downloads (Windows PowerShell):
+scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz $env:USERPROFILE\\Downloads\\`}
+                                        </code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Tip */}
+                        <div style={{
+                            background: 'var(--color-warning-bg)',
+                            borderRadius: '8px',
+                            padding: '12px',
+                            display: 'flex',
+                            gap: '10px',
+                            alignItems: 'start'
+                        }}>
+                            <AlertCircle size={18} style={{ color: 'var(--color-warning)', flexShrink: 0, marginTop: '2px' }} />
+                            <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+                                <span className="font-medium" style={{ color: 'var(--color-warning)' }}>
+                                    {t('migrations.backupTipTitle')}:
+                                </span> {t('migrations.backupTipText')}
+                            </div>
+                        </div>
                     </div>
                 </div>
 

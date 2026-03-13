@@ -17355,6 +17355,16 @@ const ru = {
     noMigrations: "Миграции не найдены",
     loadingMigrations: "Загрузка миграций...",
     keitaroTitle: "Импорт из Keitaro (SQL dump)",
+    keitaroBackupTitle: "Как создать бекап Keitaro для миграции",
+    backupStep1Title: "Подключитесь к Keitaro серверу",
+    backupStep1Desc: "Откройте терминал и подключитесь по SSH к вашему серверу с Keitaro:",
+    backupStep2Title: "Запустите команду создания дампа",
+    backupStep2Desc: "Скопируйте и выполните команду ниже. Она создаст файл /root/keitaro_orbitra_full.sql.gz с нужными таблицами (кампании, офферы, домены, потоки и т.д., но БЕЗ логов кликов):",
+    backupStep3Title: "Скачайте файл к себе на компьютер",
+    backupStep3Desc: "Замените YOUR_KEITARO_SERVER_IP на реальный IP адрес вашего сервера:",
+    copyCommand: "Скопировать команду",
+    backupTipTitle: "Совет",
+    backupTipText: "Файл будет небольшим (обычно 1-5 МБ) потому что содержит только настройки, без статистики кликов.",
     keitaroInfo: "Загрузите файл mysqldump (.sql или .sql.gz). Orbitra распарсит INSERT-ы и перенесёт выбранные сущности (домены, офферы, компании/партнёрки, кампании и postbacks) в свою SQLite базу. Важно: для переноса потоков/флоу нужны таблицы keitaro_streams и association-таблицы (их можно добавить в дамп отдельно). Рекомендуется сначала сделать предпросмотр (dry-run).",
     keitaroFile: "Файл Keitaro SQL",
     keitaroFileHint: "Поддерживаются .sql и .sql.gz. Дамп не выполняется как SQL, он только парсится.",
@@ -19271,6 +19281,16 @@ const en = {
     noMigrations: "No migrations found",
     loadingMigrations: "Loading migrations...",
     keitaroTitle: "Import From Keitaro (SQL dump)",
+    keitaroBackupTitle: "How to create Keitaro backup for migration",
+    backupStep1Title: "Connect to Keitaro server",
+    backupStep1Desc: "Open your terminal and connect via SSH to your Keitaro server:",
+    backupStep2Title: "Run the backup command",
+    backupStep2Desc: "Copy and execute the command below. It will create /root/keitaro_orbitra_full.sql.gz with the required tables (campaigns, offers, domains, streams, etc. WITHOUT click logs):",
+    backupStep3Title: "Download the file to your computer",
+    backupStep3Desc: "Replace YOUR_KEITARO_SERVER_IP with your actual server IP address:",
+    copyCommand: "Copy command",
+    backupTipTitle: "Tip",
+    backupTipText: "The file will be small (usually 1-5 MB) because it contains only configuration, no click statistics.",
     keitaroInfo: "Upload a mysqldump file (.sql or .sql.gz). Orbitra will parse INSERT statements and import the selected entities (domains, offers, companies/affiliate networks, campaigns and campaign postbacks) into its SQLite database. Note: to migrate streams/flows you also need keitaro_streams and association tables (add them to the dump separately). A preview (dry-run) is recommended first.",
     keitaroFile: "Keitaro SQL File",
     keitaroFileHint: "Supports .sql and .sql.gz. The dump is not executed as SQL, it is only parsed.",
@@ -43656,6 +43676,196 @@ const MigrationsPage = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-5 h-5", style: { color: "var(--color-text-secondary)" } }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t("migrations.keitaroTitle") })
       ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        background: "var(--color-bg-soft)",
+        borderRadius: "16px",
+        padding: "20px",
+        marginBottom: "20px",
+        border: "1px solid var(--color-border)"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Terminal, { className: "w-5 h-5", style: { color: "var(--color-primary)" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-semibold", style: { fontSize: "16px", color: "var(--color-text-primary)" }, children: t("migrations.keitaroBackupTitle") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { paddingLeft: "12px", borderLeft: "3px solid var(--color-primary)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: "24px",
+              height: "24px",
+              borderRadius: "50%",
+              background: "var(--color-primary)",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "13px",
+              fontWeight: 600,
+              flexShrink: 0
+            }, children: "1" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mb-2", style: { color: "var(--color-text-primary)" }, children: t("migrations.backupStep1Title") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mb-2", style: { color: "var(--color-text-secondary)" }, children: t("migrations.backupStep1Desc") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                background: "#1e1e1e",
+                borderRadius: "8px",
+                padding: "12px",
+                overflow: "auto"
+              }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: {
+                fontSize: "12px",
+                color: "#d4d4d4",
+                whiteSpace: "pre-wrap",
+                fontFamily: "monospace"
+              }, children: `ssh root@YOUR_KEITARO_SERVER_IP` }) })
+            ] })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { paddingLeft: "12px", borderLeft: "3px solid var(--color-primary)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: "24px",
+              height: "24px",
+              borderRadius: "50%",
+              background: "var(--color-primary)",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "13px",
+              fontWeight: 600,
+              flexShrink: 0
+            }, children: "2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mb-2", style: { color: "var(--color-text-primary)" }, children: t("migrations.backupStep2Title") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mb-2", style: { color: "var(--color-text-secondary)" }, children: t("migrations.backupStep2Desc") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  onClick: () => {
+                    const command = `bash -lc '
+set -euo pipefail
+
+source /etc/keitaro/env/inventory.env
+
+# Конфиг чтобы не светить пароль в командной строке
+cat > /root/keitaro-mariadb.cnf <<EOF
+[client]
+user=$MARIADB_KEITARO_USER
+password=$MARIADB_KEITARO_PASSWORD
+host=127.0.0.1
+port=3306
+protocol=tcp
+EOF
+chmod 600 /root/keitaro-mariadb.cnf
+
+# Список "настроечных" таблиц, которые нужны для миграции (без логов/кликов/рефов и т.п.)
+SQL_LIST="
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = \\'\\'$MARIADB_KEITARO_DATABASE\\'\\'
+AND table_name IN (
+  \\'\\'keitaro_affiliate_networks\\'\\',
+  \\'\\'keitaro_groups\\'\\',
+  \\'\\'keitaro_offers\\'\\',
+  \\'\\'keitaro_domains\\'\\',
+  \\'\\'keitaro_campaigns\\'\\',
+  \\'\\'keitaro_campaign_postbacks\\'\\',
+  \\'\\'keitaro_landings\\'\\',
+  \\'\\'keitaro_streams\\'\\',
+  \\'\\'keitaro_stream_filters\\'\\',
+  \\'\\'keitaro_stream_offer_associations\\'\\',
+  \\'\\'keitaro_stream_landing_associations\\'\\',
+  \\'\\'keitaro_traffic_sources\\'\\',
+  \\'\\'keitaro_ref_sources\\'\\'
+)
+ORDER BY table_name;
+"
+
+TABLES=$(mariadb --defaults-extra-file=/root/keitaro-mariadb.cnf -N -e "$SQL_LIST" "$MARIADB_KEITARO_DATABASE" | tr "\\n" " ")
+
+OUT="/root/keitaro_orbitra_full.sql.gz"
+echo "Dumping tables: $TABLES"
+mysqldump --defaults-extra-file=/root/keitaro-mariadb.cnf \\
+  --single-transaction --quick --skip-lock-tables \\
+  "$MARIADB_KEITARO_DATABASE" $TABLES \\
+  | gzip -1 > "$OUT"
+
+ls -lah "$OUT"
+echo "DONE: $OUT"
+'`;
+                    navigator.clipboard.writeText(command);
+                  },
+                  className: "text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors",
+                  style: {
+                    background: "var(--color-bg-hover)",
+                    color: "var(--color-primary)",
+                    border: "1px solid var(--color-border)",
+                    cursor: "pointer"
+                  },
+                  title: t("migrations.copyCommand"),
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Terminal, { size: 12 }),
+                    " ",
+                    t("migrations.copyCommand")
+                  ]
+                }
+              )
+            ] })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { paddingLeft: "12px", borderLeft: "3px solid var(--color-primary)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: "24px",
+              height: "24px",
+              borderRadius: "50%",
+              background: "var(--color-primary)",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "13px",
+              fontWeight: 600,
+              flexShrink: 0
+            }, children: "3" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mb-2", style: { color: "var(--color-text-primary)" }, children: t("migrations.backupStep3Title") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mb-2", style: { color: "var(--color-text-secondary)" }, children: t("migrations.backupStep3Desc") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                background: "#1e1e1e",
+                borderRadius: "8px",
+                padding: "12px",
+                overflow: "auto"
+              }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: {
+                fontSize: "12px",
+                color: "#d4d4d4",
+                whiteSpace: "pre-wrap",
+                fontFamily: "monospace"
+              }, children: `# Скачать в текущую папку:
+scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz .
+
+# Скачать в Downloads (macOS/Linux):
+scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz ~/Downloads/
+
+# Скачать в Downloads (Windows PowerShell):
+scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz $env:USERPROFILE\\Downloads\\` }) })
+            ] })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            background: "var(--color-warning-bg)",
+            borderRadius: "8px",
+            padding: "12px",
+            display: "flex",
+            gap: "10px",
+            alignItems: "start"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 18, style: { color: "var(--color-warning)", flexShrink: 0, marginTop: "2px" } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "13px", color: "var(--color-text-secondary)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium", style: { color: "var(--color-warning)" }, children: [
+                t("migrations.backupTipTitle"),
+                ":"
+              ] }),
+              " ",
+              t("migrations.backupTipText")
+            ] })
+          ] })
+        ] })
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
         background: "var(--color-info-bg)",
         borderRadius: "16px",
