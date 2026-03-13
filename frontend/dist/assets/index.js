@@ -16150,6 +16150,8 @@ const ru = {
     uniquenessIp: "IP",
     uniquenessIpUa: "IP и User-Agent",
     uniquenessCookies: "Cookies",
+    rotationType: "Тип ротации",
+    clickApiToken: "Токен Click API",
     // This is the tracking link used in ad platforms. Click API token is a separate field.
     campaignUrl: "URL кампании",
     rewardModel: "Модель вознаграждения",
@@ -16206,6 +16208,10 @@ const ru = {
     onlyUniqueClicks: "Только для уникальных кликов",
     noLogs: "Нет логов",
     geoPlaceholder: "Введите или выберите страны..."
+  },
+  rotationType: {
+    position: "По позиции",
+    weight: "По весу"
   },
   filters: {
     country: "Страна",
@@ -17448,7 +17454,8 @@ const ru = {
     exitPopupTitle: "Exit Intent Popup",
     exitPopupDesc: "Показ всплывающего окна при попытке уйти со страницы (мышь уходит вверх окна).",
     wpPluginTitle: "WordPress Плагин",
-    wpPluginDesc: "Скачайте готовый плагин WordPress с шорткодами для гео-редиректов, баннеров и отслеживания."
+    wpPluginDesc: "Скачайте готовый плагин WordPress с шорткодами для гео-редиректов, баннеров и отслеживания.",
+    yandex: "Яндекс.Метрика"
   },
   wpPlugin: {
     downloadTitle: "WordPress Плагин",
@@ -17856,6 +17863,8 @@ const en = {
     uniquenessIp: "IP",
     uniquenessIpUa: "IP and User-Agent",
     uniquenessCookies: "Cookies",
+    rotationType: "Rotation Type",
+    clickApiToken: "Click API Token",
     // This is the tracking link used in ad platforms. Click API token is a separate field.
     campaignUrl: "Campaign URL",
     rewardModel: "Cost Model",
@@ -17912,6 +17921,10 @@ const en = {
     onlyUniqueClicks: "Only for unique clicks",
     noLogs: "No logs",
     geoPlaceholder: "Enter or select countries..."
+  },
+  rotationType: {
+    position: "By position",
+    weight: "By weight"
   },
   filters: {
     country: "Country",
@@ -19188,7 +19201,8 @@ const en = {
     exitPopupTitle: "Exit Intent Popup",
     exitPopupDesc: "Show a popup when user tries to leave the page (moves mouse to top of window).",
     wpPluginTitle: "WordPress Plugin",
-    wpPluginDesc: "Download a ready-to-use WordPress plugin with shortcodes for geo-redirects, banners, and tracking."
+    wpPluginDesc: "Download a ready-to-use WordPress plugin with shortcodes for geo-redirects, banners, and tracking.",
+    yandex: "Yandex Metrica"
   },
   wpPlugin: {
     downloadTitle: "WordPress Plugin",

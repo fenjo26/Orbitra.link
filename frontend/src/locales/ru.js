@@ -250,6 +250,8 @@ export default {
         uniquenessIp: "IP",
         uniquenessIpUa: "IP и User-Agent",
         uniquenessCookies: "Cookies",
+        rotationType: "Тип ротации",
+        clickApiToken: "Токен Click API",
         // This is the tracking link used in ad platforms. Click API token is a separate field.
         campaignUrl: "URL кампании",
         rewardModel: "Модель вознаграждения",
@@ -306,6 +308,10 @@ export default {
         onlyUniqueClicks: "Только для уникальных кликов",
         noLogs: "Нет логов",
         geoPlaceholder: "Введите или выберите страны..."
+    },
+    rotationType: {
+        position: "По позиции",
+        weight: "По весу"
     },
     filters: {
         country: "Страна",
@@ -1548,7 +1554,8 @@ export default {
         exitPopupTitle: "Exit Intent Popup",
         exitPopupDesc: "Показ всплывающего окна при попытке уйти со страницы (мышь уходит вверх окна).",
         wpPluginTitle: "WordPress Плагин",
-        wpPluginDesc: "Скачайте готовый плагин WordPress с шорткодами для гео-редиректов, баннеров и отслеживания."
+        wpPluginDesc: "Скачайте готовый плагин WordPress с шорткодами для гео-редиректов, баннеров и отслеживания.",
+        yandex: "Яндекс.Метрика"
     },
     wpPlugin: {
         downloadTitle: "WordPress Плагин",

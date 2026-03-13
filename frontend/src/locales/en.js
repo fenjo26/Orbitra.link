@@ -250,6 +250,8 @@ export default {
         uniquenessIp: "IP",
         uniquenessIpUa: "IP and User-Agent",
         uniquenessCookies: "Cookies",
+        rotationType: "Rotation Type",
+        clickApiToken: "Click API Token",
         // This is the tracking link used in ad platforms. Click API token is a separate field.
         campaignUrl: "Campaign URL",
         rewardModel: "Cost Model",
@@ -306,6 +308,10 @@ export default {
         onlyUniqueClicks: "Only for unique clicks",
         noLogs: "No logs",
         geoPlaceholder: "Enter or select countries..."
+    },
+    rotationType: {
+        position: "By position",
+        weight: "By weight"
     },
     filters: {
         country: "Country",
@@ -1582,7 +1588,8 @@ export default {
         exitPopupTitle: "Exit Intent Popup",
         exitPopupDesc: "Show a popup when user tries to leave the page (moves mouse to top of window).",
         wpPluginTitle: "WordPress Plugin",
-        wpPluginDesc: "Download a ready-to-use WordPress plugin with shortcodes for geo-redirects, banners, and tracking."
+        wpPluginDesc: "Download a ready-to-use WordPress plugin with shortcodes for geo-redirects, banners, and tracking.",
+        yandex: "Yandex Metrica"
     },
     wpPlugin: {
         downloadTitle: "WordPress Plugin",
