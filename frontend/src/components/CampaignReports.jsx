@@ -69,8 +69,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[1100] flex bg-black bg-opacity-50">
-            <div className="flex flex-col w-full h-full bg-[var(--color-bg-main)]" style={{ paddingTop: '88px' }}>
+        <div className="fixed top-[88px] left-0 right-0 bottom-0 z-[1100] flex bg-black bg-opacity-50">
+            <div className="flex flex-col w-full h-full bg-[var(--color-bg-main)]">
                 <div className="flex justify-between items-center px-6 py-4 border-b shadow-sm" style={{ background: 'var(--color-bg-header)', color: 'var(--color-text-header)', borderColor: 'var(--color-border)' }}>
                     <div className="flex items-center gap-3">
                         <BarChart3 size={20} />

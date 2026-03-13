@@ -1588,8 +1588,8 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
             )}
 
             {showConversionsLog && campaignId && (
-                <div className="modal-overlay" style={{ zIndex: 1000 }}>
-                    <div className="modal-content" style={{ maxWidth: '1200px', maxHeight: '90vh', overflow: 'auto' }}>
+                <div className="modal-overlay" style={{ zIndex: 1100, top: '88px', height: 'calc(100vh - 88px)' }}>
+                    <div className="modal-content" style={{ maxWidth: '1200px', maxHeight: '100%', overflow: 'auto' }}>
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="modal-title">{t('editor.conversionsLog')}</h3>
                             <button onClick={() => setShowConversionsLog(false)} className="btn btn-ghost btn-icon">

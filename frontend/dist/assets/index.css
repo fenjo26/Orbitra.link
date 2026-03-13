@@ -536,6 +536,10 @@
     top: 2px;
   }
 
+  .top-\[88px\] {
+    top: 88px;
+  }
+
   .top-full {
     top: 100%;
   }
@@ -1524,10 +1528,6 @@
     border-color: var(--color-primary);
   }
 
-  .border-\[var\(--color-primary-light\)\] {
-    border-color: var(--color-primary-light);
-  }
-
   .border-amber-100 {
     border-color: var(--color-amber-100);
   }
@@ -1618,10 +1618,6 @@
 
   .bg-\[var\(--color-bg-card\)\] {
     background-color: var(--color-bg-card);
-  }
-
-  .bg-\[var\(--color-bg-header\)\] {
-    background-color: var(--color-bg-header);
   }
 
   .bg-\[var\(--color-bg-main\)\] {
@@ -1752,30 +1748,6 @@
 
   .bg-green-500 {
     background-color: var(--color-green-500);
-  }
-
-  .bg-green-600 {
-    background-color: var(--color-green-600);
-  }
-
-  .bg-indigo-50\/30 {
-    background-color: #eef2ff4d;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .bg-indigo-50\/30 {
-      background-color: color-mix(in oklab, var(--color-indigo-50) 30%, transparent);
-    }
-  }
-
-  .bg-indigo-50\/50 {
-    background-color: #eef2ff80;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .bg-indigo-50\/50 {
-      background-color: color-mix(in oklab, var(--color-indigo-50) 50%, transparent);
-    }
   }
 
   .bg-indigo-100 {
@@ -2221,10 +2193,6 @@
     color: var(--color-success);
   }
 
-  .text-\[var\(--color-text-header\)\] {
-    color: var(--color-text-header);
-  }
-
   .text-\[var\(--color-text-muted\)\] {
     color: var(--color-text-muted);
   }
@@ -2327,10 +2295,6 @@
 
   .text-indigo-500 {
     color: var(--color-indigo-500);
-  }
-
-  .text-indigo-600 {
-    color: var(--color-indigo-600);
   }
 
   .text-indigo-800 {
@@ -2767,16 +2731,6 @@
       background-color: var(--color-gray-50);
     }
 
-    .hover\:bg-gray-50\/50:hover {
-      background-color: #f9fafb80;
-    }
-
-    @supports (color: color-mix(in lab, red, red)) {
-      .hover\:bg-gray-50\/50:hover {
-        background-color: color-mix(in oklab, var(--color-gray-50) 50%, transparent);
-      }
-    }
-
     .hover\:bg-gray-100:hover {
       background-color: var(--color-gray-100);
     }
@@ -2791,10 +2745,6 @@
 
     .hover\:bg-gray-900:hover {
       background-color: var(--color-gray-900);
-    }
-
-    .hover\:bg-green-700:hover {
-      background-color: var(--color-green-700);
     }
 
     .hover\:bg-indigo-700:hover {
@@ -2821,16 +2771,6 @@
 
     .hover\:bg-red-700:hover {
       background-color: var(--color-red-700);
-    }
-
-    .hover\:bg-white\/10:hover {
-      background-color: #ffffff1a;
-    }
-
-    @supports (color: color-mix(in lab, red, red)) {
-      .hover\:bg-white\/10:hover {
-        background-color: color-mix(in oklab, var(--color-white) 10%, transparent);
-      }
     }
 
     .hover\:text-\[var\(--color-text-primary\)\]:hover {

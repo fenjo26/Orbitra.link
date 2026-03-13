@@ -45541,7 +45541,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     link.click();
     document.body.removeChild(link);
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-[1100] flex bg-black bg-opacity-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col w-full h-full bg-[var(--color-bg-main)]", style: { paddingTop: "88px" }, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed top-[88px] left-0 right-0 bottom-0 z-[1100] flex bg-black bg-opacity-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col w-full h-full bg-[var(--color-bg-main)]", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-6 py-4 border-b shadow-sm", style: { background: "var(--color-bg-header)", color: "var(--color-text-header)", borderColor: "var(--color-border)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 20 }),
@@ -47096,7 +47096,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         onClose: () => setShowReports(false)
       }
     ),
-    showConversionsLog && campaignId && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { zIndex: 1e3 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "1200px", maxHeight: "90vh", overflow: "auto" }, children: [
+    showConversionsLog && campaignId && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { zIndex: 1100, top: "88px", height: "calc(100vh - 88px)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "1200px", maxHeight: "100%", overflow: "auto" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.conversionsLog") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowConversionsLog(false), className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
