@@ -44,7 +44,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 5;
+    $LATEST_SCHEMA_VERSION = 6;
 
     $schemaVersion = 0;
     try {
@@ -842,8 +842,29 @@ try {
 
             // Index for campaigns table (used in various queries)
             $pdo->exec("CREATE INDEX IF NOT EXISTS idx_campaigns_is_archived ON campaigns(is_archived)");
+
+            // CRITICAL: Index for streams.campaign_id - used in get_campaign!
+            // Without this, loading campaigns with many streams is very slow
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_streams_campaign_id ON streams(campaign_id)");
+
+            // Index for campaign_postbacks
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_campaign_postbacks_campaign_id ON campaign_postbacks(campaign_id)");
         } catch (Throwable $e) {
             // Ignore if columns/indexes already exist.
+        }
+    }
+
+    // Migration 6: Add critical performance indexes for campaign loading
+    if ($schemaVersion < 6) {
+        try {
+            // CRITICAL: Index for streams.campaign_id - used in get_campaign!
+            // Without this, loading campaigns with many streams is VERY slow (full table scan)
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_streams_campaign_id ON streams(campaign_id)");
+
+            // Index for campaign_postbacks - also used in get_campaign
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_campaign_postbacks_campaign_id ON campaign_postbacks(campaign_id)");
+        } catch (Throwable $e) {
+            // Ignore if indexes already exist.
         }
     }
 
