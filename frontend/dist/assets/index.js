@@ -45541,8 +45541,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     link.click();
     document.body.removeChild(link);
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-[100] flex bg-black bg-opacity-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col w-full h-full bg-[var(--color-bg-main)]", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-6 py-4 border-b bg-[var(--color-bg-header)] text-[var(--color-text-header)] shadow-sm", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-[1100] flex bg-black bg-opacity-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col w-full h-full bg-[var(--color-bg-main)]", style: { paddingTop: "88px" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-6 py-4 border-b shadow-sm", style: { background: "var(--color-bg-header)", color: "var(--color-text-header)", borderColor: "var(--color-border)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 20 }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-xl font-semibold", children: [
@@ -45552,59 +45552,63 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         ] }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: exportToCSV, className: "px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center gap-2 text-sm font-medium transition-colors", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: exportToCSV, className: "btn btn-success flex items-center gap-2 text-sm font-medium", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16 }),
           " ",
           t("campaignReports.exportCsv")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "p-2 hover:bg-white/10 rounded transition-colors", title: t("campaignReports.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 24 }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "btn btn-ghost btn-icon", title: t("campaignReports.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 24 }) })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 bg-[var(--color-bg-card)] border-b shadow-sm flex flex-wrap gap-4 items-center text-[var(--color-text-primary)]", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 bg-[var(--color-bg-card)] border-b shadow-sm flex flex-wrap gap-4 items-center", style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { size: 16, className: "text-gray-400" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { size: 16, style: { color: "var(--color-text-muted)" } }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: t("campaignReports.grouping") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("select", { value: groupBy, onChange: (e) => setGroupBy(e.target.value), className: "border rounded px-3 py-1.5 text-sm bg-white text-gray-800 outline-none", children: dimensions.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: d.value, children: d.label }, d.value)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("select", { value: groupBy, onChange: (e) => setGroupBy(e.target.value), className: "form-select", children: dimensions.map((d) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: d.value, children: d.label }, d.value)) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 ml-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: t("campaignReports.period") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", value: dateFrom, onChange: (e) => setDateFrom(e.target.value), className: "border rounded px-3 py-1.5 text-sm bg-white text-gray-800 outline-none" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", value: dateFrom, onChange: (e) => setDateFrom(e.target.value), className: "form-input" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "-" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", value: dateTo, onChange: (e) => setDateTo(e.target.value), className: "border rounded px-3 py-1.5 text-sm bg-white text-gray-800 outline-none" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", value: dateTo, onChange: (e) => setDateTo(e.target.value), className: "form-input" })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-auto p-6 text-[var(--color-text-primary)]", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center h-64", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)]" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "card shadow-sm border border-[var(--color-primary-light)] overflow-hidden rounded", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left border-collapse", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "bg-gray-50 border-b text-sm text-gray-500 uppercase", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold", children: dimensions.find((d) => d.value === groupBy)?.label }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t("campaignReports.clicks") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t("campaignReports.unique") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t("campaignReports.conversions") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: "CR" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: "EPC" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t("campaignReports.revenue") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right text-indigo-600 bg-indigo-50/50", children: "Real Rev" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t("campaignReports.cost") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right", children: t("campaignReports.profit") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "p-3 font-semibold text-right text-indigo-600 bg-indigo-50/50", children: "Real ROI" })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-auto p-6", style: { color: "var(--color-text-primary)" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center h-64", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { padding: 0, overflow: "hidden" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: dimensions.find((d) => d.value === groupBy)?.label }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("campaignReports.clicks") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("campaignReports.unique") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("campaignReports.conversions") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: "CR" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: "EPC" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("campaignReports.revenue") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", style: { color: "var(--color-primary)" }, children: "Real Rev" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("campaignReports.cost") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("campaignReports.profit") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", style: { color: "var(--color-primary)" }, children: "Real ROI" })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: reportData.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "11", className: "p-8 text-center text-gray-500", children: t("campaignReports.noDataFilters") }) }) : reportData.map((row, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "border-b last:border-0 hover:bg-gray-50/50 transition-colors text-sm", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "p-3 font-medium text-[var(--color-primary)]", children: row.dimension_name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "p-3 text-right", children: parseInt(row.clicks).toLocaleString("ru-RU") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "p-3 text-right text-gray-500", children: parseInt(row.unique_clicks).toLocaleString("ru-RU") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "p-3 text-right", children: parseInt(row.conversions) > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-green-600 font-medium", children: row.conversions }) : "0" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "p-3 text-right text-gray-500", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: reportData.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "11", className: "text-center p-8", style: { color: "var(--color-text-muted)" }, children: t("campaignReports.noDataFilters") }) }) : reportData.map((row, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "text-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", style: { color: "var(--color-primary)" }, children: row.dimension_name }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: parseInt(row.clicks).toLocaleString("ru-RU") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", style: { color: "var(--color-text-secondary)" }, children: parseInt(row.unique_clicks).toLocaleString("ru-RU") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: parseInt(row.conversions) > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", style: { color: "var(--color-success)" }, children: row.conversions }) : "0" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "text-right", style: { color: "var(--color-text-secondary)" }, children: [
           row.cr,
           "%"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "p-3 text-right text-gray-500", children: row.epc }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "p-3 text-right text-green-600 font-medium", children: parseFloat(row.revenue).toFixed(2) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "p-3 text-right text-indigo-600 font-semibold bg-indigo-50/30", children: parseFloat(row.real_revenue || 0).toFixed(2) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "p-3 text-right text-red-500", children: parseFloat(row.cost).toFixed(2) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: `p-3 text-right font-medium ${parseFloat(row.profit) > 0 ? "text-green-600" : parseFloat(row.profit) < 0 ? "text-red-500" : ""}`, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", style: { color: "var(--color-text-secondary)" }, children: row.epc }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right font-medium", style: { color: "var(--color-success)" }, children: parseFloat(row.revenue).toFixed(2) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right font-semibold", style: { color: "var(--color-primary)" }, children: parseFloat(row.real_revenue || 0).toFixed(2) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", style: { color: "var(--color-danger)" }, children: parseFloat(row.cost).toFixed(2) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: `text-right font-medium ${parseFloat(row.profit) > 0 ? "var(--color-success)" : parseFloat(row.profit) < 0 ? "var(--color-danger)" : ""}`, style: {
+          color: parseFloat(row.profit) > 0 ? "var(--color-success)" : parseFloat(row.profit) < 0 ? "var(--color-danger)" : "inherit"
+        }, children: [
           parseFloat(row.profit) > 0 ? "+" : "",
           parseFloat(row.profit).toFixed(2)
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: `p-3 text-right font-medium bg-indigo-50/30 ${parseFloat(row.real_roi || 0) > 0 ? "text-indigo-600" : parseFloat(row.real_roi || 0) < 0 ? "text-red-500" : "text-gray-500"}`, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: `text-right font-medium ${parseFloat(row.real_roi || 0) > 0 ? "var(--color-primary)" : parseFloat(row.real_roi || 0) < 0 ? "var(--color-danger)" : "var(--color-text-secondary)"}`, style: {
+          color: parseFloat(row.real_roi || 0) > 0 ? "var(--color-primary)" : parseFloat(row.real_roi || 0) < 0 ? "var(--color-danger)" : "var(--color-text-secondary)"
+        }, children: [
           parseFloat(row.real_roi || 0) > 0 ? "+" : "",
           parseFloat(row.real_roi || 0).toFixed(2),
           "%"

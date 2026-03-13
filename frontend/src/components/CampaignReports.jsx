@@ -69,79 +69,91 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex bg-black bg-opacity-50">
-            <div className="flex flex-col w-full h-full bg-[var(--color-bg-main)]">
-                <div className="flex justify-between items-center px-6 py-4 border-b bg-[var(--color-bg-header)] text-[var(--color-text-header)] shadow-sm">
+        <div className="fixed inset-0 z-[1100] flex bg-black bg-opacity-50">
+            <div className="flex flex-col w-full h-full bg-[var(--color-bg-main)]" style={{ paddingTop: '88px' }}>
+                <div className="flex justify-between items-center px-6 py-4 border-b shadow-sm" style={{ background: 'var(--color-bg-header)', color: 'var(--color-text-header)', borderColor: 'var(--color-border)' }}>
                     <div className="flex items-center gap-3">
                         <BarChart3 size={20} />
                         <div><h2 className="text-xl font-semibold">{t('campaignReports.report')} {campaignName}</h2></div>
                     </div>
                     <div className="flex gap-3">
-                        <button onClick={exportToCSV} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center gap-2 text-sm font-medium transition-colors">
+                        <button onClick={exportToCSV} className="btn btn-success flex items-center gap-2 text-sm font-medium">
                             <Download size={16} /> {t('campaignReports.exportCsv')}
                         </button>
-                        <button onClick={onClose} className="p-2 hover:bg-white/10 rounded transition-colors" title={t('campaignReports.close')}>
+                        <button onClick={onClose} className="btn btn-ghost btn-icon" title={t('campaignReports.close')}>
                             <X size={24} />
                         </button>
                     </div>
                 </div>
-                <div className="p-4 bg-[var(--color-bg-card)] border-b shadow-sm flex flex-wrap gap-4 items-center text-[var(--color-text-primary)]">
+                <div className="p-4 bg-[var(--color-bg-card)] border-b shadow-sm flex flex-wrap gap-4 items-center" style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}>
                     <div className="flex items-center gap-2">
-                        <Filter size={16} className="text-gray-400" />
+                        <Filter size={16} style={{ color: 'var(--color-text-muted)' }} />
                         <span className="text-sm font-medium">{t('campaignReports.grouping')}</span>
-                        <select value={groupBy} onChange={(e) => setGroupBy(e.target.value)} className="border rounded px-3 py-1.5 text-sm bg-white text-gray-800 outline-none">
+                        <select value={groupBy} onChange={(e) => setGroupBy(e.target.value)} className="form-select">
                             {dimensions.map(d => (<option key={d.value} value={d.value}>{d.label}</option>))}
                         </select>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
                         <span className="text-sm font-medium">{t('campaignReports.period')}</span>
-                        <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="border rounded px-3 py-1.5 text-sm bg-white text-gray-800 outline-none" />
+                        <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="form-input" />
                         <span>-</span>
-                        <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="border rounded px-3 py-1.5 text-sm bg-white text-gray-800 outline-none" />
+                        <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="form-input" />
                     </div>
                 </div>
-                <div className="flex-1 overflow-auto p-6 text-[var(--color-text-primary)]">
+                <div className="flex-1 overflow-auto p-6" style={{ color: 'var(--color-text-primary)' }}>
                     {loading ? (
                         <div className="flex justify-center items-center h-64">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)]"></div>
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--color-primary)' }}></div>
                         </div>
                     ) : (
-                        <div className="card shadow-sm border border-[var(--color-primary-light)] overflow-hidden rounded">
-                            <table className="w-full text-left border-collapse">
+                        <div className="page-card" style={{ padding: 0, overflow: 'hidden' }}>
+                            <table className="page-table">
                                 <thead>
-                                    <tr className="bg-gray-50 border-b text-sm text-gray-500 uppercase">
-                                        <th className="p-3 font-semibold">{dimensions.find(d => d.value === groupBy)?.label}</th>
-                                        <th className="p-3 font-semibold text-right">{t('campaignReports.clicks')}</th>
-                                        <th className="p-3 font-semibold text-right">{t('campaignReports.unique')}</th>
-                                        <th className="p-3 font-semibold text-right">{t('campaignReports.conversions')}</th>
-                                        <th className="p-3 font-semibold text-right">CR</th>
-                                        <th className="p-3 font-semibold text-right">EPC</th>
-                                        <th className="p-3 font-semibold text-right">{t('campaignReports.revenue')}</th>
-                                        <th className="p-3 font-semibold text-right text-indigo-600 bg-indigo-50/50">Real Rev</th>
-                                        <th className="p-3 font-semibold text-right">{t('campaignReports.cost')}</th>
-                                        <th className="p-3 font-semibold text-right">{t('campaignReports.profit')}</th>
-                                        <th className="p-3 font-semibold text-right text-indigo-600 bg-indigo-50/50">Real ROI</th>
+                                    <tr>
+                                        <th>{dimensions.find(d => d.value === groupBy)?.label}</th>
+                                        <th className="text-right">{t('campaignReports.clicks')}</th>
+                                        <th className="text-right">{t('campaignReports.unique')}</th>
+                                        <th className="text-right">{t('campaignReports.conversions')}</th>
+                                        <th className="text-right">CR</th>
+                                        <th className="text-right">EPC</th>
+                                        <th className="text-right">{t('campaignReports.revenue')}</th>
+                                        <th className="text-right" style={{ color: 'var(--color-primary)' }}>Real Rev</th>
+                                        <th className="text-right">{t('campaignReports.cost')}</th>
+                                        <th className="text-right">{t('campaignReports.profit')}</th>
+                                        <th className="text-right" style={{ color: 'var(--color-primary)' }}>Real ROI</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {reportData.length === 0 ? (
-                                        <tr><td colSpan="11" className="p-8 text-center text-gray-500">{t('campaignReports.noDataFilters')}</td></tr>
+                                        <tr><td colSpan="11" className="text-center p-8" style={{ color: 'var(--color-text-muted)' }}>{t('campaignReports.noDataFilters')}</td></tr>
                                     ) : (
                                         reportData.map((row, idx) => (
-                                            <tr key={idx} className="border-b last:border-0 hover:bg-gray-50/50 transition-colors text-sm">
-                                                <td className="p-3 font-medium text-[var(--color-primary)]">{row.dimension_name}</td>
-                                                <td className="p-3 text-right">{parseInt(row.clicks).toLocaleString('ru-RU')}</td>
-                                                <td className="p-3 text-right text-gray-500">{parseInt(row.unique_clicks).toLocaleString('ru-RU')}</td>
-                                                <td className="p-3 text-right">{parseInt(row.conversions) > 0 ? <span className="text-green-600 font-medium">{row.conversions}</span> : '0'}</td>
-                                                <td className="p-3 text-right text-gray-500">{row.cr}%</td>
-                                                <td className="p-3 text-right text-gray-500">{row.epc}</td>
-                                                <td className="p-3 text-right text-green-600 font-medium">{parseFloat(row.revenue).toFixed(2)}</td>
-                                                <td className="p-3 text-right text-indigo-600 font-semibold bg-indigo-50/30">{parseFloat(row.real_revenue || 0).toFixed(2)}</td>
-                                                <td className="p-3 text-right text-red-500">{parseFloat(row.cost).toFixed(2)}</td>
-                                                <td className={`p-3 text-right font-medium ${parseFloat(row.profit) > 0 ? 'text-green-600' : parseFloat(row.profit) < 0 ? 'text-red-500' : ''}`}>
+                                            <tr key={idx} className="text-sm">
+                                                <td className="font-medium" style={{ color: 'var(--color-primary)' }}>{row.dimension_name}</td>
+                                                <td className="text-right">{parseInt(row.clicks).toLocaleString('ru-RU')}</td>
+                                                <td className="text-right" style={{ color: 'var(--color-text-secondary)' }}>{parseInt(row.unique_clicks).toLocaleString('ru-RU')}</td>
+                                                <td className="text-right">{parseInt(row.conversions) > 0 ? <span className="font-medium" style={{ color: 'var(--color-success)' }}>{row.conversions}</span> : '0'}</td>
+                                                <td className="text-right" style={{ color: 'var(--color-text-secondary)' }}>{row.cr}%</td>
+                                                <td className="text-right" style={{ color: 'var(--color-text-secondary)' }}>{row.epc}</td>
+                                                <td className="text-right font-medium" style={{ color: 'var(--color-success)' }}>{parseFloat(row.revenue).toFixed(2)}</td>
+                                                <td className="text-right font-semibold" style={{ color: 'var(--color-primary)' }}>{parseFloat(row.real_revenue || 0).toFixed(2)}</td>
+                                                <td className="text-right" style={{ color: 'var(--color-danger)' }}>{parseFloat(row.cost).toFixed(2)}</td>
+                                                <td className={`text-right font-medium ${
+                                                    parseFloat(row.profit) > 0 ? 'var(--color-success)' :
+                                                    parseFloat(row.profit) < 0 ? 'var(--color-danger)' : ''
+                                                }`} style={{
+                                                    color: parseFloat(row.profit) > 0 ? 'var(--color-success)' :
+                                                           parseFloat(row.profit) < 0 ? 'var(--color-danger)' : 'inherit'
+                                                }}>
                                                     {parseFloat(row.profit) > 0 ? '+' : ''}{parseFloat(row.profit).toFixed(2)}
                                                 </td>
-                                                <td className={`p-3 text-right font-medium bg-indigo-50/30 ${parseFloat(row.real_roi || 0) > 0 ? 'text-indigo-600' : parseFloat(row.real_roi || 0) < 0 ? 'text-red-500' : 'text-gray-500'}`}>
+                                                <td className={`text-right font-medium ${
+                                                    parseFloat(row.real_roi || 0) > 0 ? 'var(--color-primary)' :
+                                                    parseFloat(row.real_roi || 0) < 0 ? 'var(--color-danger)' : 'var(--color-text-secondary)'
+                                                }`} style={{
+                                                    color: parseFloat(row.real_roi || 0) > 0 ? 'var(--color-primary)' :
+                                                           parseFloat(row.real_roi || 0) < 0 ? 'var(--color-danger)' : 'var(--color-text-secondary)'
+                                                }}>
                                                     {parseFloat(row.real_roi || 0) > 0 ? '+' : ''}{parseFloat(row.real_roi || 0).toFixed(2)}%
                                                 </td>
                                             </tr>
