@@ -1454,7 +1454,7 @@ export default {
         keitaroFileHint: "Поддерживаются .sql и .sql.gz. Дамп не выполняется как SQL, он только парсится.",
         keitaroOptions: "Опции",
         keitaroDryRun: "Предпросмотр (dry-run, без записи в БД)",
-        keitaroCompanies: "Импортировать компании (affiliate networks)",
+        keitaroCompanies: "Импортировать партнерки (affiliate networks)",
         keitaroOffers: "Импортировать офферы",
         keitaroDomains: "Импортировать домены",
         keitaroTrafficSources: "Импортировать источники (traffic sources)",

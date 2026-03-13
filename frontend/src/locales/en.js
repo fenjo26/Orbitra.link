@@ -1646,7 +1646,7 @@ export default {
         keitaroFileHint: "Supports .sql and .sql.gz. The dump is not executed as SQL, it is only parsed.",
         keitaroOptions: "Options",
         keitaroDryRun: "Preview (dry-run, no DB writes)",
-        keitaroCompanies: "Import companies (affiliate networks)",
+        keitaroCompanies: "Import affiliate networks",
         keitaroOffers: "Import offers",
         keitaroDomains: "Import domains",
         keitaroTrafficSources: "Import traffic sources",
