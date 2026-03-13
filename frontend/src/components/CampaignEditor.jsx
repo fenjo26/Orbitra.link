@@ -1036,19 +1036,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                         placeholder={t('editor.streamName')}
                                                     />
 
-                                                    {formData.rotation_type === 'weight' && (
-                                                        <div className="flex items-center gap-1 ml-2 px-2 py-0.5 rounded-lg" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
-                                                            <TrendingUp className="w-3 h-3 text-blue-500" />
-                                                            <input
-                                                                type="number"
-                                                                value={stream.weight ?? 100}
-                                                                onChange={e => updateStream(idx, 'weight', parseInt(e.target.value) || 0)}
-                                                                className="w-12 bg-transparent border-none text-xs text-center font-bold focus:ring-0"
-                                                                title={t('editor.weight') || 'Вес'}
-                                                                style={{ color: 'var(--color-primary)' }}
-                                                            />
-                                                        </div>
-                                                    )}
+                                                    {/* Stream weight moved into stream settings to avoid confusion with offer/landing weights */}
                                                 </div>
                                                 <div className="flex items-center gap-4">
                                                     <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: 'var(--color-text-primary)' }}>
@@ -1097,6 +1085,38 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                             </div>
 
                                             <div className="p-4 space-y-4">
+                                                {/* Stream Weight (only relevant for regular streams and only when campaign rotation is weighted) */}
+                                                {formData.rotation_type === 'weight' && stream.type === 'regular' && (
+                                                    <div className="rounded-2xl p-3" style={{ border: '1px solid var(--color-border)', backgroundColor: 'rgba(59, 130, 246, 0.05)' }}>
+                                                        <div className="flex items-center justify-between gap-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <TrendingUp className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
+                                                                <div>
+                                                                    <div className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                                                        {t('editor.streamWeight') || 'Вес потока'}
+                                                                    </div>
+                                                                    <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                                                        {t('editor.streamWeightHelp') || 'Используется только при ротации потоков по весу.'}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="flex items-center gap-1">
+                                                                <input
+                                                                    type="number"
+                                                                    value={stream.weight ?? 100}
+                                                                    onChange={e => updateStream(idx, 'weight', parseInt(e.target.value) || 0)}
+                                                                    className="w-20 text-center rounded-lg px-2 py-1 text-sm font-bold"
+                                                                    min="0"
+                                                                    style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                                                                    title={t('editor.streamWeight') || 'Вес потока'}
+                                                                />
+                                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
                                                 {/* Schema */}
                                                 <div>
                                                     <label className="text-xs font-semibold uppercase mb-2 block" style={{ color: 'var(--color-text-muted)' }}>{t('editor.schema')}</label>

@@ -252,6 +252,8 @@ export default {
         uniquenessCookies: "Cookies",
         rotationType: "Тип ротации",
         clickApiToken: "Токен Click API",
+        streamWeight: "Вес потока",
+        streamWeightHelp: "Используется только при ротации потоков по весу.",
         // This is the tracking link used in ad platforms. Click API token is a separate field.
         campaignUrl: "URL кампании",
         rewardModel: "Модель вознаграждения",

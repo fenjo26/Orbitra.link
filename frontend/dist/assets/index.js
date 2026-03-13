@@ -16152,6 +16152,8 @@ const ru = {
     uniquenessCookies: "Cookies",
     rotationType: "Тип ротации",
     clickApiToken: "Токен Click API",
+    streamWeight: "Вес потока",
+    streamWeightHelp: "Используется только при ротации потоков по весу.",
     // This is the tracking link used in ad platforms. Click API token is a separate field.
     campaignUrl: "URL кампании",
     rewardModel: "Модель вознаграждения",
@@ -17865,6 +17867,8 @@ const en = {
     uniquenessCookies: "Cookies",
     rotationType: "Rotation Type",
     clickApiToken: "Click API Token",
+    streamWeight: "Stream Weight",
+    streamWeightHelp: "Used only when stream rotation is set to weighted.",
     // This is the tracking link used in ad platforms. Click API token is a separate field.
     campaignUrl: "Campaign URL",
     rewardModel: "Cost Model",
@@ -46600,21 +46604,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     style: { color: "var(--color-text-primary)" },
                     placeholder: t("editor.streamName")
                   }
-                ),
-                formData.rotation_type === "weight" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 ml-2 px-2 py-0.5 rounded-lg", style: { backgroundColor: "rgba(59, 130, 246, 0.1)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "w-3 h-3 text-blue-500" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "input",
-                    {
-                      type: "number",
-                      value: stream.weight ?? 100,
-                      onChange: (e) => updateStream(idx, "weight", parseInt(e.target.value) || 0),
-                      className: "w-12 bg-transparent border-none text-xs text-center font-bold focus:ring-0",
-                      title: t("editor.weight") || "Вес",
-                      style: { color: "var(--color-primary)" }
-                    }
-                  )
-                ] })
+                )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-sm cursor-pointer", style: { color: "var(--color-text-primary)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -46663,6 +46653,30 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 space-y-4", children: [
+              formData.rotation_type === "weight" && stream.type === "regular" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-2xl p-3", style: { border: "1px solid var(--color-border)", backgroundColor: "rgba(59, 130, 246, 0.05)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "w-4 h-4", style: { color: "var(--color-primary)" } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.streamWeight") || "Вес потока" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("editor.streamWeightHelp") || "Используется только при ротации потоков по весу." })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "number",
+                      value: stream.weight ?? 100,
+                      onChange: (e) => updateStream(idx, "weight", parseInt(e.target.value) || 0),
+                      className: "w-20 text-center rounded-lg px-2 py-1 text-sm font-bold",
+                      min: "0",
+                      style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)", color: "var(--color-text-primary)" },
+                      title: t("editor.streamWeight") || "Вес потока"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
+                ] })
+              ] }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-2 block", style: { color: "var(--color-text-muted)" }, children: t("editor.schema") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(
