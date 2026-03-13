@@ -43504,6 +43504,41 @@ const MigrationsPage = () => {
   const [purgeLoading, setPurgeLoading] = reactExports.useState(false);
   const [purgeError, setPurgeError] = reactExports.useState("");
   const [purgeResult, setPurgeResult] = reactExports.useState(null);
+  const [copySuccess, setCopySuccess] = reactExports.useState(false);
+  const copyToClipboard = async (text) => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2e3);
+        return;
+      }
+    } catch (err) {
+      console.warn("Clipboard API failed, falling back to execCommand", err);
+    }
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      textarea.setSelectionRange(0, 99999);
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      if (successful) {
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2e3);
+      } else {
+        throw new Error("execCommand failed");
+      }
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      alert("Failed to copy. Please select and copy the command manually.");
+    }
+  };
   const fetchMigrations = () => {
     setLoading(true);
     fetch(`${API_URL$6}?action=migrations`).then((res) => res.json()).then((data) => {
@@ -43790,20 +43825,19 @@ mysqldump --defaults-extra-file=/root/keitaro-mariadb.cnf \\
 ls -lah "$OUT"
 echo "DONE: $OUT"
 '`;
-                    navigator.clipboard.writeText(command);
+                    copyToClipboard(command);
                   },
                   className: "text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors",
                   style: {
-                    background: "var(--color-bg-hover)",
-                    color: "var(--color-primary)",
+                    background: copySuccess ? "var(--color-success-bg)" : "var(--color-bg-hover)",
+                    color: copySuccess ? "var(--color-success)" : "var(--color-primary)",
                     border: "1px solid var(--color-border)",
                     cursor: "pointer"
                   },
-                  title: t("migrations.copyCommand"),
+                  title: copySuccess ? t("common.copied") : t("migrations.copyCommand"),
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Terminal, { size: 12 }),
-                    " ",
-                    t("migrations.copyCommand")
+                    copySuccess ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 12 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Terminal, { size: 12 }),
+                    copySuccess ? t("common.copied") : t("migrations.copyCommand")
                   ]
                 }
               )

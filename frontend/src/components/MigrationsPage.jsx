@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Database, CheckCircle, Clock, RotateCcw, Play, Terminal, Download, AlertCircle } from 'lucide-react';
+import { Database, CheckCircle, Clock, RotateCcw, Play, Terminal, Download, AlertCircle, Check } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
@@ -29,6 +29,46 @@ const MigrationsPage = () => {
     const [purgeLoading, setPurgeLoading] = useState(false);
     const [purgeError, setPurgeError] = useState('');
     const [purgeResult, setPurgeResult] = useState(null);
+
+    const [copySuccess, setCopySuccess] = useState(false);
+
+    const copyToClipboard = async (text) => {
+        try {
+            // Try modern Clipboard API first
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+                setCopySuccess(true);
+                setTimeout(() => setCopySuccess(false), 2000);
+                return;
+            }
+        } catch (err) {
+            console.warn('Clipboard API failed, falling back to execCommand', err);
+        }
+
+        // Fallback: use textarea + execCommand
+        try {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            textarea.setSelectionRange(0, 99999); // For mobile devices
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            if (successful) {
+                setCopySuccess(true);
+                setTimeout(() => setCopySuccess(false), 2000);
+            } else {
+                throw new Error('execCommand failed');
+            }
+        } catch (err) {
+            console.error('Failed to copy:', err);
+            alert('Failed to copy. Please select and copy the command manually.');
+        }
+    };
 
     const fetchMigrations = () => {
         setLoading(true);
@@ -395,18 +435,19 @@ mysqldump --defaults-extra-file=/root/keitaro-mariadb.cnf \\
 ls -lah "$OUT"
 echo "DONE: $OUT"
 '`;
-                                            navigator.clipboard.writeText(command);
+                                            copyToClipboard(command);
                                         }}
                                         className="text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
                                         style={{
-                                            background: 'var(--color-bg-hover)',
-                                            color: 'var(--color-primary)',
+                                            background: copySuccess ? 'var(--color-success-bg)' : 'var(--color-bg-hover)',
+                                            color: copySuccess ? 'var(--color-success)' : 'var(--color-primary)',
                                             border: '1px solid var(--color-border)',
                                             cursor: 'pointer'
                                         }}
-                                        title={t('migrations.copyCommand')}
+                                        title={copySuccess ? t('common.copied') : t('migrations.copyCommand')}
                                     >
-                                        <Terminal size={12} /> {t('migrations.copyCommand')}
+                                        {copySuccess ? <Check size={12} /> : <Terminal size={12} />}
+                                        {copySuccess ? t('common.copied') : t('migrations.copyCommand')}
                                     </button>
                                 </div>
                             </div>
