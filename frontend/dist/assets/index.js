@@ -36848,7 +36848,7 @@ const TrafficSources = ({ refreshData }) => {
   ] });
 };
 const API_URL$p = "/api.php";
-const ConversionsLog = () => {
+const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
   const { t } = useLanguage();
   const [conversions, setConversions] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
@@ -36858,7 +36858,8 @@ const ConversionsLog = () => {
   const [statusFilter, setStatusFilter] = reactExports.useState("");
   const [dateFrom, setDateFrom] = reactExports.useState("");
   const [dateTo, setDateTo] = reactExports.useState("");
-  const [campaignId, setCampaignId] = reactExports.useState("");
+  const [internalCampaignId, setInternalCampaignId] = reactExports.useState("");
+  const effectiveCampaignId = propCampaignId !== void 0 ? propCampaignId : internalCampaignId;
   const fetchConversions = async (page = 1) => {
     setLoading(true);
     try {
@@ -36867,7 +36868,7 @@ const ConversionsLog = () => {
       if (statusFilter) params.append("status", statusFilter);
       if (dateFrom) params.append("date_from", dateFrom);
       if (dateTo) params.append("date_to", dateTo);
-      if (campaignId) params.append("campaign_id", campaignId);
+      if (effectiveCampaignId) params.append("campaign_id", effectiveCampaignId);
       const res = await axios.get(`${API_URL$p}?${params.toString()}`);
       if (res.data.status === "success") {
         setConversions(res.data.data);
@@ -36881,7 +36882,7 @@ const ConversionsLog = () => {
   };
   reactExports.useEffect(() => {
     fetchConversions(1);
-  }, [statusFilter, dateFrom, dateTo]);
+  }, [statusFilter, dateFrom, dateTo, effectiveCampaignId]);
   const handleSearch = () => {
     fetchConversions(1);
   };
@@ -36939,8 +36940,9 @@ const ConversionsLog = () => {
     };
     return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { ...baseStyle, ...styles[status] || styles.trash }, children: statusLabels[status] || status });
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_conversions", title: t("help.conversionsBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.conversionsBanner") }) }),
+  const isModalMode = onClose !== void 0;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: isModalMode ? "" : "space-y-4", children: [
+    !isModalMode && /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_conversions", title: t("help.conversionsBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.conversionsBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px", alignItems: "end" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { gridColumn: "span 2" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversions.search") }),
@@ -37134,7 +37136,7 @@ const ConversionsLog = () => {
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { background: "var(--color-info-bg)", borderColor: "var(--color-info)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: "12px" }, children: [
+    !isModalMode && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { background: "var(--color-info-bg)", borderColor: "var(--color-info)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: "12px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 20, style: { color: "var(--color-info)", flexShrink: 0, marginTop: "2px" } }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontWeight: 500, marginBottom: "4px", color: "var(--color-text-primary)" }, children: t("conversions.title") }),
@@ -45631,6 +45633,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [showClearModal, setShowClearModal] = reactExports.useState(false);
   const [showReportsMenu, setShowReportsMenu] = reactExports.useState(false);
   const [showReports, setShowReports] = reactExports.useState(false);
+  const [showConversionsLog, setShowConversionsLog] = reactExports.useState(false);
   const [pixels, setPixels] = reactExports.useState([]);
   const [editingPixel, setEditingPixel] = reactExports.useState(null);
   const [pixelForm, setPixelForm] = reactExports.useState({ type: "", pixel_id: "", token: "", events: "PageView,Lead", is_active: 1 });
@@ -45903,6 +45906,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     } catch (e) {
       alert(t("common.clearError"));
     }
+  };
+  const loadConversionLogs = () => {
+    setShowReportsMenu(false);
+    setShowConversionsLog(true);
   };
   const addStream = (type) => {
     const newStream = {
@@ -47084,7 +47091,20 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         campaignName: formData.name,
         onClose: () => setShowReports(false)
       }
-    )
+    ),
+    showConversionsLog && campaignId && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { zIndex: 1e3 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "1200px", maxHeight: "90vh", overflow: "auto" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.conversionsLog") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowConversionsLog(false), className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        ConversionsLog,
+        {
+          campaignId,
+          onClose: () => setShowConversionsLog(false)
+        }
+      )
+    ] }) })
   ] });
 };
 function r(e) {

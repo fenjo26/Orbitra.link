@@ -4,6 +4,7 @@ import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
 import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play } from 'lucide-react';
 import CampaignReports from './CampaignReports';
+import ConversionsLog from './ConversionsLog';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
@@ -31,6 +32,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [showClearModal, setShowClearModal] = useState(false);
     const [showReportsMenu, setShowReportsMenu] = useState(false);
     const [showReports, setShowReports] = useState(false);
+    const [showConversionsLog, setShowConversionsLog] = useState(false);
 
     // Pixel states
     const [pixels, setPixels] = useState([]);
@@ -340,6 +342,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         } catch (e) {
             alert(t('common.clearError'));
         }
+    };
+
+    const loadConversionLogs = () => {
+        setShowReportsMenu(false);
+        setShowConversionsLog(true);
     };
 
     // Stream management
@@ -1578,6 +1585,23 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                     campaignName={formData.name}
                     onClose={() => setShowReports(false)}
                 />
+            )}
+
+            {showConversionsLog && campaignId && (
+                <div className="modal-overlay" style={{ zIndex: 1000 }}>
+                    <div className="modal-content" style={{ maxWidth: '1200px', maxHeight: '90vh', overflow: 'auto' }}>
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="modal-title">{t('editor.conversionsLog')}</h3>
+                            <button onClick={() => setShowConversionsLog(false)} className="btn btn-ghost btn-icon">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <ConversionsLog
+                            campaignId={campaignId}
+                            onClose={() => setShowConversionsLog(false)}
+                        />
+                    </div>
+                </div>
             )}
         </>
     );

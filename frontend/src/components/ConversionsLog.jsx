@@ -7,7 +7,7 @@ import ClickDetailsModal from './ClickDetailsModal';
 
 const API_URL = '/api.php';
 
-const ConversionsLog = () => {
+const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
     const { t } = useLanguage();
     const [conversions, setConversions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -19,7 +19,10 @@ const ConversionsLog = () => {
     const [statusFilter, setStatusFilter] = useState('');
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
-    const [campaignId, setCampaignId] = useState('');
+    const [internalCampaignId, setInternalCampaignId] = useState('');
+
+    // Use prop campaignId if provided, otherwise use internal state
+    const effectiveCampaignId = propCampaignId !== undefined ? propCampaignId : internalCampaignId;
 
     const fetchConversions = async (page = 1) => {
         setLoading(true);
@@ -29,7 +32,7 @@ const ConversionsLog = () => {
             if (statusFilter) params.append('status', statusFilter);
             if (dateFrom) params.append('date_from', dateFrom);
             if (dateTo) params.append('date_to', dateTo);
-            if (campaignId) params.append('campaign_id', campaignId);
+            if (effectiveCampaignId) params.append('campaign_id', effectiveCampaignId);
 
             const res = await axios.get(`${API_URL}?${params.toString()}`);
             if (res.data.status === 'success') {
@@ -45,7 +48,7 @@ const ConversionsLog = () => {
 
     useEffect(() => {
         fetchConversions(1);
-    }, [statusFilter, dateFrom, dateTo]);
+    }, [statusFilter, dateFrom, dateTo, effectiveCampaignId]);
 
     const handleSearch = () => {
         fetchConversions(1);
@@ -116,11 +119,16 @@ const ConversionsLog = () => {
         );
     };
 
+    // When used in modal (onClose provided), hide banner and adjust spacing
+    const isModalMode = onClose !== undefined;
+
     return (
-        <div className="space-y-4">
-            <InfoBanner storageKey="help_conversions" title={t('help.conversionsBannerTitle')}>
-                <p>{t('help.conversionsBanner')}</p>
-            </InfoBanner>
+        <div className={isModalMode ? '' : 'space-y-4'}>
+            {!isModalMode && (
+                <InfoBanner storageKey="help_conversions" title={t('help.conversionsBannerTitle')}>
+                    <p>{t('help.conversionsBanner')}</p>
+                </InfoBanner>
+            )}
             {/* Filters */}
             <div className="page-card">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', alignItems: 'end' }}>
@@ -317,7 +325,8 @@ const ConversionsLog = () => {
             )}
 
             {/* Info */}
-            <div className="page-card" style={{ background: 'var(--color-info-bg)', borderColor: 'var(--color-info)' }}>
+            {!isModalMode && (
+                <div className="page-card" style={{ background: 'var(--color-info-bg)', borderColor: 'var(--color-info)' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <BarChart3 size={20} style={{ color: 'var(--color-info)', flexShrink: 0, marginTop: '2px' }} />
                     <div>
@@ -330,6 +339,7 @@ const ConversionsLog = () => {
                     </div>
                 </div>
             </div>
+            )}
 
             {selectedClickId && (
                 <ClickDetailsModal
