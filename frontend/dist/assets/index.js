@@ -3162,10 +3162,10 @@ function requireReactDomClient_production() {
       refCount: 0
     };
   }
-  function releaseCache(cache) {
-    cache.refCount--;
-    0 === cache.refCount && scheduleCallback$2(NormalPriority, function() {
-      cache.controller.abort();
+  function releaseCache(cache2) {
+    cache2.refCount--;
+    0 === cache2.refCount && scheduleCallback$2(NormalPriority, function() {
+      cache2.controller.abort();
     });
   }
   var currentEntangledListeners = null, currentEntangledPendingCount = 0, currentEntangledLane = 0, currentEntangledActionThenable = null;
@@ -8497,21 +8497,21 @@ function requireReactDomClient_production() {
         case 23:
         case 22:
           if (null !== fiber.memoizedState && null !== fiber.memoizedState.cachePool) {
-            var cache = fiber.memoizedState.cachePool.pool;
-            null != cache && cache.refCount++;
+            var cache2 = fiber.memoizedState.cachePool.pool;
+            null != cache2 && cache2.refCount++;
           }
           break;
         case 24:
           releaseCache(fiber.memoizedState.cache);
       }
-      cache = fiber.child;
-      if (null !== cache) cache.return = fiber, nextEffect = cache;
+      cache2 = fiber.child;
+      if (null !== cache2) cache2.return = fiber, nextEffect = cache2;
       else
         a: for (fiber = deletedSubtreeRoot; null !== nextEffect; ) {
-          cache = nextEffect;
-          var sibling = cache.sibling, returnFiber = cache.return;
-          detachFiberAfterEffects(cache);
-          if (cache === fiber) {
+          cache2 = nextEffect;
+          var sibling = cache2.sibling, returnFiber = cache2.return;
+          detachFiberAfterEffects(cache2);
+          if (cache2 === fiber) {
             nextEffect = null;
             break a;
           }
@@ -8526,8 +8526,8 @@ function requireReactDomClient_production() {
   }
   var DefaultAsyncDispatcher = {
     getCacheForType: function(resourceType) {
-      var cache = readContext(CacheContext), cacheForType = cache.data.get(resourceType);
-      void 0 === cacheForType && (cacheForType = resourceType(), cache.data.set(resourceType, cacheForType));
+      var cache2 = readContext(CacheContext), cacheForType = cache2.data.get(resourceType);
+      void 0 === cacheForType && (cacheForType = resourceType(), cache2.data.set(resourceType, cacheForType));
       return cacheForType;
     },
     cacheSignal: function() {
@@ -11615,24 +11615,24 @@ function requireReactDomClient_production() {
   var tagCaches = null;
   function getHydratableHoistableCache(type, keyAttribute, ownerDocument) {
     if (null === tagCaches) {
-      var cache = /* @__PURE__ */ new Map();
+      var cache2 = /* @__PURE__ */ new Map();
       var caches = tagCaches = /* @__PURE__ */ new Map();
-      caches.set(ownerDocument, cache);
+      caches.set(ownerDocument, cache2);
     } else
-      caches = tagCaches, cache = caches.get(ownerDocument), cache || (cache = /* @__PURE__ */ new Map(), caches.set(ownerDocument, cache));
-    if (cache.has(type)) return cache;
-    cache.set(type, null);
+      caches = tagCaches, cache2 = caches.get(ownerDocument), cache2 || (cache2 = /* @__PURE__ */ new Map(), caches.set(ownerDocument, cache2));
+    if (cache2.has(type)) return cache2;
+    cache2.set(type, null);
     ownerDocument = ownerDocument.getElementsByTagName(type);
     for (caches = 0; caches < ownerDocument.length; caches++) {
       var node = ownerDocument[caches];
       if (!(node[internalHoistableMarker] || node[internalInstanceKey] || "link" === type && "stylesheet" === node.getAttribute("rel")) && "http://www.w3.org/2000/svg" !== node.namespaceURI) {
         var nodeKey = node.getAttribute(keyAttribute) || "";
         nodeKey = type + nodeKey;
-        var existing = cache.get(nodeKey);
-        existing ? existing.push(node) : cache.set(nodeKey, [node]);
+        var existing = cache2.get(nodeKey);
+        existing ? existing.push(node) : cache2.set(nodeKey, [node]);
       }
     }
-    return cache;
+    return cache2;
   }
   function mountHoistable(hoistableRoot, type, instance) {
     hoistableRoot = hoistableRoot.ownerDocument || hoistableRoot;
@@ -12513,9 +12513,9 @@ function bind(fn, thisArg) {
 const { toString } = Object.prototype;
 const { getPrototypeOf } = Object;
 const { iterator, toStringTag } = Symbol;
-const kindOf = /* @__PURE__ */ ((cache) => (thing) => {
+const kindOf = /* @__PURE__ */ ((cache2) => (thing) => {
   const str = toString.call(thing);
-  return cache[str] || (cache[str] = str.slice(8, -1).toLowerCase());
+  return cache2[str] || (cache2[str] = str.slice(8, -1).toLowerCase());
 })(/* @__PURE__ */ Object.create(null));
 const kindOfTest = (type) => {
   type = type.toLowerCase();
@@ -19770,7 +19770,7 @@ const NavItem = ({ icon, label, active, onClick }) => {
     }
   );
 };
-const API_URL$E = "/api.php";
+const API_URL$D = "/api.php";
 const Login = ({ onLogin }) => {
   const { t } = useLanguage();
   const [username, setUsername] = reactExports.useState("");
@@ -19813,7 +19813,7 @@ const Login = ({ onLogin }) => {
       return;
     }
     try {
-      const res = await fetch(`${API_URL$E}?action=login`, {
+      const res = await fetch(`${API_URL$D}?action=login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
@@ -19982,7 +19982,7 @@ const Login = ({ onLogin }) => {
     ] }) })
   ] });
 };
-const API_URL$D = "/api.php";
+const API_URL$C = "/api.php";
 const SetupWizard = ({ onComplete }) => {
   const { t, setLanguage: setContextLanguage, language } = useLanguage();
   const [step, setStep] = reactExports.useState(1);
@@ -20037,7 +20037,7 @@ const SetupWizard = ({ onComplete }) => {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL$D}?action=setup_first_user`, {
+      const res = await fetch(`${API_URL$C}?action=setup_first_user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
@@ -22167,7 +22167,7 @@ function _createResolver(scopes, prefixes = [
   if (typeof fallback === "undefined") {
     fallback = _resolve("_fallback", scopes);
   }
-  const cache = {
+  const cache2 = {
     [Symbol.toStringTag]: "Object",
     _cacheable: true,
     _scopes: scopes,
@@ -22179,7 +22179,7 @@ function _createResolver(scopes, prefixes = [
       ...scopes
     ], prefixes, finalRootScopes, fallback)
   };
-  return new Proxy(cache, {
+  return new Proxy(cache2, {
     /**
     * A trap for the delete operator.
     */
@@ -22232,7 +22232,7 @@ function _createResolver(scopes, prefixes = [
   });
 }
 function _attachContext(proxy, context, subProxy, descriptorDefaults) {
-  const cache = {
+  const cache2 = {
     _cacheable: false,
     _proxy: proxy,
     _context: context,
@@ -22242,7 +22242,7 @@ function _attachContext(proxy, context, subProxy, descriptorDefaults) {
     setContext: (ctx) => _attachContext(proxy, ctx, subProxy, descriptorDefaults),
     override: (scope) => _attachContext(proxy.override(scope), context, subProxy, descriptorDefaults)
   };
-  return new Proxy(cache, {
+  return new Proxy(cache2, {
     /**
     * A trap for the delete operator.
     */
@@ -23153,15 +23153,15 @@ function styleChanged(style, prevStyle) {
   if (!prevStyle) {
     return false;
   }
-  const cache = [];
+  const cache2 = [];
   const replacer = function(key, value) {
     if (!isPatternOrGradient(value)) {
       return value;
     }
-    if (!cache.includes(value)) {
-      cache.push(value);
+    if (!cache2.includes(value)) {
+      cache2.push(value);
     }
-    return cache.indexOf(value);
+    return cache2.indexOf(value);
   };
   return JSON.stringify(style, replacer) !== JSON.stringify(prevStyle, replacer);
 }
@@ -24131,9 +24131,9 @@ class DatasetController {
   }
   _resolveElementOptions(elementType, mode = "default", index2) {
     const active = mode === "active";
-    const cache = this._cachedDataOpts;
+    const cache2 = this._cachedDataOpts;
     const cacheKey = elementType + "-" + mode;
-    const cached = cache[cacheKey];
+    const cached = cache2[cacheKey];
     const sharing = this.enableOptionSharing && defined(index2);
     if (cached) {
       return cloneIfNotShared(cached, sharing);
@@ -24155,15 +24155,15 @@ class DatasetController {
     const values = config.resolveNamedOptions(scopes, names2, context, prefixes);
     if (values.$shared) {
       values.$shared = sharing;
-      cache[cacheKey] = Object.freeze(cloneIfNotShared(values, sharing));
+      cache2[cacheKey] = Object.freeze(cloneIfNotShared(values, sharing));
     }
     return values;
   }
   _resolveAnimations(index2, transition, active) {
     const chart = this.chart;
-    const cache = this._cachedDataOpts;
+    const cache2 = this._cachedDataOpts;
     const cacheKey = `animation-${transition}`;
-    const cached = cache[cacheKey];
+    const cached = cache2[cacheKey];
     if (cached) {
       return cached;
     }
@@ -24176,7 +24176,7 @@ class DatasetController {
     }
     const animations = new Animations(chart, options && options.animations);
     if (options && options._cacheable) {
-      cache[cacheKey] = Object.freeze(animations);
+      cache2[cacheKey] = Object.freeze(animations);
     }
     return animations;
   }
@@ -25534,13 +25534,13 @@ function getPixelForGridLine(scale, index2, offsetGridLines) {
   return lineValue;
 }
 function garbageCollect(caches, length) {
-  each(caches, (cache) => {
-    const gc = cache.gc;
+  each(caches, (cache2) => {
+    const gc = cache2.gc;
     const gcLen = gc.length / 2;
     let i;
     if (gcLen > length) {
       for (i = 0; i < gcLen; ++i) {
-        delete cache.data[gc[i]];
+        delete cache2.data[gc[i]];
       }
       gc.splice(0, gcLen);
     }
@@ -26065,25 +26065,25 @@ class Scale extends Element$1 {
     const increment = Math.floor(length / getTicksLimit(length, maxTicksLimit));
     let widestLabelSize = 0;
     let highestLabelSize = 0;
-    let i, j, jlen, label, tickFont, fontString, cache, lineHeight, width, height, nestedLabel;
+    let i, j, jlen, label, tickFont, fontString, cache2, lineHeight, width, height, nestedLabel;
     for (i = 0; i < length; i += increment) {
       label = ticks[i].label;
       tickFont = this._resolveTickFontOptions(i);
       ctx.font = fontString = tickFont.string;
-      cache = caches[fontString] = caches[fontString] || {
+      cache2 = caches[fontString] = caches[fontString] || {
         data: {},
         gc: []
       };
       lineHeight = tickFont.lineHeight;
       width = height = 0;
       if (!isNullOrUndef(label) && !isArray(label)) {
-        width = _measureText(ctx, cache.data, cache.gc, width, label);
+        width = _measureText(ctx, cache2.data, cache2.gc, width, label);
         height = lineHeight;
       } else if (isArray(label)) {
         for (j = 0, jlen = label.length; j < jlen; ++j) {
           nestedLabel = label[j];
           if (!isNullOrUndef(nestedLabel) && !isArray(nestedLabel)) {
-            width = _measureText(ctx, cache.data, cache.gc, width, nestedLabel);
+            width = _measureText(ctx, cache2.data, cache2.gc, width, nestedLabel);
             height += lineHeight;
           }
         }
@@ -27298,17 +27298,17 @@ class Config {
   }
   _cachedScopes(mainScope, resetCache) {
     const _scopeCache = this._scopeCache;
-    let cache = _scopeCache.get(mainScope);
-    if (!cache || resetCache) {
-      cache = /* @__PURE__ */ new Map();
-      _scopeCache.set(mainScope, cache);
+    let cache2 = _scopeCache.get(mainScope);
+    if (!cache2 || resetCache) {
+      cache2 = /* @__PURE__ */ new Map();
+      _scopeCache.set(mainScope, cache2);
     }
-    return cache;
+    return cache2;
   }
   getOptionScopes(mainScope, keyLists, resetCache) {
     const { options, type } = this;
-    const cache = this._cachedScopes(mainScope, resetCache);
-    const cached = cache.get(keyLists);
+    const cache2 = this._cachedScopes(mainScope, resetCache);
+    const cached = cache2.get(keyLists);
     if (cached) {
       return cached;
     }
@@ -27328,7 +27328,7 @@ class Config {
       array.push(/* @__PURE__ */ Object.create(null));
     }
     if (keysCached.has(keyLists)) {
-      cache.set(keyLists, array);
+      cache2.set(keyLists, array);
     }
     return array;
   }
@@ -27372,20 +27372,20 @@ class Config {
   }
 }
 function getResolver(resolverCache, scopes, prefixes) {
-  let cache = resolverCache.get(scopes);
-  if (!cache) {
-    cache = /* @__PURE__ */ new Map();
-    resolverCache.set(scopes, cache);
+  let cache2 = resolverCache.get(scopes);
+  if (!cache2) {
+    cache2 = /* @__PURE__ */ new Map();
+    resolverCache.set(scopes, cache2);
   }
   const cacheKey = prefixes.join();
-  let cached = cache.get(cacheKey);
+  let cached = cache2.get(cacheKey);
   if (!cached) {
     const resolver = _createResolver(scopes, prefixes);
     cached = {
       resolver,
       subPrefixes: prefixes.filter((p) => !p.toLowerCase().includes("hover"))
     };
-    cache.set(cacheKey, cached);
+    cache2.set(cacheKey, cached);
   }
   return cached;
 }
@@ -32322,7 +32322,7 @@ const TableWidget = ({ title, data, t }) => {
 };
 var reactDomExports = requireReactDom();
 const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(reactDomExports);
-const API_URL$C = "/api.php";
+const API_URL$B = "/api.php";
 const ClickDetailsModal = ({ clickId, onClose }) => {
   const { t } = useLanguage();
   const [data, setData] = reactExports.useState(null);
@@ -32333,7 +32333,7 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     const fetchDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL$C}?action=click_details&id=${clickId}`);
+        const response = await axios.get(`${API_URL$B}?action=click_details&id=${clickId}`);
         if (response.data.status === "success") {
           setData(response.data.data);
         } else {
@@ -32788,7 +32788,40 @@ const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} })
             ` })
   ] });
 };
-const API_URL$B = "/api.php";
+const API_URL$A = "/api.php";
+const cache = /* @__PURE__ */ new Map();
+const CACHE_TTL = 3e4;
+function getCacheKey(action, params = {}) {
+  const paramStr = Object.keys(params).sort().map((k) => `${k}=${JSON.stringify(params[k])}`).join("&");
+  return `${action}${paramStr ? "?" + paramStr : ""}`;
+}
+function isCacheValid(entry) {
+  if (!entry) return false;
+  return Date.now() - entry.timestamp < entry.ttl;
+}
+async function cachedGet(action, params = {}, ttl = CACHE_TTL) {
+  const cacheKey = getCacheKey(action, params);
+  const cached = cache.get(cacheKey);
+  if (cached && isCacheValid(cached)) {
+    return { data: cached.data, fromCache: true };
+  }
+  const response = await axios.get(API_URL$A, { params: { action, ...params } });
+  if (response.data?.status === "success") {
+    cache.set(cacheKey, {
+      data: response.data,
+      timestamp: Date.now(),
+      ttl
+    });
+  }
+  return { data: response.data, fromCache: false };
+}
+async function cachedPost(action, data = {}, params = {}) {
+  const response = await axios.post(API_URL$A, data, { params: { action, ...params } });
+  if (response.data?.status === "success") {
+    cache.clear();
+  }
+  return response;
+}
 const Domains = ({ campaigns }) => {
   const { t } = useLanguage();
   const [domains, setDomains] = reactExports.useState([]);
@@ -32817,11 +32850,11 @@ const Domains = ({ campaigns }) => {
   }, []);
   const fetchDomains = async () => {
     try {
-      const res = await axios.get(`${API_URL$B}?action=domains`);
-      if (res.data.status === "success") {
-        setDomains(res.data.data);
-        setFilteredDomains(res.data.data);
-        setServerIp(res.data.server_ip || t("common.notSet"));
+      const { data } = await cachedGet("domains");
+      if (data.status === "success") {
+        setDomains(data.data);
+        setFilteredDomains(data.data);
+        setServerIp(data.server_ip || t("common.notSet"));
       }
     } catch (e) {
       console.error(e);
@@ -32852,7 +32885,7 @@ const Domains = ({ campaigns }) => {
   const handleDelete = async (id) => {
     if (!window.confirm(t("domains.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$B}?action=delete_domain`, { id });
+      await cachedPost("delete_domain", { id });
       fetchDomains();
     } catch (e) {
       console.error(e);
@@ -32869,7 +32902,7 @@ const Domains = ({ campaigns }) => {
     e.preventDefault();
     setError("");
     try {
-      const res = await axios.post(`${API_URL$B}?action=save_domain`, formData);
+      const res = await cachedPost("save_domain", formData);
       if (res.data.status === "success") {
         setShowModal(false);
         setFormData({ id: null, name: "", index_campaign_id: "", catch_404: false, group_id: "", is_noindex: true, https_only: false });
@@ -33107,7 +33140,7 @@ const Domains = ({ campaigns }) => {
     ] }) })
   ] });
 };
-const API_URL$A = "/api.php";
+const API_URL$z = "/api.php";
 const statusMeta = (t, status) => {
   switch (status) {
     case "available":
@@ -33168,7 +33201,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   const fetchRows = async ({ silent = false } = {}) => {
     if (!silent) setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$A}?action=backorder_domains`);
+      const res = await axios.get(`${API_URL$z}?action=backorder_domains`);
       if (res.data.status === "success") {
         setRows(res.data.data || []);
       }
@@ -33198,7 +33231,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     if (runStartedAt && Number(runStartedAt) > 0) {
       payload.run_started_at = Number(runStartedAt);
     }
-    const res = await axios.post(`${API_URL$A}?action=backorder_check_batch`, payload);
+    const res = await axios.post(`${API_URL$z}?action=backorder_check_batch`, payload);
     if (res.data.status !== "success") {
       const msg = res.data.message || t("common.error");
       throw new Error(msg);
@@ -33335,7 +33368,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   const deleteOne = async (id) => {
     if (!window.confirm(t("common.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$A}?action=backorder_delete`, { id });
+      await axios.post(`${API_URL$z}?action=backorder_delete`, { id });
       setSelectedIds((prev) => {
         const n = new Set(prev);
         n.delete(id);
@@ -33351,7 +33384,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     if (ids.length === 0) return;
     if (!window.confirm(t("backorder.deleteSelectedConfirm").replace("{count}", String(ids.length)))) return;
     try {
-      await axios.post(`${API_URL$A}?action=backorder_delete_selected`, { ids });
+      await axios.post(`${API_URL$z}?action=backorder_delete_selected`, { ids });
       setSelectedIds(/* @__PURE__ */ new Set());
       fetchRows();
     } catch (e) {
@@ -33381,7 +33414,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         ahrefs_ur: editForm.ahrefs_ur,
         ahrefs_ref_domains: editForm.ahrefs_ref_domains
       };
-      const res = await axios.post(`${API_URL$A}?action=backorder_update`, payload);
+      const res = await axios.post(`${API_URL$z}?action=backorder_update`, payload);
       if (res.data.status === "success") {
         setShowEdit(false);
         fetchRows();
@@ -33394,7 +33427,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   };
   const checkNow = async (id) => {
     try {
-      await axios.post(`${API_URL$A}?action=backorder_check_now`, { id });
+      await axios.post(`${API_URL$z}?action=backorder_check_now`, { id });
       fetchRows();
     } catch (e) {
       console.error(e);
@@ -33405,7 +33438,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     setImportError("");
     setImportResult(null);
     try {
-      const res = await axios.post(`${API_URL$A}?action=backorder_import`, { domains_text: importText });
+      const res = await axios.post(`${API_URL$z}?action=backorder_import`, { domains_text: importText });
       if (res.data.status === "success") {
         setImportResult(res.data.data);
         fetchRows();
@@ -33766,7 +33799,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     ] }) })
   ] });
 };
-const API_URL$z = "/api.php";
+const API_URL$y = "/api.php";
 const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId }) => {
   const { t } = useLanguage();
   const [actionModal, setActionModal] = reactExports.useState({ type: null, campaignId: null });
@@ -33787,7 +33820,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   const handleDelete = async (id) => {
     if (window.confirm(t("campaigns.deleteConfirm"))) {
       try {
-        await axios.post(`${API_URL$z}?action=delete_campaign`, { id });
+        await axios.post(`${API_URL$y}?action=delete_campaign`, { id });
         refreshData();
       } catch (err) {
         alert(t("common.deleteError"));
@@ -33873,7 +33906,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     const msg = (t("common.deleteSelectedConfirm") || t("campaigns.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$z}?action=bulk_delete_campaigns`, { ids });
+      await axios.post(`${API_URL$y}?action=bulk_delete_campaigns`, { ids });
       setSelectedCampaignIds(/* @__PURE__ */ new Set());
       refreshData();
     } catch (err) {
@@ -33941,7 +33974,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   };
   const handleClearStats = async () => {
     try {
-      await axios.post(`${API_URL$z}?action=clear_stats`, { campaign_id: actionModal.campaignId });
+      await axios.post(`${API_URL$y}?action=clear_stats`, { campaign_id: actionModal.campaignId });
       refreshData();
       setActionModal({ type: null, campaignId: null });
     } catch (err) {
@@ -33959,7 +33992,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
       unique_only: fd.get("unique_only") === "on"
     };
     try {
-      const res = await axios.post(`${API_URL$z}?action=update_costs`, data);
+      const res = await axios.post(`${API_URL$y}?action=update_costs`, data);
       if (res.data.status === "success") {
         alert(t("campaigns.updatedClicks").replace("{count}", res.data.updated_clicks));
         refreshData();
@@ -34156,7 +34189,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     ] }) })
   ] });
 };
-const API_URL$y = "/api.php";
+const API_URL$x = "/api.php";
 const TrafficSimulation = () => {
   const { t } = useLanguage();
   const [campaigns, setCampaigns] = reactExports.useState([]);
@@ -34171,7 +34204,7 @@ const TrafficSimulation = () => {
   const [trace, setTrace] = reactExports.useState(null);
   const [loading, setLoading] = reactExports.useState(false);
   reactExports.useEffect(() => {
-    axios.get(`${API_URL$y}?action=campaigns`).then((res) => {
+    axios.get(`${API_URL$x}?action=campaigns`).then((res) => {
       if (res.data.status === "success") {
         setCampaigns(res.data.data);
         if (res.data.data.length > 0) {
@@ -34185,7 +34218,7 @@ const TrafficSimulation = () => {
     setLoading(true);
     setTrace(null);
     try {
-      const res = await axios.post(`${API_URL$y}?action=simulate_traffic`, formData);
+      const res = await axios.post(`${API_URL$x}?action=simulate_traffic`, formData);
       if (res.data.status === "success") {
         setTrace(res.data.trace);
       } else {
@@ -34331,7 +34364,7 @@ const TrafficSimulation = () => {
     ] })
   ] });
 };
-const API_URL$x = "/api.php";
+const API_URL$w = "/api.php";
 const LandingEditor = ({ landingId, onClose }) => {
   const { t } = useLanguage();
   const [landing, setLanding] = reactExports.useState({
@@ -34355,13 +34388,13 @@ const LandingEditor = ({ landingId, onClose }) => {
       setLoading(true);
       try {
         const [groupsRes] = await Promise.all([
-          axios.get(`${API_URL$x}?action=landing_groups`)
+          axios.get(`${API_URL$w}?action=landing_groups`)
         ]);
         if (groupsRes.data.status === "success") {
           setGroups(groupsRes.data.data);
         }
         if (landingId) {
-          const landingRes = await axios.get(`${API_URL$x}?action=get_landing&id=${landingId}`);
+          const landingRes = await axios.get(`${API_URL$w}?action=get_landing&id=${landingId}`);
           if (landingRes.data.status === "success") {
             setLanding(landingRes.data.data);
             if (landingRes.data.data.type === "local") {
@@ -34380,7 +34413,7 @@ const LandingEditor = ({ landingId, onClose }) => {
   }, [landingId]);
   const fetchLandingFiles = async (id) => {
     try {
-      const res = await axios.get(`${API_URL$x}?action=landing_files&id=${id}`);
+      const res = await axios.get(`${API_URL$w}?action=landing_files&id=${id}`);
       if (res.data.status === "success") {
         setFiles(res.data.data);
       }
@@ -34393,7 +34426,7 @@ const LandingEditor = ({ landingId, onClose }) => {
     try {
       const payload = { ...landing };
       if (landingId) payload.id = landingId;
-      const res = await axios.post(`${API_URL$x}?action=save_landing`, payload);
+      const res = await axios.post(`${API_URL$w}?action=save_landing`, payload);
       if (res.data.status === "success") {
         if (!landingId && res.data.data.id && landing.type === "local") {
           alert(t("landingEditor.savedFiles"));
@@ -34417,7 +34450,7 @@ const LandingEditor = ({ landingId, onClose }) => {
     formData.append("file", file);
     formData.append("id", landingId);
     try {
-      const res = await axios.post(`${API_URL$x}?action=upload_landing`, formData, {
+      const res = await axios.post(`${API_URL$w}?action=upload_landing`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status === "success") {
@@ -34435,7 +34468,7 @@ const LandingEditor = ({ landingId, onClose }) => {
   };
   const loadFileContent = async (path) => {
     try {
-      const res = await axios.get(`${API_URL$x}?action=get_landing_file&id=${landingId}&path=${encodeURIComponent(path)}`);
+      const res = await axios.get(`${API_URL$w}?action=get_landing_file&id=${landingId}&path=${encodeURIComponent(path)}`);
       if (res.data.status === "success") {
         setSelectedFile(path);
         setFileContent(res.data.data);
@@ -34450,7 +34483,7 @@ const LandingEditor = ({ landingId, onClose }) => {
     if (!selectedFile) return;
     setSavingFile(true);
     try {
-      const res = await axios.post(`${API_URL$x}?action=save_landing_file`, {
+      const res = await axios.post(`${API_URL$w}?action=save_landing_file`, {
         id: landingId,
         path: selectedFile,
         content: fileContent
@@ -34661,7 +34694,7 @@ const LandingEditor = ({ landingId, onClose }) => {
     ] })
   ] }) });
 };
-const API_URL$w = "/api.php";
+const API_URL$v = "/api.php";
 const Landings = ({ landings, refreshData }) => {
   const { t } = useLanguage();
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
@@ -34684,7 +34717,7 @@ const Landings = ({ landings, refreshData }) => {
   const handleDelete = async (id) => {
     if (window.confirm(t("common.deleteConfirm"))) {
       try {
-        const res = await axios.post(`${API_URL$w}?action=delete_landing`, { id });
+        const res = await axios.post(`${API_URL$v}?action=delete_landing`, { id });
         if (res?.data?.status !== "success") {
           alert(res?.data?.message || t("common.error"));
           return;
@@ -34736,7 +34769,7 @@ const Landings = ({ landings, refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$w}?action=bulk_delete_landings`, { ids });
+      await axios.post(`${API_URL$v}?action=bulk_delete_landings`, { ids });
       setSelectedLandingIds(/* @__PURE__ */ new Set());
       refreshData();
     } catch (err) {
@@ -34964,7 +34997,7 @@ const Landings = ({ landings, refreshData }) => {
     ] }) })
   ] });
 };
-const API_URL$v = "/api.php";
+const API_URL$u = "/api.php";
 const getCountryFlag = (code) => {
   if (!code || code === "Unknown" || code === "??") return "🏳️";
   if (code.length !== 2) return "📍";
@@ -34989,8 +35022,8 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
     const loadData = async () => {
       try {
         const [cRes, pRes] = await Promise.all([
-          axios.get(`${API_URL$v}?action=countries_list`),
-          axios.get(`${API_URL$v}?action=geo_profiles`)
+          axios.get(`${API_URL$u}?action=countries_list`),
+          axios.get(`${API_URL$u}?action=geo_profiles`)
         ]);
         if (cRes.data?.data) setCountries(cRes.data.data);
         if (pRes.data?.data) setProfiles(pRes.data.data);
@@ -35207,7 +35240,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
     ] })
   ] });
 };
-const API_URL$u = "/api.php";
+const API_URL$t = "/api.php";
 const OfferEditor = ({ offerId, onClose }) => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
@@ -35242,9 +35275,9 @@ const OfferEditor = ({ offerId, onClose }) => {
     const fetchDeps = async () => {
       try {
         const [gRes, anRes, oRes] = await Promise.all([
-          axios.get(`${API_URL$u}?action=offer_groups`),
-          axios.get(`${API_URL$u}?action=affiliate_networks`),
-          axios.get(`${API_URL$u}?action=all_offers`)
+          axios.get(`${API_URL$t}?action=offer_groups`),
+          axios.get(`${API_URL$t}?action=affiliate_networks`),
+          axios.get(`${API_URL$t}?action=all_offers`)
         ]);
         if (gRes.data.status === "success") setGroups(gRes.data.data);
         if (anRes.data.status === "success") setAffiliateNetworks(anRes.data.data);
@@ -35256,7 +35289,7 @@ const OfferEditor = ({ offerId, onClose }) => {
     fetchDeps();
     if (offerId) {
       setLoading(true);
-      axios.get(`${API_URL$u}?action=get_offer&id=${offerId}`).then((res) => {
+      axios.get(`${API_URL$t}?action=get_offer&id=${offerId}`).then((res) => {
         if (res.data.status === "success") {
           const data = res.data.data;
           setFormData({
@@ -35296,7 +35329,7 @@ const OfferEditor = ({ offerId, onClose }) => {
       setLoading(true);
       const payload = { ...formData };
       if (offerId) payload.id = offerId;
-      const res = await axios.post(`${API_URL$u}?action=save_offer`, payload);
+      const res = await axios.post(`${API_URL$t}?action=save_offer`, payload);
       if (res.data.status === "success") {
         onClose(true);
       } else {
@@ -35748,7 +35781,7 @@ const OfferEditor = ({ offerId, onClose }) => {
     ] }) })
   ] }) });
 };
-const API_URL$t = "/api.php";
+const API_URL$s = "/api.php";
 const GroupsModal = ({ type, onClose }) => {
   const { t } = useLanguage();
   const [groups, setGroups] = reactExports.useState([]);
@@ -35785,7 +35818,7 @@ const GroupsModal = ({ type, onClose }) => {
   const fetchGroups = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$t}?action=${endpoint}`);
+      const res = await axios.get(`${API_URL$s}?action=${endpoint}`);
       if (res.data.status === "success") setGroups(res.data.data);
     } catch (err) {
       console.error("Error fetching groups:", err);
@@ -35796,7 +35829,7 @@ const GroupsModal = ({ type, onClose }) => {
   const handleCreate = async () => {
     if (!newGroupName.trim()) return;
     try {
-      const res = await axios.post(`${API_URL$t}?action=${endpoint}`, { name: newGroupName.trim() });
+      const res = await axios.post(`${API_URL$s}?action=${endpoint}`, { name: newGroupName.trim() });
       if (res.data.status === "success") {
         setNewGroupName("");
         fetchGroups();
@@ -35809,7 +35842,7 @@ const GroupsModal = ({ type, onClose }) => {
     if (!window.confirm(t("groupsModal.deleteConfirm"))) return;
     try {
       const del = type === "offer" ? "delete_offer_group" : endpoint;
-      await axios.post(`${API_URL$t}?action=${del}`, { id });
+      await axios.post(`${API_URL$s}?action=${del}`, { id });
       fetchGroups();
     } catch {
       alert(t("groupsModal.deleteError"));
@@ -35843,7 +35876,7 @@ const GroupsModal = ({ type, onClose }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition", children: t("groupsModal.close") }) })
   ] }) });
 };
-const API_URL$s = "/api.php";
+const API_URL$r = "/api.php";
 const Offers = ({ offers, refreshData }) => {
   const { t } = useLanguage();
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
@@ -35927,7 +35960,7 @@ const Offers = ({ offers, refreshData }) => {
   const handleDelete = async (id) => {
     if (window.confirm(t("common.deleteConfirm"))) {
       try {
-        await axios.post(`${API_URL$s}?action=delete_offer`, { id });
+        await axios.post(`${API_URL$r}?action=delete_offer`, { id });
         refreshData();
       } catch (err) {
         alert(t("common.error"));
@@ -35961,7 +35994,7 @@ const Offers = ({ offers, refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$s}?action=bulk_delete_offers`, { ids });
+      await axios.post(`${API_URL$r}?action=bulk_delete_offers`, { ids });
       setSelectedOfferIds(/* @__PURE__ */ new Set());
       refreshData();
     } catch (err) {
@@ -36281,7 +36314,7 @@ const Offers = ({ offers, refreshData }) => {
     ] }) })
   ] });
 };
-const API_URL$r = "/api.php";
+const API_URL$q = "/api.php";
 const TrafficSourceEditor = ({ id, onClose, onSave }) => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
@@ -36296,14 +36329,14 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     state: "active"
   });
   reactExports.useEffect(() => {
-    axios.get(`${API_URL$r}?action=traffic_source_templates`).then((res) => {
+    axios.get(`${API_URL$q}?action=traffic_source_templates`).then((res) => {
       if (res.data.status === "success") {
         setTemplates(res.data.data);
       }
     });
     if (id) {
       setLoading(true);
-      axios.get(`${API_URL$r}?action=get_traffic_source&id=${id}`).then((res) => {
+      axios.get(`${API_URL$q}?action=get_traffic_source&id=${id}`).then((res) => {
         if (res.data.status === "success") {
           const data = res.data.data;
           setFormData({
@@ -36360,7 +36393,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     }
     try {
       const payload = { ...formData, id };
-      await axios.post(`${API_URL$r}?action=traffic_sources`, payload);
+      await axios.post(`${API_URL$q}?action=traffic_sources`, payload);
       onSave();
     } catch (error) {
       console.error("Error saving traffic source:", error);
@@ -36558,7 +36591,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     ] })
   ] }) });
 };
-const API_URL$q = "/api.php";
+const API_URL$p = "/api.php";
 const TrafficSources = ({ refreshData }) => {
   const { t } = useLanguage();
   const [sources, setSources] = reactExports.useState([]);
@@ -36574,7 +36607,7 @@ const TrafficSources = ({ refreshData }) => {
   const fetchSources = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$q}?action=traffic_sources`);
+      const res = await axios.get(`${API_URL$p}?action=traffic_sources`);
       if (res.data.status === "success") {
         setSources(res.data.data);
       }
@@ -36605,7 +36638,7 @@ const TrafficSources = ({ refreshData }) => {
   const handleDelete = async (id) => {
     if (!confirm(t("sources.deleteConfirm"))) return;
     try {
-      const res = await axios.post(`${API_URL$q}?action=delete_traffic_source`, { id });
+      const res = await axios.post(`${API_URL$p}?action=delete_traffic_source`, { id });
       if (res?.data?.status !== "success") {
         alert(res?.data?.message || t("common.error"));
         return;
@@ -36644,7 +36677,7 @@ const TrafficSources = ({ refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("sources.deleteConfirm")).replace("{count}", String(ids.length));
     if (!confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$q}?action=bulk_delete_traffic_sources`, { ids });
+      await axios.post(`${API_URL$p}?action=bulk_delete_traffic_sources`, { ids });
       setSelectedIds(/* @__PURE__ */ new Set());
       fetchSources();
       refreshData && refreshData();
@@ -36879,7 +36912,7 @@ const TrafficSources = ({ refreshData }) => {
     ] }) })
   ] });
 };
-const API_URL$p = "/api.php";
+const API_URL$o = "/api.php";
 const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
   const { t } = useLanguage();
   const [conversions, setConversions] = reactExports.useState([]);
@@ -36901,7 +36934,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
       if (dateFrom) params.append("date_from", dateFrom);
       if (dateTo) params.append("date_to", dateTo);
       if (effectiveCampaignId) params.append("campaign_id", effectiveCampaignId);
-      const res = await axios.get(`${API_URL$p}?${params.toString()}`);
+      const res = await axios.get(`${API_URL$o}?${params.toString()}`);
       if (res.data.status === "success") {
         setConversions(res.data.data);
         setPagination(res.data.pagination);
@@ -37184,7 +37217,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
     )
   ] });
 };
-const API_URL$o = "/api.php";
+const API_URL$n = "/api.php";
 const PostbackSettings = () => {
   const { t } = useLanguage();
   const [settings, setSettings] = reactExports.useState({
@@ -37219,8 +37252,8 @@ const PostbackSettings = () => {
     setLoading(true);
     try {
       const [settingsRes, urlRes] = await Promise.all([
-        axios.get(`${API_URL$o}?action=settings`),
-        axios.get(`${API_URL$o}?action=postback_url`)
+        axios.get(`${API_URL$n}?action=settings`),
+        axios.get(`${API_URL$n}?action=postback_url`)
       ]);
       if (settingsRes.data.status === "success") {
         setSettings((prev) => ({ ...prev, ...settingsRes.data.data }));
@@ -37238,7 +37271,7 @@ const PostbackSettings = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await axios.post(`${API_URL$o}?action=save_settings`, {
+      await axios.post(`${API_URL$n}?action=save_settings`, {
         postback_key: settings.postback_key,
         currency: settings.currency,
         postback_aliases: settings.postback_aliases
@@ -37259,7 +37292,7 @@ const PostbackSettings = () => {
     }
     setTestResult(null);
     try {
-      const res = await axios.post(`${API_URL$o}?action=test_postback`, {
+      const res = await axios.post(`${API_URL$n}?action=test_postback`, {
         subid: testSubid,
         status: testStatus,
         payout: parseFloat(testPayout) || 0
@@ -37619,7 +37652,7 @@ const PostbackSettings = () => {
     ) })
   ] });
 };
-const API_URL$n = "/api.php";
+const API_URL$m = "/api.php";
 const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
@@ -37642,7 +37675,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
   }, [networkId]);
   const fetchTemplates = async () => {
     try {
-      const res = await axios.get(`${API_URL$n}?action=affiliate_network_templates`);
+      const res = await axios.get(`${API_URL$m}?action=affiliate_network_templates`);
       if (res.data.status === "success") {
         setTemplates(res.data.data);
       }
@@ -37653,7 +37686,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
   const fetchNetwork = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$n}?action=get_affiliate_network&id=${networkId}`);
+      const res = await axios.get(`${API_URL$m}?action=get_affiliate_network&id=${networkId}`);
       if (res.data.status === "success") {
         setFormData({
           name: res.data.data.name || "",
@@ -37691,7 +37724,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
       if (networkId) {
         payload.id = networkId;
       }
-      const res = await axios.post(`${API_URL$n}?action=affiliate_networks`, payload);
+      const res = await axios.post(`${API_URL$m}?action=affiliate_networks`, payload);
       if (res.data.status === "success") {
         onClose(true);
       } else {
@@ -37867,7 +37900,6 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
     ] })
   ] }) });
 };
-const API_URL$m = "/api.php";
 const AffiliateNetworks = () => {
   const { t } = useLanguage();
   const [networks, setNetworks] = reactExports.useState([]);
@@ -37888,9 +37920,9 @@ const AffiliateNetworks = () => {
   }, []);
   const fetchNetworks = async () => {
     try {
-      const res = await axios.get(`${API_URL$m}?action=affiliate_networks`);
-      if (res.data.status === "success") {
-        setNetworks(res.data.data);
+      const { data, fromCache } = await cachedGet("affiliate_networks");
+      if (data.status === "success") {
+        setNetworks(data.data);
       }
     } catch (err) {
       console.error(err);
@@ -37909,9 +37941,9 @@ const AffiliateNetworks = () => {
   };
   const fetchPostbackKey = async () => {
     try {
-      const res = await axios.get(`${API_URL$m}?action=settings`);
-      if (res.data.status === "success") {
-        setPostbackKey(res.data.data.postback_key || "fd12e72");
+      const { data } = await cachedGet("settings");
+      if (data.status === "success") {
+        setPostbackKey(data.data.postback_key || "fd12e72");
       }
     } catch (err) {
       console.error(err);
@@ -37920,7 +37952,7 @@ const AffiliateNetworks = () => {
   const handleDelete = async (id) => {
     if (!window.confirm(t("networks.deleteConfirm"))) return;
     try {
-      const res = await axios.post(`${API_URL$m}?action=delete_affiliate_network`, { id });
+      const res = await cachedPost("delete_affiliate_network", { id });
       if (res?.data?.status !== "success") {
         alert(res?.data?.message || t("common.error"));
         return;
@@ -37973,7 +38005,7 @@ const AffiliateNetworks = () => {
     const msg = (t("common.deleteSelectedConfirm") || t("networks.deleteConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$m}?action=bulk_delete_affiliate_networks`, { ids });
+      await cachedPost("bulk_delete_affiliate_networks", { ids });
       setSelectedIds(/* @__PURE__ */ new Set());
       fetchNetworks();
     } catch (err) {
@@ -52172,8 +52204,8 @@ function hasFixedPositionAncestor(element, stopNode) {
   }
   return getComputedStyle$1(parentNode).position === "fixed" || hasFixedPositionAncestor(parentNode, stopNode);
 }
-function getClippingElementAncestors(element, cache) {
-  const cachedResult = cache.get(element);
+function getClippingElementAncestors(element, cache2) {
+  const cachedResult = cache2.get(element);
   if (cachedResult) {
     return cachedResult;
   }
@@ -52195,7 +52227,7 @@ function getClippingElementAncestors(element, cache) {
     }
     currentNode = getParentNode(currentNode);
   }
-  cache.set(element, result);
+  cache2.set(element, result);
   return result;
 }
 function getClippingRect(_ref) {
@@ -52489,14 +52521,14 @@ const offset$1 = offset$2;
 const flip$1 = flip$2;
 const arrow$2 = arrow$3;
 const computePosition = (reference, floating, options) => {
-  const cache = /* @__PURE__ */ new Map();
+  const cache2 = /* @__PURE__ */ new Map();
   const mergedOptions = {
     platform,
     ...options
   };
   const platformWithCache = {
     ...mergedOptions.platform,
-    _c: cache
+    _c: cache2
   };
   return computePosition$1(reference, floating, {
     ...mergedOptions,

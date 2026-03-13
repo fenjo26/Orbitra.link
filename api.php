@@ -2200,21 +2200,57 @@ try {
             }
 
             $stmt = $pdo->query("
-                SELECT d.*, c.name as index_campaign_name 
-                FROM domains d 
+                SELECT d.*, c.name as index_campaign_name
+                FROM domains d
                 LEFT JOIN campaigns c ON d.index_campaign_id = c.id
                 ORDER BY d.created_at DESC
             ");
             $domains = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Compute dynamic DNS status
+            // DNS Cache TTL: 5 minutes (300 seconds)
+            $dnsCacheTtl = 300;
+            $currentTime = time();
+            $needsUpdate = [];
+
+            // Compute dynamic DNS status with caching
             foreach ($domains as &$domain) {
-                // Ignore IP if it's localhost for testing, but in production we match A record
-                $domainIp = gethostbyname($domain['name']);
-                if ($domainIp === $serverIp || $domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
-                    $domain['status'] = 'active';
-                } else {
-                    $domain['status'] = 'pending';
+                $domainId = (int)$domain['id'];
+                $useCached = false;
+
+                // Check if we have valid cached DNS status
+                if (!empty($domain['dns_checked_at'])) {
+                    $cachedTime = strtotime($domain['dns_checked_at']);
+                    if ($cachedTime && ($currentTime - $cachedTime) < $dnsCacheTtl) {
+                        // Cache is still valid, use it
+                        $domain['status'] = $domain['dns_status'] ?? 'pending';
+                        $useCached = true;
+                    }
+                }
+
+                // If no valid cache, do DNS lookup
+                if (!$useCached) {
+                    // Ignore IP if it's localhost for testing, but in production we match A record
+                    $domainIp = @gethostbyname($domain['name']);
+                    if ($domainIp === $serverIp || $domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
+                        $domain['status'] = 'active';
+                    } else {
+                        $domain['status'] = 'pending';
+                    }
+
+                    // Mark for database update
+                    $needsUpdate[] = [
+                        'id' => $domainId,
+                        'status' => $domain['status'],
+                        'ip' => $domainIp
+                    ];
+                }
+            }
+
+            // Batch update DNS cache in database (if any new lookups were done)
+            if (!empty($needsUpdate)) {
+                $updateStmt = $pdo->prepare("UPDATE domains SET dns_status = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?");
+                foreach ($needsUpdate as $update) {
+                    $updateStmt->execute([$update['status'], $update['ip'], $update['id']]);
                 }
             }
 

@@ -44,7 +44,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 4;
+    $LATEST_SCHEMA_VERSION = 5;
 
     $schemaVersion = 0;
     try {
@@ -819,6 +819,31 @@ try {
             $pdo->exec("ALTER TABLE campaigns ADD COLUMN token TEXT");
         } catch (Throwable $e) {
             // Ignore if already exists.
+        }
+    }
+
+    // Migration 5: Add DNS caching columns to domains table and performance indexes
+    if ($schemaVersion < 5) {
+        try {
+            $pdo->exec("ALTER TABLE domains ADD COLUMN dns_status TEXT");
+            $pdo->exec("ALTER TABLE domains ADD COLUMN dns_ip TEXT");
+            $pdo->exec("ALTER TABLE domains ADD COLUMN dns_checked_at DATETIME");
+            // Create index for faster lookups
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_domains_dns_status ON domains(dns_status)");
+
+            // Performance indexes for affiliate_networks query optimization
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_offers_affiliate_network_id ON offers(affiliate_network_id)");
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_offers_is_archived ON offers(is_archived)");
+            // Composite index for the COUNT query in affiliate_networks endpoint
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_offers_network_archived ON offers(affiliate_network_id, is_archived)");
+
+            // Indexes for affiliate_networks table (used in WHERE and ORDER BY)
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_affiliate_networks_is_archived ON affiliate_networks(is_archived)");
+
+            // Index for campaigns table (used in various queries)
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_campaigns_is_archived ON campaigns(is_archived)");
+        } catch (Throwable $e) {
+            // Ignore if columns/indexes already exist.
         }
     }
 

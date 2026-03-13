@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
 import { Plus, Edit2, Trash2, Copy, ExternalLink, Check, Filter, RefreshCw, Settings2, X } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import AffiliateNetworkEditor from './AffiliateNetworkEditor';
 import { useLanguage } from '../contexts/LanguageContext';
-
-const API_URL = '/api.php';
+import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
 
 const AffiliateNetworks = () => {
     const { t } = useLanguage();
@@ -29,9 +27,9 @@ const AffiliateNetworks = () => {
 
     const fetchNetworks = async () => {
         try {
-            const res = await axios.get(`${API_URL}?action=affiliate_networks`);
-            if (res.data.status === 'success') {
-                setNetworks(res.data.data);
+            const { data, fromCache } = await cachedGet('affiliate_networks');
+            if (data.status === 'success') {
+                setNetworks(data.data);
             }
         } catch (err) {
             console.error(err);
@@ -52,9 +50,9 @@ const AffiliateNetworks = () => {
 
     const fetchPostbackKey = async () => {
         try {
-            const res = await axios.get(`${API_URL}?action=settings`);
-            if (res.data.status === 'success') {
-                setPostbackKey(res.data.data.postback_key || 'fd12e72');
+            const { data } = await cachedGet('settings');
+            if (data.status === 'success') {
+                setPostbackKey(data.data.postback_key || 'fd12e72');
             }
         } catch (err) {
             console.error(err);
@@ -64,7 +62,7 @@ const AffiliateNetworks = () => {
     const handleDelete = async (id) => {
         if (!window.confirm(t('networks.deleteConfirm'))) return;
         try {
-            const res = await axios.post(`${API_URL}?action=delete_affiliate_network`, { id });
+            const res = await cachedPost('delete_affiliate_network', { id });
             if (res?.data?.status !== 'success') {
                 alert(res?.data?.message || t('common.error'));
                 return;
@@ -122,7 +120,7 @@ const AffiliateNetworks = () => {
         const msg = (t('common.deleteSelectedConfirm') || t('networks.deleteConfirm') || t('common.deleteConfirm')).replace('{count}', String(ids.length));
         if (!window.confirm(msg)) return;
         try {
-            await axios.post(`${API_URL}?action=bulk_delete_affiliate_networks`, { ids });
+            await cachedPost('bulk_delete_affiliate_networks', { ids });
             setSelectedIds(new Set());
             fetchNetworks();
         } catch (err) {

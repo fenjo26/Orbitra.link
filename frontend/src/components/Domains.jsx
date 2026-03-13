@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import HelpTooltip from './HelpTooltip';
 import { useLanguage } from '../contexts/LanguageContext';
-
-const API_URL = '/api.php';
+import { cachedGet, cachedPost } from '../utils/apiCache';
 
 const Domains = ({ campaigns }) => {
     const { t } = useLanguage();
@@ -37,11 +35,11 @@ const Domains = ({ campaigns }) => {
     }, []);
     const fetchDomains = async () => {
         try {
-            const res = await axios.get(`${API_URL}?action=domains`);
-            if (res.data.status === 'success') {
-                setDomains(res.data.data);
-                setFilteredDomains(res.data.data);
-                setServerIp(res.data.server_ip || t('common.notSet'));
+            const { data } = await cachedGet('domains');
+            if (data.status === 'success') {
+                setDomains(data.data);
+                setFilteredDomains(data.data);
+                setServerIp(data.server_ip || t('common.notSet'));
             }
         } catch (e) {
             console.error(e);
@@ -76,7 +74,7 @@ const Domains = ({ campaigns }) => {
     const handleDelete = async (id) => {
         if (!window.confirm(t('domains.deleteConfirm'))) return;
         try {
-            await axios.post(`${API_URL}?action=delete_domain`, { id });
+            await cachedPost('delete_domain', { id });
             fetchDomains();
         } catch (e) {
             console.error(e);
@@ -95,7 +93,7 @@ const Domains = ({ campaigns }) => {
         e.preventDefault();
         setError('');
         try {
-            const res = await axios.post(`${API_URL}?action=save_domain`, formData);
+            const res = await cachedPost('save_domain', formData);
             if (res.data.status === 'success') {
                 setShowModal(false);
                 setFormData({ id: null, name: '', index_campaign_id: '', catch_404: false, group_id: '', is_noindex: true, https_only: false });
