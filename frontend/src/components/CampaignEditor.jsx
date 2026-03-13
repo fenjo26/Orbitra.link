@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
 import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play } from 'lucide-react';
 import CampaignReports from './CampaignReports';
 import ConversionsLog from './ConversionsLog';
 import { useLanguage } from '../contexts/LanguageContext';
-
-const API_URL = '/api.php';
+import { cachedGet, cachedPost } from '../utils/apiCache';
 
 // Generate random alias like Keitaro
 const generateAlias = () => {
@@ -166,9 +164,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const fetchClickLogs = async () => {
         if (!campaignId) return;
         try {
-            const res = await axios.get(`${API_URL}?action=campaign_logs&campaign_id=${campaignId}`);
-            if (res.data.status === 'success') {
-                setClickLogs(res.data.data);
+            const { data } = await cachedGet('campaign_logs', { campaign_id: campaignId });
+            if (data.status === 'success') {
+                setClickLogs(data.data);
             }
         } catch (e) {
             console.error('Error fetching logs:', e);
@@ -178,12 +176,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     useEffect(() => {
         const fetchDeps = async () => {
             try {
+                // Cache dropdown data for 5 minutes - rarely changes
+                const TTL = 300000;
                 const [gRes, sRes, dRes, oRes, lRes] = await Promise.all([
-                    axios.get(`${API_URL}?action=campaign_groups`),
-                    axios.get(`${API_URL}?action=traffic_sources`),
-                    axios.get(`${API_URL}?action=domains`),
-                    axios.get(`${API_URL}?action=all_offers`),
-                    axios.get(`${API_URL}?action=landings`)
+                    cachedGet('campaign_groups', {}, TTL),
+                    cachedGet('traffic_sources', {}, TTL),
+                    cachedGet('domains', {}, TTL),
+                    cachedGet('all_offers', {}, TTL),
+                    cachedGet('landings_simple', {}, TTL) // Use optimized endpoint without heavy joins
                 ]);
                 if (gRes.data.status === 'success') setGroups(gRes.data.data);
                 if (sRes.data.status === 'success') setSources(sRes.data.data);
@@ -198,7 +198,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
         if (campaignId) {
             setLoading(true);
-            axios.get(`${API_URL}?action=get_campaign&id=${campaignId}`)
+            cachedGet('get_campaign', { id: campaignId })
                 .then(res => {
                     if (res.data.status === 'success') {
                         const data = res.data.data;
@@ -244,8 +244,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const fetchPixels = async () => {
         if (!campaignId) return;
         try {
-            const res = await axios.get(`${API_URL}?action=campaign_pixels&campaign_id=${campaignId}`);
-            if (res.data.status === 'success') setPixels(res.data.data || []);
+            const { data } = await cachedGet('campaign_pixels', { campaign_id: campaignId });
+            if (data.status === 'success') setPixels(data.data || []);
         } catch (err) { console.error(err); }
     };
 
@@ -262,7 +262,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             // Do not send it from the editor by default to avoid accidental wipes during edits/migrations.
             const payload = { ...formData };
             delete payload.token;
-            const res = await axios.post(`${API_URL}?action=save_campaign`, payload);
+            const res = await cachedPost('save_campaign', payload);
             if (res.data.status === 'success') {
                 setSaveSuccess(true);
                 setTimeout(() => {
@@ -328,7 +328,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         if (!window.confirm(t('editor.regenerateTokenConfirm'))) return;
         try {
             setTokenBusy(true);
-            const res = await axios.post(`${API_URL}?action=regenerate_campaign_token`, { campaign_id: id });
+            const res = await cachedPost('regenerate_campaign_token', { campaign_id: id });
             if (res.data.status === 'success') {
                 setFormData(prev => ({ ...prev, token: res.data.data?.token || '' }));
             } else {
@@ -345,7 +345,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         if (!campaignId) return;
         if (!window.confirm(t('campaigns.clearStatsWarning'))) return;
         try {
-            const res = await axios.post(`${API_URL}?action=clear_campaign_stats`, { campaign_id: campaignId });
+            const res = await cachedPost('clear_campaign_stats', { campaign_id: campaignId });
             if (res.data.status === 'success') {
                 alert(t('editor.saved'));
                 setShowClearModal(false);
@@ -372,7 +372,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         setTrafficSimLoading(true);
         setTrafficSimResult(null);
         try {
-            const res = await axios.post(`${API_URL}?action=simulate_traffic`, {
+            const res = await cachedPost('simulate_traffic', {
                 campaign_id: campaignId,
                 ...trafficSimForm
             });
@@ -926,7 +926,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
                                                                     <input type="checkbox" checked={!!px.is_active} onChange={async (e) => {
                                                                         try {
-                                                                            await axios.post(`${API_URL}?action=save_campaign_pixel`, { ...px, is_active: e.target.checked ? 1 : 0 });
+                                                                            await cachedPost('save_campaign_pixel', { ...px, is_active: e.target.checked ? 1 : 0 });
                                                                             fetchPixels();
                                                                         } catch (err) { console.error(err); }
                                                                     }} />
@@ -934,7 +934,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                                 </label>
                                                                 <button onClick={() => {
                                                                     if (confirm(t('pixels.confirmDelete'))) {
-                                                                        axios.post(`${API_URL}?action=delete_campaign_pixel`, { id: px.id }).then(() => fetchPixels());
+                                                                        cachedPost('delete_campaign_pixel', { id: px.id }).then(() => fetchPixels());
                                                                     }
                                                                 }} className="action-btn text-red" style={{ padding: '4px' }}>
                                                                     <Trash2 size={14} />
@@ -995,7 +995,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                                 onClick={async () => {
                                                                     if (!pixelForm.pixel_id) return;
                                                                     try {
-                                                                        await axios.post(`${API_URL}?action=save_campaign_pixel`, {
+                                                                        await cachedPost('save_campaign_pixel', {
                                                                             campaign_id: campaignId,
                                                                             ...pixelForm
                                                                         });
