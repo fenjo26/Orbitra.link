@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { X, Save, Copy, Check } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-
-const API_URL = '/api.php';
+import { cachedGet, cachedPost } from '../utils/apiCache';
 
 const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
     const { t } = useLanguage();
@@ -29,9 +27,9 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
 
     const fetchTemplates = async () => {
         try {
-            const res = await axios.get(`${API_URL}?action=affiliate_network_templates`);
-            if (res.data.status === 'success') {
-                setTemplates(res.data.data);
+            const { data } = await cachedGet('affiliate_network_templates', {}, 60000); // Cache templates for 1 minute
+            if (data.status === 'success') {
+                setTemplates(data.data);
             }
         } catch (err) {
             console.error(err);
@@ -41,15 +39,15 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
     const fetchNetwork = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${API_URL}?action=get_affiliate_network&id=${networkId}`);
-            if (res.data.status === 'success') {
+            const { data } = await cachedGet('get_affiliate_network', { id: networkId });
+            if (data.status === 'success') {
                 setFormData({
-                    name: res.data.data.name || '',
-                    template: res.data.data.template || 'generic',
-                    offer_params: res.data.data.offer_params || '',
-                    postback_url: res.data.data.postback_url || '',
-                    notes: res.data.data.notes || '',
-                    state: res.data.data.state || 'active'
+                    name: data.data.name || '',
+                    template: data.data.template || 'generic',
+                    offer_params: data.data.offer_params || '',
+                    postback_url: data.data.postback_url || '',
+                    notes: data.data.notes || '',
+                    state: data.data.state || 'active'
                 });
             }
         } catch (err) {
@@ -83,7 +81,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                 payload.id = networkId;
             }
 
-            const res = await axios.post(`${API_URL}?action=affiliate_networks`, payload);
+            const res = await cachedPost('affiliate_networks', payload);
             if (res.data.status === 'success') {
                 onClose(true);
             } else {
