@@ -16133,6 +16133,11 @@ const ru = {
     conversionsLog: "Лог конверсий",
     trafficSimulation: "Симуляция трафика",
     runSimulation: "Запустить симуляцию",
+    ipAddress: "IP-адрес",
+    userAgent: "User Agent",
+    country: "Страна",
+    deviceType: "Тип устройства",
+    language: "Язык",
     general: "Общие",
     finance: "Финансы",
     params: "Параметры",
@@ -17852,6 +17857,11 @@ const en = {
     conversionsLog: "Conversions Log",
     trafficSimulation: "Traffic Simulation",
     runSimulation: "Run simulation",
+    ipAddress: "IP Address",
+    userAgent: "User Agent",
+    country: "Country",
+    deviceType: "Device Type",
+    language: "Language",
     general: "General",
     finance: "Finance",
     params: "Parameters",
@@ -47157,7 +47167,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "IP Address" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.ipAddress") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -47170,7 +47180,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "User Agent" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.userAgent") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -47183,7 +47193,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("countries.country") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.country") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "select",
               {
@@ -47206,7 +47216,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("streams.deviceType") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.deviceType") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "select",
               {
@@ -47223,7 +47233,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("streams.language") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.language") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
             {
@@ -47247,7 +47257,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         background: trafficSimResult.status === "success" ? "var(--color-success-bg)" : "var(--color-danger-bg)",
         color: trafficSimResult.status === "success" ? "var(--color-success)" : "var(--color-danger)"
       }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-2", children: trafficSimResult.status === "success" ? "✓ Success" : "✗ Error" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-2", children: trafficSimResult.status === "success" ? `✓ ${t("common.success")}` : `✗ ${t("common.error")}` }),
         trafficSimResult.message && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: trafficSimResult.message }),
         trafficSimResult.trace && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 text-xs", style: { whiteSpace: "pre-wrap", opacity: 0.8 }, children: typeof trafficSimResult.trace === "string" ? trafficSimResult.trace : JSON.stringify(trafficSimResult.trace, null, 2) }),
         trafficSimResult.data && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 text-xs", style: { whiteSpace: "pre-wrap", opacity: 0.8 }, children: JSON.stringify(trafficSimResult.data, null, 2) })

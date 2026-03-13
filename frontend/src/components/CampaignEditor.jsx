@@ -1656,7 +1656,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
 
                         <div className="space-y-4">
                             <div>
-                                <label className="form-label">IP Address</label>
+                                <label className="form-label">{t('editor.ipAddress')}</label>
                                 <input
                                     type="text"
                                     value={trafficSimForm.ip}
@@ -1666,7 +1666,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                 />
                             </div>
                             <div>
-                                <label className="form-label">User Agent</label>
+                                <label className="form-label">{t('editor.userAgent')}</label>
                                 <input
                                     type="text"
                                     value={trafficSimForm.user_agent}
@@ -1676,7 +1676,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="form-label">{t('countries.country')}</label>
+                                    <label className="form-label">{t('editor.country')}</label>
                                     <select
                                         value={trafficSimForm.country}
                                         onChange={(e) => setTrafficSimForm({ ...trafficSimForm, country: e.target.value })}
@@ -1695,7 +1695,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="form-label">{t('streams.deviceType')}</label>
+                                    <label className="form-label">{t('editor.deviceType')}</label>
                                     <select
                                         value={trafficSimForm.device_type}
                                         onChange={(e) => setTrafficSimForm({ ...trafficSimForm, device_type: e.target.value })}
@@ -1708,7 +1708,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                 </div>
                             </div>
                             <div>
-                                <label className="form-label">{t('streams.language')}</label>
+                                <label className="form-label">{t('editor.language')}</label>
                                 <select
                                     value={trafficSimForm.language}
                                     onChange={(e) => setTrafficSimForm({ ...trafficSimForm, language: e.target.value })}
@@ -1731,7 +1731,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                 color: trafficSimResult.status === 'success' ? 'var(--color-success)' : 'var(--color-danger)'
                             }}>
                                 <div className="font-semibold mb-2">
-                                    {trafficSimResult.status === 'success' ? '✓ Success' : '✗ Error'}
+                                    {trafficSimResult.status === 'success' ? `✓ ${t('common.success')}` : `✗ ${t('common.error')}`}
                                 </div>
                                 {trafficSimResult.message && <div>{trafficSimResult.message}</div>}
                                 {trafficSimResult.trace && (
