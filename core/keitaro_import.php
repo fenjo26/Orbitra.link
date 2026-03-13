@@ -1025,7 +1025,7 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
             $keitaroCampaignIdToOrbitraId = [];
             if ($doCampaigns) {
                 $rows = $parsed['keitaro_campaigns']['rows'] ?? [];
-                $stmtFindByAlias = $pdo->prepare("SELECT id, domain_id, keitaro_id FROM campaigns WHERE is_archived = 0 AND alias = ? LIMIT 1");
+                $stmtFindByAlias = $pdo->prepare("SELECT id, domain_id, keitaro_id, rotation_type, token FROM campaigns WHERE is_archived = 0 AND alias = ? LIMIT 1");
                 $stmtIns = null;
                 if ($preserveCampaignIds) {
                     if ($hasCampaignKeitaroId) {
@@ -1049,6 +1049,8 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                     ");
                 }
                 $stmtUpdDomain = $pdo->prepare("UPDATE campaigns SET domain_id = ? WHERE id = ? AND (domain_id IS NULL OR domain_id = 0)");
+                $stmtUpdToken = $pdo->prepare("UPDATE campaigns SET token = ? WHERE id = ? AND (token IS NULL OR token = '')");
+                $stmtUpdRotation = $pdo->prepare("UPDATE campaigns SET rotation_type = ? WHERE id = ? AND (rotation_type IS NULL OR rotation_type = '' OR rotation_type = 'weight')");
                 $stmtUpdK = null;
                 if ($hasCampaignKeitaroId) {
                     $stmtUpdK = $pdo->prepare("UPDATE campaigns SET keitaro_id = ? WHERE id = ? AND (keitaro_id IS NULL OR keitaro_id = 0)");
@@ -1087,7 +1089,8 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                 // Some versions may use `rotation`; support both.
                 $rotationRaw = $r['rotation'] ?? ($r['type'] ?? null);
                 $rotationType = orbitraKeitaroMapRotationType($rotationRaw);
-                $token = $r['token'] ?? null;
+                $token = trim((string) ($r['token'] ?? ''));
+                if ($token === '') $token = null;
 
                 $sourceId = null;
                 $kSourceId = (int) ($r['traffic_source_id'] ?? 0);
@@ -1111,6 +1114,13 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                     }
                     if ($stmtUpdK && $kid > 0) {
                         $stmtUpdK->execute([$kid, $existingId]);
+                    }
+                    if ($token !== null) {
+                        $stmtUpdToken->execute([$token, $existingId]);
+                    }
+                    $existingRotation = strtolower(trim((string) ($existing['rotation_type'] ?? '')));
+                    if ($rotationType === 'position' && ($existingRotation === '' || $existingRotation === 'weight')) {
+                        $stmtUpdRotation->execute([$rotationType, $existingId]);
                     }
                     $result['imported']['campaigns']['skipped']++;
                     continue;

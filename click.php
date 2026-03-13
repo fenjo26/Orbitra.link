@@ -1,7 +1,10 @@
 <?php
 // click.php — Lightweight click handler for integration scripts
-// Accepts campaign_id, records click, and optionally redirects to offer URL
-// Usage: /click.php?campaign_id=1&sub1=value&redirect=0
+// Accepts campaign_id OR campaign token (Keitaro Click API compatible), records click,
+// and optionally redirects to offer URL.
+// Usage:
+//   /click.php?campaign_id=1&token=...&redirect=0
+//   /click.php?token=...&redirect=0
 
 require_once 'config.php';
 
@@ -10,22 +13,45 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 }
 
 $campaignId = $_GET['campaign_id'] ?? null;
-
-if (!$campaignId) {
-    http_response_code(400);
-    echo json_encode(['error' => 'campaign_id required']);
-    exit;
+$token = $_GET['token'] ?? ($_GET['api_token'] ?? null);
+if (is_string($token)) {
+    $token = trim($token);
+    if ($token === '') $token = null;
 }
 
-// Look up campaign
-$stmt = $pdo->prepare("SELECT * FROM campaigns WHERE id = ? LIMIT 1");
-$stmt->execute([$campaignId]);
-$campaign = $stmt->fetch();
+// Look up campaign by token (preferred) or ID (legacy).
+$campaign = null;
+if ($token) {
+    $stmt = $pdo->prepare("SELECT * FROM campaigns WHERE token = ? LIMIT 1");
+    $stmt->execute([$token]);
+    $campaign = $stmt->fetch();
+    if ($campaign) {
+        $campaignId = (int) ($campaign['id'] ?? 0);
+    }
+} else if ($campaignId) {
+    $stmt = $pdo->prepare("SELECT * FROM campaigns WHERE id = ? LIMIT 1");
+    $stmt->execute([$campaignId]);
+    $campaign = $stmt->fetch();
+}
 
 if (!$campaign) {
     http_response_code(404);
     echo json_encode(['error' => 'Campaign not found']);
     exit;
+}
+
+// If campaign has a token, require it for click API calls (prevents fake clicks by ID guessing).
+if (!empty($campaign['token'])) {
+    if (!$token) {
+        http_response_code(403);
+        echo json_encode(['error' => 'token required']);
+        exit;
+    }
+    if (!hash_equals((string) $campaign['token'], (string) $token)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'invalid token']);
+        exit;
+    }
 }
 
 // --- Collect visitor data ---

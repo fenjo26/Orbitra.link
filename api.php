@@ -746,9 +746,15 @@ try {
                     // Keep default consistent across DB/UI/router.
                     $rotationType = 'position';
                 }
-                $token = isset($data['token']) ? trim((string) $data['token']) : '';
-                if ($token === '') {
-                    $token = null;
+                // Click API token (Keitaro-compatible). Important: if the client doesn't send it,
+                // we must NOT overwrite an existing token with NULL/empty.
+                $tokenProvided = is_array($data) && array_key_exists('token', $data);
+                $token = null;
+                if ($tokenProvided) {
+                    $token = trim((string) ($data['token'] ?? ''));
+                    if ($token === '') {
+                        $token = null;
+                    }
                 }
                 $catch404StreamId = !empty($data['catch_404_stream_id']) ? (int) $data['catch_404_stream_id'] : null;
 
@@ -763,30 +769,71 @@ try {
                 try {
                     $pdo->beginTransaction();
 
+                    // Generate token for Click API if missing (Keitaro-style: 32 chars).
+                    $generateCampaignToken = function () use ($pdo): string {
+                        $stmtTokExists = $pdo->prepare("SELECT id FROM campaigns WHERE token = ? LIMIT 1");
+                        for ($i = 0; $i < 30; $i++) {
+                            $cand = bin2hex(random_bytes(16));
+                            $stmtTokExists->execute([$cand]);
+                            if (!$stmtTokExists->fetchColumn()) {
+                                return $cand;
+                            }
+                        }
+                        return bin2hex(random_bytes(16));
+                    };
+
                     if ($id) {
-                        $stmt = $pdo->prepare("
-                            UPDATE campaigns 
-                            SET name=?, alias=?, domain_id=?, group_id=?, source_id=?, 
-                                cost_model=?, cost_value=?, uniqueness_method=?, uniqueness_hours=?, 
-                                rotation_type=?, token=?, catch_404_stream_id=?
-                            WHERE id=?
-                        ");
-                        $stmt->execute([
-                            $name,
-                            $alias,
-                            $domainId,
-                            $groupId,
-                            $sourceId,
-                            $costModel,
-                            $costValue,
-                            $uniquenessMethod,
-                            $uniquenessHours,
-                            $rotationType,
-                            $token,
-                            $catch404StreamId,
-                            $id
-                        ]);
+                        if ($tokenProvided) {
+                            $stmt = $pdo->prepare("
+                                UPDATE campaigns 
+                                SET name=?, alias=?, domain_id=?, group_id=?, source_id=?, 
+                                    cost_model=?, cost_value=?, uniqueness_method=?, uniqueness_hours=?, 
+                                    rotation_type=?, token=?, catch_404_stream_id=?
+                                WHERE id=?
+                            ");
+                            $stmt->execute([
+                                $name,
+                                $alias,
+                                $domainId,
+                                $groupId,
+                                $sourceId,
+                                $costModel,
+                                $costValue,
+                                $uniquenessMethod,
+                                $uniquenessHours,
+                                $rotationType,
+                                $token,
+                                $catch404StreamId,
+                                $id
+                            ]);
+                        } else {
+                            // Don't wipe token if UI doesn't include it.
+                            $stmt = $pdo->prepare("
+                                UPDATE campaigns 
+                                SET name=?, alias=?, domain_id=?, group_id=?, source_id=?, 
+                                    cost_model=?, cost_value=?, uniqueness_method=?, uniqueness_hours=?, 
+                                    rotation_type=?, catch_404_stream_id=?
+                                WHERE id=?
+                            ");
+                            $stmt->execute([
+                                $name,
+                                $alias,
+                                $domainId,
+                                $groupId,
+                                $sourceId,
+                                $costModel,
+                                $costValue,
+                                $uniquenessMethod,
+                                $uniquenessHours,
+                                $rotationType,
+                                $catch404StreamId,
+                                $id
+                            ]);
+                        }
                     } else {
+                        if ($token === null) {
+                            $token = $generateCampaignToken();
+                        }
                         $stmt = $pdo->prepare("
                             INSERT INTO campaigns 
                             (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id)
@@ -808,6 +855,10 @@ try {
                         ]);
                         $id = $pdo->lastInsertId();
                     }
+
+                    // Backfill token for older campaigns where it may be NULL/empty.
+                    $pdo->prepare("UPDATE campaigns SET token = ? WHERE id = ? AND (token IS NULL OR token = '')")
+                        ->execute([$generateCampaignToken(), (int) $id]);
 
                     // For MVP: delete old streams and insert new ones
                     $pdo->prepare("DELETE FROM streams WHERE campaign_id = ?")->execute([$id]);
@@ -849,11 +900,58 @@ try {
                     }
 
                     $pdo->commit();
-                    echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
+                    $stmtTokOut = $pdo->prepare("SELECT token FROM campaigns WHERE id = ? LIMIT 1");
+                    $stmtTokOut->execute([(int) $id]);
+                    $tokenOut = $stmtTokOut->fetchColumn();
+                    echo json_encode(['status' => 'success', 'data' => ['id' => $id, 'token' => $tokenOut, 'rotation_type' => $rotationType]]);
                 } catch (\Exception $e) {
                     $pdo->rollBack();
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
+            }
+            break;
+
+        case 'regenerate_campaign_token':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            $campaignId = (int) ($data['campaign_id'] ?? ($data['id'] ?? 0));
+            if ($campaignId <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing campaign_id']);
+                break;
+            }
+            try {
+                $stmtFind = $pdo->prepare("SELECT id FROM campaigns WHERE id = ? LIMIT 1");
+                $stmtFind->execute([$campaignId]);
+                if (!$stmtFind->fetchColumn()) {
+                    echo json_encode(['status' => 'error', 'message' => 'Campaign not found']);
+                    break;
+                }
+
+                $stmtTokExists = $pdo->prepare("SELECT id FROM campaigns WHERE token = ? LIMIT 1");
+                $newToken = null;
+                for ($i = 0; $i < 30; $i++) {
+                    $cand = bin2hex(random_bytes(16));
+                    $stmtTokExists->execute([$cand]);
+                    if (!$stmtTokExists->fetchColumn()) {
+                        $newToken = $cand;
+                        break;
+                    }
+                }
+                if (!$newToken) {
+                    echo json_encode(['status' => 'error', 'message' => 'Failed to generate unique token']);
+                    break;
+                }
+                $pdo->prepare("UPDATE campaigns SET token = ? WHERE id = ?")->execute([$newToken, $campaignId]);
+                echo json_encode(['status' => 'success', 'data' => ['campaign_id' => $campaignId, 'token' => $newToken]]);
+            } catch (Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
             }
             break;
 

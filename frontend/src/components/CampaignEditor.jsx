@@ -244,7 +244,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         }
         try {
             setLoading(true);
-            const res = await axios.post(`${API_URL}?action=save_campaign`, formData);
+            // Token is managed server-side / via a dedicated action.
+            // Do not send it from the editor by default to avoid accidental wipes during edits/migrations.
+            const payload = { ...formData };
+            delete payload.token;
+            const res = await axios.post(`${API_URL}?action=save_campaign`, payload);
             if (res.data.status === 'success') {
                 setSaveSuccess(true);
                 setTimeout(() => {
@@ -258,6 +262,68 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             alert(t('common.networkError'));
         } finally {
             setLoading(false);
+        }
+    };
+
+    const [tokenCopySuccess, setTokenCopySuccess] = useState(false);
+    const [tokenBusy, setTokenBusy] = useState(false);
+
+    const copyToken = async () => {
+        const val = (formData.token || '').trim();
+        if (!val) return;
+        let copied = false;
+
+        if (navigator.clipboard && window.isSecureContext) {
+            try {
+                await navigator.clipboard.writeText(val);
+                copied = true;
+            } catch (e) {
+                copied = false;
+            }
+        }
+
+        if (!copied) {
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = val;
+                textarea.setAttribute('readonly', '');
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                textarea.style.pointerEvents = 'none';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                copied = document.execCommand('copy');
+                document.body.removeChild(textarea);
+            } catch (e) {
+                copied = false;
+            }
+        }
+
+        if (copied) {
+            setTokenCopySuccess(true);
+            setTimeout(() => setTokenCopySuccess(false), 1500);
+        } else {
+            alert(t('common.error'));
+        }
+    };
+
+    const regenerateToken = async () => {
+        const id = formData.id || campaignId;
+        if (!id) return;
+        if (!window.confirm(t('editor.regenerateTokenConfirm'))) return;
+        try {
+            setTokenBusy(true);
+            const res = await axios.post(`${API_URL}?action=regenerate_campaign_token`, { campaign_id: id });
+            if (res.data.status === 'success') {
+                setFormData(prev => ({ ...prev, token: res.data.data?.token || '' }));
+            } else {
+                alert(`${t('common.error')}: ${res.data.message || 'Unknown error'}`);
+            }
+        } catch (e) {
+            alert(t('common.networkError'));
+        } finally {
+            setTokenBusy(false);
         }
     };
 
@@ -626,13 +692,37 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
 
                                                     <div>
                                                         <label className="form-label">{t('editor.clickApiToken') || 'Токен Click API'}</label>
-                                                        <input
-                                                            type="text"
-                                                            value={formData.token}
-                                                            onChange={e => setFormData({ ...formData, token: e.target.value })}
-                                                            className="form-input font-mono text-sm"
-                                                            placeholder="3pTKR1fmNNHgp4X9"
-                                                        />
+                                                        <div className="flex gap-2">
+                                                            <input
+                                                                type="text"
+                                                                value={formData.token || ''}
+                                                                readOnly
+                                                                className="form-input font-mono text-sm"
+                                                                placeholder="3pTKR1fmNNHgp4X9"
+                                                                title={t('editor.clickApiTokenHint')}
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-secondary btn-icon"
+                                                                onClick={copyToken}
+                                                                disabled={!formData.token}
+                                                                title={t('common.copy')}
+                                                            >
+                                                                {tokenCopySuccess ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-secondary btn-icon"
+                                                                onClick={regenerateToken}
+                                                                disabled={tokenBusy || !(formData.id || campaignId)}
+                                                                title={t('editor.regenerateToken') || t('common.refresh')}
+                                                            >
+                                                                <RefreshCw className={`w-4 h-4 ${tokenBusy ? 'animate-spin' : ''}`} />
+                                                            </button>
+                                                        </div>
+                                                        <p className="text-xs mt-2" style={{ color: 'var(--color-text-muted)' }}>
+                                                            {t('editor.clickApiTokenHint')}
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
