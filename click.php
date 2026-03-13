@@ -337,10 +337,43 @@ $parametersJson = json_encode($clickParams, JSON_UNESCAPED_UNICODE);
 $stmtSetting = $pdo->query("SELECT value FROM settings WHERE key = 'stats_enabled'");
 $statsEnabled = $stmtSetting ? ($stmtSetting->fetchColumn() !== '0') : true;
 
+// Universal function for weighted selection locally in click.php
+function clickSelectWeightedItem($items)
+{
+    if (empty($items))
+        return null;
+    $totalW = 0;
+    foreach ($items as $it) {
+        $w = (int) ($it['weight'] ?? 0);
+        if ($w < 0) $w = 0;
+        $totalW += $w;
+    }
+    if ($totalW > 0) {
+        $rand = mt_rand(1, (int) $totalW);
+        $curW = 0;
+        foreach ($items as $item) {
+            $curW += max(0, (int) ($item['weight'] ?? 0));
+            if ($rand <= $curW) {
+                return $item;
+            }
+        }
+    }
+    return reset($items);
+}
+
 // Find the default stream/offer for this campaign
-$stmt = $pdo->prepare("SELECT * FROM streams WHERE campaign_id = ? AND is_active = 1 ORDER BY position ASC, id ASC LIMIT 1");
+$stmt = $pdo->prepare("SELECT * FROM streams WHERE campaign_id = ? AND is_active = 1 ORDER BY position ASC, id ASC");
 $stmt->execute([$campaignId]);
-$stream = $stmt->fetch();
+$allStreams = $stmt->fetchAll();
+
+$stream = null;
+if (!empty($allStreams)) {
+    if (($campaign['rotation_type'] ?? 'position') === 'weight') {
+        $stream = clickSelectWeightedItem($allStreams);
+    } else {
+        $stream = reset($allStreams);
+    }
+}
 
 $offerId = 0;
 $streamId = null;

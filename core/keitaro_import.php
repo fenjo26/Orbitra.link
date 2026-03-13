@@ -257,6 +257,24 @@ function orbitraKeitaroMapCostModel(string $v): string
     return $v;
 }
 
+function orbitraKeitaroMapRotationType($v): string
+{
+    // Keitaro dumps can represent rotation as:
+    // - integers (0/1) in some versions
+    // - strings like 'position' / 'probability' (common in SQL dumps)
+    $s = strtolower(trim((string) $v));
+
+    // Numeric encodings
+    if ($s === '0') return 'weight';
+    if ($s === '1') return 'position';
+
+    // String encodings
+    if ($s === 'probability' || $s === 'weight' || $s === 'weighted' || $s === 'random') return 'weight';
+    if ($s === 'position' || $s === 'waterfall') return 'position';
+
+    return 'position';
+}
+
 function orbitraKeitaroSqliteHasColumn(PDO $pdo, string $table, string $column): bool
 {
     try {
@@ -1013,21 +1031,21 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                     if ($hasCampaignKeitaroId) {
                         $stmtIns = $pdo->prepare("
                             INSERT INTO campaigns
-                            (id, name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, catch_404_stream_id, keitaro_id)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)
+                            (id, name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id, keitaro_id)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)
                         ");
                     } else {
                         $stmtIns = $pdo->prepare("
                             INSERT INTO campaigns
-                            (id, name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, catch_404_stream_id)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
+                            (id, name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
                         ");
                     }
                 } else {
                     $stmtIns = $pdo->prepare("
                         INSERT INTO campaigns
-                        (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, catch_404_stream_id)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
+                        (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
                     ");
                 }
                 $stmtUpdDomain = $pdo->prepare("UPDATE campaigns SET domain_id = ? WHERE id = ? AND (domain_id IS NULL OR domain_id = 0)");
@@ -1065,6 +1083,11 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                 $uniquenessMethod = orbitraKeitaroMapUniquenessMethod((string) ($r['uniqueness_method'] ?? 'ip'));
                 $uniquenessHours = (int) ($r['cookies_ttl'] ?? 24);
                 if ($uniquenessHours <= 0) $uniquenessHours = 24;
+                // Keitaro dumps commonly store rotation mode in `type` (e.g. 'position'/'probability').
+                // Some versions may use `rotation`; support both.
+                $rotationRaw = $r['rotation'] ?? ($r['type'] ?? null);
+                $rotationType = orbitraKeitaroMapRotationType($rotationRaw);
+                $token = $r['token'] ?? null;
 
                 $sourceId = null;
                 $kSourceId = (int) ($r['traffic_source_id'] ?? 0);
@@ -1106,6 +1129,8 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                             $costValue,
                             $uniquenessMethod,
                             $uniquenessHours,
+                            $rotationType,
+                            $token,
                             $kid,
                         ]);
                     } else {
@@ -1120,6 +1145,8 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                             $costValue,
                             $uniquenessMethod,
                             $uniquenessHours,
+                            $rotationType,
+                            $token,
                         ]);
                     }
                     $oid = $kid;
@@ -1135,6 +1162,8 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                         $costValue,
                         $uniquenessMethod,
                         $uniquenessHours,
+                        $rotationType,
+                        $token,
                     ]);
                     $oid = (int) ($pdo->lastInsertId() ?: 0);
                     if ($kid > 0 && $oid > 0) {

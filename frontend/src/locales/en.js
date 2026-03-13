@@ -250,7 +250,8 @@ export default {
         uniquenessIp: "IP",
         uniquenessIpUa: "IP and User-Agent",
         uniquenessCookies: "Cookies",
-        campaignUrl: "Campaign URL (API Token)",
+        // This is the tracking link used in ad platforms. Click API token is a separate field.
+        campaignUrl: "Campaign URL",
         rewardModel: "Cost Model",
         costValue: "Cost Value",
         setupParams: "Configure parameters mapping",

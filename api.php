@@ -741,6 +741,15 @@ try {
                 $costValue = !empty($data['cost_value']) ? (float) $data['cost_value'] : 0.00;
                 $uniquenessMethod = $data['uniqueness_method'] ?? 'IP';
                 $uniquenessHours = !empty($data['uniqueness_hours']) ? (int) $data['uniqueness_hours'] : 24;
+                $rotationType = isset($data['rotation_type']) ? trim((string) $data['rotation_type']) : '';
+                if ($rotationType !== 'weight' && $rotationType !== 'position') {
+                    // Keep default consistent across DB/UI/router.
+                    $rotationType = 'position';
+                }
+                $token = isset($data['token']) ? trim((string) $data['token']) : '';
+                if ($token === '') {
+                    $token = null;
+                }
                 $catch404StreamId = !empty($data['catch_404_stream_id']) ? (int) $data['catch_404_stream_id'] : null;
 
                 $streams = $data['streams'] ?? [];
@@ -759,7 +768,7 @@ try {
                             UPDATE campaigns 
                             SET name=?, alias=?, domain_id=?, group_id=?, source_id=?, 
                                 cost_model=?, cost_value=?, uniqueness_method=?, uniqueness_hours=?, 
-                                catch_404_stream_id=?
+                                rotation_type=?, token=?, catch_404_stream_id=?
                             WHERE id=?
                         ");
                         $stmt->execute([
@@ -772,14 +781,16 @@ try {
                             $costValue,
                             $uniquenessMethod,
                             $uniquenessHours,
+                            $rotationType,
+                            $token,
                             $catch404StreamId,
                             $id
                         ]);
                     } else {
                         $stmt = $pdo->prepare("
                             INSERT INTO campaigns 
-                            (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, catch_404_stream_id)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         $stmt->execute([
                             $name,
@@ -791,6 +802,8 @@ try {
                             $costValue,
                             $uniquenessMethod,
                             $uniquenessHours,
+                            $rotationType,
+                            $token,
                             $catch404StreamId
                         ]);
                         $id = $pdo->lastInsertId();
@@ -3183,15 +3196,32 @@ try {
 
                     if (!empty($regular)) {
                         $trace[] = "Found " . count($regular) . " eligible regular streams";
-                        if (($campaign['rotation_type'] ?? 'weight') === 'position') {
+                        if (($campaign['rotation_type'] ?? 'position') === 'position') {
                             $selectedStream = reset($regular);
                             $trace[] = "=> Selected by position: " . $selectedStream['name'];
                         } else {
-                            $totalW = array_sum(array_column($regular, 'weight'));
+                            // Keep it consistent with index.php/click.php selection logic.
+                            $totalW = 0;
+                            foreach ($regular as $it) {
+                                $w = (int) ($it['weight'] ?? 0);
+                                if ($w < 0) $w = 0;
+                                $totalW += $w;
+                            }
                             $trace[] = "=> Weight rotation, total weight: $totalW";
                             if ($totalW > 0) {
-                                $selectedStream = reset($regular);
-                                $trace[] = "=> Simulating selection by weight. Picked: " . $selectedStream['name'];
+                                $rand = mt_rand(1, $totalW);
+                                $curW = 0;
+                                foreach ($regular as $it) {
+                                    $curW += max(0, (int) ($it['weight'] ?? 0));
+                                    if ($rand <= $curW) {
+                                        $selectedStream = $it;
+                                        break;
+                                    }
+                                }
+                                if (!$selectedStream) {
+                                    $selectedStream = reset($regular);
+                                }
+                                $trace[] = "=> Selected by weight (rand=$rand): " . ($selectedStream['name'] ?? '');
                             } else {
                                 $selectedStream = reset($regular);
                                 $trace[] = "=> Weights are 0, picking first: " . $selectedStream['name'];

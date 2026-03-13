@@ -34,7 +34,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 3;
+    $LATEST_SCHEMA_VERSION = 4;
 
     $schemaVersion = 0;
     try {
@@ -215,7 +215,8 @@ try {
         cost_value REAL DEFAULT 0.00,
         uniqueness_method TEXT DEFAULT 'IP',
         uniqueness_hours INTEGER DEFAULT 24,
-        rotation_type TEXT DEFAULT 'weight',
+        rotation_type TEXT DEFAULT 'position',
+        token TEXT,
         catch_404_stream_id INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         is_archived INTEGER DEFAULT 0,
@@ -799,6 +800,15 @@ try {
             } catch (Throwable $e) {
                 // ignore
             }
+        }
+    }
+
+    // ---- v4: add token for click API integration ----
+    if ($schemaVersion < 4) {
+        try {
+            $pdo->exec("ALTER TABLE campaigns ADD COLUMN token TEXT");
+        } catch (Throwable $e) {
+            // Ignore if already exists.
         }
     }
 

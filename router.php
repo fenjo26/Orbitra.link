@@ -71,6 +71,11 @@ elseif ($uri === '/api.php') {
     include 'api.php';
     exit;
 }
+elseif ($uri === '/click_api/v3' || $uri === '/click_api/v3/') {
+    require_once __DIR__ . '/core/click_api.php';
+    orbitraClickApiV3($pdo);
+    exit;
+}
 // Support for root aliases even when domain is not parked (e.g., localhost testing)
 elseif (preg_match('#^/([^/]+)$#', $uri, $matches) && $uri !== '/admin' && $uri !== '/router.php') {
     $alias = $matches[1];

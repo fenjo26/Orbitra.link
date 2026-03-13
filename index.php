@@ -339,6 +339,14 @@ if ($requestHost) {
 $staticExts = '/\.(ico|png|jpg|jpeg|gif|css|js|woff|woff2|ttf|svg|map|webmanifest)$/i';
 $uriPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
 
+// Keitaro-compatible Click API endpoint (v3).
+// Must be handled here because the default Nginx config routes unknown paths to index.php.
+if ($uriPath === '/click_api/v3' || $uriPath === '/click_api/v3/') {
+    require_once __DIR__ . '/core/click_api.php';
+    orbitraClickApiV3($pdo);
+    exit;
+}
+
 if (preg_match($staticExts, $uriPath)) {
     http_response_code(404);
     exit;
@@ -563,7 +571,11 @@ if (!$selectedStream) {
     });
 
     if (!empty($regular)) {
-        $selectedStream = reset($regular);
+        if (($campaign['rotation_type'] ?? 'position') === 'weight') {
+            $selectedStream = selectWeightedItem($regular);
+        } else {
+            $selectedStream = reset($regular);
+        }
     }
 }
 
@@ -584,12 +596,17 @@ function selectWeightedItem($items)
 {
     if (empty($items))
         return null;
-    $totalW = array_sum(array_column($items, 'weight'));
+    $totalW = 0;
+    foreach ($items as $it) {
+        $w = (int) ($it['weight'] ?? 0);
+        if ($w < 0) $w = 0;
+        $totalW += $w;
+    }
     if ($totalW > 0) {
-        $rand = mt_rand(1, $totalW);
+        $rand = mt_rand(1, (int) $totalW);
         $curW = 0;
         foreach ($items as $item) {
-            $curW += (int) ($item['weight'] ?? 0);
+            $curW += max(0, (int) ($item['weight'] ?? 0));
             if ($rand <= $curW) {
                 return $item;
             }

@@ -58,6 +58,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         cost_value: 0.00,
         uniqueness_method: 'IP',
         uniqueness_hours: 24,
+        rotation_type: 'position',
+        token: '',
         notes: '',
         catch_404_stream_id: '',
         streams: [],
@@ -197,6 +199,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             cost_value: data.cost_value || 0,
                             uniqueness_method: data.uniqueness_method || 'IP',
                             uniqueness_hours: data.uniqueness_hours || 24,
+                            rotation_type: data.rotation_type || 'position',
+                            token: data.token || '',
                             notes: data.notes || '',
                             catch_404_stream_id: data.catch_404_stream_id || '',
                             streams: (data.streams || []).map(s => ({
@@ -607,6 +611,29 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                             </button>
                                                         </div>
                                                     </div>
+                                                    
+                                                    <div className="pt-2 border-t" style={{ borderColor: 'var(--color-border)' }}>
+                                                        <label className="form-label">{t('editor.rotationType') || 'Ротация потоков'}</label>
+                                                        <select
+                                                            value={formData.rotation_type}
+                                                            onChange={e => setFormData({ ...formData, rotation_type: e.target.value })}
+                                                            className="form-select"
+                                                        >
+                                                            <option value="position">{t('rotationType.position') || 'По позиции'}</option>
+                                                            <option value="weight">{t('rotationType.weight') || 'По весу'}</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="form-label">{t('editor.clickApiToken') || 'Токен Click API'}</label>
+                                                        <input
+                                                            type="text"
+                                                            value={formData.token}
+                                                            onChange={e => setFormData({ ...formData, token: e.target.value })}
+                                                            className="form-input font-mono text-sm"
+                                                            placeholder="3pTKR1fmNNHgp4X9"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -1008,6 +1035,20 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                         style={{ color: 'var(--color-text-primary)' }}
                                                         placeholder={t('editor.streamName')}
                                                     />
+
+                                                    {formData.rotation_type === 'weight' && (
+                                                        <div className="flex items-center gap-1 ml-2 px-2 py-0.5 rounded-lg" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
+                                                            <TrendingUp className="w-3 h-3 text-blue-500" />
+                                                            <input
+                                                                type="number"
+                                                                value={stream.weight ?? 100}
+                                                                onChange={e => updateStream(idx, 'weight', parseInt(e.target.value) || 0)}
+                                                                className="w-12 bg-transparent border-none text-xs text-center font-bold focus:ring-0"
+                                                                title={t('editor.weight') || 'Вес'}
+                                                                style={{ color: 'var(--color-primary)' }}
+                                                            />
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <div className="flex items-center gap-4">
                                                     <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: 'var(--color-text-primary)' }}>

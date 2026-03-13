@@ -1,6 +1,9 @@
 RewriteEngine On
 RewriteRule ^r/(.*)$ index.php?campaign=$1 [L,QSA]
 
+# Keitaro-like Click API endpoint
+RewriteRule ^click_api/v3/?$ index.php [L,QSA]
+
 # Security Headers
 Header set X-Content-Type-Options "nosniff"
 Header set X-Frame-Options "SAMEORIGIN"

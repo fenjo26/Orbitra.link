@@ -16150,7 +16150,8 @@ const ru = {
     uniquenessIp: "IP",
     uniquenessIpUa: "IP и User-Agent",
     uniquenessCookies: "Cookies",
-    campaignUrl: "URL кампании (API токен)",
+    // This is the tracking link used in ad platforms. Click API token is a separate field.
+    campaignUrl: "URL кампании",
     rewardModel: "Модель вознаграждения",
     costValue: "Значение затрат",
     setupParams: "Настройте передачу параметров",
@@ -17855,7 +17856,8 @@ const en = {
     uniquenessIp: "IP",
     uniquenessIpUa: "IP and User-Agent",
     uniquenessCookies: "Cookies",
-    campaignUrl: "Campaign URL (API Token)",
+    // This is the tracking link used in ad platforms. Click API token is a separate field.
+    campaignUrl: "Campaign URL",
     rewardModel: "Cost Model",
     costValue: "Cost Value",
     setupParams: "Configure parameters mapping",
@@ -45624,6 +45626,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     cost_value: 0,
     uniqueness_method: "IP",
     uniqueness_hours: 24,
+    rotation_type: "position",
+    token: "",
     notes: "",
     catch_404_stream_id: "",
     streams: [],
@@ -45743,6 +45747,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             cost_value: data.cost_value || 0,
             uniqueness_method: data.uniqueness_method || "IP",
             uniqueness_hours: data.uniqueness_hours || 24,
+            rotation_type: data.rotation_type || "position",
+            token: data.token || "",
             notes: data.notes || "",
             catch_404_stream_id: data.catch_404_stream_id || "",
             streams: (data.streams || []).map((s) => ({
@@ -46140,6 +46146,34 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                       ),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
                     ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2 border-t", style: { borderColor: "var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.rotationType") || "Ротация потоков" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "select",
+                      {
+                        value: formData.rotation_type,
+                        onChange: (e) => setFormData({ ...formData, rotation_type: e.target.value }),
+                        className: "form-select",
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "position", children: t("rotationType.position") || "По позиции" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weight", children: t("rotationType.weight") || "По весу" })
+                        ]
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.clickApiToken") || "Токен Click API" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "text",
+                        value: formData.token,
+                        onChange: (e) => setFormData({ ...formData, token: e.target.value }),
+                        className: "form-input font-mono text-sm",
+                        placeholder: "3pTKR1fmNNHgp4X9"
+                      }
+                    )
                   ] })
                 ] })
               ] }),
@@ -46552,7 +46586,21 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     style: { color: "var(--color-text-primary)" },
                     placeholder: t("editor.streamName")
                   }
-                )
+                ),
+                formData.rotation_type === "weight" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 ml-2 px-2 py-0.5 rounded-lg", style: { backgroundColor: "rgba(59, 130, 246, 0.1)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "w-3 h-3 text-blue-500" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "number",
+                      value: stream.weight ?? 100,
+                      onChange: (e) => updateStream(idx, "weight", parseInt(e.target.value) || 0),
+                      className: "w-12 bg-transparent border-none text-xs text-center font-bold focus:ring-0",
+                      title: t("editor.weight") || "Вес",
+                      style: { color: "var(--color-primary)" }
+                    }
+                  )
+                ] })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-sm cursor-pointer", style: { color: "var(--color-text-primary)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(

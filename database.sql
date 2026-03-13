@@ -137,7 +137,8 @@ CREATE TABLE IF NOT EXISTS campaigns (
     cost_value REAL DEFAULT 0.00,
     uniqueness_method TEXT DEFAULT 'IP',          -- IP, IP_UA, Cookies
     uniqueness_hours INTEGER DEFAULT 24,
-    rotation_type TEXT DEFAULT 'weight',          -- weight, position
+    rotation_type TEXT DEFAULT 'position',        -- weight, position
+    token TEXT,                                   -- Keitaro API Token
     catch_404_stream_id INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     is_archived INTEGER DEFAULT 0,
