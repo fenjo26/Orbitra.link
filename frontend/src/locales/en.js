@@ -232,6 +232,7 @@ export default {
         fullReportCsv: "Full Report (CSV)",
         conversionsLog: "Conversions Log",
         trafficSimulation: "Traffic Simulation",
+        runSimulation: "Run simulation",
         general: "General",
         finance: "Finance",
         params: "Parameters",

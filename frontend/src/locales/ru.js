@@ -232,6 +232,7 @@ export default {
         fullReportCsv: "Полный Отчет (CSV)",
         conversionsLog: "Лог конверсий",
         trafficSimulation: "Симуляция трафика",
+        runSimulation: "Запустить симуляцию",
         general: "Общие",
         finance: "Финансы",
         params: "Параметры",

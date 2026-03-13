@@ -33,6 +33,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [showReportsMenu, setShowReportsMenu] = useState(false);
     const [showReports, setShowReports] = useState(false);
     const [showConversionsLog, setShowConversionsLog] = useState(false);
+    const [showTrafficSimModal, setShowTrafficSimModal] = useState(false);
+    const [trafficSimResult, setTrafficSimResult] = useState(null);
+    const [trafficSimLoading, setTrafficSimLoading] = useState(false);
+
+    // Traffic simulation form state
+    const [trafficSimForm, setTrafficSimForm] = useState({
+        ip: '127.0.0.1',
+        user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        country: 'US',
+        device_type: 'desktop',
+        language: 'en'
+    });
 
     // Pixel states
     const [pixels, setPixels] = useState([]);
@@ -349,6 +361,29 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         setShowConversionsLog(true);
     };
 
+    const openTrafficSimulation = () => {
+        setShowReportsMenu(false);
+        setShowTrafficSimModal(true);
+        setTrafficSimResult(null);
+    };
+
+    const runTrafficSimulation = async () => {
+        if (!campaignId) return;
+        setTrafficSimLoading(true);
+        setTrafficSimResult(null);
+        try {
+            const res = await axios.post(`${API_URL}?action=simulate_traffic`, {
+                campaign_id: campaignId,
+                ...trafficSimForm
+            });
+            setTrafficSimResult(res.data);
+        } catch (e) {
+            setTrafficSimResult({ status: 'error', message: t('common.networkError') });
+        } finally {
+            setTrafficSimLoading(false);
+        }
+    };
+
     // Stream management
     const addStream = (type) => {
         const newStream = {
@@ -573,7 +608,11 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                     >
                                         <DollarSign className="w-4 h-4" /> {t('campaigns.updateCosts')}
                                     </button>
-                                    <button className="w-full text-left px-4 py-2 text-sm flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                    <button
+                                        onClick={openTrafficSimulation}
+                                        className="w-full text-left px-4 py-2 text-sm flex items-center gap-2"
+                                        style={{ color: 'var(--color-text-primary)' }}
+                                    >
                                         <Play className="w-4 h-4" /> {t('editor.trafficSimulation')}
                                     </button>
                                     <button
@@ -1600,6 +1639,136 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                             campaignId={campaignId}
                             onClose={() => setShowConversionsLog(false)}
                         />
+                    </div>
+                </div>
+            )}
+
+            {/* Traffic Simulation Modal */}
+            {showTrafficSimModal && (
+                <div className="modal-overlay" style={{ zIndex: 1100 }}>
+                    <div className="modal-content" style={{ maxWidth: '600px' }}>
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="modal-title">{t('editor.trafficSimulation')}</h3>
+                            <button onClick={() => setShowTrafficSimModal(false)} className="btn btn-ghost btn-icon">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="form-label">IP Address</label>
+                                <input
+                                    type="text"
+                                    value={trafficSimForm.ip}
+                                    onChange={(e) => setTrafficSimForm({ ...trafficSimForm, ip: e.target.value })}
+                                    className="form-input"
+                                    placeholder="127.0.0.1"
+                                />
+                            </div>
+                            <div>
+                                <label className="form-label">User Agent</label>
+                                <input
+                                    type="text"
+                                    value={trafficSimForm.user_agent}
+                                    onChange={(e) => setTrafficSimForm({ ...trafficSimForm, user_agent: e.target.value })}
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="form-label">{t('countries.country')}</label>
+                                    <select
+                                        value={trafficSimForm.country}
+                                        onChange={(e) => setTrafficSimForm({ ...trafficSimForm, country: e.target.value })}
+                                        className="form-select"
+                                    >
+                                        <option value="US">US</option>
+                                        <option value="RU">RU</option>
+                                        <option value="DE">DE</option>
+                                        <option value="GB">GB</option>
+                                        <option value="FR">FR</option>
+                                        <option value="CA">CA</option>
+                                        <option value="AU">AU</option>
+                                        <option value="BR">BR</option>
+                                        <option value="IN">IN</option>
+                                        <option value="CN">CN</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="form-label">{t('streams.deviceType')}</label>
+                                    <select
+                                        value={trafficSimForm.device_type}
+                                        onChange={(e) => setTrafficSimForm({ ...trafficSimForm, device_type: e.target.value })}
+                                        className="form-select"
+                                    >
+                                        <option value="desktop">{t('streams.desktop')}</option>
+                                        <option value="mobile">{t('streams.mobile')}</option>
+                                        <option value="tablet">{t('streams.tablet')}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="form-label">{t('streams.language')}</label>
+                                <select
+                                    value={trafficSimForm.language}
+                                    onChange={(e) => setTrafficSimForm({ ...trafficSimForm, language: e.target.value })}
+                                    className="form-select"
+                                >
+                                    <option value="en">en</option>
+                                    <option value="ru">ru</option>
+                                    <option value="de">de</option>
+                                    <option value="fr">fr</option>
+                                    <option value="es">es</option>
+                                    <option value="pt">pt</option>
+                                    <option value="zh">zh</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {trafficSimResult && (
+                            <div className="mt-4 p-4 rounded" style={{
+                                background: trafficSimResult.status === 'success' ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
+                                color: trafficSimResult.status === 'success' ? 'var(--color-success)' : 'var(--color-danger)'
+                            }}>
+                                <div className="font-semibold mb-2">
+                                    {trafficSimResult.status === 'success' ? '✓ Success' : '✗ Error'}
+                                </div>
+                                {trafficSimResult.message && <div>{trafficSimResult.message}</div>}
+                                {trafficSimResult.trace && (
+                                    <div className="mt-2 text-xs" style={{ whiteSpace: 'pre-wrap', opacity: 0.8 }}>
+                                        {typeof trafficSimResult.trace === 'string'
+                                            ? trafficSimResult.trace
+                                            : JSON.stringify(trafficSimResult.trace, null, 2)}
+                                    </div>
+                                )}
+                                {trafficSimResult.data && (
+                                    <div className="mt-2 text-xs" style={{ whiteSpace: 'pre-wrap', opacity: 0.8 }}>
+                                        {JSON.stringify(trafficSimResult.data, null, 2)}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        <div className="modal-footer">
+                            <button onClick={() => setShowTrafficSimModal(false)} className="btn btn-secondary">
+                                {t('common.cancel')}
+                            </button>
+                            <button
+                                onClick={runTrafficSimulation}
+                                disabled={trafficSimLoading}
+                                className="btn btn-primary"
+                            >
+                                {trafficSimLoading ? (
+                                    <span className="flex items-center gap-2">
+                                        <span className="animate-spin">⟳</span> {t('common.loading')}...
+                                    </span>
+                                ) : (
+                                    <span className="flex items-center gap-2">
+                                        <Play size={16} /> {t('editor.runSimulation')}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

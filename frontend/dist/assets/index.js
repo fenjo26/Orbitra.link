@@ -16132,6 +16132,7 @@ const ru = {
     fullReportCsv: "Полный Отчет (CSV)",
     conversionsLog: "Лог конверсий",
     trafficSimulation: "Симуляция трафика",
+    runSimulation: "Запустить симуляцию",
     general: "Общие",
     finance: "Финансы",
     params: "Параметры",
@@ -17850,6 +17851,7 @@ const en = {
     fullReportCsv: "Full Report (CSV)",
     conversionsLog: "Conversions Log",
     trafficSimulation: "Traffic Simulation",
+    runSimulation: "Run simulation",
     general: "General",
     finance: "Finance",
     params: "Parameters",
@@ -45638,6 +45640,16 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [showReportsMenu, setShowReportsMenu] = reactExports.useState(false);
   const [showReports, setShowReports] = reactExports.useState(false);
   const [showConversionsLog, setShowConversionsLog] = reactExports.useState(false);
+  const [showTrafficSimModal, setShowTrafficSimModal] = reactExports.useState(false);
+  const [trafficSimResult, setTrafficSimResult] = reactExports.useState(null);
+  const [trafficSimLoading, setTrafficSimLoading] = reactExports.useState(false);
+  const [trafficSimForm, setTrafficSimForm] = reactExports.useState({
+    ip: "127.0.0.1",
+    user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    country: "US",
+    device_type: "desktop",
+    language: "en"
+  });
   const [pixels, setPixels] = reactExports.useState([]);
   const [editingPixel, setEditingPixel] = reactExports.useState(null);
   const [pixelForm, setPixelForm] = reactExports.useState({ type: "", pixel_id: "", token: "", events: "PageView,Lead", is_active: 1 });
@@ -45915,6 +45927,27 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     setShowReportsMenu(false);
     setShowConversionsLog(true);
   };
+  const openTrafficSimulation = () => {
+    setShowReportsMenu(false);
+    setShowTrafficSimModal(true);
+    setTrafficSimResult(null);
+  };
+  const runTrafficSimulation = async () => {
+    if (!campaignId) return;
+    setTrafficSimLoading(true);
+    setTrafficSimResult(null);
+    try {
+      const res = await axios.post(`${API_URL$1}?action=simulate_traffic`, {
+        campaign_id: campaignId,
+        ...trafficSimForm
+      });
+      setTrafficSimResult(res.data);
+    } catch (e) {
+      setTrafficSimResult({ status: "error", message: t("common.networkError") });
+    } finally {
+      setTrafficSimLoading(false);
+    }
+  };
   const addStream = (type) => {
     const newStream = {
       id: "temp_" + Date.now(),
@@ -46123,11 +46156,19 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   ]
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "w-full text-left px-4 py-2 text-sm flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { className: "w-4 h-4" }),
-                " ",
-                t("editor.trafficSimulation")
-              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  onClick: openTrafficSimulation,
+                  className: "w-full text-left px-4 py-2 text-sm flex items-center gap-2",
+                  style: { color: "var(--color-text-primary)" },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { className: "w-4 h-4" }),
+                    " ",
+                    t("editor.trafficSimulation")
+                  ]
+                }
+              ),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
@@ -47108,6 +47149,130 @@ const CampaignEditor = ({ campaignId, onClose }) => {
           onClose: () => setShowConversionsLog(false)
         }
       )
+    ] }) }),
+    showTrafficSimModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { zIndex: 1100 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "600px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.trafficSimulation") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowTrafficSimModal(false), className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "IP Address" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: trafficSimForm.ip,
+              onChange: (e) => setTrafficSimForm({ ...trafficSimForm, ip: e.target.value }),
+              className: "form-input",
+              placeholder: "127.0.0.1"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "User Agent" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: trafficSimForm.user_agent,
+              onChange: (e) => setTrafficSimForm({ ...trafficSimForm, user_agent: e.target.value }),
+              className: "form-input"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("countries.country") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                value: trafficSimForm.country,
+                onChange: (e) => setTrafficSimForm({ ...trafficSimForm, country: e.target.value }),
+                className: "form-select",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "US", children: "US" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "RU", children: "RU" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "DE", children: "DE" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "GB", children: "GB" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "FR", children: "FR" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "CA", children: "CA" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "AU", children: "AU" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "BR", children: "BR" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "IN", children: "IN" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "CN", children: "CN" })
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("streams.deviceType") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                value: trafficSimForm.device_type,
+                onChange: (e) => setTrafficSimForm({ ...trafficSimForm, device_type: e.target.value }),
+                className: "form-select",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "desktop", children: t("streams.desktop") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "mobile", children: t("streams.mobile") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tablet", children: t("streams.tablet") })
+                ]
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("streams.language") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: trafficSimForm.language,
+              onChange: (e) => setTrafficSimForm({ ...trafficSimForm, language: e.target.value }),
+              className: "form-select",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "en", children: "en" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "ru", children: "ru" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "de", children: "de" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "fr", children: "fr" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "es", children: "es" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "pt", children: "pt" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "zh", children: "zh" })
+              ]
+            }
+          )
+        ] })
+      ] }),
+      trafficSimResult && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 p-4 rounded", style: {
+        background: trafficSimResult.status === "success" ? "var(--color-success-bg)" : "var(--color-danger-bg)",
+        color: trafficSimResult.status === "success" ? "var(--color-success)" : "var(--color-danger)"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-2", children: trafficSimResult.status === "success" ? "✓ Success" : "✗ Error" }),
+        trafficSimResult.message && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: trafficSimResult.message }),
+        trafficSimResult.trace && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 text-xs", style: { whiteSpace: "pre-wrap", opacity: 0.8 }, children: typeof trafficSimResult.trace === "string" ? trafficSimResult.trace : JSON.stringify(trafficSimResult.trace, null, 2) }),
+        trafficSimResult.data && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 text-xs", style: { whiteSpace: "pre-wrap", opacity: 0.8 }, children: JSON.stringify(trafficSimResult.data, null, 2) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowTrafficSimModal(false), className: "btn btn-secondary", children: t("common.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: runTrafficSimulation,
+            disabled: trafficSimLoading,
+            className: "btn btn-primary",
+            children: trafficSimLoading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "animate-spin", children: "⟳" }),
+              " ",
+              t("common.loading"),
+              "..."
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { size: 16 }),
+              " ",
+              t("editor.runSimulation")
+            ] })
+          }
+        )
+      ] })
     ] }) })
   ] });
 };
