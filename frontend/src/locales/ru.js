@@ -252,6 +252,9 @@ export default {
         uniquenessCookies: "Cookies",
         rotationType: "Тип ротации",
         clickApiToken: "Токен Click API",
+        clickApiTokenHint: "Уникальный токен для Click API. Используется в интеграционных скриптах вместо campaign_id. При миграции из Keitaro сохраняется оригинальный токен.",
+        regenerateToken: "Пересоздать токен",
+        regenerateTokenConfirm: "Сгенерировать новый токен? Старый токен перестанет работать, и все скрипты с его использованием перестанут отслеживать клики.",
         streamWeight: "Вес потока",
         streamWeightHelp: "Используется только при ротации потоков по весу.",
         // This is the tracking link used in ad platforms. Click API token is a separate field.

@@ -252,6 +252,9 @@ export default {
         uniquenessCookies: "Cookies",
         rotationType: "Rotation Type",
         clickApiToken: "Click API Token",
+        clickApiTokenHint: "Unique token for Click API. Used in integration scripts instead of campaign_id. Original token is preserved during Keitaro migration.",
+        regenerateToken: "Regenerate token",
+        regenerateTokenConfirm: "Generate a new token? The old token will stop working and all scripts using it will no longer track clicks.",
         streamWeight: "Stream Weight",
         streamWeightHelp: "Used only when stream rotation is set to weighted.",
         // This is the tracking link used in ad platforms. Click API token is a separate field.

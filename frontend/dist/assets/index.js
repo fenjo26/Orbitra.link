@@ -16152,6 +16152,9 @@ const ru = {
     uniquenessCookies: "Cookies",
     rotationType: "Тип ротации",
     clickApiToken: "Токен Click API",
+    clickApiTokenHint: "Уникальный токен для Click API. Используется в интеграционных скриптах вместо campaign_id. При миграции из Keitaro сохраняется оригинальный токен.",
+    regenerateToken: "Пересоздать токен",
+    regenerateTokenConfirm: "Сгенерировать новый токен? Старый токен перестанет работать, и все скрипты с его использованием перестанут отслеживать клики.",
     streamWeight: "Вес потока",
     streamWeightHelp: "Используется только при ротации потоков по весу.",
     // This is the tracking link used in ad platforms. Click API token is a separate field.
@@ -17867,6 +17870,9 @@ const en = {
     uniquenessCookies: "Cookies",
     rotationType: "Rotation Type",
     clickApiToken: "Click API Token",
+    clickApiTokenHint: "Unique token for Click API. Used in integration scripts instead of campaign_id. Original token is preserved during Keitaro migration.",
+    regenerateToken: "Regenerate token",
+    regenerateTokenConfirm: "Generate a new token? The old token will stop working and all scripts using it will no longer track clicks.",
     streamWeight: "Stream Weight",
     streamWeightHelp: "Used only when stream rotation is set to weighted.",
     // This is the tracking link used in ad platforms. Click API token is a separate field.

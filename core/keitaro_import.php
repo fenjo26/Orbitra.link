@@ -1049,7 +1049,8 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                     ");
                 }
                 $stmtUpdDomain = $pdo->prepare("UPDATE campaigns SET domain_id = ? WHERE id = ? AND (domain_id IS NULL OR domain_id = 0)");
-                $stmtUpdToken = $pdo->prepare("UPDATE campaigns SET token = ? WHERE id = ? AND (token IS NULL OR token = '')");
+                // Always update token from Keitaro to preserve compatibility with existing scripts
+                $stmtUpdToken = $pdo->prepare("UPDATE campaigns SET token = ? WHERE id = ?");
                 $stmtUpdRotation = $pdo->prepare("UPDATE campaigns SET rotation_type = ? WHERE id = ? AND (rotation_type IS NULL OR rotation_type = '' OR rotation_type = 'weight')");
                 $stmtUpdK = null;
                 if ($hasCampaignKeitaroId) {
