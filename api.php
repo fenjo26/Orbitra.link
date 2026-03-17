@@ -2289,10 +2289,29 @@ try {
                     } else {
                         // Perform DNS lookup
                         $domainIp = @gethostbyname($domain['name']);
-                        if ($domainIp === $serverIp || $domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
+
+                        // Debug logging
+                        error_log("DNS Check: {$domain['name']} -> {$domainIp} (server: {$serverIp})");
+
+                        // More robust IP matching - trim whitespace and handle both IPv4 and IPv6
+                        $domainIp = trim($domainIp);
+                        $serverIp = trim($serverIp);
+
+                        if ($domainIp === $serverIp) {
                             $domain['status'] = 'active';
-                        } else {
+                            error_log("DNS Match: {$domain['name']} is ACTIVE");
+                        } elseif ($domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
+                            // Localhost environment - consider as active
+                            $domain['status'] = 'active';
+                            error_log("DNS Localhost: {$domain['name']} marked ACTIVE (localhost)");
+                        } elseif ($domainIp === $domain['name']) {
+                            // DNS lookup failed - domain doesn't resolve
                             $domain['status'] = 'pending';
+                            error_log("DNS Failed: {$domain['name']} does not resolve");
+                        } else {
+                            // Domain resolves but to different IP
+                            $domain['status'] = 'pending';
+                            error_log("DNS Mismatch: {$domain['name']} resolves to {$domainIp}, expected {$serverIp}");
                         }
 
                         // Mark for database update
@@ -2362,6 +2381,49 @@ try {
                 'dns_status' => $status,
                 'dns_ip' => $domainIp
             ]]);
+            break;
+
+        // Force DNS check for ALL domains (no limits)
+        case 'force_check_all_dns':
+            // Get server IP
+            $serverIp = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '127.0.0.1';
+
+            // Get all domains
+            $stmt = $pdo->query("SELECT id, name, dns_status FROM domains ORDER BY id ASC");
+            $allDomains = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $results = [];
+            $updateStmt = $pdo->prepare("UPDATE domains SET dns_status = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?");
+
+            foreach ($allDomains as $domain) {
+                // Do DNS lookup for EACH domain (no limits)
+                $domainIp = @gethostbyname($domain['name']);
+                $domainIp = trim($domainIp);
+                $serverIp = trim($serverIp);
+
+                // Determine status
+                if ($domainIp === $serverIp) {
+                    $status = 'active';
+                } elseif ($domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
+                    $status = 'active';
+                } elseif ($domainIp === $domain['name']) {
+                    $status = 'pending';
+                } else {
+                    $status = 'pending';
+                }
+
+                // Update database
+                $updateStmt->execute([$status, $domainIp, $domain['id']]);
+
+                $results[] = [
+                    'id' => $domain['id'],
+                    'name' => $domain['name'],
+                    'dns_status' => $status,
+                    'dns_ip' => $domainIp
+                ];
+            }
+
+            echo json_encode(['status' => 'success', 'data' => $results, 'server_ip' => $serverIp]);
             break;
 
         // === Backorder / Domain Availability Tracker ===

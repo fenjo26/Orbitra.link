@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert } from 'lucide-react';
+import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import HelpTooltip from './HelpTooltip';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -19,6 +19,7 @@ const Domains = ({ campaigns }) => {
         return v === '1';
     });
     const [copiedIp, setCopiedIp] = useState(false);
+    const [forceChecking, setForceChecking] = useState(false);
 
     // Edit Modal State
     const [showModal, setShowModal] = useState(false);
@@ -70,6 +71,21 @@ const Domains = ({ campaigns }) => {
         });
         setError('');
         setShowModal(true);
+    };
+
+    const forceCheckAllDns = async () => {
+        if (!window.confirm(t('domains.forceCheckConfirm') || 'Проверить DNS для всех доменов? Это может занять время.')) return;
+        setForceChecking(true);
+        try {
+            const { data } = await cachedGet('force_check_all_dns');
+            if (data.status === 'success') {
+                fetchDomains();
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setForceChecking(false);
+        }
     };
 
     const handleDelete = async (id) => {
@@ -179,6 +195,15 @@ const Domains = ({ campaigns }) => {
                         />
                         <span className="text-gray-700">{t('domains.ignoreDnsLabel')}</span>
                     </label>
+                    <button
+                        onClick={forceCheckAllDns}
+                        disabled={forceChecking}
+                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition"
+                        title="Принудительно проверить DNS для всех доменов"
+                    >
+                        <RefreshCw size={16} className={forceChecking ? 'animate-spin' : ''} />
+                        {forceChecking ? t('common.checking') || 'Проверка...' : 'Проверить DNS'}
+                    </button>
                     <button
                         onClick={() => {
                             setFormData({ id: null, name: '', index_campaign_id: '', catch_404: false, group_id: '', is_noindex: true, https_only: false });
