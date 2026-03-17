@@ -2248,46 +2248,64 @@ try {
             ");
             $domains = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // DNS Cache TTL: 5 minutes (300 seconds)
-            $dnsCacheTtl = 300;
+            // DNS Cache TTL: 30 minutes (1800 seconds) - increased for better performance
+            $dnsCacheTtl = 1800;
             $currentTime = time();
             $needsUpdate = [];
+            $forceRefresh = isset($_GET['force_refresh']) && $_GET['force_refresh'] === '1';
 
             // Compute dynamic DNS status with caching
+            // ONLY refresh if force_refresh=1 or cache is completely missing
             foreach ($domains as &$domain) {
                 $domainId = (int)$domain['id'];
-                $useCached = false;
+                $hasCachedStatus = !empty($domain['dns_status']);
+                $cacheAge = 0;
 
-                // Check if we have valid cached DNS status
                 if (!empty($domain['dns_checked_at'])) {
                     $cachedTime = strtotime($domain['dns_checked_at']);
-                    if ($cachedTime && ($currentTime - $cachedTime) < $dnsCacheTtl) {
-                        // Cache is still valid, use it
-                        $domain['status'] = $domain['dns_status'] ?? 'pending';
-                        $useCached = true;
+                    if ($cachedTime) {
+                        $cacheAge = $currentTime - $cachedTime;
                     }
                 }
 
-                // If no valid cache, do DNS lookup
-                if (!$useCached) {
-                    // Ignore IP if it's localhost for testing, but in production we match A record
-                    $domainIp = @gethostbyname($domain['name']);
-                    if ($domainIp === $serverIp || $domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
-                        $domain['status'] = 'active';
-                    } else {
-                        $domain['status'] = 'pending';
-                    }
+                // Use cached status if available (even if old) - for fast page load
+                // Only do DNS lookup if: force_refresh=1 OR no cached status at all
+                if ($hasCachedStatus && !$forceRefresh) {
+                    // Use cached status regardless of age for instant page load
+                    $domain['status'] = $domain['dns_status'];
+                    $domain['cache_age'] = $cacheAge;
+                } elseif (!$hasCachedStatus || $forceRefresh) {
+                    // Only do DNS lookup for domains without status OR when explicitly requested
+                    // This prevents blocking page loads with many domains
 
-                    // Mark for database update
-                    $needsUpdate[] = [
-                        'id' => $domainId,
-                        'status' => $domain['status'],
-                        'ip' => $domainIp
-                    ];
+                    // For performance, skip DNS lookup if we're not forcing refresh
+                    // and there are many domains (>50) - just mark as checking
+                    if (count($domains) > 50 && !$forceRefresh && !$hasCachedStatus) {
+                        $domain['status'] = 'checking';
+                    } else {
+                        // Ignore IP if it's localhost for testing, but in production we match A record
+                        $domainIp = @gethostbyname($domain['name']);
+                        if ($domainIp === $serverIp || $domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
+                            $domain['status'] = 'active';
+                        } else {
+                            $domain['status'] = 'pending';
+                        }
+
+                        // Mark for database update
+                        $needsUpdate[] = [
+                            'id' => $domainId,
+                            'status' => $domain['status'],
+                            'ip' => $domainIp
+                        ];
+                    }
+                } else {
+                    // Has cached status - use it
+                    $domain['status'] = $domain['dns_status'];
+                    $domain['cache_age'] = $cacheAge;
                 }
             }
 
-            // Batch update DNS cache in database (if any new lookups were done)
+            // Batch update DNS cache in database (only if we did lookups)
             if (!empty($needsUpdate)) {
                 $updateStmt = $pdo->prepare("UPDATE domains SET dns_status = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?");
                 foreach ($needsUpdate as $update) {
@@ -2296,6 +2314,45 @@ try {
             }
 
             echo json_encode(['status' => 'success', 'data' => $domains, 'server_ip' => $serverIp]);
+            break;
+
+        // Check DNS status for a single domain (non-blocking)
+        case 'check_domain_dns':
+            $domainId = $_GET['id'] ?? null;
+            if (!$domainId) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing domain ID']);
+                break;
+            }
+
+            $stmt = $pdo->prepare("SELECT id, name FROM domains WHERE id = ?");
+            $stmt->execute([$domainId]);
+            $domain = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$domain) {
+                echo json_encode(['status' => 'error', 'message' => 'Domain not found']);
+                break;
+            }
+
+            // Get server IP
+            $serverIp = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '127.0.0.1';
+
+            // Do DNS lookup
+            $domainIp = @gethostbyname($domain['name']);
+            $status = 'pending';
+            if ($domainIp === $serverIp || $domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
+                $status = 'active';
+            }
+
+            // Update cache
+            $updateStmt = $pdo->prepare("UPDATE domains SET dns_status = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?");
+            $updateStmt->execute([$status, $domainIp, $domainId]);
+
+            echo json_encode(['status' => 'success', 'data' => [
+                'id' => $domain['id'],
+                'name' => $domain['name'],
+                'dns_status' => $status,
+                'dns_ip' => $domainIp
+            ]]);
             break;
 
         // === Backorder / Domain Availability Tracker ===
