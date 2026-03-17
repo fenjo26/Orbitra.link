@@ -3698,35 +3698,121 @@ try {
                 }
 
                 try {
+                    // EDIT MODE: Update existing domain
                     if ($id) {
                         $stmt = $pdo->prepare("UPDATE domains SET name=?, index_campaign_id=?, catch_404=?, group_id=?, is_noindex=?, https_only=? WHERE id=?");
                         $stmt->execute([$name, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $id]);
                         logAudit($pdo, 'UPDATE', 'Domain', $id, "Name: $name");
+
+                        // If HTTPS-only was just enabled, queue SSL installation
+                        $sslQueued = false;
+                        if ($httpsOnly) {
+                            // Check if SSL already exists
+                            $certPath = "/etc/letsencrypt/live/$name/cert.pem";
+                            if (!file_exists($certPath)) {
+                                // Update ssl_status to pending
+                                $pdo->prepare("UPDATE domains SET ssl_status = 'pending', ssl_error = NULL WHERE id = ?")->execute([$id]);
+                                $sslQueued = true;
+                            } else {
+                                // SSL already exists, mark as installed
+                                $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL WHERE id = ?")->execute([$id]);
+                            }
+
+                            // Start background SSL installer if needed
+                            if ($sslQueued) {
+                                $cliPath = __DIR__ . '/cli/ssl_installer.php';
+                                if (file_exists($cliPath)) {
+                                    shell_exec("php $cliPath > /dev/null 2>&1 &");
+                                }
+                            }
+                        } else {
+                            // HTTPS-only disabled, reset SSL status
+                            $pdo->prepare("UPDATE domains SET ssl_status = 'none', ssl_error = NULL WHERE id = ?")->execute([$id]);
+                        }
+
+                        // Update Nginx configuration
+                        $nginxResult = updateNginxConfig($pdo);
+
+                        $response = ['status' => 'success', 'nginx' => $nginxResult];
+                        if ($sslQueued) {
+                            $response['ssl'] = 'SSL сертификат устанавливается в фоновом режиме (1-2 минуты)';
+                        }
+                        echo json_encode($response);
                     } else {
-                        $stmt = $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only) VALUES (?, ?, ?, ?, ?, ?)");
-                        $stmt->execute([$name, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly]);
-                        $id = $pdo->lastInsertId();
-                        logAudit($pdo, 'CREATE', 'Domain', $id, "Name: $name");
-                    }
+                        // CREATE MODE: Support bulk domain addition (comma-separated)
+                        $names = array_map('trim', explode(',', $name));
+                        $names = array_filter($names); // Remove empty strings
+                        $names = array_unique($names); // Remove duplicates
 
-                    // Auto-install SSL if https_only is enabled
-                    $sslQueued = false;
-                    if ($httpsOnly) {
-                        $sslQueued = queueSslInstallation($pdo, $id);
-                        // Regenerate Nginx config after Certbot broke it
-                        updateNginxConfig($pdo);
-                    }
+                        if (empty($names)) {
+                            echo json_encode(['status' => 'error', 'message' => 'Имя домена обязательно']);
+                            break;
+                        }
 
-                    // Auto-update Nginx configuration
-                    $nginxResult = updateNginxConfig($pdo);
+                        $results = [];
+                        $sslPending = false;
+                        $errors = [];
 
-                    $response = ['status' => 'success', 'nginx' => $nginxResult];
-                    if ($sslQueued) {
-                        $response['ssl'] = 'SSL сертификат устанавливается в фоновом режиме (1-2 минуты)';
+                        foreach ($names as $domainName) {
+                            // Validate domain name (basic check)
+                            if (!preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/', $domainName)) {
+                                $errors[] = "Неверный формат домена: $domainName";
+                                continue;
+                            }
+
+                            // Determine initial SSL status
+                            $sslStatus = $httpsOnly ? 'pending' : 'none';
+
+                            try {
+                                $stmt = $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                                $stmt->execute([$domainName, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $sslStatus]);
+                                $newId = $pdo->lastInsertId();
+                                $results[] = ['id' => $newId, 'name' => $domainName];
+
+                                if ($httpsOnly) {
+                                    $sslPending = true;
+                                }
+
+                                logAudit($pdo, 'CREATE', 'Domain', $newId, "Name: $domainName");
+                            } catch (\Exception $e) {
+                                // Check for duplicate
+                                if (strpos($e->getMessage(), 'UNIQUE') !== false) {
+                                    $errors[] = "Домен уже существует: $domainName";
+                                } else {
+                                    $errors[] = "Ошибка добавления $domainName: " . $e->getMessage();
+                                }
+                            }
+                        }
+
+                        // Start background SSL installer if any domains need HTTPS
+                        if ($sslPending) {
+                            $cliPath = __DIR__ . '/cli/ssl_installer.php';
+                            if (file_exists($cliPath)) {
+                                shell_exec("php $cliPath > /dev/null 2>&1 &");
+                            }
+                        }
+
+                        // Update Nginx configuration
+                        $nginxResult = updateNginxConfig($pdo);
+
+                        $response = [
+                            'status' => 'success',
+                            'domains' => $results,
+                            'nginx' => $nginxResult
+                        ];
+
+                        if ($sslPending) {
+                            $response['ssl'] = 'SSL сертификаты устанавливаются в фоновом режиме (1-2 минуты)';
+                        }
+
+                        if (!empty($errors)) {
+                            $response['warnings'] = $errors;
+                        }
+
+                        echo json_encode($response);
                     }
-                    echo json_encode($response);
                 } catch (\Exception $e) {
-                    echo json_encode(['status' => 'error', 'message' => 'Дубликат домена или системная ошибка']);
+                    echo json_encode(['status' => 'error', 'message' => 'Ошибка: ' . $e->getMessage()]);
                 }
             }
             break;
@@ -3748,6 +3834,30 @@ try {
                 }
             }
             break;
+
+        case 'check_ssl_status':
+            // Check SSL installation status for all HTTPS-only domains
+            try {
+                $stmt = $pdo->query("SELECT id, name, https_only, ssl_status, ssl_error FROM domains ORDER BY id DESC");
+                $domains = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Filter to only include HTTPS-only domains with status
+                $httpsDomains = array_filter($domains, function($d) {
+                    return $d['https_only'] == 1;
+                });
+
+                echo json_encode([
+                    'status' => 'success',
+                    'data' => array_values($httpsDomains)
+                ]);
+            } catch (Exception $e) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+            }
+            break;
+
         case 'campaign_logs':
             $campaignId = $_GET['campaign_id'] ?? null;
             if (!$campaignId) {

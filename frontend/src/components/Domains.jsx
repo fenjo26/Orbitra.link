@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw } from 'lucide-react';
+import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Clock } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import HelpTooltip from './HelpTooltip';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -58,6 +58,18 @@ const Domains = ({ campaigns }) => {
     useEffect(() => {
         localStorage.setItem('domains_ignore_dns_ui', ignoreDnsUi ? '1' : '0');
     }, [ignoreDnsUi]);
+
+    // Poll for SSL status updates every 5 seconds when there are pending/installing domains
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            // Only poll if there are domains with pending/installing SSL
+            const hasPending = domains.some(d => d.https_only && ['pending', 'installing'].includes(d.ssl_status));
+            if (hasPending) {
+                await fetchDomains();
+            }
+        }, 5000); // Check every 5 seconds
+        return () => clearInterval(interval);
+    }, [domains]);
 
     const handleEdit = (domain) => {
         setFormData({
@@ -224,15 +236,16 @@ const Domains = ({ campaigns }) => {
                             <th className="px-5 py-3 font-semibold text-gray-600">{t('domains.status')}</th>
                             <th className="px-5 py-3 font-semibold text-gray-600">{t('domains.indexPage')}</th>
                             <th className="px-5 py-3 font-semibold text-gray-600 text-center">{t('domains.https')}</th>
+                            <th className="px-5 py-3 font-semibold text-gray-600 text-center">{t('domains.sslStatus')}</th>
                             <th className="px-5 py-3 font-semibold text-gray-600">{t('domains.dateAdded')}</th>
                             <th className="px-5 py-3 font-semibold text-gray-600 text-right">{t('domains.actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                         {loading ? (
-                            <tr><td colSpan="6" className="text-center py-8">{t('domains.loading')}</td></tr>
+                            <tr><td colSpan="7" className="text-center py-8">{t('domains.loading')}</td></tr>
                         ) : filteredDomains.length === 0 ? (
-                            <tr><td colSpan="6" className="text-center py-8 text-gray-500">{t('domains.noDomains')}</td></tr>
+                            <tr><td colSpan="7" className="text-center py-8 text-gray-500">{t('domains.noDomains')}</td></tr>
                         ) : (
                             filteredDomains.map(domain => (
                                 <tr key={domain.id} className="hover:bg-gray-50 transition">
@@ -254,6 +267,23 @@ const Domains = ({ campaigns }) => {
                                     <td className="px-5 py-3 text-gray-600">{domain.index_campaign_name || <span className="text-gray-400 italic">{t('domains.notSelected')}</span>}</td>
                                     <td className="px-5 py-3 text-center">
                                         {domain.https_only ? <Check size={16} className="text-green-500 mx-auto" /> : <X size={16} className="text-gray-300 mx-auto" />}
+                                    </td>
+                                    <td className="px-5 py-3 text-center">
+                                        {domain.https_only ? (
+                                            domain.ssl_status === 'installed' ? (
+                                                <Check size={16} className="text-green-500 mx-auto" title={t('domains.sslInstalled')} />
+                                            ) : domain.ssl_status === 'installing' ? (
+                                                <RefreshCw size={16} className="text-blue-500 mx-auto animate-spin" title={t('domains.sslInstalling')} />
+                                            ) : domain.ssl_status === 'failed' ? (
+                                                <X size={16} className="text-red-500 mx-auto" title={domain.ssl_error || t('domains.sslFailed')} />
+                                            ) : domain.ssl_status === 'pending' ? (
+                                                <Clock size={16} className="text-yellow-500 mx-auto" title={t('domains.sslPending')} />
+                                            ) : (
+                                                <Clock size={16} className="text-gray-400 mx-auto" title={t('domains.sslPending')} />
+                                            )
+                                        ) : (
+                                            <X size={16} className="text-gray-300 mx-auto" />
+                                        )}
                                     </td>
                                     <td className="px-5 py-3 text-gray-500 text-xs">{domain.created_at}</td>
                                     <td className="px-5 py-3 text-right">
@@ -281,12 +311,19 @@ const Domains = ({ campaigns }) => {
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1">{t('domains.domainName')} <span className="text-xs text-gray-400 font-normal">{t('domains.domainNameHint')}</span></label>
-                                <input
-                                    type="text" required
+                                <label className="block text-sm font-medium mb-1">
+                                    {t('domains.domainName')}{' '}
+                                    <span className="text-xs text-gray-400 font-normal">({t('domains.bulkHint')})</span>
+                                </label>
+                                <textarea
+                                    required
+                                    rows={3}
                                     className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
-                                    value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value.toLowerCase().trim() })}
+                                    placeholder={t('domains.bulkPlaceholder')}
+                                    value={formData.name}
+                                    onChange={e => setFormData({ ...formData, name: e.target.value.toLowerCase() })}
                                 />
+                                <p className="text-xs text-gray-500 mt-1">{t('domains.bulkExample')}</p>
                             </div>
 
                             <div>

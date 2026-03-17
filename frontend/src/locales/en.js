@@ -442,7 +442,15 @@ export default {
         dnsNote1: "The registrar updates DNS records within 24 hours.",
         dnsNote2: "Next check on page refresh.",
         forceCheckConfirm: "Check DNS for all domains? This may take a moment.",
-        forceChecking: "Checking DNS..."
+        forceChecking: "Checking DNS...",
+        bulkHint: "multiple, comma-separated",
+        bulkPlaceholder: "domain1.com, domain2.com, domain3.com",
+        bulkExample: "Example: tracker1.com, tracker2.com, tracker3.com",
+        sslStatus: "SSL Status",
+        sslInstalled: "SSL installed",
+        sslInstalling: "SSL installing...",
+        sslPending: "Awaiting installation",
+        sslFailed: "SSL error"
     },
     backorder: {
         bannerTitle: "Backorder Domain Monitor",

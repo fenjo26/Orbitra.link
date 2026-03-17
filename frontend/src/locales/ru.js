@@ -442,7 +442,15 @@ export default {
         dnsNote1: "Регистратор актуализирует DNS записи до 24 часов.",
         dnsNote2: "Следующая проверка при обновлении страницы.",
         forceCheckConfirm: "Проверить DNS для всех доменов? Это может занять время.",
-        forceChecking: "Проверка DNS..."
+        forceChecking: "Проверка DNS...",
+        bulkHint: "несколько через запятую",
+        bulkPlaceholder: "domain1.com, domain2.com, domain3.com",
+        bulkExample: "Пример: tracker1.com, tracker2.com, tracker3.com",
+        sslStatus: "Статус SSL",
+        sslInstalled: "SSL установлен",
+        sslInstalling: "SSL устанавливается...",
+        sslPending: "Ожидает установки",
+        sslFailed: "Ошибка SSL"
     },
     backorder: {
         bannerTitle: "Отложенный мониторинг доменов",

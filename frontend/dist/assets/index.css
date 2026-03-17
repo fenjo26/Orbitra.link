@@ -1749,6 +1749,10 @@
     background-color: var(--color-green-500);
   }
 
+  .bg-green-600 {
+    background-color: var(--color-green-600);
+  }
+
   .bg-indigo-100 {
     background-color: var(--color-indigo-100);
   }
@@ -2352,6 +2356,10 @@
     color: var(--color-white);
   }
 
+  .text-yellow-500 {
+    color: var(--color-yellow-500);
+  }
+
   .text-yellow-700 {
     color: var(--color-yellow-700);
   }
@@ -2746,6 +2754,10 @@
       background-color: var(--color-gray-900);
     }
 
+    .hover\:bg-green-700:hover {
+      background-color: var(--color-green-700);
+    }
+
     .hover\:bg-indigo-700:hover {
       background-color: var(--color-indigo-700);
     }
@@ -2854,6 +2866,10 @@
 
   .disabled\:cursor-not-allowed:disabled {
     cursor: not-allowed;
+  }
+
+  .disabled\:bg-gray-400:disabled {
+    background-color: var(--color-gray-400);
   }
 
   .disabled\:opacity-50:disabled {

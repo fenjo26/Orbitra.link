@@ -44,7 +44,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 6;
+    $LATEST_SCHEMA_VERSION = 7;
 
     $schemaVersion = 0;
     try {
@@ -165,6 +165,8 @@ try {
         group_id INTEGER,
         is_noindex INTEGER DEFAULT 0,
         https_only INTEGER DEFAULT 0,
+        ssl_status TEXT DEFAULT 'none',                  -- 'none'|'pending'|'installing'|'installed'|'failed'
+        ssl_error TEXT,                                   -- SSL installation error message
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (index_campaign_id) REFERENCES campaigns(id) ON DELETE SET NULL,
         FOREIGN KEY (group_id) REFERENCES offer_groups(id) ON DELETE SET NULL
@@ -865,6 +867,19 @@ try {
             $pdo->exec("CREATE INDEX IF NOT EXISTS idx_campaign_postbacks_campaign_id ON campaign_postbacks(campaign_id)");
         } catch (Throwable $e) {
             // Ignore if indexes already exist.
+        }
+    }
+
+    // Migration 7: Add SSL installation status tracking for domains
+    if ($schemaVersion < 7) {
+        try {
+            $pdo->exec("ALTER TABLE domains ADD COLUMN ssl_status TEXT DEFAULT 'none'");
+            $pdo->exec("ALTER TABLE domains ADD COLUMN ssl_error TEXT");
+
+            // Mark existing HTTPS domains as having SSL installed
+            $pdo->exec("UPDATE domains SET ssl_status = 'installed' WHERE https_only = 1");
+        } catch (Throwable $e) {
+            // Ignore if columns already exist.
         }
     }
 

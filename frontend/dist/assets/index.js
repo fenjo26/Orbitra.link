@@ -15932,7 +15932,8 @@ const ru = {
     all: "Все",
     copy: "Копировать",
     notSet: "не заданы",
-    disabled: "Отключена"
+    disabled: "Отключена",
+    checking: "Проверка..."
   },
   nav: {
     dashboard: "Дашборд",
@@ -16339,7 +16340,17 @@ const ru = {
     dnsTitle: "Ожидание DNS",
     dnsInstruction: "Перейдите в настройки DNS у вашего регистратора и установите A-запись:",
     dnsNote1: "Регистратор актуализирует DNS записи до 24 часов.",
-    dnsNote2: "Следующая проверка при обновлении страницы."
+    dnsNote2: "Следующая проверка при обновлении страницы.",
+    forceCheckConfirm: "Проверить DNS для всех доменов? Это может занять время.",
+    forceChecking: "Проверка DNS...",
+    bulkHint: "несколько через запятую",
+    bulkPlaceholder: "domain1.com, domain2.com, domain3.com",
+    bulkExample: "Пример: tracker1.com, tracker2.com, tracker3.com",
+    sslStatus: "Статус SSL",
+    sslInstalled: "SSL установлен",
+    sslInstalling: "SSL устанавливается...",
+    sslPending: "Ожидает установки",
+    sslFailed: "Ошибка SSL"
   },
   backorder: {
     bannerTitle: "Отложенный мониторинг доменов",
@@ -17402,7 +17413,8 @@ const ru = {
       v6: "Создание таблицы user_preferences",
       v7: "Оптимизация индексов кликов",
       v8: "Настройка безопасности сессий"
-    }
+    },
+    copied: "Скопировано!"
   },
   update: {
     checkingUpdates: "Проверка обновлений...",
@@ -17666,7 +17678,8 @@ const en = {
     all: "All",
     copy: "Copy",
     notSet: "not set",
-    disabled: "Disabled"
+    disabled: "Disabled",
+    checking: "Checking..."
   },
   nav: {
     dashboard: "Dashboard",
@@ -18073,7 +18086,17 @@ const en = {
     dnsTitle: "Awaiting DNS",
     dnsInstruction: "Go to DNS settings at your registrar and set the A-record:",
     dnsNote1: "The registrar updates DNS records within 24 hours.",
-    dnsNote2: "Next check on page refresh."
+    dnsNote2: "Next check on page refresh.",
+    forceCheckConfirm: "Check DNS for all domains? This may take a moment.",
+    forceChecking: "Checking DNS...",
+    bulkHint: "multiple, comma-separated",
+    bulkPlaceholder: "domain1.com, domain2.com, domain3.com",
+    bulkExample: "Example: tracker1.com, tracker2.com, tracker3.com",
+    sslStatus: "SSL Status",
+    sslInstalled: "SSL installed",
+    sslInstalling: "SSL installing...",
+    sslPending: "Awaiting installation",
+    sslFailed: "SSL error"
   },
   backorder: {
     bannerTitle: "Backorder Domain Monitor",
@@ -19328,7 +19351,8 @@ const en = {
       v6: "Creating user_preferences table",
       v7: "Click indexes optimization",
       v8: "Session security configuration"
-    }
+    },
+    copied: "Copied!"
   },
   update: {
     checkingUpdates: "Checking for updates...",
@@ -32834,6 +32858,7 @@ const Domains = ({ campaigns }) => {
     return v === "1";
   });
   const [copiedIp, setCopiedIp] = reactExports.useState(false);
+  const [forceChecking, setForceChecking] = reactExports.useState(false);
   const [showModal, setShowModal] = reactExports.useState(false);
   const [formData, setFormData] = reactExports.useState({
     id: null,
@@ -32870,6 +32895,15 @@ const Domains = ({ campaigns }) => {
   reactExports.useEffect(() => {
     localStorage.setItem("domains_ignore_dns_ui", ignoreDnsUi ? "1" : "0");
   }, [ignoreDnsUi]);
+  reactExports.useEffect(() => {
+    const interval = setInterval(async () => {
+      const hasPending = domains.some((d) => d.https_only && ["pending", "installing"].includes(d.ssl_status));
+      if (hasPending) {
+        await fetchDomains();
+      }
+    }, 5e3);
+    return () => clearInterval(interval);
+  }, [domains]);
   const handleEdit = (domain) => {
     setFormData({
       id: domain.id,
@@ -32882,6 +32916,20 @@ const Domains = ({ campaigns }) => {
     });
     setError("");
     setShowModal(true);
+  };
+  const forceCheckAllDns = async () => {
+    if (!window.confirm(t("domains.forceCheckConfirm") || "Проверить DNS для всех доменов? Это может занять время.")) return;
+    setForceChecking(true);
+    try {
+      const { data } = await cachedGet("force_check_all_dns");
+      if (data.status === "success") {
+        fetchDomains();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setForceChecking(false);
+    }
   };
   const handleDelete = async (id) => {
     if (!window.confirm(t("domains.deleteConfirm"))) return;
@@ -32985,6 +33033,19 @@ const Domains = ({ campaigns }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
+            onClick: forceCheckAllDns,
+            disabled: forceChecking,
+            className: "bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition",
+            title: "Принудительно проверить DNS для всех доменов",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: forceChecking ? "animate-spin" : "" }),
+              forceChecking ? t("common.checking") || "Проверка..." : "Проверить DNS"
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
             onClick: () => {
               setFormData({ id: null, name: "", index_campaign_id: "", catch_404: false, group_id: "", is_noindex: true, https_only: false });
               setShowModal(true);
@@ -33005,10 +33066,11 @@ const Domains = ({ campaigns }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("domains.status") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("domains.indexPage") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-center", children: t("domains.https") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-center", children: t("domains.sslStatus") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("domains.dateAdded") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-right", children: t("domains.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-100", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8", children: t("domains.loading") }) }) : filteredDomains.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8 text-gray-500", children: t("domains.noDomains") }) }) : filteredDomains.map((domain) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-gray-50 transition", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-100", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center py-8", children: t("domains.loading") }) }) : filteredDomains.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center py-8 text-gray-500", children: t("domains.noDomains") }) }) : filteredDomains.map((domain) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-gray-50 transition", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-medium text-gray-800", children: domain.name }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3", children: ignoreDnsUi || domain.status === "active" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 text-green-600 text-sm font-medium bg-green-50 px-2 py-1 rounded", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }),
@@ -33028,6 +33090,7 @@ const Domains = ({ campaigns }) => {
         ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-600", children: domain.index_campaign_name || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400 italic", children: t("domains.notSelected") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-center", children: domain.https_only ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "text-gray-300 mx-auto" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-center", children: domain.https_only ? domain.ssl_status === "installed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto", title: t("domains.sslInstalled") }) : domain.ssl_status === "installing" ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "text-blue-500 mx-auto animate-spin", title: t("domains.sslInstalling") }) : domain.ssl_status === "failed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "text-red-500 mx-auto", title: domain.ssl_error || t("domains.sslFailed") }) : domain.ssl_status === "pending" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: t("domains.sslPending") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-gray-400 mx-auto", title: t("domains.sslPending") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "text-gray-300 mx-auto" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-500 text-xs", children: domain.created_at }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(domain), className: "p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition", title: t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 }) }),
@@ -33046,18 +33109,24 @@ const Domains = ({ campaigns }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium mb-1", children: [
             t("domains.domainName"),
             " ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-gray-400 font-normal", children: t("domains.domainNameHint") })
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-400 font-normal", children: [
+              "(",
+              t("domains.bulkHint"),
+              ")"
+            ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
+            "textarea",
             {
-              type: "text",
               required: true,
+              rows: 3,
               className: "w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none",
+              placeholder: t("domains.bulkPlaceholder"),
               value: formData.name,
-              onChange: (e) => setFormData({ ...formData, name: e.target.value.toLowerCase().trim() })
+              onChange: (e) => setFormData({ ...formData, name: e.target.value.toLowerCase() })
             }
-          )
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500 mt-1", children: t("domains.bulkExample") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium mb-1", children: [
