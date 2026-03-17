@@ -55,10 +55,12 @@ else
 fi
 
 # Configure sudoers for www-data to run Certbot (auto-SSL via UI)
-echo "  > Configuring sudoers for automatic SSL management..."
+echo "  > Configuring sudoers for automatic SSL & Nginx management..."
 SUDOERS_FILE="/etc/sudoers.d/orbitra-ssl"
 echo "www-data ALL=(ALL) NOPASSWD: /usr/sbin/nginx -t" > $SUDOERS_FILE
 echo "www-data ALL=(ALL) NOPASSWD: /bin/systemctl reload nginx" >> $SUDOERS_FILE
+echo "www-data ALL=(ALL) NOPASSWD: /bin/cp /etc/nginx/sites-available/orbitra /tmp/orbitra_nginx_update.conf" >> $SUDOERS_FILE
+echo "www-data ALL=(ALL) NOPASSWD: /bin/cp /tmp/orbitra_nginx_update.conf /etc/nginx/sites-available/orbitra" >> $SUDOERS_FILE
 echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/certbot" >> $SUDOERS_FILE
 chmod 0440 $SUDOERS_FILE
 
@@ -164,11 +166,6 @@ EOF
 
 ln -sf /etc/nginx/sites-available/orbitra /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
-
-# Allow www-data to modify Nginx config for auto-domain management
-echo "  > Setting up Nginx config permissions for auto-domain management..."
-chown www-data:www-data /etc/nginx/sites-available/orbitra
-chmod 664 /etc/nginx/sites-available/orbitra
 
 # Increase PHP upload limits for Geo databases (approx 30-50MB)
 sed -i "s/upload_max_filesize = .*/upload_max_filesize = 256M/" /etc/php/${PHP_V}/fpm/php.ini
