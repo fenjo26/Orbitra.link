@@ -17,6 +17,16 @@ const generateAlias = () => {
     return result;
 };
 
+// Generate random API token (32 hex chars)
+const generateToken = () => {
+    const chars = '0123456789abcdef';
+    let result = '';
+    for (let i = 0; i < 32; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+};
+
 const CampaignEditor = ({ campaignId, onClose }) => {
     const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState('general');
@@ -71,7 +81,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         uniqueness_method: 'IP',
         uniqueness_hours: 24,
         rotation_type: 'position',
-        token: '',
+        token: generateToken(), // Generate token immediately for new campaigns
         notes: '',
         catch_404_stream_id: '',
         streams: [],
