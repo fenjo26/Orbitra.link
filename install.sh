@@ -1,5 +1,5 @@
 #!/bin/bash
-# Orbitra v0.9.2.9 Tracker Auto-Installer
+# Orbitra v0.9.3.0 Tracker Auto-Installer
 # Supported OS: Ubuntu 20.04, 22.04, 24.04 / Debian 11, 12
 # Root privileges required (sudo)
 
@@ -15,7 +15,7 @@ if [ "$EUID" -ne 0 ]; then
   exit
 fi
 
-echo "[1/4] Updating system and installing packages (Nginx, PHP, SQLite)..."
+echo "[1/5] Updating system and installing packages (Nginx, PHP, SQLite)..."
 apt-get update -y
 apt-get install -y ca-certificates apt-transport-https software-properties-common curl git unzip nginx php-fpm php-sqlite3 php-curl php-mbstring php-xml php-zip
 
@@ -23,7 +23,29 @@ apt-get install -y ca-certificates apt-transport-https software-properties-commo
 PHP_V=$(php -v | head -n 1 | cut -d " " -f 2 | cut -f1-2 -d".")
 PHP_FPM_SOCK="/var/run/php/php${PHP_V}-fpm.sock"
 
-echo "[2/4] Downloading Orbitra source code to /var/www/orbitra..."
+# Install Node.js 20.x (required for frontend build)
+echo "[2/5] Installing Node.js 20.x for frontend build..."
+if command -v node &> /dev/null; then
+    CURRENT_NODE_V=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
+    if [ "$CURRENT_NODE_V" -lt 20 ]; then
+        echo "  > Removing old Node.js $CURRENT_NODE_V..."
+        apt-get remove -y nodejs npm
+        echo "  > Installing Node.js 20.x..."
+        curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+        apt-get install -y nodejs
+    else
+        echo "  > Node.js $(node -v) already installed (version 20+) - skipping"
+    fi
+else
+    echo "  > Installing Node.js 20.x..."
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    apt-get install -y nodejs
+fi
+
+echo "Node.js version: $(node -v)"
+echo "npm version: $(npm -v)"
+
+echo "[3/5] Downloading Orbitra source code to /var/www/orbitra..."
 TMP_SRC_DIR="$(mktemp -d /tmp/orbitra_src.XXXXXX)"
 cleanup_tmp() {
     rm -rf "$TMP_SRC_DIR"
@@ -72,7 +94,7 @@ if [ -d "/tmp/orbitra_geo_backup" ]; then
 fi
 
 
-echo "[3/4] Configuring permissions for SQLite Database..."
+echo "[4/5] Configuring permissions for SQLite Database..."
 # Create necessary subdirectories first
 mkdir -p /var/www/orbitra/var/geoip/SxGeoCity
 mkdir -p /var/www/orbitra/geo
@@ -83,7 +105,7 @@ chown -R www-data:www-data /var/www/orbitra
 find /var/www/orbitra -type d -exec chmod 775 {} \;
 find /var/www/orbitra -type f -exec chmod 664 {} \;
 
-echo "[4/4] Configuring Nginx web server..."
+echo "[5/5] Configuring Nginx web server and building frontend..."
 cat > /etc/nginx/sites-available/orbitra << EOF
 server {
     listen 80;
@@ -132,6 +154,19 @@ sed -i "s/post_max_size = .*/post_max_size = 256M/" /etc/php/${PHP_V}/fpm/php.in
 
 systemctl restart php${PHP_V}-fpm
 systemctl restart nginx
+
+# Build frontend
+echo "  > Building frontend..."
+cd /var/www/orbitra/frontend
+if [ -f "package.json" ]; then
+    echo "  > Installing npm dependencies..."
+    npm install --silent
+    echo "  > Building production bundle..."
+    npm run build
+    echo "  > Frontend built successfully!"
+else
+    echo "  > WARNING: package.json not found, skipping frontend build"
+fi
 
 # Get public IP for output
 SERVER_IP=$(curl -s http://checkip.amazonaws.com || echo "your_server_ip")
