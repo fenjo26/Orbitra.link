@@ -1393,7 +1393,7 @@ try {
         // Simple landings list for dropdowns (no heavy joins with clicks table)
         case 'landings_simple':
             $stmt = $pdo->query("
-                SELECT l.id, l.name, l.folder_name, l.state
+                SELECT l.id, l.name, l.state, l.type
                 FROM landings l
                 WHERE l.is_archived = 0
                 ORDER BY l.name ASC
