@@ -218,7 +218,11 @@ export default {
         endDate: "End Date",
         distributeUniqueOnly: "Distribute across unique clicks only",
         deleteConfirm: "Delete campaign? This action cannot be undone.",
-        updatedClicks: "Updated clicks: {count}"
+        updatedClicks: "Updated clicks: {count}",
+        copySelected: "Copy selected",
+        bulkCopyConfirm: "Copy selected campaigns? Copies with new aliases and tokens will be created.",
+        copied: "Copied",
+        copyErrors: "Errors"
     },
     editor: {
         newCampaign: "New Campaign",
@@ -356,7 +360,11 @@ export default {
         redirect: "Redirect",
         iframe: "IFrame",
         local: "Local",
-        total: "Total ({count} offers)"
+        total: "Total ({count} offers)",
+        copySelected: "Copy selected",
+        bulkCopyConfirm: "Copy selected offers?",
+        copied: "Copied",
+        copyErrors: "Errors"
     },
     sources: {
         title: "Traffic Sources",

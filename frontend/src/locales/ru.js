@@ -218,7 +218,11 @@ export default {
         endDate: "Дата конца",
         distributeUniqueOnly: "Распределить только по уникальным кликам",
         deleteConfirm: "Удалить кампанию? Это действие необратимо.",
-        updatedClicks: "Обновлено кликов: {count}"
+        updatedClicks: "Обновлено кликов: {count}",
+        copySelected: "Копировать выбранные",
+        bulkCopyConfirm: "Скопировать выбранные кампании? Будут созданы копии с новыми alias и токенами.",
+        copied: "Скопировано",
+        copyErrors: "Ошибок"
     },
     editor: {
         newCampaign: "Новая кампания",
@@ -356,7 +360,11 @@ export default {
         redirect: "Редирект",
         iframe: "IFrame",
         local: "Локальный",
-        total: "Итого (офферов: {count})"
+        total: "Итого (офферов: {count})",
+        copySelected: "Копировать выбранные",
+        bulkCopyConfirm: "Скопировать выбранные офферы?",
+        copied: "Скопировано",
+        copyErrors: "Ошибок"
     },
     sources: {
         title: "Источники трафика",

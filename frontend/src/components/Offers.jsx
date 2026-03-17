@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Trash2, Edit3, Settings2, RefreshCw, Filter, X, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
+import { Plus, Trash2, Edit3, Settings2, RefreshCw, Filter, X, ChevronUp, ChevronDown, ChevronsUpDown, Copy } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import OfferEditor from './OfferEditor';
 import GroupsModal from './GroupsModal';
@@ -140,6 +140,36 @@ const Offers = ({ offers, refreshData }) => {
         }
     };
 
+    const handleBulkCopySelected = async () => {
+        const ids = Array.from(selectedOfferIds);
+        if (ids.length === 0) return;
+
+        const confirmMsg = t('offers.bulkCopyConfirm') || 'Скопировать выбранные офферы?';
+        if (!window.confirm(confirmMsg)) return;
+
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (const id of ids) {
+            try {
+                await axios.post(`${API_URL}?action=copy_offer`, { id });
+                successCount++;
+            } catch (err) {
+                errorCount++;
+            }
+        }
+
+        if (successCount > 0) {
+            alert(`${t('offers.copied') || 'Скопировано'}: ${successCount}`);
+            refreshData();
+        }
+        if (errorCount > 0) {
+            alert(`${t('offers.copyErrors') || 'Ошибок'}: ${errorCount}`);
+        }
+
+        setSelectedOfferIds(new Set());
+    };
+
     const handleEditorClose = (wasSaved) => {
         setIsEditorOpen(false);
         if (wasSaved) {
@@ -251,10 +281,16 @@ const Offers = ({ offers, refreshData }) => {
                         {t('campaigns.groups')}
                     </button>
                     {selectedOfferIds.size > 0 && (
-                        <button onClick={handleBulkDeleteSelected} className="btn btn-danger" title={t('common.deleteSelected')}>
-                            <Trash2 className="w-4 h-4" />
-                            {(t('common.deleteSelected') || t('common.delete'))} ({selectedOfferIds.size})
-                        </button>
+                        <>
+                            <button onClick={handleBulkCopySelected} className="btn btn-success" title={t('offers.copySelected') || 'Копировать'}>
+                                <Copy className="w-4 h-4" />
+                                {(t('offers.copySelected') || 'Копировать')} ({selectedOfferIds.size})
+                            </button>
+                            <button onClick={handleBulkDeleteSelected} className="btn btn-danger" title={t('common.deleteSelected')}>
+                                <Trash2 className="w-4 h-4" />
+                                {(t('common.deleteSelected') || t('common.delete'))} ({selectedOfferIds.size})
+                            </button>
+                        </>
                     )}
                 </div>
                 <div className="flex gap-2">

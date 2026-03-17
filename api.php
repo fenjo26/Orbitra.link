@@ -1283,6 +1283,134 @@ try {
             }
             break;
 
+        case 'copy_campaign':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(file_get_contents('php://input'), true);
+                $id = !empty($data['id']) ? (int) $data['id'] : null;
+
+                if (!$id) {
+                    echo json_encode(['status' => 'error', 'message' => 'ID не передан']);
+                    break;
+                }
+
+                try {
+                    $pdo->beginTransaction();
+
+                    // Get original campaign
+                    $stmt = $pdo->prepare("SELECT * FROM campaigns WHERE id = ?");
+                    $stmt->execute([$id]);
+                    $campaign = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    if (!$campaign) {
+                        echo json_encode(['status' => 'error', 'message' => 'Кампания не найдена']);
+                        break;
+                    }
+
+                    // Find next copy number
+                    $baseName = preg_replace('/^Copy #\d+ /', '', $campaign['name']);
+                    $stmt = $pdo->prepare("SELECT name FROM campaigns WHERE name LIKE ?");
+                    $stmt->execute(["Copy %"]);
+                    $existingCopies = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                    $copyNum = 1;
+                    while (in_array("Copy #$copyNum $baseName", $existingCopies)) {
+                        $copyNum++;
+                    }
+                    $newName = "Copy #$copyNum $baseName";
+
+                    // Generate unique alias
+                    $newAlias = $newName;
+                    $newAlias = strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', $newAlias), '-'));
+                    $newAlias = substr($newAlias, 0, 50); // Limit length
+                    $aliasNum = 1;
+                    while (true) {
+                        $checkAlias = $aliasNum > 1 ? substr($newAlias, 0, 47) . '-' . $aliasNum : $newAlias;
+                        $stmt = $pdo->prepare("SELECT id FROM campaigns WHERE alias = ?");
+                        $stmt->execute([$checkAlias]);
+                        if (!$stmt->fetch()) {
+                            $newAlias = $checkAlias;
+                            break;
+                        }
+                        $aliasNum++;
+                        if ($aliasNum > 1000) {
+                            throw new Exception('Не удалось сгенерировать уникальный alias');
+                        }
+                    }
+
+                    // Generate new token
+                    $newToken = bin2hex(random_bytes(16));
+
+                    // Insert new campaign
+                    $stmt = $pdo->prepare("
+                        INSERT INTO campaigns (
+                            name, alias, domain_id, group_id, source_id,
+                            cost_model, cost_value, uniqueness_method, uniqueness_hours,
+                            rotation_type, token, catch_404_stream_id, notes
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ");
+                    $stmt->execute([
+                        $newName, $newAlias, $campaign['domain_id'], $campaign['group_id'],
+                        $campaign['source_id'], $campaign['cost_model'], $campaign['cost_value'],
+                        $campaign['uniqueness_method'], $campaign['uniqueness_hours'],
+                        $campaign['rotation_type'], $newToken, $campaign['catch_404_stream_id'],
+                        $campaign['notes'] ?? ''
+                    ]);
+                    $newCampaignId = $pdo->lastInsertId();
+
+                    // Copy streams
+                    $stmt = $pdo->prepare("SELECT * FROM streams WHERE campaign_id = ?");
+                    $stmt->execute([$id]);
+                    $streams = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($streams as $stream) {
+                        $stmt = $pdo->prepare("
+                            INSERT INTO streams (
+                                campaign_id, offer_id, weight, is_active, type,
+                                position, filters_json, schema_type, action_payload, schema_custom_json, name
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ");
+                        $stmt->execute([
+                            $newCampaignId, $stream['offer_id'], $stream['weight'],
+                            $stream['is_active'], $stream['type'], $stream['position'],
+                            $stream['filters_json'], $stream['schema_type'],
+                            $stream['action_payload'], $stream['schema_custom_json'],
+                            $stream['name'] ?? ''
+                        ]);
+                    }
+
+                    // Copy postbacks
+                    $stmt = $pdo->prepare("SELECT * FROM campaign_postbacks WHERE campaign_id = ?");
+                    $stmt->execute([$id]);
+                    $postbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($postbacks as $postback) {
+                        $stmt = $pdo->prepare("
+                            INSERT INTO campaign_postbacks (campaign_id, url, method, statuses)
+                            VALUES (?, ?, ?, ?)
+                        ");
+                        $stmt->execute([
+                            $newCampaignId, $postback['url'], $postback['method'], $postback['statuses']
+                        ]);
+                    }
+
+                    $pdo->commit();
+
+                    logAudit($pdo, 'COPY', 'Campaign', $id, "Created copy: $newName (ID: $newCampaignId)");
+
+                    echo json_encode([
+                        'status' => 'success',
+                        'id' => $newCampaignId,
+                        'name' => $newName,
+                        'alias' => $newAlias
+                    ]);
+                } catch (Exception $e) {
+                    if ($pdo->inTransaction()) {
+                        $pdo->rollBack();
+                    }
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
         case 'campaign_groups':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
@@ -2125,6 +2253,77 @@ try {
                     $pdo->rollBack();
                 }
                 echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        case 'copy_offer':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(file_get_contents('php://input'), true);
+                $id = !empty($data['id']) ? (int) $data['id'] : null;
+
+                if (!$id) {
+                    echo json_encode(['status' => 'error', 'message' => 'ID не передан']);
+                    break;
+                }
+
+                try {
+                    $pdo->beginTransaction();
+
+                    // Get original offer
+                    $stmt = $pdo->prepare("SELECT * FROM offers WHERE id = ?");
+                    $stmt->execute([$id]);
+                    $offer = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    if (!$offer) {
+                        echo json_encode(['status' => 'error', 'message' => 'Оффер не найден']);
+                        break;
+                    }
+
+                    // Find next copy number
+                    $baseName = preg_replace('/^Copy #\d+ /', '', $offer['name']);
+                    $stmt = $pdo->prepare("SELECT name FROM offers WHERE name LIKE ?");
+                    $stmt->execute(["Copy %"]);
+                    $existingCopies = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                    $copyNum = 1;
+                    while (in_array("Copy #$copyNum $baseName", $existingCopies)) {
+                        $copyNum++;
+                    }
+                    $newName = "Copy #$copyNum $baseName";
+
+                    // Insert new offer
+                    $stmt = $pdo->prepare("
+                        INSERT INTO offers (
+                            name, group_id, affiliate_network_id, url, redirect_type,
+                            is_local, geo, payout_type, payout_value, payout_auto,
+                            allow_rebills, capping_limit, capping_timezone, alt_offer_id,
+                            notes, values_json, state
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ");
+                    $stmt->execute([
+                        $newName, $offer['group_id'], $offer['affiliate_network_id'],
+                        $offer['url'], $offer['redirect_type'], $offer['is_local'],
+                        $offer['geo'], $offer['payout_type'], $offer['payout_value'],
+                        $offer['payout_auto'], $offer['allow_rebills'], $offer['capping_limit'],
+                        $offer['capping_timezone'], $offer['alt_offer_id'], $offer['notes'],
+                        $offer['values_json'], $offer['state']
+                    ]);
+                    $newOfferId = $pdo->lastInsertId();
+
+                    $pdo->commit();
+
+                    logAudit($pdo, 'COPY', 'Offer', $id, "Created copy: $newName (ID: $newOfferId)");
+
+                    echo json_encode([
+                        'status' => 'success',
+                        'id' => $newOfferId,
+                        'name' => $newName
+                    ]);
+                } catch (Exception $e) {
+                    if ($pdo->inTransaction()) {
+                        $pdo->rollBack();
+                    }
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
             }
             break;
 

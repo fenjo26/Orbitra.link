@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Filter, RefreshCw, X } from 'lucide-react';
+import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Filter, RefreshCw, X, Copy } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -129,6 +129,36 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         }
     };
 
+    const handleBulkCopySelected = async () => {
+        const ids = Array.from(selectedCampaignIds);
+        if (ids.length === 0) return;
+
+        const confirmMsg = t('campaigns.bulkCopyConfirm') || 'Скопировать выбранные кампании?';
+        if (!window.confirm(confirmMsg)) return;
+
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (const id of ids) {
+            try {
+                await axios.post(`${API_URL}?action=copy_campaign`, { id });
+                successCount++;
+            } catch (err) {
+                errorCount++;
+            }
+        }
+
+        if (successCount > 0) {
+            alert(`${t('campaigns.copied') || 'Скопировано'}: ${successCount}`);
+            refreshData();
+        }
+        if (errorCount > 0) {
+            alert(`${t('campaigns.copyErrors') || 'Ошибок'}: ${errorCount}`);
+        }
+
+        setSelectedCampaignIds(new Set());
+    };
+
     const SortIcon = ({ colKey }) => {
         if (sortBy.key !== colKey) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-60" />;
         return sortBy.dir === 'asc'
@@ -249,10 +279,16 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                         {t('campaigns.sources')}
                     </button>
                     {selectedCampaignIds.size > 0 && (
-                        <button onClick={handleBulkDeleteSelected} className="btn btn-danger" title={t('common.deleteSelected')}>
-                            <Trash2 className="w-4 h-4" />
-                            {(t('common.deleteSelected') || t('common.delete'))} ({selectedCampaignIds.size})
-                        </button>
+                        <>
+                            <button onClick={handleBulkCopySelected} className="btn btn-success" title={t('campaigns.copySelected') || 'Копировать'}>
+                                <Copy className="w-4 h-4" />
+                                {(t('campaigns.copySelected') || 'Копировать')} ({selectedCampaignIds.size})
+                            </button>
+                            <button onClick={handleBulkDeleteSelected} className="btn btn-danger" title={t('common.deleteSelected')}>
+                                <Trash2 className="w-4 h-4" />
+                                {(t('common.deleteSelected') || t('common.delete'))} ({selectedCampaignIds.size})
+                            </button>
+                        </>
                     )}
                 </div>
                 <div className="flex gap-2">

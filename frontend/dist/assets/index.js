@@ -16118,7 +16118,11 @@ const ru = {
     endDate: "Дата конца",
     distributeUniqueOnly: "Распределить только по уникальным кликам",
     deleteConfirm: "Удалить кампанию? Это действие необратимо.",
-    updatedClicks: "Обновлено кликов: {count}"
+    updatedClicks: "Обновлено кликов: {count}",
+    copySelected: "Копировать выбранные",
+    bulkCopyConfirm: "Скопировать выбранные кампании? Будут созданы копии с новыми alias и токенами.",
+    copied: "Скопировано",
+    copyErrors: "Ошибок"
   },
   editor: {
     newCampaign: "Новая кампания",
@@ -16256,7 +16260,11 @@ const ru = {
     redirect: "Редирект",
     iframe: "IFrame",
     local: "Локальный",
-    total: "Итого (офферов: {count})"
+    total: "Итого (офферов: {count})",
+    copySelected: "Копировать выбранные",
+    bulkCopyConfirm: "Скопировать выбранные офферы?",
+    copied: "Скопировано",
+    copyErrors: "Ошибок"
   },
   sources: {
     title: "Источники трафика",
@@ -17864,7 +17872,11 @@ const en = {
     endDate: "End Date",
     distributeUniqueOnly: "Distribute across unique clicks only",
     deleteConfirm: "Delete campaign? This action cannot be undone.",
-    updatedClicks: "Updated clicks: {count}"
+    updatedClicks: "Updated clicks: {count}",
+    copySelected: "Copy selected",
+    bulkCopyConfirm: "Copy selected campaigns? Copies with new aliases and tokens will be created.",
+    copied: "Copied",
+    copyErrors: "Errors"
   },
   editor: {
     newCampaign: "New Campaign",
@@ -18002,7 +18014,11 @@ const en = {
     redirect: "Redirect",
     iframe: "IFrame",
     local: "Local",
-    total: "Total ({count} offers)"
+    total: "Total ({count} offers)",
+    copySelected: "Copy selected",
+    bulkCopyConfirm: "Copy selected offers?",
+    copied: "Copied",
+    copyErrors: "Errors"
   },
   sources: {
     title: "Traffic Sources",
@@ -34011,6 +34027,30 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
       alert(t("common.deleteError"));
     }
   };
+  const handleBulkCopySelected = async () => {
+    const ids = Array.from(selectedCampaignIds);
+    if (ids.length === 0) return;
+    const confirmMsg = t("campaigns.bulkCopyConfirm") || "Скопировать выбранные кампании?";
+    if (!window.confirm(confirmMsg)) return;
+    let successCount = 0;
+    let errorCount = 0;
+    for (const id of ids) {
+      try {
+        await axios.post(`${API_URL$w}?action=copy_campaign`, { id });
+        successCount++;
+      } catch (err) {
+        errorCount++;
+      }
+    }
+    if (successCount > 0) {
+      alert(`${t("campaigns.copied") || "Скопировано"}: ${successCount}`);
+      refreshData();
+    }
+    if (errorCount > 0) {
+      alert(`${t("campaigns.copyErrors") || "Ошибок"}: ${errorCount}`);
+    }
+    setSelectedCampaignIds(/* @__PURE__ */ new Set());
+  };
   const SortIcon = ({ colKey }) => {
     if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-60" });
     return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5" });
@@ -34112,12 +34152,21 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t("campaigns.groups") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t("campaigns.sources") }),
-        selectedCampaignIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t("common.deleteSelected"), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
-          t("common.deleteSelected") || t("common.delete"),
-          " (",
-          selectedCampaignIds.size,
-          ")"
+        selectedCampaignIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkCopySelected, className: "btn btn-success", title: t("campaigns.copySelected") || "Копировать", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }),
+            t("campaigns.copySelected") || "Копировать",
+            " (",
+            selectedCampaignIds.size,
+            ")"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t("common.deleteSelected"), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
+            t("common.deleteSelected") || t("common.delete"),
+            " (",
+            selectedCampaignIds.size,
+            ")"
+          ] })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
@@ -36099,6 +36148,30 @@ const Offers = ({ offers, refreshData }) => {
       alert(t("common.error"));
     }
   };
+  const handleBulkCopySelected = async () => {
+    const ids = Array.from(selectedOfferIds);
+    if (ids.length === 0) return;
+    const confirmMsg = t("offers.bulkCopyConfirm") || "Скопировать выбранные офферы?";
+    if (!window.confirm(confirmMsg)) return;
+    let successCount = 0;
+    let errorCount = 0;
+    for (const id of ids) {
+      try {
+        await axios.post(`${API_URL$p}?action=copy_offer`, { id });
+        successCount++;
+      } catch (err) {
+        errorCount++;
+      }
+    }
+    if (successCount > 0) {
+      alert(`${t("offers.copied") || "Скопировано"}: ${successCount}`);
+      refreshData();
+    }
+    if (errorCount > 0) {
+      alert(`${t("offers.copyErrors") || "Ошибок"}: ${errorCount}`);
+    }
+    setSelectedOfferIds(/* @__PURE__ */ new Set());
+  };
   const handleEditorClose = (wasSaved) => {
     setIsEditorOpen(false);
     if (wasSaved) {
@@ -36189,12 +36262,21 @@ const Offers = ({ offers, refreshData }) => {
           t("common.create")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setIsGroupsModalOpen(true), className: "btn btn-secondary", children: t("campaigns.groups") }),
-        selectedOfferIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t("common.deleteSelected"), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
-          t("common.deleteSelected") || t("common.delete"),
-          " (",
-          selectedOfferIds.size,
-          ")"
+        selectedOfferIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkCopySelected, className: "btn btn-success", title: t("offers.copySelected") || "Копировать", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }),
+            t("offers.copySelected") || "Копировать",
+            " (",
+            selectedOfferIds.size,
+            ")"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t("common.deleteSelected"), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
+            t("common.deleteSelected") || t("common.delete"),
+            " (",
+            selectedOfferIds.size,
+            ")"
+          ] })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
