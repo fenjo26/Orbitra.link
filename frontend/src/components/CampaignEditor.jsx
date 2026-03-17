@@ -7,11 +7,11 @@ import ConversionsLog from './ConversionsLog';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost } from '../utils/apiCache';
 
-// Generate random alias like Keitaro
+// Generate random alias like Keitaro (8 chars: a-z0-9)
 const generateAlias = () => {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 8; i++) {
         result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;

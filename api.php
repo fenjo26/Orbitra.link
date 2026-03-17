@@ -1317,10 +1317,10 @@ try {
                     }
                     $newName = "Copy #$copyNum $baseName";
 
-                    // Generate random alias like when creating new campaign (6 chars: a-z0-9)
+                    // Generate random alias like when creating new campaign (8 chars: a-z0-9, like Keitaro)
                     $chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
                     $newAlias = '';
-                    for ($i = 0; $i < 6; $i++) {
+                    for ($i = 0; $i < 8; $i++) {
                         $newAlias .= $chars[random_int(0, strlen($chars) - 1)];
                     }
 
@@ -1334,7 +1334,7 @@ try {
                         }
                         // Regenerate
                         $newAlias = '';
-                        for ($i = 0; $i < 6; $i++) {
+                        for ($i = 0; $i < 8; $i++) {
                             $newAlias .= $chars[random_int(0, strlen($chars) - 1)];
                         }
                         $aliasAttempts++;
