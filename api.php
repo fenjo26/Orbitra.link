@@ -3580,14 +3580,16 @@ try {
                         logAudit($pdo, 'CREATE', 'Domain', $id, "Name: $name");
                     }
 
-                    // Auto-update Nginx configuration
-                    $nginxResult = updateNginxConfig($pdo);
-
                     // Auto-install SSL if https_only is enabled
                     $sslQueued = false;
                     if ($httpsOnly) {
                         $sslQueued = queueSslInstallation($pdo, $id);
+                        // Regenerate Nginx config after Certbot broke it
+                        updateNginxConfig($pdo);
                     }
+
+                    // Auto-update Nginx configuration
+                    $nginxResult = updateNginxConfig($pdo);
 
                     $response = ['status' => 'success', 'nginx' => $nginxResult];
                     if ($sslQueued) {
