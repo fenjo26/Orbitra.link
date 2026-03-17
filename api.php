@@ -235,6 +235,112 @@ function updateNginxConfig($pdo) {
     }
 }
 
+/**
+ * Install SSL certificate for a single domain using Certbot
+ * Runs in background, returns immediately
+ */
+function installSslForDomain($domain) {
+    // Check if certbot is available
+    if (!command_exists('certbot')) {
+        return false;
+    }
+
+    // Check if SSL already exists for this domain
+    $certPath = "/etc/letsencrypt/live/$domain/cert.pem";
+    if (file_exists($certPath)) {
+        return false; // Already has SSL
+    }
+
+    // Run certbot in background (non-blocking)
+    $cmd = "sudo certbot --nginx -n -d $domain --agree-tos --register-unsafely-without-email > /dev/null 2>&1 &";
+    @shell_exec($cmd);
+
+    return true;
+}
+
+/**
+ * Queue SSL installation for domains with https_only enabled
+ */
+function queueSslInstallation($pdo, $domainId = null) {
+    // Get domains that need SSL
+    $sql = "SELECT name FROM domains WHERE https_only = 1 AND name IS NOT NULL AND name != ''";
+    if ($domainId) {
+        $sql .= " AND id = $domainId";
+    }
+    $stmt = $pdo->query($sql);
+    $domains = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    $queued = 0;
+    foreach ($domains as $domain) {
+        if (installSslForDomain($domain)) {
+            $queued++;
+        }
+    }
+
+    return $queued;
+}
+    try {
+        // Get all active domains from database
+        $stmt = $pdo->query("SELECT name FROM domains WHERE name IS NOT NULL AND name != '' ORDER BY name");
+        $domains = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        if (empty($domains)) {
+            return ['status' => 'skip', 'message' => 'No domains in database'];
+        }
+
+        // Build server_name directive
+        $serverName = implode(' ', $domains);
+
+        // Nginx config path
+        $nginxConfig = '/etc/nginx/sites-available/orbitra';
+
+        // Check if config file exists and is readable
+        if (!file_exists($nginxConfig)) {
+            return ['status' => 'error', 'message' => 'Nginx config not found at ' . $nginxConfig];
+        }
+
+        // Read existing config
+        $configContent = file_get_contents($nginxConfig);
+
+        // Replace server_name line
+        $newConfig = preg_replace(
+            '/server_name\s+[^;]+;/',
+            "server_name $serverName;",
+            $configContent
+        );
+
+        if ($newConfig === $configContent) {
+            return ['status' => 'skip', 'message' => 'Config unchanged'];
+        }
+
+        // Write updated config to temp file first
+        $tempConfig = $nginxConfig . '.tmp';
+        file_put_contents($tempConfig, $newConfig);
+
+        // Test nginx config
+        $testResult = @shell_exec('sudo nginx -t 2>&1');
+        if (strpos($testResult, 'successful') === false && strpos($testResult, 'test is successful') === false) {
+            @unlink($tempConfig);
+            return ['status' => 'error', 'message' => 'Nginx config test failed: ' . $testResult];
+        }
+
+        // Replace original config
+        rename($tempConfig, $nginxConfig);
+
+        // Reload nginx via sudo
+        $reloadResult = @shell_exec('sudo systemctl reload nginx 2>&1');
+        $reloadSuccess = ($reloadResult === null || strpos($reloadResult, 'failed') === false);
+
+        if ($reloadSuccess) {
+            return ['status' => 'success', 'message' => 'Nginx updated and reloaded with ' . count($domains) . ' domains'];
+        } else {
+            return ['status' => 'pending', 'message' => 'Config updated, but nginx reload failed. Run: sudo systemctl reload nginx'];
+        }
+    } catch (\Exception $e) {
+        return ['status' => 'error', 'message' => $e->getMessage()];
+    }
+}
+
 function getDashboardFilters($prefix = '')
 {
     global $dbTzOffset;
@@ -2586,135 +2692,6 @@ try {
             echo json_encode(['status' => 'success', 'data' => $results, 'server_ip' => $serverIp]);
             break;
 
-        // === NGINX & SSL MANAGEMENT ===
-        case 'update_nginx_config':
-            // Manually trigger Nginx config update from all domains in database
-            $result = updateNginxConfig($pdo);
-            echo json_encode($result);
-            break;
-
-        case 'get_nginx_status':
-            // Check Nginx configuration and SSL status
-            $status = [
-                'nginx' => [
-                    'running' => false,
-                    'config_ok' => false,
-                    'domains_count' => 0,
-                    'server_name' => ''
-                ],
-                'ssl' => [
-                    'installed' => false,
-                    'domains' => []
-                ]
-            ];
-
-            // Check if Nginx is running
-            $nginxStatus = @shell_exec('systemctl is-active nginx 2>&1');
-            $status['nginx']['running'] = trim($nginxStatus) === 'active';
-
-            // Check Nginx config
-            $nginxTest = @shell_exec('nginx -t 2>&1');
-            $status['nginx']['config_ok'] = strpos($nginxTest, 'successful') !== false;
-
-            // Get current server_name from config
-            $configFile = '/etc/nginx/sites-available/orbitra';
-            if (file_exists($configFile)) {
-                $configContent = file_get_contents($configFile);
-                if (preg_match('/server_name\s+([^;]+);/', $configContent, $matches)) {
-                    $status['nginx']['server_name'] = trim($matches[1]);
-                    $domains = array_filter(explode(' ', $status['nginx']['server_name']));
-                    $status['nginx']['domains_count'] = count($domains);
-                }
-            }
-
-            // Get domains from database
-            $stmt = $pdo->query("SELECT name FROM domains WHERE name IS NOT NULL AND name != '' ORDER BY name");
-            $dbDomains = $stmt->fetchAll(PDO::FETCH_COLUMN);
-            $status['nginx']['db_domains_count'] = count($dbDomains);
-
-            // Check SSL certificates
-            $certDir = '/etc/letsencrypt/live';
-            if (is_dir($certDir)) {
-                $certs = scandir($certDir);
-                foreach ($certs as $cert) {
-                    if ($cert !== '.' && $cert !== '..') {
-                        $certPath = "$certDir/$cert/cert.pem";
-                        if (file_exists($certPath)) {
-                            $status['ssl']['installed'] = true;
-                            $status['ssl']['domains'][] = $cert;
-                        }
-                    }
-                }
-            }
-
-            // Check if certbot is installed
-            $certbotInstalled = command_exists('certbot');
-            $status['ssl']['certbot_installed'] = $certbotInstalled;
-
-            echo json_encode(['status' => 'success', 'data' => $status]);
-            break;
-
-        case 'install_ssl_certificates':
-            // Install SSL certificates using Let's Encrypt (Certbot)
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
-                $email = $data['email'] ?? '';
-
-                if (!command_exists('certbot')) {
-                    echo json_encode(['status' => 'error', 'message' => 'Certbot не установлен. Установите: sudo apt-get install certbot python3-certbot-nginx']);
-                    break;
-                }
-
-                // Get all domains from database
-                $stmt = $pdo->query("SELECT name FROM domains WHERE name IS NOT NULL AND name != '' ORDER BY name");
-                $domains = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-                if (empty($domains)) {
-                    echo json_encode(['status' => 'error', 'message' => 'Нет доменов в базе данных']);
-                    break;
-                }
-
-                // Build certbot command
-                $domainArgs = implode(' ', array_map(function($d) { return "-d $d"; }, $domains));
-
-                if ($email) {
-                    $emailArg = "--email $email --no-eff-email";
-                } else {
-                    $emailArg = '--register-unsafely-without-email';
-                }
-
-                $cmd = "certbot --nginx -n $domainArgs $emailArg --agree-tos 2>&1";
-                $output = @shell_exec("sudo $cmd");
-
-                if ($output === null) {
-                    echo json_encode(['status' => 'error', 'message' => 'Ошибка запуска Certbot. Проверьте sudoers настройки.']);
-                } else {
-                    // Check if certificates were installed
-                    $hasCerts = strpos($output, 'Successfully received certificate') !== false;
-
-                    if ($hasCerts) {
-                        // Update domains to https_only = 1
-                        $pdo->query("UPDATE domains SET https_only = 1");
-
-                        // Reload nginx
-                        @shell_exec('sudo systemctl reload nginx 2>&1');
-
-                        echo json_encode([
-                            'status' => 'success',
-                            'message' => 'SSL сертификаты установлены для ' . count($domains) . ' доменов',
-                            'output' => $output
-                        ]);
-                    } else {
-                        echo json_encode([
-                            'status' => 'error',
-                            'message' => 'Не удалось установить сертификаты. Проверьте что домены резолвятся на этот IP.',
-                            'output' => $output
-                        ]);
-                    }
-                }
-            }
-            break;
-
         // === Backorder / Domain Availability Tracker ===
         case 'backorder_domains':
             $stmt = $pdo->query("
@@ -3532,13 +3509,24 @@ try {
                     } else {
                         $stmt = $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only) VALUES (?, ?, ?, ?, ?, ?)");
                         $stmt->execute([$name, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly]);
-                        logAudit($pdo, 'CREATE', 'Domain', $pdo->lastInsertId(), "Name: $name");
+                        $id = $pdo->lastInsertId();
+                        logAudit($pdo, 'CREATE', 'Domain', $id, "Name: $name");
                     }
 
                     // Auto-update Nginx configuration
                     $nginxResult = updateNginxConfig($pdo);
 
-                    echo json_encode(['status' => 'success', 'nginx' => $nginxResult]);
+                    // Auto-install SSL if https_only is enabled
+                    $sslQueued = false;
+                    if ($httpsOnly) {
+                        $sslQueued = queueSslInstallation($pdo, $id);
+                    }
+
+                    $response = ['status' => 'success', 'nginx' => $nginxResult];
+                    if ($sslQueued) {
+                        $response['ssl'] = 'SSL сертификат устанавливается в фоновом режиме (1-2 минуты)';
+                    }
+                    echo json_encode($response);
                 } catch (\Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => 'Дубликат домена или системная ошибка']);
                 }
