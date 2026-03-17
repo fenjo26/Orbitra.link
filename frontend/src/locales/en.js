@@ -32,7 +32,8 @@ export default {
         all: "All",
         copy: "Copy",
         notSet: "not set",
-        disabled: "Disabled"
+        disabled: "Disabled",
+        checking: "Checking..."
     },
     nav: {
         dashboard: "Dashboard",
@@ -439,7 +440,9 @@ export default {
         dnsTitle: "Awaiting DNS",
         dnsInstruction: "Go to DNS settings at your registrar and set the A-record:",
         dnsNote1: "The registrar updates DNS records within 24 hours.",
-        dnsNote2: "Next check on page refresh."
+        dnsNote2: "Next check on page refresh.",
+        forceCheckConfirm: "Check DNS for all domains? This may take a moment.",
+        forceChecking: "Checking DNS..."
     },
     backorder: {
         bannerTitle: "Backorder Domain Monitor",
@@ -1694,7 +1697,8 @@ export default {
             v6: "Creating user_preferences table",
             v7: "Click indexes optimization",
             v8: "Session security configuration"
-        }
+        },
+        copied: "Copied!"
     },
     update: {
         checkingUpdates: "Checking for updates...",
