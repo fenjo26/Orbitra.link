@@ -1317,23 +1317,31 @@ try {
                     }
                     $newName = "Copy #$copyNum $baseName";
 
-                    // Generate unique alias
-                    $newAlias = $newName;
-                    $newAlias = strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', $newAlias), '-'));
-                    $newAlias = substr($newAlias, 0, 50); // Limit length
-                    $aliasNum = 1;
-                    while (true) {
-                        $checkAlias = $aliasNum > 1 ? substr($newAlias, 0, 47) . '-' . $aliasNum : $newAlias;
+                    // Generate random alias like when creating new campaign (6 chars: a-z0-9)
+                    $chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+                    $newAlias = '';
+                    for ($i = 0; $i < 6; $i++) {
+                        $newAlias .= $chars[random_int(0, strlen($chars) - 1)];
+                    }
+
+                    // Check for uniqueness and regenerate if needed (max 30 attempts)
+                    $aliasAttempts = 0;
+                    while ($aliasAttempts < 30) {
                         $stmt = $pdo->prepare("SELECT id FROM campaigns WHERE alias = ?");
-                        $stmt->execute([$checkAlias]);
+                        $stmt->execute([$newAlias]);
                         if (!$stmt->fetch()) {
-                            $newAlias = $checkAlias;
-                            break;
+                            break; // Alias is unique
                         }
-                        $aliasNum++;
-                        if ($aliasNum > 1000) {
-                            throw new Exception('Не удалось сгенерировать уникальный alias');
+                        // Regenerate
+                        $newAlias = '';
+                        for ($i = 0; $i < 6; $i++) {
+                            $newAlias .= $chars[random_int(0, strlen($chars) - 1)];
                         }
+                        $aliasAttempts++;
+                    }
+
+                    if ($aliasAttempts >= 30) {
+                        throw new Exception('Не удалось сгенерировать уникальный alias');
                     }
 
                     // Generate new token
