@@ -279,67 +279,6 @@ function queueSslInstallation($pdo, $domainId = null) {
 
     return $queued;
 }
-    try {
-        // Get all active domains from database
-        $stmt = $pdo->query("SELECT name FROM domains WHERE name IS NOT NULL AND name != '' ORDER BY name");
-        $domains = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-        if (empty($domains)) {
-            return ['status' => 'skip', 'message' => 'No domains in database'];
-        }
-
-        // Build server_name directive
-        $serverName = implode(' ', $domains);
-
-        // Nginx config path
-        $nginxConfig = '/etc/nginx/sites-available/orbitra';
-
-        // Check if config file exists and is readable
-        if (!file_exists($nginxConfig)) {
-            return ['status' => 'error', 'message' => 'Nginx config not found at ' . $nginxConfig];
-        }
-
-        // Read existing config
-        $configContent = file_get_contents($nginxConfig);
-
-        // Replace server_name line
-        $newConfig = preg_replace(
-            '/server_name\s+[^;]+;/',
-            "server_name $serverName;",
-            $configContent
-        );
-
-        if ($newConfig === $configContent) {
-            return ['status' => 'skip', 'message' => 'Config unchanged'];
-        }
-
-        // Write updated config to temp file first
-        $tempConfig = $nginxConfig . '.tmp';
-        file_put_contents($tempConfig, $newConfig);
-
-        // Test nginx config
-        $testResult = @shell_exec('sudo nginx -t 2>&1');
-        if (strpos($testResult, 'successful') === false && strpos($testResult, 'test is successful') === false) {
-            @unlink($tempConfig);
-            return ['status' => 'error', 'message' => 'Nginx config test failed: ' . $testResult];
-        }
-
-        // Replace original config
-        rename($tempConfig, $nginxConfig);
-
-        // Reload nginx via sudo
-        $reloadResult = @shell_exec('sudo systemctl reload nginx 2>&1');
-        $reloadSuccess = ($reloadResult === null || strpos($reloadResult, 'failed') === false);
-
-        if ($reloadSuccess) {
-            return ['status' => 'success', 'message' => 'Nginx updated and reloaded with ' . count($domains) . ' domains'];
-        } else {
-            return ['status' => 'pending', 'message' => 'Config updated, but nginx reload failed. Run: sudo systemctl reload nginx'];
-        }
-    } catch (\Exception $e) {
-        return ['status' => 'error', 'message' => $e->getMessage()];
-    }
-}
 
 function getDashboardFilters($prefix = '')
 {
