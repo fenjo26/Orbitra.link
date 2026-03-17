@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw } from 'lucide-react';
+import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Server, Lock } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import HelpTooltip from './HelpTooltip';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -20,6 +20,8 @@ const Domains = ({ campaigns }) => {
     });
     const [copiedIp, setCopiedIp] = useState(false);
     const [forceChecking, setForceChecking] = useState(false);
+    const [nginxStatus, setNginxStatus] = useState(null);
+    const [nginxLoading, setNginxLoading] = useState(false);
 
     // Edit Modal State
     const [showModal, setShowModal] = useState(false);
@@ -97,6 +99,64 @@ const Domains = ({ campaigns }) => {
             console.error(e);
         }
     };
+
+    const fetchNginxStatus = async () => {
+        try {
+            setNginxLoading(true);
+            const { data } = await cachedGet('get_nginx_status');
+            if (data.status === 'success') {
+                setNginxStatus(data.data);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setNginxLoading(false);
+        }
+    };
+
+    const updateNginxConfig = async () => {
+        if (!window.confirm('Обновить конфигурацию Nginx? Это перезагрузит веб-сервер.')) return;
+        try {
+            setNginxLoading(true);
+            const { data } = await cachedGet('update_nginx_config');
+            if (data.status === 'success') {
+                alert(data.message);
+                fetchNginxStatus();
+            } else {
+                alert('Ошибка: ' + data.message);
+            }
+        } catch (e) {
+            alert('Ошибка обновления Nginx: ' + e.message);
+        } finally {
+            setNginxLoading(false);
+        }
+    };
+
+    const installSslCertificates = async () => {
+        const email = prompt('Введите email для уведомлений об истечении SSL (или оставьте пустым):');
+        if (email === null) return; // Cancelled
+
+        if (!window.confirm('Установить SSL сертификаты через Let\'s Encrypt?\n\nВажно:\n- Домены должны резолвиться на этот IP\n- Порт 80 должен быть доступен\n- Установка займёт 1-2 минуты')) return;
+
+        try {
+            setNginxLoading(true);
+            const { data } = await cachedPost('install_ssl_certificates', { email });
+            if (data.status === 'success') {
+                alert('✅ ' + data.message);
+                fetchNginxStatus();
+            } else {
+                alert('❌ ' + data.message);
+            }
+        } catch (e) {
+            alert('Ошибка установки SSL: ' + e.message);
+        } finally {
+            setNginxLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchNginxStatus();
+    }, []);
 
     const copyIp = async () => {
         try {
@@ -215,6 +275,62 @@ const Domains = ({ campaigns }) => {
                     </button>
                 </div>
             </div>
+
+            {/* Nginx & SSL Status */}
+            {nginxStatus && (
+                <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-2">
+                                <Server size={18} className={nginxStatus.nginx.running ? 'text-green-600' : 'text-red-600'} />
+                                <span className="text-sm font-medium">Nginx:</span>
+                                <span className={`text-sm ${nginxStatus.nginx.running ? 'text-green-600' : 'text-red-600'}`}>
+                                    {nginxStatus.nginx.running ? '✓ Работает' : '✗ Остановлен'}
+                                </span>
+                                {nginxStatus.nginx.config_ok && (
+                                    <span className="text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded">Config OK</span>
+                                )}
+                                <span className="text-xs text-gray-500">
+                                    {nginxStatus.nginx.domains_count} доменов в конфиге
+                                    {nginxStatus.nginx.db_domains_count !== nginxStatus.nginx.domains_count && ` (из ${nginxStatus.nginx.db_domains_count} в БД)`}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Lock size={18} className={nginxStatus.ssl.installed ? 'text-green-600' : 'text-gray-400'} />
+                                <span className="text-sm font-medium">SSL:</span>
+                                {nginxStatus.ssl.installed ? (
+                                    <span className="text-sm text-green-600">✓ Установлен ({nginxStatus.ssl.domains.length} доменов)</span>
+                                ) : (
+                                    <span className="text-sm text-gray-500">✗ Не установлен</span>
+                                )}
+                                {!nginxStatus.ssl.certbot_installed && (
+                                    <span className="text-xs text-orange-600 bg-orange-100 px-2 py-0.5 rounded">Certbot не установлен</span>
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={updateNginxConfig}
+                                disabled={nginxLoading}
+                                className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-3 py-1.5 rounded text-sm font-medium flex items-center gap-2 transition"
+                                title="Обновить server_name в Nginx из базы данных"
+                            >
+                                <RefreshCw size={14} className={nginxLoading ? 'animate-spin' : ''} />
+                                Обновить Nginx
+                            </button>
+                            <button
+                                onClick={installSslCertificates}
+                                disabled={nginxLoading || !nginxStatus.ssl.certbot_installed}
+                                className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white px-3 py-1.5 rounded text-sm font-medium flex items-center gap-2 transition"
+                                title="Установить SSL сертификаты через Let's Encrypt"
+                            >
+                                <Lock size={14} />
+                                Установить SSL
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm border-collapse">

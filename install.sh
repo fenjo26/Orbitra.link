@@ -105,6 +105,13 @@ chown -R www-data:www-data /var/www/orbitra
 find /var/www/orbitra -type d -exec chmod 775 {} \;
 find /var/www/orbitra -type f -exec chmod 664 {} \;
 
+# Configure sudoers for www-data to reload nginx (auto-domain management)
+echo "  > Configuring sudoers for automatic Nginx reload..."
+SUDOERS_FILE="/etc/sudoers.d/orbitra-nginx"
+echo "www-data ALL=(ALL) NOPASSWD: /usr/sbin/nginx -t" > $SUDOERS_FILE
+echo "www-data ALL=(ALL) NOPASSWD: /bin/systemctl reload nginx" >> $SUDOERS_FILE
+chmod 0440 $SUDOERS_FILE
+
 echo "[5/5] Configuring Nginx web server and building frontend..."
 cat > /etc/nginx/sites-available/orbitra << EOF
 server {
