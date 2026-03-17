@@ -2575,6 +2575,39 @@ try {
             }
             break;
 
+        case 'regenerate_nginx':
+            // Regenerate full Nginx configuration with HTTP and HTTPS blocks
+            // This restores proper config after fix_nginx.sh removed HTTPS blocks
+            try {
+                $result = updateNginxConfig($pdo);
+
+                if ($result['status'] === 'success') {
+                    echo json_encode([
+                        'status' => 'success',
+                        'message' => 'Nginx configuration regenerated successfully',
+                        'result' => $result
+                    ]);
+                } else if ($result['status'] === 'skip') {
+                    echo json_encode([
+                        'status' => 'skip',
+                        'message' => 'No domains in database',
+                        'result' => $result
+                    ]);
+                } else {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Failed to regenerate config',
+                        'result' => $result
+                    ]);
+                }
+            } catch (Exception $e) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+            }
+            break;
+
         case 'domains':
             // Try multiple methods to get server IP
             $serverIp = '127.0.0.1'; // Default fallback
