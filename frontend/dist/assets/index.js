@@ -32833,6 +32833,7 @@ const Domains = ({ campaigns }) => {
     const v = localStorage.getItem("domains_ignore_dns_ui");
     return v === "1";
   });
+  const [copiedIp, setCopiedIp] = reactExports.useState(false);
   const [showModal, setShowModal] = reactExports.useState(false);
   const [formData, setFormData] = reactExports.useState({
     id: null,
@@ -32893,9 +32894,34 @@ const Domains = ({ campaigns }) => {
   };
   const copyIp = async () => {
     try {
-      await navigator.clipboard.writeText(serverIp);
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(serverIp);
+        setCopiedIp(true);
+        setTimeout(() => setCopiedIp(false), 2e3);
+        return;
+      }
     } catch (err) {
-      console.error(err);
+      console.warn("Clipboard API failed, falling back to execCommand", err);
+    }
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = serverIp;
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      textarea.style.top = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      if (successful) {
+        setCopiedIp(true);
+        setTimeout(() => setCopiedIp(false), 2e3);
+      } else {
+        throw new Error("execCommand failed");
+      }
+    } catch (err) {
+      console.error("Failed to copy IP:", err);
     }
   };
   const handleSubmit = async (e) => {
@@ -32925,7 +32951,10 @@ const Domains = ({ campaigns }) => {
         serverIp && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center bg-blue-50 text-blue-800 px-3 py-1 rounded text-sm border border-blue-100", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium mr-2", children: t("domains.serverIp") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: serverIp }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: copyIp, className: "ml-2 hover:text-blue-600 transition", title: t("common.copy"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 14 }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: copyIp, className: "ml-2 hover:text-blue-600 transition flex items-center gap-1", title: copiedIp ? t("migrations.copied") : t("common.copy"), children: [
+            copiedIp ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14, className: "text-green-600" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 14 }),
+            copiedIp && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-green-600", children: t("migrations.copied") })
+          ] })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [

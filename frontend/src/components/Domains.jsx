@@ -18,6 +18,7 @@ const Domains = ({ campaigns }) => {
         const v = localStorage.getItem('domains_ignore_dns_ui');
         return v === '1';
     });
+    const [copiedIp, setCopiedIp] = useState(false);
 
     // Edit Modal State
     const [showModal, setShowModal] = useState(false);
@@ -83,9 +84,39 @@ const Domains = ({ campaigns }) => {
 
     const copyIp = async () => {
         try {
-            await navigator.clipboard.writeText(serverIp);
+            // Try modern clipboard API first
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(serverIp);
+                setCopiedIp(true);
+                setTimeout(() => setCopiedIp(false), 2000);
+                return;
+            }
         } catch (err) {
-            console.error(err);
+            console.warn('Clipboard API failed, falling back to execCommand', err);
+        }
+
+        // Fallback for non-HTTPS contexts
+        try {
+            const textarea = document.createElement('textarea');
+            textarea.value = serverIp;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            textarea.style.top = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            if (successful) {
+                setCopiedIp(true);
+                setTimeout(() => setCopiedIp(false), 2000);
+            } else {
+                throw new Error('execCommand failed');
+            }
+        } catch (err) {
+            console.error('Failed to copy IP:', err);
         }
     };
 
@@ -121,8 +152,9 @@ const Domains = ({ campaigns }) => {
                         <div className="flex items-center bg-blue-50 text-blue-800 px-3 py-1 rounded text-sm border border-blue-100">
                             <span className="font-medium mr-2">{t('domains.serverIp')}</span>
                             <span className="font-mono">{serverIp}</span>
-                            <button onClick={copyIp} className="ml-2 hover:text-blue-600 transition" title={t('common.copy')}>
-                                <Copy size={14} />
+                            <button onClick={copyIp} className="ml-2 hover:text-blue-600 transition flex items-center gap-1" title={copiedIp ? t('migrations.copied') : t('common.copy')}>
+                                {copiedIp ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
+                                {copiedIp && <span className="text-xs text-green-600">{t('migrations.copied')}</span>}
                             </button>
                         </div>
                     )}

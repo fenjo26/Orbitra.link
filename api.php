@@ -702,6 +702,36 @@ try {
             echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             break;
 
+        // Optimized campaigns list without heavy clicks JOIN (for dropdowns/quick loading)
+        case 'campaigns_simple':
+            $stmt = $pdo->query("
+                SELECT c.id, c.name, c.alias, c.state, c.type,
+                       cg.name as group_name,
+                       ts.name as source_name,
+                       d.name as domain_name
+                FROM campaigns c
+                LEFT JOIN campaign_groups cg ON c.group_id = cg.id
+                LEFT JOIN traffic_sources ts ON c.source_id = ts.id
+                LEFT JOIN domains d ON c.domain_id = d.id
+                WHERE c.is_archived = 0
+                ORDER BY c.created_at DESC
+            ");
+            echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+            break;
+
+        // Optimized offers list without heavy clicks JOIN (for dropdowns/quick loading)
+        case 'offers_simple':
+            $stmt = $pdo->query("
+                SELECT o.id, o.name, o.url, o.state, o.payout_type, o.payout_value,
+                       o.geo, an.name as network_name
+                FROM offers o
+                LEFT JOIN affiliate_networks an ON o.affiliate_network_id = an.id
+                WHERE o.is_archived = 0
+                ORDER BY o.name ASC
+            ");
+            echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+            break;
+
         case 'get_campaign':
             $id = $_GET['id'] ?? null;
             if (!$id) {
