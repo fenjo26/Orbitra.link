@@ -2231,12 +2231,36 @@ try {
             break;
 
         case 'domains':
-            $serverIp = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '127.0.0.1'; // Fallback
-            if (isset($_SERVER['HTTP_HOST'])) {
-                // If behind proxy or docker, try to resolve our own hostname as fallback
-                $hostIp = gethostbyname(explode(':', $_SERVER['HTTP_HOST'])[0]);
-                if ($hostIp !== explode(':', $_SERVER['HTTP_HOST'])[0]) {
+            // Try multiple methods to get server IP
+            $serverIp = '127.0.0.1'; // Default fallback
+
+            // Method 1: $_SERVER['SERVER_ADDR'] (web request)
+            if (isset($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] !== '') {
+                $serverIp = $_SERVER['SERVER_ADDR'];
+            }
+            // Method 2: Resolve hostname from HTTP_HOST
+            elseif (isset($_SERVER['HTTP_HOST'])) {
+                $hostname = explode(':', $_SERVER['HTTP_HOST'])[0];
+                $hostIp = @gethostbyname($hostname);
+                if ($hostIp !== $hostname) {
                     $serverIp = $hostIp;
+                }
+            }
+            // Method 3: Use external service as last resort (cached for 1 hour)
+            else {
+                $cacheFile = __DIR__ . '/var/server_ip_cache.txt';
+                if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 3600) {
+                    $serverIp = trim(file_get_contents($cacheFile));
+                } else {
+                    // Try to get public IP from external service
+                    $publicIp = @file_get_contents('http://169.254.169.254/latest/meta-data/public-ipv4'); // AWS
+                    if (!$publicIp) {
+                        $publicIp = @file_get_contents('http://checkip.amazonaws.com');
+                    }
+                    if ($publicIp && filter_var($publicIp, FILTER_VALIDATE_IP)) {
+                        $serverIp = trim($publicIp);
+                        @file_put_contents($cacheFile, $serverIp);
+                    }
                 }
             }
 
@@ -2361,8 +2385,38 @@ try {
                 break;
             }
 
-            // Get server IP
-            $serverIp = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '127.0.0.1';
+            // Try multiple methods to get server IP
+            $serverIp = '127.0.0.1'; // Default fallback
+
+            // Method 1: $_SERVER['SERVER_ADDR'] (web request)
+            if (isset($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] !== '') {
+                $serverIp = $_SERVER['SERVER_ADDR'];
+            }
+            // Method 2: Resolve hostname from HTTP_HOST
+            elseif (isset($_SERVER['HTTP_HOST'])) {
+                $hostname = explode(':', $_SERVER['HTTP_HOST'])[0];
+                $hostIp = @gethostbyname($hostname);
+                if ($hostIp !== $hostname) {
+                    $serverIp = $hostIp;
+                }
+            }
+            // Method 3: Use external service as last resort (cached for 1 hour)
+            else {
+                $cacheFile = __DIR__ . '/var/server_ip_cache.txt';
+                if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 3600) {
+                    $serverIp = trim(file_get_contents($cacheFile));
+                } else {
+                    // Try to get public IP from external service
+                    $publicIp = @file_get_contents('http://169.254.169.254/latest/meta-data/public-ipv4'); // AWS
+                    if (!$publicIp) {
+                        $publicIp = @file_get_contents('http://checkip.amazonaws.com');
+                    }
+                    if ($publicIp && filter_var($publicIp, FILTER_VALIDATE_IP)) {
+                        $serverIp = trim($publicIp);
+                        @file_put_contents($cacheFile, $serverIp);
+                    }
+                }
+            }
 
             // Do DNS lookup
             $domainIp = @gethostbyname($domain['name']);
@@ -2385,8 +2439,38 @@ try {
 
         // Force DNS check for ALL domains (no limits)
         case 'force_check_all_dns':
-            // Get server IP
-            $serverIp = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '127.0.0.1';
+            // Try multiple methods to get server IP
+            $serverIp = '127.0.0.1'; // Default fallback
+
+            // Method 1: $_SERVER['SERVER_ADDR'] (web request)
+            if (isset($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] !== '') {
+                $serverIp = $_SERVER['SERVER_ADDR'];
+            }
+            // Method 2: Resolve hostname from HTTP_HOST
+            elseif (isset($_SERVER['HTTP_HOST'])) {
+                $hostname = explode(':', $_SERVER['HTTP_HOST'])[0];
+                $hostIp = @gethostbyname($hostname);
+                if ($hostIp !== $hostname) {
+                    $serverIp = $hostIp;
+                }
+            }
+            // Method 3: Use external service as last resort (cached for 1 hour)
+            else {
+                $cacheFile = __DIR__ . '/var/server_ip_cache.txt';
+                if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 3600) {
+                    $serverIp = trim(file_get_contents($cacheFile));
+                } else {
+                    // Try to get public IP from external service
+                    $publicIp = @file_get_contents('http://169.254.169.254/latest/meta-data/public-ipv4'); // AWS
+                    if (!$publicIp) {
+                        $publicIp = @file_get_contents('http://checkip.amazonaws.com');
+                    }
+                    if ($publicIp && filter_var($publicIp, FILTER_VALIDATE_IP)) {
+                        $serverIp = trim($publicIp);
+                        @file_put_contents($cacheFile, $serverIp);
+                    }
+                }
+            }
 
             // Get all domains
             $stmt = $pdo->query("SELECT id, name, dns_status FROM domains ORDER BY id ASC");
