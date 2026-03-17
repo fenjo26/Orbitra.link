@@ -2254,6 +2254,10 @@ try {
             $needsUpdate = [];
             $forceRefresh = isset($_GET['force_refresh']) && $_GET['force_refresh'] === '1';
 
+            // Limit DNS lookups per request for performance (check 20 domains without cache at a time)
+            $maxDnsLookups = 20;
+            $dnsLookupsCount = 0;
+
             // Compute dynamic DNS status with caching
             // ONLY refresh if force_refresh=1 or cache is completely missing
             foreach ($domains as &$domain) {
@@ -2276,14 +2280,14 @@ try {
                     $domain['cache_age'] = $cacheAge;
                 } elseif (!$hasCachedStatus || $forceRefresh) {
                     // Only do DNS lookup for domains without status OR when explicitly requested
-                    // This prevents blocking page loads with many domains
+                    // Limit DNS lookups per request to prevent slow page loads with many domains
 
-                    // For performance, skip DNS lookup if we're not forcing refresh
-                    // and there are many domains (>50) - just mark as checking
-                    if (count($domains) > 50 && !$forceRefresh && !$hasCachedStatus) {
+                    // Skip DNS lookup if we've reached the limit and not forcing refresh
+                    // This ensures ALL domains eventually get checked, just not all at once
+                    if (!$hasCachedStatus && !$forceRefresh && $dnsLookupsCount >= $maxDnsLookups) {
                         $domain['status'] = 'checking';
                     } else {
-                        // Ignore IP if it's localhost for testing, but in production we match A record
+                        // Perform DNS lookup
                         $domainIp = @gethostbyname($domain['name']);
                         if ($domainIp === $serverIp || $domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
                             $domain['status'] = 'active';
@@ -2297,6 +2301,11 @@ try {
                             'status' => $domain['status'],
                             'ip' => $domainIp
                         ];
+
+                        // Increment DNS lookup counter only for non-cached domains
+                        if (!$hasCachedStatus) {
+                            $dnsLookupsCount++;
+                        }
                     }
                 } else {
                     // Has cached status - use it
