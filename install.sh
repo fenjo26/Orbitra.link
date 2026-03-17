@@ -174,6 +174,54 @@ sed -i "s/post_max_size = .*/post_max_size = 256M/" /etc/php/${PHP_V}/fpm/php.in
 systemctl restart php${PHP_V}-fpm
 systemctl restart nginx
 
+# Ensure Nginx config is correct (fix Certbot issues if manual Certbot was run)
+echo "  > Verifying Nginx configuration..."
+if grep -q "return 404" /etc/nginx/sites-available/orbitra 2>/dev/null; then
+    echo "  > Certbot modified config detected - regenerating proper Nginx config..."
+    cat > /etc/nginx/sites-available/orbitra << EOF
+server {
+    listen 80 default_server;
+    server_name _;
+    root /var/www/orbitra;
+    index index.php admin.php index.html;
+
+    # Access to React/Vite static files
+    location /frontend/dist/ {
+        alias /var/www/orbitra/frontend/dist/;
+        try_files \$uri \$uri/ /frontend/dist/index.html;
+    }
+
+    # Router handling (API and clicks)
+    location / {
+        try_files \$uri \$uri/ /index.php?\$query_string;
+    }
+
+    # Allow large file uploads for Geo DB
+    client_max_body_size 256m;
+
+    # PHP processing
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:$PHP_FPM_SOCK;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    # Deny access to SQLite DB and configurations
+    location ~ \.sqlite$ {
+        deny all;
+    }
+    location ~ /\. {
+        deny all;
+    }
+}
+EOF
+    systemctl reload nginx
+    echo "  > Nginx config fixed!"
+else
+    echo "  > Nginx config OK"
+fi
+
 # Build frontend
 echo "  > Building frontend..."
 cd /var/www/orbitra/frontend
