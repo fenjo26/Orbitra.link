@@ -176,7 +176,8 @@ systemctl restart nginx
 
 # Ensure Nginx config is correct (fix Certbot issues if manual Certbot was run)
 echo "  > Verifying Nginx configuration..."
-if grep -q "return 404" /etc/nginx/sites-available/orbitra 2>/dev/null; then
+# Check for common Certbot issues: "return 404" OR missing "listen 80" in first server block
+if grep -q "return 404" /etc/nginx/sites-available/orbitra 2>/dev/null || ! awk '/^server \{/,/^}/ {if (/[[:space:]]*listen[[:space:]]+80/) {found=1; exit}} END {exit !found}' /etc/nginx/sites-available/orbitra; then
     echo "  > Certbot modified config detected - regenerating proper Nginx config..."
     cat > /etc/nginx/sites-available/orbitra << EOF
 server {
