@@ -1344,15 +1344,14 @@ try {
                         INSERT INTO campaigns (
                             name, alias, domain_id, group_id, source_id,
                             cost_model, cost_value, uniqueness_method, uniqueness_hours,
-                            rotation_type, token, catch_404_stream_id, notes
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            rotation_type, token, catch_404_stream_id
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ");
                     $stmt->execute([
                         $newName, $newAlias, $campaign['domain_id'], $campaign['group_id'],
                         $campaign['source_id'], $campaign['cost_model'], $campaign['cost_value'],
                         $campaign['uniqueness_method'], $campaign['uniqueness_hours'],
-                        $campaign['rotation_type'], $newToken, $campaign['catch_404_stream_id'],
-                        $campaign['notes'] ?? ''
+                        $campaign['rotation_type'], $newToken, $campaign['catch_404_stream_id']
                     ]);
                     $newCampaignId = $pdo->lastInsertId();
 
