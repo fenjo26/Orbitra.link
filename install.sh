@@ -1,5 +1,5 @@
 #!/bin/bash
-# Orbitra v0.9.3.0 Tracker Auto-Installer
+# Orbitra v0.9.4.0 Tracker Auto-Installer
 # Supported OS: Ubuntu 20.04, 22.04, 24.04 / Debian 11, 12
 # Root privileges required (sudo)
 
@@ -44,6 +44,23 @@ fi
 
 echo "Node.js version: $(node -v)"
 echo "npm version: $(npm -v)"
+
+# Install Certbot for SSL certificates
+echo "[2.5/5] Installing Certbot for automatic SSL certificates..."
+if ! command -v certbot &> /dev/null; then
+    echo "  > Installing Certbot..."
+    apt-get install -y certbot python3-certbot-nginx
+else
+    echo "  > Certbot already installed - skipping"
+fi
+
+# Configure sudoers for www-data to run Certbot (auto-SSL via UI)
+echo "  > Configuring sudoers for automatic SSL management..."
+SUDOERS_FILE="/etc/sudoers.d/orbitra-ssl"
+echo "www-data ALL=(ALL) NOPASSWD: /usr/sbin/nginx -t" > $SUDOERS_FILE
+echo "www-data ALL=(ALL) NOPASSWD: /bin/systemctl reload nginx" >> $SUDOERS_FILE
+echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/certbot" >> $SUDOERS_FILE
+chmod 0440 $SUDOERS_FILE
 
 echo "[3/5] Downloading Orbitra source code to /var/www/orbitra..."
 TMP_SRC_DIR="$(mktemp -d /tmp/orbitra_src.XXXXXX)"
@@ -105,13 +122,6 @@ chown -R www-data:www-data /var/www/orbitra
 find /var/www/orbitra -type d -exec chmod 775 {} \;
 find /var/www/orbitra -type f -exec chmod 664 {} \;
 
-# Configure sudoers for www-data to reload nginx (auto-domain management)
-echo "  > Configuring sudoers for automatic Nginx reload..."
-SUDOERS_FILE="/etc/sudoers.d/orbitra-nginx"
-echo "www-data ALL=(ALL) NOPASSWD: /usr/sbin/nginx -t" > $SUDOERS_FILE
-echo "www-data ALL=(ALL) NOPASSWD: /bin/systemctl reload nginx" >> $SUDOERS_FILE
-chmod 0440 $SUDOERS_FILE
-
 echo "[5/5] Configuring Nginx web server and building frontend..."
 cat > /etc/nginx/sites-available/orbitra << EOF
 server {
@@ -154,6 +164,11 @@ EOF
 
 ln -sf /etc/nginx/sites-available/orbitra /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
+
+# Allow www-data to modify Nginx config for auto-domain management
+echo "  > Setting up Nginx config permissions for auto-domain management..."
+chown www-data:www-data /etc/nginx/sites-available/orbitra
+chmod 664 /etc/nginx/sites-available/orbitra
 
 # Increase PHP upload limits for Geo databases (approx 30-50MB)
 sed -i "s/upload_max_filesize = .*/upload_max_filesize = 256M/" /etc/php/${PHP_V}/fpm/php.ini
