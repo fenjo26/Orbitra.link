@@ -5375,7 +5375,8 @@ try {
 
                         if ($extracted) {
                             $binSize = filesize($destPath) ?: 0;
-                            if ($binSize > 0 && $binSize < 150 * 1024 * 1024) {
+                            // DB11 IPv4+IPv6 should be 30-50 MB, check for too small files
+                            if ($binSize < 10 * 1024 * 1024) {
                                 @unlink($destPath);
                                 echo json_encode(['status' => 'error', 'message' => "Скачан неполный IP2Location BIN ({$binSize} bytes). Ожидается DB11 IPv4+IPv6 (id=20)."]);
                                 @unlink($tmpArchive);
