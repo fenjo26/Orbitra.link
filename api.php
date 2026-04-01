@@ -5295,7 +5295,7 @@ try {
 
         case 'geo_db_update':
             // Security: limit execution time for downloads
-            set_time_limit(300);
+            // set_time_limit(300); // Disabled for PHP-FPM compatibility
 
             $input = json_decode(file_get_contents('php://input'), true);
             $dbId = $_POST['id'] ?? $input['id'] ?? null;
@@ -5338,7 +5338,11 @@ try {
                 $variant = 'DB11LITEBINIPV6';
                 $url = "https://www.ip2location.com/download?token={$token}&file={$variant}";
                 $ch = curl_init($url);
-                $fp = fopen($tmpArchive, 'wb');
+                $fp = @fopen($tmpArchive, 'wb');
+                if ($fp === false) {
+                    echo json_encode(['status' => 'error', 'message' => 'Не удалось создать временный файл для загрузки. Проверьте права на запись в ' . sys_get_temp_dir()]);
+                    break;
+                }
                 curl_setopt($ch, CURLOPT_FILE, $fp);
                 curl_setopt($ch, CURLOPT_HEADER, 0);
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
