@@ -5365,17 +5365,23 @@ try {
                 try {
                     $zip = new ZipArchive;
                     if ($zip->open($tmpArchive) === TRUE) {
+                        // Extract to temp directory to avoid memory issues
+                        $extractDir = sys_get_temp_dir() . '/ip2loc_extract_' . time();
+                        mkdir($extractDir, 0755, true);
+                        $zip->extractTo($extractDir);
+                        $zip->close();
+
+                        // Find and move the BIN file
                         $extracted = false;
-                        for ($i = 0; $i < $zip->numFiles; $i++) {
-                            $filename = $zip->getNameIndex($i);
-                            if (str_ends_with(strtolower($filename), '.bin')) {
-                                $content = $zip->getFromIndex($i);
-                                file_put_contents($destPath, $content);
+                        foreach (glob($extractDir . '/*.BIN') as $file) {
+                            if (filesize($file) > 10 * 1024 * 1024) {
+                                rename($file, $destPath);
                                 $extracted = true;
                                 break;
                             }
                         }
-                        $zip->close();
+                        // Cleanup temp directory
+                        system('rm -rf ' . escapeshellarg($extractDir));
 
                         if ($extracted) {
                             $binSize = filesize($destPath) ?: 0;
