@@ -5336,7 +5336,7 @@ try {
 
                 $tmpArchive = sys_get_temp_dir() . '/ip2location.zip';
                 $variant = 'DB11LITEBINIPV6';
-                $url = "https://www.ip2location.com/download/?token={$token}&file={$variant}";
+                $url = "https://www.ip2location.com/download?token={$token}&file={$variant}";
                 $ch = curl_init($url);
                 $fp = fopen($tmpArchive, 'wb');
                 curl_setopt($ch, CURLOPT_FILE, $fp);
