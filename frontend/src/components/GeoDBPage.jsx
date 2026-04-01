@@ -13,6 +13,7 @@ const GeoDBPage = () => {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [maxmindKey, setMaxmindKey] = useState('');
+    const [maxmindAccountId, setMaxmindAccountId] = useState('');
     const [ip2locationToken, setIp2locationToken] = useState('');
     const [savingKey, setSavingKey] = useState(false);
     const fileInputRef = useRef(null);
@@ -36,6 +37,7 @@ const GeoDBPage = () => {
             .then(data => {
                 if (data.status === 'success' && data.data) {
                     setMaxmindKey(data.data.maxmind_license_key || '');
+                    setMaxmindAccountId(data.data.maxmind_account_id || '');
                     setIp2locationToken(data.data.ip2location_token || '');
                 }
             })
@@ -121,7 +123,7 @@ const GeoDBPage = () => {
             const res = await fetch(`${API_URL}?action=global_settings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ settings: { maxmind_license_key: maxmindKey, ip2location_token: ip2locationToken } })
+                body: JSON.stringify({ settings: { maxmind_license_key: maxmindKey, maxmind_account_id: maxmindAccountId, ip2location_token: ip2locationToken } })
             });
             const data = await res.json();
             if (data.status === 'success') {
@@ -216,6 +218,21 @@ const GeoDBPage = () => {
                 {/* MaxMind & IP2Location Keys Section */}
                 <div style={{ marginBottom: '24px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div>
+                            <label className="form-label">MaxMind Account ID</label>
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                                <input
+                                    type="text"
+                                    value={maxmindAccountId}
+                                    onChange={(e) => setMaxmindAccountId(e.target.value)}
+                                    placeholder={t('geoDb.maxmindAccountIdPlaceholder')}
+                                    className="form-input"
+                                    style={{ maxWidth: '400px' }}
+                                />
+                            </div>
+                            <p className="form-hint">{t('geoDb.maxmindAccountIdHint')}</p>
+                        </div>
+
                         <div>
                             <label className="form-label">MaxMind License Key</label>
                             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>

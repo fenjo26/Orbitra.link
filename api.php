@@ -4610,7 +4610,7 @@ try {
 
         case 'global_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'ip2location_token')");
+                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token')");
                 $data = [];
                 while ($row = $stmt->fetch()) {
                     $data[$row['key']] = $row['value'];
@@ -4621,7 +4621,7 @@ try {
                 $settings = $input['settings'] ?? [];
                 if (!empty($settings)) {
                     $stmt = $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value");
-                    foreach (['postback_key', 'currency', 'maxmind_license_key', 'ip2location_token'] as $key) {
+                    foreach (['postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token'] as $key) {
                         if (isset($settings[$key])) {
                             $stmt->execute([$key, $settings[$key]]);
                         }
@@ -5400,27 +5400,36 @@ try {
             if ($dbId === 'maxmind_city') {
                 $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'maxmind_license_key'");
                 $license_key = $stmt->fetchColumn();
-                if (!$license_key) {
-                    echo json_encode(['status' => 'error', 'message' => 'Не указан MaxMind License Key. Укажите его в настройках "Гео-базы".']);
+
+                $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'maxmind_account_id'");
+                $account_id = $stmt->fetchColumn();
+
+                if (!$license_key || !$account_id) {
+                    echo json_encode(['status' => 'error', 'message' => 'Не указаны MaxMind Account ID и/или License Key. Укажите их в настройках "Гео-базы".']);
                     break;
                 }
 
-                $url = "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key={$license_key}&suffix=tar.gz";
+                // New MaxMind download URL format (2024+)
+                $url = "https://download.maxmind.com/geoip/databases/GeoLite2-City/download?suffix=tar.gz";
                 $tmpArchive = sys_get_temp_dir() . '/geolite2-city.tar.gz';
 
-                // Download
+                // Download with Basic Authentication
                 $ch = curl_init($url);
                 $fp = fopen($tmpArchive, 'wb');
                 curl_setopt($ch, CURLOPT_FILE, $fp);
                 curl_setopt($ch, CURLOPT_HEADER, 0);
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_USERPWD, $account_id . ':' . $license_key);
+                curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 300);
                 curl_exec($ch);
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 // curl_close() deprecated in PHP 8.5 - resources are auto-freed
                 fclose($fp);
 
                 if ($httpCode !== 200) {
-                    echo json_encode(['status' => 'error', 'message' => "Failed to download database. HTTP Code: $httpCode. Check your License Key."]);
+                    echo json_encode(['status' => 'error', 'message' => "Failed to download database. HTTP Code: $httpCode. Check your Account ID and License Key."]);
                     break;
                 }
 

@@ -1137,6 +1137,8 @@ export default {
         maxmindFullDesc: "высокая точность (требует лицензии)",
         downloadFrom: "Где скачать:",
         sypexFree: "Sypex Geo (бесплатно)",
+        maxmindAccountIdPlaceholder: "Введите Account ID от MaxMind",
+        maxmindAccountIdHint: "Account ID из вашего аккаунта MaxMind (обязателен для GeoLite2).",
         maxmindPlaceholder: "Введите лицензионный ключ MaxMind",
         maxmindHint: "Обязателен для скачивания обновления базы MaxMind GeoLite2.",
         ip2locationPlaceholder: "Введите токен скачивания IP2Location",

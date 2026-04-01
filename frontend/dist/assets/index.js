@@ -17037,6 +17037,8 @@ const ru = {
     maxmindFullDesc: "высокая точность (требует лицензии)",
     downloadFrom: "Где скачать:",
     sypexFree: "Sypex Geo (бесплатно)",
+    maxmindAccountIdPlaceholder: "Введите Account ID от MaxMind",
+    maxmindAccountIdHint: "Account ID из вашего аккаунта MaxMind (обязателен для GeoLite2).",
     maxmindPlaceholder: "Введите лицензионный ключ MaxMind",
     maxmindHint: "Обязателен для скачивания обновления базы MaxMind GeoLite2.",
     ip2locationPlaceholder: "Введите токен скачивания IP2Location",
@@ -18791,6 +18793,8 @@ const en = {
     maxmindFullDesc: "high accuracy (requires license)",
     downloadFrom: "Where to download:",
     sypexFree: "Sypex Geo (free)",
+    maxmindAccountIdPlaceholder: "Enter MaxMind Account ID",
+    maxmindAccountIdHint: "Account ID from your MaxMind account (required for GeoLite2).",
     maxmindPlaceholder: "Enter MaxMind license key",
     maxmindHint: "Required for downloading MaxMind GeoLite2 database updates.",
     ip2locationPlaceholder: "Enter IP2Location download token",
@@ -43361,6 +43365,7 @@ const GeoDBPage = () => {
   const [message2, setMessage] = reactExports.useState("");
   const [error, setError] = reactExports.useState("");
   const [maxmindKey, setMaxmindKey] = reactExports.useState("");
+  const [maxmindAccountId, setMaxmindAccountId] = reactExports.useState("");
   const [ip2locationToken, setIp2locationToken] = reactExports.useState("");
   const [savingKey, setSavingKey] = reactExports.useState(false);
   const fileInputRef = reactExports.useRef(null);
@@ -43377,6 +43382,7 @@ const GeoDBPage = () => {
     fetch(`${API_URL$6}?action=global_settings`).then((res) => res.json()).then((data) => {
       if (data.status === "success" && data.data) {
         setMaxmindKey(data.data.maxmind_license_key || "");
+        setMaxmindAccountId(data.data.maxmind_account_id || "");
         setIp2locationToken(data.data.ip2location_token || "");
       }
     }).catch(console.error);
@@ -43453,7 +43459,7 @@ const GeoDBPage = () => {
       const res = await fetch(`${API_URL$6}?action=global_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ settings: { maxmind_license_key: maxmindKey, ip2location_token: ip2locationToken } })
+        body: JSON.stringify({ settings: { maxmind_license_key: maxmindKey, maxmind_account_id: maxmindAccountId, ip2location_token: ip2locationToken } })
       });
       const data = await res.json();
       if (data.status === "success") {
@@ -43554,6 +43560,21 @@ const GeoDBPage = () => {
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginBottom: "24px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "16px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "MaxMind Account ID" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "12px", alignItems: "flex-start" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            value: maxmindAccountId,
+            onChange: (e) => setMaxmindAccountId(e.target.value),
+            placeholder: t("geoDb.maxmindAccountIdPlaceholder"),
+            className: "form-input",
+            style: { maxWidth: "400px" }
+          }
+        ) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint", children: t("geoDb.maxmindAccountIdHint") })
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "MaxMind License Key" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "12px", alignItems: "flex-start" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
