@@ -5498,30 +5498,39 @@ try {
                     $zip = new ZipArchive;
                     if ($zip->open($zipFile) === TRUE) {
 
-                        // Извлечение SxGeo.php если нужно
+                        // Распаковываем во временную папку для поиска .dat файла
+                        $tempDir = sys_get_temp_dir() . '/sypex_extract_' . time();
+                        mkdir($tempDir, 0755, true);
+                        $zip->extractTo($tempDir);
+                        $zip->close();
+                        @unlink($zipFile);
+
+                        // Рекурсивно ищем SxGeoCity.dat
+                        $found = false;
+                        $iter = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($tempDir));
+                        foreach ($iter as $file) {
+                            if ($file->isFile() && $file->getFilename() === 'SxGeoCity.dat') {
+                                copy($file->getPathname(), $geoDir . '/SxGeoCity.dat');
+                                $found = true;
+                                break;
+                            }
+                        }
+
+                        // Извлечение SxGeo.php если нужно (ищем в том же архиве)
                         $parserPath = __DIR__ . '/core/SxGeo.php';
                         if (!file_exists($parserPath)) {
-                            if (!is_dir(__DIR__ . '/core'))
-                                mkdir(__DIR__ . '/core', 0777, true);
-                            for ($i = 0; $i < $zip->numFiles; $i++) {
-                                $filename = $zip->getNameIndex($i);
-                                if ($filename === 'SxGeo.php') {
-                                    $content = $zip->getFromIndex($i);
-                                    file_put_contents($parserPath, $content);
+                            foreach ($iter as $file) {
+                                if ($file->isFile() && $file->getFilename() === 'SxGeo.php') {
+                                    if (!is_dir(__DIR__ . '/core'))
+                                        mkdir(__DIR__ . '/core', 0755, true);
+                                    copy($file->getPathname(), $parserPath);
                                     break;
                                 }
                             }
                         }
 
-                        // Если не нашлось
-                        if (!file_exists($parserPath)) {
-                            // Опционально скачиваем из альтернативного источника, но тут мы рекомендуем через встроенный файл
-                            throw new \Exception("Не удалось скачать парсер SxGeo.php. Пожалуйста, загрузите его вручную.");
-                        }
-
-                        $zip->extractTo($geoDir);
-                        $zip->close();
-                        @unlink($zipFile);
+                        // Очистка временной папки
+                        system('rm -rf ' . escapeshellarg($tempDir));
 
                         logSystem($pdo, 'INFO', 'Sypex Geo DB Updated successfully');
                         echo json_encode(['status' => 'success', 'message' => 'База Sypex успешно обновлена']);
