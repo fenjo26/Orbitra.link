@@ -469,12 +469,17 @@ function getDashboardFilters($prefix = '')
  */
 function checkUrlAvailability($url)
 {
+    // Ensure URL has a scheme before validation
+    if (!empty($url) && !preg_match('~^https?://~i', $url)) {
+        $url = 'https://' . $url;
+    }
+
     // Validate URL
     if (!filter_var($url, FILTER_VALIDATE_URL)) {
         return ['status' => 'error', 'message' => 'Invalid URL'];
     }
 
-    // Parse URL and ensure it has a scheme
+    // Parse URL and ensure it has a scheme (double-check)
     $parsed = parse_url($url);
     if (empty($parsed['scheme'])) {
         $url = 'https://' . $url;
@@ -1517,6 +1522,11 @@ try {
                 $notes = $data['notes'] ?? '';
                 $state = $data['state'] ?? 'active';
                 $url = $data['url'] ?? null;
+
+                // Ensure URL has a scheme for validation and checking
+                if ($url && !preg_match('~^https?://~i', $url)) {
+                    $url = 'https://' . $url;
+                }
 
                 if (!$name) {
                     echo json_encode(['status' => 'error', 'message' => 'Name is required']);
