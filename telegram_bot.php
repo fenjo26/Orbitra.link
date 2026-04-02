@@ -50,9 +50,6 @@ function botText($lang, $key, $params = [])
             'sources_title' => "🌐 *Источники трафика:*",
             'sources_empty' => "📭 Нет источников с URL.\n\nДобавьте источники в панели Orbitra.",
             'sources_checking' => "🔄 Проверяю все источники...",
-            'sources_done' => "✅ Проверка завершена!",
-            'sources_ok' => "✅",
-            'sources_error' => "❌",
             'sources_summary' => "📊 Итого: {ok} OK, {errors} с ошибкой",
         ],
         'en' => [
@@ -95,9 +92,6 @@ function botText($lang, $key, $params = [])
             'sources_title' => "🌐 *Traffic Sources:*",
             'sources_empty' => "📭 No sources with URL.\n\nAdd sources in Orbitra panel.",
             'sources_checking' => "🔄 Checking all sources...",
-            'sources_done' => "✅ Check completed!",
-            'sources_ok' => "✅",
-            'sources_error' => "❌",
             'sources_summary' => "📊 Total: {ok} OK, {errors} with errors",
         ]
     ];
@@ -128,7 +122,7 @@ function sendTelegram($token, $chatId, $text, $parseMode = 'Markdown')
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     $result = curl_exec($ch);
-    curl_close($ch);
+    // curl_close() deprecated in PHP 8.5 - resources are auto-freed
     return json_decode($result, true);
 }
 
@@ -496,10 +490,10 @@ function handleSources($pdo, $token, $chatId, $lang)
         $url = $s['url'];
 
         if ($status === '200') {
-            $icon = botText($lang, 'sources_ok');
+            $icon = "✅";
             $okCount++;
         } elseif ($status === 'error' || $status === 'unknown') {
-            $icon = botText($lang, 'sources_error');
+            $icon = "❌";
             $errorCount++;
         } elseif ($status === 'timeout') {
             $icon = "⏰";
@@ -509,12 +503,12 @@ function handleSources($pdo, $token, $chatId, $lang)
             $errorCount++;
         }
 
-        $msg .= "{$icon} *{$name}*\n";
-        $msg .= "   `{$url}` → `{$status}`\n";
+        $msg .= $icon . " *" . $name . "*\n";
+        $msg .= "   `" . $url . "` → `" . $status . "`\n";
 
         if ($s['last_checked']) {
             $time = date('H:i', strtotime($s['last_checked']));
-            $msg .= "   _Проверено: {$time}_\n";
+            $msg .= "   _Проверено: " . $time . "_\n";
         }
         $msg .= "\n";
     }
@@ -596,7 +590,7 @@ function checkSourceUrlInline($url)
     curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $error = curl_error($ch);
-    curl_close($ch);
+    // curl_close() deprecated in PHP 8.5 - resources are auto-freed
 
     if ($error) {
         if (strpos($error, 'timed out') !== false || strpos($error, 'timeout') !== false) {
