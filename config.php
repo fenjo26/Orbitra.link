@@ -44,7 +44,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 7;
+    $LATEST_SCHEMA_VERSION = 8;
 
     $schemaVersion = 0;
     try {
@@ -882,6 +882,20 @@ try {
             // Ignore if columns already exist.
         }
     }
+
+            // Migration 8: Add URL checking fields to traffic_sources
+            if ($schemaVersion < 8) {
+                try {
+                    $pdo->exec("ALTER TABLE traffic_sources ADD COLUMN url TEXT");
+                    $pdo->exec("ALTER TABLE traffic_sources ADD COLUMN http_status TEXT DEFAULT 'unknown'");
+                    $pdo->exec("ALTER TABLE traffic_sources ADD COLUMN last_checked DATETIME");
+                    $pdo->exec("ALTER TABLE traffic_sources ADD COLUMN status_message TEXT");
+                    // Index for faster lookups of sources with URLs
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_traffic_sources_http_status ON traffic_sources(http_status)");
+                } catch (Throwable $e) {
+                    // Ignore if columns already exist.
+                }
+            }
 
             // Mark schema as up-to-date. This must be last.
             $pdo->exec("PRAGMA user_version = " . (int) $LATEST_SCHEMA_VERSION . ";");

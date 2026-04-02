@@ -1011,7 +1011,9 @@ export default {
         alias: "Alias",
         param: "Parameter",
         sourceMacro: "Source Macro",
-        notes: "Notes"
+        notes: "Notes",
+        urlLabel: "URL (for checking)",
+        urlPlaceholder: "https://example.com"
     },
     networkEditor: {
         namePlaceholder: "E.g.: M1 Shop",

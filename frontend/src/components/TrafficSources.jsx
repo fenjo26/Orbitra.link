@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Edit, Trash2, Search, RefreshCw, ExternalLink, Copy, Settings2, Filter, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, RefreshCw, ExternalLink, Copy, Settings2, Filter, X, Upload, Globe } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import TrafficSourceEditor from './TrafficSourceEditor';
+import BulkImportSources from './BulkImportSources';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
@@ -19,6 +20,8 @@ const TrafficSources = ({ refreshData }) => {
     const [showFilters, setShowFilters] = useState(true);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const [showBulkImport, setShowBulkImport] = useState(false);
+    const [checkingUrls, setCheckingUrls] = useState(false);
 
     const fetchSources = async () => {
         setLoading(true);
@@ -166,6 +169,34 @@ const TrafficSources = ({ refreshData }) => {
         navigator.clipboard.writeText(url);
     };
 
+    const checkSourceUrl = async (id) => {
+        try {
+            await axios.get(`${API_URL}?action=check_source_url&id=${id}`);
+            fetchSources();
+        } catch (error) {
+            console.error('Error checking URL:', error);
+        }
+    };
+
+    const checkAllUrls = async () => {
+        if (checkingUrls) return;
+        setCheckingUrls(true);
+        try {
+            await axios.post(`${API_URL}?action=check_all_source_urls`);
+            fetchSources();
+        } catch (error) {
+            console.error('Error checking URLs:', error);
+        } finally {
+            setCheckingUrls(false);
+        }
+    };
+
+    const handleBulkImportSave = () => {
+        setShowBulkImport(false);
+        fetchSources();
+        refreshData && refreshData();
+    };
+
     return (
         <div className="space-y-4">
             <InfoBanner storageKey="help_traffic_sources" title={t('help.trafficSourceBannerTitle')}>
@@ -199,6 +230,15 @@ const TrafficSources = ({ refreshData }) => {
                     >
                         <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
                     </button>
+                    <button
+                        type="button"
+                        onClick={checkAllUrls}
+                        className="btn btn-ghost btn-icon"
+                        title="Проверить все URL"
+                        disabled={checkingUrls}
+                    >
+                        <Globe className={`w-5 h-5 ${checkingUrls ? 'animate-pulse' : ''}`} />
+                    </button>
                     <button type="button" onClick={() => setSettingsOpen(true)} className="btn btn-ghost btn-icon" title={t('common.settings')}>
                         <Settings2 className="w-5 h-5" />
                     </button>
@@ -211,6 +251,10 @@ const TrafficSources = ({ refreshData }) => {
                     <button type="button" onClick={handleCreate} className="btn btn-primary">
                         <Plus size={18} />
                         <span>{t('common.create')}</span>
+                    </button>
+                    <button type="button" onClick={() => setShowBulkImport(true)} className="btn btn-secondary">
+                        <Upload size={18} />
+                        <span>Импорт</span>
                     </button>
                 </div>
             </div>
@@ -270,6 +314,7 @@ const TrafficSources = ({ refreshData }) => {
                                         />
                                     </th>
                                     <th>{t('editor.name')}</th>
+                                    <th>URL / Статус</th>
                                     <th>{t('sources.template')}</th>
                                     <th>{t('campaigns.campaigns')}</th>
                                     <th>{t('components.clicks')}</th>
@@ -299,6 +344,40 @@ const TrafficSources = ({ refreshData }) => {
                                                 <div className="font-medium">{source.name}</div>
                                                 {source.notes && (
                                                     <div className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>{source.notes.substring(0, 50)}...</div>
+                                                )}
+                                            </td>
+                                            <td>
+                                                {source.url ? (
+                                                    <div className="flex flex-col gap-1">
+                                                        <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-sm underline hover:text-primary">
+                                                            {new URL(source.url, 'https://' + source.url).hostname}
+                                                        </a>
+                                                        {source.http_status && source.http_status !== 'unknown' && (
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={`text-xs ${source.http_status === '200' ? 'text-green-600' : 'text-red-600'}`}>
+                                                                    {source.http_status === '200' ? '✓ OK' : `✗ ${source.http_status}`}
+                                                                </span>
+                                                                <button
+                                                                    onClick={() => checkSourceUrl(source.id)}
+                                                                    className="text-xs hover:underline"
+                                                                    style={{ color: 'var(--color-primary)' }}
+                                                                >
+                                                                    Проверить
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                        {!source.http_status || source.http_status === 'unknown' ? (
+                                                            <button
+                                                                onClick={() => checkSourceUrl(source.id)}
+                                                                className="text-xs hover:underline"
+                                                                style={{ color: 'var(--color-primary)' }}
+                                                            >
+                                                                Проверить
+                                                            </button>
+                                                        ) : null}
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>—</span>
                                                 )}
                                             </td>
                                             <td>
@@ -361,6 +440,14 @@ const TrafficSources = ({ refreshData }) => {
                     id={editId}
                     onClose={() => setShowEditor(false)}
                     onSave={handleEditorSave}
+                />
+            )}
+
+            {/* Bulk Import Modal */}
+            {showBulkImport && (
+                <BulkImportSources
+                    onClose={() => setShowBulkImport(false)}
+                    onSave={handleBulkImportSave}
                 />
             )}
 

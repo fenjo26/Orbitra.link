@@ -462,6 +462,77 @@ function getDashboardFilters($prefix = '')
     return [$whereClause, $params];
 }
 
+/**
+ * Check URL availability and return status
+ * @param string $url The URL to check
+ * @return array ['status' => string, 'message' => string]
+ */
+function checkUrlAvailability($url)
+{
+    // Validate URL
+    if (!filter_var($url, FILTER_VALIDATE_URL)) {
+        return ['status' => 'error', 'message' => 'Invalid URL'];
+    }
+
+    // Parse URL and ensure it has a scheme
+    $parsed = parse_url($url);
+    if (empty($parsed['scheme'])) {
+        $url = 'https://' . $url;
+    }
+
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HEADER => true,
+        CURLOPT_NOBODY => true, // HEAD request
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; Orbitra/1.0; +https://orbitra.io)',
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+
+    if ($error) {
+        if (strpos($error, 'timed out') !== false || strpos($error, 'timeout') !== false) {
+            return ['status' => 'timeout', 'message' => 'Timeout'];
+        }
+        return ['status' => 'error', 'message' => $error];
+    }
+
+    if ($httpCode >= 200 && $httpCode < 400) {
+        return ['status' => (string) $httpCode, 'message' => 'OK'];
+    }
+
+    return ['status' => (string) $httpCode, 'message' => getStatusMessage($httpCode)];
+}
+
+/**
+ * Get human-readable status message for HTTP code
+ */
+function getStatusMessage($code)
+{
+    $messages = [
+        200 => 'OK',
+        301 => 'Moved Permanently',
+        302 => 'Found',
+        400 => 'Bad Request',
+        401 => 'Unauthorized',
+        403 => 'Forbidden',
+        404 => 'Not Found',
+        500 => 'Internal Server Error',
+        502 => 'Bad Gateway',
+        503 => 'Service Unavailable',
+    ];
+    return $messages[$code] ?? "HTTP $code";
+}
+
 function getTableColumns($pdo, $tableName)
 {
     static $cache = [];
@@ -1445,6 +1516,7 @@ try {
                 $parametersJson = json_encode($data['parameters'] ?? []);
                 $notes = $data['notes'] ?? '';
                 $state = $data['state'] ?? 'active';
+                $url = $data['url'] ?? null;
 
                 if (!$name) {
                     echo json_encode(['status' => 'error', 'message' => 'Name is required']);
@@ -1453,11 +1525,11 @@ try {
 
                 try {
                     if ($id) {
-                        $stmt = $pdo->prepare("UPDATE traffic_sources SET name=?, template=?, postback_url=?, postback_statuses=?, parameters_json=?, notes=?, state=? WHERE id=?");
-                        $stmt->execute([$name, $template, $postbackUrl, $postbackStatuses, $parametersJson, $notes, $state, $id]);
+                        $stmt = $pdo->prepare("UPDATE traffic_sources SET name=?, template=?, postback_url=?, postback_statuses=?, parameters_json=?, notes=?, state=?, url=? WHERE id=?");
+                        $stmt->execute([$name, $template, $postbackUrl, $postbackStatuses, $parametersJson, $notes, $state, $url, $id]);
                     } else {
-                        $stmt = $pdo->prepare("INSERT INTO traffic_sources (name, template, postback_url, postback_statuses, parameters_json, notes, state) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                        $stmt->execute([$name, $template, $postbackUrl, $postbackStatuses, $parametersJson, $notes, $state]);
+                        $stmt = $pdo->prepare("INSERT INTO traffic_sources (name, template, postback_url, postback_statuses, parameters_json, notes, state, url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                        $stmt->execute([$name, $template, $postbackUrl, $postbackStatuses, $parametersJson, $notes, $state, $url]);
                         $id = $pdo->lastInsertId();
                     }
                     echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
@@ -1585,6 +1657,107 @@ try {
                 }
                 echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
             }
+            break;
+
+        case 'check_source_url':
+            // Check a single source URL
+            $id = $_GET['id'] ?? null;
+            if (!$id) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
+                break;
+            }
+            $stmt = $pdo->prepare("SELECT id, url FROM traffic_sources WHERE id = ? AND is_archived = 0");
+            $stmt->execute([$id]);
+            $source = $stmt->fetch();
+            if (!$source || empty($source['url'])) {
+                echo json_encode(['status' => 'error', 'message' => 'Source not found or no URL set']);
+                break;
+            }
+
+            $url = $source['url'];
+            $result = checkUrlAvailability($url);
+            $updateStmt = $pdo->prepare("UPDATE traffic_sources SET http_status = ?, last_checked = datetime('now'), status_message = ? WHERE id = ?");
+            $updateStmt->execute([$result['status'], $result['message'], $id]);
+            echo json_encode(['status' => 'success', 'data' => $result]);
+            break;
+
+        case 'check_all_source_urls':
+            // Check all source URLs
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            $stmt = $pdo->query("SELECT id, url FROM traffic_sources WHERE url IS NOT NULL AND url != '' AND is_archived = 0");
+            $sources = $stmt->fetchAll();
+            $results = ['checked' => 0, 'updated' => 0, 'details' => []];
+            $updateStmt = $pdo->prepare("UPDATE traffic_sources SET http_status = ?, last_checked = datetime('now'), status_message = ? WHERE id = ?");
+
+            foreach ($sources as $source) {
+                $result = checkUrlAvailability($source['url']);
+                $updateStmt->execute([$result['status'], $result['message'], $source['id']]);
+                $results['checked']++;
+                $results['updated']++;
+                $results['details'][] = [
+                    'id' => $source['id'],
+                    'url' => $source['url'],
+                    'status' => $result['status']
+                ];
+            }
+            echo json_encode(['status' => 'success', 'data' => $results]);
+            break;
+
+        case 'bulk_import_sources':
+            // Import multiple sources from a list
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            $data = json_decode(file_get_contents('php://input'), true);
+            $lines = $data['lines'] ?? [];
+
+            if (!is_array($lines)) {
+                echo json_encode(['status' => 'error', 'message' => 'lines must be an array']);
+                break;
+            }
+
+            $results = ['imported' => 0, 'errors' => [], 'duplicates' => 0];
+            $insertStmt = $pdo->prepare("INSERT INTO traffic_sources (name, url, state) VALUES (?, ?, 'active')");
+            $checkStmt = $pdo->prepare("SELECT id FROM traffic_sources WHERE name = ? AND is_archived = 0");
+
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if (empty($line)) continue;
+
+                // Parse line: "url" or "name|url"
+                if (strpos($line, '|') !== false) {
+                    list($name, $url) = array_map('trim', explode('|', $line, 2));
+                } else {
+                    $url = trim($line);
+                    // Extract hostname as name
+                    $name = parse_url($url, PHP_URL_HOST) ?: $url;
+                }
+
+                if (empty($name)) {
+                    $results['errors'][] = ['line' => $line, 'error' => 'Empty name'];
+                    continue;
+                }
+
+                // Check for duplicate
+                $checkStmt->execute([$name]);
+                if ($checkStmt->fetch()) {
+                    $results['duplicates']++;
+                    $results['errors'][] = ['line' => $line, 'error' => 'Duplicate name'];
+                    continue;
+                }
+
+                try {
+                    $insertStmt->execute([$name, $url ?: null]);
+                    $results['imported']++;
+                } catch (\Exception $e) {
+                    $results['errors'][] = ['line' => $line, 'error' => $e->getMessage()];
+                }
+            }
+            echo json_encode(['status' => 'success', 'data' => $results]);
             break;
 
         case 'traffic_source_templates':

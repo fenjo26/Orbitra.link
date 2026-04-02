@@ -1011,7 +1011,9 @@ export default {
         alias: "Псевдоним",
         param: "Параметр",
         sourceMacro: "Макрос источника",
-        notes: "Заметки"
+        notes: "Заметки",
+        urlLabel: "URL (для проверки)",
+        urlPlaceholder: "https://example.com"
     },
     networkEditor: {
         namePlaceholder: "Например: M1 Shop",

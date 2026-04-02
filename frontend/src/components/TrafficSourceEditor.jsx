@@ -16,7 +16,11 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
         postback_statuses: 'lead,sale',
         parameters: [],
         notes: '',
-        state: 'active'
+        state: 'active',
+        url: '',
+        http_status: 'unknown',
+        last_checked: null,
+        status_message: null
     });
 
     useEffect(() => {
@@ -40,7 +44,11 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
                         postback_statuses: data.postback_statuses || 'lead,sale',
                         parameters: data.parameters || [],
                         notes: data.notes || '',
-                        state: data.state || 'active'
+                        state: data.state || 'active',
+                        url: data.url || '',
+                        http_status: data.http_status || 'unknown',
+                        last_checked: data.last_checked || null,
+                        status_message: data.status_message || null
                     });
                 }
                 setLoading(false);
@@ -167,6 +175,30 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
                                     className="form-input"
                                     placeholder={t('sourceEditor.namePlaceholder')}
                                 />
+                            </div>
+
+                            {/* URL для проверки доступности */}
+                            <div>
+                                <label className="form-label">URL (для проверки)</label>
+                                <input
+                                    type="url"
+                                    value={formData.url || ''}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
+                                    className="form-input"
+                                    placeholder="https://example.com"
+                                />
+                                {formData.http_status && formData.http_status !== 'unknown' && (
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className={`text-xs ${formData.http_status === '200' ? 'text-green-600' : 'text-red-600'}`}>
+                                            {formData.http_status === '200' ? '✓ Доступен' : `✗ ${formData.http_status}`}
+                                        </span>
+                                        {formData.last_checked && (
+                                            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                                Проверено: {new Date(formData.last_checked).toLocaleString('ru-RU')}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             {/* State */}
