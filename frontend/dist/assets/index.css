@@ -92,6 +92,7 @@
     --color-yellow-100: oklch(97.3% .071 103.193);
     --color-yellow-400: oklch(85.2% .199 91.936);
     --color-yellow-500: oklch(79.5% .184 86.047);
+    --color-yellow-600: oklch(68.1% .162 75.834);
     --color-yellow-700: oklch(55.4% .135 66.442);
     --color-yellow-900: oklch(42.1% .095 57.708);
     --color-lime-50: oklch(98.6% .031 120.757);
@@ -923,6 +924,10 @@
 
   .h-px {
     height: 1px;
+  }
+
+  .max-h-24 {
+    max-height: calc(var(--spacing) * 24);
   }
 
   .max-h-32 {
@@ -2358,6 +2363,10 @@
 
   .text-yellow-500 {
     color: var(--color-yellow-500);
+  }
+
+  .text-yellow-600 {
+    color: var(--color-yellow-600);
   }
 
   .text-yellow-700 {

@@ -155,13 +155,17 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
                                     onChange={(e) => handleTemplateChange(e.target.value)}
                                     className="form-select"
                                 >
-                                    <option value="">{t('sourceEditor.selectTemplate')}</option>
+                                    <option value="">⚡ Кастомный источник (без шаблона)</option>
+                                    <option disabled>──────────</option>
                                     {templates.map(t => (
                                         <option key={t.name} value={t.name}>{t.display_name}</option>
                                     ))}
                                 </select>
                                 <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
-                                    {t('sourceEditor.templateHint')}
+                                    {!formData.template
+                                        ? "Создайте свой источник — просто укажите имя и URL ниже. Шаблон не обязателен."
+                                        : t('sourceEditor.templateHint')
+                                    }
                                 </p>
                             </div>
 
