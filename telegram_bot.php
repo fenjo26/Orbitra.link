@@ -47,6 +47,13 @@ function botText($lang, $key, $params = [])
             'payout' => "Выплата",
             'campaign' => "Кампания",
             'country' => "Страна",
+            'sources_title' => "🌐 *Источники трафика:*",
+            'sources_empty' => "📭 Нет источников с URL.\n\nДобавьте источники в панели Orbitra.",
+            'sources_checking' => "🔄 Проверяю все источники...",
+            'sources_done' => "✅ Проверка завершена!",
+            'sources_ok' => "✅",
+            'sources_error' => "❌",
+            'sources_summary' => "📊 Итого: {ok} OK, {errors} с ошибкой",
         ],
         'en' => [
             'welcome' => "🚀 *Welcome to Orbitra v{version} Bot!*\n\nI'll help you track your campaign stats.\n\nAvailable commands:\n/stats — Today's statistics\n/stats 7d — Last 7 days\n/campaigns — Active campaigns\n/campaign ID — Campaign details\n/top — Top 5 by revenue\n/conversions — Recent conversions\n/notify on|off — Notifications\n/daily on|off — Daily summary\n/lang ru|en — Bot language\n/help — Help",
@@ -85,6 +92,13 @@ function botText($lang, $key, $params = [])
             'payout' => "Payout",
             'campaign' => "Campaign",
             'country' => "Country",
+            'sources_title' => "🌐 *Traffic Sources:*",
+            'sources_empty' => "📭 No sources with URL.\n\nAdd sources in Orbitra panel.",
+            'sources_checking' => "🔄 Checking all sources...",
+            'sources_done' => "✅ Check completed!",
+            'sources_ok' => "✅",
+            'sources_error' => "❌",
+            'sources_summary' => "📊 Total: {ok} OK, {errors} with errors",
         ]
     ];
 
@@ -206,6 +220,14 @@ switch ($command) {
             $newLang = 'ru';
         $pdo->prepare("UPDATE telegram_bot_chats SET language = ? WHERE chat_id = ?")->execute([$newLang, $chatId]);
         sendTelegram($botToken, $chatId, botText($newLang, 'lang_set'));
+        break;
+
+    case '/sources':
+        handleSources($pdo, $botToken, $chatId, $lang);
+        break;
+
+    case '/checksources':
+        handleCheckSources($pdo, $botToken, $chatId, $lang);
         break;
 
     default:
@@ -440,4 +462,152 @@ function getCountryFlag($code)
         return '';
     $code = strtoupper($code);
     return mb_chr(0x1F1E6 + ord($code[0]) - ord('A')) . mb_chr(0x1F1E6 + ord($code[1]) - ord('A'));
+}
+
+// Handle /sources command - show traffic sources status
+function handleSources($pdo, $token, $chatId, $lang)
+{
+    $stmt = $pdo->query("
+        SELECT name, url, http_status, last_checked
+        FROM traffic_sources
+        WHERE is_archived = 0
+        ORDER BY name ASC
+    ");
+    $sources = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Filter sources that have URL set
+    $sources = array_filter($sources, function($s) {
+        return !empty($s['url']);
+    });
+
+    if (empty($sources)) {
+        $msg = botText($lang, 'sources_empty');
+        sendTelegram($token, $chatId, $msg);
+        return;
+    }
+
+    $msg = botText($lang, 'sources_title') . "\n\n";
+    $okCount = 0;
+    $errorCount = 0;
+
+    foreach ($sources as $s) {
+        $status = $s['http_status'] ?? 'unknown';
+        $name = $s['name'];
+        $url = $s['url'];
+
+        if ($status === '200') {
+            $icon = botText($lang, 'sources_ok');
+            $okCount++;
+        } elseif ($status === 'error' || $status === 'unknown') {
+            $icon = botText($lang, 'sources_error');
+            $errorCount++;
+        } elseif ($status === 'timeout') {
+            $icon = "⏰";
+            $errorCount++;
+        } else {
+            $icon = "⚠️";
+            $errorCount++;
+        }
+
+        $msg .= "{$icon} *{$name}*\n";
+        $msg .= "   `{$url}` → `{$status}`\n";
+
+        if ($s['last_checked']) {
+            $time = date('H:i', strtotime($s['last_checked']));
+            $msg .= "   _Проверено: {$time}_\n";
+        }
+        $msg .= "\n";
+    }
+
+    $summary = str_replace(['{ok}', '{errors}'], [$okCount, $errorCount], botText($lang, 'sources_summary'));
+    $msg .= $summary;
+
+    $msg .= "\n\n💡 /checksources — проверить все URLs";
+
+    sendTelegram($token, $chatId, $msg);
+}
+
+// Handle /checksources command - check all traffic source URLs
+function handleCheckSources($pdo, $token, $chatId, $lang)
+{
+    // Send initial message
+    sendTelegram($token, $chatId, botText($lang, 'sources_checking'));
+
+    // Get all sources with URLs
+    $stmt = $pdo->query("
+        SELECT id, url FROM traffic_sources
+        WHERE url IS NOT NULL AND url != '' AND is_archived = 0
+    ");
+    $sources = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (empty($sources)) {
+        sendTelegram($token, $chatId, botText($lang, 'sources_empty'));
+        return;
+    }
+
+    // Check each URL (reuse checkUrlAvailability function from api.php if available, otherwise inline)
+    $checked = 0;
+    $okCount = 0;
+
+    foreach ($sources as $s) {
+        $url = $s['url'];
+        $result = checkSourceUrlInline($url);
+
+        $updateStmt = $pdo->prepare("UPDATE traffic_sources SET http_status = ?, last_checked = datetime('now'), status_message = ? WHERE id = ?");
+        $updateStmt->execute([$result['status'], $result['message'], $s['id']]);
+
+        $checked++;
+        if ($result['status'] === '200') {
+            $okCount++;
+        }
+    }
+
+    // Send results
+    handleSources($pdo, $token, $chatId, $lang);
+}
+
+// Inline URL check function (simplified version of api.php function)
+function checkSourceUrlInline($url)
+{
+    // Ensure URL has a scheme
+    if (!empty($url) && !preg_match('~^https?://~i', $url)) {
+        $url = 'https://' . $url;
+    }
+
+    // Validate URL
+    if (!filter_var($url, FILTER_VALIDATE_URL)) {
+        return ['status' => 'error', 'message' => 'Invalid URL'];
+    }
+
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HEADER => true,
+        CURLOPT_NOBODY => true, // HEAD request
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; Orbitra/1.0)',
+    ]);
+
+    curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+
+    if ($error) {
+        if (strpos($error, 'timed out') !== false || strpos($error, 'timeout') !== false) {
+            return ['status' => 'timeout', 'message' => 'Timeout'];
+        }
+        return ['status' => 'error', 'message' => $error];
+    }
+
+    if ($httpCode >= 200 && $httpCode < 400) {
+        return ['status' => (string) $httpCode, 'message' => 'OK'];
+    }
+
+    return ['status' => (string) $httpCode, 'message' => "HTTP $httpCode"];
 }
