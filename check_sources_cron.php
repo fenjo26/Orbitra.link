@@ -5,7 +5,7 @@
  *
  * Проверяет доступность URL всех источников трафика
  * Можно запустить через cron:
- *   */30 * * * * php /path/to/check_sources_cron.php
+ *   0,30 * * * * php /path/to/check_sources_cron.php
  *
  * Или вручную:
  *   php check_sources_cron.php
@@ -49,7 +49,6 @@ function checkUrlAvailability($url)
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $error = curl_error($ch);
-    curl_close($ch);
 
     if ($error) {
         if (strpos($error, 'timed out') !== false || strpos($error, 'timeout') !== false) {
