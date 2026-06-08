@@ -1,6 +1,6 @@
 {
-    "version": "0.9.3.1",
-    "release_notes": "Added Backorder Domain Monitor: bulk import + notes/SEO metrics, RDAP-based availability checks (no registrar scraping/captcha), and a cron worker (backorder_cron.php) that checks one domain per run.",
+    "version": "0.9.3.2",
+    "release_notes": "Fixed local landings not being served: the click handler looked for files in /api/landings/{id} while uploads were stored in /landings/{id}, causing a 'Local landing files not found' error and no redirect to the landing. Paths are now aligned.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-03-10"
+    "released_at": "2026-06-08"
 }

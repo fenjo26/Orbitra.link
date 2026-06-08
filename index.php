@@ -755,7 +755,7 @@ if ($actionToPerfrom) {
 
     if (isset($landingType) && $landingType !== 'redirect') {
         if ($landingType === 'local') {
-            $landingDir = __DIR__ . '/api/landings/' . $landingIdToLog;
+            $landingDir = __DIR__ . '/landings/' . $landingIdToLog;
             if (file_exists($landingDir . '/index.php')) {
                 require $landingDir . '/index.php';
             } else if (file_exists($landingDir . '/index.html')) {
