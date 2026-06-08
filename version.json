@@ -1,6 +1,6 @@
 {
-    "version": "0.9.3.2",
-    "release_notes": "Fixed local landings not being served: the click handler looked for files in /api/landings/{id} while uploads were stored in /landings/{id}, causing a 'Local landing files not found' error and no redirect to the landing. Paths are now aligned.",
+    "version": "0.9.3.3",
+    "release_notes": "Fixed stream filters that were not enforced: only Country, Device, Bot and Language were actually checked, so Browser, OS, IP, Referer, Keyword, Weekday and Time filters silently passed all traffic (e.g. a 'Browser = TikTok' include filter still opened in every browser). All these filters are now evaluated, Browser detection recognizes in-app browsers (TikTok/Facebook/Instagram), IP supports wildcards, and Country/Device/OS matching is case-insensitive. When a free geo database cannot resolve the country (Unknown), the country filter now lets the visitor through instead of dropping them. Added an optional ISP filter powered by the free MaxMind GeoLite2-ASN database (drop GeoLite2-ASN.mmdb into /geo/); without it the ISP filter simply passes traffic. Connection-type filtering remains unsupported (no free data source).",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-06-08"
 }

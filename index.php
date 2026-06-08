@@ -37,7 +37,7 @@ function normalizeGeoString($value, $default = '')
 
 function fillGeoData(array &$target, array $source)
 {
-    $stringKeys = ['country_code', 'region', 'city', 'zipcode', 'timezone'];
+    $stringKeys = ['country_code', 'region', 'city', 'zipcode', 'timezone', 'isp', 'asn'];
     foreach ($stringKeys as $key) {
         if ((empty($target[$key]) || $target[$key] === 'Unknown') && !empty($source[$key])) {
             $target[$key] = (string) $source[$key];
@@ -61,7 +61,9 @@ function getGeoData($ip)
         'latitude' => null,
         'longitude' => null,
         'zipcode' => '',
-        'timezone' => ''
+        'timezone' => '',
+        'isp' => '',
+        'asn' => ''
     ];
 
     if (in_array($ip, ['127.0.0.1', '::1'])) {
@@ -95,6 +97,8 @@ function getGeoData($ip)
                     'longitude' => $records['longitude'] ?? null,
                     'zipcode' => normalizeGeoString($records['zipCode'] ?? $records['zipcode'] ?? '', ''),
                     'timezone' => normalizeGeoString($records['timeZone'] ?? $records['timezone'] ?? '', ''),
+                    // Present only in commercial IP2Location DBs with ISP field.
+                    'isp' => normalizeGeoString($records['isp'] ?? '', ''),
                 ]);
             }
         } catch (\Exception $e) {
@@ -125,6 +129,32 @@ function getGeoData($ip)
             ]);
         } catch (\Exception $e) {
             // Фолбек при ошибке базы (например, IP не найден)
+        }
+    }
+
+    // 2b. MaxMind GeoLite2-ASN (бесплатная) — определяет сеть/провайдера (ISP).
+    // Опциональна: если файла нет, поля isp/asn останутся пустыми и фильтр ISP
+    // просто пропускает трафик.
+    if ($geo['isp'] === '') {
+        $asnDb = __DIR__ . '/geo/GeoLite2-ASN.mmdb';
+        if (file_exists($asnDb) && class_exists($readerClass)) {
+            try {
+                $asnReader = new $readerClass($asnDb);
+                // @phpstan-ignore-next-line
+                $asnRecord = $asnReader->asn($ip);
+                // @phpstan-ignore-next-line
+                $org = normalizeGeoString($asnRecord->autonomousSystemOrganization ?? '', '');
+                // @phpstan-ignore-next-line
+                $asNumber = $asnRecord->autonomousSystemNumber ?? null;
+                if ($org !== '') {
+                    $geo['isp'] = $org;
+                }
+                if ($asNumber !== null) {
+                    $geo['asn'] = 'AS' . $asNumber;
+                }
+            } catch (\Exception $e) {
+                // IP не найден в ASN-базе — оставляем поля пустыми
+            }
         }
     }
 
@@ -505,13 +535,91 @@ function isBot($pdo, $ip, $userAgent)
     return false;
 }
 
-function streamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $pdo)
+// Case-insensitive equality of a payload token against a value.
+function filterTokenEquals($token, $value)
+{
+    return strcasecmp(trim((string) $token), trim((string) $value)) === 0;
+}
+
+// Match a Browser filter token against the detected browser name and raw UA.
+// Supports standard browsers (by detected name) and in-app browsers like
+// TikTok / Facebook / Instagram (by user-agent signatures), since these
+// in-app webviews are Chrome/Safari based and are not distinguishable by name.
+function browserMatchesToken($token, $browser, $userAgent)
+{
+    $t = strtolower(trim((string) $token));
+    if ($t === '')
+        return false;
+
+    $ua = strtolower($userAgent);
+    $bname = strtolower((string) $browser);
+
+    // In-app browser signatures (matched against the raw user-agent).
+    $inAppSignatures = [
+        'tiktok' => ['tiktok', 'musical_ly', 'bytedancewebview', 'bytedance', 'trill', 'aweme'],
+        'facebook' => ['fban', 'fbav', 'fb_iab', 'fbios'],
+        'messenger' => ['messenger'],
+        'instagram' => ['instagram'],
+        'snapchat' => ['snapchat'],
+        'pinterest' => ['pinterest'],
+        'telegram' => ['telegram'],
+        'twitter' => ['twitter', 'twitterandroid'],
+        'wechat' => ['micromessenger'],
+        'webview' => ['; wv', 'webview'],
+    ];
+
+    if (isset($inAppSignatures[$t])) {
+        foreach ($inAppSignatures[$t] as $sig) {
+            if (strpos($ua, $sig) !== false)
+                return true;
+        }
+        return false;
+    }
+
+    // Standard browsers: rely on the detected browser name to avoid false
+    // positives (e.g. every Chrome UA also contains "Safari/").
+    if ($t === $bname)
+        return true;
+    if ($t === 'samsung' && $bname === 'samsung browser')
+        return true;
+    if ($bname !== '' && $bname !== 'unknown' && strpos($bname, $t) !== false)
+        return true;
+
+    return false;
+}
+
+// Match an IP filter token (supports exact match and wildcards like 10.0.0.*).
+function ipMatchesToken($token, $ip)
+{
+    $token = trim((string) $token);
+    if ($token === '')
+        return false;
+    if (strpos($token, '*') === false) {
+        return $token === $ip;
+    }
+    $regex = '/^' . str_replace('\*', '.*', preg_quote($token, '/')) . '$/';
+    return (bool) preg_match($regex, $ip);
+}
+
+function streamMatchesFilters($stream, $visitor, $pdo)
 {
     if (empty($stream['filters_json']))
         return true;
     $filters = json_decode($stream['filters_json'], true);
     if (json_last_error() !== JSON_ERROR_NONE || !is_array($filters) || empty($filters))
         return true;
+
+    $ip = $visitor['ip'] ?? '';
+    $country = $visitor['country'] ?? '';
+    $deviceType = $visitor['device'] ?? '';
+    $os = $visitor['os'] ?? '';
+    $browser = $visitor['browser'] ?? '';
+    $languageCodes = $visitor['languageCodes'] ?? [];
+    $userAgent = $visitor['userAgent'] ?? '';
+    $referer = $visitor['referer'] ?? '';
+    $params = $visitor['params'] ?? [];
+    $timezone = $visitor['timezone'] ?? '';
+    $isp = trim(($visitor['isp'] ?? '') . ' ' . ($visitor['asn'] ?? ''));
 
     foreach ($filters as $f) {
         $mode = $f['mode'] ?? 'include';
@@ -522,10 +630,43 @@ function streamMatchesFilters($stream, $ip, $country, $deviceType, $languageCode
         $matched = false;
         switch ($f['name']) {
             case 'Country':
-                $matched = in_array($country, $payload);
+                // Free geo databases cannot always resolve an IP. To avoid
+                // silently dropping real traffic, an undetermined country
+                // (Unknown/Local/empty) passes the country gate instead of
+                // being blocked.
+                if ($country === '' || $country === 'Unknown' || $country === 'Local') {
+                    continue 2;
+                }
+                foreach ($payload as $item) {
+                    if (filterTokenEquals($item, $country)) {
+                        $matched = true;
+                        break;
+                    }
+                }
                 break;
             case 'Device':
-                $matched = in_array($deviceType, $payload);
+                foreach ($payload as $item) {
+                    if (filterTokenEquals($item, $deviceType)) {
+                        $matched = true;
+                        break;
+                    }
+                }
+                break;
+            case 'OS':
+                foreach ($payload as $item) {
+                    if (filterTokenEquals($item, $os)) {
+                        $matched = true;
+                        break;
+                    }
+                }
+                break;
+            case 'Browser':
+                foreach ($payload as $item) {
+                    if (browserMatchesToken($item, $browser, $userAgent)) {
+                        $matched = true;
+                        break;
+                    }
+                }
                 break;
             case 'Bot':
                 $matched = isBot($pdo, $ip, $userAgent);
@@ -540,8 +681,101 @@ function streamMatchesFilters($stream, $ip, $country, $deviceType, $languageCode
                 }
                 $matched = !empty(array_intersect($payloadLanguages, $languageCodes));
                 break;
+            case 'IP':
+                foreach ($payload as $item) {
+                    if (ipMatchesToken($item, $ip)) {
+                        $matched = true;
+                        break;
+                    }
+                }
+                break;
+            case 'Referer':
+                $ref = strtolower($referer);
+                foreach ($payload as $item) {
+                    $needle = strtolower(trim((string) $item));
+                    if ($needle !== '' && strpos($ref, $needle) !== false) {
+                        $matched = true;
+                        break;
+                    }
+                }
+                break;
+            case 'Keyword':
+                $keyword = strtolower((string) ($params['keyword'] ?? ''));
+                foreach ($payload as $item) {
+                    $needle = strtolower(trim((string) $item));
+                    if ($needle !== '' && $keyword !== '' && strpos($keyword, $needle) !== false) {
+                        $matched = true;
+                        break;
+                    }
+                }
+                break;
+            case 'Weekday':
+                try {
+                    $tz = new DateTimeZone(($timezone && $timezone !== 'Unknown') ? $timezone : date_default_timezone_get());
+                } catch (\Exception $e) {
+                    $tz = new DateTimeZone(date_default_timezone_get());
+                }
+                $now = new DateTime('now', $tz);
+                $currentWeekday = strtolower($now->format('l')); // monday, tuesday...
+                foreach ($payload as $item) {
+                    if (filterTokenEquals($item, $currentWeekday)) {
+                        $matched = true;
+                        break;
+                    }
+                }
+                break;
+            case 'Time':
+                try {
+                    $tz = new DateTimeZone(($timezone && $timezone !== 'Unknown') ? $timezone : date_default_timezone_get());
+                } catch (\Exception $e) {
+                    $tz = new DateTimeZone(date_default_timezone_get());
+                }
+                $now = new DateTime('now', $tz);
+                $minutesNow = ((int) $now->format('G')) * 60 + (int) $now->format('i');
+                foreach ($payload as $item) {
+                    $range = trim((string) $item);
+                    if (strpos($range, '-') === false)
+                        continue;
+                    [$from, $to] = array_map('trim', explode('-', $range, 2));
+                    $fromMin = timeToMinutes($from);
+                    $toMin = timeToMinutes($to);
+                    if ($fromMin === null || $toMin === null)
+                        continue;
+                    if ($fromMin <= $toMin) {
+                        $inRange = $minutesNow >= $fromMin && $minutesNow <= $toMin;
+                    } else {
+                        // Overnight range, e.g. 22-6
+                        $inRange = $minutesNow >= $fromMin || $minutesNow <= $toMin;
+                    }
+                    if ($inRange) {
+                        $matched = true;
+                        break;
+                    }
+                }
+                break;
+            case 'ISP':
+                // Requires a GeoLite2-ASN database (or commercial IP2Location
+                // with ISP field). If no ISP data is available for this IP,
+                // skip the filter so traffic is not blocked.
+                if ($isp === '') {
+                    continue 2;
+                }
+                $ispHaystack = strtolower($isp);
+                foreach ($payload as $item) {
+                    $needle = strtolower(trim((string) $item));
+                    if ($needle !== '' && strpos($ispHaystack, $needle) !== false) {
+                        $matched = true;
+                        break;
+                    }
+                }
+                break;
+            case 'Connection':
+                // Connection type (mobile/wifi/cable) has no free data source —
+                // skip without affecting stream selection.
+                continue 2;
             default:
-                $matched = true;
+                // Unknown filter type — do not block traffic.
+                continue 2;
         }
 
         if ($mode === 'include' && !$matched)
@@ -552,12 +786,45 @@ function streamMatchesFilters($stream, $ip, $country, $deviceType, $languageCode
     return true;
 }
 
+// Convert "HH" or "HH:MM" to minutes since midnight, or null if invalid.
+function timeToMinutes($value)
+{
+    $value = trim((string) $value);
+    if ($value === '')
+        return null;
+    if (strpos($value, ':') !== false) {
+        [$h, $m] = array_map('intval', explode(':', $value, 2));
+    } else {
+        $h = (int) $value;
+        $m = 0;
+    }
+    if ($h < 0 || $h > 24 || $m < 0 || $m > 59)
+        return null;
+    return $h * 60 + $m;
+}
+
 $selectedStream = null;
+
+// Контекст посетителя для сопоставления фильтров потоков
+$visitor = [
+    'ip' => $ip,
+    'country' => $country,
+    'device' => $deviceType,
+    'os' => $os,
+    'browser' => $browser,
+    'languageCodes' => $languageCodes,
+    'userAgent' => $userAgent,
+    'referer' => $referer,
+    'params' => $clickParams,
+    'timezone' => $timezone,
+    'isp' => $geoData['isp'] ?? '',
+    'asn' => $geoData['asn'] ?? '',
+];
 
 // Пытаемся найти перехватывающий
 foreach ($allStreams as $stream) {
     if (($stream['type'] ?? 'regular') === 'intercepting') {
-        if (streamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $pdo)) {
+        if (streamMatchesFilters($stream, $visitor, $pdo)) {
             $selectedStream = $stream;
             break;
         }
@@ -566,8 +833,8 @@ foreach ($allStreams as $stream) {
 
 // Если не найден перехватывающий, отбираем обычные
 if (!$selectedStream) {
-    $regular = array_filter($allStreams, function ($s) use ($ip, $country, $deviceType, $languageCodes, $userAgent, $pdo) {
-        return ($s['type'] ?? 'regular') === 'regular' && streamMatchesFilters($s, $ip, $country, $deviceType, $languageCodes, $userAgent, $pdo);
+    $regular = array_filter($allStreams, function ($s) use ($visitor, $pdo) {
+        return ($s['type'] ?? 'regular') === 'regular' && streamMatchesFilters($s, $visitor, $pdo);
     });
 
     if (!empty($regular)) {
@@ -583,7 +850,7 @@ if (!$selectedStream) {
 if (!$selectedStream) {
     foreach ($allStreams as $stream) {
         if (($stream['type'] ?? '') === 'fallback') {
-            if (streamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $pdo)) {
+            if (streamMatchesFilters($stream, $visitor, $pdo)) {
                 $selectedStream = $stream;
                 break;
             }

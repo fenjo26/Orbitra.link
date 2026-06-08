@@ -17037,6 +17037,10 @@ const ru = {
     ip2locPx2Desc: "определение прокси/VPN",
     sypexFullDesc: "расширенная версия с большей точностью",
     maxmindFullDesc: "высокая точность (требует лицензии)",
+    asnTitle: "Фильтр по провайдеру (ISP) — база GeoLite2-ASN",
+    asnDesc: "Бесплатная база MaxMind GeoLite2-ASN определяет сеть/провайдера по IP. Без неё фильтр потоков «ISP» работать не сможет.",
+    asnDownload: "Скачайте",
+    asnNote: "Если базы нет — фильтр «ISP» просто пропускает весь трафик и ничего не блокирует. Скачивается тем же ключом MaxMind, что и City.",
     downloadFrom: "Где скачать:",
     sypexFree: "Sypex Geo (бесплатно)",
     maxmindAccountIdPlaceholder: "Введите Account ID от MaxMind",
@@ -18795,6 +18799,10 @@ const en = {
     ip2locPx2Desc: "proxy/VPN detection",
     sypexFullDesc: "extended version with higher accuracy",
     maxmindFullDesc: "high accuracy (requires license)",
+    asnTitle: "ISP filter — GeoLite2-ASN database",
+    asnDesc: 'The free MaxMind GeoLite2-ASN database resolves the network/ISP from an IP. Without it the stream "ISP" filter cannot work.',
+    asnDownload: "Download",
+    asnNote: 'If the database is missing, the "ISP" filter simply passes all traffic and blocks nothing. It uses the same MaxMind key as City.',
     downloadFrom: "Where to download:",
     sypexFree: "Sypex Geo (free)",
     maxmindAccountIdPlaceholder: "Enter MaxMind Account ID",
@@ -43759,6 +43767,27 @@ const GeoDBPage = () => {
             t("geoDb.maxmindFullDesc")
           ] })
         ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        marginBottom: "12px",
+        padding: "10px 12px",
+        background: "var(--color-primary-light)",
+        borderRadius: "12px",
+        fontSize: "13px",
+        color: "var(--color-text-secondary)"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontWeight: 600, color: "var(--color-primary)", marginBottom: "4px" }, children: t("geoDb.asnTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { marginBottom: "6px" }, children: t("geoDb.asnDesc") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { marginBottom: "6px" }, children: [
+          t("geoDb.asnDownload"),
+          " ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://www.maxmind.com/en/accounts/current/geoip/downloads", target: "_blank", rel: "noopener", style: { color: "var(--color-primary)" }, children: "MaxMind GeoLite2 ASN" }),
+          " ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "GeoLite2-ASN.mmdb" }),
+          " → ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "/geo/" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontStyle: "italic", color: "var(--color-text-muted)" }, children: t("geoDb.asnNote") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
         marginTop: "12px",

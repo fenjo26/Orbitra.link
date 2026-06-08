@@ -201,6 +201,24 @@ const GeoDBPage = () => {
                     </div>
 
                     <div style={{
+                        marginBottom: '12px',
+                        padding: '10px 12px',
+                        background: 'var(--color-primary-light)',
+                        borderRadius: '12px',
+                        fontSize: '13px',
+                        color: 'var(--color-text-secondary)'
+                    }}>
+                        <p style={{ fontWeight: 600, color: 'var(--color-primary)', marginBottom: '4px' }}>{t('geoDb.asnTitle')}</p>
+                        <p style={{ marginBottom: '6px' }}>{t('geoDb.asnDesc')}</p>
+                        <p style={{ marginBottom: '6px' }}>
+                            {t('geoDb.asnDownload')}{' '}
+                            <a href="https://www.maxmind.com/en/accounts/current/geoip/downloads" target="_blank" rel="noopener" style={{ color: 'var(--color-primary)' }}>MaxMind GeoLite2 ASN</a>
+                            {' '}<code>GeoLite2-ASN.mmdb</code> → <code>/geo/</code>
+                        </p>
+                        <p style={{ fontStyle: 'italic', color: 'var(--color-text-muted)' }}>{t('geoDb.asnNote')}</p>
+                    </div>
+
+                    <div style={{
                         marginTop: '12px',
                         padding: '8px 12px',
                         background: 'var(--color-warning-bg)',
