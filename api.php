@@ -5215,8 +5215,12 @@ try {
                     exec($git . ' status --porcelain 2>&1', $statusLines, $statusReturn);
                     $hasLocalChanges = ($statusReturn === 0 && !empty($statusLines));
 
+                    $stashed = false;
                     if ($hasLocalChanges) {
+                        $stashOutput = [];
+                        $stashReturn = 0;
                         exec($git . ' stash push -u -m "orbitra-auto-update" 2>&1', $stashOutput, $stashReturn);
+                        $stashed = ($stashReturn === 0);
                     }
 
                     $output = [];
@@ -5248,8 +5252,38 @@ try {
                         }
                     }
 
-                    // Restore stashed changes after pull
-                    if ($hasLocalChanges && $returnCode === 0) {
+                    // Fallback: if the pull was blocked by local modifications to
+                    // tracked framework files (which users are not expected to edit),
+                    // discard those changes and retry. User data is safe — the
+                    // database, uploaded landings and geo databases are gitignored,
+                    // and config.php is explicitly preserved.
+                    if ($returnCode !== 0) {
+                        $joinedConflict = strtolower(implode("\n", $output));
+                        if (
+                            strpos($joinedConflict, 'would be overwritten') !== false ||
+                            strpos($joinedConflict, 'local changes') !== false ||
+                            strpos($joinedConflict, 'overwritten by merge') !== false ||
+                            strpos($joinedConflict, 'commit your changes or stash') !== false
+                        ) {
+                            $output[] = '[Local changes block update — discarding tracked changes (config.php preserved)]';
+                            $coOut = [];
+                            $coCode = 0;
+                            exec($git . ' checkout -- . ":(exclude)config.php" 2>&1', $coOut, $coCode);
+                            $output = array_merge($output, $coOut);
+
+                            $retryLocal = [];
+                            $retryLocalCode = 0;
+                            exec($git . ' pull --ff-only origin ' . escapeshellarg($currentBranch) . ' 2>&1', $retryLocal, $retryLocalCode);
+                            $output = array_merge($output, $retryLocal);
+                            $returnCode = $retryLocalCode;
+                        }
+                    }
+
+                    // Restore stashed changes after a successful pull (only if we
+                    // actually stashed — avoids popping an unrelated old stash).
+                    if ($stashed && $returnCode === 0) {
+                        $popOutput = [];
+                        $popReturn = 0;
                         exec($git . ' stash pop 2>&1', $popOutput, $popReturn);
                         if ($popReturn === 0) {
                             $output = array_merge($output, ['[Stash restored]']);

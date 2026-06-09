@@ -1,6 +1,6 @@
 {
-    "version": "0.9.3.4",
-    "release_notes": "Stream schema 'Landing + Offer' now works with a landing only: a selected landing is always used as the destination even when no offer is attached, so removing the offer no longer breaks the landing. Added Keitaro-compatible landing-to-offer transition: place <a href=\"/?_lp=1\">Offer</a> in a local landing and the tracker redirects the visitor to the offer bound to their click (with macro substitution); a specific offer can be targeted via /?_lp=1&offer_id=10. (Local landings also required the /landings path fix from 0.9.3.2.)",
+    "version": "0.9.3.5",
+    "release_notes": "More reliable auto-update: when local changes to tracked framework files would block 'git pull' (the 'Your local changes would be overwritten' error), the updater now discards those tracked changes and retries automatically. Your data is safe — the database, uploaded landings and geo databases are gitignored, and config.php is preserved.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-06-08"
 }
