@@ -252,6 +252,25 @@ function detectBrowser($userAgent)
     return 'Unknown';
 }
 
+// Replace tracking macros in an offer URL and ensure it has a scheme.
+function applyOfferMacros($url, $clickId, $offerId, $params)
+{
+    $url = str_replace('{clickid}', $clickId, (string) $url);
+    if (!empty($params) && is_array($params)) {
+        foreach ($params as $key => $val) {
+            $url = str_replace('{' . $key . '}', urlencode((string) $val), $url);
+        }
+    }
+    if ($offerId) {
+        $url = str_replace('{offer_id}', (string) $offerId, $url);
+    }
+    // Ensure URL has a scheme to prevent a relative redirect back to the tracker.
+    if (!preg_match('#^(https?:)?//#i', $url) && !preg_match('#^/#', $url) && !preg_match('#^(mailto|tel):#i', $url)) {
+        $url = 'http://' . ltrim($url, '/');
+    }
+    return $url;
+}
+
 function normalizeLanguageCode($value)
 {
     if (!is_string($value)) {
@@ -403,6 +422,75 @@ if (empty($alias) && isset($_SERVER['REQUEST_URI'])) {
             $alias = $candidate;
         }
     }
+}
+
+// === Landing → Offer transition (Keitaro-compatible /?_lp=1) ===
+// When a visitor clicks an offer link on a local landing, resolve the offer
+// bound to their original click (remembered via cookie when the landing was
+// shown) and redirect to it. Runs before campaign resolution so it works even
+// on a bare "/?_lp=1" link without campaign parameters.
+if (isset($_GET['_lp'])) {
+    $lpClickId = $_COOKIE['orbitra_click'] ?? ($_COOKIE['subid'] ?? '');
+    if ($lpClickId === '') {
+        http_response_code(400);
+        die('Landing transition failed: original click not found (cookies disabled?).');
+    }
+
+    $lpClick = null;
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM clicks WHERE id = ? LIMIT 1");
+        $stmt->execute([$lpClickId]);
+        $lpClick = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    } catch (\Throwable $e) {
+        $lpClick = null;
+    }
+
+    // Determine the offer: explicit ?offer_id=X wins, then the click's logged
+    // offer, then the offer remembered in the cookie (covers stats-disabled).
+    $lpOfferId = 0;
+    if (isset($_GET['offer_id']) && (int) $_GET['offer_id'] > 0) {
+        $lpOfferId = (int) $_GET['offer_id'];
+    } elseif ($lpClick && (int) ($lpClick['offer_id'] ?? 0) > 0) {
+        $lpOfferId = (int) $lpClick['offer_id'];
+    } elseif (isset($_COOKIE['orbitra_offer']) && (int) $_COOKIE['orbitra_offer'] > 0) {
+        $lpOfferId = (int) $_COOKIE['orbitra_offer'];
+    }
+
+    if ($lpOfferId <= 0) {
+        http_response_code(404);
+        die('Landing transition failed: no offer attached to this stream.');
+    }
+
+    $lpOffer = null;
+    $stmt = $pdo->prepare("SELECT url FROM offers WHERE id = ? LIMIT 1");
+    $stmt->execute([$lpOfferId]);
+    $lpOffer = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    if (!$lpOffer || empty($lpOffer['url'])) {
+        http_response_code(404);
+        die('Landing transition failed: offer not found.');
+    }
+
+    // Restore tracking params from the original click for macro substitution.
+    $lpParams = [];
+    if ($lpClick && !empty($lpClick['parameters_json'])) {
+        $decoded = json_decode($lpClick['parameters_json'], true);
+        if (is_array($decoded)) {
+            $lpParams = $decoded;
+        }
+    }
+
+    // If an explicit offer override was used, attribute the click to it.
+    if ($lpClick && isset($_GET['offer_id']) && (int) $_GET['offer_id'] > 0 && $lpOfferId !== (int) ($lpClick['offer_id'] ?? 0)) {
+        try {
+            $pdo->prepare("UPDATE clicks SET offer_id = ? WHERE id = ?")->execute([$lpOfferId, $lpClickId]);
+        } catch (\Throwable $e) {
+            // non-critical
+        }
+    }
+
+    $lpUrl = applyOfferMacros($lpOffer['url'], $lpClickId, $lpOfferId, $lpParams);
+    header('Location: ' . $lpUrl, true, 302);
+    exit;
 }
 
 if (empty($alias) && !$directCampaignId) {
@@ -1020,6 +1108,18 @@ if ($actionToPerfrom) {
 } else {
     $offerUrlMacros = str_replace('{clickid}', $clickId, $offerUrl ?? '');
 
+    // Remember this click so a landing's offer link (/?_lp=1) can resolve the
+    // bound offer later. Must be set before any landing output.
+    if (!empty($landingIdToLog) && !headers_sent()) {
+        $lpSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['SERVER_PORT'] ?? '') == 443);
+        $lpCookieOpts = ['expires' => time() + 86400, 'path' => '/', 'secure' => $lpSecure, 'httponly' => false, 'samesite' => 'Lax'];
+        setcookie('orbitra_click', $clickId, $lpCookieOpts);
+        setcookie('subid', $clickId, $lpCookieOpts);
+        if (!empty($offerIdToLog)) {
+            setcookie('orbitra_offer', (string) $offerIdToLog, $lpCookieOpts);
+        }
+    }
+
     if (isset($landingType) && $landingType !== 'redirect') {
         if ($landingType === 'local') {
             $landingDir = __DIR__ . '/landings/' . $landingIdToLog;
@@ -1063,7 +1163,11 @@ if ($actionToPerfrom) {
         }
     }
 
-    if (!$finalUrl && isset($landingUrl) && $landingType === 'redirect') {
+    // A selected landing is always the destination, regardless of whether an
+    // offer is attached to the stream. Local / action / preload landings were
+    // already served above; redirect landings (and any landing carrying a URL)
+    // redirect here. This makes "landing only" streams work without an offer.
+    if (!$finalUrl && !empty($landingIdToLog) && !empty($landingUrl)) {
         $finalUrl = $landingUrl;
     }
 

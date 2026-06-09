@@ -1,6 +1,6 @@
 {
-    "version": "0.9.3.3",
-    "release_notes": "Fixed stream filters that were not enforced: only Country, Device, Bot and Language were actually checked, so Browser, OS, IP, Referer, Keyword, Weekday and Time filters silently passed all traffic (e.g. a 'Browser = TikTok' include filter still opened in every browser). All these filters are now evaluated, Browser detection recognizes in-app browsers (TikTok/Facebook/Instagram), IP supports wildcards, and Country/Device/OS matching is case-insensitive. When a free geo database cannot resolve the country (Unknown), the country filter now lets the visitor through instead of dropping them. Added an optional ISP filter powered by the free MaxMind GeoLite2-ASN database (drop GeoLite2-ASN.mmdb into /geo/); without it the ISP filter simply passes traffic. Connection-type filtering remains unsupported (no free data source).",
+    "version": "0.9.3.4",
+    "release_notes": "Stream schema 'Landing + Offer' now works with a landing only: a selected landing is always used as the destination even when no offer is attached, so removing the offer no longer breaks the landing. Added Keitaro-compatible landing-to-offer transition: place <a href=\"/?_lp=1\">Offer</a> in a local landing and the tracker redirects the visitor to the offer bound to their click (with macro substitution); a specific offer can be targeted via /?_lp=1&offer_id=10. (Local landings also required the /landings path fix from 0.9.3.2.)",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-06-08"
 }
