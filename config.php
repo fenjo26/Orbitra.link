@@ -44,7 +44,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 8;
+    $LATEST_SCHEMA_VERSION = 9;
 
     $schemaVersion = 0;
     try {
@@ -268,7 +268,7 @@ try {
     CREATE TABLE IF NOT EXISTS clicks (
         id TEXT PRIMARY KEY,
         campaign_id INTEGER NOT NULL,
-        offer_id INTEGER NOT NULL,
+        offer_id INTEGER,
         stream_id INTEGER,
         source_id INTEGER,
         landing_id INTEGER,
@@ -894,6 +894,72 @@ try {
                     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_traffic_sources_http_status ON traffic_sources(http_status)");
                 } catch (Throwable $e) {
                     // Ignore if columns already exist.
+                }
+            }
+
+            // Migration 9: allow clicks.offer_id to be NULL so a stream with a
+            // landing and no offer ("landing only") can log clicks without
+            // violating the offers(id) foreign key (which previously caused a 500).
+            if ($schemaVersion < 9) {
+                try {
+                    $offerCol = null;
+                    foreach ($pdo->query("PRAGMA table_info(clicks)")->fetchAll(PDO::FETCH_ASSOC) as $c) {
+                        if ($c['name'] === 'offer_id') {
+                            $offerCol = $c;
+                            break;
+                        }
+                    }
+                    // Only rebuild if offer_id is still NOT NULL.
+                    if ($offerCol && (int) $offerCol['notnull'] === 1) {
+                        $createSql = $pdo->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='clicks'")->fetchColumn();
+                        if (is_string($createSql) && $createSql !== '') {
+                            // Exact column list to copy data faithfully.
+                            $colNames = [];
+                            foreach ($pdo->query("PRAGMA table_info(clicks)")->fetchAll(PDO::FETCH_ASSOC) as $c) {
+                                $colNames[] = '"' . $c['name'] . '"';
+                            }
+                            $colList = implode(', ', $colNames);
+
+                            // Preserve user-defined indexes to recreate after rebuild.
+                            $idxSqls = $pdo->query("SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name='clicks' AND sql IS NOT NULL")->fetchAll(PDO::FETCH_COLUMN);
+
+                            // Clone CREATE, rename table, drop NOT NULL on offer_id.
+                            $newSql = preg_replace('/CREATE\s+TABLE\s+(IF\s+NOT\s+EXISTS\s+)?"?clicks"?/i', 'CREATE TABLE clicks_new', $createSql, 1);
+                            $newSql = preg_replace('/(\boffer_id\b\s+INTEGER)\s+NOT\s+NULL/i', '$1', $newSql, 1);
+
+                            if ($newSql && strpos($newSql, 'clicks_new') !== false) {
+                                $pdo->exec("PRAGMA foreign_keys = OFF");
+                                $pdo->exec("BEGIN");
+                                $pdo->exec($newSql);
+                                $pdo->exec("INSERT INTO clicks_new ($colList) SELECT $colList FROM clicks");
+                                $pdo->exec("DROP TABLE clicks");
+                                $pdo->exec("ALTER TABLE clicks_new RENAME TO clicks");
+                                $pdo->exec("COMMIT");
+                                $pdo->exec("PRAGMA foreign_keys = ON");
+
+                                foreach ($idxSqls as $idxSql) {
+                                    try {
+                                        $pdo->exec($idxSql);
+                                    } catch (\Throwable $e) {
+                                        // ignore index recreation errors
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    if ($pdo->inTransaction()) {
+                        try {
+                            $pdo->exec("ROLLBACK");
+                        } catch (\Throwable $e2) {
+                        }
+                    }
+                    try {
+                        $pdo->exec("PRAGMA foreign_keys = ON");
+                    } catch (\Throwable $e3) {
+                    }
+                    // On failure the schema stays as-is; index.php still guards the
+                    // INSERT so visitors never get a 500.
                 }
             }
 

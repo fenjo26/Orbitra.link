@@ -183,7 +183,7 @@ CREATE TABLE IF NOT EXISTS streams (
 CREATE TABLE IF NOT EXISTS clicks (
     id TEXT PRIMARY KEY,                          -- UUID click_id
     campaign_id INTEGER NOT NULL,
-    offer_id INTEGER NOT NULL,
+    offer_id INTEGER,                             -- NULL for landing-only streams (no offer)
     stream_id INTEGER,                            -- Matched stream
     source_id INTEGER,                            -- Traffic source
     landing_id INTEGER,                           -- Landing page ID if used

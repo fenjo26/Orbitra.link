@@ -1055,40 +1055,48 @@ if ($stmtDebounce->fetch()) {
 }
 
 if ($statsEnabled && !$isDebounced) {
-    $insertStmt = $pdo->prepare("
-        INSERT INTO clicks 
-        (
-            id, campaign_id, offer_id, stream_id, source_id, landing_id, ip, user_agent, referer,
-            country, country_code, region, city, latitude, longitude, zipcode, timezone,
-            device_type, os, browser, language, accept_language_raw, parameters_json
-        ) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ");
-    $insertStmt->execute([
-        $clickId,
-        $campaignId,
-        $offerIdToLog,
-        $streamIdToLog,
-        $sourceIdToLog,
-        $landingIdToLog,
-        $ip,
-        $userAgent,
-        $referer,
-        $country,
-        $countryCode,
-        $region,
-        $city,
-        $latitude,
-        $longitude,
-        $zipcode,
-        $timezone,
-        $deviceType,
-        $os,
-        $browser,
-        $language,
-        $acceptLanguageRaw,
-        $parametersJson
-    ]);
+    // No offer (e.g. landing-only stream) must be logged as NULL, not 0, to
+    // avoid the offers(id) foreign-key violation.
+    $offerIdForDb = !empty($offerIdToLog) ? $offerIdToLog : null;
+    try {
+        $insertStmt = $pdo->prepare("
+            INSERT INTO clicks
+            (
+                id, campaign_id, offer_id, stream_id, source_id, landing_id, ip, user_agent, referer,
+                country, country_code, region, city, latitude, longitude, zipcode, timezone,
+                device_type, os, browser, language, accept_language_raw, parameters_json
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        $insertStmt->execute([
+            $clickId,
+            $campaignId,
+            $offerIdForDb,
+            $streamIdToLog,
+            $sourceIdToLog,
+            $landingIdToLog,
+            $ip,
+            $userAgent,
+            $referer,
+            $country,
+            $countryCode,
+            $region,
+            $city,
+            $latitude,
+            $longitude,
+            $zipcode,
+            $timezone,
+            $deviceType,
+            $os,
+            $browser,
+            $language,
+            $acceptLanguageRaw,
+            $parametersJson
+        ]);
+    } catch (\Throwable $e) {
+        // Never let click logging break the redirect/landing. Log and continue.
+        error_log('Orbitra click logging failed: ' . $e->getMessage());
+    }
 }
 
 if (!$selectedStream) {
