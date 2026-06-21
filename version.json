@@ -1,6 +1,6 @@
 {
-    "version": "0.9.3.6",
-    "release_notes": "Fixed HTTP 500 on landing-only streams (a stream with a landing and no offer). The click log required an offer (offer_id NOT NULL + foreign key), so a no-offer click failed with a database error before the landing could load. The clicks.offer_id column is now nullable (automatic DB migration), no-offer clicks are logged with NULL, and click logging can no longer break the page. Landing statistics keep working; only offer attribution is empty, as expected.",
+    "version": "0.9.3.7",
+    "release_notes": "New traffic source and affiliate network templates. Added an 'Email' traffic source template for email marketers (pre-fills subscriber_id, campaign_id, list_id, broadcast_id, esp sub-parameters to map your ESP's merge tags). Added platform-level affiliate network templates — Everflow, CAKE, HitPath, Affise and TUNE/HasOffers — so any smaller network running on those platforms can be connected by picking the platform template, instead of needing a per-company entry. The offer sub-parameter for each platform is pre-filled with that platform's standard click-id field (Everflow sub1, CAKE s1, HitPath c1, Affise sub1, TUNE aff_sub).",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-06-09"
+    "released_at": "2026-06-21"
 }

@@ -1905,6 +1905,18 @@ try {
                     ]
                 ],
                 [
+                    'name' => 'email',
+                    'display_name' => 'Email',
+                    'postback_url' => '',
+                    'parameters' => [
+                        ['alias' => 'subscriber_id', 'param' => 'subscriber_id', 'macro' => ''],
+                        ['alias' => 'campaign_id', 'param' => 'campaign_id', 'macro' => ''],
+                        ['alias' => 'list_id', 'param' => 'list_id', 'macro' => ''],
+                        ['alias' => 'broadcast_id', 'param' => 'broadcast_id', 'macro' => ''],
+                        ['alias' => 'esp', 'param' => 'esp', 'macro' => ''],
+                    ]
+                ],
+                [
                     'name' => 'custom',
                     'display_name' => 'Свой источник',
                     'postback_url' => '',
@@ -2691,6 +2703,37 @@ try {
                     'name' => 'generic',
                     'display_name' => 'Универсальная',
                     'offer_params_template' => '&subid={subid}',
+                    'postback_url_template' => ''
+                ],
+                // --- Platform-level templates: work with ANY network running on these platforms ---
+                [
+                    'name' => 'everflow',
+                    'display_name' => 'Everflow (платформа)',
+                    'offer_params_template' => '&sub1={subid}',
+                    'postback_url_template' => ''
+                ],
+                [
+                    'name' => 'cake',
+                    'display_name' => 'CAKE (платформа)',
+                    'offer_params_template' => '&s1={subid}',
+                    'postback_url_template' => ''
+                ],
+                [
+                    'name' => 'hitpath',
+                    'display_name' => 'HitPath (платформа)',
+                    'offer_params_template' => '&c1={subid}',
+                    'postback_url_template' => ''
+                ],
+                [
+                    'name' => 'affise',
+                    'display_name' => 'Affise (платформа)',
+                    'offer_params_template' => '&sub1={subid}',
+                    'postback_url_template' => ''
+                ],
+                [
+                    'name' => 'tune',
+                    'display_name' => 'TUNE / HasOffers (платформа)',
+                    'offer_params_template' => '&aff_sub={subid}',
                     'postback_url_template' => ''
                 ],
                 [
