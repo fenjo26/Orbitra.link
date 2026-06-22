@@ -902,7 +902,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                                 value={opt.value}
                                                                 checked={formData.challenge_type === opt.value}
                                                                 onChange={e => setFormData(prev => ({ ...prev, challenge_type: e.target.value }))}
-                                                                style={{ marginTop: '3px' }}
+                                                                style={{ marginTop: '4px', width: '16px', height: '16px', flexShrink: 0, cursor: 'pointer' }}
                                                             />
                                                             <div>
                                                                 <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--color-text-primary)' }}>{opt.label}</div>

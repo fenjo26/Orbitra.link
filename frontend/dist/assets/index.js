@@ -56791,7 +56791,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         value: opt.value,
                         checked: formData.challenge_type === opt.value,
                         onChange: (e) => setFormData((prev) => ({ ...prev, challenge_type: e.target.value })),
-                        style: { marginTop: "3px" }
+                        style: { marginTop: "4px", width: "16px", height: "16px", flexShrink: 0, cursor: "pointer" }
                       }
                     ),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
