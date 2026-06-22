@@ -125,6 +125,11 @@ const ProfileSettings = () => {
                             >
                                 <option value="ru">Русский</option>
                                 <option value="en">English</option>
+                                <option value="uk">Українська</option>
+                                <option value="es">Español</option>
+                                <option value="zh">中文 (简体)</option>
+                                <option value="fr">Français</option>
+                                <option value="de">Deutsch</option>
                             </select>
                         </div>
                     </div>

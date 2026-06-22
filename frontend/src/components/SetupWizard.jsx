@@ -104,8 +104,13 @@ const SetupWizard = ({ onComplete }) => {
                     onChange={(e) => setContextLanguage(e.target.value)}
                     className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
                 >
-                    <option value="en">🇺🇸 English</option>
                     <option value="ru">🇷🇺 Русский</option>
+                    <option value="en">🇺🇸 English</option>
+                    <option value="uk">🇺🇦 Українська</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="zh">🇨🇳 中文 (简体)</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="de">🇩🇪 Deutsch</option>
                 </select>
             </div>
 
@@ -269,6 +274,11 @@ const SetupWizard = ({ onComplete }) => {
                                     >
                                         <option value="ru">Русский</option>
                                         <option value="en">English</option>
+                                        <option value="uk">Українська</option>
+                                        <option value="es">Español</option>
+                                        <option value="zh">中文 (简体)</option>
+                                        <option value="fr">Français</option>
+                                        <option value="de">Deutsch</option>
                                     </select>
                                 </div>
 

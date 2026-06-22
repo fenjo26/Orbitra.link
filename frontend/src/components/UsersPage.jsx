@@ -314,7 +314,15 @@ const UsersPage = () => {
                                     </td>
                                     <td>
                                         <span className="status-badge" style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)' }}>
-                                            {user.language === 'en' ? 'English' : 'Русский'}
+                                            {{
+                                                ru: 'Русский',
+                                                en: 'English',
+                                                uk: 'Українська',
+                                                es: 'Español',
+                                                zh: '中文 (简体)',
+                                                fr: 'Français',
+                                                de: 'Deutsch'
+                                            }[user.language] || user.language}
                                         </span>
                                     </td>
                                     <td>
@@ -459,6 +467,11 @@ const UsersPage = () => {
                                         >
                                             <option value="ru">Русский</option>
                                             <option value="en">English</option>
+                                            <option value="uk">Українська</option>
+                                            <option value="es">Español</option>
+                                            <option value="zh">中文 (简体)</option>
+                                            <option value="fr">Français</option>
+                                            <option value="de">Deutsch</option>
                                         </select>
                                     </div>
                                 </div>

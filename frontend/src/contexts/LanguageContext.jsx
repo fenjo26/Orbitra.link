@@ -1,8 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import ru from '../locales/ru';
 import en from '../locales/en';
+import uk from '../locales/uk';
+import es from '../locales/es';
+import zh from '../locales/zh';
+import fr from '../locales/fr';
+import de from '../locales/de';
 
-const translations = { ru, en };
+const translations = { ru, en, uk, es, zh, fr, de };
 const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
@@ -46,21 +51,35 @@ export const LanguageProvider = ({ children }) => {
     // Translation function — always returns a string, never an object.
     const t = (key, fallback = '') => {
         const keys = key.split('.');
-        let value = translations[language];
+        
+        const resolve = (dict) => {
+            let val = dict;
+            for (const k of keys) {
+                if (val && typeof val === 'object' && k in val) {
+                    val = val[k];
+                } else {
+                    return null;
+                }
+            }
+            if (val && typeof val === 'object') {
+                return null;
+            }
+            return val;
+        };
 
-        for (const k of keys) {
-            if (value && typeof value === 'object' && k in value) {
-                value = value[k];
-            } else {
-                return fallback || key;
+        let value = resolve(translations[language]);
+        if (value !== null && value !== undefined) {
+            return typeof value === 'string' ? value : String(value);
+        }
+
+        if (language !== 'en') {
+            let fallbackValue = resolve(translations['en']);
+            if (fallbackValue !== null && fallbackValue !== undefined) {
+                return typeof fallbackValue === 'string' ? fallbackValue : String(fallbackValue);
             }
         }
-        // Guard: if the resolved value is still an object (e.g. a nested section),
-        // return the key path to avoid React error #310 (objects as children).
-        if (value && typeof value === 'object') {
-            return fallback || key;
-        }
-        return typeof value === 'string' ? value : String(value ?? (fallback || key));
+
+        return fallback || key;
     };
 
     return (
