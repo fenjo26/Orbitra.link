@@ -329,14 +329,17 @@ Switch the language in **Profile → Settings** (Russian/English).
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
 
+## 📝 What's New in v0.9.3.8
+
+### Changed
+- 🌍 i18n cleanup: hardcoded Russian UI strings moved into the translation system (`en.js`/`ru.js`) across the bulk-import dialog, traffic sources, source editor, domains and migrations pages, so the interface follows the selected language everywhere. Traffic-source and affiliate-network template names (including the new Email and platform templates) are now localized instead of being hardcoded on the backend. English and Russian locales are now at full key parity.
+- 📖 The README has been fully translated to English for the international audience.
+
 ## 📝 What's New in v0.9.3.7
 
 ### Added
 - ✉️ **Email** traffic source template — for email marketers. Comes with pre-configured sub-parameters `subscriber_id`, `campaign_id`, `list_id`, `broadcast_id`, `esp`, which you map to your ESP's merge tags.
 - 🌐 **Platform-level affiliate network templates**: Everflow, CAKE, HitPath, Affise, TUNE/HasOffers. Any smaller network running on these platforms can now be connected by selecting the platform template — without a separate entry per company. The click-id parameter appended to the offer is filled in with each platform's standard field (Everflow `sub1`, CAKE `s1`, HitPath `c1`, Affise `sub1`, TUNE `aff_sub`).
-
-### Changed
-- 🌍 i18n cleanup: hardcoded UI strings moved into the translation system (`en.js`/`ru.js`), and template names are now localized.
 
 ## 📝 What's New in v0.9.3.6
 
