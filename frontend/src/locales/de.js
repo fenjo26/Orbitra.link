@@ -1780,8 +1780,8 @@ export default {
         "setupGuideTitle": "Schnelle Einrichtung (3 Schritte)",
         "setupStep1": "Erstellen Sie eine reCAPTCHA-Site unter",
         "setupStep2": "Wählen Sie bei der Registrierung der Site den Typ {type}.",
-        "setupStep3": "Fügen Sie den Site-Schlüssel und den geheimen Schlüssel ein",
-        "setupStep3Path": "Integrationen → reCAPTCHA",
+        "setupStep3": "Kopieren Sie die generierten Schlüssel und gehen Sie zu",
+        "setupStep3Path": "Integrationen → reCAPTCHA in der Seitenleiste, fügen Sie sie in Site Key und Secret Key ein und speichern Sie.",
         "setupStep4": "Speichern Sie diese Kampagne – die Challenge wird sofort aktiviert."
     },
     "recaptcha": {

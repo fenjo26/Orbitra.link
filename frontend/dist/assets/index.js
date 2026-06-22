@@ -17728,8 +17728,8 @@ const ru = {
     setupGuideTitle: "Быстрая настройка (3 шага)",
     setupStep1: "Создайте сайт reCAPTCHA в панели",
     setupStep2: "Выберите тип {type} при регистрации сайта.",
-    setupStep3: "Вставьте Site Key и Secret Key в разделе",
-    setupStep3Path: "Интеграции → reCAPTCHA",
+    setupStep3: "Скопируйте сгенерированные ключи, перейдите в раздел",
+    setupStep3Path: "Интеграции → reCAPTCHA в боковом меню, вставьте их в Site Key и Secret Key и сохраните.",
     setupStep4: "Сохраните эту кампанию — защита активируется сразу."
   },
   recaptcha: {
@@ -19595,8 +19595,8 @@ const en = {
     setupGuideTitle: "Quick setup (3 steps)",
     setupStep1: "Create a reCAPTCHA site at",
     setupStep2: "Choose type {type} when registering the site.",
-    setupStep3: "Paste the Site Key and Secret Key in",
-    setupStep3Path: "Integrations → reCAPTCHA",
+    setupStep3: "Copy the generated keys, then navigate to",
+    setupStep3Path: "Integrations → reCAPTCHA (in the sidebar), paste them into Site Key and Secret Key, and save.",
     setupStep4: "Save this campaign — the challenge will activate immediately."
   },
   recaptcha: {
@@ -21411,12 +21411,12 @@ const uk = {
     "noKeysWarning": "reCAPTCHA keys are not configured. Go to Integrations → reCAPTCHA to add them.",
     "infoEmailTitle": "Recommended for email traffic",
     "infoEmailDesc": "Corporate email security gateways auto-click all links in emails, creating thousands of fake clicks. The Bot Challenge filters them out before they ever reach your stats.",
-    "setupGuideTitle": "Quick setup (3 steps)",
-    "setupStep1": "Create a reCAPTCHA site at",
-    "setupStep2": "Choose type {type} when registering the site.",
-    "setupStep3": "Вставте ключ сайту та секретний ключ",
-    "setupStep3Path": "Інтеграції → reCAPTCHA",
-    "setupStep4": "Збережіть цю кампанію — завдання активується негайно."
+    "setupGuideTitle": "Швидке налаштування (3 кроки)",
+    "setupStep1": "Створіть сайт reCAPTCHA на сторінці",
+    "setupStep2": "Виберіть тип {type} при реєстрації сайту.",
+    "setupStep3": "Скопіюйте згенеровані ключі, перейдіть до розділу",
+    "setupStep3Path": "Інтеграції → reCAPTCHA в боковому меню, вставте їх у Site Key та Secret Key та збережіть.",
+    "setupStep4": "Збережіть цю кампанію — захист активується миттєво."
   },
   "recaptcha": {
     "tabTitle": "reCAPTCHA",
@@ -23230,11 +23230,11 @@ const es = {
     "noKeysWarning": "reCAPTCHA keys are not configured. Go to Integrations → reCAPTCHA to add them.",
     "infoEmailTitle": "Recommended for email traffic",
     "infoEmailDesc": "Corporate email security gateways auto-click all links in emails, creating thousands of fake clicks. The Bot Challenge filters them out before they ever reach your stats.",
-    "setupGuideTitle": "Quick setup (3 steps)",
-    "setupStep1": "Create a reCAPTCHA site at",
-    "setupStep2": "Choose type {type} when registering the site.",
-    "setupStep3": "Pegue la clave del sitio y la clave secreta",
-    "setupStep3Path": "Integraciones → reCAPTCHA",
+    "setupGuideTitle": "Configuración rápida (3 pasos)",
+    "setupStep1": "Cree un sitio de reCAPTCHA en la página",
+    "setupStep2": "Elija el tipo {type} al registrar el sitio.",
+    "setupStep3": "Copie las claves generadas, luego vaya a",
+    "setupStep3Path": "Integraciones → reCAPTCHA en el menú lateral, péguelas en Site Key y Secret Key y guarde.",
     "setupStep4": "Guarde esta campaña: el desafío se activará inmediatamente."
   },
   "recaptcha": {
@@ -25049,12 +25049,12 @@ const zh = {
     "noKeysWarning": "reCAPTCHA keys are not configured. Go to Integrations → reCAPTCHA to add them.",
     "infoEmailTitle": "Recommended for email traffic",
     "infoEmailDesc": "Corporate email security gateways auto-click all links in emails, creating thousands of fake clicks. The Bot Challenge filters them out before they ever reach your stats.",
-    "setupGuideTitle": "Quick setup (3 steps)",
-    "setupStep1": "Create a reCAPTCHA site at",
-    "setupStep2": "Choose type {type} when registering the site.",
-    "setupStep3": "Paste the Site Key and Secret Key in",
-    "setupStep3Path": "Integrations → reCAPTCHA",
-    "setupStep4": "Save this campaign — the challenge will activate immediately."
+    "setupGuideTitle": "快速设置 (3步)",
+    "setupStep1": "在以下页面创建一个 reCAPTCHA 网站",
+    "setupStep2": "注册网站时选择类型 {type}。",
+    "setupStep3": "复制生成的密钥，然后转到",
+    "setupStep3Path": "侧边栏中的 集成 → reCAPTCHA，将其粘贴到 Site Key 和 Secret Key 中并保存。",
+    "setupStep4": "保存此广告活动 — 验证挑战将立即激活。"
   },
   "recaptcha": {
     "tabTitle": "reCAPTCHA",
@@ -26873,8 +26873,8 @@ const fr = {
     "setupGuideTitle": "Configuration rapide (3 étapes)",
     "setupStep1": "Créez un site reCAPTCHA sur",
     "setupStep2": "Choisissez le type {type} lors de l'enregistrement du site.",
-    "setupStep3": "Collez la clé du site et la clé secrète dans",
-    "setupStep3Path": "Intégrations → reCAPTCHA",
+    "setupStep3": "Copiez les clés générées, puis accédez à",
+    "setupStep3Path": "Intégrations → reCAPTCHA dans la barre latérale, collez-les dans Site Key et Secret Key et enregistrez.",
     "setupStep4": "Enregistrez cette campagne : le défi s'activera immédiatement."
   },
   "recaptcha": {
@@ -28692,8 +28692,8 @@ const de = {
     "setupGuideTitle": "Schnelle Einrichtung (3 Schritte)",
     "setupStep1": "Erstellen Sie eine reCAPTCHA-Site unter",
     "setupStep2": "Wählen Sie bei der Registrierung der Site den Typ {type}.",
-    "setupStep3": "Fügen Sie den Site-Schlüssel und den geheimen Schlüssel ein",
-    "setupStep3Path": "Integrationen → reCAPTCHA",
+    "setupStep3": "Kopieren Sie die generierten Schlüssel und gehen Sie zu",
+    "setupStep3Path": "Integrationen → reCAPTCHA in der Seitenleiste, fügen Sie sie in Site Key und Secret Key ein und speichern Sie.",
     "setupStep4": "Speichern Sie diese Kampagne – die Challenge wird sofort aktiviert."
   },
   "recaptcha": {

@@ -1828,8 +1828,8 @@ export default {
         setupGuideTitle: "Быстрая настройка (3 шага)",
         setupStep1: "Создайте сайт reCAPTCHA в панели",
         setupStep2: "Выберите тип {type} при регистрации сайта.",
-        setupStep3: "Вставьте Site Key и Secret Key в разделе",
-        setupStep3Path: "Интеграции → reCAPTCHA",
+        setupStep3: "Скопируйте сгенерированные ключи, перейдите в раздел",
+        setupStep3Path: "Интеграции → reCAPTCHA в боковом меню, вставьте их в Site Key и Secret Key и сохраните.",
         setupStep4: "Сохраните эту кампанию — защита активируется сразу."
     },
     recaptcha: {

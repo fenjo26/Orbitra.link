@@ -1777,12 +1777,12 @@ export default {
         "noKeysWarning": "reCAPTCHA keys are not configured. Go to Integrations → reCAPTCHA to add them.",
         "infoEmailTitle": "Recommended for email traffic",
         "infoEmailDesc": "Corporate email security gateways auto-click all links in emails, creating thousands of fake clicks. The Bot Challenge filters them out before they ever reach your stats.",
-        "setupGuideTitle": "Quick setup (3 steps)",
-        "setupStep1": "Create a reCAPTCHA site at",
-        "setupStep2": "Choose type {type} when registering the site.",
-        "setupStep3": "Вставте ключ сайту та секретний ключ",
-        "setupStep3Path": "Інтеграції → reCAPTCHA",
-        "setupStep4": "Збережіть цю кампанію — завдання активується негайно."
+        "setupGuideTitle": "Швидке налаштування (3 кроки)",
+        "setupStep1": "Створіть сайт reCAPTCHA на сторінці",
+        "setupStep2": "Виберіть тип {type} при реєстрації сайту.",
+        "setupStep3": "Скопіюйте згенеровані ключі, перейдіть до розділу",
+        "setupStep3Path": "Інтеграції → reCAPTCHA в боковому меню, вставте їх у Site Key та Secret Key та збережіть.",
+        "setupStep4": "Збережіть цю кампанію — захист активується миттєво."
     },
     "recaptcha": {
         "tabTitle": "reCAPTCHA",

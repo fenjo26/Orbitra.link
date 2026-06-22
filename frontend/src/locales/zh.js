@@ -1777,12 +1777,12 @@ export default {
         "noKeysWarning": "reCAPTCHA keys are not configured. Go to Integrations → reCAPTCHA to add them.",
         "infoEmailTitle": "Recommended for email traffic",
         "infoEmailDesc": "Corporate email security gateways auto-click all links in emails, creating thousands of fake clicks. The Bot Challenge filters them out before they ever reach your stats.",
-        "setupGuideTitle": "Quick setup (3 steps)",
-        "setupStep1": "Create a reCAPTCHA site at",
-        "setupStep2": "Choose type {type} when registering the site.",
-        "setupStep3": "Paste the Site Key and Secret Key in",
-        "setupStep3Path": "Integrations → reCAPTCHA",
-        "setupStep4": "Save this campaign — the challenge will activate immediately."
+        "setupGuideTitle": "快速设置 (3步)",
+        "setupStep1": "在以下页面创建一个 reCAPTCHA 网站",
+        "setupStep2": "注册网站时选择类型 {type}。",
+        "setupStep3": "复制生成的密钥，然后转到",
+        "setupStep3Path": "侧边栏中的 集成 → reCAPTCHA，将其粘贴到 Site Key 和 Secret Key 中并保存。",
+        "setupStep4": "保存此广告活动 — 验证挑战将立即激活。"
     },
     "recaptcha": {
         "tabTitle": "reCAPTCHA",

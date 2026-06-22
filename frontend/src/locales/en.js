@@ -1828,8 +1828,8 @@ export default {
         setupGuideTitle: "Quick setup (3 steps)",
         setupStep1: "Create a reCAPTCHA site at",
         setupStep2: "Choose type {type} when registering the site.",
-        setupStep3: "Paste the Site Key and Secret Key in",
-        setupStep3Path: "Integrations → reCAPTCHA",
+        setupStep3: "Copy the generated keys, then navigate to",
+        setupStep3Path: "Integrations → reCAPTCHA (in the sidebar), paste them into Site Key and Secret Key, and save.",
         setupStep4: "Save this campaign — the challenge will activate immediately."
     },
     recaptcha: {

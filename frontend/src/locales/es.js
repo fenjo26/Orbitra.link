@@ -1777,11 +1777,11 @@ export default {
         "noKeysWarning": "reCAPTCHA keys are not configured. Go to Integrations → reCAPTCHA to add them.",
         "infoEmailTitle": "Recommended for email traffic",
         "infoEmailDesc": "Corporate email security gateways auto-click all links in emails, creating thousands of fake clicks. The Bot Challenge filters them out before they ever reach your stats.",
-        "setupGuideTitle": "Quick setup (3 steps)",
-        "setupStep1": "Create a reCAPTCHA site at",
-        "setupStep2": "Choose type {type} when registering the site.",
-        "setupStep3": "Pegue la clave del sitio y la clave secreta",
-        "setupStep3Path": "Integraciones → reCAPTCHA",
+        "setupGuideTitle": "Configuración rápida (3 pasos)",
+        "setupStep1": "Cree un sitio de reCAPTCHA en la página",
+        "setupStep2": "Elija el tipo {type} al registrar el sitio.",
+        "setupStep3": "Copie las claves generadas, luego vaya a",
+        "setupStep3Path": "Integraciones → reCAPTCHA en el menú lateral, péguelas en Site Key y Secret Key y guarde.",
         "setupStep4": "Guarde esta campaña: el desafío se activará inmediatamente."
     },
     "recaptcha": {
