@@ -2747,16 +2747,209 @@ try {
                     'postback_url_template' => ''
                 ],
                 [
+                    'name' => 'onewin',
+                    'display_name' => '1win.run',
+                    'offer_params_template' => '&sub1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub1}&payout={amount}&status=[REPLACE]&currency=[ISO]&from=1win.run',
+                    'notes_template' => "1. В кабинете 1win зайдите в PR Инструменты - Ссылки. Колонка Действия - нажмите на иконку ссылки.\n\n2. В Postback Url status=[REPLACE] заменить на:\n\nstatus=lead - для Регистрации\n\nstatus=sale - для Первого депозита\n\nstatus=sale&tid={event_id} - для Депозита\n\ncurrency=[ISO] - заменить валюту в формате iso (пример: currency=usd)"
+                ],
+                [
+                    'name' => 'twentytwobet',
+                    'display_name' => '22BET.com',
+                    'offer_params_template' => '&sub_id={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub_id}&status={status}&lead_status=reg&sale_status=ftd,bl&from=22BET.com'
+                ],
+                [
+                    'name' => 'fourrabet',
+                    'display_name' => '4rabetpartner.com',
+                    'offer_params_template' => '&sub_id2={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub_id2}&payout={revenue}&currency={currency}&status={goal}&tid={id}&from=4rabetpartner.com'
+                ],
+                [
+                    'name' => 'advertise',
+                    'display_name' => 'Advertise.net',
+                    'offer_params_template' => '&tid={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={tid}&payout={amount}&status={status}&lead_status=processing&sale_status=approved&rejected_status=rejected&offer_id={offer_id}&offer_name={offer_name}&source_name={source_name}&order_sum={amount}&currency={currency}&from=advertise.net'
+                ],
+                [
+                    'name' => 'alfaleads',
+                    'display_name' => 'Alfaleads.net',
+                    'offer_params_template' => '&sub1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?sub_id={sub1}&status=[REPLACE]&payout={sum}&from=alfaleads.net'
+                ],
+                [
+                    'name' => 'appsflyer',
+                    'display_name' => 'AppsFlyer.com',
+                    'offer_params_template' => '&af_sub1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={Sub Param 1}&payout={Event Revenue USD}&tid={AppsFlyer ID}&currency=usd&status=sale&from=AppsFlyer.com'
+                ],
+                [
+                    'name' => 'boomerang',
+                    'display_name' => 'Boomerang-partners.com',
+                    'offer_params_template' => '&visit_id={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid=${visit_id}&status=REPLACE&from=boomerang-partners.com'
+                ],
+                [
+                    'name' => 'biamo',
+                    'display_name' => 'Biamopartners.com',
+                    'offer_params_template' => '&subacc4={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={subacc4}&payout={revenue}&status={status}&lead_status=hold&sale_status=confirmed&tid={trans_id}&currency=usd&from=biamopartners.com'
+                ],
+                [
+                    'name' => 'cataffs',
+                    'display_name' => 'Cataffs.team',
+                    'offer_params_template' => '&ClickID={subid}&WebID={campaign_id}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid=${ClickID}&status=REPLACE&payout=XX&currency=usd&from=Cataffs.team'
+                ],
+                [
+                    'name' => 'cpabro',
+                    'display_name' => 'Cpabro.vip',
+                    'offer_params_template' => '&track_id={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={track_id}&tid={action}&payout={income}&status={action}_{status}&currency={currency}&lead_status=reg_confirmed&sale_status=first_dep_confirmed&ignore_status=dep_confirmed&from=cpabro.vip'
+                ],
+                [
+                    'name' => 'enot',
+                    'display_name' => 'Enot.partners',
+                    'offer_params_template' => '&aff_click_id={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={payout}&currency=usd&status=REPLACE&from=enot.partners'
+                ],
+                [
+                    'name' => 'gamblingpro',
+                    'display_name' => 'Gambling.pro',
+                    'offer_params_template' => '&pid={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?payout={income}&status={action}&subid={pid}&currency=usd&lead_status=reg&sale_status=first_dep&from=gambling.pro'
+                ],
+                [
+                    'name' => 'ggbetaff',
+                    'display_name' => 'GGBetAff',
+                    'offer_params_template' => '&click_id={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=REPLACE&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=##CURRENCY##&from=GGBetAff',
+                    'notes_template' => "На боковой панели слева перейдите в раздел Постбеки. Выберите событие, бренд и оффер и заполните Postback URL\n\nЗамените status=REPLACE на:\n\nstatus=lead - для Registration\n\nstatus=sale - для Lead Hold\n\nstatus=rejected - для Lead Reject"
+                ],
+                [
+                    'name' => 'hellpartners',
+                    'display_name' => 'Hellpartners.com',
+                    'offer_params_template' => '&subid={subid}&dynamic={sub_id_1}&dynamic1={sub_id_2}&cpapayout={CHANGE_FOR_SUMM}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid=[subid]&status=REPLACE&payout=[cpapayout]&currency=eur&tid=[tid]&from=Hellpartners.com',
+                    'notes_template' => "Для события reg замените REPLACE на lead\n\nДля события ftd замените REPLACE на sale\n\nПередайте обе ссылки менеджеру партнерской сети\n\nВ поле Параметры для оффера замените CHANGE_FOR_SUMM на выплата по CPA."
+                ],
+                [
+                    'name' => 'jimpartners',
+                    'display_name' => 'Jimpartners.com',
+                    'offer_params_template' => '&clickid={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={clickid}&status=REPLACE&payout={paysum}&currency=USD&from=jimpartners.com'
+                ],
+                [
                     'name' => 'leadbit',
-                    'display_name' => 'Leadbit',
+                    'display_name' => 'Leadbit.com',
                     'offer_params_template' => '&sub1={subid}&sub2={ip}',
-                    'postback_url_template' => ''
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub1}&payout={cost}&status={status}&currency=usd&tid={id}&offer_landing={landing}&flow={flow}&lead_status=new&sale_status=confirm&rejected_status=reject,decline,invalid,trash&from=leadbit.com'
+                ],
+                [
+                    'name' => 'm1shop',
+                    'display_name' => 'M1-shop.ru',
+                    'offer_params_template' => '&s={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?sub_id={s}&sub_id_1={w}&sub_id_2={t}&status={status}&lead_status=new&sale_status=approved&rejected_status=rejected,declined&payout={web_total}&currency=rub&from=M1-shop.ru'
                 ],
                 [
                     'name' => 'm4leads',
-                    'display_name' => 'M4Leads',
-                    'offer_params_template' => '&s={subid}',
-                    'postback_url_template' => ''
+                    'display_name' => 'M4leads.com',
+                    'offer_params_template' => '&sub_id1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid=[sub_id1]&tid=[order_id]&payout=[price]&status=[status]&from=m4leads.com'
+                ],
+                [
+                    'name' => 'mbpartners',
+                    'display_name' => 'MB.partners',
+                    'offer_params_template' => '&cid={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={cid}&status=REPLACE&payout={payout}&currency=usd&from=MB.partners',
+                    'notes_template' => "Скопируйте ссылку постбека.\n\nДля события Лид замените REPLACE на lead\n\nДля события Продажа замените REPLACE на sale\n\nК ссылке постбека для статуса sale допишите: &tid={payment.id}"
+                ],
+                [
+                    'name' => 'melbetaffiliate',
+                    'display_name' => 'Melbetaffiliates.com',
+                    'offer_params_template' => '&click_id={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={click_id}&status=REPLACE&payout={amount}&currency=usd&from=Melbetaffiliates.com'
+                ],
+                [
+                    'name' => 'mostbetcpa',
+                    'display_name' => 'Mostbet.partners(cpa)',
+                    'offer_params_template' => '&sub1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub1}&payout={profit}&status={status}&lead_status=registration,active&sale_status=fd_approved,fdp&rejected_status=fd_rejected&sub_id_15={fdp_usd}&sub_id_16={id}&sub_id_17={landing}&sub_id_18={dep_sum_usd}&from=mostbet.partners(cpa)'
+                ],
+                [
+                    'name' => 'mostbetrs',
+                    'display_name' => 'Mostbet.partners(revshare)',
+                    'offer_params_template' => '&sub1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub1}&payout={rs}&status=REPLACE&currency=usd&sub_id_15={id}&sub_id_16={periodFrom}&sub_id_17={periodTill}&sub_id_18={dep_count}&sub_id_19={dep_sum}&sub_id_20={bid_win}&sub_id_21={bid_loss}&from=mostbet.partners(revshare)'
+                ],
+                [
+                    'name' => 'nutramedia',
+                    'display_name' => 'Nutra.Media',
+                    'offer_params_template' => '&data1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={data1}&payout={profit}&status={status}&lead_status=waiting&sale_status=approved&rejected_status=declined,trash&currency=rub&from=Nutra.Media'
+                ],
+                [
+                    'name' => 'cparip',
+                    'display_name' => 'Partners.cpa.rip',
+                    'offer_params_template' => '&aff_click_id={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={payout}&status={goal_alias}&currency={offer_currency}&deposit_status=fdp,first_dep&rejected_status=rejected,trash&from=Partners.cpa.rip',
+                    'notes_template' => "1. В кабинете Partners.cpa.rip зайдите в Инструменты - Глобальный Постбек - Добавить глобальный постбек.\n\n2. Выполняется для - Все. Тип цели - CPA.\n\n3. Вставьте Postback URL в поле Постбек."
+                ],
+                [
+                    'name' => 'pinuppartners',
+                    'display_name' => 'Pin-up.partners',
+                    'offer_params_template' => '&subId1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={subId1}&payout={payment}&currency={currency}&status=[REPLACE]&from=pin-up.partners'
+                ],
+                [
+                    'name' => 'profitov',
+                    'display_name' => 'Profitov.Partners',
+                    'offer_params_template' => '&sub4={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub4}&status=REPLACE&tid={transactionid}_{goal}&payout={sum}&currency={currency}&from=Profitov.Partners'
+                ],
+                [
+                    'name' => 'q3network',
+                    'display_name' => 'Q3.network',
+                    'offer_params_template' => '&sub1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status=[REPLACE]&currency=[REPLACE]&from=q3.network'
+                ],
+                [
+                    'name' => 'riddick',
+                    'display_name' => 'Riddick.guru',
+                    'offer_params_template' => '&subids.1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?sub_id={subids.1}&status={status}&payout={revenue}&lead_status=in_progress&sale_status=confirmed&rejected_status=cancelled,invalid&currency={currency}&from=Riddick.guru'
+                ],
+                [
+                    'name' => 'royalpartners',
+                    'display_name' => 'Royal.partners',
+                    'offer_params_template' => '&ctag={subid}&btag={campaign_id}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid=${ctag}&status=REPLACE&payout=${amount}&currency=${currency}&tid=${deposit_id}&player_id=${player_id}&from=Royal.partners',
+                    'notes_template' => "Скопируйте ссылку постбека.\n\nДля события Лид замените REPLACE на lead\n\nДля события Продажа замените REPLACE на sale"
+                ],
+                [
+                    'name' => 'vulkanbet',
+                    'display_name' => 'Vulkan.bet',
+                    'offer_params_template' => '&CLICK_ID={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##TRANS_ID##&payout=##CPA_AMOUNT##&currency=eur&status=replace&sub_id_1=##IP_REG##&sub_id_2=##POSTBACK_ID##&from=Vulkan.bet'
+                ],
+                [
+                    'name' => 'vulkanpartner',
+                    'display_name' => 'Vulkanpartner.com',
+                    'offer_params_template' => '&param1={subid}&utm_source={source}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={param1}&tid={conversion_id}&payout={commission_total}&status={conversion_status}&currency=usd&offer_id={offer_id}&offer_title={offer_title}&from=vulkanpartner.com'
+                ],
+                [
+                    'name' => 'welcomepartners',
+                    'display_name' => 'WelcomePartners',
+                    'offer_params_template' => '&click_id={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=reg,dep,lead,approve,reject,rebill&lead_status=reg,dep,lead&sale_status=approve,rebill&rejected_status=reject&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=##CURRENCY##&from=WelcomePartners',
+                    'notes_template' => "Ссылку Postback Url нужно отдать менеджеру партнерской сети."
+                ],
+                [
+                    'name' => 'xpartners',
+                    'display_name' => 'X-partners.com',
+                    'offer_params_template' => '&sub1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub1}&status={status}&payout={sum}&currency={currency}&lead_status=1%2C2&rejected_status=3&from=x-partners.com'
                 ],
                 [
                     'name' => 'drcash',
@@ -2785,12 +2978,6 @@ try {
                 [
                     'name' => 'lemonad',
                     'display_name' => 'LemonAD',
-                    'offer_params_template' => '&subid={subid}',
-                    'postback_url_template' => ''
-                ],
-                [
-                    'name' => 'melbetaffiliate',
-                    'display_name' => 'MelbetAffiliate',
                     'offer_params_template' => '&subid={subid}',
                     'postback_url_template' => ''
                 ],

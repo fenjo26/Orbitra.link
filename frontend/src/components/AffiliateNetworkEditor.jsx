@@ -60,10 +60,20 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
     const handleTemplateChange = (templateName) => {
         const template = templates.find(t => t.name === templateName);
         if (template) {
+            let postbackUrl = '';
+            if (template.postback_url_template) {
+                const protocol = window.location.protocol;
+                const host = window.location.host;
+                postbackUrl = template.postback_url_template
+                    .replace('{domain}', host)
+                    .replace('{postback_key}', postbackKey);
+            }
             setFormData({
                 ...formData,
                 template: templateName,
-                offer_params: template.offer_params_template || formData.offer_params
+                offer_params: template.offer_params_template || '',
+                postback_url: postbackUrl || formData.postback_url,
+                notes: template.notes_template || ''
             });
         }
     };
