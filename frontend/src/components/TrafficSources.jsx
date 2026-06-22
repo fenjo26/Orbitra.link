@@ -234,7 +234,7 @@ const TrafficSources = ({ refreshData }) => {
                         type="button"
                         onClick={checkAllUrls}
                         className="btn btn-ghost btn-icon"
-                        title="Проверить все URL"
+                        title={t('sources.checkAllUrls')}
                         disabled={checkingUrls}
                     >
                         <Globe className={`w-5 h-5 ${checkingUrls ? 'animate-pulse' : ''}`} />
@@ -254,7 +254,7 @@ const TrafficSources = ({ refreshData }) => {
                     </button>
                     <button type="button" onClick={() => setShowBulkImport(true)} className="btn btn-secondary">
                         <Upload size={18} />
-                        <span>Импорт</span>
+                        <span>{t('sources.importBtn')}</span>
                     </button>
                 </div>
             </div>
@@ -314,7 +314,7 @@ const TrafficSources = ({ refreshData }) => {
                                         />
                                     </th>
                                     <th>{t('editor.name')}</th>
-                                    <th>URL / Статус</th>
+                                    <th>{t('sources.urlStatus')}</th>
                                     <th>{t('sources.template')}</th>
                                     <th>{t('campaigns.campaigns')}</th>
                                     <th>{t('components.clicks')}</th>
@@ -362,7 +362,7 @@ const TrafficSources = ({ refreshData }) => {
                                                                     className="text-xs hover:underline"
                                                                     style={{ color: 'var(--color-primary)' }}
                                                                 >
-                                                                    Проверить
+                                                                    {t('sources.check')}
                                                                 </button>
                                                             </div>
                                                         )}
@@ -372,7 +372,7 @@ const TrafficSources = ({ refreshData }) => {
                                                                 className="text-xs hover:underline"
                                                                 style={{ color: 'var(--color-primary)' }}
                                                             >
-                                                                Проверить
+                                                                {t('sources.check')}
                                                             </button>
                                                         ) : null}
                                                     </div>

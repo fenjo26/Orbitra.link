@@ -86,7 +86,7 @@ const Domains = ({ campaigns }) => {
     };
 
     const forceCheckAllDns = async () => {
-        if (!window.confirm(t('domains.forceCheckConfirm') || 'Проверить DNS для всех доменов? Это может занять время.')) return;
+        if (!window.confirm(t('domains.forceCheckConfirm'))) return;
         setForceChecking(true);
         try {
             const { data } = await cachedGet('force_check_all_dns');
@@ -211,10 +211,10 @@ const Domains = ({ campaigns }) => {
                         onClick={forceCheckAllDns}
                         disabled={forceChecking}
                         className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition"
-                        title="Принудительно проверить DNS для всех доменов"
+                        title={t('domains.forceCheckTitle')}
                     >
                         <RefreshCw size={16} className={forceChecking ? 'animate-spin' : ''} />
-                        {forceChecking ? t('common.checking') || 'Проверка...' : 'Проверить DNS'}
+                        {forceChecking ? t('domains.checkingShort') : t('domains.checkDns')}
                     </button>
                     <button
                         onClick={() => {

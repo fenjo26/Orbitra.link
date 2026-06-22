@@ -1,6 +1,6 @@
 {
-    "version": "0.9.3.7",
-    "release_notes": "New traffic source and affiliate network templates. Added an 'Email' traffic source template for email marketers (pre-fills subscriber_id, campaign_id, list_id, broadcast_id, esp sub-parameters to map your ESP's merge tags). Added platform-level affiliate network templates — Everflow, CAKE, HitPath, Affise and TUNE/HasOffers — so any smaller network running on those platforms can be connected by picking the platform template, instead of needing a per-company entry. The offer sub-parameter for each platform is pre-filled with that platform's standard click-id field (Everflow sub1, CAKE s1, HitPath c1, Affise sub1, TUNE aff_sub).",
+    "version": "0.9.3.8",
+    "release_notes": "i18n cleanup and English README. Moved hardcoded Russian UI strings into the translation system (en.js/ru.js) across the bulk-import dialog, traffic sources, source editor, domains and migrations pages, so the interface follows the selected language everywhere. Traffic-source and affiliate-network template names (including the new Email and platform templates) are now localized instead of being hardcoded on the backend. English and Russian locales are now at full key parity. The README has been fully translated to English for the international audience.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-06-21"
+    "released_at": "2026-06-22"
 }

@@ -144,7 +144,7 @@ const Offers = ({ offers, refreshData }) => {
         const ids = Array.from(selectedOfferIds);
         if (ids.length === 0) return;
 
-        const confirmMsg = t('offers.bulkCopyConfirm') || 'Скопировать выбранные офферы?';
+        const confirmMsg = t('offers.bulkCopyConfirm');
         if (!window.confirm(confirmMsg)) return;
 
         let successCount = 0;
@@ -160,11 +160,11 @@ const Offers = ({ offers, refreshData }) => {
         }
 
         if (successCount > 0) {
-            alert(`${t('offers.copied') || 'Скопировано'}: ${successCount}`);
+            alert(`${t('offers.copied')}: ${successCount}`);
             refreshData();
         }
         if (errorCount > 0) {
-            alert(`${t('offers.copyErrors') || 'Ошибок'}: ${errorCount}`);
+            alert(`${t('offers.copyErrors')}: ${errorCount}`);
         }
 
         setSelectedOfferIds(new Set());
@@ -282,9 +282,9 @@ const Offers = ({ offers, refreshData }) => {
                     </button>
                     {selectedOfferIds.size > 0 && (
                         <>
-                            <button onClick={handleBulkCopySelected} className="btn btn-success" title={t('offers.copySelected') || 'Копировать'}>
+                            <button onClick={handleBulkCopySelected} className="btn btn-success" title={t('offers.copySelected')}>
                                 <Copy className="w-4 h-4" />
-                                {(t('offers.copySelected') || 'Копировать')} ({selectedOfferIds.size})
+                                {(t('offers.copySelected'))} ({selectedOfferIds.size})
                             </button>
                             <button onClick={handleBulkDeleteSelected} className="btn btn-danger" title={t('common.deleteSelected')}>
                                 <Trash2 className="w-4 h-4" />

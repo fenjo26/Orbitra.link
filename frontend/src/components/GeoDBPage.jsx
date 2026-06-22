@@ -70,7 +70,7 @@ const GeoDBPage = () => {
             });
             const data = await res.json();
             if (data.status === 'success') {
-                setMessage(t('geoDb.updateSuccess') || 'База успешно обновлена');
+                setMessage(t('geoDb.updateSuccess'));
                 setUpdateProgress(prev => ({ ...prev, [id]: { status: 'success', progress: 100 } }));
                 fetchDbs();
             } else {

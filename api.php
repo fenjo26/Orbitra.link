@@ -1918,7 +1918,7 @@ try {
                 ],
                 [
                     'name' => 'custom',
-                    'display_name' => 'Свой источник',
+                    'display_name' => 'Custom source',
                     'postback_url' => '',
                     'parameters' => []
                 ],
@@ -2701,38 +2701,38 @@ try {
             $templates = [
                 [
                     'name' => 'generic',
-                    'display_name' => 'Универсальная',
+                    'display_name' => 'Generic',
                     'offer_params_template' => '&subid={subid}',
                     'postback_url_template' => ''
                 ],
                 // --- Platform-level templates: work with ANY network running on these platforms ---
                 [
                     'name' => 'everflow',
-                    'display_name' => 'Everflow (платформа)',
+                    'display_name' => 'Everflow (platform)',
                     'offer_params_template' => '&sub1={subid}',
                     'postback_url_template' => ''
                 ],
                 [
                     'name' => 'cake',
-                    'display_name' => 'CAKE (платформа)',
+                    'display_name' => 'CAKE (platform)',
                     'offer_params_template' => '&s1={subid}',
                     'postback_url_template' => ''
                 ],
                 [
                     'name' => 'hitpath',
-                    'display_name' => 'HitPath (платформа)',
+                    'display_name' => 'HitPath (platform)',
                     'offer_params_template' => '&c1={subid}',
                     'postback_url_template' => ''
                 ],
                 [
                     'name' => 'affise',
-                    'display_name' => 'Affise (платформа)',
+                    'display_name' => 'Affise (platform)',
                     'offer_params_template' => '&sub1={subid}',
                     'postback_url_template' => ''
                 ],
                 [
                     'name' => 'tune',
-                    'display_name' => 'TUNE / HasOffers (платформа)',
+                    'display_name' => 'TUNE / HasOffers (platform)',
                     'offer_params_template' => '&aff_sub={subid}',
                     'postback_url_template' => ''
                 ],
@@ -2786,7 +2786,7 @@ try {
                 ],
                 [
                     'name' => 'custom',
-                    'display_name' => 'Своя сеть',
+                    'display_name' => 'Custom network',
                     'offer_params_template' => '',
                     'postback_url_template' => ''
                 ],

@@ -389,7 +389,7 @@ set -euo pipefail
 
 source /etc/keitaro/env/inventory.env
 
-# Конфиг чтобы не светить пароль в командной строке
+# Config to avoid exposing the password on the command line
 cat > /root/keitaro-mariadb.cnf <<EOF
 [client]
 user=$MARIADB_KEITARO_USER
@@ -400,7 +400,7 @@ protocol=tcp
 EOF
 chmod 600 /root/keitaro-mariadb.cnf
 
-# Список "настроечных" таблиц, которые нужны для миграции (без логов/кликов/рефов и т.п.)
+# List of "settings" tables needed for migration (excluding logs/clicks/refs etc.)
 SQL_LIST="
 SELECT table_name
 FROM information_schema.tables
@@ -488,13 +488,13 @@ echo "DONE: $OUT"
                                             whiteSpace: 'pre-wrap',
                                             fontFamily: 'monospace'
                                         }}>
-{`# Скачать в текущую папку:
+{`# Download to the current folder:
 scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz .
 
-# Скачать в Downloads (macOS/Linux):
+# Download to Downloads (macOS/Linux):
 scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz ~/Downloads/
 
-# Скачать в Downloads (Windows PowerShell):
+# Download to Downloads (Windows PowerShell):
 scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz $env:USERPROFILE\\Downloads\\`}
                                         </code>
                                     </div>
@@ -605,7 +605,7 @@ scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz $env:USERPROFI
                     <>
                         {kResult?.dry_run ? (
                             <div className="alert alert-warning mt-4">
-                                {t('migrations.keitaroDryRun')} (dry_run=1). Данные не были записаны в Orbitra. Нажми "{t('migrations.keitaroImportBtn')}" для реального импорта.
+                                {t('migrations.keitaroDryRun')} (dry_run=1). {t('migrations.dryRunNote1')} "{t('migrations.keitaroImportBtn')}" {t('migrations.dryRunNote2')}
                             </div>
                         ) : null}
                         <div className="alert alert-success mt-4" style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '12px' }}>

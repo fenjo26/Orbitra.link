@@ -170,8 +170,8 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                                             onChange={(e) => handleTemplateChange(e.target.value)}
                                             className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white"
                                         >
-                                            {templates.map((t) => (
-                                                <option key={t.name} value={t.name}>{t.display_name}</option>
+                                            {templates.map((tmpl) => (
+                                                <option key={tmpl.name} value={tmpl.name}>{t('tpl.net_' + tmpl.name, tmpl.display_name)}</option>
                                             ))}
                                         </select>
                                     </div>
@@ -210,7 +210,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                                     </button>
                                 </div>
                                 <div className="text-xs text-blue-600">
-                                    <strong>{t('networkEditor.paramsToAdd')}</strong> ?subid={'{макрос_субид}'}&status={'{макрос_статуса}'}&payout={'{макрос_суммы}'}
+                                    <strong>{t('networkEditor.paramsToAdd')}</strong> ?subid={'{subid_macro}'}&status={'{status_macro}'}&payout={'{payout_macro}'}
                                 </div>
                             </div>
 

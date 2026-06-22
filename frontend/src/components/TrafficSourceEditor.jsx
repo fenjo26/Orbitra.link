@@ -6,7 +6,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 const API_URL = '/api.php';
 
 const TrafficSourceEditor = ({ id, onClose, onSave }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [templates, setTemplates] = useState([]);
     const [formData, setFormData] = useState({
@@ -155,15 +155,15 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
                                     onChange={(e) => handleTemplateChange(e.target.value)}
                                     className="form-select"
                                 >
-                                    <option value="">⚡ Кастомный источник (без шаблона)</option>
+                                    <option value="">⚡ {t('sourceEditor.noTemplateOption')}</option>
                                     <option disabled>──────────</option>
-                                    {templates.map(t => (
-                                        <option key={t.name} value={t.name}>{t.display_name}</option>
+                                    {templates.map(tmpl => (
+                                        <option key={tmpl.name} value={tmpl.name}>{t('tpl.src_' + tmpl.name, tmpl.display_name)}</option>
                                     ))}
                                 </select>
                                 <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
                                     {!formData.template
-                                        ? "Создайте свой источник — просто укажите имя и URL ниже. Шаблон не обязателен."
+                                        ? t('sourceEditor.noTemplateHint')
                                         : t('sourceEditor.templateHint')
                                     }
                                 </p>
@@ -181,9 +181,9 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
                                 />
                             </div>
 
-                            {/* URL для проверки доступности */}
+                            {/* URL for availability check */}
                             <div>
-                                <label className="form-label">URL (для проверки)</label>
+                                <label className="form-label">{t('sourceEditor.checkUrlLabel')}</label>
                                 <input
                                     type="url"
                                     value={formData.url || ''}
@@ -194,11 +194,11 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
                                 {formData.http_status && formData.http_status !== 'unknown' && (
                                     <div className="flex items-center gap-2 mt-1">
                                         <span className={`text-xs ${formData.http_status === '200' ? 'text-green-600' : 'text-red-600'}`}>
-                                            {formData.http_status === '200' ? '✓ Доступен' : `✗ ${formData.http_status}`}
+                                            {formData.http_status === '200' ? `✓ ${t('sourceEditor.available')}` : `✗ ${formData.http_status}`}
                                         </span>
                                         {formData.last_checked && (
                                             <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                                                Проверено: {new Date(formData.last_checked).toLocaleString('ru-RU')}
+                                                {t('sourceEditor.checkedAt')}: {new Date(formData.last_checked).toLocaleString(language === 'ru' ? 'ru-RU' : 'en-US')}
                                             </span>
                                         )}
                                     </div>

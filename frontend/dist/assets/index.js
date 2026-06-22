@@ -15899,6 +15899,35 @@ const __iconNode = [
 ];
 const Zap = createLucideIcon("zap", __iconNode);
 const ru = {
+  tpl: {
+    src_email: "Email",
+    src_custom: "Свой источник",
+    net_generic: "Универсальная",
+    net_custom: "Своя сеть",
+    net_everflow: "Everflow (платформа)",
+    net_cake: "CAKE (платформа)",
+    net_hitpath: "HitPath (платформа)",
+    net_affise: "Affise (платформа)",
+    net_tune: "TUNE / HasOffers (платформа)"
+  },
+  bulkImport: {
+    enterUrl: "Введите хотя бы один URL",
+    title: "Массовый импорт источников",
+    formatTitle: "Формат ввода:",
+    urlOnly: "Только URL",
+    nameAndUrl: "Имя и URL",
+    mySource: "Мой источник",
+    onePerLine: "Один источник на строку",
+    listLabel: "Список источников",
+    linesSuffix: "строк",
+    resultTitle: "Результат импорта:",
+    added: "Добавлено",
+    duplicates: "Дубликаты",
+    errors: "Ошибки",
+    andMore: "и ещё",
+    importing: "Импорт...",
+    importBtn: "Импортировать"
+  },
   common: {
     save: "Сохранить изменения",
     saving: "Сохранение...",
@@ -16282,7 +16311,11 @@ const ru = {
     infoList2: "• Настройте параметры для передачи меток в кампанию",
     infoList3: "• Укажите S2S Postback URL для отправки конверсий обратно в источник",
     infoList4: "• Привяжите источник к кампании для автоматической подстановки параметров",
-    deleteConfirm: "Удалить этот источник? Кампании будут отвязаны."
+    deleteConfirm: "Удалить этот источник? Кампании будут отвязаны.",
+    checkAllUrls: "Проверить все URL",
+    importBtn: "Импорт",
+    urlStatus: "URL / Статус",
+    check: "Проверить"
   },
   networks: {
     title: "Партнерские сети",
@@ -16351,6 +16384,9 @@ const ru = {
     dnsNote2: "Следующая проверка при обновлении страницы.",
     forceCheckConfirm: "Проверить DNS для всех доменов? Это может занять время.",
     forceChecking: "Проверка DNS...",
+    forceCheckTitle: "Принудительно проверить DNS для всех доменов",
+    checkDns: "Проверить DNS",
+    checkingShort: "Проверка...",
     bulkHint: "несколько через запятую",
     bulkPlaceholder: "domain1.com, domain2.com, domain3.com",
     bulkExample: "Пример: tracker1.com, tracker2.com, tracker3.com",
@@ -16427,6 +16463,7 @@ const ru = {
     ram: "RAM",
     cpuLoad: "CPU (Load)",
     free: "свободно",
+    of: "из",
     cores: "ядер",
     clicks: "Кликов",
     conversions: "Конверсий",
@@ -16898,6 +16935,11 @@ const ru = {
     templateLabel: "Шаблон источника",
     selectTemplate: "-- Выберите шаблон --",
     templateHint: "Выберите шаблон для автоматического заполнения параметров",
+    noTemplateOption: "Кастомный источник (без шаблона)",
+    noTemplateHint: "Создайте свой источник — просто укажите имя и URL ниже. Шаблон не обязателен.",
+    checkUrlLabel: "URL (для проверки)",
+    available: "Доступен",
+    checkedAt: "Проверено",
     nameLabel: "Название *",
     status: "Статус",
     active: "Активен",
@@ -17164,6 +17206,10 @@ const ru = {
   },
   geoProfiles: {
     title: "Гео-профили",
+    create: "Создать",
+    cancel: "Отмена",
+    save: "Сохранить",
+    loading: "Загрузка...",
     searchPlaceholder: "Поиск профилей...",
     noProfiles: 'Нет гео-профилей. Нажмите "Создать" для добавления.',
     notFound: "Профили не найдены",
@@ -17397,6 +17443,8 @@ const ru = {
     keitaroFileHint: "Поддерживаются .sql и .sql.gz. Дамп не выполняется как SQL, он только парсится.",
     keitaroOptions: "Опции",
     keitaroDryRun: "Предпросмотр (dry-run, без записи в БД)",
+    dryRunNote1: "Данные не были записаны в Orbitra. Нажми",
+    dryRunNote2: "для реального импорта.",
     keitaroCompanies: "Импортировать партнерки (affiliate networks)",
     keitaroOffers: "Импортировать офферы",
     keitaroDomains: "Импортировать домены",
@@ -17661,6 +17709,35 @@ const ru = {
   }
 };
 const en = {
+  tpl: {
+    src_email: "Email",
+    src_custom: "Custom source",
+    net_generic: "Generic",
+    net_custom: "Custom network",
+    net_everflow: "Everflow (platform)",
+    net_cake: "CAKE (platform)",
+    net_hitpath: "HitPath (platform)",
+    net_affise: "Affise (platform)",
+    net_tune: "TUNE / HasOffers (platform)"
+  },
+  bulkImport: {
+    enterUrl: "Enter at least one URL",
+    title: "Bulk import sources",
+    formatTitle: "Input format:",
+    urlOnly: "URL only",
+    nameAndUrl: "Name and URL",
+    mySource: "My source",
+    onePerLine: "One source per line",
+    listLabel: "Sources list",
+    linesSuffix: "lines",
+    resultTitle: "Import result:",
+    added: "Added",
+    duplicates: "Duplicates",
+    errors: "Errors",
+    andMore: "and",
+    importing: "Importing...",
+    importBtn: "Import"
+  },
   common: {
     save: "Save changes",
     saving: "Saving...",
@@ -18044,7 +18121,11 @@ const en = {
     infoList2: "• Configure parameters for passing tags into the campaign",
     infoList3: "• Specify S2S Postback URL to send conversions back to the source",
     infoList4: "• Link the source to a campaign to automatically append parameters",
-    deleteConfirm: "Delete this source? Campaigns will be unlinked."
+    deleteConfirm: "Delete this source? Campaigns will be unlinked.",
+    checkAllUrls: "Check all URLs",
+    importBtn: "Import",
+    urlStatus: "URL / Status",
+    check: "Check"
   },
   networks: {
     title: "Affiliate Networks",
@@ -18113,6 +18194,9 @@ const en = {
     dnsNote2: "Next check on page refresh.",
     forceCheckConfirm: "Check DNS for all domains? This may take a moment.",
     forceChecking: "Checking DNS...",
+    forceCheckTitle: "Force-check DNS for all domains",
+    checkDns: "Check DNS",
+    checkingShort: "Checking...",
     bulkHint: "multiple, comma-separated",
     bulkPlaceholder: "domain1.com, domain2.com, domain3.com",
     bulkExample: "Example: tracker1.com, tracker2.com, tracker3.com",
@@ -18189,6 +18273,7 @@ const en = {
     ram: "RAM",
     cpuLoad: "CPU (Load)",
     free: "free",
+    of: "of",
     cores: "cores",
     clicks: "Clicks",
     conversions: "Conversions",
@@ -18660,6 +18745,11 @@ const en = {
     templateLabel: "Source Template",
     selectTemplate: "-- Select template --",
     templateHint: "Select a template to auto-fill parameters",
+    noTemplateOption: "Custom source (no template)",
+    noTemplateHint: "Create your own source — just enter a name and URL below. A template is optional.",
+    checkUrlLabel: "URL (for availability check)",
+    available: "Available",
+    checkedAt: "Checked",
     nameLabel: "Name *",
     status: "Status",
     active: "Active",
@@ -19351,6 +19441,8 @@ const en = {
     keitaroFileHint: "Supports .sql and .sql.gz. The dump is not executed as SQL, it is only parsed.",
     keitaroOptions: "Options",
     keitaroDryRun: "Preview (dry-run, no DB writes)",
+    dryRunNote1: "Data was not written to Orbitra. Click",
+    dryRunNote2: "for a real import.",
     keitaroCompanies: "Import affiliate networks",
     keitaroOffers: "Import offers",
     keitaroDomains: "Import domains",
@@ -32950,7 +33042,7 @@ const Domains = ({ campaigns }) => {
     setShowModal(true);
   };
   const forceCheckAllDns = async () => {
-    if (!window.confirm(t("domains.forceCheckConfirm") || "Проверить DNS для всех доменов? Это может занять время.")) return;
+    if (!window.confirm(t("domains.forceCheckConfirm"))) return;
     setForceChecking(true);
     try {
       const { data } = await cachedGet("force_check_all_dns");
@@ -33068,10 +33160,10 @@ const Domains = ({ campaigns }) => {
             onClick: forceCheckAllDns,
             disabled: forceChecking,
             className: "bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition",
-            title: "Принудительно проверить DNS для всех доменов",
+            title: t("domains.forceCheckTitle"),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: forceChecking ? "animate-spin" : "" }),
-              forceChecking ? t("common.checking") || "Проверка..." : "Проверить DNS"
+              forceChecking ? t("domains.checkingShort") : t("domains.checkDns")
             ]
           }
         ),
@@ -34046,7 +34138,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   const handleBulkCopySelected = async () => {
     const ids = Array.from(selectedCampaignIds);
     if (ids.length === 0) return;
-    const confirmMsg = t("campaigns.bulkCopyConfirm") || "Скопировать выбранные кампании?";
+    const confirmMsg = t("campaigns.bulkCopyConfirm");
     if (!window.confirm(confirmMsg)) return;
     let successCount = 0;
     let errorCount = 0;
@@ -34059,11 +34151,11 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
       }
     }
     if (successCount > 0) {
-      alert(`${t("campaigns.copied") || "Скопировано"}: ${successCount}`);
+      alert(`${t("campaigns.copied")}: ${successCount}`);
       refreshData();
     }
     if (errorCount > 0) {
-      alert(`${t("campaigns.copyErrors") || "Ошибок"}: ${errorCount}`);
+      alert(`${t("campaigns.copyErrors")}: ${errorCount}`);
     }
     setSelectedCampaignIds(/* @__PURE__ */ new Set());
   };
@@ -34169,9 +34261,9 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t("campaigns.groups") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t("campaigns.sources") }),
         selectedCampaignIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkCopySelected, className: "btn btn-success", title: t("campaigns.copySelected") || "Копировать", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkCopySelected, className: "btn btn-success", title: t("campaigns.copySelected"), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }),
-            t("campaigns.copySelected") || "Копировать",
+            t("campaigns.copySelected"),
             " (",
             selectedCampaignIds.size,
             ")"
@@ -36167,7 +36259,7 @@ const Offers = ({ offers, refreshData }) => {
   const handleBulkCopySelected = async () => {
     const ids = Array.from(selectedOfferIds);
     if (ids.length === 0) return;
-    const confirmMsg = t("offers.bulkCopyConfirm") || "Скопировать выбранные офферы?";
+    const confirmMsg = t("offers.bulkCopyConfirm");
     if (!window.confirm(confirmMsg)) return;
     let successCount = 0;
     let errorCount = 0;
@@ -36180,11 +36272,11 @@ const Offers = ({ offers, refreshData }) => {
       }
     }
     if (successCount > 0) {
-      alert(`${t("offers.copied") || "Скопировано"}: ${successCount}`);
+      alert(`${t("offers.copied")}: ${successCount}`);
       refreshData();
     }
     if (errorCount > 0) {
-      alert(`${t("offers.copyErrors") || "Ошибок"}: ${errorCount}`);
+      alert(`${t("offers.copyErrors")}: ${errorCount}`);
     }
     setSelectedOfferIds(/* @__PURE__ */ new Set());
   };
@@ -36279,9 +36371,9 @@ const Offers = ({ offers, refreshData }) => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setIsGroupsModalOpen(true), className: "btn btn-secondary", children: t("campaigns.groups") }),
         selectedOfferIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkCopySelected, className: "btn btn-success", title: t("offers.copySelected") || "Копировать", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkCopySelected, className: "btn btn-success", title: t("offers.copySelected"), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }),
-            t("offers.copySelected") || "Копировать",
+            t("offers.copySelected"),
             " (",
             selectedOfferIds.size,
             ")"
@@ -36512,7 +36604,7 @@ const Offers = ({ offers, refreshData }) => {
 };
 const API_URL$p = "/api.php";
 const TrafficSourceEditor = ({ id, onClose, onSave }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
   const [templates, setTemplates] = reactExports.useState([]);
   const [formData, setFormData] = reactExports.useState({
@@ -36634,13 +36726,16 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
             onChange: (e) => handleTemplateChange(e.target.value),
             className: "form-select",
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "⚡ Кастомный источник (без шаблона)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "", children: [
+                "⚡ ",
+                t("sourceEditor.noTemplateOption")
+              ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { disabled: true, children: "──────────" }),
-              templates.map((t2) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: t2.name, children: t2.display_name }, t2.name))
+              templates.map((tmpl) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tmpl.name, children: t("tpl.src_" + tmpl.name, tmpl.display_name) }, tmpl.name))
             ]
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: !formData.template ? "Создайте свой источник — просто укажите имя и URL ниже. Шаблон не обязателен." : t("sourceEditor.templateHint") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: !formData.template ? t("sourceEditor.noTemplateHint") : t("sourceEditor.templateHint") })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.nameLabel") }),
@@ -36656,7 +36751,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "URL (для проверки)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.checkUrlLabel") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
@@ -36668,10 +36763,11 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
           }
         ),
         formData.http_status && formData.http_status !== "unknown" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mt-1", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-xs ${formData.http_status === "200" ? "text-green-600" : "text-red-600"}`, children: formData.http_status === "200" ? "✓ Доступен" : `✗ ${formData.http_status}` }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-xs ${formData.http_status === "200" ? "text-green-600" : "text-red-600"}`, children: formData.http_status === "200" ? `✓ ${t("sourceEditor.available")}` : `✗ ${formData.http_status}` }),
           formData.last_checked && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
-            "Проверено: ",
-            new Date(formData.last_checked).toLocaleString("ru-RU")
+            t("sourceEditor.checkedAt"),
+            ": ",
+            new Date(formData.last_checked).toLocaleString(language === "ru" ? "ru-RU" : "en-US")
           ] })
         ] })
       ] }),
@@ -36818,12 +36914,13 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
 };
 const API_URL$o = "/api.php";
 const BulkImportSources = ({ onClose, onSave }) => {
+  const { t } = useLanguage();
   const [lines, setLines] = reactExports.useState("");
   const [importing, setImporting] = reactExports.useState(false);
   const [result, setResult] = reactExports.useState(null);
   const handleImport = async () => {
     if (!lines.trim()) {
-      alert("Введите хотя бы один URL");
+      alert(t("bulkImport.enterUrl"));
       return;
     }
     setImporting(true);
@@ -36850,29 +36947,39 @@ const BulkImportSources = ({ onClose, onSave }) => {
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "600px" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: "Массовый импорт источников" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: t("bulkImport.title") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleClose, className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-3 rounded-xl", style: { backgroundColor: "var(--color-primary-light)", border: "1px solid var(--color-primary)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Info, { size: 16, style: { color: "var(--color-primary)", marginTop: "2px" } }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mb-1", style: { color: "var(--color-primary)" }, children: "Формат ввода:" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mb-1", style: { color: "var(--color-primary)" }, children: t("bulkImport.formatTitle") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "space-y-1 text-xs", style: { color: "var(--color-text-secondary)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
-              "• Только URL: ",
+              "• ",
+              t("bulkImport.urlOnly"),
+              ": ",
               /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "https://example.com" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
-              "• Имя и URL: ",
-              /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "Мой источник|https://example.com" })
+              "• ",
+              t("bulkImport.nameAndUrl"),
+              ": ",
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { children: [
+                t("bulkImport.mySource"),
+                "|https://example.com"
+              ] })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "• Один источник на строку" })
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+              "• ",
+              t("bulkImport.onePerLine")
+            ] })
           ] })
         ] })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "Список источников" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("bulkImport.listLabel") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "textarea",
           {
@@ -36880,29 +36987,38 @@ const BulkImportSources = ({ onClose, onSave }) => {
             onChange: (e) => setLines(e.target.value),
             className: "form-input resize-none font-mono text-sm",
             rows: 10,
-            placeholder: "https://example1.com\nhttps://example2.com\nМой источник|https://example3.com",
+            placeholder: `https://example1.com
+https://example2.com
+${t("bulkImport.mySource")}|https://example3.com`,
             disabled: importing
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: [
           lines.split("\n").filter((l) => l.trim()).length,
-          " строк"
+          " ",
+          t("bulkImport.linesSuffix")
         ] })
       ] }),
       result && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-sm mb-2", children: "Результат импорта:" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium text-sm mb-2", children: t("bulkImport.resultTitle") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1 text-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-green-600", children: [
-            "✓ Добавлено: ",
+            "✓ ",
+            t("bulkImport.added"),
+            ": ",
             result.imported
           ] }),
           result.duplicates > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-yellow-600", children: [
-            "⚠ Дубликаты: ",
+            "⚠ ",
+            t("bulkImport.duplicates"),
+            ": ",
             result.duplicates
           ] }),
           result.errors && result.errors.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-red-600", children: [
-              "✗ Ошибки: ",
+              "✗ ",
+              t("bulkImport.errors"),
+              ": ",
               result.errors.length
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-h-24 overflow-y-auto mt-1 text-xs", children: [
@@ -36912,7 +37028,9 @@ const BulkImportSources = ({ onClose, onSave }) => {
                 err.error
               ] }, i)),
               result.errors.length > 10 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { color: "var(--color-text-muted)" }, children: [
-                "...и ещё ",
+                "...",
+                t("bulkImport.andMore"),
+                " ",
                 result.errors.length - 10
               ] })
             ] })
@@ -36921,10 +37039,10 @@ const BulkImportSources = ({ onClose, onSave }) => {
       ] })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleClose, className: "btn btn-secondary", disabled: importing, children: result && result.imported > 0 ? "Закрыть" : "Отмена" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleClose, className: "btn btn-secondary", disabled: importing, children: result && result.imported > 0 ? t("common.close") : t("common.cancel") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleImport, className: "btn btn-primary", disabled: importing || !lines.trim(), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { size: 18 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: importing ? "Импорт..." : "Импортировать" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: importing ? t("bulkImport.importing") : t("bulkImport.importBtn") })
       ] })
     ] })
   ] }) });
@@ -37128,7 +37246,7 @@ const TrafficSources = ({ refreshData }) => {
             type: "button",
             onClick: checkAllUrls,
             className: "btn btn-ghost btn-icon",
-            title: "Проверить все URL",
+            title: t("sources.checkAllUrls"),
             disabled: checkingUrls,
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: `w-5 h-5 ${checkingUrls ? "animate-pulse" : ""}` })
           }
@@ -37149,7 +37267,7 @@ const TrafficSources = ({ refreshData }) => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => setShowBulkImport(true), className: "btn btn-secondary", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { size: 18 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Импорт" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("sources.importBtn") })
         ] })
       ] })
     ] }),
@@ -37203,7 +37321,7 @@ const TrafficSources = ({ refreshData }) => {
           }
         ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("editor.name") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "URL / Статус" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("sources.urlStatus") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("sources.template") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("campaigns.campaigns") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.clicks") }),
@@ -37237,7 +37355,7 @@ const TrafficSources = ({ refreshData }) => {
                 onClick: () => checkSourceUrl(source.id),
                 className: "text-xs hover:underline",
                 style: { color: "var(--color-primary)" },
-                children: "Проверить"
+                children: t("sources.check")
               }
             )
           ] }),
@@ -37247,7 +37365,7 @@ const TrafficSources = ({ refreshData }) => {
               onClick: () => checkSourceUrl(source.id),
               className: "text-xs hover:underline",
               style: { color: "var(--color-primary)" },
-              children: "Проверить"
+              children: t("sources.check")
             }
           ) : null
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-muted)" }, children: "—" }) }),
@@ -38204,7 +38322,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                 value: formData.template,
                 onChange: (e) => handleTemplateChange(e.target.value),
                 className: "w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white",
-                children: templates.map((t2) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: t2.name, children: t2.display_name }, t2.name))
+                children: templates.map((tmpl) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tmpl.name, children: t("tpl.net_" + tmpl.name, tmpl.display_name) }, tmpl.name))
               }
             )
           ] })
@@ -38242,11 +38360,11 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-blue-600", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("networkEditor.paramsToAdd") }),
           " ?subid=",
-          "{макрос_субид}",
+          "{subid_macro}",
           "&status=",
-          "{макрос_статуса}",
+          "{status_macro}",
           "&payout=",
-          "{макрос_суммы}"
+          "{payout_macro}"
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded border border-gray-200 space-y-4", children: [
@@ -43639,7 +43757,7 @@ const GeoDBPage = () => {
       });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage(t("geoDb.updateSuccess") || "База успешно обновлена");
+        setMessage(t("geoDb.updateSuccess"));
         setUpdateProgress((prev) => ({ ...prev, [id]: { status: "success", progress: 100 } }));
         fetchDbs();
       } else {
@@ -44260,7 +44378,7 @@ set -euo pipefail
 
 source /etc/keitaro/env/inventory.env
 
-# Конфиг чтобы не светить пароль в командной строке
+# Config to avoid exposing the password on the command line
 cat > /root/keitaro-mariadb.cnf <<EOF
 [client]
 user=$MARIADB_KEITARO_USER
@@ -44271,7 +44389,7 @@ protocol=tcp
 EOF
 chmod 600 /root/keitaro-mariadb.cnf
 
-# Список "настроечных" таблиц, которые нужны для миграции (без логов/кликов/рефов и т.п.)
+# List of "settings" tables needed for migration (excluding logs/clicks/refs etc.)
 SQL_LIST="
 SELECT table_name
 FROM information_schema.tables
@@ -44351,13 +44469,13 @@ echo "DONE: $OUT"
                 color: "#d4d4d4",
                 whiteSpace: "pre-wrap",
                 fontFamily: "monospace"
-              }, children: `# Скачать в текущую папку:
+              }, children: `# Download to the current folder:
 scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz .
 
-# Скачать в Downloads (macOS/Linux):
+# Download to Downloads (macOS/Linux):
 scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz ~/Downloads/
 
-# Скачать в Downloads (Windows PowerShell):
+# Download to Downloads (Windows PowerShell):
 scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz $env:USERPROFILE\\Downloads\\` }) })
             ] })
           ] }) }),
@@ -44451,9 +44569,12 @@ scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz $env:USERPROFI
       kResult && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         kResult?.dry_run ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-warning mt-4", children: [
           t("migrations.keitaroDryRun"),
-          ' (dry_run=1). Данные не были записаны в Orbitra. Нажми "',
+          " (dry_run=1). ",
+          t("migrations.dryRunNote1"),
+          ' "',
           t("migrations.keitaroImportBtn"),
-          '" для реального импорта.'
+          '" ',
+          t("migrations.dryRunNote2")
         ] }) : null,
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-success mt-4", style: { whiteSpace: "pre-wrap", fontFamily: "monospace", fontSize: "12px" }, children: JSON.stringify(kResult, null, 2) })
       ] }),
@@ -45531,7 +45652,9 @@ const StatusContent = () => {
             formatBytes(statusData.disk_free_bytes),
             " ",
             t("admin.free"),
-            " из ",
+            " ",
+            t("admin.of"),
+            " ",
             formatBytes(statusData.disk_total_bytes)
           ] })
         ] }),
@@ -47027,7 +47150,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     ] })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2 border-t", style: { borderColor: "var(--color-border)" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.rotationType") || "Ротация потоков" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.rotationType") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs(
                       "select",
                       {
@@ -47035,14 +47158,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         onChange: (e) => setFormData({ ...formData, rotation_type: e.target.value }),
                         className: "form-select",
                         children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "position", children: t("rotationType.position") || "По позиции" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weight", children: t("rotationType.weight") || "По весу" })
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "position", children: t("rotationType.position") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weight", children: t("rotationType.weight") })
                         ]
                       }
                     )
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.clickApiToken") || "Токен Click API" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.clickApiToken") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(
                         "input",
@@ -47544,8 +47667,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "w-4 h-4", style: { color: "var(--color-primary)" } }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.streamWeight") || "Вес потока" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("editor.streamWeightHelp") || "Используется только при ротации потоков по весу." })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.streamWeight") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("editor.streamWeightHelp") })
                   ] })
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
@@ -47558,7 +47681,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                       className: "w-20 text-center rounded-lg px-2 py-1 text-sm font-bold",
                       min: "0",
                       style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)", color: "var(--color-text-primary)" },
-                      title: t("editor.streamWeight") || "Вес потока"
+                      title: t("editor.streamWeight")
                     }
                   ),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })

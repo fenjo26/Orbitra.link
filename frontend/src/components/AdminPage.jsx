@@ -103,7 +103,7 @@ const StatusContent = () => {
                             />
                         </div>
                         <div className="text-xs text-[var(--color-text-muted)] mt-1">
-                            {formatBytes(statusData.disk_free_bytes)} {t('admin.free')} из {formatBytes(statusData.disk_total_bytes)}
+                            {formatBytes(statusData.disk_free_bytes)} {t('admin.free')} {t('admin.of')} {formatBytes(statusData.disk_total_bytes)}
                         </div>
                     </div>
 

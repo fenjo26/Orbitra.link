@@ -25,8 +25,8 @@ import CampaignEditor from './components/CampaignEditor';
 import DashboardHeader from './components/DashboardHeader';
 import DashboardSettingsModal from './components/DashboardSettingsModal';
 
-// В режиме разработки Vite запущен на порту 5173, а API на 8080.
-// В проде они будут на одном домене.
+// In development, Vite runs on port 5173 and the API on 8080.
+// In production they are served from the same domain.
 const API_URL = '/api.php';
 
 function App() {

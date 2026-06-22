@@ -133,7 +133,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         const ids = Array.from(selectedCampaignIds);
         if (ids.length === 0) return;
 
-        const confirmMsg = t('campaigns.bulkCopyConfirm') || 'Скопировать выбранные кампании?';
+        const confirmMsg = t('campaigns.bulkCopyConfirm');
         if (!window.confirm(confirmMsg)) return;
 
         let successCount = 0;
@@ -149,11 +149,11 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         }
 
         if (successCount > 0) {
-            alert(`${t('campaigns.copied') || 'Скопировано'}: ${successCount}`);
+            alert(`${t('campaigns.copied')}: ${successCount}`);
             refreshData();
         }
         if (errorCount > 0) {
-            alert(`${t('campaigns.copyErrors') || 'Ошибок'}: ${errorCount}`);
+            alert(`${t('campaigns.copyErrors')}: ${errorCount}`);
         }
 
         setSelectedCampaignIds(new Set());
@@ -280,9 +280,9 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                     </button>
                     {selectedCampaignIds.size > 0 && (
                         <>
-                            <button onClick={handleBulkCopySelected} className="btn btn-success" title={t('campaigns.copySelected') || 'Копировать'}>
+                            <button onClick={handleBulkCopySelected} className="btn btn-success" title={t('campaigns.copySelected')}>
                                 <Copy className="w-4 h-4" />
-                                {(t('campaigns.copySelected') || 'Копировать')} ({selectedCampaignIds.size})
+                                {(t('campaigns.copySelected'))} ({selectedCampaignIds.size})
                             </button>
                             <button onClick={handleBulkDeleteSelected} className="btn btn-danger" title={t('common.deleteSelected')}>
                                 <Trash2 className="w-4 h-4" />

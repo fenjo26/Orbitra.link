@@ -90,7 +90,7 @@ const SystemSettings = () => {
                 )}
 
                 <div className="form-section">
-                    {/* Сбор статистики */}
+                    {/* Statistics collection */}
                     <label className="form-checkbox-label">
                         <input
                             type="checkbox"
@@ -106,7 +106,7 @@ const SystemSettings = () => {
                         </div>
                     </label>
 
-                    {/* Игнорировать prefetch-запросы */}
+                    {/* Ignore prefetch requests */}
                     <label className="form-checkbox-label">
                         <input
                             type="checkbox"
@@ -122,7 +122,7 @@ const SystemSettings = () => {
                         </div>
                     </label>
 
-                    {/* Срок хранения логов */}
+                    {/* Log retention period */}
                     <div>
                         <label className="form-label">{t('systemSettings.logRetention')}</label>
                         <div className="relative">
@@ -138,7 +138,7 @@ const SystemSettings = () => {
                         <p className="form-hint">{t('systemSettings.logRetentionHint')}</p>
                     </div>
 
-                    {/* Срок хранения ресурсов в Архиве */}
+                    {/* Archive resource retention period */}
                     <div>
                         <label className="form-label">{t('systemSettings.archiveRetention')}</label>
                         <div className="relative">
@@ -154,7 +154,7 @@ const SystemSettings = () => {
                         <p className="form-hint">{t('systemSettings.archiveRetentionHint')}</p>
                     </div>
 
-                    {/* Доступ к админ-панели */}
+                    {/* Admin panel access */}
                     <div>
                         <label className="form-label">{t('systemSettings.adminAccess')}</label>
                         <div className="relative">

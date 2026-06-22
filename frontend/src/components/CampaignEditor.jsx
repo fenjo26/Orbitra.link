@@ -735,19 +735,19 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                     </div>
                                                     
                                                     <div className="pt-2 border-t" style={{ borderColor: 'var(--color-border)' }}>
-                                                        <label className="form-label">{t('editor.rotationType') || 'Ротация потоков'}</label>
+                                                        <label className="form-label">{t('editor.rotationType')}</label>
                                                         <select
                                                             value={formData.rotation_type}
                                                             onChange={e => setFormData({ ...formData, rotation_type: e.target.value })}
                                                             className="form-select"
                                                         >
-                                                            <option value="position">{t('rotationType.position') || 'По позиции'}</option>
-                                                            <option value="weight">{t('rotationType.weight') || 'По весу'}</option>
+                                                            <option value="position">{t('rotationType.position')}</option>
+                                                            <option value="weight">{t('rotationType.weight')}</option>
                                                         </select>
                                                     </div>
 
                                                     <div>
-                                                        <label className="form-label">{t('editor.clickApiToken') || 'Токен Click API'}</label>
+                                                        <label className="form-label">{t('editor.clickApiToken')}</label>
                                                         <div className="flex gap-2">
                                                             <input
                                                                 type="text"
@@ -1239,10 +1239,10 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                                 <TrendingUp className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
                                                                 <div>
                                                                     <div className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                                                                        {t('editor.streamWeight') || 'Вес потока'}
+                                                                        {t('editor.streamWeight')}
                                                                     </div>
                                                                     <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                                                                        {t('editor.streamWeightHelp') || 'Используется только при ротации потоков по весу.'}
+                                                                        {t('editor.streamWeightHelp')}
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -1255,7 +1255,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                                     className="w-20 text-center rounded-lg px-2 py-1 text-sm font-bold"
                                                                     min="0"
                                                                     style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
-                                                                    title={t('editor.streamWeight') || 'Вес потока'}
+                                                                    title={t('editor.streamWeight')}
                                                                 />
                                                                 <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
                                                             </div>
