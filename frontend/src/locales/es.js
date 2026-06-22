@@ -38,7 +38,14 @@ export default {
         "net_vulkanbet": "Vulkan.bet",
         "net_vulkanpartner": "Vulkanpartner.com",
         "net_welcomepartners": "WelcomePartners",
-        "net_xpartners": "X-partners.com"
+        "net_xpartners": "X-partners.com",
+        "net_notes_onewin": "1. En la cuenta de 1win, vaya a PR Herramientas - Enlaces. Columna Acciones - haga clic en el icono del enlace.\n\n2. En Postback Url, reemplace status=[REPLACE] por:\n\nstatus=lead - para Registro\n\nstatus=sale - para Primer depósito\n\nstatus=sale&tid={event_id} - para Depósito\n\ncurrency=[ISO] - reemplazar con la moneda en formato iso (ejemplo: currency=usd)",
+        "net_notes_ggbetaff": "En la barra lateral izquierda, vaya a la sección Postbacks. Elija evento, marca y oferta, y complete la URL de Postback\n\nReemplace status=REPLACE por:\n\nstatus=lead - para Registro\n\nstatus=sale - para Lead Hold\n\nstatus=rejected - para Lead Reject",
+        "net_notes_hellpartners": "Para el evento reg, reemplace REPLACE por lead\n\nPara el evento ftd, reemplace REPLACE por sale\n\nEnvíe ambos enlaces al administrador de la red de afiliados\n\nEn el campo Parámetros de la oferta, reemplace CHANGE_FOR_SUMM por el pago de CPA.",
+        "net_notes_mbpartners": "Copie el enlace de postback.\n\nPara el evento Lead, reemplace REPLACE por lead\n\nPara el evento Sale, reemplace REPLACE por sale\n\nPara el estado sale, añada al enlace de postback: &tid={payment.id}",
+        "net_notes_cparip": "1. En la cuenta de Partners.cpa.rip, vaya a Herramientas - Postback global - Agregar postback global.\n\n2. Ejecutar para - Todos. Tipo de objetivo - CPA.\n\n3. Pegue la URL de Postback en el campo Postback.",
+        "net_notes_royalpartners": "Copie el enlace de postback.\n\nPara el evento Lead, reemplace REPLACE por lead\n\nPara el evento Sale, reemplace REPLACE por sale",
+        "net_notes_welcomepartners": "El enlace de la URL de Postback debe enviarse al administrador de la red de afiliados."
     },
     "bulkImport": {
         "enterUrl": "Introduzca al menos una URL",

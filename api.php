@@ -2751,7 +2751,7 @@ try {
                     'display_name' => '1win.run',
                     'offer_params_template' => '&sub1={subid}',
                     'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub1}&payout={amount}&status=[REPLACE]&currency=[ISO]&from=1win.run',
-                    'notes_template' => "1. В кабинете 1win зайдите в PR Инструменты - Ссылки. Колонка Действия - нажмите на иконку ссылки.\n\n2. В Postback Url status=[REPLACE] заменить на:\n\nstatus=lead - для Регистрации\n\nstatus=sale - для Первого депозита\n\nstatus=sale&tid={event_id} - для Депозита\n\ncurrency=[ISO] - заменить валюту в формате iso (пример: currency=usd)"
+                    'notes_template' => 'tpl.net_notes_onewin'
                 ],
                 [
                     'name' => 'twentytwobet',
@@ -2824,14 +2824,14 @@ try {
                     'display_name' => 'GGBetAff',
                     'offer_params_template' => '&click_id={subid}',
                     'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=REPLACE&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=##CURRENCY##&from=GGBetAff',
-                    'notes_template' => "На боковой панели слева перейдите в раздел Постбеки. Выберите событие, бренд и оффер и заполните Postback URL\n\nЗамените status=REPLACE на:\n\nstatus=lead - для Registration\n\nstatus=sale - для Lead Hold\n\nstatus=rejected - для Lead Reject"
+                    'notes_template' => 'tpl.net_notes_ggbetaff'
                 ],
                 [
                     'name' => 'hellpartners',
                     'display_name' => 'Hellpartners.com',
                     'offer_params_template' => '&subid={subid}&dynamic={sub_id_1}&dynamic1={sub_id_2}&cpapayout={CHANGE_FOR_SUMM}',
                     'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid=[subid]&status=REPLACE&payout=[cpapayout]&currency=eur&tid=[tid]&from=Hellpartners.com',
-                    'notes_template' => "Для события reg замените REPLACE на lead\n\nДля события ftd замените REPLACE на sale\n\nПередайте обе ссылки менеджеру партнерской сети\n\nВ поле Параметры для оффера замените CHANGE_FOR_SUMM на выплата по CPA."
+                    'notes_template' => 'tpl.net_notes_hellpartners'
                 ],
                 [
                     'name' => 'jimpartners',
@@ -2862,7 +2862,7 @@ try {
                     'display_name' => 'MB.partners',
                     'offer_params_template' => '&cid={subid}',
                     'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={cid}&status=REPLACE&payout={payout}&currency=usd&from=MB.partners',
-                    'notes_template' => "Скопируйте ссылку постбека.\n\nДля события Лид замените REPLACE на lead\n\nДля события Продажа замените REPLACE на sale\n\nК ссылке постбека для статуса sale допишите: &tid={payment.id}"
+                    'notes_template' => 'tpl.net_notes_mbpartners'
                 ],
                 [
                     'name' => 'melbetaffiliate',
@@ -2893,7 +2893,7 @@ try {
                     'display_name' => 'Partners.cpa.rip',
                     'offer_params_template' => '&aff_click_id={subid}',
                     'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={payout}&status={goal_alias}&currency={offer_currency}&deposit_status=fdp,first_dep&rejected_status=rejected,trash&from=Partners.cpa.rip',
-                    'notes_template' => "1. В кабинете Partners.cpa.rip зайдите в Инструменты - Глобальный Постбек - Добавить глобальный постбек.\n\n2. Выполняется для - Все. Тип цели - CPA.\n\n3. Вставьте Postback URL в поле Постбек."
+                    'notes_template' => 'tpl.net_notes_cparip'
                 ],
                 [
                     'name' => 'pinuppartners',
@@ -2924,7 +2924,7 @@ try {
                     'display_name' => 'Royal.partners',
                     'offer_params_template' => '&ctag={subid}&btag={campaign_id}',
                     'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid=${ctag}&status=REPLACE&payout=${amount}&currency=${currency}&tid=${deposit_id}&player_id=${player_id}&from=Royal.partners',
-                    'notes_template' => "Скопируйте ссылку постбека.\n\nДля события Лид замените REPLACE на lead\n\nДля события Продажа замените REPLACE на sale"
+                    'notes_template' => 'tpl.net_notes_royalpartners'
                 ],
                 [
                     'name' => 'vulkanbet',
@@ -2943,7 +2943,7 @@ try {
                     'display_name' => 'WelcomePartners',
                     'offer_params_template' => '&click_id={subid}',
                     'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=reg,dep,lead,approve,reject,rebill&lead_status=reg,dep,lead&sale_status=approve,rebill&rejected_status=reject&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=##CURRENCY##&from=WelcomePartners',
-                    'notes_template' => "Ссылку Postback Url нужно отдать менеджеру партнерской сети."
+                    'notes_template' => 'tpl.net_notes_welcomepartners'
                 ],
                 [
                     'name' => 'xpartners',

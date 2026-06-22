@@ -38,7 +38,14 @@ export default {
         "net_vulkanbet": "Vulkan.bet",
         "net_vulkanpartner": "Vulkanpartner.com",
         "net_welcomepartners": "WelcomePartners",
-        "net_xpartners": "X-partners.com"
+        "net_xpartners": "X-partners.com",
+        "net_notes_onewin": "1. In the 1win account, go to PR Tools - Links. Actions column - click on the link icon.\n\n2. In Postback Url, replace status=[REPLACE] with:\n\nstatus=lead - for Registration\n\nstatus=sale - for First deposit\n\nstatus=sale&tid={event_id} - for Deposit\n\ncurrency=[ISO] - replace with currency in ISO format (example: currency=usd)",
+        "net_notes_ggbetaff": "On the left sidebar, go to the Postbacks section. Choose event, brand, and offer, and fill in the Postback URL\n\nReplace status=REPLACE with:\n\nstatus=lead - for Registration\n\nstatus=sale - for Lead Hold\n\nstatus=rejected - for Lead Reject",
+        "net_notes_hellpartners": "For the reg event, replace REPLACE with lead\n\nFor the ftd event, replace REPLACE with sale\n\nSend both links to the affiliate network manager\n\nIn the Offer Parameters field, replace CHANGE_FOR_SUMM with CPA payout.",
+        "net_notes_mbpartners": "Copy the postback link.\n\nFor the Lead event, replace REPLACE with lead\n\nFor the Sale event, replace REPLACE with sale\n\nFor the sale status, append to the postback link: &tid={payment.id}",
+        "net_notes_cparip": "1. In the Partners.cpa.rip account, go to Tools - Global Postback - Add global postback.\n\n2. Execute for - All. Target type - CPA.\n\n3. Paste the Postback URL into the Postback field.",
+        "net_notes_royalpartners": "Copy the postback link.\n\nFor the Lead event, replace REPLACE with lead\n\nFor the Sale event, replace REPLACE with sale",
+        "net_notes_welcomepartners": "The Postback URL link must be sent to the affiliate network manager."
     },
     "bulkImport": {
         "enterUrl": "Enter at least one URL",

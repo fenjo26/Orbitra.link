@@ -38,7 +38,14 @@ export default {
         "net_vulkanbet": "Vulkan.bet",
         "net_vulkanpartner": "Vulkanpartner.com",
         "net_welcomepartners": "WelcomePartners",
-        "net_xpartners": "X-partners.com"
+        "net_xpartners": "X-partners.com",
+        "net_notes_onewin": "1. Gehen Sie im 1win-Konto auf PR-Tools - Links. Spalte Aktionen - klicken Sie auf das Link-Symbol.\n\n2. Ersetzen Sie in der Postback-URL status=[REPLACE] durch:\n\nstatus=lead - für Registrierung\n\nstatus=sale - für Erste Einzahlung\n\nstatus=sale&tid={event_id} - für Einzahlung\n\ncurrency=[ISO] - durch Währung im ISO-Format ersetzen (Beispiel: currency=usd)",
+        "net_notes_ggbetaff": "Gehen Sie in der linken Seitenleiste zum Bereich Postbacks. Wählen Sie Event, Marke und Angebot aus und füllen Sie die Postback-URL aus\n\nErsetzen Sie status=REPLACE durch:\n\nstatus=lead - für Registrierung\n\nstatus=sale - für Lead Hold\n\nstatus=rejected - für Lead Reject",
+        "net_notes_hellpartners": "Ersetzen Sie für das Reg-Event REPLACE durch lead\n\nErsetzen Sie für das Ftd-Event REPLACE durch sale\n\nSenden Sie beide Links an den Manager des Partnernetzwerks\n\nErsetzen Sie im Feld Angebots-Parameter CHANGE_FOR_SUMM durch die CPA-Auszahlung.",
+        "net_notes_mbpartners": "Kopieren Sie den Postback-Link.\n\nErsetzen Sie für das Lead-Event REPLACE durch lead\n\nErsetzen Sie für das Sale-Event REPLACE durch sale\n\nFügen Sie dem Postback-Link für den Status sale Folgendes hinzu: &tid={payment.id}",
+        "net_notes_cparip": "1. Gehen Sie im Partners.cpa.rip-Konto auf Tools - Globaler Postback - Globalen Postback hinzufügen.\n\n2. Ausführen für - Alle. Zieltyp - CPA.\n\n3. Fügen Sie die Postback-URL in das Feld Postback ein.",
+        "net_notes_royalpartners": "Kopieren Sie den Postback-Link.\n\nErsetzen Sie für das Lead-Event REPLACE durch lead\n\nErsetzen Sie für das Sale-Event REPLACE durch sale",
+        "net_notes_welcomepartners": "Der Link zur Postback-URL muss an den Manager des Partnernetzwerks gesendet werden."
     },
     "bulkImport": {
         "enterUrl": "Geben Sie mindestens eine URL ein",

@@ -38,7 +38,14 @@ export default {
         "net_vulkanbet": "Vulkan.bet",
         "net_vulkanpartner": "Vulkanpartner.com",
         "net_welcomepartners": "WelcomePartners",
-        "net_xpartners": "X-partners.com"
+        "net_xpartners": "X-partners.com",
+        "net_notes_onewin": "1. Dans le compte 1win, allez dans Outils PR - Liens. Colonne Actions - cliquez sur l'icône du lien.\n\n2. Dans Postback Url, remplacez status=[REPLACE] par :\n\nstatus=lead - pour Inscription\n\nstatus=sale - pour Premier dépôt\n\nstatus=sale&tid={event_id} - pour Dépôt\n\ncurrency=[ISO] - remplacer par la devise au format iso (exemple : currency=usd)",
+        "net_notes_ggbetaff": "Dans la barre latérale gauche, allez dans la section Postbacks. Choisissez l'événement, la marque et l'offre, puis renseignez l'URL de Postback\n\nRemplacez status=REPLACE par :\n\nstatus=lead - pour Inscription\n\nstatus=sale - pour Lead Hold\n\nstatus=rejected - pour Lead Reject",
+        "net_notes_hellpartners": "Pour l'événement reg, remplacez REPLACE par lead\n\nPour l'événement ftd, remplacez REPLACE par sale\n\nEnvoyez les deux liens au responsable du réseau d'affiliation\n\nDans le champ Paramètres de l'offre, remplacez CHANGE_FOR_SUMM par le paiement CPA.",
+        "net_notes_mbpartners": "Copiez le lien de postback.\n\nPour l'événement Lead, remplacez REPLACE par lead\n\nPour l'événement Sale, remplacez REPLACE par sale\n\nPour le statut sale, ajoutez au lien de postback : &tid={payment.id}",
+        "net_notes_cparip": "1. Dans le compte Partners.cpa.rip, allez dans Outils - Postback global - Ajouter un postback global.\n\n2. Exécuter pour - Tout. Type d'objectif - CPA.\n\n3. Collez l'URL de Postback dans le champ Postback.",
+        "net_notes_royalpartners": "Copiez le lien de postback.\n\nPour l'événement Lead, remplacez REPLACE par lead\n\nPour l'événement Sale, remplacez REPLACE par sale",
+        "net_notes_welcomepartners": "Le lien de l'URL de Postback doit être envoyé au responsable du réseau d'affiliation."
     },
     "bulkImport": {
         "enterUrl": "Entrez au moins une URL",

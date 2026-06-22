@@ -38,7 +38,14 @@ export default {
         "net_vulkanbet": "Vulkan.bet",
         "net_vulkanpartner": "Vulkanpartner.com",
         "net_welcomepartners": "WelcomePartners",
-        "net_xpartners": "X-partners.com"
+        "net_xpartners": "X-partners.com",
+        "net_notes_onewin": "1. У кабінеті 1win перейдіть у PR Інструменти - Посилання. Колонка Дії - натисніть на іконку посилання.\n\n2. У Postback Url status=[REPLACE] замінити на:\n\nstatus=lead - для Реєстрації\n\nstatus=sale - для Першого депозиту\n\nstatus=sale&tid={event_id} - для Депозиту\n\ncurrency=[ISO] - замінити валюту у форматі iso (приклад: currency=usd)",
+        "net_notes_ggbetaff": "На бічній панелі ліворуч перейдіть у розділ Постбеки. Виберіть подію, бренд та оффер і заповніть Postback URL\n\nЗамініть status=REPLACE на:\n\nstatus=lead - для Registration\n\nstatus=sale - для Lead Hold\n\nstatus=rejected - для Lead Reject",
+        "net_notes_hellpartners": "Для події reg замініть REPLACE на lead\n\nДля події ftd замініть REPLACE на sale\n\nПередайте обидва посилання менеджеру партнерської мережі\n\nУ полі Параметри для оффера замініть CHANGE_FOR_SUMM на виплата по CPA.",
+        "net_notes_mbpartners": "Скопіюйте посилання постбеку.\n\nДля події Лід замініть REPLACE на lead\n\nДля події Продаж замініть REPLACE на sale\n\nДо посилання постбеку для статусу sale допишіть: &tid={payment.id}",
+        "net_notes_cparip": "1. У кабінеті Partners.cpa.rip перейдіть в Інструменты - Глобальний Постбек - Додати глобальний постбек.\n\n2. Виконується для - Все. Тип цілі - CPA.\n\n3. Вставте Postback URL у поле Постбек.",
+        "net_notes_royalpartners": "Скопіюйте посилання постбеку.\n\nДля події Лід замініть REPLACE на lead\n\nДля події Продаж замініть REPLACE на sale",
+        "net_notes_welcomepartners": "Посилання Postback Url потрібно віддати менеджеру партнерської мережі."
     },
     "bulkImport": {
         "enterUrl": "Введіть принаймні одну URL-адресу",

@@ -38,7 +38,14 @@ export default {
         "net_vulkanbet": "Vulkan.bet",
         "net_vulkanpartner": "Vulkanpartner.com",
         "net_welcomepartners": "WelcomePartners",
-        "net_xpartners": "X-partners.com"
+        "net_xpartners": "X-partners.com",
+        "net_notes_onewin": "1. 在 1win 账户中，进入 PR 工具 - 链接。操作列 - 点击链接图标。\n\n2. 在 Postback Url 中，将 status=[REPLACE] 替换为：\n\nstatus=lead - 注册\n\nstatus=sale - 首次存款\n\nstatus=sale&tid={event_id} - 存款\n\ncurrency=[ISO] - 替换为 ISO 格式的货币（例如：currency=usd）",
+        "net_notes_ggbetaff": "在左侧边栏中，进入“回传”部分。选择事件、品牌和优惠，并填写 Postback URL\n\n将 status=REPLACE 替换为：\n\nstatus=lead - 注册\n\nstatus=sale - 潜在客户保留 (Lead Hold)\n\nstatus=rejected - 潜在客户拒绝 (Lead Reject)",
+        "net_notes_hellpartners": "对于 reg 事件，将 REPLACE 替换为 lead\n\n对于 ftd 事件，将 REPLACE 替换为 sale\n\n将这两个链接发送给联盟网络经理\n\n在“优惠参数”字段中，将 CHANGE_FOR_SUMM 替换为 CPA 付款金额。",
+        "net_notes_mbpartners": "复制回传链接。\n\n对于 Lead 事件，将 REPLACE 替换为 lead\n\n对于 Sale 事件，将 REPLACE 替换为 sale\n\n对于 sale 状态，在回传链接后追加：&tid={payment.id}",
+        "net_notes_cparip": "1. 在 Partners.cpa.rip 账户中，进入“工具” - “全局回传” - “添加全局回传”。\n\n2. 执行范围 - 全部。目标类型 - CPA。\n\n3. 将 Postback URL 粘贴到“回传”字段中。",
+        "net_notes_royalpartners": "复制回传链接。\n\n对于 Lead 事件，将 REPLACE 替换为 lead\n\n对于 Sale 事件，将 REPLACE 替换为 sale",
+        "net_notes_welcomepartners": "必须将 Postback URL 链接发送给联盟网络经理。"
     },
     "bulkImport": {
         "enterUrl": "输入至少一个网址",

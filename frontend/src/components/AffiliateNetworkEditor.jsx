@@ -73,7 +73,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                 template: templateName,
                 offer_params: template.offer_params_template || '',
                 postback_url: postbackUrl || formData.postback_url,
-                notes: template.notes_template || ''
+                notes: (template.notes_template && template.notes_template.startsWith('tpl.')) ? t(template.notes_template) : (template.notes_template || '')
             });
         }
     };

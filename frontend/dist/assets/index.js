@@ -15938,7 +15938,14 @@ const ru = {
     "net_vulkanbet": "Vulkan.bet",
     "net_vulkanpartner": "Vulkanpartner.com",
     "net_welcomepartners": "WelcomePartners",
-    "net_xpartners": "X-partners.com"
+    "net_xpartners": "X-partners.com",
+    "net_notes_onewin": "1. В кабинете 1win зайдите в PR Инструменты - Ссылки. Колонка Действия - нажмите на иконку ссылки.\n\n2. В Postback Url status=[REPLACE] заменить на:\n\nstatus=lead - для Регистрации\n\nstatus=sale - для Первого депозита\n\nstatus=sale&tid={event_id} - для Депозита\n\ncurrency=[ISO] - заменить валюту в формате iso (пример: currency=usd)",
+    "net_notes_ggbetaff": "На боковой панели слева перейдите в раздел Постбеки. Выберите событие, бренд и оффер и заполните Postback URL\n\nЗамените status=REPLACE на:\n\nstatus=lead - для Registration\n\nstatus=sale - для Lead Hold\n\nstatus=rejected - для Lead Reject",
+    "net_notes_hellpartners": "Для события reg замените REPLACE на lead\n\nДля события ftd замените REPLACE на sale\n\nПередайте обе ссылки менеджеру партнерской сети\n\nВ поле Параметры для оффера замените CHANGE_FOR_SUMM на выплата по CPA.",
+    "net_notes_mbpartners": "Скопируйте ссылку постбека.\n\nДля события Лид замените REPLACE на lead\n\nДля события Продажа замените REPLACE на sale\n\nК ссылке постбека для статуса sale допишите: &tid={payment.id}",
+    "net_notes_cparip": "1. В кабинете Partners.cpa.rip зайдите в Инструменты - Глобальный Постбек - Добавить глобальный постбек.\n\n2. Выполняется для - Все. Тип цели - CPA.\n\n3. Вставьте Postback URL в поле Постбек.",
+    "net_notes_royalpartners": "Скопируйте ссылку постбека.\n\nДля события Лид замените REPLACE на lead\n\nДля события Продажа замените REPLACE на sale",
+    "net_notes_welcomepartners": "Ссылку Postback Url нужно отдать менеджеру партнерской сети."
   },
   "bulkImport": {
     "enterUrl": "Введите хотя бы один URL",
@@ -17787,7 +17794,14 @@ const en = {
     "net_vulkanbet": "Vulkan.bet",
     "net_vulkanpartner": "Vulkanpartner.com",
     "net_welcomepartners": "WelcomePartners",
-    "net_xpartners": "X-partners.com"
+    "net_xpartners": "X-partners.com",
+    "net_notes_onewin": "1. In the 1win account, go to PR Tools - Links. Actions column - click on the link icon.\n\n2. In Postback Url, replace status=[REPLACE] with:\n\nstatus=lead - for Registration\n\nstatus=sale - for First deposit\n\nstatus=sale&tid={event_id} - for Deposit\n\ncurrency=[ISO] - replace with currency in ISO format (example: currency=usd)",
+    "net_notes_ggbetaff": "On the left sidebar, go to the Postbacks section. Choose event, brand, and offer, and fill in the Postback URL\n\nReplace status=REPLACE with:\n\nstatus=lead - for Registration\n\nstatus=sale - for Lead Hold\n\nstatus=rejected - for Lead Reject",
+    "net_notes_hellpartners": "For the reg event, replace REPLACE with lead\n\nFor the ftd event, replace REPLACE with sale\n\nSend both links to the affiliate network manager\n\nIn the Offer Parameters field, replace CHANGE_FOR_SUMM with CPA payout.",
+    "net_notes_mbpartners": "Copy the postback link.\n\nFor the Lead event, replace REPLACE with lead\n\nFor the Sale event, replace REPLACE with sale\n\nFor the sale status, append to the postback link: &tid={payment.id}",
+    "net_notes_cparip": "1. In the Partners.cpa.rip account, go to Tools - Global Postback - Add global postback.\n\n2. Execute for - All. Target type - CPA.\n\n3. Paste the Postback URL into the Postback field.",
+    "net_notes_royalpartners": "Copy the postback link.\n\nFor the Lead event, replace REPLACE with lead\n\nFor the Sale event, replace REPLACE with sale",
+    "net_notes_welcomepartners": "The Postback URL link must be sent to the affiliate network manager."
   },
   "bulkImport": {
     "enterUrl": "Enter at least one URL",
@@ -19636,7 +19650,14 @@ const uk = {
     "net_vulkanbet": "Vulkan.bet",
     "net_vulkanpartner": "Vulkanpartner.com",
     "net_welcomepartners": "WelcomePartners",
-    "net_xpartners": "X-partners.com"
+    "net_xpartners": "X-partners.com",
+    "net_notes_onewin": "1. У кабінеті 1win перейдіть у PR Інструменти - Посилання. Колонка Дії - натисніть на іконку посилання.\n\n2. У Postback Url status=[REPLACE] замінити на:\n\nstatus=lead - для Реєстрації\n\nstatus=sale - для Першого депозиту\n\nstatus=sale&tid={event_id} - для Депозиту\n\ncurrency=[ISO] - замінити валюту у форматі iso (приклад: currency=usd)",
+    "net_notes_ggbetaff": "На бічній панелі ліворуч перейдіть у розділ Постбеки. Виберіть подію, бренд та оффер і заповніть Postback URL\n\nЗамініть status=REPLACE на:\n\nstatus=lead - для Registration\n\nstatus=sale - для Lead Hold\n\nstatus=rejected - для Lead Reject",
+    "net_notes_hellpartners": "Для події reg замініть REPLACE на lead\n\nДля події ftd замініть REPLACE на sale\n\nПередайте обидва посилання менеджеру партнерської мережі\n\nУ полі Параметри для оффера замініть CHANGE_FOR_SUMM на виплата по CPA.",
+    "net_notes_mbpartners": "Скопіюйте посилання постбеку.\n\nДля події Лід замініть REPLACE на lead\n\nДля події Продаж замініть REPLACE на sale\n\nДо посилання постбеку для статусу sale допишіть: &tid={payment.id}",
+    "net_notes_cparip": "1. У кабінеті Partners.cpa.rip перейдіть в Інструменты - Глобальний Постбек - Додати глобальний постбек.\n\n2. Виконується для - Все. Тип цілі - CPA.\n\n3. Вставте Postback URL у поле Постбек.",
+    "net_notes_royalpartners": "Скопіюйте посилання постбеку.\n\nДля події Лід замініть REPLACE на lead\n\nДля події Продаж замініть REPLACE на sale",
+    "net_notes_welcomepartners": "Посилання Postback Url потрібно віддати менеджеру партнерської мережі."
   },
   "bulkImport": {
     "enterUrl": "Введіть принаймні одну URL-адресу",
@@ -21485,7 +21506,14 @@ const es = {
     "net_vulkanbet": "Vulkan.bet",
     "net_vulkanpartner": "Vulkanpartner.com",
     "net_welcomepartners": "WelcomePartners",
-    "net_xpartners": "X-partners.com"
+    "net_xpartners": "X-partners.com",
+    "net_notes_onewin": "1. En la cuenta de 1win, vaya a PR Herramientas - Enlaces. Columna Acciones - haga clic en el icono del enlace.\n\n2. En Postback Url, reemplace status=[REPLACE] por:\n\nstatus=lead - para Registro\n\nstatus=sale - para Primer depósito\n\nstatus=sale&tid={event_id} - para Depósito\n\ncurrency=[ISO] - reemplazar con la moneda en formato iso (ejemplo: currency=usd)",
+    "net_notes_ggbetaff": "En la barra lateral izquierda, vaya a la sección Postbacks. Elija evento, marca y oferta, y complete la URL de Postback\n\nReemplace status=REPLACE por:\n\nstatus=lead - para Registro\n\nstatus=sale - para Lead Hold\n\nstatus=rejected - para Lead Reject",
+    "net_notes_hellpartners": "Para el evento reg, reemplace REPLACE por lead\n\nPara el evento ftd, reemplace REPLACE por sale\n\nEnvíe ambos enlaces al administrador de la red de afiliados\n\nEn el campo Parámetros de la oferta, reemplace CHANGE_FOR_SUMM por el pago de CPA.",
+    "net_notes_mbpartners": "Copie el enlace de postback.\n\nPara el evento Lead, reemplace REPLACE por lead\n\nPara el evento Sale, reemplace REPLACE por sale\n\nPara el estado sale, añada al enlace de postback: &tid={payment.id}",
+    "net_notes_cparip": "1. En la cuenta de Partners.cpa.rip, vaya a Herramientas - Postback global - Agregar postback global.\n\n2. Ejecutar para - Todos. Tipo de objetivo - CPA.\n\n3. Pegue la URL de Postback en el campo Postback.",
+    "net_notes_royalpartners": "Copie el enlace de postback.\n\nPara el evento Lead, reemplace REPLACE por lead\n\nPara el evento Sale, reemplace REPLACE por sale",
+    "net_notes_welcomepartners": "El enlace de la URL de Postback debe enviarse al administrador de la red de afiliados."
   },
   "bulkImport": {
     "enterUrl": "Introduzca al menos una URL",
@@ -23334,7 +23362,14 @@ const zh = {
     "net_vulkanbet": "Vulkan.bet",
     "net_vulkanpartner": "Vulkanpartner.com",
     "net_welcomepartners": "WelcomePartners",
-    "net_xpartners": "X-partners.com"
+    "net_xpartners": "X-partners.com",
+    "net_notes_onewin": "1. 在 1win 账户中，进入 PR 工具 - 链接。操作列 - 点击链接图标。\n\n2. 在 Postback Url 中，将 status=[REPLACE] 替换为：\n\nstatus=lead - 注册\n\nstatus=sale - 首次存款\n\nstatus=sale&tid={event_id} - 存款\n\ncurrency=[ISO] - 替换为 ISO 格式的货币（例如：currency=usd）",
+    "net_notes_ggbetaff": "在左侧边栏中，进入“回传”部分。选择事件、品牌和优惠，并填写 Postback URL\n\n将 status=REPLACE 替换为：\n\nstatus=lead - 注册\n\nstatus=sale - 潜在客户保留 (Lead Hold)\n\nstatus=rejected - 潜在客户拒绝 (Lead Reject)",
+    "net_notes_hellpartners": "对于 reg 事件，将 REPLACE 替换为 lead\n\n对于 ftd 事件，将 REPLACE 替换为 sale\n\n将这两个链接发送给联盟网络经理\n\n在“优惠参数”字段中，将 CHANGE_FOR_SUMM 替换为 CPA 付款金额。",
+    "net_notes_mbpartners": "复制回传链接。\n\n对于 Lead 事件，将 REPLACE 替换为 lead\n\n对于 Sale 事件，将 REPLACE 替换为 sale\n\n对于 sale 状态，在回传链接后追加：&tid={payment.id}",
+    "net_notes_cparip": "1. 在 Partners.cpa.rip 账户中，进入“工具” - “全局回传” - “添加全局回传”。\n\n2. 执行范围 - 全部。目标类型 - CPA。\n\n3. 将 Postback URL 粘贴到“回传”字段中。",
+    "net_notes_royalpartners": "复制回传链接。\n\n对于 Lead 事件，将 REPLACE 替换为 lead\n\n对于 Sale 事件，将 REPLACE 替换为 sale",
+    "net_notes_welcomepartners": "必须将 Postback URL 链接发送给联盟网络经理。"
   },
   "bulkImport": {
     "enterUrl": "输入至少一个网址",
@@ -25183,7 +25218,14 @@ const fr = {
     "net_vulkanbet": "Vulkan.bet",
     "net_vulkanpartner": "Vulkanpartner.com",
     "net_welcomepartners": "WelcomePartners",
-    "net_xpartners": "X-partners.com"
+    "net_xpartners": "X-partners.com",
+    "net_notes_onewin": "1. Dans le compte 1win, allez dans Outils PR - Liens. Colonne Actions - cliquez sur l'icône du lien.\n\n2. Dans Postback Url, remplacez status=[REPLACE] par :\n\nstatus=lead - pour Inscription\n\nstatus=sale - pour Premier dépôt\n\nstatus=sale&tid={event_id} - pour Dépôt\n\ncurrency=[ISO] - remplacer par la devise au format iso (exemple : currency=usd)",
+    "net_notes_ggbetaff": "Dans la barre latérale gauche, allez dans la section Postbacks. Choisissez l'événement, la marque et l'offre, puis renseignez l'URL de Postback\n\nRemplacez status=REPLACE par :\n\nstatus=lead - pour Inscription\n\nstatus=sale - pour Lead Hold\n\nstatus=rejected - pour Lead Reject",
+    "net_notes_hellpartners": "Pour l'événement reg, remplacez REPLACE par lead\n\nPour l'événement ftd, remplacez REPLACE par sale\n\nEnvoyez les deux liens au responsable du réseau d'affiliation\n\nDans le champ Paramètres de l'offre, remplacez CHANGE_FOR_SUMM par le paiement CPA.",
+    "net_notes_mbpartners": "Copiez le lien de postback.\n\nPour l'événement Lead, remplacez REPLACE par lead\n\nPour l'événement Sale, remplacez REPLACE par sale\n\nPour le statut sale, ajoutez au lien de postback : &tid={payment.id}",
+    "net_notes_cparip": "1. Dans le compte Partners.cpa.rip, allez dans Outils - Postback global - Ajouter un postback global.\n\n2. Exécuter pour - Tout. Type d'objectif - CPA.\n\n3. Collez l'URL de Postback dans le champ Postback.",
+    "net_notes_royalpartners": "Copiez le lien de postback.\n\nPour l'événement Lead, remplacez REPLACE par lead\n\nPour l'événement Sale, remplacez REPLACE par sale",
+    "net_notes_welcomepartners": "Le lien de l'URL de Postback doit être envoyé au responsable du réseau d'affiliation."
   },
   "bulkImport": {
     "enterUrl": "Entrez au moins une URL",
@@ -27034,7 +27076,14 @@ const de = {
     "net_vulkanbet": "Vulkan.bet",
     "net_vulkanpartner": "Vulkanpartner.com",
     "net_welcomepartners": "WelcomePartners",
-    "net_xpartners": "X-partners.com"
+    "net_xpartners": "X-partners.com",
+    "net_notes_onewin": "1. Gehen Sie im 1win-Konto auf PR-Tools - Links. Spalte Aktionen - klicken Sie auf das Link-Symbol.\n\n2. Ersetzen Sie in der Postback-URL status=[REPLACE] durch:\n\nstatus=lead - für Registrierung\n\nstatus=sale - für Erste Einzahlung\n\nstatus=sale&tid={event_id} - für Einzahlung\n\ncurrency=[ISO] - durch Währung im ISO-Format ersetzen (Beispiel: currency=usd)",
+    "net_notes_ggbetaff": "Gehen Sie in der linken Seitenleiste zum Bereich Postbacks. Wählen Sie Event, Marke und Angebot aus und füllen Sie die Postback-URL aus\n\nErsetzen Sie status=REPLACE durch:\n\nstatus=lead - für Registrierung\n\nstatus=sale - für Lead Hold\n\nstatus=rejected - für Lead Reject",
+    "net_notes_hellpartners": "Ersetzen Sie für das Reg-Event REPLACE durch lead\n\nErsetzen Sie für das Ftd-Event REPLACE durch sale\n\nSenden Sie beide Links an den Manager des Partnernetzwerks\n\nErsetzen Sie im Feld Angebots-Parameter CHANGE_FOR_SUMM durch die CPA-Auszahlung.",
+    "net_notes_mbpartners": "Kopieren Sie den Postback-Link.\n\nErsetzen Sie für das Lead-Event REPLACE durch lead\n\nErsetzen Sie für das Sale-Event REPLACE durch sale\n\nFügen Sie dem Postback-Link für den Status sale Folgendes hinzu: &tid={payment.id}",
+    "net_notes_cparip": "1. Gehen Sie im Partners.cpa.rip-Konto auf Tools - Globaler Postback - Globalen Postback hinzufügen.\n\n2. Ausführen für - Alle. Zieltyp - CPA.\n\n3. Fügen Sie die Postback-URL in das Feld Postback ein.",
+    "net_notes_royalpartners": "Kopieren Sie den Postback-Link.\n\nErsetzen Sie für das Lead-Event REPLACE durch lead\n\nErsetzen Sie für das Sale-Event REPLACE durch sale",
+    "net_notes_welcomepartners": "Der Link zur Postback-URL muss an den Manager des Partnernetzwerks gesendet werden."
   },
   "bulkImport": {
     "enterUrl": "Geben Sie mindestens eine URL ein",
@@ -47630,7 +47679,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
         template: templateName,
         offer_params: template.offer_params_template || "",
         postback_url: postbackUrl || formData.postback_url,
-        notes: template.notes_template || ""
+        notes: template.notes_template && template.notes_template.startsWith("tpl.") ? t(template.notes_template) : template.notes_template || ""
       });
     }
   };
