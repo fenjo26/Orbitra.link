@@ -42516,26 +42516,26 @@ const Domains = ({ campaigns }) => {
       setError(t("common.networkError"));
     }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded shadow-sm p-5 mb-6", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card mb-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_domains", title: t("help.domainBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.domainBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-lg font-semibold text-gray-800 flex items-center gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 20, className: "text-gray-500" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-lg font-semibold flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 20, style: { color: "var(--color-text-secondary)" } }),
           t("domains.title")
         ] }),
-        serverIp && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center bg-blue-50 text-blue-800 px-3 py-1 rounded text-sm border border-blue-100", children: [
+        serverIp && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center px-3 py-1 rounded text-sm border", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-primary)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium mr-2", children: t("domains.serverIp") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: serverIp }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: copyIp, className: "ml-2 hover:text-blue-600 transition flex items-center gap-1", title: copiedIp ? t("migrations.copied") : t("common.copy"), children: [
-            copiedIp ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14, className: "text-green-600" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 14 }),
-            copiedIp && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-green-600", children: t("migrations.copied") })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: copyIp, className: "ml-2 hover:text-[var(--color-primary)] transition flex items-center gap-1", style: { color: "var(--color-text-secondary)" }, title: copiedIp ? t("migrations.copied") : t("common.copy"), children: [
+            copiedIp ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14, className: "text-green-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 14 }),
+            copiedIp && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-green-500", children: t("migrations.copied") })
           ] })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4", style: { color: "var(--color-text-secondary)" } }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -42543,11 +42543,12 @@ const Domains = ({ campaigns }) => {
               placeholder: t("domains.searchPlaceholder"),
               value: searchTerm,
               onChange: (e) => setSearchTerm(e.target.value),
-              className: "pl-9 pr-4 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500 w-64"
+              className: "form-input w-64",
+              style: { paddingLeft: "36px" }
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 px-3 py-2 rounded text-sm border border-gray-200 bg-white", title: t("domains.ignoreDnsHint"), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 px-3 py-2 rounded text-sm border", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-primary)" }, title: t("domains.ignoreDnsHint"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -42556,14 +42557,19 @@ const Domains = ({ campaigns }) => {
               onChange: (e) => setIgnoreDnsUi(Boolean(e.target.checked))
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-700", children: t("domains.ignoreDnsLabel") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("domains.ignoreDnsLabel") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
             onClick: forceCheckAllDns,
             disabled: forceChecking,
-            className: "bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition",
+            className: "btn flex items-center gap-2",
+            style: {
+              background: forceChecking ? "var(--color-bg-soft)" : "var(--color-success, #10b981)",
+              color: forceChecking ? "var(--color-text-muted)" : "white",
+              cursor: forceChecking ? "not-allowed" : "pointer"
+            },
             title: t("domains.forceCheckTitle"),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: forceChecking ? "animate-spin" : "" }),
@@ -42578,7 +42584,7 @@ const Domains = ({ campaigns }) => {
               setFormData({ id: null, name: "", index_campaign_id: "", catch_404: false, group_id: "", is_noindex: true, https_only: false });
               setShowModal(true);
             },
-            className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition",
+            className: "btn btn-primary",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
               " ",
@@ -42588,19 +42594,19 @@ const Domains = ({ campaigns }) => {
         )
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left text-sm border-collapse", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-gray-50 border-b border-gray-100", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("domains.domain") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("domains.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("domains.indexPage") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-center", children: t("domains.https") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-center", children: t("domains.sslStatus") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("domains.dateAdded") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-right", children: t("domains.actions") })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.domain") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.indexPage") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-center", children: t("domains.https") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-center", children: t("domains.sslStatus") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.dateAdded") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("domains.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-100", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center py-8", children: t("domains.loading") }) }) : filteredDomains.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center py-8 text-gray-500", children: t("domains.noDomains") }) }) : filteredDomains.map((domain) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-gray-50 transition", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-medium text-gray-800", children: domain.name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3", children: ignoreDnsUi || domain.status === "active" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 text-green-600 text-sm font-medium bg-green-50 px-2 py-1 rounded", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center py-8", children: t("domains.loading") }) }) : filteredDomains.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: t("domains.noDomains") }) }) : filteredDomains.map((domain) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: domain.name }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: ignoreDnsUi || domain.status === "active" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "badge badge-success", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }),
           " ",
           t("domains.ok")
@@ -42608,7 +42614,7 @@ const Domains = ({ campaigns }) => {
           "button",
           {
             onClick: () => setShowDnsModal(true),
-            className: "inline-flex items-center gap-1 text-red-600 text-sm font-medium bg-red-50 px-2 py-1 rounded hover:bg-red-100 transition",
+            className: "badge badge-danger cursor-pointer hover:bg-red-500/20 transition",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { size: 14 }),
               " ",
@@ -42616,19 +42622,22 @@ const Domains = ({ campaigns }) => {
             ]
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-600", children: domain.index_campaign_name || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400 italic", children: t("domains.notSelected") }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-center", children: domain.https_only ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "text-gray-300 mx-auto" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-center", children: domain.https_only ? domain.ssl_status === "installed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto", title: t("domains.sslInstalled") }) : domain.ssl_status === "installing" ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "text-blue-500 mx-auto animate-spin", title: t("domains.sslInstalling") }) : domain.ssl_status === "failed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "text-red-500 mx-auto", title: domain.ssl_error || t("domains.sslFailed") }) : domain.ssl_status === "pending" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: t("domains.sslPending") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-gray-400 mx-auto", title: t("domains.sslPending") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "text-gray-300 mx-auto" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-500 text-xs", children: domain.created_at }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(domain), className: "p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition", title: t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(domain.id), className: "p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: domain.index_campaign_name || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "italic", style: { color: "var(--color-text-muted)" }, children: t("domains.notSelected") }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: domain.https_only ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" } }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: domain.https_only ? domain.ssl_status === "installed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto", title: t("domains.sslInstalled") }) : domain.ssl_status === "installing" ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "text-blue-500 mx-auto animate-spin", title: t("domains.sslInstalling") }) : domain.ssl_status === "failed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "text-red-500 mx-auto", title: domain.ssl_error || t("domains.sslFailed") }) : domain.ssl_status === "pending" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: t("domains.sslPending") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" }, title: t("domains.sslPending") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" } }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: domain.created_at }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(domain), className: "hover:text-[var(--color-primary)] transition", style: { color: "var(--color-text-muted)" }, title: t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(domain.id), className: "hover:text-red-500 transition", style: { color: "var(--color-text-muted)" }, title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 }) })
         ] }) })
       ] }, domain.id)) })
     ] }) }),
-    showModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-md p-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold mb-4", children: formData.id ? t("domains.editDomain") : t("domains.addDomainTitle") }),
-      error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-red-50 text-red-600 p-3 rounded text-sm mb-4 flex items-center gap-2", children: [
+    showModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-md", style: { padding: "24px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: formData.id ? t("domains.editDomain") : t("domains.addDomainTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setShowModal(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+      ] }),
+      error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-danger mb-4 flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
         error
       ] }),
@@ -42637,7 +42646,7 @@ const Domains = ({ campaigns }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium mb-1", children: [
             t("domains.domainName"),
             " ",
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-400 font-normal", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-normal", style: { color: "var(--color-text-muted)" }, children: [
               "(",
               t("domains.bulkHint"),
               ")"
@@ -42648,13 +42657,13 @@ const Domains = ({ campaigns }) => {
             {
               required: true,
               rows: 3,
-              className: "w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none",
+              className: "form-input w-full",
               placeholder: t("domains.bulkPlaceholder"),
               value: formData.name,
               onChange: (e) => setFormData({ ...formData, name: e.target.value.toLowerCase() })
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500 mt-1", children: t("domains.bulkExample") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: t("domains.bulkExample") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium mb-1", children: [
@@ -42665,7 +42674,7 @@ const Domains = ({ campaigns }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
             {
-              className: "w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none",
+              className: "form-select w-full",
               value: formData.index_campaign_id,
               onChange: (e) => setFormData({ ...formData, index_campaign_id: e.target.value }),
               children: [
@@ -42683,7 +42692,7 @@ const Domains = ({ campaigns }) => {
               ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500 mt-1", children: t("domains.indexPageHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: t("domains.indexPageHint") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mt-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -42697,13 +42706,13 @@ const Domains = ({ campaigns }) => {
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "catch404", className: "text-sm font-medium cursor-pointer", children: t("domains.catch404") })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("hr", { className: "my-3" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("hr", { className: "my-3", style: { borderColor: "var(--color-border)" } }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t("domains.searchRobots") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
             {
-              className: "w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none",
+              className: "form-select w-full",
               value: formData.is_noindex ? "1" : "0",
               onChange: (e) => setFormData({ ...formData, is_noindex: e.target.value === "1" }),
               children: [
@@ -42712,7 +42721,7 @@ const Domains = ({ campaigns }) => {
               ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500 mt-1", children: t("domains.robotsHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: t("domains.robotsHint") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 pt-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -42730,39 +42739,39 @@ const Domains = ({ campaigns }) => {
             /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.httpsTooltip" })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-3 mt-6 pt-4 border-t", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setShowModal(false), className: "px-4 py-2 text-gray-600 hover:bg-gray-100 rounded", children: t("common.cancel") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "submit", className: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium", children: t("common.save") })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer mt-6", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setShowModal(false), className: "btn btn-secondary", children: t("common.cancel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "submit", className: "btn btn-primary", children: t("common.save") })
         ] })
       ] })
     ] }) }),
-    showDnsModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-md", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center p-4 border-b", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-lg font-bold flex items-center gap-2 text-gray-800", children: [
+    showDnsModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-md", style: { padding: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "text-orange-500" }),
           " ",
           t("domains.dnsTitle")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowDnsModal(false), className: "text-gray-400 hover:text-gray-600", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowDnsModal(false), className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600 mb-4", children: t("domains.dnsInstruction") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-200 rounded p-4 mb-4 font-mono text-sm text-center", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mb-4", style: { color: "var(--color-text-primary)" }, children: t("domains.dnsInstruction") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-soft)] border border-[var(--color-border)] rounded p-4 mb-4 font-mono text-sm text-center text-[var(--color-text-primary)]", children: [
           "@    IN    ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-blue-600", children: serverIp })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-gray-500 mb-2 items-center flex gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm mb-2 items-center flex gap-2", style: { color: "var(--color-text-secondary)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-1.5 h-1.5 rounded-full bg-gray-400" }),
           " ",
           t("domains.dnsNote1")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-gray-500 items-center flex gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm items-center flex gap-2", style: { color: "var(--color-text-secondary)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" }),
           " ",
           t("domains.dnsNote2")
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-t bg-gray-50 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowDnsModal(false), className: "px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded font-medium", children: t("common.close") }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowDnsModal(false), className: "btn btn-secondary", children: t("common.close") }) })
     ] }) })
   ] });
 };
@@ -42770,20 +42779,20 @@ const API_URL$y = "/api.php";
 const statusMeta = (t, status) => {
   switch (status) {
     case "available":
-      return { label: t("backorder.statusAvailable"), cls: "text-green-700 bg-green-50 border-green-100" };
+      return { label: t("backorder.statusAvailable"), cls: "badge badge-success" };
     case "dns_available":
-      return { label: t("backorder.statusDnsAvailable"), cls: "text-lime-700 bg-lime-50 border-lime-100" };
+      return { label: t("backorder.statusDnsAvailable"), cls: "badge badge-success" };
     case "registered":
-      return { label: t("backorder.statusRegistered"), cls: "text-gray-700 bg-gray-50 border-gray-100" };
+      return { label: t("backorder.statusRegistered"), cls: "badge bg-[var(--color-bg-soft)] text-[var(--color-text-secondary)] border-[var(--color-border)]" };
     case "rate_limited":
-      return { label: t("backorder.statusRateLimited"), cls: "text-amber-700 bg-amber-50 border-amber-100" };
+      return { label: t("backorder.statusRateLimited"), cls: "badge badge-warning" };
     case "unsupported":
-      return { label: t("backorder.statusUnsupported"), cls: "text-slate-700 bg-slate-50 border-slate-100" };
+      return { label: t("backorder.statusUnsupported"), cls: "badge bg-[var(--color-bg-soft)] text-[var(--color-text-secondary)] border-[var(--color-border)]" };
     case "error":
-      return { label: t("backorder.statusError"), cls: "text-red-700 bg-red-50 border-red-100" };
+      return { label: t("backorder.statusError"), cls: "badge badge-danger" };
     case "unknown":
     default:
-      return { label: t("backorder.statusUnknown"), cls: "text-blue-700 bg-blue-50 border-blue-100" };
+      return { label: t("backorder.statusUnknown"), cls: "badge badge-info" };
   }
 };
 const BackorderDomains = ({ onOpenAutomation = null }) => {
@@ -43119,7 +43128,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     });
     downloadText("backorder_domains.csv", lines.join("\n") + "\n", "text/csv;charset=utf-8");
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded shadow-sm p-5 mb-6", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card mb-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(InfoBanner, { storageKey: "help_backorder", title: t("backorder.bannerTitle"), children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("backorder.bannerText") }),
       typeof onOpenAutomation === "function" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", type: "button", onClick: onOpenAutomation, children: t("backorder.openAutomation") }) })
@@ -43127,7 +43136,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4", style: { color: "var(--color-text-secondary)" } }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -43135,7 +43144,8 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
               placeholder: t("backorder.searchPlaceholder"),
               value: searchTerm,
               onChange: (e) => setSearchTerm(e.target.value),
-              className: "pl-9 pr-4 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500 w-64"
+              className: "form-input w-64",
+              style: { paddingLeft: "36px" }
             }
           )
         ] }),
@@ -43144,7 +43154,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
           {
             value: statusFilter,
             onChange: (e) => setStatusFilter(e.target.value),
-            className: "px-3 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500",
+            className: "form-select",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: t("common.all") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "available", children: t("backorder.statusAvailable") }),
@@ -43163,7 +43173,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
           "button",
           {
             onClick: fetchRows,
-            className: "bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition",
+            className: "btn btn-secondary flex items-center gap-2",
             title: t("common.refresh"),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16 }),
@@ -43177,7 +43187,12 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
           {
             onClick: runBatch,
             disabled: batchRunning,
-            className: `px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition ${batchRunning ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700 text-white"}`,
+            className: "btn flex items-center gap-2",
+            style: {
+              background: batchRunning ? "var(--color-bg-soft)" : "var(--color-success, #10b981)",
+              color: batchRunning ? "var(--color-text-muted)" : "white",
+              cursor: batchRunning ? "not-allowed" : "pointer"
+            },
             title: t("backorder.batchRun"),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(CirclePlay, { size: 16 }),
@@ -43186,7 +43201,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
             ]
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 px-3 py-2 rounded text-sm border border-gray-200 bg-white", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 px-3 py-2 rounded text-sm border", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-primary)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -43195,13 +43210,13 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
               onChange: (e) => setAutoRun(Boolean(e.target.checked))
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-700", children: t("backorder.autoRunLabel") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("backorder.autoRunLabel") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
             onClick: exportTxt,
-            className: "bg-white hover:bg-gray-50 text-gray-800 px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition border border-gray-200",
+            className: "btn btn-secondary",
             title: t("backorder.exportTxtHint"),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16 }),
@@ -43214,7 +43229,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
           "button",
           {
             onClick: exportCsv,
-            className: "bg-white hover:bg-gray-50 text-gray-800 px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition border border-gray-200",
+            className: "btn btn-secondary",
             title: t("backorder.exportCsvHint"),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16 }),
@@ -43232,7 +43247,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
               setImportText("");
               setShowImport(true);
             },
-            className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition",
+            className: "btn btn-primary",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
               " ",
@@ -43245,7 +43260,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
           {
             onClick: deleteSelected,
             disabled: selectedIds.size === 0,
-            className: `px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition ${selectedIds.size === 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700 text-white"}`,
+            className: `btn ${selectedIds.size === 0 ? "bg-[var(--color-bg-soft)] text-[var(--color-text-muted)] cursor-not-allowed" : "btn-danger"}`,
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 }),
               " ",
@@ -43255,8 +43270,8 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         )
       ] })
     ] }),
-    batchMsg && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4 text-sm text-gray-700", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-2 bg-gray-50 border border-gray-100 rounded px-3 py-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-gray-400" }),
+    batchMsg && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4 text-sm", style: { color: "var(--color-text-primary)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-2 rounded px-3 py-2 border", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-primary)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, style: { color: "var(--color-text-secondary)" } }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: batchMsg }),
       batchRunning && /* @__PURE__ */ jsxRuntimeExports.jsx(
         "button",
@@ -43265,30 +43280,31 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
           onClick: () => {
             stopRef.current = true;
           },
-          className: "ml-2 text-xs text-gray-600 underline",
+          className: "ml-2 text-xs underline",
+          style: { color: "var(--color-text-secondary)" },
           children: t("common.cancel")
         }
       )
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left text-sm border-collapse", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-gray-50 border-b border-gray-100", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: allVisibleSelected, onChange: toggleSelectAllVisible }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("backorder.domain") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("backorder.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("backorder.lastChecked") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600", children: t("backorder.notes") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold text-gray-600 text-right", children: t("common.actions") })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "40px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: allVisibleSelected, onChange: toggleSelectAllVisible }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("backorder.domain") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("backorder.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("backorder.lastChecked") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("backorder.notes") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-100", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8", children: t("common.loading") }) }) : filtered.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8 text-gray-500", children: t("backorder.noRows") }) }) : filtered.map((r2) => {
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8", children: t("common.loading") }) }) : filtered.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: t("backorder.noRows") }) }) : filtered.map((r2) => {
         const meta = statusMeta(t, r2.status || "unknown");
         const checked = selectedIds.has(r2.id);
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-gray-50 transition", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked, onChange: () => toggleOne(r2.id) }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-medium text-gray-800", children: r2.name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked, onChange: () => toggleOne(r2.id) }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: r2.name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "span",
             {
-              className: `inline-flex items-center gap-1 text-sm font-medium px-2 py-1 rounded border ${meta.cls}`,
+              className: `inline-flex items-center gap-1 ${meta.cls}`,
               title: [
                 meta.label,
                 r2.last_http_code ? `HTTP ${r2.last_http_code}` : "",
@@ -43301,14 +43317,15 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
               ]
             }
           ) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-600 text-xs", children: r2.last_checked_at || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400 italic", children: "-" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-gray-700 text-xs max-w-[360px] truncate", title: r2.notes || "", children: r2.notes ? r2.notes : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400 italic", children: "-" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: r2.last_checked_at || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "italic", style: { color: "var(--color-text-muted)" }, children: "-" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-xs max-w-[360px] truncate", style: { color: "var(--color-text-primary)" }, title: r2.notes || "", children: r2.notes ? r2.notes : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "italic", style: { color: "var(--color-text-muted)" }, children: "-" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
                 onClick: () => checkNow(r2.id),
-                className: "p-1.5 text-gray-400 hover:text-emerald-700 hover:bg-emerald-50 rounded transition",
+                className: "hover:text-emerald-500 transition",
+                style: { color: "var(--color-text-muted)" },
                 title: t("backorder.checkNow"),
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(CirclePlay, { size: 16 })
               }
@@ -43317,7 +43334,8 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
               "button",
               {
                 onClick: () => openEdit(r2),
-                className: "p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition",
+                className: "hover:text-[var(--color-primary)] transition",
+                style: { color: "var(--color-text-muted)" },
                 title: t("components.edit") || "Edit",
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 })
               }
@@ -43326,7 +43344,8 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
               "button",
               {
                 onClick: () => deleteOne(r2.id),
-                className: "p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition",
+                className: "hover:text-red-500 transition",
+                style: { color: "var(--color-text-muted)" },
                 title: t("common.delete"),
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 })
               }
@@ -43335,17 +43354,17 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         ] }, r2.id);
       }) })
     ] }) }),
-    showImport && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-2xl p-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold", children: t("backorder.importTitle") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "text-gray-400 hover:text-gray-700", onClick: () => setShowImport(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 18 }) })
+    showImport && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-2xl", style: { padding: "24px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("backorder.importTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-ghost btn-icon", onClick: () => setShowImport(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 18 }) })
       ] }),
-      importError && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-red-50 text-red-600 p-3 rounded text-sm mb-4 flex items-center gap-2", children: [
+      importError && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-danger mb-4 flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
         " ",
         importError
       ] }),
-      importResult && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-green-50 text-green-700 p-3 rounded text-sm mb-4", children: t("backorder.importResult").replace("{inserted}", String(importResult.inserted || 0)).replace("{duplicates}", String(importResult.duplicates_ignored || 0)).replace("{invalid}", String(importResult.invalid || 0)) }),
+      importResult && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-success mb-4", children: t("backorder.importResult").replace("{inserted}", String(importResult.inserted || 0)).replace("{duplicates}", String(importResult.duplicates_ignored || 0)).replace("{invalid}", String(importResult.invalid || 0)) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: submitImport, className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "textarea",
@@ -43354,16 +43373,16 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
             onChange: (e) => setImportText(e.target.value),
             rows: 10,
             placeholder: t("backorder.importPlaceholder"),
-            className: "w-full border border-gray-300 p-3 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none font-mono"
+            className: "form-input w-full font-mono"
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
               type: "button",
               onClick: () => setShowImport(false),
-              className: "bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded text-sm font-medium transition",
+              className: "btn btn-secondary",
               children: t("common.close")
             }
           ),
@@ -43371,20 +43390,20 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
             "button",
             {
               type: "submit",
-              className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition",
+              className: "btn btn-primary",
               children: t("backorder.import")
             }
           )
         ] })
       ] })
     ] }) }),
-    showEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-lg p-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold", children: t("backorder.editTitle") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "text-gray-400 hover:text-gray-700", onClick: () => setShowEdit(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 18 }) })
+    showEdit && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-lg", style: { padding: "24px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("backorder.editTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-ghost btn-icon", onClick: () => setShowEdit(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 18 }) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-gray-600 mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: editForm.name }) }),
-      editError && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-red-50 text-red-600 p-3 rounded text-sm mb-4 flex items-center gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm mb-4", style: { color: "var(--color-text-secondary)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: editForm.name }) }),
+      editError && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-danger mb-4 flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
         " ",
         editError
@@ -43398,17 +43417,17 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
               value: editForm.notes,
               onChange: (e) => setEditForm({ ...editForm, notes: e.target.value }),
               rows: 4,
-              className: "w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+              className: "form-input w-full"
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
               type: "button",
               onClick: () => setShowEdit(false),
-              className: "bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded text-sm font-medium transition",
+              className: "btn btn-secondary",
               children: t("common.cancel")
             }
           ),
@@ -43416,7 +43435,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
             "button",
             {
               type: "submit",
-              className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition",
+              className: "btn btn-primary",
               children: t("common.save")
             }
           )

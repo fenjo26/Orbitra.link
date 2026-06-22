@@ -105,8 +105,8 @@
     --color-green-500: oklch(72.3% .219 149.579);
     --color-green-600: oklch(62.7% .194 149.214);
     --color-green-700: oklch(52.7% .154 150.069);
-    --color-green-800: oklch(44.8% .119 151.328);
     --color-emerald-50: oklch(97.9% .021 166.113);
+    --color-emerald-500: oklch(69.6% .17 162.48);
     --color-emerald-600: oklch(59.6% .145 163.225);
     --color-emerald-700: oklch(50.8% .118 165.612);
     --color-blue-50: oklch(97% .014 254.604);
@@ -1170,10 +1170,6 @@
     flex-grow: 1;
   }
 
-  .border-collapse {
-    border-collapse: collapse;
-  }
-
   .-translate-y-1\/2 {
     --tw-translate-y: calc(calc(1 / 2 * 100%) * -1);
     translate: var(--tw-translate-x) var(--tw-translate-y);
@@ -1387,10 +1383,6 @@
     border-bottom-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
   }
 
-  :where(.divide-gray-100 > :not(:last-child)) {
-    border-color: var(--color-gray-100);
-  }
-
   :where(.divide-gray-200 > :not(:last-child)) {
     border-color: var(--color-gray-200);
   }
@@ -1540,16 +1532,8 @@
     border-color: var(--color-primary);
   }
 
-  .border-amber-100 {
-    border-color: var(--color-amber-100);
-  }
-
   .border-amber-200 {
     border-color: var(--color-amber-200);
-  }
-
-  .border-blue-100 {
-    border-color: var(--color-blue-100);
   }
 
   .border-blue-200 {
@@ -1588,20 +1572,8 @@
     border-color: var(--color-gray-700);
   }
 
-  .border-green-100 {
-    border-color: var(--color-green-100);
-  }
-
   .border-green-200 {
     border-color: var(--color-green-200);
-  }
-
-  .border-lime-100 {
-    border-color: var(--color-lime-100);
-  }
-
-  .border-red-100 {
-    border-color: var(--color-red-100);
   }
 
   .border-red-200 {
@@ -1704,10 +1676,6 @@
     background-color: var(--color-blue-600);
   }
 
-  .bg-emerald-600 {
-    background-color: var(--color-emerald-600);
-  }
-
   .bg-gray-50 {
     background-color: var(--color-gray-50);
   }
@@ -1750,10 +1718,6 @@
     background-color: var(--color-gray-900);
   }
 
-  .bg-green-50 {
-    background-color: var(--color-green-50);
-  }
-
   .bg-green-100 {
     background-color: var(--color-green-100);
   }
@@ -1772,10 +1736,6 @@
 
   .bg-indigo-600 {
     background-color: var(--color-indigo-600);
-  }
-
-  .bg-lime-50 {
-    background-color: var(--color-lime-50);
   }
 
   .bg-orange-500 {
@@ -1802,10 +1762,6 @@
 
   .bg-red-500 {
     background-color: var(--color-red-500);
-  }
-
-  .bg-red-600 {
-    background-color: var(--color-red-600);
   }
 
   .bg-slate-50 {
@@ -2257,10 +2213,6 @@
     color: var(--color-blue-600);
   }
 
-  .text-blue-700 {
-    color: var(--color-blue-700);
-  }
-
   .text-blue-800 {
     color: var(--color-blue-800);
   }
@@ -2313,10 +2265,6 @@
     color: var(--color-indigo-800);
   }
 
-  .text-lime-700 {
-    color: var(--color-lime-700);
-  }
-
   .text-orange-100 {
     color: var(--color-orange-100);
   }
@@ -2335,10 +2283,6 @@
 
   .text-red-600 {
     color: var(--color-red-600);
-  }
-
-  .text-red-700 {
-    color: var(--color-red-700);
   }
 
   .text-slate-400 {
@@ -2739,14 +2683,6 @@
       background-color: var(--color-blue-700);
     }
 
-    .hover\:bg-emerald-50:hover {
-      background-color: var(--color-emerald-50);
-    }
-
-    .hover\:bg-emerald-700:hover {
-      background-color: var(--color-emerald-700);
-    }
-
     .hover\:bg-gray-50:hover {
       background-color: var(--color-gray-50);
     }
@@ -2789,12 +2725,14 @@
       }
     }
 
-    .hover\:bg-red-100:hover {
-      background-color: var(--color-red-100);
+    .hover\:bg-red-500\/20:hover {
+      background-color: #fb2c3633;
     }
 
-    .hover\:bg-red-700:hover {
-      background-color: var(--color-red-700);
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-red-500\/20:hover {
+        background-color: color-mix(in oklab, var(--color-red-500) 20%, transparent);
+      }
     }
 
     .hover\:text-\[var\(--color-primary\)\]:hover {
@@ -2805,10 +2743,6 @@
       color: var(--color-text-primary);
     }
 
-    .hover\:text-blue-600:hover {
-      color: var(--color-blue-600);
-    }
-
     .hover\:text-blue-700:hover {
       color: var(--color-blue-700);
     }
@@ -2817,8 +2751,8 @@
       color: var(--color-blue-800);
     }
 
-    .hover\:text-emerald-700:hover {
-      color: var(--color-emerald-700);
+    .hover\:text-emerald-500:hover {
+      color: var(--color-emerald-500);
     }
 
     .hover\:text-gray-600:hover {

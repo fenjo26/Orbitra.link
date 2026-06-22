@@ -166,23 +166,23 @@ const Domains = ({ campaigns }) => {
     };
 
     return (
-        <div className="bg-white rounded shadow-sm p-5 mb-6">
+        <div className="page-card mb-6">
             <InfoBanner storageKey="help_domains" title={t('help.domainBannerTitle')}>
                 <p>{t('help.domainBanner')}</p>
             </InfoBanner>
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-4">
-                    <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                        <Globe size={20} className="text-gray-500" />
+                    <h2 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                        <Globe size={20} style={{ color: 'var(--color-text-secondary)' }} />
                         {t('domains.title')}
                     </h2>
                     {serverIp && (
-                        <div className="flex items-center bg-blue-50 text-blue-800 px-3 py-1 rounded text-sm border border-blue-100">
+                        <div className="flex items-center px-3 py-1 rounded text-sm border" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}>
                             <span className="font-medium mr-2">{t('domains.serverIp')}</span>
                             <span className="font-mono">{serverIp}</span>
-                            <button onClick={copyIp} className="ml-2 hover:text-blue-600 transition flex items-center gap-1" title={copiedIp ? t('migrations.copied') : t('common.copy')}>
-                                {copiedIp ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
-                                {copiedIp && <span className="text-xs text-green-600">{t('migrations.copied')}</span>}
+                            <button onClick={copyIp} className="ml-2 hover:text-[var(--color-primary)] transition flex items-center gap-1" style={{ color: 'var(--color-text-secondary)' }} title={copiedIp ? t('migrations.copied') : t('common.copy')}>
+                                {copiedIp ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                                {copiedIp && <span className="text-xs text-green-500">{t('migrations.copied')}</span>}
                             </button>
                         </div>
                     )}
@@ -190,27 +190,33 @@ const Domains = ({ campaigns }) => {
 
                 <div className="flex items-center gap-3">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--color-text-secondary)' }} />
                         <input
                             type="text"
                             placeholder={t('domains.searchPlaceholder')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 pr-4 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500 w-64"
+                            className="form-input w-64"
+                            style={{ paddingLeft: '36px' }}
                         />
                     </div>
-                    <label className="inline-flex items-center gap-2 px-3 py-2 rounded text-sm border border-gray-200 bg-white" title={t('domains.ignoreDnsHint')}>
+                    <label className="inline-flex items-center gap-2 px-3 py-2 rounded text-sm border" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }} title={t('domains.ignoreDnsHint')}>
                         <input
                             type="checkbox"
                             checked={ignoreDnsUi}
                             onChange={(e) => setIgnoreDnsUi(Boolean(e.target.checked))}
                         />
-                        <span className="text-gray-700">{t('domains.ignoreDnsLabel')}</span>
+                        <span style={{ color: 'var(--color-text-primary)' }}>{t('domains.ignoreDnsLabel')}</span>
                     </label>
                     <button
                         onClick={forceCheckAllDns}
                         disabled={forceChecking}
-                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition"
+                        className="btn flex items-center gap-2"
+                        style={{
+                            background: forceChecking ? 'var(--color-bg-soft)' : 'var(--color-success, #10b981)',
+                            color: forceChecking ? 'var(--color-text-muted)' : 'white',
+                            cursor: forceChecking ? 'not-allowed' : 'pointer'
+                        }}
                         title={t('domains.forceCheckTitle')}
                     >
                         <RefreshCw size={16} className={forceChecking ? 'animate-spin' : ''} />
@@ -221,7 +227,7 @@ const Domains = ({ campaigns }) => {
                             setFormData({ id: null, name: '', index_campaign_id: '', catch_404: false, group_id: '', is_noindex: true, https_only: false });
                             setShowModal(true);
                         }}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium flex items-center gap-2 transition"
+                        className="btn btn-primary"
                     >
                         <Plus size={16} /> {t('domains.addDomain')}
                     </button>
@@ -229,46 +235,46 @@ const Domains = ({ campaigns }) => {
             </div>
 
             <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm border-collapse">
-                    <thead className="bg-gray-50 border-b border-gray-100">
+                <table className="page-table">
+                    <thead>
                         <tr>
-                            <th className="px-5 py-3 font-semibold text-gray-600">{t('domains.domain')}</th>
-                            <th className="px-5 py-3 font-semibold text-gray-600">{t('domains.status')}</th>
-                            <th className="px-5 py-3 font-semibold text-gray-600">{t('domains.indexPage')}</th>
-                            <th className="px-5 py-3 font-semibold text-gray-600 text-center">{t('domains.https')}</th>
-                            <th className="px-5 py-3 font-semibold text-gray-600 text-center">{t('domains.sslStatus')}</th>
-                            <th className="px-5 py-3 font-semibold text-gray-600">{t('domains.dateAdded')}</th>
-                            <th className="px-5 py-3 font-semibold text-gray-600 text-right">{t('domains.actions')}</th>
+                            <th>{t('domains.domain')}</th>
+                            <th>{t('domains.status')}</th>
+                            <th>{t('domains.indexPage')}</th>
+                            <th className="text-center">{t('domains.https')}</th>
+                            <th className="text-center">{t('domains.sslStatus')}</th>
+                            <th>{t('domains.dateAdded')}</th>
+                            <th className="text-right">{t('domains.actions')}</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody>
                         {loading ? (
                             <tr><td colSpan="7" className="text-center py-8">{t('domains.loading')}</td></tr>
                         ) : filteredDomains.length === 0 ? (
-                            <tr><td colSpan="7" className="text-center py-8 text-gray-500">{t('domains.noDomains')}</td></tr>
+                            <tr><td colSpan="7" className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>{t('domains.noDomains')}</td></tr>
                         ) : (
                             filteredDomains.map(domain => (
-                                <tr key={domain.id} className="hover:bg-gray-50 transition">
-                                    <td className="px-5 py-3 font-medium text-gray-800">{domain.name}</td>
-                                    <td className="px-5 py-3">
+                                <tr key={domain.id}>
+                                    <td className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{domain.name}</td>
+                                    <td>
                                         {(ignoreDnsUi || domain.status === 'active') ? (
-                                            <span className="inline-flex items-center gap-1 text-green-600 text-sm font-medium bg-green-50 px-2 py-1 rounded">
+                                            <span className="badge badge-success">
                                                 <Check size={14} /> {t('domains.ok')}
                                             </span>
                                         ) : (
                                             <button
                                                 onClick={() => setShowDnsModal(true)}
-                                                className="inline-flex items-center gap-1 text-red-600 text-sm font-medium bg-red-50 px-2 py-1 rounded hover:bg-red-100 transition"
+                                                className="badge badge-danger cursor-pointer hover:bg-red-500/20 transition"
                                             >
                                                 <ShieldAlert size={14} /> {t('domains.awaitingDns')}
                                             </button>
                                         )}
                                     </td>
-                                    <td className="px-5 py-3 text-gray-600">{domain.index_campaign_name || <span className="text-gray-400 italic">{t('domains.notSelected')}</span>}</td>
-                                    <td className="px-5 py-3 text-center">
-                                        {domain.https_only ? <Check size={16} className="text-green-500 mx-auto" /> : <X size={16} className="text-gray-300 mx-auto" />}
+                                    <td>{domain.index_campaign_name || <span className="italic" style={{ color: 'var(--color-text-muted)' }}>{t('domains.notSelected')}</span>}</td>
+                                    <td className="text-center">
+                                        {domain.https_only ? <Check size={16} className="text-green-500 mx-auto" /> : <X size={16} className="mx-auto" style={{ color: 'var(--color-text-muted)' }} />}
                                     </td>
-                                    <td className="px-5 py-3 text-center">
+                                    <td className="text-center">
                                         {domain.https_only ? (
                                             domain.ssl_status === 'installed' ? (
                                                 <Check size={16} className="text-green-500 mx-auto" title={t('domains.sslInstalled')} />
@@ -279,19 +285,19 @@ const Domains = ({ campaigns }) => {
                                             ) : domain.ssl_status === 'pending' ? (
                                                 <Clock size={16} className="text-yellow-500 mx-auto" title={t('domains.sslPending')} />
                                             ) : (
-                                                <Clock size={16} className="text-gray-400 mx-auto" title={t('domains.sslPending')} />
+                                                <Clock size={16} className="mx-auto" style={{ color: 'var(--color-text-muted)' }} title={t('domains.sslPending')} />
                                             )
                                         ) : (
-                                            <X size={16} className="text-gray-300 mx-auto" />
+                                            <X size={16} className="mx-auto" style={{ color: 'var(--color-text-muted)' }} />
                                         )}
                                     </td>
-                                    <td className="px-5 py-3 text-gray-500 text-xs">{domain.created_at}</td>
-                                    <td className="px-5 py-3 text-right">
+                                    <td className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{domain.created_at}</td>
+                                    <td className="text-right">
                                         <div className="flex items-center justify-end gap-2">
-                                            <button onClick={() => handleEdit(domain)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition" title={t('components.edit')}>
+                                            <button onClick={() => handleEdit(domain)} className="hover:text-[var(--color-primary)] transition" style={{ color: 'var(--color-text-muted)' }} title={t('components.edit')}>
                                                 <Edit2 size={16} />
                                             </button>
-                                            <button onClick={() => handleDelete(domain.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition" title={t('common.delete')}>
+                                            <button onClick={() => handleDelete(domain.id)} className="hover:text-red-500 transition" style={{ color: 'var(--color-text-muted)' }} title={t('common.delete')}>
                                                 <Trash2 size={16} />
                                             </button>
                                         </div>
@@ -304,32 +310,37 @@ const Domains = ({ campaigns }) => {
             </div>
 
             {showModal && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-                        <h3 className="text-lg font-bold mb-4">{formData.id ? t('domains.editDomain') : t('domains.addDomainTitle')}</h3>
-                        {error && <div className="bg-red-50 text-red-600 p-3 rounded text-sm mb-4 flex items-center gap-2"><AlertCircle size={16} />{error}</div>}
+                <div className="modal-overlay">
+                    <div className="modal-content w-full max-w-md" style={{ padding: '24px' }}>
+                        <div className="modal-header">
+                            <h3 className="modal-title">{formData.id ? t('domains.editDomain') : t('domains.addDomainTitle')}</h3>
+                            <button type="button" className="btn btn-ghost btn-icon" onClick={() => setShowModal(false)}>
+                                <X size={20} />
+                            </button>
+                        </div>
+                        {error && <div className="alert alert-danger mb-4 flex items-center gap-2"><AlertCircle size={16} />{error}</div>}
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium mb-1">
                                     {t('domains.domainName')}{' '}
-                                    <span className="text-xs text-gray-400 font-normal">({t('domains.bulkHint')})</span>
+                                    <span className="text-xs font-normal" style={{ color: 'var(--color-text-muted)' }}>({t('domains.bulkHint')})</span>
                                 </label>
                                 <textarea
                                     required
                                     rows={3}
-                                    className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="form-input w-full"
                                     placeholder={t('domains.bulkPlaceholder')}
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value.toLowerCase() })}
                                 />
-                                <p className="text-xs text-gray-500 mt-1">{t('domains.bulkExample')}</p>
+                                <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.bulkExample')}</p>
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium mb-1">{t('domains.indexPageLabel')} <HelpTooltip textKey="help.indexCampaignTooltip" /></label>
                                 <select
-                                    className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="form-select w-full"
                                     value={formData.index_campaign_id} onChange={e => setFormData({ ...formData, index_campaign_id: e.target.value })}
                                 >
                                     <option value="">-- {t('domains.notSelected')} --</option>
@@ -337,7 +348,7 @@ const Domains = ({ campaigns }) => {
                                         <option key={c.id} value={c.id}>{c.name} ({c.alias})</option>
                                     ))}
                                 </select>
-                                <p className="text-xs text-gray-500 mt-1">{t('domains.indexPageHint')}</p>
+                                <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.indexPageHint')}</p>
                             </div>
 
                             <div className="flex items-center gap-2 mt-2">
@@ -348,18 +359,18 @@ const Domains = ({ campaigns }) => {
                                 <label htmlFor="catch404" className="text-sm font-medium cursor-pointer">{t('domains.catch404')}</label>
                             </div>
 
-                            <hr className="my-3" />
+                            <hr className="my-3" style={{ borderColor: 'var(--color-border)' }} />
 
                             <div>
                                 <label className="block text-sm font-medium mb-1">{t('domains.searchRobots')}</label>
                                 <select
-                                    className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="form-select w-full"
                                     value={formData.is_noindex ? '1' : '0'} onChange={e => setFormData({ ...formData, is_noindex: e.target.value === '1' })}
                                 >
                                     <option value="1">{t('domains.disallowRobots')}</option>
                                     <option value="0">{t('domains.allowRobots')}</option>
                                 </select>
-                                <p className="text-xs text-gray-500 mt-1">{t('domains.robotsHint')}</p>
+                                <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.robotsHint')}</p>
                             </div>
 
                             <div className="flex items-center gap-2 pt-2">
@@ -370,9 +381,9 @@ const Domains = ({ campaigns }) => {
                                 <label htmlFor="https_only" className="text-sm font-medium cursor-pointer">{t('domains.httpsOnly')} <HelpTooltip textKey="help.httpsTooltip" /></label>
                             </div>
 
-                            <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-                                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">{t('common.cancel')}</button>
-                                <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium">{t('common.save')}</button>
+                            <div className="modal-footer mt-6">
+                                <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary">{t('common.cancel')}</button>
+                                <button type="submit" className="btn btn-primary">{t('common.save')}</button>
                             </div>
                         </form>
                     </div>
@@ -381,32 +392,32 @@ const Domains = ({ campaigns }) => {
 
             {/* DNS Warning Modal */}
             {showDnsModal && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-                        <div className="flex justify-between items-center p-4 border-b">
-                            <h3 className="text-lg font-bold flex items-center gap-2 text-gray-800">
+                <div className="modal-overlay">
+                    <div className="modal-content w-full max-w-md" style={{ padding: 0 }}>
+                        <div className="modal-header">
+                            <h3 className="modal-title flex items-center gap-2">
                                 <AlertCircle className="text-orange-500" /> {t('domains.dnsTitle')}
                             </h3>
-                            <button onClick={() => setShowDnsModal(false)} className="text-gray-400 hover:text-gray-600">
+                            <button onClick={() => setShowDnsModal(false)} className="btn btn-ghost btn-icon">
                                 <X size={20} />
                             </button>
                         </div>
                         <div className="p-6">
-                            <p className="text-sm text-gray-600 mb-4">
+                            <p className="text-sm mb-4" style={{ color: 'var(--color-text-primary)' }}>
                                 {t('domains.dnsInstruction')}
                             </p>
-                            <div className="bg-gray-50 border border-gray-200 rounded p-4 mb-4 font-mono text-sm text-center">
+                            <div className="bg-[var(--color-bg-soft)] border border-[var(--color-border)] rounded p-4 mb-4 font-mono text-sm text-center text-[var(--color-text-primary)]">
                                 @ &nbsp;&nbsp; IN &nbsp;&nbsp; <span className="font-bold text-blue-600">{serverIp}</span>
                             </div>
-                            <p className="text-sm text-gray-500 mb-2 items-center flex gap-2">
+                            <p className="text-sm mb-2 items-center flex gap-2" style={{ color: 'var(--color-text-secondary)' }}>
                                 <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span> {t('domains.dnsNote1')}
                             </p>
-                            <p className="text-sm text-gray-500 items-center flex gap-2">
+                            <p className="text-sm items-center flex gap-2" style={{ color: 'var(--color-text-secondary)' }}>
                                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span> {t('domains.dnsNote2')}
                             </p>
                         </div>
-                        <div className="p-4 border-t bg-gray-50 flex justify-end">
-                            <button onClick={() => setShowDnsModal(false)} className="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded font-medium">{t('common.close')}</button>
+                        <div className="modal-footer">
+                            <button onClick={() => setShowDnsModal(false)} className="btn btn-secondary">{t('common.close')}</button>
                         </div>
                     </div>
                 </div>
