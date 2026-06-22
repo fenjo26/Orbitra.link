@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink } from 'lucide-react';
+import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -30,6 +30,17 @@ const IntegrationsPage = () => {
     const [campaigns, setCampaigns] = useState([]);
     const [configMessage, setConfigMessage] = useState(null);
 
+    // reCAPTCHA state
+    const [rcSaving, setRcSaving] = useState(false);
+    const [rcMessage, setRcMessage] = useState(null);
+    const [rcSettings, setRcSettings] = useState({
+        recaptcha_v2_site_key: '',
+        recaptcha_v2_secret_key: '',
+        recaptcha_v3_site_key: '',
+        recaptcha_v3_secret_key: '',
+        recaptcha_v3_threshold: '0.5'
+    });
+
     const copyToClipboard = (text, id) => {
         navigator.clipboard.writeText(text);
         setCopied(id);
@@ -54,11 +65,46 @@ const IntegrationsPage = () => {
         }
     }, []);
 
+    const fetchRcSettings = useCallback(async () => {
+        try {
+            const res = await axios.get(`${API_URL}?action=settings`);
+            if (res.data.status === 'success') {
+                const s = res.data.data || {};
+                setRcSettings({
+                    recaptcha_v2_site_key: s.recaptcha_v2_site_key || '',
+                    recaptcha_v2_secret_key: s.recaptcha_v2_secret_key || '',
+                    recaptcha_v3_site_key: s.recaptcha_v3_site_key || '',
+                    recaptcha_v3_secret_key: s.recaptcha_v3_secret_key || '',
+                    recaptcha_v3_threshold: s.recaptcha_v3_threshold || '0.5'
+                });
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }, []);
+
+    const saveRcSettings = async () => {
+        setRcSaving(true);
+        setRcMessage(null);
+        try {
+            await axios.post(`${API_URL}?action=save_settings`, rcSettings);
+            setRcMessage({ type: 'success', text: t('recaptcha.saved') });
+        } catch (err) {
+            setRcMessage({ type: 'error', text: t('recaptcha.saveError') });
+        } finally {
+            setRcSaving(false);
+            setTimeout(() => setRcMessage(null), 4000);
+        }
+    };
+
     useEffect(() => {
         if (activeTab === 'telegram') {
             fetchTelegramSettings();
         }
-    }, [activeTab, fetchTelegramSettings]);
+        if (activeTab === 'recaptcha') {
+            fetchRcSettings();
+        }
+    }, [activeTab, fetchTelegramSettings, fetchRcSettings]);
 
     const handleTelegramConnect = async () => {
         if (!tgToken.trim()) return;
@@ -338,6 +384,12 @@ const IntegrationsPage = () => {
             icon: <ImageIcon className="w-5 h-5" />,
             description: t('integrations.pixelDesc'),
             code: `<!-- Tracking impressions -->\n<img src="${trackerUrl}/pixel.gif?campaign_id=YOUR_ID" width="1" height="1" border="0" alt="" />\n\n<!-- Tracking conversions (place on Thank You page) -->\n<img src="${trackerUrl}/pixel.gif?action=conversion&subid={subid}&status=lead" width="1" height="1" border="0" alt="" />`
+        },
+        recaptcha: {
+            title: t('recaptcha.tabTitle'),
+            icon: <Shield className="w-5 h-5" />,
+            description: t('recaptcha.tabDesc'),
+            isRecaptcha: true
         },
         telegram: {
             title: 'Telegram Bot',
@@ -1350,7 +1402,123 @@ global \$wpdb;
                         </div>
 
                         {/* Content */}
-                        {activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : (
+                        {activeObj.isRecaptcha ? (
+                            <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
+                                <div style={{ maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                    {/* v2 section */}
+                                    <div style={{ background: 'var(--color-bg-card)', borderRadius: '12px', padding: '24px', border: '1px solid var(--color-border)' }}>
+                                        <div style={{ marginBottom: '16px' }}>
+                                            <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--color-text-primary)', marginBottom: '4px' }}>
+                                                {t('recaptcha.v2Title')}
+                                            </h3>
+                                            <p style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>{t('recaptcha.v2Desc')}</p>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            <div>
+                                                <label style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                    {t('recaptcha.siteKey')}
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={rcSettings.recaptcha_v2_site_key}
+                                                    onChange={e => setRcSettings(s => ({ ...s, recaptcha_v2_site_key: e.target.value }))}
+                                                    placeholder={t('recaptcha.siteKeyPlaceholder')}
+                                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px', fontFamily: 'monospace' }}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                    {t('recaptcha.secretKey')}
+                                                </label>
+                                                <input
+                                                    type="password"
+                                                    value={rcSettings.recaptcha_v2_secret_key}
+                                                    onChange={e => setRcSettings(s => ({ ...s, recaptcha_v2_secret_key: e.target.value }))}
+                                                    placeholder={t('recaptcha.secretKeyPlaceholder')}
+                                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px', fontFamily: 'monospace' }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* v3 section */}
+                                    <div style={{ background: 'var(--color-bg-card)', borderRadius: '12px', padding: '24px', border: '1px solid var(--color-border)' }}>
+                                        <div style={{ marginBottom: '16px' }}>
+                                            <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--color-text-primary)', marginBottom: '4px' }}>
+                                                {t('recaptcha.v3Title')}
+                                            </h3>
+                                            <p style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>{t('recaptcha.v3Desc')}</p>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            <div>
+                                                <label style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                    {t('recaptcha.siteKey')}
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={rcSettings.recaptcha_v3_site_key}
+                                                    onChange={e => setRcSettings(s => ({ ...s, recaptcha_v3_site_key: e.target.value }))}
+                                                    placeholder={t('recaptcha.siteKeyPlaceholder')}
+                                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px', fontFamily: 'monospace' }}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                    {t('recaptcha.secretKey')}
+                                                </label>
+                                                <input
+                                                    type="password"
+                                                    value={rcSettings.recaptcha_v3_secret_key}
+                                                    onChange={e => setRcSettings(s => ({ ...s, recaptcha_v3_secret_key: e.target.value }))}
+                                                    placeholder={t('recaptcha.secretKeyPlaceholder')}
+                                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px', fontFamily: 'monospace' }}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                    {t('recaptcha.v3Threshold')}
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    min="0" max="1" step="0.1"
+                                                    value={rcSettings.recaptcha_v3_threshold}
+                                                    onChange={e => setRcSettings(s => ({ ...s, recaptcha_v3_threshold: e.target.value }))}
+                                                    style={{ width: '160px', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px' }}
+                                                />
+                                                <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '6px' }}>{t('recaptcha.v3ThresholdDesc')}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Admin console link + save */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                                        <button
+                                            onClick={saveRcSettings}
+                                            disabled={rcSaving}
+                                            style={{ padding: '10px 24px', background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: '600', fontSize: '14px', cursor: 'pointer' }}
+                                        >
+                                            {rcSaving ? t('common.saving') : t('common.save')}
+                                        </button>
+                                        <a
+                                            href="https://www.google.com/recaptcha/admin"
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            style={{ fontSize: '13px', color: 'var(--color-primary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        >
+                                            {t('recaptcha.adminConsoleLink')} ↗
+                                        </a>
+                                    </div>
+                                    {rcMessage && (
+                                        <div style={{ padding: '12px 16px', borderRadius: '8px', fontSize: '14px',
+                                            background: rcMessage.type === 'success' ? 'var(--color-success-bg, #dcfce7)' : 'var(--color-error-bg, #fee2e2)',
+                                            color: rcMessage.type === 'success' ? 'var(--color-success, #16a34a)' : 'var(--color-error, #dc2626)' }}
+                                        >
+                                            {rcMessage.text}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : (
                             <div style={{ padding: '20px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                                     <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>

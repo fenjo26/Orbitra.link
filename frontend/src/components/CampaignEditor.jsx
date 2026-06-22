@@ -86,7 +86,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         catch_404_stream_id: '',
         streams: [],
         postbacks: [],
-        parameters: {}
+        parameters: {},
+        challenge_type: 'none',
+        challenge_custom_code: ''
     });
 
     // Stream Expansion state
@@ -243,7 +245,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                 schema_custom: s.schema_custom_json ? JSON.parse(s.schema_custom_json) : { landings: [], offers: [] }
                             })),
                             postbacks: data.postbacks || [],
-                            parameters: data.parameters || {}
+                            parameters: data.parameters || {},
+                            challenge_type: data.challenge_type || 'none',
+                            challenge_custom_code: data.challenge_custom_code || ''
                         });
                     }
                 })
@@ -856,6 +860,75 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                         {copySuccess ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                                                     </button>
                                                 </div>
+                                            </div>
+
+                                            {/* Bot Challenge Section */}
+                                            <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--color-border)' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                                                    <Shield size={18} style={{ color: 'var(--color-primary)' }} />
+                                                    <h3 style={{ fontSize: '15px', fontWeight: '600', color: 'var(--color-text-primary)', margin: 0 }}>
+                                                        {t('challenge.sectionTitle')}
+                                                    </h3>
+                                                </div>
+                                                <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
+                                                    {t('challenge.sectionDesc')}
+                                                </p>
+
+                                                {/* Email info banner */}
+                                                {formData.source_id && (
+                                                    <div style={{ background: 'var(--color-info-bg, #eff6ff)', border: '1px solid var(--color-info-border, #bfdbfe)', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px', display: 'flex', gap: '10px' }}>
+                                                        <span style={{ fontSize: '16px' }}>✉️</span>
+                                                        <div>
+                                                            <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--color-info-text, #1d4ed8)', marginBottom: '2px' }}>{t('challenge.infoEmailTitle')}</div>
+                                                            <div style={{ fontSize: '12px', color: 'var(--color-info-text, #1d4ed8)' }}>{t('challenge.infoEmailDesc')}</div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                                                    <label style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-text-secondary)', marginBottom: '4px', display: 'block' }}>
+                                                        {t('challenge.typeLabel')}
+                                                    </label>
+                                                    {[
+                                                        { value: 'none', label: t('challenge.typeNone'), desc: t('challenge.typeNoneDesc') },
+                                                        { value: 'recaptcha_v2', label: t('challenge.typeV2'), desc: t('challenge.typeV2Desc') },
+                                                        { value: 'recaptcha_v3', label: t('challenge.typeV3'), desc: t('challenge.typeV3Desc') },
+                                                        { value: 'custom', label: t('challenge.typeCustom'), desc: t('challenge.typeCustomDesc') },
+                                                    ].map(opt => (
+                                                        <label key={opt.value} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '10px 14px', borderRadius: '8px', border: `1px solid ${formData.challenge_type === opt.value ? 'var(--color-primary)' : 'var(--color-border)'}`, background: formData.challenge_type === opt.value ? 'var(--color-primary-alpha, rgba(79,70,229,0.06))' : 'var(--color-bg-card)', cursor: 'pointer' }}>
+                                                            <input
+                                                                type="radio"
+                                                                name="challenge_type"
+                                                                value={opt.value}
+                                                                checked={formData.challenge_type === opt.value}
+                                                                onChange={e => setFormData(prev => ({ ...prev, challenge_type: e.target.value }))}
+                                                                style={{ marginTop: '3px' }}
+                                                            />
+                                                            <div>
+                                                                <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--color-text-primary)' }}>{opt.label}</div>
+                                                                <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '2px' }}>{opt.desc}</div>
+                                                            </div>
+                                                        </label>
+                                                    ))}
+                                                </div>
+
+                                                {formData.challenge_type === 'custom' && (
+                                                    <div>
+                                                        <label style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-text-secondary)', marginBottom: '6px', display: 'block' }}>
+                                                            {t('challenge.customCodeLabel')}
+                                                        </label>
+                                                        <textarea
+                                                            value={formData.challenge_custom_code}
+                                                            onChange={e => setFormData(prev => ({ ...prev, challenge_custom_code: e.target.value }))}
+                                                            rows={8}
+                                                            placeholder={t('challenge.customCodePlaceholder')}
+                                                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '13px', fontFamily: 'monospace', resize: 'vertical' }}
+                                                        />
+                                                        <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '6px' }}>
+                                                            {t('challenge.customCodeHint')}
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     )}

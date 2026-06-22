@@ -1,6 +1,6 @@
 {
-    "version": "0.9.3.8",
-    "release_notes": "i18n cleanup and English README. Moved hardcoded Russian UI strings into the translation system (en.js/ru.js) across the bulk-import dialog, traffic sources, source editor, domains and migrations pages, so the interface follows the selected language everywhere. Traffic-source and affiliate-network template names (including the new Email and platform templates) are now localized instead of being hardcoded on the backend. English and Russian locales are now at full key parity. The README has been fully translated to English for the international audience.",
+    "version": "0.9.3.9",
+    "release_notes": "Bot Challenge system for email marketers: per-campaign human verification (reCAPTCHA v2, reCAPTCHA v3, or fully custom code) stops corporate email security bots from polluting stats. Click is logged only after successful verification. Email traffic source template improvements: ESP merge-tag reference table in the source editor for Mailchimp, Klaviyo, ActiveCampaign, GetResponse, Brevo and more. Full i18n coverage for all new UI strings.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-06-22"
 }

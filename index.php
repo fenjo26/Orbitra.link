@@ -325,6 +325,138 @@ function detectAcceptLanguageRaw()
     return trim((string) $_SERVER['HTTP_ACCEPT_LANGUAGE']);
 }
 
+function generateChallengeToken($campaignId, $alias, $secret) {
+    $payload = json_encode(['cid' => $campaignId, 'alias' => $alias, 'ts' => time()]);
+    $encoded = base64_encode($payload);
+    $sig = hash_hmac('sha256', $encoded, $secret);
+    return [$encoded, $sig];
+}
+
+function validateChallengeToken($ct, $cs, $secret, $campaignId) {
+    if (empty($ct) || empty($cs)) return false;
+    $expectedSig = hash_hmac('sha256', $ct, $secret);
+    if (!hash_equals($expectedSig, $cs)) return false;
+    $payload = json_decode(base64_decode($ct), true);
+    if (!is_array($payload)) return false;
+    // TTL: 15 minutes
+    if (!isset($payload['ts']) || (time() - $payload['ts']) > 900) return false;
+    // Campaign match
+    if (!isset($payload['cid']) || (int)$payload['cid'] !== (int)$campaignId) return false;
+    return true;
+}
+
+function renderChallengePage($campaign, $settings, $ct, $cs, $queryString) {
+    $challengeType = $campaign['challenge_type'] ?? 'none';
+    $campaignAlias = htmlspecialchars($campaign['alias'] ?? '');
+    $siteKeyV2 = htmlspecialchars($settings['recaptcha_v2_site_key'] ?? '');
+    $siteKeyV3 = htmlspecialchars($settings['recaptcha_v3_site_key'] ?? '');
+    $thresholdV3 = (float)($settings['recaptcha_v3_threshold'] ?? 0.5);
+    $customCode = $campaign['challenge_custom_code'] ?? '';
+    $ctEnc = htmlspecialchars($ct);
+    $csEnc = htmlspecialchars($cs);
+    // Pass original query params (except challenge fields) so they survive the POST
+    $qs = htmlspecialchars($queryString);
+
+    header('Content-Type: text/html; charset=utf-8');
+    ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Please verify</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f5f7fa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.card{background:#fff;border-radius:12px;padding:40px 32px;box-shadow:0 4px 24px rgba(0,0,0,.08);max-width:400px;width:90%;text-align:center}
+.icon{font-size:48px;margin-bottom:16px}
+h2{font-size:20px;font-weight:600;color:#1a1a2e;margin-bottom:8px}
+p{color:#6b7280;font-size:14px;line-height:1.5;margin-bottom:24px}
+.btn{display:inline-block;background:#4f46e5;color:#fff;border:none;border-radius:8px;padding:12px 28px;font-size:15px;font-weight:600;cursor:pointer;width:100%}
+.btn:hover{background:#4338ca}
+.recaptcha-wrap{display:flex;justify-content:center;margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">🛡️</div>
+  <h2>Quick verification</h2>
+  <p>Please confirm you're human to continue.</p>
+  <form method="POST" action="?<?php echo $qs; ?>" id="challenge-form">
+    <input type="hidden" name="_ct" value="<?php echo $ctEnc; ?>">
+    <input type="hidden" name="_cs" value="<?php echo $csEnc; ?>">
+    <?php if ($challengeType === 'recaptcha_v2' && $siteKeyV2): ?>
+    <div class="recaptcha-wrap">
+      <div class="g-recaptcha" data-sitekey="<?php echo $siteKeyV2; ?>"></div>
+    </div>
+    <button type="submit" class="btn">Continue &rarr;</button>
+    <?php elseif ($challengeType === 'recaptcha_v3' && $siteKeyV3): ?>
+    <button type="submit" class="btn" id="submit-btn">Continue &rarr;</button>
+    <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
+    <?php elseif ($challengeType === 'custom' && $customCode): ?>
+    <?php echo $customCode; ?>
+    <?php else: ?>
+    <button type="submit" class="btn">Continue &rarr;</button>
+    <?php endif; ?>
+  </form>
+</div>
+<?php if ($challengeType === 'recaptcha_v2' && $siteKeyV2): ?>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<?php elseif ($challengeType === 'recaptcha_v3' && $siteKeyV3): ?>
+<script src="https://www.google.com/recaptcha/api.js?render=<?php echo $siteKeyV3; ?>"></script>
+<script>
+grecaptcha.ready(function(){
+  document.getElementById('submit-btn').addEventListener('click', function(e){
+    e.preventDefault();
+    grecaptcha.execute('<?php echo $siteKeyV3; ?>', {action:'verify'}).then(function(token){
+      document.getElementById('g-recaptcha-response').value = token;
+      document.getElementById('challenge-form').submit();
+    });
+  });
+});
+</script>
+<?php endif; ?>
+</body>
+</html>
+<?php
+    exit;
+}
+
+function verifyChallengeResponse($challengeType, $settings, $postData) {
+    if ($challengeType === 'recaptcha_v2') {
+        $secretKey = $settings['recaptcha_v2_secret_key'] ?? '';
+        $response = $postData['g-recaptcha-response'] ?? '';
+        if (empty($secretKey) || empty($response)) return false;
+        $ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query(['secret' => $secretKey, 'response' => $response]));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        $result = curl_exec($ch);
+        if (!$result) return false;
+        $data = json_decode($result, true);
+        return !empty($data['success']);
+    } elseif ($challengeType === 'recaptcha_v3') {
+        $secretKey = $settings['recaptcha_v3_secret_key'] ?? '';
+        $response = $postData['g-recaptcha-response'] ?? '';
+        $threshold = (float)($settings['recaptcha_v3_threshold'] ?? 0.5);
+        if (empty($secretKey) || empty($response)) return false;
+        $ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query(['secret' => $secretKey, 'response' => $response]));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        $result = curl_exec($ch);
+        if (!$result) return false;
+        $data = json_decode($result, true);
+        return !empty($data['success']) && ($data['score'] ?? 0) >= $threshold;
+    } elseif ($challengeType === 'custom') {
+        // Custom challenge: trust a hidden field _challenge_ok=1 submitted by user's own code
+        return !empty($postData['_challenge_ok']);
+    }
+    return true; // no challenge type
+}
+
 // Генерация UUID v4 для click_id
 function generateUuid()
 {
@@ -601,6 +733,43 @@ if (($settings['ignore_prefetch'] ?? '1') === '1') {
         die("Prefetch ignored.");
     }
 }
+
+// === BOT CHALLENGE VERIFICATION ===
+$challengeType = $campaign['challenge_type'] ?? 'none';
+if ($challengeType !== 'none') {
+    $challengeSecret = $settings['postback_key'] ?? 'orbitra_secret';
+
+    // Build query string without challenge fields to preserve original params
+    $originalParams = array_diff_key($_GET, array_flip(['_ct', '_cs', '_challenge_ok']));
+    $originalQs = http_build_query($originalParams);
+
+    // Check if this is a POST with a valid challenge token
+    $isVerifiedPost = false;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $postCt = $_POST['_ct'] ?? '';
+        $postCs = $_POST['_cs'] ?? '';
+
+        if (validateChallengeToken($postCt, $postCs, $challengeSecret, $campaignId)) {
+            // Token is valid — verify the captcha response
+            if (verifyChallengeResponse($challengeType, $settings, $_POST)) {
+                $isVerifiedPost = true;
+            } else {
+                // Failed captcha — show challenge again
+                [$ct, $cs] = generateChallengeToken($campaignId, $campaign['alias'] ?? '', $challengeSecret);
+                renderChallengePage($campaign, $settings, $ct, $cs, $originalQs);
+                exit;
+            }
+        }
+    }
+
+    if (!$isVerifiedPost) {
+        // Not verified — show challenge page
+        [$ct, $cs] = generateChallengeToken($campaignId, $campaign['alias'] ?? '', $challengeSecret);
+        renderChallengePage($campaign, $settings, $ct, $cs, $originalQs);
+        exit;
+    }
+}
+// === END BOT CHALLENGE ===
 
 // 3. Выбор потока (Keitaro Logic: Intercepting -> Regular -> Fallback)
 $stmt = $pdo->prepare("SELECT * FROM streams WHERE campaign_id = ? AND is_active = 1 ORDER BY position ASC, id ASC");

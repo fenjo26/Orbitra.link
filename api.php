@@ -1111,6 +1111,8 @@ try {
                     }
                 }
                 $catch404StreamId = !empty($data['catch_404_stream_id']) ? (int) $data['catch_404_stream_id'] : null;
+                $challengeType = isset($data['challenge_type']) ? trim((string) $data['challenge_type']) : 'none';
+                $challengeCustomCode = isset($data['challenge_custom_code']) ? (string) $data['challenge_custom_code'] : null;
 
                 $streams = $data['streams'] ?? [];
                 $postbacks = $data['postbacks'] ?? [];
@@ -1142,7 +1144,8 @@ try {
                                 UPDATE campaigns 
                                 SET name=?, alias=?, domain_id=?, group_id=?, source_id=?, 
                                     cost_model=?, cost_value=?, uniqueness_method=?, uniqueness_hours=?, 
-                                    rotation_type=?, token=?, catch_404_stream_id=?
+                                    rotation_type=?, token=?, catch_404_stream_id=?,
+                                    challenge_type=?, challenge_custom_code=?
                                 WHERE id=?
                             ");
                             $stmt->execute([
@@ -1158,6 +1161,8 @@ try {
                                 $rotationType,
                                 $token,
                                 $catch404StreamId,
+                                $challengeType,
+                                $challengeCustomCode,
                                 $id
                             ]);
                         } else {
@@ -1166,7 +1171,8 @@ try {
                                 UPDATE campaigns 
                                 SET name=?, alias=?, domain_id=?, group_id=?, source_id=?, 
                                     cost_model=?, cost_value=?, uniqueness_method=?, uniqueness_hours=?, 
-                                    rotation_type=?, catch_404_stream_id=?
+                                    rotation_type=?, catch_404_stream_id=?,
+                                    challenge_type=?, challenge_custom_code=?
                                 WHERE id=?
                             ");
                             $stmt->execute([
@@ -1181,6 +1187,8 @@ try {
                                 $uniquenessHours,
                                 $rotationType,
                                 $catch404StreamId,
+                                $challengeType,
+                                $challengeCustomCode,
                                 $id
                             ]);
                         }
@@ -1190,8 +1198,8 @@ try {
                         }
                         $stmt = $pdo->prepare("
                             INSERT INTO campaigns 
-                            (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id, challenge_type, challenge_custom_code)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         $stmt->execute([
                             $name,
@@ -1205,7 +1213,9 @@ try {
                             $uniquenessHours,
                             $rotationType,
                             $token,
-                            $catch404StreamId
+                            $catch404StreamId,
+                            $challengeType,
+                            $challengeCustomCode
                         ]);
                         $id = $pdo->lastInsertId();
                     }

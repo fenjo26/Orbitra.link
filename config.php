@@ -44,7 +44,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 9;
+    $LATEST_SCHEMA_VERSION = 10;
 
     $schemaVersion = 0;
     try {
@@ -746,7 +746,12 @@ try {
         ['telegram_bot_token', ''],
         ['telegram_webhook_set', '0'],
         ['telegram_notify_conversions', '1'],
-        ['telegram_daily_time', '21:00']
+        ['telegram_daily_time', '21:00'],
+        ['recaptcha_v2_site_key', ''],
+        ['recaptcha_v2_secret_key', ''],
+        ['recaptcha_v3_site_key', ''],
+        ['recaptcha_v3_secret_key', ''],
+        ['recaptcha_v3_threshold', '0.5']
     ];
     $stmt = $pdo->prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)");
     foreach ($defaultSettings as $s) {
@@ -960,6 +965,20 @@ try {
                     }
                     // On failure the schema stays as-is; index.php still guards the
                     // INSERT so visitors never get a 500.
+                }
+            }
+
+            // Migration 10: Bot Challenge — per-campaign human verification settings
+            if ($schemaVersion < 10) {
+                try {
+                    $pdo->exec("ALTER TABLE campaigns ADD COLUMN challenge_type TEXT DEFAULT 'none'");
+                } catch (\Throwable $e) {
+                    // Ignore if already exists.
+                }
+                try {
+                    $pdo->exec("ALTER TABLE campaigns ADD COLUMN challenge_custom_code TEXT");
+                } catch (\Throwable $e) {
+                    // Ignore if already exists.
                 }
             }
 

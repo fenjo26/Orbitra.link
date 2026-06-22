@@ -8,6 +8,7 @@ const API_URL = '/api.php';
 const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
+    const [showEspHints, setShowEspHints] = useState(false);
     const [templates, setTemplates] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
@@ -110,6 +111,15 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     };
 
     const statusOptions = ['lead', 'sale', 'rejected', 'rebill', 'trash'];
+
+    const ESP_HINTS = [
+        { esp: 'Mailchimp', subscriber_id: '*|UNIQUEID|*', campaign_id: '*|MC:SUBJECT|*', list_id: '*|LIST:NAME|*', broadcast_id: '', esp_val: 'mailchimp' },
+        { esp: 'Klaviyo', subscriber_id: '{{ person.id }}', campaign_id: '{{ campaign.id }}', list_id: '{{ list.id }}', broadcast_id: '{{ flow.id }}', esp_val: 'klaviyo' },
+        { esp: 'ActiveCampaign', subscriber_id: '%SUBSCRIBEREMAIL%', campaign_id: '%CAMPAIGNID%', list_id: '%LISTID%', broadcast_id: '%MESSAGEID%', esp_val: 'activecampaign' },
+        { esp: 'GetResponse', subscriber_id: '{{CONTACT_ID}}', campaign_id: '{{CAMPAIGN_ID}}', list_id: '{{LIST_ID}}', broadcast_id: '', esp_val: 'getresponse' },
+        { esp: 'Brevo (Sendinblue)', subscriber_id: '{{ contact.email }}', campaign_id: '{{ message.id }}', list_id: '{{ contact.listid }}', broadcast_id: '', esp_val: 'brevo' },
+        { esp: 'SendGrid', subscriber_id: '{{contact_id}}', campaign_id: '{{campaign_id}}', list_id: '{{list_id}}', broadcast_id: '', esp_val: 'sendgrid' },
+    ];
 
     const toggleStatus = (status) => {
         const current = formData.postback_statuses.split(',').filter(s => s);
@@ -326,6 +336,47 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
                                     </p>
                                 )}
                             </div>
+
+                            {/* ESP Hints for Email template */}
+                            {formData.template === 'email' && (
+                                <div style={{ marginTop: '16px', border: '1px solid var(--color-border)', borderRadius: '10px', overflow: 'hidden' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowEspHints(h => !h)}
+                                        style={{ width: '100%', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--color-bg-secondary)', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '600', color: 'var(--color-text-primary)' }}
+                                    >
+                                        <span>📧 {t('emailSource.espHintsTitle')}</span>
+                                        <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>{showEspHints ? t('emailSource.hideHints') : t('emailSource.showHints')}</span>
+                                    </button>
+                                    {showEspHints && (
+                                        <div style={{ padding: '16px', background: 'var(--color-bg-card)' }}>
+                                            <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '12px' }}>{t('emailSource.espHintsDesc')}</p>
+                                            <div style={{ overflowX: 'auto' }}>
+                                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                                                    <thead>
+                                                        <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                                                            {[t('emailSource.espCol'), t('emailSource.subscriberIdCol'), t('emailSource.campaignIdCol'), t('emailSource.listIdCol'), t('emailSource.broadcastIdCol'), t('emailSource.espNameCol')].map(h => (
+                                                                <th key={h} style={{ padding: '6px 8px', textAlign: 'left', fontWeight: '600', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>{h}</th>
+                                                            ))}
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {ESP_HINTS.map(row => (
+                                                            <tr key={row.esp} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                                                                <td style={{ padding: '7px 8px', fontWeight: '600', color: 'var(--color-text-primary)', whiteSpace: 'nowrap' }}>{row.esp}</td>
+                                                                {[row.subscriber_id, row.campaign_id, row.list_id, row.broadcast_id, row.esp_val].map((val, idx) => (
+                                                                    <td key={idx} style={{ padding: '7px 8px', color: 'var(--color-text-muted)', fontFamily: 'monospace', fontSize: '11px' }}>{val || '—'}</td>
+                                                                ))}
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '10px' }}>{t('emailSource.hintsNote')}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             {/* Notes */}
                             <div>
