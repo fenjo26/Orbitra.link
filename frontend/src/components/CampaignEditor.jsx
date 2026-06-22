@@ -912,6 +912,43 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                     ))}
                                                 </div>
 
+                                                {/* reCAPTCHA setup guide */}
+                                                {(formData.challenge_type === 'recaptcha_v2' || formData.challenge_type === 'recaptcha_v3') && (
+                                                    <div style={{ background: 'var(--color-warning-bg, #fffbeb)', border: '1px solid var(--color-warning-border, #fcd34d)', borderRadius: '10px', padding: '14px 16px', marginBottom: '4px' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                                                            <span style={{ fontSize: '15px' }}>⚡</span>
+                                                            <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-warning-text, #92400e)' }}>
+                                                                {t('challenge.setupGuideTitle')}
+                                                            </span>
+                                                        </div>
+                                                        <ol style={{ margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                            <li style={{ fontSize: '12px', color: 'var(--color-warning-text, #92400e)', lineHeight: '1.5' }}>
+                                                                {t('challenge.setupStep1')}{' '}
+                                                                <a
+                                                                    href="https://www.google.com/recaptcha/admin/create"
+                                                                    target="_blank"
+                                                                    rel="noreferrer"
+                                                                    style={{ color: 'var(--color-primary)', fontWeight: '600', textDecoration: 'underline' }}
+                                                                >
+                                                                    Google reCAPTCHA Admin ↗
+                                                                </a>
+                                                            </li>
+                                                            <li style={{ fontSize: '12px', color: 'var(--color-warning-text, #92400e)', lineHeight: '1.5' }}>
+                                                                {t('challenge.setupStep2', {
+                                                                    type: formData.challenge_type === 'recaptcha_v2' ? "v2 («I'm not a robot»)" : 'v3'
+                                                                })}
+                                                            </li>
+                                                            <li style={{ fontSize: '12px', color: 'var(--color-warning-text, #92400e)', lineHeight: '1.5' }}>
+                                                                {t('challenge.setupStep3')}{' '}
+                                                                <strong>{t('challenge.setupStep3Path')}</strong>
+                                                            </li>
+                                                            <li style={{ fontSize: '12px', color: 'var(--color-warning-text, #92400e)', lineHeight: '1.5' }}>
+                                                                {t('challenge.setupStep4')}
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                )}
+
                                                 {formData.challenge_type === 'custom' && (
                                                     <div>
                                                         <label style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-text-secondary)', marginBottom: '6px', display: 'block' }}>

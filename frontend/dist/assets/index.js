@@ -17706,6 +17706,63 @@ const ru = {
     title: "Статический сайт",
     description: "JavaScript-код для статических сайтов. Получает удалённый конфиг и управляет элементами страницы.",
     instruction: "Добавьте этот скрипт перед закрывающим тегом </body>. Замените CONFIG_KEY на ваш реальный ключ конфигурации."
+  },
+  challenge: {
+    sectionTitle: "Бот-защита (Challenge)",
+    sectionDesc: "Показывать страницу верификации перед редиректом на оффер. Рекомендуется для email-рассылок, где корпоративные боты безопасности создают тысячи фейковых кликов.",
+    typeLabel: "Тип верификации",
+    typeNone: "Отключено",
+    typeNoneDesc: "Без верификации — прямой редирект (по умолчанию)",
+    typeV2: "reCAPTCHA v2",
+    typeV2Desc: 'Классический чекбокс "Я не робот". Требует ключей reCAPTCHA v2 в Интеграциях.',
+    typeV3: "reCAPTCHA v3 (невидимая)",
+    typeV3Desc: "Невидимая проверка на основе оценки. Низкая оценка — показывает challenge. Требует ключей reCAPTCHA v3 в Интеграциях.",
+    typeCustom: "Свой код",
+    typeCustomDesc: "Вставьте собственный HTML/JS виджет верификации.",
+    customCodeLabel: "Свой HTML/JS верификации",
+    customCodePlaceholder: '<!-- Ваш код виджета верификации здесь -->\n<!-- После прохождения, форма должна POST с полем: -->\n<!-- <input type="hidden" name="_challenge_ok" value="1"> -->',
+    customCodeHint: "Код выполняется на стороне посетителя. После верификации ваша форма должна отправить POST с скрытым полем _challenge_ok=1 для завершения.",
+    noKeysWarning: "Ключи reCAPTCHA не настроены. Перейдите в Интеграции → reCAPTCHA для настройки.",
+    infoEmailTitle: "Рекомендуется для email-трафика",
+    infoEmailDesc: "Корпоративные системы безопасности email автоматически переходят по всем ссылкам в письмах, создавая тысячи фейковых кликов. Бот-защита фильтрует их до попадания в статистику.",
+    setupGuideTitle: "Быстрая настройка (3 шага)",
+    setupStep1: "Создайте сайт reCAPTCHA в панели",
+    setupStep2: "Выберите тип {type} при регистрации сайта.",
+    setupStep3: "Вставьте Site Key и Secret Key в разделе",
+    setupStep3Path: "Интеграции → reCAPTCHA",
+    setupStep4: "Сохраните эту кампанию — защита активируется сразу."
+  },
+  recaptcha: {
+    tabTitle: "reCAPTCHA",
+    tabDesc: "Настройте ключи Google reCAPTCHA для функции Бот-защита. Ключи используются всеми кампаниями.",
+    v2Title: "Ключи reCAPTCHA v2",
+    v2Desc: 'Классический чекбокс "Я не робот". Получите ключи в консоли Google reCAPTCHA Admin.',
+    v3Title: "Ключи reCAPTCHA v3",
+    v3Desc: "Невидимая верификация на основе оценки. Оценки от 0.0 (бот) до 1.0 (человек).",
+    siteKey: "Site Key (публичный)",
+    secretKey: "Secret Key (приватный)",
+    siteKeyPlaceholder: "6Lc...",
+    secretKeyPlaceholder: "6Lc...",
+    v3Threshold: "Минимальный порог оценки",
+    v3ThresholdDesc: "Клики с оценкой ниже этого значения получают challenge-страницу. Рекомендовано: 0.5",
+    adminConsoleLink: "Открыть reCAPTCHA Admin Console",
+    saved: "Настройки reCAPTCHA сохранены",
+    saveError: "Не удалось сохранить настройки reCAPTCHA",
+    configured: "Настроено",
+    notConfigured: "Не настроено"
+  },
+  emailSource: {
+    espHintsTitle: "Справочник merge-тегов ESP",
+    espHintsDesc: "Сопоставьте каждый параметр с merge-тегом вашего почтового сервиса (ESP). Примеры по ESP:",
+    espCol: "ESP",
+    subscriberIdCol: "subscriber_id",
+    campaignIdCol: "campaign_id",
+    listIdCol: "list_id",
+    broadcastIdCol: "broadcast_id",
+    espNameCol: "esp (статическое значение)",
+    hintsNote: "Скопируйте merge-тег из таблицы в поле Macro соответствующего параметра.",
+    showHints: "Показать справочник ESP",
+    hideHints: "Скрыть справочник ESP"
   }
 };
 const en = {
@@ -19516,6 +19573,63 @@ const en = {
     serverConfigBlock: "in the block",
     updateError: "Update error",
     checkError: "Failed to check for updates"
+  },
+  challenge: {
+    sectionTitle: "Bot Challenge",
+    sectionDesc: "Show a human verification page before redirecting to the offer. Recommended for email campaigns where corporate security bots cause fake clicks.",
+    typeLabel: "Verification type",
+    typeNone: "Disabled",
+    typeNoneDesc: "No verification — direct redirect (default)",
+    typeV2: "reCAPTCHA v2",
+    typeV2Desc: `Classic "I'm not a robot" checkbox. Requires reCAPTCHA v2 keys in Integrations.`,
+    typeV3: "reCAPTCHA v3 (invisible)",
+    typeV3Desc: "Score-based invisible check. Low score triggers the challenge. Requires reCAPTCHA v3 keys in Integrations.",
+    typeCustom: "Custom code",
+    typeCustomDesc: "Paste your own HTML/JS verification widget.",
+    customCodeLabel: "Custom verification HTML/JS",
+    customCodePlaceholder: '<!-- Your verification widget code here -->\n<!-- After the user passes, submit a form with hidden field: -->\n<!-- <input type="hidden" name="_challenge_ok" value="1"> -->',
+    customCodeHint: "The code runs on the visitor's side. After verification, your form must POST with a hidden field _challenge_ok=1 to complete the flow.",
+    noKeysWarning: "reCAPTCHA keys are not configured. Go to Integrations → reCAPTCHA to add them.",
+    infoEmailTitle: "Recommended for email traffic",
+    infoEmailDesc: "Corporate email security gateways auto-click all links in emails, creating thousands of fake clicks. The Bot Challenge filters them out before they ever reach your stats.",
+    setupGuideTitle: "Quick setup (3 steps)",
+    setupStep1: "Create a reCAPTCHA site at",
+    setupStep2: "Choose type {type} when registering the site.",
+    setupStep3: "Paste the Site Key and Secret Key in",
+    setupStep3Path: "Integrations → reCAPTCHA",
+    setupStep4: "Save this campaign — the challenge will activate immediately."
+  },
+  recaptcha: {
+    tabTitle: "reCAPTCHA",
+    tabDesc: "Configure Google reCAPTCHA keys for the Bot Challenge feature. Keys are shared across all campaigns.",
+    v2Title: "reCAPTCHA v2 keys",
+    v2Desc: `Classic "I'm not a robot" checkbox. Get keys at Google reCAPTCHA Admin Console.`,
+    v3Title: "reCAPTCHA v3 keys",
+    v3Desc: "Invisible score-based verification. Scores range from 0.0 (bot) to 1.0 (human).",
+    siteKey: "Site Key",
+    secretKey: "Secret Key",
+    siteKeyPlaceholder: "6Lc...",
+    secretKeyPlaceholder: "6Lc...",
+    v3Threshold: "Minimum score threshold",
+    v3ThresholdDesc: "Clicks with score below this value are shown the challenge page. Recommended: 0.5",
+    adminConsoleLink: "Open reCAPTCHA Admin Console",
+    saved: "reCAPTCHA settings saved",
+    saveError: "Failed to save reCAPTCHA settings",
+    configured: "Configured",
+    notConfigured: "Not configured"
+  },
+  emailSource: {
+    espHintsTitle: "ESP merge-tag reference",
+    espHintsDesc: "Map each parameter to your email service provider's merge tag. Example values by ESP:",
+    espCol: "ESP",
+    subscriberIdCol: "subscriber_id",
+    campaignIdCol: "campaign_id",
+    listIdCol: "list_id",
+    broadcastIdCol: "broadcast_id",
+    espNameCol: "esp (static value)",
+    hintsNote: "Paste the merge tag from the table into the Macro field of the corresponding parameter.",
+    showHints: "Show ESP reference",
+    hideHints: "Hide ESP reference"
   }
 };
 const translations = { ru, en };
@@ -36606,6 +36720,7 @@ const API_URL$p = "/api.php";
 const TrafficSourceEditor = ({ id, onClose, onSave }) => {
   const { t, language } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
+  const [showEspHints, setShowEspHints] = reactExports.useState(false);
   const [templates, setTemplates] = reactExports.useState([]);
   const [formData, setFormData] = reactExports.useState({
     name: "",
@@ -36697,6 +36812,14 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     }
   };
   const statusOptions = ["lead", "sale", "rejected", "rebill", "trash"];
+  const ESP_HINTS = [
+    { esp: "Mailchimp", subscriber_id: "*|UNIQUEID|*", campaign_id: "*|MC:SUBJECT|*", list_id: "*|LIST:NAME|*", broadcast_id: "", esp_val: "mailchimp" },
+    { esp: "Klaviyo", subscriber_id: "{{ person.id }}", campaign_id: "{{ campaign.id }}", list_id: "{{ list.id }}", broadcast_id: "{{ flow.id }}", esp_val: "klaviyo" },
+    { esp: "ActiveCampaign", subscriber_id: "%SUBSCRIBEREMAIL%", campaign_id: "%CAMPAIGNID%", list_id: "%LISTID%", broadcast_id: "%MESSAGEID%", esp_val: "activecampaign" },
+    { esp: "GetResponse", subscriber_id: "{{CONTACT_ID}}", campaign_id: "{{CAMPAIGN_ID}}", list_id: "{{LIST_ID}}", broadcast_id: "", esp_val: "getresponse" },
+    { esp: "Brevo (Sendinblue)", subscriber_id: "{{ contact.email }}", campaign_id: "{{ message.id }}", list_id: "{{ contact.listid }}", broadcast_id: "", esp_val: "brevo" },
+    { esp: "SendGrid", subscriber_id: "{{contact_id}}", campaign_id: "{{campaign_id}}", list_id: "{{list_id}}", broadcast_id: "", esp_val: "sendgrid" }
+  ];
   const toggleStatus = (status) => {
     const current = formData.postback_statuses.split(",").filter((s) => s);
     if (current.includes(status)) {
@@ -36888,6 +37011,34 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
             )
           ] }, index2))
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm italic", style: { color: "var(--color-text-muted)" }, children: t("sourceEditor.noParams") })
+      ] }),
+      formData.template === "email" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "16px", border: "1px solid var(--color-border)", borderRadius: "10px", overflow: "hidden" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setShowEspHints((h) => !h),
+            style: { width: "100%", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-secondary)", border: "none", cursor: "pointer", fontSize: "13px", fontWeight: "600", color: "var(--color-text-primary)" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                "📧 ",
+                t("emailSource.espHintsTitle")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px", color: "var(--color-text-muted)" }, children: showEspHints ? t("emailSource.hideHints") : t("emailSource.showHints") })
+            ]
+          }
+        ),
+        showEspHints && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "16px", background: "var(--color-bg-card)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "12px" }, children: t("emailSource.espHintsDesc") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { overflowX: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { style: { borderBottom: "1px solid var(--color-border)" }, children: [t("emailSource.espCol"), t("emailSource.subscriberIdCol"), t("emailSource.campaignIdCol"), t("emailSource.listIdCol"), t("emailSource.broadcastIdCol"), t("emailSource.espNameCol")].map((h) => /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { padding: "6px 8px", textAlign: "left", fontWeight: "600", color: "var(--color-text-secondary)", whiteSpace: "nowrap" }, children: h }, h)) }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: ESP_HINTS.map((row) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { style: { borderBottom: "1px solid var(--color-border)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { padding: "7px 8px", fontWeight: "600", color: "var(--color-text-primary)", whiteSpace: "nowrap" }, children: row.esp }),
+              [row.subscriber_id, row.campaign_id, row.list_id, row.broadcast_id, row.esp_val].map((val, idx) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { padding: "7px 8px", color: "var(--color-text-muted)", fontFamily: "monospace", fontSize: "11px" }, children: val || "—" }, idx))
+            ] }, row.esp)) })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginTop: "10px" }, children: t("emailSource.hintsNote") })
+        ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.notes") }),
@@ -41784,6 +41935,15 @@ const IntegrationsPage = () => {
   const [configForm, setConfigForm] = reactExports.useState({ name: "", campaign_id: "", config_json: "", is_active: 1 });
   const [campaigns, setCampaigns] = reactExports.useState([]);
   const [configMessage, setConfigMessage] = reactExports.useState(null);
+  const [rcSaving, setRcSaving] = reactExports.useState(false);
+  const [rcMessage, setRcMessage] = reactExports.useState(null);
+  const [rcSettings, setRcSettings] = reactExports.useState({
+    recaptcha_v2_site_key: "",
+    recaptcha_v2_secret_key: "",
+    recaptcha_v3_site_key: "",
+    recaptcha_v3_secret_key: "",
+    recaptcha_v3_threshold: "0.5"
+  });
   const copyToClipboard = (text, id) => {
     navigator.clipboard.writeText(text);
     setCopied(id);
@@ -41805,11 +41965,44 @@ const IntegrationsPage = () => {
       setTgLoading(false);
     }
   }, []);
+  const fetchRcSettings = reactExports.useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_URL$9}?action=settings`);
+      if (res.data.status === "success") {
+        const s = res.data.data || {};
+        setRcSettings({
+          recaptcha_v2_site_key: s.recaptcha_v2_site_key || "",
+          recaptcha_v2_secret_key: s.recaptcha_v2_secret_key || "",
+          recaptcha_v3_site_key: s.recaptcha_v3_site_key || "",
+          recaptcha_v3_secret_key: s.recaptcha_v3_secret_key || "",
+          recaptcha_v3_threshold: s.recaptcha_v3_threshold || "0.5"
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+  const saveRcSettings = async () => {
+    setRcSaving(true);
+    setRcMessage(null);
+    try {
+      await axios.post(`${API_URL$9}?action=save_settings`, rcSettings);
+      setRcMessage({ type: "success", text: t("recaptcha.saved") });
+    } catch (err) {
+      setRcMessage({ type: "error", text: t("recaptcha.saveError") });
+    } finally {
+      setRcSaving(false);
+      setTimeout(() => setRcMessage(null), 4e3);
+    }
+  };
   reactExports.useEffect(() => {
     if (activeTab === "telegram") {
       fetchTelegramSettings();
     }
-  }, [activeTab, fetchTelegramSettings]);
+    if (activeTab === "recaptcha") {
+      fetchRcSettings();
+    }
+  }, [activeTab, fetchTelegramSettings, fetchRcSettings]);
   const handleTelegramConnect = async () => {
     if (!tgToken.trim()) return;
     setTgSaving(true);
@@ -42108,6 +42301,12 @@ $client->execute();
 
 <!-- Tracking conversions (place on Thank You page) -->
 <img src="${trackerUrl}/pixel.gif?action=conversion&subid={subid}&status=lead" width="1" height="1" border="0" alt="" />`
+    },
+    recaptcha: {
+      title: t("recaptcha.tabTitle"),
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "w-5 h-5" }),
+      description: t("recaptcha.tabDesc"),
+      isRecaptcha: true
     },
     telegram: {
       title: "Telegram Bot",
@@ -43271,7 +43470,129 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
             margin: "8px 0 0 0"
           }, children: activeObj.description })
         ] }),
-        activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 24px", flex: 1, display: "flex", flexDirection: "column" }, children: [
+        activeObj.isRecaptcha ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "600px", display: "flex", flexDirection: "column", gap: "24px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "16px", fontWeight: "600", color: "var(--color-text-primary)", marginBottom: "4px" }, children: t("recaptcha.v2Title") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13px", color: "var(--color-text-muted)" }, children: t("recaptcha.v2Desc") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.siteKey") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    value: rcSettings.recaptcha_v2_site_key,
+                    onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v2_site_key: e.target.value })),
+                    placeholder: t("recaptcha.siteKeyPlaceholder"),
+                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.secretKey") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "password",
+                    value: rcSettings.recaptcha_v2_secret_key,
+                    onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v2_secret_key: e.target.value })),
+                    placeholder: t("recaptcha.secretKeyPlaceholder"),
+                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
+                  }
+                )
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "16px", fontWeight: "600", color: "var(--color-text-primary)", marginBottom: "4px" }, children: t("recaptcha.v3Title") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13px", color: "var(--color-text-muted)" }, children: t("recaptcha.v3Desc") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.siteKey") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    value: rcSettings.recaptcha_v3_site_key,
+                    onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v3_site_key: e.target.value })),
+                    placeholder: t("recaptcha.siteKeyPlaceholder"),
+                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.secretKey") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "password",
+                    value: rcSettings.recaptcha_v3_secret_key,
+                    onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v3_secret_key: e.target.value })),
+                    placeholder: t("recaptcha.secretKeyPlaceholder"),
+                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.v3Threshold") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "number",
+                    min: "0",
+                    max: "1",
+                    step: "0.1",
+                    value: rcSettings.recaptcha_v3_threshold,
+                    onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v3_threshold: e.target.value })),
+                    style: { width: "160px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px" }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px" }, children: t("recaptcha.v3ThresholdDesc") })
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: saveRcSettings,
+                disabled: rcSaving,
+                style: { padding: "10px 24px", background: "var(--color-primary)", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "600", fontSize: "14px", cursor: "pointer" },
+                children: rcSaving ? t("common.saving") : t("common.save")
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "a",
+              {
+                href: "https://www.google.com/recaptcha/admin",
+                target: "_blank",
+                rel: "noreferrer",
+                style: { fontSize: "13px", color: "var(--color-primary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px" },
+                children: [
+                  t("recaptcha.adminConsoleLink"),
+                  " ↗"
+                ]
+              }
+            )
+          ] }),
+          rcMessage && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              style: {
+                padding: "12px 16px",
+                borderRadius: "8px",
+                fontSize: "14px",
+                background: rcMessage.type === "success" ? "var(--color-success-bg, #dcfce7)" : "var(--color-error-bg, #fee2e2)",
+                color: rcMessage.type === "success" ? "var(--color-success, #16a34a)" : "var(--color-error, #dc2626)"
+              },
+              children: rcMessage.text
+            }
+          )
+        ] }) }) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 24px", flex: 1, display: "flex", flexDirection: "column" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: t("integrations.codeToInsert") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -46541,7 +46862,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     catch_404_stream_id: "",
     streams: [],
     postbacks: [],
-    parameters: {}
+    parameters: {},
+    challenge_type: "none",
+    challenge_custom_code: ""
   });
   const [expandedStream, setExpandedStream] = reactExports.useState(null);
   const costModels = [
@@ -46678,7 +47001,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               schema_custom: s.schema_custom_json ? JSON.parse(s.schema_custom_json) : { landings: [], offers: [] }
             })),
             postbacks: data.postbacks || [],
-            parameters: data.parameters || {}
+            parameters: data.parameters || {},
+            challenge_type: data.challenge_type || "none",
+            challenge_custom_code: data.challenge_custom_code || ""
           });
         }
       }).finally(() => setLoading(false));
@@ -47297,6 +47622,90 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     }
                   ),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: copyUrl, className: "btn btn-secondary btn-icon", children: copySuccess ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }) })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "24px", paddingTop: "24px", borderTop: "1px solid var(--color-border)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { size: 18, style: { color: "var(--color-primary)" } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "15px", fontWeight: "600", color: "var(--color-text-primary)", margin: 0 }, children: t("challenge.sectionTitle") })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13px", color: "var(--color-text-muted)", marginBottom: "16px" }, children: t("challenge.sectionDesc") }),
+                formData.source_id && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-info-bg, #eff6ff)", border: "1px solid var(--color-info-border, #bfdbfe)", borderRadius: "8px", padding: "12px 14px", marginBottom: "16px", display: "flex", gap: "10px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "16px" }, children: "✉️" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", fontWeight: "600", color: "var(--color-info-text, #1d4ed8)", marginBottom: "2px" }, children: t("challenge.infoEmailTitle") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-info-text, #1d4ed8)" }, children: t("challenge.infoEmailDesc") })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", marginBottom: "4px", display: "block" }, children: t("challenge.typeLabel") }),
+                  [
+                    { value: "none", label: t("challenge.typeNone"), desc: t("challenge.typeNoneDesc") },
+                    { value: "recaptcha_v2", label: t("challenge.typeV2"), desc: t("challenge.typeV2Desc") },
+                    { value: "recaptcha_v3", label: t("challenge.typeV3"), desc: t("challenge.typeV3Desc") },
+                    { value: "custom", label: t("challenge.typeCustom"), desc: t("challenge.typeCustomDesc") }
+                  ].map((opt) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "flex-start", gap: "10px", padding: "10px 14px", borderRadius: "8px", border: `1px solid ${formData.challenge_type === opt.value ? "var(--color-primary)" : "var(--color-border)"}`, background: formData.challenge_type === opt.value ? "var(--color-primary-alpha, rgba(79,70,229,0.06))" : "var(--color-bg-card)", cursor: "pointer" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "radio",
+                        name: "challenge_type",
+                        value: opt.value,
+                        checked: formData.challenge_type === opt.value,
+                        onChange: (e) => setFormData((prev) => ({ ...prev, challenge_type: e.target.value })),
+                        style: { marginTop: "3px" }
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", fontWeight: "500", color: "var(--color-text-primary)" }, children: opt.label }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "2px" }, children: opt.desc })
+                    ] })
+                  ] }, opt.value))
+                ] }),
+                (formData.challenge_type === "recaptcha_v2" || formData.challenge_type === "recaptcha_v3") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-warning-bg, #fffbeb)", border: "1px solid var(--color-warning-border, #fcd34d)", borderRadius: "10px", padding: "14px 16px", marginBottom: "4px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "15px" }, children: "⚡" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "13px", fontWeight: "700", color: "var(--color-warning-text, #92400e)" }, children: t("challenge.setupGuideTitle") })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("ol", { style: { margin: 0, paddingLeft: "18px", display: "flex", flexDirection: "column", gap: "6px" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { style: { fontSize: "12px", color: "var(--color-warning-text, #92400e)", lineHeight: "1.5" }, children: [
+                      t("challenge.setupStep1"),
+                      " ",
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "a",
+                        {
+                          href: "https://www.google.com/recaptcha/admin/create",
+                          target: "_blank",
+                          rel: "noreferrer",
+                          style: { color: "var(--color-primary)", fontWeight: "600", textDecoration: "underline" },
+                          children: "Google reCAPTCHA Admin ↗"
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { fontSize: "12px", color: "var(--color-warning-text, #92400e)", lineHeight: "1.5" }, children: t("challenge.setupStep2", {
+                      type: formData.challenge_type === "recaptcha_v2" ? "v2 («I'm not a robot»)" : "v3"
+                    }) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { style: { fontSize: "12px", color: "var(--color-warning-text, #92400e)", lineHeight: "1.5" }, children: [
+                      t("challenge.setupStep3"),
+                      " ",
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("challenge.setupStep3Path") })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { fontSize: "12px", color: "var(--color-warning-text, #92400e)", lineHeight: "1.5" }, children: t("challenge.setupStep4") })
+                  ] })
+                ] }),
+                formData.challenge_type === "custom" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", marginBottom: "6px", display: "block" }, children: t("challenge.customCodeLabel") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "textarea",
+                    {
+                      value: formData.challenge_custom_code,
+                      onChange: (e) => setFormData((prev) => ({ ...prev, challenge_custom_code: e.target.value })),
+                      rows: 8,
+                      placeholder: t("challenge.customCodePlaceholder"),
+                      style: { width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "13px", fontFamily: "monospace", resize: "vertical" }
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px" }, children: t("challenge.customCodeHint") })
                 ] })
               ] })
             ] }),

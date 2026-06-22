@@ -1824,7 +1824,13 @@ export default {
         customCodeHint: "The code runs on the visitor's side. After verification, your form must POST with a hidden field _challenge_ok=1 to complete the flow.",
         noKeysWarning: "reCAPTCHA keys are not configured. Go to Integrations → reCAPTCHA to add them.",
         infoEmailTitle: "Recommended for email traffic",
-        infoEmailDesc: "Corporate email security gateways auto-click all links in emails, creating thousands of fake clicks. The Bot Challenge filters them out before they ever reach your stats."
+        infoEmailDesc: "Corporate email security gateways auto-click all links in emails, creating thousands of fake clicks. The Bot Challenge filters them out before they ever reach your stats.",
+        setupGuideTitle: "Quick setup (3 steps)",
+        setupStep1: "Create a reCAPTCHA site at",
+        setupStep2: "Choose type {type} when registering the site.",
+        setupStep3: "Paste the Site Key and Secret Key in",
+        setupStep3Path: "Integrations → reCAPTCHA",
+        setupStep4: "Save this campaign — the challenge will activate immediately."
     },
     recaptcha: {
         tabTitle: "reCAPTCHA",
