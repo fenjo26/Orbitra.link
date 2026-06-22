@@ -1,4 +1,4 @@
-# Orbitra v0.9.3.9 Tracker
+# Orbitra v0.9.4.0 Tracker
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![PHP Version](https://img.shields.io/badge/PHP-8.0+-777BB4?logo=php)
@@ -328,6 +328,22 @@ Switch the language in **Profile → Settings** (Russian/English).
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.4.0
+
+### Added
+- 🌍 **Full Multi-Language support** — expanded translations beyond 🇷🇺 Russian and 🇬🇧 English. The tracker is now fully localized with 100% key parity in 🇺🇦 Ukrainian, 🇪🇸 Spanish, 🇨🇳 Chinese (Simplified), 🇫🇷 French, and 🇩🇪 German.
+- 🤖 **Bot Challenge system** — per-campaign human verification to stop corporate email security bots and clickbots from polluting your stats. Enable in the campaign editor and choose from:
+  - **reCAPTCHA v2** — classic "I'm not a robot" checkbox
+  - **reCAPTCHA v3** — invisible, score-based (configurable threshold)
+  - **Custom code** — paste any HTML/JS verification widget (fully flexible)
+- ✉️ **Email source editor improvements** — collapsible ESP merge-tag reference table for Mailchimp, Klaviyo, ActiveCampaign, GetResponse, Brevo, and SendGrid in the source editor.
+- ⚙️ **reCAPTCHA settings** — Site Key + Secret Key for v2 and v3 configurable from **Integrations → reCAPTCHA**.
+
+### Technical
+- Clicks are logged **only after** a successful challenge — bots never appear in statistics at all.
+- Challenge state is signed with HMAC-SHA256 (using the existing postback key) and expires in 15 minutes, preventing replay attacks.
+- All new UI strings are fully i18n-covered across all 7 locales with 100% key parity.
 
 ## 📝 What's New in v0.9.3.9
 

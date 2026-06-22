@@ -1,6 +1,6 @@
 {
-    "version": "0.9.3.9",
-    "release_notes": "Bot Challenge system for email marketers: per-campaign human verification (reCAPTCHA v2, reCAPTCHA v3, or fully custom code) stops corporate email security bots from polluting stats. Click is logged only after successful verification. Email traffic source template improvements: ESP merge-tag reference table in the source editor for Mailchimp, Klaviyo, ActiveCampaign, GetResponse, Brevo and more. Full i18n coverage for all new UI strings.",
+    "version": "0.9.4.0",
+    "release_notes": "Bot Challenge system: per-campaign human verification (reCAPTCHA v2, v3, or custom code) to prevent security crawlers and clickbots from polluting statistics. Email traffic source editor reference table for macros. Full Multi-Language support: the tracker is now fully localized with 100% key parity in English, Russian, Ukrainian, Spanish, Chinese, French, and German.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-06-22"
 }
