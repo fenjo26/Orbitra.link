@@ -29826,18 +29826,25 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics 
       (prev) => prev.includes(metricName) ? prev.filter((m) => m !== metricName) : [...prev, metricName]
     );
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex overflow-x-auto no-scrollbar gap-4 mb-6 mt-6 pb-4 w-full", children: [
-    isVisible("clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.clicks"), value: formatNum(metrics?.clicks), isActive: activeMetrics.includes("clicks"), onClick: () => toggleMetric("clicks"), colorVar: "--color-primary" }),
-    isVisible("unique_clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.uniqueClicks"), value: formatNum(metrics?.unique_clicks), isActive: activeMetrics.includes("unique_clicks"), onClick: () => toggleMetric("unique_clicks"), colorVar: "--color-accent-turquoise" }),
-    isVisible("conversions") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.conversions"), value: formatNum(metrics?.conversions), isActive: activeMetrics.includes("conversions"), onClick: () => toggleMetric("conversions"), colorVar: "--color-success" }),
-    isVisible("cost") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.cost"), value: formatCurrency(metrics?.cost), isActive: activeMetrics.includes("cost"), onClick: () => toggleMetric("cost"), colorVar: "--color-danger" }),
-    isVisible("revenue") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.revenue"), value: formatCurrency(metrics?.revenue), isActive: activeMetrics.includes("revenue"), onClick: () => toggleMetric("revenue"), colorVar: "--color-warning" }),
-    isVisible("profit") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.profit"), value: formatCurrency(metrics?.profit), isActive: activeMetrics.includes("profit"), onClick: () => toggleMetric("profit"), colorVar: "--color-info" }),
-    isVisible("roi") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.roi"), value: `${formatNum(metrics?.roi ?? 0)}%`, isActive: activeMetrics.includes("roi"), onClick: () => toggleMetric("roi"), colorVar: "--color-accent-purple" }),
-    isVisible("real_revenue") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.realRevenue") || "Real Rev", value: formatCurrency(metrics?.real_revenue), isActive: activeMetrics.includes("real_revenue"), onClick: () => toggleMetric("real_revenue"), colorVar: "--color-real-rev" }),
-    isVisible("real_roi") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.realRoi") || "Real ROI", value: `${formatNum(metrics?.real_roi ?? 0)}%`, isActive: activeMetrics.includes("real_roi"), onClick: () => toggleMetric("real_roi"), colorVar: "--color-real-roi" }),
-    isVisible("ctr") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.ctr") || "CTR", value: `${formatNum(metrics?.ctr ?? 0)}%`, isActive: activeMetrics.includes("ctr"), onClick: () => toggleMetric("ctr"), colorVar: "--color-ctr" })
-  ] });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "flex overflow-x-auto no-scrollbar gap-4 mt-2 mb-2 pt-5 pb-7 px-4 md:px-6 -mx-4 md:-mx-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)]",
+      style: { WebkitOverflowScrolling: "touch" },
+      children: [
+        isVisible("clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.clicks"), value: formatNum(metrics?.clicks), isActive: activeMetrics.includes("clicks"), onClick: () => toggleMetric("clicks"), colorVar: "--color-primary" }),
+        isVisible("unique_clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.uniqueClicks"), value: formatNum(metrics?.unique_clicks), isActive: activeMetrics.includes("unique_clicks"), onClick: () => toggleMetric("unique_clicks"), colorVar: "--color-accent-turquoise" }),
+        isVisible("conversions") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.conversions"), value: formatNum(metrics?.conversions), isActive: activeMetrics.includes("conversions"), onClick: () => toggleMetric("conversions"), colorVar: "--color-success" }),
+        isVisible("cost") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.cost"), value: formatCurrency(metrics?.cost), isActive: activeMetrics.includes("cost"), onClick: () => toggleMetric("cost"), colorVar: "--color-danger" }),
+        isVisible("revenue") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.revenue"), value: formatCurrency(metrics?.revenue), isActive: activeMetrics.includes("revenue"), onClick: () => toggleMetric("revenue"), colorVar: "--color-warning" }),
+        isVisible("profit") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.profit"), value: formatCurrency(metrics?.profit), isActive: activeMetrics.includes("profit"), onClick: () => toggleMetric("profit"), colorVar: "--color-info" }),
+        isVisible("roi") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.roi"), value: `${formatNum(metrics?.roi ?? 0)}%`, isActive: activeMetrics.includes("roi"), onClick: () => toggleMetric("roi"), colorVar: "--color-accent-purple" }),
+        isVisible("real_revenue") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.realRevenue") || "Real Rev", value: formatCurrency(metrics?.real_revenue), isActive: activeMetrics.includes("real_revenue"), onClick: () => toggleMetric("real_revenue"), colorVar: "--color-real-rev" }),
+        isVisible("real_roi") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.realRoi") || "Real ROI", value: `${formatNum(metrics?.real_roi ?? 0)}%`, isActive: activeMetrics.includes("real_roi"), onClick: () => toggleMetric("real_roi"), colorVar: "--color-real-roi" }),
+        isVisible("ctr") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.ctr") || "CTR", value: `${formatNum(metrics?.ctr ?? 0)}%`, isActive: activeMetrics.includes("ctr"), onClick: () => toggleMetric("ctr"), colorVar: "--color-ctr" })
+      ]
+    }
+  );
 };
 const Card = ({ title, value, isActive, onClick, colorVar }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -48041,7 +48048,7 @@ const AffiliateNetworks = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_affiliate_networks", title: t("help.affiliateNetworkBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.affiliateNetworkBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500", children: t("networks.headerDesc") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-[var(--color-text-secondary)]", children: t("networks.headerDesc") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
@@ -48134,9 +48141,9 @@ const AffiliateNetworks = () => {
         t("common.clear")
       ] })
     ] }) }),
-    filteredNetworks.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10 text-gray-400 bg-white border border-dashed border-gray-300 rounded", children: t("networks.noNetworksAdd") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white rounded shadow overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "min-w-full divide-y divide-gray-200", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-gray-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+    filteredNetworks.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10 rounded border border-dashed", style: { background: "var(--color-bg-card)", borderColor: "var(--color-border)", color: "var(--color-text-secondary)" }, children: t("networks.noNetworksAdd") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card overflow-hidden", style: { padding: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "50px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
             type: "checkbox",
@@ -48147,15 +48154,15 @@ const AffiliateNetworks = () => {
             onChange: (e) => toggleSelectAll(e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: t("editor.name") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: t("networks.postbackUrl") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase", children: t("networks.offerParams") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase", children: t("networks.offersCount") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase", children: t("components.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase", children: t("common.actions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("editor.name") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("networks.postbackUrl") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("networks.offerParams") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-center", children: t("networks.offersCount") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-center", children: t("components.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-center", children: t("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-gray-200", children: filteredNetworks.map((network) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-gray-50", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: filteredNetworks.map((network) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
             type: "checkbox",
@@ -48163,35 +48170,37 @@ const AffiliateNetworks = () => {
             onChange: (e) => toggleSelected(network.id, e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium text-gray-900", children: network.name }),
-          network.template && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-gray-400", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: network.name }),
+          network.template && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
             t("sources.template"),
             ": ",
             network.template
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-xs bg-gray-100 px-2 py-1 rounded max-w-xs truncate", children: getPostbackUrl() }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-xs px-2 py-1 rounded max-w-xs truncate", style: { background: "var(--color-bg-soft)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }, children: getPostbackUrl() }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
               onClick: () => copyToClipboard(getPostbackUrl(), `pb-${network.id}`),
-              className: "text-gray-400 hover:text-blue-600",
+              className: "hover:text-[var(--color-primary)] transition",
+              style: { color: "var(--color-text-muted)" },
               title: t("common.copy"),
               children: copiedId === `pb-${network.id}` ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 text-green-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
             }
           )
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-xs bg-gray-100 px-2 py-1 rounded", children: network.offer_params || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400", children: t("common.notSet") }) }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800", children: network.offers_count || 0 }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `inline-flex items-center px-2 py-1 rounded text-xs font-medium ${network.state === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`, children: network.state === "active" ? t("components.active") : t("common.disabled") }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-center space-x-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: network.offer_params ? /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-xs px-2 py-1 rounded", style: { background: "var(--color-bg-soft)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }, children: network.offer_params }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: t("common.notSet") }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-info", children: network.offers_count || 0 }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: network.state === "active" ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-success", children: t("components.active") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge", style: { background: "var(--color-bg-soft)", color: "var(--color-text-secondary)" }, children: t("common.disabled") }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-center space-x-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
               onClick: () => openEditor(network.id),
-              className: "text-gray-400 hover:text-blue-600",
+              className: "hover:text-[var(--color-primary)] transition",
+              style: { color: "var(--color-text-muted)" },
               title: t("common.edit"),
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { className: "w-4 h-4" })
             }
@@ -48200,7 +48209,8 @@ const AffiliateNetworks = () => {
             "button",
             {
               onClick: () => handleDelete(network.id),
-              className: "text-gray-400 hover:text-red-600",
+              className: "hover:text-red-500 transition",
+              style: { color: "var(--color-text-muted)" },
               title: t("common.delete"),
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
             }
@@ -48208,21 +48218,21 @@ const AffiliateNetworks = () => {
         ] }) })
       ] }, network.id)) })
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-blue-50 border border-blue-200 rounded p-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-blue-800 mb-2", children: t("networks.setupPostback") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("ol", { className: "text-sm text-blue-700 space-y-1 list-decimal list-inside", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card mt-6", style: { borderLeft: "4px solid var(--color-primary)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-semibold mb-2", style: { color: "var(--color-primary)", fontSize: "15px" }, children: t("networks.setupPostback") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("ol", { className: "text-sm space-y-2 list-decimal list-inside", style: { color: "var(--color-text-primary)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("networks.step1") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("networks.step2") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("networks.step3") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("networks.step4") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("networks.step5") })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 text-xs text-blue-600", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 text-sm flex flex-wrap items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { style: { color: "var(--color-text-secondary)" }, children: [
           t("networks.examplePostback"),
           ":"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { className: "ml-2 bg-blue-100 px-2 py-1 rounded", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { className: "px-3 py-1.5 rounded text-xs font-mono", style: { background: "var(--color-bg-soft)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }, children: [
           "https://your-domain.com/",
           postbackKey,
           "/postback?subid=",

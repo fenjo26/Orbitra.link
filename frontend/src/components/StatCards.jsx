@@ -25,7 +25,10 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics 
     };
 
     return (
-        <div className="flex overflow-x-auto no-scrollbar gap-4 mb-6 mt-6 pb-4 w-full">
+        <div 
+            className="flex overflow-x-auto no-scrollbar gap-4 mt-2 mb-2 pt-5 pb-7 px-4 md:px-6 -mx-4 md:-mx-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)]"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+        >
             {isVisible('clicks') && <Card title={t('metrics.clicks')} value={formatNum(metrics?.clicks)} isActive={activeMetrics.includes('clicks')} onClick={() => toggleMetric('clicks')} colorVar="--color-primary" />}
             {isVisible('unique_clicks') && <Card title={t('metrics.uniqueClicks')} value={formatNum(metrics?.unique_clicks)} isActive={activeMetrics.includes('unique_clicks')} onClick={() => toggleMetric('unique_clicks')} colorVar="--color-accent-turquoise" />}
             {isVisible('conversions') && <Card title={t('metrics.conversions')} value={formatNum(metrics?.conversions)} isActive={activeMetrics.includes('conversions')} onClick={() => toggleMetric('conversions')} colorVar="--color-success" />}
