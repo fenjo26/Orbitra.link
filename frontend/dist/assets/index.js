@@ -29829,7 +29829,7 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics 
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
-      className: "flex overflow-x-auto no-scrollbar gap-4 mt-2 mb-2 pt-5 pb-7 px-4 md:px-6 -mx-4 md:-mx-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)]",
+      className: "flex overflow-x-auto no-scrollbar gap-4 mt-6 mb-2 pt-5 pb-7 px-4 md:px-6 -mx-4 md:-mx-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)]",
       style: { WebkitOverflowScrolling: "touch" },
       children: [
         isVisible("clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.clicks"), value: formatNum(metrics?.clicks), isActive: activeMetrics.includes("clicks"), onClick: () => toggleMetric("clicks"), colorVar: "--color-primary" }),
@@ -29851,7 +29851,7 @@ const Card = ({ title, value, isActive, onClick, colorVar }) => {
     "div",
     {
       onClick,
-      className: `card cursor-pointer select-none min-w-[140px] flex-1 flex flex-col justify-center transition-all`,
+      className: `card cursor-pointer select-none min-w-[140px] flex-1 flex flex-col justify-center transition-all ${isActive ? "relative z-10" : ""}`,
       style: {
         padding: "20px",
         border: isActive ? `2px solid var(${colorVar})` : `2px solid transparent`,
