@@ -278,7 +278,7 @@ A full-screen campaign editor with tabs:
 - `/conversions` — last 10 conversions
 - `/notify on|off` — conversion notifications
 - `/daily on|off` — daily summary
-- `/lang ru|en` — bot language
+- `/lang en|ru|uk|es|zh|fr|de` — bot language
 
 ### Traffic Simulation
 Testing streams and filters:
