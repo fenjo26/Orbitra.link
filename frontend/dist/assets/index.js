@@ -17862,8 +17862,8 @@ const en = {
     "campaigns": "Campaigns",
     "offers": "Offers",
     "landings": "Landings",
-    "sources": "Traffic Sources",
-    "networks": "Affiliate Networks",
+    "sources": "Sources",
+    "networks": "Networks",
     "settings": "Settings",
     "profile": "Profile",
     "system": "System",
@@ -19718,8 +19718,8 @@ const uk = {
     "campaigns": "Кампанії",
     "offers": "Пропозиції",
     "landings": "Посадки",
-    "sources": "Джерела трафіку",
-    "networks": "Партнерські мережі",
+    "sources": "Джерела",
+    "networks": "Партнерки",
     "settings": "Налаштування",
     "profile": "Профіль",
     "system": "система",
@@ -21574,8 +21574,8 @@ const es = {
     "campaigns": "Campañas",
     "offers": "Ofertas",
     "landings": "Aterrizajes",
-    "sources": "Fuentes de tráfico",
-    "networks": "Redes de afiliados",
+    "sources": "Fuentes",
+    "networks": "Redes",
     "settings": "Configuración",
     "profile": "Perfil",
     "system": "Sistema",
@@ -23430,8 +23430,8 @@ const zh = {
     "campaigns": "活动",
     "offers": "优惠",
     "landings": "登陆",
-    "sources": "流量来源",
-    "networks": "联属网络",
+    "sources": "来源",
+    "networks": "联盟",
     "settings": "设置",
     "profile": "公司简介",
     "system": "系统",
@@ -25286,8 +25286,8 @@ const fr = {
     "campaigns": "Campagnes",
     "offers": "Offres",
     "landings": "Atterrissages",
-    "sources": "Sources de trafic",
-    "networks": "Réseaux d'affiliation",
+    "sources": "Sources",
+    "networks": "Réseaux",
     "settings": "Paramètres",
     "profile": "Profil",
     "system": "Système",
@@ -27144,8 +27144,8 @@ const de = {
     "campaigns": "Kampagnen",
     "offers": "Angebote",
     "landings": "Landings",
-    "sources": "Verkehrsquellen",
-    "networks": "Affiliate-Netzwerke",
+    "sources": "Quellen",
+    "networks": "Netzwerke",
     "settings": "Einstellungen",
     "profile": "Profil",
     "system": "System",
@@ -29296,11 +29296,11 @@ const NavItem = ({ icon, label, active, onClick }) => {
     "div",
     {
       onClick,
-      className: `flex items-center space-x-2 px-4 py-2 m-1 rounded-2xl cursor-pointer transition-all text-sm font-medium
+      className: `flex items-center space-x-2 px-3 lg:px-4 py-2 m-1 rounded-2xl cursor-pointer transition-all text-sm font-medium whitespace-nowrap leading-none
                 ${active ? "bg-[var(--color-primary-light)] text-[var(--color-primary)]" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]"}`,
       children: [
-        icon,
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0", children: icon }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "whitespace-nowrap", children: label })
       ]
     }
   );

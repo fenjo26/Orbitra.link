@@ -1,4 +1,4 @@
-# Orbitra v0.9.4.1 Tracker
+# Orbitra v0.9.4.2 Tracker
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![PHP Version](https://img.shields.io/badge/PHP-8.0+-777BB4?logo=php)
@@ -355,6 +355,11 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.4.2
+
+### Fixed
+- 🎨 **Navbar alignment** — top menu items no longer wrap to a second line (`whitespace-nowrap`), and the two-word labels were made more compact across all 7 languages, so the bar stays neatly aligned. Full page titles are unchanged.
 
 ## 📝 What's New in v0.9.4.1
 

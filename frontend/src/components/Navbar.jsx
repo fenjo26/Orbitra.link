@@ -318,14 +318,14 @@ const NavItem = ({ icon, label, active, onClick }) => {
     return (
         <div
             onClick={onClick}
-            className={`flex items-center space-x-2 px-4 py-2 m-1 rounded-2xl cursor-pointer transition-all text-sm font-medium
+            className={`flex items-center space-x-2 px-3 lg:px-4 py-2 m-1 rounded-2xl cursor-pointer transition-all text-sm font-medium whitespace-nowrap leading-none
                 ${active
                     ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
                     : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]'
                 }`}
         >
-            {icon}
-            <span>{label}</span>
+            <span className="shrink-0">{icon}</span>
+            <span className="whitespace-nowrap">{label}</span>
         </div>
     );
 };

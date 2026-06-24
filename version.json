@@ -1,6 +1,6 @@
 {
-    "version": "0.9.4.1",
-    "release_notes": "Telegram bot is now multilingual in all 7 interface languages — English, Russian, Ukrainian, Spanish, Chinese, French, and German — switchable via /lang. Documentation refresh: the README is fully in English and now includes a System Requirements section (runs on 1 vCPU / 1 GB RAM / 20 GB SSD), and the project docs have been updated to the current version and feature set. Support contact updated to info@orbitra.link.",
+    "version": "0.9.4.2",
+    "release_notes": "Navbar polish: top menu items no longer wrap to a second line, fixing the alignment that broke on two-word labels. The navigation labels were also made more compact across all 7 languages (full page titles are unchanged).",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-06-24"
 }
