@@ -38,7 +38,7 @@
 │  │  React 19 SPA (Vite 7)                              │  │
 │  │  - Dashboard, Campaigns, Offers, Analytics          │  │
 │  │  - 46 React Components                              │  │
-│  │  - LanguageContext (i18n: RU/EN)                   │  │
+│  │  - LanguageContext (i18n: 7 языков)                │  │
 │  │  - Axios HTTP Client                                │  │
 │  └───────────────────┬──────────────────────────────────┘  │
 │                      │ Axios (REST API)                     │
@@ -194,10 +194,15 @@ src/
 ├── main.jsx                   # Entry point
 ├── index.css                  # Глобальные стили + CSS переменные
 ├── contexts/                  # React Context
-│   └── LanguageContext.jsx    # i18n: RU/EN, useLanguage() hook
-├── locales/                   # Переводы
-│   ├── en.js                 # English (~1100 keys)
-│   └── ru.js                 # Русский (~1260 keys)
+│   └── LanguageContext.jsx    # i18n: 7 языков, useLanguage() hook
+├── locales/                   # Переводы (100% паритет ключей)
+│   ├── en.js                 # English
+│   ├── ru.js                 # Русский
+│   ├── uk.js                 # Українська
+│   ├── es.js                 # Español
+│   ├── zh.js                 # 中文
+│   ├── fr.js                 # Français
+│   └── de.js                 # Deutsch
 └── components/                # 46 React компонентов
     ├── Layout/
     │   ├── Navbar.jsx         # Навигация
@@ -256,7 +261,7 @@ src/
 
 ### Стилизация
 
-- **CSS Variables** для темизации (светлая/тёмная тема)
+- **CSS Variables** для темизации (темы Light, Dark, Green, Neon + кастомная палитра)
 - **Tailwind CSS 4.2.0** — utility-first классы
 - **Кастомные компоненты** с инлайн стилями для динамических значений
 - **Плавные анимации** переходов между страницами
@@ -390,4 +395,4 @@ npm run build  # Собирает в dist/
 
 ---
 
-*Архитектура обновлена для версии v0.9.3.3*
+*Архитектура обновлена для версии v0.9.4.1*

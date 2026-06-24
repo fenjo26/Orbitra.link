@@ -1,4 +1,4 @@
-# Orbitra v0.9.4.0 Tracker
+# Orbitra v0.9.4.1 Tracker
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![PHP Version](https://img.shields.io/badge/PHP-8.0+-777BB4?logo=php)
@@ -19,9 +19,24 @@ wget -qO- https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh
 
 The installer automatically:
 - Downloads the source code from GitHub
-- Installs Nginx, PHP 8.3+, SQLite3
-- Deploys the built frontend
+- Installs Nginx, PHP 8.0+ (FPM), SQLite3 and Node.js 20
+- Builds and deploys the React/Vite frontend
 - Configures a Let's Encrypt SSL certificate for your domain
+
+## 🖥 System Requirements
+
+Orbitra is deliberately lightweight — it runs on plain PHP + SQLite behind Nginx, with no heavy frameworks and no separate database server. It comfortably fits on the smallest VPS plans.
+
+| | Minimum | Recommended |
+|---|---|---|
+| **CPU** | 1 vCPU (~1 GHz, x86_64) | 2 vCPU |
+| **RAM** | 1 GB | 2 GB |
+| **Disk** | 20 GB SSD | 40 GB+ SSD |
+| **OS** | Ubuntu 20.04 / 22.04 / 24.04 or Debian 11 / 12 | latest LTS |
+
+**Software (installed automatically by `install.sh`):** Nginx, PHP 8.0+ with FPM (`php-sqlite3`, `php-curl`, `php-mbstring`, `php-xml`, `php-zip`), SQLite 3, Node.js 20 (build only), Certbot for SSL.
+
+> 💡 **Note on the 1 GB plan:** running the tracker needs very little memory, but the installer builds the frontend on the server with Vite, which is the most memory-hungry step. On a 1 GB box add ~1–2 GB of swap before installing (or build the frontend elsewhere) so the build doesn't run out of memory. Disk usage stays small — it grows mainly with the SQLite click/conversion logs over time.
 
 ## ✨ Key Features
 
@@ -34,7 +49,7 @@ The installer automatically:
 - **Backend**: PHP 8.3+ without heavy frameworks (clean code)
 - **Database**: SQLite 3 (single file, automatic schema creation)
 - **Frontend**: React 19 + Vite 7 + Tailwind CSS 4
-- **UI/UX**: Modern design with dark/light theme
+- **UI/UX**: Modern design with multiple built-in themes (Light, Dark, Green, Neon) and a custom palette
 
 ### 3. **Campaign Management**
 - **6 payout models**: CPC, CPuC, CPM, CPA, CPS, RevShare
@@ -58,15 +73,15 @@ The installer automatically:
 - **Traffic Simulation** — click simulation for testing streams
 
 ### 6. **Multilingual**
-- **Full i18n support**: Russian (RU) and English (EN)
-- **1260+ translation keys** — every UI element is localized
+- **7 languages**: 🇬🇧 English, 🇷🇺 Russian, 🇺🇦 Ukrainian, 🇪🇸 Spanish, 🇨🇳 Chinese (Simplified), 🇫🇷 French, 🇩🇪 German
+- **Full i18n coverage** — every UI element is localized, with 100% key parity across all locales
 - **Language switching** — in profile settings, without a page reload
 
 ### 7. **Telegram Bot**
 - **10+ commands**: `/stats`, `/campaigns`, `/top`, `/conversions` and others
 - **Notifications**: instant conversion notifications
 - **Daily summary**: automatic campaign report
-- **Multilingual**: the bot supports RU and EN
+- **Multilingual**: the bot speaks all 7 interface languages (EN, RU, UK, ES, ZH, FR, DE) via `/lang`
 
 ### 8. **Domain Management**
 - **DNS check** — automatic A-record verification
@@ -79,6 +94,13 @@ The installer automatically:
 - **Token preservation** — Click API tokens are carried over for compatibility
 - **In-UI guide** — step-by-step instructions for creating a Keitaro backup
 - **Preview mode** — preview before the real import
+
+### 10. **Anti-Bot Challenge**
+- **Per-campaign human verification** — stop corporate email security crawlers and clickbots from polluting your statistics
+- **reCAPTCHA v2** — classic "I'm not a robot" checkbox
+- **reCAPTCHA v3** — invisible, score-based with a configurable threshold
+- **Custom code** — paste any HTML/JS verification widget
+- **Clean stats** — clicks are logged only after a successful challenge, so bots never appear in reports; challenge state is signed (HMAC-SHA256) and expires in 15 minutes to prevent replay
 
 ## 📁 Project Structure
 
@@ -115,9 +137,14 @@ Orbitra/
 │   │   │   └── ...               # Other components
 │   │   ├── contexts/
 │   │   │   └── LanguageContext.jsx  # i18n context
-│   │   └── locales/
-│   │       ├── en.js          # English (~1100 keys)
-│   │       └── ru.js          # Russian (~1260 keys)
+│   │   └── locales/           # 7 languages, 100% key parity
+│   │       ├── en.js          # English
+│   │       ├── ru.js          # Russian
+│   │       ├── uk.js          # Ukrainian
+│   │       ├── es.js          # Spanish
+│   │       ├── zh.js          # Chinese
+│   │       ├── fr.js          # French
+│   │       └── de.js          # German
 │   ├── package.json
 │   ├── vite.config.js
 │   └── index.html
@@ -173,7 +200,7 @@ The first time you open the admin panel (`/admin.php`), the system detects that 
 
 - **Username** — at least 3 characters
 - **Password** — at least 6 characters (with confirmation)
-- **Timezone** and **interface language** (RU/EN)
+- **Timezone** and **interface language** (one of 7 languages)
 
 After the administrator is created the wizard no longer appears, and you log in with the username and password you set.
 
@@ -306,13 +333,13 @@ scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz .
 ## 🎨 Customization
 
 ### Themes
-Orbitra supports automatic theme switching (light/dark) based on the user's system settings.
+Orbitra ships with several built-in theme presets — **Light**, **Dark**, **Green** and **Neon** — plus a fully **Custom** theme where you set your own color palette (primary, backgrounds, text). Pick a theme in **Settings → Branding**.
 
 ### Branding
 Configure the logo, colors and name in **Settings → Branding**.
 
 ### Interface Language
-Switch the language in **Profile → Settings** (Russian/English).
+Switch the language in **Profile → Settings**. Seven languages are available: English, Russian, Ukrainian, Spanish, Chinese, French and German.
 
 ## 🛠 Technologies
 
@@ -328,6 +355,16 @@ Switch the language in **Profile → Settings** (Russian/English).
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.4.1
+
+### Added
+- 🤖 **Multilingual Telegram bot** — the bot now speaks all 7 interface languages (🇬🇧 English, 🇷🇺 Russian, 🇺🇦 Ukrainian, 🇪🇸 Spanish, 🇨🇳 Chinese, 🇫🇷 French, 🇩🇪 German). Switch with `/lang en|ru|uk|es|zh|fr|de`.
+
+### Docs
+- 🖥 Added a **System Requirements** section to the README (runs comfortably on 1 vCPU / 1 GB RAM / 20 GB SSD).
+- 📚 Refreshed the project documentation to the current version and feature set (7 languages, Bot Challenge, platform templates).
+- ✉️ Updated the support contact to **info@orbitra.link**.
 
 ## 📝 What's New in v0.9.4.0
 
@@ -443,7 +480,7 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 - **GitHub Issues**: https://github.com/fenjo26/Orbitra.link/issues
 - **Documentation**: [docs/](docs/)
-- **Email**: support@orbitra.link
+- **Email**: info@orbitra.link
 
 ---
 
