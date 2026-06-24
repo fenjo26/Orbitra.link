@@ -20,7 +20,7 @@ wget -qO- https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh
 
 См. раздел **[Запуск и Деплой](deployment.md)** для подробных инструкций по:
 - Локальной разработке
-- Docker деплою
+- Автоматической установке (install.sh)
 - Продакшн настройке
 
 ## 📚 Навигация по документации
@@ -32,7 +32,7 @@ wget -qO- https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh
 1. **[Архитектура и Технологии](architecture.md)**
    - Технологический стек (PHP 8.3, React 19, Vite 7, SQLite 3)
    - Структура базы данных (15+ таблиц)
-   - Frontend архитектура (46 React компонентов)
+   - Frontend архитектура (53 React компонентов)
    - Система миграций
 
 2. **[Основные Функции](features.md)**
@@ -50,7 +50,7 @@ wget -qO- https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh
 
 4. **[Запуск и Деплой](deployment.md)**
    - Локальная разработка
-   - Docker контейнеризация
+   - Автоматический установщик (install.sh)
    - Продакшн конфигурация
    - SSL сертификаты
 
@@ -124,7 +124,7 @@ Orbitra/
 │
 ├── frontend/                  # React + Vite
 │   ├── src/
-│   │   ├── components/       # 46 React компонентов
+│   │   ├── components/       # 53 React компонентов
 │   │   ├── contexts/         # LanguageContext (i18n)
 │   │   └── locales/          # переводы (7 языков)
 │   └── package.json
@@ -160,8 +160,8 @@ Orbitra/
 - **date-fns 3.6.0** — работа с датами
 
 ### DevOps
-- **Docker** — контейнеризация
-- **Nginx** — веб-сервер
+- **install.sh** — автоматический установщик
+- **Nginx + PHP-FPM** — веб-сервер
 - **Let's Encrypt** — SSL сертификаты
 
 ## 🆚 Orbitra vs Keitaro

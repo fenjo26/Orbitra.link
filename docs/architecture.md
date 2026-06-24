@@ -19,9 +19,9 @@
 - **date-fns 3.6.0** — работа с датами и временем
 
 ### DevOps & Инфраструктура
-- **Docker** — контейнеризация приложения
-- **Docker Compose** — оркестрация контейнеров
+- **install.sh** — bash-установщик (Nginx, PHP-FPM, SQLite, сборка фронтенда, SSL)
 - **Nginx** — обратный прокси и статические файлы
+- **PHP-FPM** — обработка PHP в продакшене
 - **Let's Encrypt** — бесплатные SSL сертификаты
 - **PHP built-in server** — для локальной разработки
 
@@ -37,7 +37,7 @@
 │  ┌──────────────────────────────────────────────────────┐  │
 │  │  React 19 SPA (Vite 7)                              │  │
 │  │  - Dashboard, Campaigns, Offers, Analytics          │  │
-│  │  - 46 React Components                              │  │
+│  │  - 53 React Components                              │  │
 │  │  - LanguageContext (i18n: 7 языков)                │  │
 │  │  - Axios HTTP Client                                │  │
 │  └───────────────────┬──────────────────────────────────┘  │
@@ -203,7 +203,7 @@ src/
 │   ├── zh.js                 # 中文
 │   ├── fr.js                 # Français
 │   └── de.js                 # Deutsch
-└── components/                # 46 React компонентов
+└── components/                # 53 React компонентов
     ├── Layout/
     │   ├── Navbar.jsx         # Навигация
     │   └── Sidebar.jsx        # Боковая панель
@@ -214,7 +214,7 @@ src/
     │   └── DataTables.jsx
     ├── Campaigns/
     │   ├── Campaigns.jsx
-    │   ├── CampaignEditor.jsx      # 120KB, главный редактор
+    │   ├── CampaignEditor.jsx      # ~130KB, главный редактор
     │   └── CampaignReports.jsx
     ├── Offers/
     │   ├── Offers.jsx
@@ -228,7 +228,7 @@ src/
 
 ### Ключевые компоненты
 
-#### CampaignEditor.jsx (120KB)
+#### CampaignEditor.jsx (~130KB)
 Главный редактор кампаний с 6 вкладками:
 - **Основные**: название, алиас, домен, источник
 - **Финансы**: 6 моделей оплаты (CPC, CPuC, CPM, CPA, CPS, RevShare)

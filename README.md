@@ -121,13 +121,16 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 Orbitra/
 ├── api.php                    # REST API (60+ endpoints)
 ├── index.php                  # Main tracker (click handling)
+├── admin.php                  # Admin panel entry point
 ├── postback.php               # Postback handler
 ├── click.php                  # Click API
+├── telegram_bot.php           # Telegram bot webhook handler
 ├── config.php                 # DB configuration and migrations
 ├── database.sql               # DB schema documentation
 ├── version.php                # System version
 ├── router.php                 # PHP built-in server router
 ├── install.sh                 # Auto-installer
+├── *_cron.php                 # Cron jobs (aggregator, backorder, source checks)
 ├── .htaccess                  # Apache rewrite rules
 │
 ├── core/                      # System modules
@@ -140,9 +143,8 @@ Orbitra/
 │   ├── src/
 │   │   ├── App.jsx           # Main component with routing
 │   │   ├── main.jsx          # Entry point
-│   │   ├── components/       # 46 React components
-│   │   │   ├── Dashboard/    # Dashboard components
-│   │   │   ├── CampaignEditor.jsx    # Campaign editor (120KB)
+│   │   ├── components/       # 53 React components
+│   │   │   ├── CampaignEditor.jsx    # Campaign editor (~130KB)
 │   │   │   ├── IntegrationsPage.jsx # Integrations
 │   │   │   ├── MigrationsPage.jsx   # Migrations and import
 │   │   │   ├── ConversionsLog.jsx   # Conversion log
@@ -167,8 +169,11 @@ Orbitra/
 │   ├── architecture.md       # Architecture and technologies
 │   ├── features.md          # Feature descriptions
 │   ├── api.md               # REST API documentation
-│   └── deployment.md        # Deployment instructions
+│   ├── deployment.md        # Deployment instructions
+│   └── keitaro-migration.md # Keitaro migration guide
 │
+├── aggregator_engines/        # Stats aggregation engines
+├── cli/                       # CLI utilities
 ├── landings/                  # Uploaded landings
 └── vendor/                    # Composer dependencies
 ```
