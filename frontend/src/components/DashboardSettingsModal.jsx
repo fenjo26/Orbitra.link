@@ -86,7 +86,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
     );
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-black bg-opacity-50 p-4">
             <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
                 <div className="flex justify-between items-center p-5 border-b border-gray-100">
                     <h2 className="text-xl font-bold text-gray-800">{t('dashboard.dashboardSettings')}</h2>

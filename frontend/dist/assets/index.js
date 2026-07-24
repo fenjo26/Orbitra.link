@@ -68386,7 +68386,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `w-5 h-5 rounded border flex items-center justify-center transition-colors ${checked ? "bg-blue-600 border-blue-600" : "border-gray-300 bg-white"}`, children: checked && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14, className: "text-white" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-700 text-sm font-medium", children: label })
   ] });
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-[1100] flex items-center justify-center bg-black bg-opacity-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center p-5 border-b border-gray-100", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-bold text-gray-800", children: t("dashboard.dashboardSettings") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "text-gray-400 hover:text-gray-600 p-1 rounded transition", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 24 }) })
