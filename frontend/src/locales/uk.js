@@ -974,6 +974,9 @@ export default {
         "deleteError": "Видалити помилку"
     },
     "users": {
+        "mcpTitle": "Підключити ІІ-асистента (MCP)",
+        "mcpDesc": "Згенеруйте ключ вище, потім вставте це в конфіг Claude Desktop. Замініть шлях на абсолютний шлях до mcp/src/index.js, а ORBITRA_API_KEY — на ваш ключ. Повна інструкція: mcp/README.md.",
+        "mcpCopyConfig": "Скопіювати конфіг",
         "apiKeyHint": "Ключі «read» дають лише аналітику. Ключі «write» також дозволяють керувати кампаніями, оферами й доменами — їх використовує MCP-сервер Orbitra для нейромереж (див. mcp/README.md).",
         "newReadKey": "Ключ читання",
         "newWriteKey": "Ключ запису",

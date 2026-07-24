@@ -254,6 +254,25 @@ const UsersPage = () => {
         showSuccess(t('common.copy'));
     };
 
+    // Ready-to-paste Claude Desktop config for the Orbitra MCP server.
+    const buildMcpConfig = () => {
+        const origin = (typeof window !== 'undefined' && window.location && window.location.origin)
+            ? window.location.origin
+            : 'https://tracker.example.com';
+        return JSON.stringify({
+            mcpServers: {
+                orbitra: {
+                    command: 'node',
+                    args: ['/absolute/path/to/Orbitra/mcp/src/index.js'],
+                    env: {
+                        ORBITRA_URL: origin,
+                        ORBITRA_API_KEY: '<your-api-key>'
+                    }
+                }
+            }
+        }, null, 2);
+    };
+
     const resources = [
         { key: 'campaigns', label: t('nav.campaigns') },
         { key: 'offers', label: t('nav.offers') },
@@ -644,6 +663,35 @@ const UsersPage = () => {
                                     <Plus size={16} />
                                     {t('users.newWriteKey', 'Write key')}
                                 </button>
+                            </div>
+
+                            {/* MCP (AI assistant) connection guide */}
+                            <div style={{
+                                marginTop: '18px', paddingTop: '16px', borderTop: '1px solid var(--color-border)'
+                            }}>
+                                <div className="flex items-center justify-between" style={{ marginBottom: '8px' }}>
+                                    <div style={{ fontWeight: 600, fontSize: '14px' }}>
+                                        {t('users.mcpTitle', 'Connect an AI assistant (MCP)')}
+                                    </div>
+                                    <button
+                                        onClick={() => copyToClipboard(buildMcpConfig())}
+                                        className="btn btn-secondary"
+                                        style={{ padding: '4px 10px', fontSize: '12px' }}
+                                    >
+                                        <Copy size={14} />
+                                        {t('users.mcpCopyConfig', 'Copy config')}
+                                    </button>
+                                </div>
+                                <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '10px', lineHeight: 1.5 }}>
+                                    {t('users.mcpDesc', 'Generate a key above, then paste this into your Claude Desktop config. Replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with your key. Full guide: mcp/README.md.')}
+                                </div>
+                                <pre style={{
+                                    background: 'var(--color-bg-soft)', borderRadius: '10px', padding: '12px',
+                                    fontSize: '12px', overflowX: 'auto', margin: 0, lineHeight: 1.45,
+                                    color: 'var(--color-text)'
+                                }}>
+                                    <code>{buildMcpConfig()}</code>
+                                </pre>
                             </div>
 
                             <div className="modal-footer">

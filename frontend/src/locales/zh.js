@@ -974,6 +974,9 @@ export default {
         "deleteError": "删除错误"
     },
     "users": {
+        "mcpTitle": "连接 AI 助手（MCP）",
+        "mcpDesc": "先在上方生成密钥，然后将此内容粘贴到 Claude Desktop 配置中。将路径替换为 mcp/src/index.js 的绝对路径，并将 ORBITRA_API_KEY 替换为你的密钥。完整指南：mcp/README.md。",
+        "mcpCopyConfig": "复制配置",
         "apiKeyHint": "只读密钥仅用于分析。写入密钥还可管理广告系列、报价和域名 —— 供面向 AI 助手的 Orbitra MCP 服务器使用（见 mcp/README.md）。",
         "newReadKey": "只读密钥",
         "newWriteKey": "写入密钥",

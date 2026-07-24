@@ -974,6 +974,9 @@ export default {
         "deleteError": "Erreur de suppression"
     },
     "users": {
+        "mcpTitle": "Connecter un assistant IA (MCP)",
+        "mcpDesc": "Générez une clé ci-dessus, puis collez ceci dans la configuration de Claude Desktop. Remplacez le chemin par le chemin absolu vers mcp/src/index.js et ORBITRA_API_KEY par votre clé. Guide complet : mcp/README.md.",
+        "mcpCopyConfig": "Copier la configuration",
         "apiKeyHint": "Les clés « read » ne donnent accès qu'aux analyses. Les clés « write » permettent aussi de gérer les campagnes, offres et domaines — utilisées par le serveur MCP d'Orbitra pour les assistants IA (voir mcp/README.md).",
         "newReadKey": "Clé de lecture",
         "newWriteKey": "Clé d'écriture",

@@ -974,6 +974,9 @@ export default {
         "deleteError": "Delete error"
     },
     "users": {
+        "mcpTitle": "Connect an AI assistant (MCP)",
+        "mcpDesc": "Generate a key above, then paste this into your Claude Desktop config. Replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with your key. Full guide: mcp/README.md.",
+        "mcpCopyConfig": "Copy config",
         "apiKeyHint": "Read keys allow analytics only. Write keys also allow managing campaigns, offers and domains — used by the Orbitra MCP server for AI assistants (see mcp/README.md).",
         "newReadKey": "Read key",
         "newWriteKey": "Write key",

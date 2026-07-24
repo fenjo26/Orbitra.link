@@ -974,6 +974,9 @@ export default {
         "deleteError": "Löschfehler"
     },
     "users": {
+        "mcpTitle": "KI-Assistenten verbinden (MCP)",
+        "mcpDesc": "Erzeugen Sie oben einen Schlüssel und fügen Sie dies in die Claude-Desktop-Konfiguration ein. Ersetzen Sie den Pfad durch den absoluten Pfad zu mcp/src/index.js und ORBITRA_API_KEY durch Ihren Schlüssel. Vollständige Anleitung: mcp/README.md.",
+        "mcpCopyConfig": "Konfiguration kopieren",
         "apiKeyHint": "Read-Schlüssel erlauben nur Analysen. Write-Schlüssel erlauben zusätzlich die Verwaltung von Kampagnen, Angeboten und Domains — verwendet vom Orbitra-MCP-Server für KI-Assistenten (siehe mcp/README.md).",
         "newReadKey": "Read-Schlüssel",
         "newWriteKey": "Write-Schlüssel",

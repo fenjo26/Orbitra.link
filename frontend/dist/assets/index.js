@@ -16874,6 +16874,9 @@ const ru = {
     "deleteError": "Ошибка удаления"
   },
   "users": {
+    "mcpTitle": "Подключить ИИ-ассистента (MCP)",
+    "mcpDesc": "Сгенерируйте ключ выше, затем вставьте это в конфиг Claude Desktop. Замените путь на абсолютный путь к mcp/src/index.js, а ORBITRA_API_KEY — на ваш ключ. Полная инструкция: mcp/README.md.",
+    "mcpCopyConfig": "Скопировать конфиг",
     "apiKeyHint": "Ключи «read» дают только аналитику. Ключи «write» также позволяют управлять кампаниями, офферами и доменами — их использует MCP-сервер Orbitra для нейросетей (см. mcp/README.md).",
     "newReadKey": "Ключ чтения",
     "newWriteKey": "Ключ записи",
@@ -18733,6 +18736,9 @@ const en = {
     "deleteError": "Delete error"
   },
   "users": {
+    "mcpTitle": "Connect an AI assistant (MCP)",
+    "mcpDesc": "Generate a key above, then paste this into your Claude Desktop config. Replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with your key. Full guide: mcp/README.md.",
+    "mcpCopyConfig": "Copy config",
     "apiKeyHint": "Read keys allow analytics only. Write keys also allow managing campaigns, offers and domains — used by the Orbitra MCP server for AI assistants (see mcp/README.md).",
     "newReadKey": "Read key",
     "newWriteKey": "Write key",
@@ -20592,6 +20598,9 @@ const uk = {
     "deleteError": "Видалити помилку"
   },
   "users": {
+    "mcpTitle": "Підключити ІІ-асистента (MCP)",
+    "mcpDesc": "Згенеруйте ключ вище, потім вставте це в конфіг Claude Desktop. Замініть шлях на абсолютний шлях до mcp/src/index.js, а ORBITRA_API_KEY — на ваш ключ. Повна інструкція: mcp/README.md.",
+    "mcpCopyConfig": "Скопіювати конфіг",
     "apiKeyHint": "Ключі «read» дають лише аналітику. Ключі «write» також дозволяють керувати кампаніями, оферами й доменами — їх використовує MCP-сервер Orbitra для нейромереж (див. mcp/README.md).",
     "newReadKey": "Ключ читання",
     "newWriteKey": "Ключ запису",
@@ -22451,6 +22460,9 @@ const es = {
     "deleteError": "Eliminar error"
   },
   "users": {
+    "mcpTitle": "Conectar un asistente de IA (MCP)",
+    "mcpDesc": "Genere una clave arriba y pegue esto en la configuración de Claude Desktop. Reemplace la ruta por la ruta absoluta a mcp/src/index.js y ORBITRA_API_KEY por su clave. Guía completa: mcp/README.md.",
+    "mcpCopyConfig": "Copiar configuración",
     "apiKeyHint": "Las claves «read» solo permiten análisis. Las claves «write» también permiten gestionar campañas, ofertas y dominios — las usa el servidor MCP de Orbitra para asistentes de IA (ver mcp/README.md).",
     "newReadKey": "Clave de lectura",
     "newWriteKey": "Clave de escritura",
@@ -24310,6 +24322,9 @@ const zh = {
     "deleteError": "删除错误"
   },
   "users": {
+    "mcpTitle": "连接 AI 助手（MCP）",
+    "mcpDesc": "先在上方生成密钥，然后将此内容粘贴到 Claude Desktop 配置中。将路径替换为 mcp/src/index.js 的绝对路径，并将 ORBITRA_API_KEY 替换为你的密钥。完整指南：mcp/README.md。",
+    "mcpCopyConfig": "复制配置",
     "apiKeyHint": "只读密钥仅用于分析。写入密钥还可管理广告系列、报价和域名 —— 供面向 AI 助手的 Orbitra MCP 服务器使用（见 mcp/README.md）。",
     "newReadKey": "只读密钥",
     "newWriteKey": "写入密钥",
@@ -26169,6 +26184,9 @@ const fr = {
     "deleteError": "Erreur de suppression"
   },
   "users": {
+    "mcpTitle": "Connecter un assistant IA (MCP)",
+    "mcpDesc": "Générez une clé ci-dessus, puis collez ceci dans la configuration de Claude Desktop. Remplacez le chemin par le chemin absolu vers mcp/src/index.js et ORBITRA_API_KEY par votre clé. Guide complet : mcp/README.md.",
+    "mcpCopyConfig": "Copier la configuration",
     "apiKeyHint": "Les clés « read » ne donnent accès qu'aux analyses. Les clés « write » permettent aussi de gérer les campagnes, offres et domaines — utilisées par le serveur MCP d'Orbitra pour les assistants IA (voir mcp/README.md).",
     "newReadKey": "Clé de lecture",
     "newWriteKey": "Clé d'écriture",
@@ -28030,6 +28048,9 @@ const de = {
     "deleteError": "Löschfehler"
   },
   "users": {
+    "mcpTitle": "KI-Assistenten verbinden (MCP)",
+    "mcpDesc": "Erzeugen Sie oben einen Schlüssel und fügen Sie dies in die Claude-Desktop-Konfiguration ein. Ersetzen Sie den Pfad durch den absoluten Pfad zu mcp/src/index.js und ORBITRA_API_KEY durch Ihren Schlüssel. Vollständige Anleitung: mcp/README.md.",
+    "mcpCopyConfig": "Konfiguration kopieren",
     "apiKeyHint": "Read-Schlüssel erlauben nur Analysen. Write-Schlüssel erlauben zusätzlich die Verwaltung von Kampagnen, Angeboten und Domains — verwendet vom Orbitra-MCP-Server für KI-Assistenten (siehe mcp/README.md).",
     "newReadKey": "Read-Schlüssel",
     "newWriteKey": "Write-Schlüssel",
@@ -48532,6 +48553,21 @@ const UsersPage = () => {
     navigator.clipboard.writeText(text);
     showSuccess(t("common.copy"));
   };
+  const buildMcpConfig = () => {
+    const origin2 = typeof window !== "undefined" && window.location && window.location.origin ? window.location.origin : "https://tracker.example.com";
+    return JSON.stringify({
+      mcpServers: {
+        orbitra: {
+          command: "node",
+          args: ["/absolute/path/to/Orbitra/mcp/src/index.js"],
+          env: {
+            ORBITRA_URL: origin2,
+            ORBITRA_API_KEY: "<your-api-key>"
+          }
+        }
+      }
+    }, null, 2);
+  };
   const resources = [
     { key: "campaigns", label: t("nav.campaigns") },
     { key: "offers", label: t("nav.offers") },
@@ -48892,6 +48928,38 @@ const UsersPage = () => {
             ]
           }
         )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        marginTop: "18px",
+        paddingTop: "16px",
+        borderTop: "1px solid var(--color-border)"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", style: { marginBottom: "8px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600, fontSize: "14px" }, children: t("users.mcpTitle", "Connect an AI assistant (MCP)") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: () => copyToClipboard(buildMcpConfig()),
+              className: "btn btn-secondary",
+              style: { padding: "4px 10px", fontSize: "12px" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 14 }),
+                t("users.mcpCopyConfig", "Copy config")
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "10px", lineHeight: 1.5 }, children: t("users.mcpDesc", "Generate a key above, then paste this into your Claude Desktop config. Replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with your key. Full guide: mcp/README.md.") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { style: {
+          background: "var(--color-bg-soft)",
+          borderRadius: "10px",
+          padding: "12px",
+          fontSize: "12px",
+          overflowX: "auto",
+          margin: 0,
+          lineHeight: 1.45,
+          color: "var(--color-text)"
+        }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: buildMcpConfig() }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowApiKeysModal(false), className: "btn btn-secondary", children: t("common.close") }) })
     ] }) })
