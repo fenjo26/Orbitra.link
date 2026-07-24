@@ -1,4 +1,18 @@
 export default {
+    "mcpPage": {
+        "title": "Asistente de IA (MCP)",
+        "intro": "Conecta Claude Desktop y otros asistentes de IA a tu tracker y gestiónalo en lenguaje natural: analiza campañas, créalas en lote, conecta dominios, edita ofertas y más.",
+        "step1Title": "Crea una clave API",
+        "step1Desc": "Abre Usuarios → Claves API y genera una clave. Una clave Read solo permite análisis; una clave Write también permite gestionar campañas, ofertas y dominios.",
+        "step2Title": "Instala el servidor",
+        "step2Desc": "En la máquina con tu asistente de IA, instala las dependencias una vez dentro de la carpeta del tracker:",
+        "step3Title": "Añade a Claude Desktop",
+        "step3Desc": "Pega esto en la configuración de Claude Desktop y reemplaza la ruta por la ruta absoluta a mcp/src/index.js y ORBITRA_API_KEY por la clave del paso 1.",
+        "copyConfig": "Copiar config",
+        "copied": "Copiado",
+        "toolsNote": "Hay 31 herramientas disponibles: análisis (métricas, campañas, conversiones, informes) y gestión (crear / crear en lote / editar / eliminar campañas, ofertas, dominios, fuentes, landings).",
+        "fullGuide": "Guía completa:"
+    },
     "tpl": {
         "src_email": "Correo electrónico",
         "src_custom": "Fuente personalizada",
@@ -117,6 +131,7 @@ export default {
         "backorder": "Pedido pendiente"
     },
     "adminMenu": {
+        "mcp": "IA / MCP",
         "users": "Usuarios",
         "branding": "Personalización",
         "geoProfiles": "Perfiles geográficos",
@@ -574,6 +589,7 @@ export default {
         "statusError": "error"
     },
     "admin": {
+        "mcp": "Asistente de IA (MCP)",
         "users": "Usuarios",
         "noGeoDb": "No hay ninguna base de datos geográfica instalada. Los filtros geográficos no funcionarán.",
         "branding": "Personalización",
@@ -1213,6 +1229,7 @@ export default {
         "loading": "Cargando..."
     },
     "geoDb": {
+        "noDatabase": "Sin base de datos",
         "title": "Bases de datos geográficas",
         "infoText": "El rastreador utiliza bases de datos geográficas para una rápida identificación del país, región, ciudad y proveedor mediante la dirección IP del visitante.",
         "supportedTitle": "📚 ¿Qué bases de datos Geo son compatibles?",

@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserCog, Palette, Map, Link, Settings as SettingsIcon, Plug, Server, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, AlertCircle, HardDrive, MessageSquare } from 'lucide-react';
+import { UserCog, Palette, Map, Link, Settings as SettingsIcon, Plug, Server, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, AlertCircle, HardDrive, MessageSquare, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 import UsersPage from './UsersPage';
@@ -12,6 +12,7 @@ import IntegrationsPage from './IntegrationsPage';
 import LogsPage from './LogsPage';
 import ArchivePage from './ArchivePage';
 import GeoDBPage from './GeoDBPage';
+import McpPage from './McpPage';
 import MigrationsPage from './MigrationsPage';
 import UpdatePage from './UpdatePage';
 import AggregatorPage from './AggregatorPage';
@@ -458,6 +459,13 @@ const AdminPage = ({ page }) => {
             description: t('nav.adminIntegrations') || t('admin.integrations'),
             comingSoon: false,
             content: <IntegrationsPage />
+        },
+        admin_mcp: {
+            title: t('admin.mcp') || 'AI Assistant (MCP)',
+            icon: <Sparkles className="w-6 h-6" />,
+            description: t('nav.adminMcp') || t('admin.mcp') || 'AI Assistant (MCP)',
+            comingSoon: false,
+            content: <McpPage />
         },
         admin_status: {
             title: t('admin.status'),

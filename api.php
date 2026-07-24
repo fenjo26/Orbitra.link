@@ -5660,7 +5660,7 @@ try {
                 'id' => 'sypex_city_lite',
                 'name' => 'Sypex Geo City Lite',
                 'type' => 'Country-Region-City',
-                'status' => file_exists($datFile) ? 'OK' : 'Нет базы',
+                'status' => file_exists($datFile) ? 'OK' : 'missing',
                 'updated_at' => file_exists($datFile) ? date('Y-m-d H:i:s', filemtime($datFile)) : null,
                 'size' => file_exists($datFile) ? filesize($datFile) : 0
             ];
@@ -5682,7 +5682,7 @@ try {
                 'id' => 'ip2location_lite_db11',
                 'name' => 'IP2Location LITE (DB11)',
                 'type' => 'Country-Region-City-Latitude-Longitude-ZIPCode-TimeZone (IPv4+IPv6)',
-                'status' => ($ip2locDb && file_exists($ip2locDb)) ? 'OK' : 'Нет базы',
+                'status' => ($ip2locDb && file_exists($ip2locDb)) ? 'OK' : 'missing',
                 'updated_at' => ($ip2locDb && file_exists($ip2locDb)) ? date('Y-m-d H:i:s', filemtime($ip2locDb)) : null,
                 'size' => ($ip2locDb && file_exists($ip2locDb)) ? filesize($ip2locDb) : 0
             ];
@@ -5694,7 +5694,7 @@ try {
                 'id' => 'maxmind_city',
                 'name' => 'MaxMind GeoLite2-City (Requires License Key)',
                 'type' => 'Country-City',
-                'status' => file_exists($maxMindDb) ? 'OK' : 'Нет базы',
+                'status' => file_exists($maxMindDb) ? 'OK' : 'missing',
                 'updated_at' => file_exists($maxMindDb) ? date('Y-m-d H:i:s', filemtime($maxMindDb)) : null,
                 'size' => file_exists($maxMindDb) ? filesize($maxMindDb) : 0
             ];

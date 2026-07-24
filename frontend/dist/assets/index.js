@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1y = [
+const __iconNode$1A = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$1y = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1y);
-const __iconNode$1x = [
+const Activity = createLucideIcon("activity", __iconNode$1A);
+const __iconNode$1z = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1x);
-const __iconNode$1w = [
+const Archive = createLucideIcon("archive", __iconNode$1z);
+const __iconNode$1y = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1w);
-const __iconNode$1v = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1y);
+const __iconNode$1x = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1v);
-const __iconNode$1u = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1x);
+const __iconNode$1w = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1u);
-const __iconNode$1t = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1w);
+const __iconNode$1v = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$1t = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1t);
-const __iconNode$1s = [
+const BellOff = createLucideIcon("bell-off", __iconNode$1v);
+const __iconNode$1u = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$1s = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1s);
-const __iconNode$1r = [
+const Bell = createLucideIcon("bell", __iconNode$1u);
+const __iconNode$1t = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1r);
-const __iconNode$1q = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$1t);
+const __iconNode$1s = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1q);
-const __iconNode$1p = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1s);
+const __iconNode$1r = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1p);
-const __iconNode$1o = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1r);
+const __iconNode$1q = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$1o = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1o);
-const __iconNode$1n = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1n);
-const __iconNode$1m = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1m);
-const __iconNode$1l = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1l);
-const __iconNode$1k = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1k);
-const __iconNode$1j = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1j);
-const __iconNode$1i = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1q);
+const __iconNode$1p = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1p);
+const __iconNode$1o = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1o);
+const __iconNode$1n = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1n);
+const __iconNode$1m = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1m);
+const __iconNode$1l = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1l);
+const __iconNode$1k = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1i);
-const __iconNode$1h = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1k);
+const __iconNode$1j = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1h);
-const __iconNode$1g = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1j);
+const __iconNode$1i = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1g);
-const __iconNode$1f = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1i);
+const __iconNode$1h = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1f);
-const __iconNode$1e = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1h);
+const __iconNode$1g = [
   [
     "path",
     {
@@ -15240,52 +15240,69 @@ const __iconNode$1e = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1e);
-const __iconNode$1d = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1g);
+const __iconNode$1f = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1d);
-const __iconNode$1c = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1f);
+const __iconNode$1e = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1c);
-const __iconNode$1b = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1e);
+const __iconNode$1d = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1b);
-const __iconNode$1a = [
+const Clock = createLucideIcon("clock", __iconNode$1d);
+const __iconNode$1c = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1a);
-const __iconNode$19 = [
+const Code = createLucideIcon("code", __iconNode$1c);
+const __iconNode$1b = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$19);
-const __iconNode$18 = [
+const Copy = createLucideIcon("copy", __iconNode$1b);
+const __iconNode$1a = [
+  ["path", { d: "M12 20v2", key: "1lh1kg" }],
+  ["path", { d: "M12 2v2", key: "tus03m" }],
+  ["path", { d: "M17 20v2", key: "1rnc9c" }],
+  ["path", { d: "M17 2v2", key: "11trls" }],
+  ["path", { d: "M2 12h2", key: "1t8f8n" }],
+  ["path", { d: "M2 17h2", key: "7oei6x" }],
+  ["path", { d: "M2 7h2", key: "asdhe0" }],
+  ["path", { d: "M20 12h2", key: "1q8mjw" }],
+  ["path", { d: "M20 17h2", key: "1fpfkl" }],
+  ["path", { d: "M20 7h2", key: "1o8tra" }],
+  ["path", { d: "M7 20v2", key: "4gnj0m" }],
+  ["path", { d: "M7 2v2", key: "1i4yhu" }],
+  ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
+  ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
+];
+const Cpu = createLucideIcon("cpu", __iconNode$1a);
+const __iconNode$19 = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$18);
-const __iconNode$17 = [
+const Database = createLucideIcon("database", __iconNode$19);
+const __iconNode$18 = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$17);
-const __iconNode$16 = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$18);
+const __iconNode$17 = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$16);
-const __iconNode$15 = [
+const Download = createLucideIcon("download", __iconNode$17);
+const __iconNode$16 = [
   [
     "path",
     {
@@ -15294,20 +15311,20 @@ const __iconNode$15 = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$15);
-const __iconNode$14 = [
+const Droplet = createLucideIcon("droplet", __iconNode$16);
+const __iconNode$15 = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$14);
-const __iconNode$13 = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$15);
+const __iconNode$14 = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$13);
-const __iconNode$12 = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$14);
+const __iconNode$13 = [
   [
     "path",
     {
@@ -15325,8 +15342,8 @@ const __iconNode$12 = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$12);
-const __iconNode$11 = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$13);
+const __iconNode$12 = [
   [
     "path",
     {
@@ -15336,8 +15353,8 @@ const __iconNode$11 = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$11);
-const __iconNode$10 = [
+const Eye = createLucideIcon("eye", __iconNode$12);
+const __iconNode$11 = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15348,8 +15365,8 @@ const __iconNode$10 = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$10);
-const __iconNode$$ = [
+const FileStack = createLucideIcon("file-stack", __iconNode$11);
+const __iconNode$10 = [
   [
     "path",
     {
@@ -15362,8 +15379,8 @@ const __iconNode$$ = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$$);
-const __iconNode$_ = [
+const FileText = createLucideIcon("file-text", __iconNode$10);
+const __iconNode$$ = [
   [
     "path",
     {
@@ -15372,14 +15389,14 @@ const __iconNode$_ = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$_);
-const __iconNode$Z = [
+const Funnel = createLucideIcon("funnel", __iconNode$$);
+const __iconNode$_ = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$Z);
-const __iconNode$Y = [
+const Globe = createLucideIcon("globe", __iconNode$_);
+const __iconNode$Z = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15391,8 +15408,8 @@ const __iconNode$Y = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$Y);
-const __iconNode$X = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$Z);
+const __iconNode$Y = [
   [
     "path",
     {
@@ -15401,20 +15418,20 @@ const __iconNode$X = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$X);
-const __iconNode$W = [
+const Heart = createLucideIcon("heart", __iconNode$Y);
+const __iconNode$X = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$W);
-const __iconNode$V = [
+const Image = createLucideIcon("image", __iconNode$X);
+const __iconNode$W = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$V);
-const __iconNode$U = [
+const Info = createLucideIcon("info", __iconNode$W);
+const __iconNode$V = [
   [
     "path",
     {
@@ -15424,21 +15441,21 @@ const __iconNode$U = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$U);
-const __iconNode$T = [
+const KeyRound = createLucideIcon("key-round", __iconNode$V);
+const __iconNode$U = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$T);
-const __iconNode$S = [
+const Key = createLucideIcon("key", __iconNode$U);
+const __iconNode$T = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$S);
-const __iconNode$R = [
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$T);
+const __iconNode$S = [
   [
     "path",
     {
@@ -15449,19 +15466,19 @@ const __iconNode$R = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$R);
-const __iconNode$Q = [
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$S);
+const __iconNode$R = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-const Link2 = createLucideIcon("link-2", __iconNode$Q);
-const __iconNode$P = [
+const Link2 = createLucideIcon("link-2", __iconNode$R);
+const __iconNode$Q = [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ];
-const Link = createLucideIcon("link", __iconNode$P);
-const __iconNode$O = [
+const Link = createLucideIcon("link", __iconNode$Q);
+const __iconNode$P = [
   ["path", { d: "M12 2v4", key: "3427ic" }],
   ["path", { d: "m16.2 7.8 2.9-2.9", key: "r700ao" }],
   ["path", { d: "M18 12h4", key: "wj9ykh" }],
@@ -15471,24 +15488,24 @@ const __iconNode$O = [
   ["path", { d: "M2 12h4", key: "j09sii" }],
   ["path", { d: "m4.9 4.9 2.9 2.9", key: "giyufr" }]
 ];
-const Loader = createLucideIcon("loader", __iconNode$O);
-const __iconNode$N = [
+const Loader = createLucideIcon("loader", __iconNode$P);
+const __iconNode$O = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$N);
-const __iconNode$M = [
+const Lock = createLucideIcon("lock", __iconNode$O);
+const __iconNode$N = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$M);
-const __iconNode$L = [
+const LogOut = createLucideIcon("log-out", __iconNode$N);
+const __iconNode$M = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Mail = createLucideIcon("mail", __iconNode$L);
-const __iconNode$K = [
+const Mail = createLucideIcon("mail", __iconNode$M);
+const __iconNode$L = [
   [
     "path",
     {
@@ -15498,8 +15515,8 @@ const __iconNode$K = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$K);
-const __iconNode$J = [
+const MapPin = createLucideIcon("map-pin", __iconNode$L);
+const __iconNode$K = [
   [
     "path",
     {
@@ -15510,14 +15527,14 @@ const __iconNode$J = [
   ["path", { d: "M15 5.764v15", key: "1pn4in" }],
   ["path", { d: "M9 3.236v15", key: "1uimfh" }]
 ];
-const Map$1 = createLucideIcon("map", __iconNode$J);
-const __iconNode$I = [
+const Map$1 = createLucideIcon("map", __iconNode$K);
+const __iconNode$J = [
   ["path", { d: "M4 5h16", key: "1tepv9" }],
   ["path", { d: "M4 12h16", key: "1lakjw" }],
   ["path", { d: "M4 19h16", key: "1djgab" }]
 ];
-const Menu = createLucideIcon("menu", __iconNode$I);
-const __iconNode$H = [
+const Menu = createLucideIcon("menu", __iconNode$J);
+const __iconNode$I = [
   [
     "path",
     {
@@ -15526,8 +15543,8 @@ const __iconNode$H = [
     }
   ]
 ];
-const MessageCircle = createLucideIcon("message-circle", __iconNode$H);
-const __iconNode$G = [
+const MessageCircle = createLucideIcon("message-circle", __iconNode$I);
+const __iconNode$H = [
   [
     "path",
     {
@@ -15536,14 +15553,14 @@ const __iconNode$G = [
     }
   ]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$G);
-const __iconNode$F = [
+const MessageSquare = createLucideIcon("message-square", __iconNode$H);
+const __iconNode$G = [
   ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
   ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
   ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
 ];
-const Monitor = createLucideIcon("monitor", __iconNode$F);
-const __iconNode$E = [
+const Monitor = createLucideIcon("monitor", __iconNode$G);
+const __iconNode$F = [
   [
     "path",
     {
@@ -15552,8 +15569,8 @@ const __iconNode$E = [
     }
   ]
 ];
-const Moon = createLucideIcon("moon", __iconNode$E);
-const __iconNode$D = [
+const Moon = createLucideIcon("moon", __iconNode$F);
+const __iconNode$E = [
   [
     "path",
     {
@@ -15566,8 +15583,8 @@ const __iconNode$D = [
   ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
   ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
 ];
-const Palette = createLucideIcon("palette", __iconNode$D);
-const __iconNode$C = [
+const Palette = createLucideIcon("palette", __iconNode$E);
+const __iconNode$D = [
   ["path", { d: "M13 21h8", key: "1jsn5i" }],
   [
     "path",
@@ -15577,8 +15594,8 @@ const __iconNode$C = [
     }
   ]
 ];
-const PenLine = createLucideIcon("pen-line", __iconNode$C);
-const __iconNode$B = [
+const PenLine = createLucideIcon("pen-line", __iconNode$D);
+const __iconNode$C = [
   [
     "path",
     {
@@ -15587,8 +15604,8 @@ const __iconNode$B = [
     }
   ]
 ];
-const Pen = createLucideIcon("pen", __iconNode$B);
-const __iconNode$A = [
+const Pen = createLucideIcon("pen", __iconNode$C);
+const __iconNode$B = [
   [
     "path",
     {
@@ -15597,8 +15614,8 @@ const __iconNode$A = [
     }
   ]
 ];
-const Play = createLucideIcon("play", __iconNode$A);
-const __iconNode$z = [
+const Play = createLucideIcon("play", __iconNode$B);
+const __iconNode$A = [
   ["path", { d: "M12 22v-5", key: "1ega77" }],
   ["path", { d: "M15 8V2", key: "18g5xt" }],
   [
@@ -15607,30 +15624,30 @@ const __iconNode$z = [
   ],
   ["path", { d: "M9 8V2", key: "14iosj" }]
 ];
-const Plug = createLucideIcon("plug", __iconNode$z);
-const __iconNode$y = [
+const Plug = createLucideIcon("plug", __iconNode$A);
+const __iconNode$z = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ];
-const Plus = createLucideIcon("plus", __iconNode$y);
-const __iconNode$x = [
+const Plus = createLucideIcon("plus", __iconNode$z);
+const __iconNode$y = [
   ["path", { d: "M12 2v10", key: "mnfbl" }],
   ["path", { d: "M18.4 6.6a9 9 0 1 1-12.77.04", key: "obofu9" }]
 ];
-const Power = createLucideIcon("power", __iconNode$x);
-const __iconNode$w = [
+const Power = createLucideIcon("power", __iconNode$y);
+const __iconNode$x = [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
   ["path", { d: "M8 16H3v5", key: "1cv678" }]
 ];
-const RefreshCw = createLucideIcon("refresh-cw", __iconNode$w);
-const __iconNode$v = [
+const RefreshCw = createLucideIcon("refresh-cw", __iconNode$x);
+const __iconNode$w = [
   ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
   ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
 ];
-const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$v);
-const __iconNode$u = [
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$w);
+const __iconNode$v = [
   [
     "path",
     {
@@ -15641,13 +15658,13 @@ const __iconNode$u = [
   ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
   ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
 ];
-const Save = createLucideIcon("save", __iconNode$u);
-const __iconNode$t = [
+const Save = createLucideIcon("save", __iconNode$v);
+const __iconNode$u = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
-const Search = createLucideIcon("search", __iconNode$t);
-const __iconNode$s = [
+const Search = createLucideIcon("search", __iconNode$u);
+const __iconNode$t = [
   [
     "path",
     {
@@ -15657,8 +15674,8 @@ const __iconNode$s = [
   ],
   ["path", { d: "m21.854 2.147-10.94 10.939", key: "12cjpa" }]
 ];
-const Send = createLucideIcon("send", __iconNode$s);
-const __iconNode$r = [
+const Send = createLucideIcon("send", __iconNode$t);
+const __iconNode$s = [
   [
     "path",
     {
@@ -15677,22 +15694,22 @@ const __iconNode$r = [
   ["path", { d: "M6 18h.01", key: "uhywen" }],
   ["path", { d: "m13 6-4 6h6l-4 6", key: "14hqih" }]
 ];
-const ServerCrash = createLucideIcon("server-crash", __iconNode$r);
-const __iconNode$q = [
+const ServerCrash = createLucideIcon("server-crash", __iconNode$s);
+const __iconNode$r = [
   ["rect", { width: "20", height: "8", x: "2", y: "2", rx: "2", ry: "2", key: "ngkwjq" }],
   ["rect", { width: "20", height: "8", x: "2", y: "14", rx: "2", ry: "2", key: "iecqi9" }],
   ["line", { x1: "6", x2: "6.01", y1: "6", y2: "6", key: "16zg32" }],
   ["line", { x1: "6", x2: "6.01", y1: "18", y2: "18", key: "nzw8ys" }]
 ];
-const Server = createLucideIcon("server", __iconNode$q);
-const __iconNode$p = [
+const Server = createLucideIcon("server", __iconNode$r);
+const __iconNode$q = [
   ["path", { d: "M14 17H5", key: "gfn3mx" }],
   ["path", { d: "M19 7h-9", key: "6i9tg" }],
   ["circle", { cx: "17", cy: "17", r: "3", key: "18b49y" }],
   ["circle", { cx: "7", cy: "7", r: "3", key: "dfmy0x" }]
 ];
-const Settings2 = createLucideIcon("settings-2", __iconNode$p);
-const __iconNode$o = [
+const Settings2 = createLucideIcon("settings-2", __iconNode$q);
+const __iconNode$p = [
   [
     "path",
     {
@@ -15702,8 +15719,8 @@ const __iconNode$o = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Settings$1 = createLucideIcon("settings", __iconNode$o);
-const __iconNode$n = [
+const Settings$1 = createLucideIcon("settings", __iconNode$p);
+const __iconNode$o = [
   [
     "path",
     {
@@ -15714,8 +15731,8 @@ const __iconNode$n = [
   ["path", { d: "M12 8v4", key: "1got3b" }],
   ["path", { d: "M12 16h.01", key: "1drbdi" }]
 ];
-const ShieldAlert = createLucideIcon("shield-alert", __iconNode$n);
-const __iconNode$m = [
+const ShieldAlert = createLucideIcon("shield-alert", __iconNode$o);
+const __iconNode$n = [
   [
     "path",
     {
@@ -15725,8 +15742,8 @@ const __iconNode$m = [
   ],
   ["path", { d: "m4.243 5.21 14.39 12.472", key: "1c9a7c" }]
 ];
-const ShieldBan = createLucideIcon("shield-ban", __iconNode$m);
-const __iconNode$l = [
+const ShieldBan = createLucideIcon("shield-ban", __iconNode$n);
+const __iconNode$m = [
   [
     "path",
     {
@@ -15735,12 +15752,25 @@ const __iconNode$l = [
     }
   ]
 ];
-const Shield = createLucideIcon("shield", __iconNode$l);
-const __iconNode$k = [
+const Shield = createLucideIcon("shield", __iconNode$m);
+const __iconNode$l = [
   ["rect", { width: "14", height: "20", x: "5", y: "2", rx: "2", ry: "2", key: "1yt0o3" }],
   ["path", { d: "M12 18h.01", key: "mhygvu" }]
 ];
-const Smartphone = createLucideIcon("smartphone", __iconNode$k);
+const Smartphone = createLucideIcon("smartphone", __iconNode$l);
+const __iconNode$k = [
+  [
+    "path",
+    {
+      d: "M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z",
+      key: "1s2grr"
+    }
+  ],
+  ["path", { d: "M20 2v4", key: "1rf3ol" }],
+  ["path", { d: "M22 4h-4", key: "gwowj6" }],
+  ["circle", { cx: "4", cy: "20", r: "2", key: "6kqj1y" }]
+];
+const Sparkles = createLucideIcon("sparkles", __iconNode$k);
 const __iconNode$j = [
   ["path", { d: "M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7", key: "1m0v6g" }],
   [
@@ -15899,6 +15929,20 @@ const __iconNode = [
 ];
 const Zap = createLucideIcon("zap", __iconNode);
 const ru = {
+  "mcpPage": {
+    "title": "ИИ-ассистент (MCP)",
+    "intro": "Подключите Claude Desktop и другие ИИ-ассистенты к трекеру и управляйте им на обычном языке — анализируйте кампании, создавайте их массово, подключайте домены, редактируйте офферы и многое другое.",
+    "step1Title": "Создайте API-ключ",
+    "step1Desc": "Откройте «Пользователи → API-ключи» и сгенерируйте ключ. Ключ Read — только аналитика; ключ Write — ещё и управление кампаниями, офферами и доменами.",
+    "step2Title": "Установите сервер",
+    "step2Desc": "На машине с ИИ-ассистентом один раз установите зависимости в папке трекера:",
+    "step3Title": "Добавьте в Claude Desktop",
+    "step3Desc": "Вставьте это в конфиг Claude Desktop, затем замените путь на абсолютный путь к mcp/src/index.js, а ORBITRA_API_KEY — на ключ из шага 1.",
+    "copyConfig": "Скопировать конфиг",
+    "copied": "Скопировано",
+    "toolsNote": "Доступен 31 инструмент: аналитика (метрики, кампании, конверсии, отчёты) и управление (создание / массовое создание / редактирование / удаление кампаний, офферов, доменов, источников, лендингов).",
+    "fullGuide": "Полная инструкция:"
+  },
   "tpl": {
     "src_email": "Email",
     "src_custom": "Свой источник",
@@ -16017,6 +16061,7 @@ const ru = {
     "backorder": "Backorder"
   },
   "adminMenu": {
+    "mcp": "ИИ / MCP",
     "users": "Пользователи",
     "branding": "Персонализация",
     "geoProfiles": "Гео-профили",
@@ -16474,6 +16519,7 @@ const ru = {
     "statusError": "Ошибка"
   },
   "admin": {
+    "mcp": "ИИ-ассистент (MCP)",
     "users": "Пользователи",
     "noGeoDb": "Не установлена ни одна гео-база. Гео-фильтры не будут работать.",
     "branding": "Персонализация",
@@ -17113,6 +17159,7 @@ const ru = {
     "loading": "Загрузка..."
   },
   "geoDb": {
+    "noDatabase": "Нет базы",
     "title": "Гео-базы",
     "infoText": "Гео-базы используются трекером для быстрого определения страны, региона, города и провайдера по IP-адресу посетителя.",
     "supportedTitle": "📚 Какие Гео-базы поддерживаются?",
@@ -17761,6 +17808,20 @@ const ru = {
   }
 };
 const en = {
+  "mcpPage": {
+    "title": "AI Assistant (MCP)",
+    "intro": "Connect Claude Desktop and other AI assistants to your tracker and manage it in plain language — analyse campaigns, create them in bulk, connect domains, edit offers and more.",
+    "step1Title": "Create an API key",
+    "step1Desc": "Open Users → API Keys and generate a key. A Read key allows analytics only; a Write key also allows managing campaigns, offers and domains.",
+    "step2Title": "Install the server",
+    "step2Desc": "On the machine running your AI assistant, install dependencies once inside the tracker folder:",
+    "step3Title": "Add to Claude Desktop",
+    "step3Desc": "Paste this into your Claude Desktop config, then replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with the key from step 1.",
+    "copyConfig": "Copy config",
+    "copied": "Copied",
+    "toolsNote": "31 tools are available: analytics (metrics, campaigns, conversions, reports) and management (create / bulk-create / edit / delete campaigns, offers, domains, sources, landings).",
+    "fullGuide": "Full guide:"
+  },
   "tpl": {
     "src_email": "Email",
     "src_custom": "Custom source",
@@ -17879,6 +17940,7 @@ const en = {
     "backorder": "Backorder"
   },
   "adminMenu": {
+    "mcp": "AI / MCP",
     "users": "Users",
     "branding": "Personalization",
     "geoProfiles": "Geo Profiles",
@@ -18336,6 +18398,7 @@ const en = {
     "statusError": "Error"
   },
   "admin": {
+    "mcp": "AI Assistant (MCP)",
     "users": "Users",
     "noGeoDb": "No geo database installed. Geo filters will not work.",
     "branding": "Personalization",
@@ -18975,6 +19038,7 @@ const en = {
     "loading": "Loading..."
   },
   "geoDb": {
+    "noDatabase": "No database",
     "title": "Geo Databases",
     "infoText": "Geo databases are used by the tracker for fast identification of country, region, city, and provider by visitor's IP address.",
     "supportedTitle": "📚 Which Geo databases are supported?",
@@ -19623,6 +19687,20 @@ const en = {
   }
 };
 const uk = {
+  "mcpPage": {
+    "title": "ІІ-асистент (MCP)",
+    "intro": "Підключіть Claude Desktop та інші ІІ-асистенти до трекера й керуйте ним звичайною мовою — аналізуйте кампанії, створюйте їх масово, підключайте домени, редагуйте офери тощо.",
+    "step1Title": "Створіть API-ключ",
+    "step1Desc": "Відкрийте «Користувачі → API-ключі» та згенеруйте ключ. Ключ Read — лише аналітика; ключ Write — ще й керування кампаніями, оферами й доменами.",
+    "step2Title": "Встановіть сервер",
+    "step2Desc": "На машині з ІІ-асистентом один раз встановіть залежності в папці трекера:",
+    "step3Title": "Додайте в Claude Desktop",
+    "step3Desc": "Вставте це в конфіг Claude Desktop, потім замініть шлях на абсолютний шлях до mcp/src/index.js, а ORBITRA_API_KEY — на ключ із кроку 1.",
+    "copyConfig": "Скопіювати конфіг",
+    "copied": "Скопійовано",
+    "toolsNote": "Доступний 31 інструмент: аналітика (метрики, кампанії, конверсії, звіти) та керування (створення / масове створення / редагування / видалення кампаній, оферів, доменів, джерел, лендингів).",
+    "fullGuide": "Повна інструкція:"
+  },
   "tpl": {
     "src_email": "Електронна пошта",
     "src_custom": "Спеціальне джерело",
@@ -19741,6 +19819,7 @@ const uk = {
     "backorder": "Замовлення"
   },
   "adminMenu": {
+    "mcp": "ІІ / MCP",
     "users": "Користувачі",
     "branding": "Персоналізація",
     "geoProfiles": "Географічні профілі",
@@ -20198,6 +20277,7 @@ const uk = {
     "statusError": "Помилка"
   },
   "admin": {
+    "mcp": "ІІ-асистент (MCP)",
     "users": "Користувачі",
     "noGeoDb": "Геобаза даних не встановлена. Географічні фільтри не працюватимуть.",
     "branding": "Персоналізація",
@@ -20837,6 +20917,7 @@ const uk = {
     "loading": "Завантаження..."
   },
   "geoDb": {
+    "noDatabase": "Немає бази",
     "title": "Географічні бази даних",
     "infoText": "Геобази даних використовуються трекером для швидкої ідентифікації країни, регіону, міста та провайдера за IP-адресою відвідувача.",
     "supportedTitle": "📚 Які бази даних Geo підтримуються?",
@@ -21485,6 +21566,20 @@ const uk = {
   }
 };
 const es = {
+  "mcpPage": {
+    "title": "Asistente de IA (MCP)",
+    "intro": "Conecta Claude Desktop y otros asistentes de IA a tu tracker y gestiónalo en lenguaje natural: analiza campañas, créalas en lote, conecta dominios, edita ofertas y más.",
+    "step1Title": "Crea una clave API",
+    "step1Desc": "Abre Usuarios → Claves API y genera una clave. Una clave Read solo permite análisis; una clave Write también permite gestionar campañas, ofertas y dominios.",
+    "step2Title": "Instala el servidor",
+    "step2Desc": "En la máquina con tu asistente de IA, instala las dependencias una vez dentro de la carpeta del tracker:",
+    "step3Title": "Añade a Claude Desktop",
+    "step3Desc": "Pega esto en la configuración de Claude Desktop y reemplaza la ruta por la ruta absoluta a mcp/src/index.js y ORBITRA_API_KEY por la clave del paso 1.",
+    "copyConfig": "Copiar config",
+    "copied": "Copiado",
+    "toolsNote": "Hay 31 herramientas disponibles: análisis (métricas, campañas, conversiones, informes) y gestión (crear / crear en lote / editar / eliminar campañas, ofertas, dominios, fuentes, landings).",
+    "fullGuide": "Guía completa:"
+  },
   "tpl": {
     "src_email": "Correo electrónico",
     "src_custom": "Fuente personalizada",
@@ -21603,6 +21698,7 @@ const es = {
     "backorder": "Pedido pendiente"
   },
   "adminMenu": {
+    "mcp": "IA / MCP",
     "users": "Usuarios",
     "branding": "Personalización",
     "geoProfiles": "Perfiles geográficos",
@@ -22060,6 +22156,7 @@ const es = {
     "statusError": "error"
   },
   "admin": {
+    "mcp": "Asistente de IA (MCP)",
     "users": "Usuarios",
     "noGeoDb": "No hay ninguna base de datos geográfica instalada. Los filtros geográficos no funcionarán.",
     "branding": "Personalización",
@@ -22699,6 +22796,7 @@ const es = {
     "loading": "Cargando..."
   },
   "geoDb": {
+    "noDatabase": "Sin base de datos",
     "title": "Bases de datos geográficas",
     "infoText": "El rastreador utiliza bases de datos geográficas para una rápida identificación del país, región, ciudad y proveedor mediante la dirección IP del visitante.",
     "supportedTitle": "📚 ¿Qué bases de datos Geo son compatibles?",
@@ -23347,6 +23445,20 @@ const es = {
   }
 };
 const zh = {
+  "mcpPage": {
+    "title": "AI 助手（MCP）",
+    "intro": "将 Claude Desktop 及其他 AI 助手连接到你的跟踪器，用自然语言进行管理 —— 分析广告系列、批量创建、连接域名、编辑报价等。",
+    "step1Title": "创建 API 密钥",
+    "step1Desc": "打开「用户 → API 密钥」并生成密钥。只读密钥仅用于分析；写入密钥还可管理广告系列、报价和域名。",
+    "step2Title": "安装服务器",
+    "step2Desc": "在运行 AI 助手的机器上，于跟踪器目录中安装一次依赖：",
+    "step3Title": "添加到 Claude Desktop",
+    "step3Desc": "将此内容粘贴到 Claude Desktop 配置中，然后将路径替换为 mcp/src/index.js 的绝对路径，并将 ORBITRA_API_KEY 替换为第 1 步的密钥。",
+    "copyConfig": "复制配置",
+    "copied": "已复制",
+    "toolsNote": "提供 31 个工具：分析（指标、广告系列、转化、报告）与管理（创建 / 批量创建 / 编辑 / 删除广告系列、报价、域名、来源、落地页）。",
+    "fullGuide": "完整指南："
+  },
   "tpl": {
     "src_email": "电子邮件",
     "src_custom": "定制来源",
@@ -23465,6 +23577,7 @@ const zh = {
     "backorder": "延期交货"
   },
   "adminMenu": {
+    "mcp": "AI / MCP",
     "users": "用户",
     "branding": "个性化",
     "geoProfiles": "地理概况",
@@ -23922,6 +24035,7 @@ const zh = {
     "statusError": "错误"
   },
   "admin": {
+    "mcp": "AI 助手（MCP）",
     "users": "用户",
     "noGeoDb": "未安装地理数据库。地理过滤器将不起作用。",
     "branding": "个性化",
@@ -24561,6 +24675,7 @@ const zh = {
     "loading": "正在加载..."
   },
   "geoDb": {
+    "noDatabase": "无数据库",
     "title": "地理数据库",
     "infoText": "跟踪器使用地理数据库通过访问者的 IP 地址快速识别国家、地区、城市和提供商。",
     "supportedTitle": "📚 支持哪些地理数据库？",
@@ -25209,6 +25324,20 @@ const zh = {
   }
 };
 const fr = {
+  "mcpPage": {
+    "title": "Assistant IA (MCP)",
+    "intro": "Connectez Claude Desktop et d'autres assistants IA à votre tracker et gérez-le en langage naturel : analyser les campagnes, les créer en masse, connecter des domaines, modifier des offres, etc.",
+    "step1Title": "Créer une clé API",
+    "step1Desc": "Ouvrez Utilisateurs → Clés API et générez une clé. Une clé Read ne permet que les analyses ; une clé Write permet aussi de gérer les campagnes, offres et domaines.",
+    "step2Title": "Installer le serveur",
+    "step2Desc": "Sur la machine exécutant votre assistant IA, installez les dépendances une fois dans le dossier du tracker :",
+    "step3Title": "Ajouter à Claude Desktop",
+    "step3Desc": "Collez ceci dans la configuration de Claude Desktop, puis remplacez le chemin par le chemin absolu vers mcp/src/index.js et ORBITRA_API_KEY par la clé de l'étape 1.",
+    "copyConfig": "Copier la config",
+    "copied": "Copié",
+    "toolsNote": "31 outils disponibles : analyses (métriques, campagnes, conversions, rapports) et gestion (créer / créer en masse / modifier / supprimer campagnes, offres, domaines, sources, landings).",
+    "fullGuide": "Guide complet :"
+  },
   "tpl": {
     "src_email": "E-mail",
     "src_custom": "Source personnalisée",
@@ -25327,6 +25456,7 @@ const fr = {
     "backorder": "Recommandation"
   },
   "adminMenu": {
+    "mcp": "IA / MCP",
     "users": "Utilisateurs",
     "branding": "Personnalisation",
     "geoProfiles": "Profils géographiques",
@@ -25784,6 +25914,7 @@ const fr = {
     "statusError": "Erreur"
   },
   "admin": {
+    "mcp": "Assistant IA (MCP)",
     "users": "Utilisateurs",
     "noGeoDb": "Aucune base de données géographique installée. Les filtres géographiques ne fonctionneront pas.",
     "branding": "Personnalisation",
@@ -26423,6 +26554,7 @@ const fr = {
     "loading": "Chargement..."
   },
   "geoDb": {
+    "noDatabase": "Aucune base de données",
     "title": "Bases de données géographiques",
     "infoText": "Les bases de données géographiques sont utilisées par le tracker pour une identification rapide du pays, de la région, de la ville et du fournisseur par adresse IP du visiteur.",
     "supportedTitle": "📚 Quelles bases de données géographiques sont prises en charge ?",
@@ -27073,6 +27205,20 @@ const fr = {
   }
 };
 const de = {
+  "mcpPage": {
+    "title": "KI-Assistent (MCP)",
+    "intro": "Verbinde Claude Desktop und andere KI-Assistenten mit deinem Tracker und verwalte ihn in natürlicher Sprache — Kampagnen analysieren, in großen Mengen anlegen, Domains verbinden, Angebote bearbeiten und mehr.",
+    "step1Title": "API-Schlüssel erstellen",
+    "step1Desc": "Öffne Benutzer → API-Schlüssel und erzeuge einen Schlüssel. Ein Read-Schlüssel erlaubt nur Analysen; ein Write-Schlüssel erlaubt auch die Verwaltung von Kampagnen, Angeboten und Domains.",
+    "step2Title": "Server installieren",
+    "step2Desc": "Installiere auf dem Rechner mit deinem KI-Assistenten die Abhängigkeiten einmalig im Tracker-Ordner:",
+    "step3Title": "Zu Claude Desktop hinzufügen",
+    "step3Desc": "Füge dies in die Claude-Desktop-Konfiguration ein und ersetze den Pfad durch den absoluten Pfad zu mcp/src/index.js und ORBITRA_API_KEY durch den Schlüssel aus Schritt 1.",
+    "copyConfig": "Konfiguration kopieren",
+    "copied": "Kopiert",
+    "toolsNote": "31 Tools verfügbar: Analysen (Metriken, Kampagnen, Conversions, Berichte) und Verwaltung (Erstellen / Massenerstellung / Bearbeiten / Löschen von Kampagnen, Angeboten, Domains, Quellen, Landings).",
+    "fullGuide": "Vollständige Anleitung:"
+  },
   "tpl": {
     "src_email": "E-Mail",
     "src_custom": "Benutzerdefinierte Quelle",
@@ -27191,6 +27337,7 @@ const de = {
     "backorder": "Backorder"
   },
   "adminMenu": {
+    "mcp": "KI / MCP",
     "users": "Benutzer",
     "branding": "Personalisierung",
     "geoProfiles": "Geoprofile",
@@ -27648,6 +27795,7 @@ const de = {
     "statusError": "Fehler"
   },
   "admin": {
+    "mcp": "KI-Assistent (MCP)",
     "users": "Benutzer",
     "noGeoDb": "Keine Geodatenbank installiert. Geofilter funktionieren nicht.",
     "branding": "Personalisierung",
@@ -28287,6 +28435,7 @@ const de = {
     "loading": "Laden..."
   },
   "geoDb": {
+    "noDatabase": "Keine Datenbank",
     "title": "Geo-Datenbanken",
     "infoText": "Geo-Datenbanken werden vom Tracker zur schnellen Identifizierung von Land, Region, Stadt und Anbieter anhand der IP-Adresse des Besuchers verwendet.",
     "supportedTitle": "📚 Welche Geo-Datenbanken werden unterstützt?",
@@ -29045,6 +29194,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 16 }), label: t("adminMenu.postback"), tab: "postback" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { size: 16 }), label: t("adminMenu.settings"), tab: "admin_settings" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Plug, { size: 16 }), label: t("adminMenu.integrations"), tab: "admin_integrations" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { size: 16 }), label: t("adminMenu.mcp", "AI / MCP"), tab: "admin_mcp" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { size: 16 }), label: t("adminMenu.aggregator"), tab: "admin_aggregator" },
     { divider: true },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { size: 16 }), label: t("adminMenu.conversions"), tab: "conversions" },
@@ -53832,7 +53982,7 @@ const GeoDBPage = () => {
           "OK"
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "status-badge status-pending", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "w-3.5 h-3.5", style: { marginRight: "4px" } }),
-          db.status
+          db.status === "missing" ? t("geoDb.noDatabase", "No database") : db.status
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: db.updated_at ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
           padding: "4px 10px",
@@ -53856,6 +54006,132 @@ const GeoDBPage = () => {
       ] }, db.id)) })
     ] }) }),
     dbs.length === 0 && !loading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("geoDb.noDbs") }) })
+  ] }) });
+};
+const McpPage = () => {
+  const { t } = useLanguage();
+  const [copied, setCopied] = reactExports.useState(false);
+  const origin2 = typeof window !== "undefined" && window.location && window.location.origin ? window.location.origin : "https://tracker.example.com";
+  const config = JSON.stringify({
+    mcpServers: {
+      orbitra: {
+        command: "node",
+        args: ["/absolute/path/to/Orbitra/mcp/src/index.js"],
+        env: {
+          ORBITRA_URL: origin2,
+          ORBITRA_API_KEY: "<your-api-key>"
+        }
+      }
+    }
+  }, null, 2);
+  const copyConfig = () => {
+    navigator.clipboard.writeText(config);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
+  const cardStyle = {
+    background: "var(--color-bg-soft)",
+    borderRadius: "16px",
+    padding: "18px",
+    marginBottom: "16px"
+  };
+  const stepBadge = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "26px",
+    height: "26px",
+    borderRadius: "50%",
+    background: "var(--color-accent, #2563eb)",
+    color: "#fff",
+    fontSize: "13px",
+    fontWeight: 700,
+    marginRight: "10px",
+    flexShrink: 0
+  };
+  const codeBlock = {
+    background: "var(--color-bg-card)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "10px",
+    padding: "12px",
+    fontSize: "12.5px",
+    overflowX: "auto",
+    margin: "8px 0 0",
+    lineHeight: 1.5,
+    color: "var(--color-text)"
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { className: "w-5 h-5", style: { color: "var(--color-text-secondary)" } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t("mcpPage.title", "AI Assistant (MCP)") })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { background: "var(--color-info-bg)", borderRadius: "16px", padding: "16px", marginBottom: "24px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-info)", margin: 0, lineHeight: 1.55 }, children: t("mcpPage.intro", "Connect Claude Desktop and other AI assistants to your tracker and manage it in plain language — analyse campaigns, create them in bulk, connect domains, edit offers and more.") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: cardStyle, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: stepBadge, children: "1" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontWeight: 600, fontSize: "15px", marginBottom: "4px", display: "flex", alignItems: "center", gap: "6px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Key, { size: 15 }),
+          " ",
+          t("mcpPage.step1Title", "Create an API key")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13.5px", color: "var(--color-text-secondary)", margin: 0, lineHeight: 1.55 }, children: t("mcpPage.step1Desc", "Open Users → API Keys and generate a key. A Read key allows analytics only; a Write key also allows managing campaigns, offers and domains.") })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: cardStyle, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: stepBadge, children: "2" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontWeight: 600, fontSize: "15px", marginBottom: "4px", display: "flex", alignItems: "center", gap: "6px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Terminal, { size: 15 }),
+          " ",
+          t("mcpPage.step2Title", "Install the server")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13.5px", color: "var(--color-text-secondary)", margin: 0, lineHeight: 1.55 }, children: t("mcpPage.step2Desc", "On the machine running your AI assistant, install dependencies once inside the tracker folder:") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { style: codeBlock, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { children: [
+          "cd mcp",
+          "\n",
+          "npm install"
+        ] }) })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: cardStyle, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: stepBadge, children: "3" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", style: { marginBottom: "4px", gap: "8px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontWeight: 600, fontSize: "15px", display: "flex", alignItems: "center", gap: "6px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Cpu, { size: 15 }),
+            " ",
+            t("mcpPage.step3Title", "Add to Claude Desktop")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: copyConfig, className: "btn btn-secondary", style: { padding: "4px 10px", fontSize: "12px", flexShrink: 0 }, children: [
+            copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 14 }),
+            copied ? t("mcpPage.copied", "Copied") : t("mcpPage.copyConfig", "Copy config")
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13.5px", color: "var(--color-text-secondary)", margin: 0, lineHeight: 1.55 }, children: t("mcpPage.step3Desc", "Paste this into your Claude Desktop config, then replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with the key from step 1.") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { style: codeBlock, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: config }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "10px", lineHeight: 1.6 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "macOS:" }),
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "~/Library/Application Support/Claude/claude_desktop_config.json" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Windows:" }),
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "%APPDATA%\\Claude\\claude_desktop_config.json" })
+          ] })
+        ] })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "13px", color: "var(--color-text-muted)", lineHeight: 1.6 }, children: [
+      t("mcpPage.toolsNote", "31 tools are available: analytics (metrics, campaigns, conversions, reports) and management (create / bulk-create / edit / delete campaigns, offers, domains, sources, landings)."),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+      t("mcpPage.fullGuide", "Full guide:"),
+      " ",
+      /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "mcp/README.md" }),
+      " · ",
+      /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "docs/mcp.md" })
+    ] })
   ] }) });
 };
 const API_URL$5 = "/api.php";
@@ -55786,6 +56062,13 @@ const AdminPage = ({ page }) => {
       description: t("nav.adminIntegrations") || t("admin.integrations"),
       comingSoon: false,
       content: /* @__PURE__ */ jsxRuntimeExports.jsx(IntegrationsPage, {})
+    },
+    admin_mcp: {
+      title: t("admin.mcp") || "AI Assistant (MCP)",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { className: "w-6 h-6" }),
+      description: t("nav.adminMcp") || t("admin.mcp") || "AI Assistant (MCP)",
+      comingSoon: false,
+      content: /* @__PURE__ */ jsxRuntimeExports.jsx(McpPage, {})
     },
     admin_status: {
       title: t("admin.status"),

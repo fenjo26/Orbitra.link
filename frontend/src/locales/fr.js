@@ -1,4 +1,18 @@
 export default {
+    "mcpPage": {
+        "title": "Assistant IA (MCP)",
+        "intro": "Connectez Claude Desktop et d'autres assistants IA à votre tracker et gérez-le en langage naturel : analyser les campagnes, les créer en masse, connecter des domaines, modifier des offres, etc.",
+        "step1Title": "Créer une clé API",
+        "step1Desc": "Ouvrez Utilisateurs → Clés API et générez une clé. Une clé Read ne permet que les analyses ; une clé Write permet aussi de gérer les campagnes, offres et domaines.",
+        "step2Title": "Installer le serveur",
+        "step2Desc": "Sur la machine exécutant votre assistant IA, installez les dépendances une fois dans le dossier du tracker :",
+        "step3Title": "Ajouter à Claude Desktop",
+        "step3Desc": "Collez ceci dans la configuration de Claude Desktop, puis remplacez le chemin par le chemin absolu vers mcp/src/index.js et ORBITRA_API_KEY par la clé de l'étape 1.",
+        "copyConfig": "Copier la config",
+        "copied": "Copié",
+        "toolsNote": "31 outils disponibles : analyses (métriques, campagnes, conversions, rapports) et gestion (créer / créer en masse / modifier / supprimer campagnes, offres, domaines, sources, landings).",
+        "fullGuide": "Guide complet :"
+    },
     "tpl": {
         "src_email": "E-mail",
         "src_custom": "Source personnalisée",
@@ -117,6 +131,7 @@ export default {
         "backorder": "Recommandation"
     },
     "adminMenu": {
+        "mcp": "IA / MCP",
         "users": "Utilisateurs",
         "branding": "Personnalisation",
         "geoProfiles": "Profils géographiques",
@@ -574,6 +589,7 @@ export default {
         "statusError": "Erreur"
     },
     "admin": {
+        "mcp": "Assistant IA (MCP)",
         "users": "Utilisateurs",
         "noGeoDb": "Aucune base de données géographique installée. Les filtres géographiques ne fonctionneront pas.",
         "branding": "Personnalisation",
@@ -1213,6 +1229,7 @@ export default {
         "loading": "Chargement..."
     },
     "geoDb": {
+        "noDatabase": "Aucune base de données",
         "title": "Bases de données géographiques",
         "infoText": "Les bases de données géographiques sont utilisées par le tracker pour une identification rapide du pays, de la région, de la ville et du fournisseur par adresse IP du visiteur.",
         "supportedTitle": "📚 Quelles bases de données géographiques sont prises en charge ?",

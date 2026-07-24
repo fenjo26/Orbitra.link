@@ -1,4 +1,18 @@
 export default {
+    "mcpPage": {
+        "title": "AI 助手（MCP）",
+        "intro": "将 Claude Desktop 及其他 AI 助手连接到你的跟踪器，用自然语言进行管理 —— 分析广告系列、批量创建、连接域名、编辑报价等。",
+        "step1Title": "创建 API 密钥",
+        "step1Desc": "打开「用户 → API 密钥」并生成密钥。只读密钥仅用于分析；写入密钥还可管理广告系列、报价和域名。",
+        "step2Title": "安装服务器",
+        "step2Desc": "在运行 AI 助手的机器上，于跟踪器目录中安装一次依赖：",
+        "step3Title": "添加到 Claude Desktop",
+        "step3Desc": "将此内容粘贴到 Claude Desktop 配置中，然后将路径替换为 mcp/src/index.js 的绝对路径，并将 ORBITRA_API_KEY 替换为第 1 步的密钥。",
+        "copyConfig": "复制配置",
+        "copied": "已复制",
+        "toolsNote": "提供 31 个工具：分析（指标、广告系列、转化、报告）与管理（创建 / 批量创建 / 编辑 / 删除广告系列、报价、域名、来源、落地页）。",
+        "fullGuide": "完整指南："
+    },
     "tpl": {
         "src_email": "电子邮件",
         "src_custom": "定制来源",
@@ -117,6 +131,7 @@ export default {
         "backorder": "延期交货"
     },
     "adminMenu": {
+        "mcp": "AI / MCP",
         "users": "用户",
         "branding": "个性化",
         "geoProfiles": "地理概况",
@@ -574,6 +589,7 @@ export default {
         "statusError": "错误"
     },
     "admin": {
+        "mcp": "AI 助手（MCP）",
         "users": "用户",
         "noGeoDb": "未安装地理数据库。地理过滤器将不起作用。",
         "branding": "个性化",
@@ -1213,6 +1229,7 @@ export default {
         "loading": "正在加载..."
     },
     "geoDb": {
+        "noDatabase": "无数据库",
         "title": "地理数据库",
         "infoText": "跟踪器使用地理数据库通过访问者的 IP 地址快速识别国家、地区、城市和提供商。",
         "supportedTitle": "📚 支持哪些地理数据库？",

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Globe2, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare } from 'lucide-react';
+import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Globe2, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
@@ -54,6 +54,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         { icon: <Link size={16} />, label: t('adminMenu.postback'), tab: 'postback' },
         { icon: <Settings size={16} />, label: t('adminMenu.settings'), tab: 'admin_settings' },
         { icon: <Plug size={16} />, label: t('adminMenu.integrations'), tab: 'admin_integrations' },
+        { icon: <Sparkles size={16} />, label: t('adminMenu.mcp', 'AI / MCP'), tab: 'admin_mcp' },
         { icon: <Database size={16} />, label: t('adminMenu.aggregator'), tab: 'admin_aggregator' },
         { divider: true },
         { icon: <FileText size={16} />, label: t('adminMenu.conversions'), tab: 'conversions' },

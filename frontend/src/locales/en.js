@@ -1,4 +1,18 @@
 export default {
+    "mcpPage": {
+        "title": "AI Assistant (MCP)",
+        "intro": "Connect Claude Desktop and other AI assistants to your tracker and manage it in plain language — analyse campaigns, create them in bulk, connect domains, edit offers and more.",
+        "step1Title": "Create an API key",
+        "step1Desc": "Open Users → API Keys and generate a key. A Read key allows analytics only; a Write key also allows managing campaigns, offers and domains.",
+        "step2Title": "Install the server",
+        "step2Desc": "On the machine running your AI assistant, install dependencies once inside the tracker folder:",
+        "step3Title": "Add to Claude Desktop",
+        "step3Desc": "Paste this into your Claude Desktop config, then replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with the key from step 1.",
+        "copyConfig": "Copy config",
+        "copied": "Copied",
+        "toolsNote": "31 tools are available: analytics (metrics, campaigns, conversions, reports) and management (create / bulk-create / edit / delete campaigns, offers, domains, sources, landings).",
+        "fullGuide": "Full guide:"
+    },
     "tpl": {
         "src_email": "Email",
         "src_custom": "Custom source",
@@ -117,6 +131,7 @@ export default {
         "backorder": "Backorder"
     },
     "adminMenu": {
+        "mcp": "AI / MCP",
         "users": "Users",
         "branding": "Personalization",
         "geoProfiles": "Geo Profiles",
@@ -574,6 +589,7 @@ export default {
         "statusError": "Error"
     },
     "admin": {
+        "mcp": "AI Assistant (MCP)",
         "users": "Users",
         "noGeoDb": "No geo database installed. Geo filters will not work.",
         "branding": "Personalization",
@@ -1213,6 +1229,7 @@ export default {
         "loading": "Loading..."
     },
     "geoDb": {
+        "noDatabase": "No database",
         "title": "Geo Databases",
         "infoText": "Geo databases are used by the tracker for fast identification of country, region, city, and provider by visitor's IP address.",
         "supportedTitle": "📚 Which Geo databases are supported?",

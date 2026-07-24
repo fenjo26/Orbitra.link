@@ -373,7 +373,7 @@ const GeoDBPage = () => {
                                         ) : (
                                             <span className="status-badge status-pending">
                                                 <AlertTriangle className="w-3.5 h-3.5" style={{ marginRight: '4px' }} />
-                                                {db.status}
+                                                {db.status === 'missing' ? t('geoDb.noDatabase', 'No database') : db.status}
                                             </span>
                                         )}
                                     </td>

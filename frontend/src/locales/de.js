@@ -1,4 +1,18 @@
 export default {
+    "mcpPage": {
+        "title": "KI-Assistent (MCP)",
+        "intro": "Verbinde Claude Desktop und andere KI-Assistenten mit deinem Tracker und verwalte ihn in natürlicher Sprache — Kampagnen analysieren, in großen Mengen anlegen, Domains verbinden, Angebote bearbeiten und mehr.",
+        "step1Title": "API-Schlüssel erstellen",
+        "step1Desc": "Öffne Benutzer → API-Schlüssel und erzeuge einen Schlüssel. Ein Read-Schlüssel erlaubt nur Analysen; ein Write-Schlüssel erlaubt auch die Verwaltung von Kampagnen, Angeboten und Domains.",
+        "step2Title": "Server installieren",
+        "step2Desc": "Installiere auf dem Rechner mit deinem KI-Assistenten die Abhängigkeiten einmalig im Tracker-Ordner:",
+        "step3Title": "Zu Claude Desktop hinzufügen",
+        "step3Desc": "Füge dies in die Claude-Desktop-Konfiguration ein und ersetze den Pfad durch den absoluten Pfad zu mcp/src/index.js und ORBITRA_API_KEY durch den Schlüssel aus Schritt 1.",
+        "copyConfig": "Konfiguration kopieren",
+        "copied": "Kopiert",
+        "toolsNote": "31 Tools verfügbar: Analysen (Metriken, Kampagnen, Conversions, Berichte) und Verwaltung (Erstellen / Massenerstellung / Bearbeiten / Löschen von Kampagnen, Angeboten, Domains, Quellen, Landings).",
+        "fullGuide": "Vollständige Anleitung:"
+    },
     "tpl": {
         "src_email": "E-Mail",
         "src_custom": "Benutzerdefinierte Quelle",
@@ -117,6 +131,7 @@ export default {
         "backorder": "Backorder"
     },
     "adminMenu": {
+        "mcp": "KI / MCP",
         "users": "Benutzer",
         "branding": "Personalisierung",
         "geoProfiles": "Geoprofile",
@@ -574,6 +589,7 @@ export default {
         "statusError": "Fehler"
     },
     "admin": {
+        "mcp": "KI-Assistent (MCP)",
         "users": "Benutzer",
         "noGeoDb": "Keine Geodatenbank installiert. Geofilter funktionieren nicht.",
         "branding": "Personalisierung",
@@ -1213,6 +1229,7 @@ export default {
         "loading": "Laden..."
     },
     "geoDb": {
+        "noDatabase": "Keine Datenbank",
         "title": "Geo-Datenbanken",
         "infoText": "Geo-Datenbanken werden vom Tracker zur schnellen Identifizierung von Land, Region, Stadt und Anbieter anhand der IP-Adresse des Besuchers verwendet.",
         "supportedTitle": "📚 Welche Geo-Datenbanken werden unterstützt?",
