@@ -62,7 +62,12 @@ wget -qO- https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh
 
 ### Специальные разделы
 
-6. **[Инструкция по миграции из Keitaro](keitaro-migration.md)**
+6. **[MCP-сервер для нейросетей](mcp.md)**
+   - Подключение Claude Desktop к трекеру
+   - API-ключи (read / write)
+   - Анализ и управление кампаниями через ИИ
+
+7. **[Инструкция по миграции из Keitaro](keitaro-migration.md)**
    - Создание бекапа Keitaro
    - Загрузка дампа в Orbitra
    - Сохранение токенов
@@ -128,6 +133,10 @@ Orbitra/
 │   │   ├── contexts/         # LanguageContext (i18n)
 │   │   └── locales/          # переводы (7 языков)
 │   └── package.json
+│
+├── mcp/                       # MCP-сервер для нейросетей (Node.js)
+│   ├── src/index.js          # инструменты (чтение + управление)
+│   └── README.md             # подключение Claude Desktop
 │
 ├── docs/                      # Эта документация
 └── landings/                  # Загруженные лендинги

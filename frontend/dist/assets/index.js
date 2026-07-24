@@ -48481,11 +48481,13 @@ const UsersPage = () => {
       setError(t("common.error"));
     }
   };
-  const generateApiKey = async () => {
+  const generateApiKey = async (permissions2 = "read") => {
     try {
+      const label = permissions2 === "write" ? "MCP Write" : "MCP Read";
       const res = await axios.post(`${API_URL$k}?action=generate_api_key`, {
         user_id: currentUser.id,
-        key_name: `Key ${(currentUser.api_keys?.length || 0) + 1}`
+        key_name: `${label} ${(currentUser.api_keys?.length || 0) + 1}`,
+        permissions: permissions2
       });
       if (res.data.status === "success") {
         showSuccess(t("common.success"));
@@ -48799,7 +48801,17 @@ const UsersPage = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", style: { marginBottom: "16px" }, children: [
         (currentUser.api_keys || []).map((key) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", style: { padding: "12px", background: "var(--color-bg-soft)", borderRadius: "12px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 500, fontSize: "14px" }, children: key.key_name }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontWeight: 500, fontSize: "14px" }, children: [
+              key.key_name,
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+                marginLeft: "8px",
+                fontSize: "11px",
+                padding: "2px 8px",
+                borderRadius: "10px",
+                background: key.permissions === "write" ? "var(--color-red-soft, #fee2e2)" : "var(--color-bg-soft)",
+                color: key.permissions === "write" ? "var(--color-red, #b91c1c)" : "var(--color-text-muted)"
+              }, children: key.permissions === "write" ? "write" : "read" })
+            ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { style: { fontSize: "12px" }, children: [
               key.api_key.substring(0, 16),
               "..."
@@ -48828,18 +48840,38 @@ const UsersPage = () => {
         ] }, key.id)),
         (!currentUser.api_keys || currentUser.api_keys.length === 0) && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: "-" }) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "button",
-        {
-          onClick: generateApiKey,
-          className: "btn btn-secondary",
-          style: { width: "100%", borderStyle: "dashed" },
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
-            t("common.create")
-          ]
-        }
-      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        fontSize: "12px",
+        color: "var(--color-text-muted)",
+        marginBottom: "10px",
+        lineHeight: 1.5
+      }, children: t("users.apiKeyHint", "Read keys allow analytics only. Write keys also allow managing campaigns/offers/domains — used by the Orbitra MCP server for AI assistants (see mcp/README.md).") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => generateApiKey("read"),
+            className: "btn btn-secondary",
+            style: { flex: 1, borderStyle: "dashed" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+              t("users.newReadKey", "Read key")
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => generateApiKey("write"),
+            className: "btn btn-secondary",
+            style: { flex: 1, borderStyle: "dashed" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+              t("users.newWriteKey", "Write key")
+            ]
+          }
+        )
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowApiKeysModal(false), className: "btn btn-secondary", children: t("common.close") }) })
     ] }) })
   ] });

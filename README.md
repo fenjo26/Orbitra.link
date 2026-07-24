@@ -1,4 +1,4 @@
-# Orbitra v0.9.4.2 Tracker
+# Orbitra v0.9.5.0 Tracker
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![PHP Version](https://img.shields.io/badge/PHP-8.0+-777BB4?logo=php)
@@ -373,6 +373,12 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.5.0
+
+### Added
+- 🤖 **AI assistant integration (MCP)** — a new **Model Context Protocol** server in [`mcp/`](mcp/README.md) connects Orbitra to Claude Desktop and other MCP clients. Ask in plain language to analyse performance, or manage the tracker: create campaigns in bulk, connect domains, edit offers, add traffic sources and more. 31 tools covering read (metrics, campaigns, conversions, reports) and management (create/update/delete). See [docs/mcp.md](docs/mcp.md).
+- 🔑 **API-key authentication** — the API now accepts a personal key via `Authorization: Bearer <key>` or `X-Api-Key: <key>`, with **read** (analytics only) and **write** (management) scopes. Generate keys in **Users → API Keys**; write keys are what the MCP server uses for management actions. Browser sessions + CSRF are unchanged.
 
 ## 📝 What's New in v0.9.4.2
 

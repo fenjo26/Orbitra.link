@@ -36,7 +36,7 @@ if (in_array($origin, $allowedOrigins)) {
     header('Access-Control-Allow-Origin: *');
 }
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN, X-Api-Key');
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -89,6 +89,57 @@ function checkRateLimit($key, $maxRequests = 5, $window = 300)
     return true; // Graceful degrade если БД недоступна
 }
 
+// === API KEY AUTHENTICATION (for MCP / headless clients) ===
+// Allows programmatic clients (e.g. the Orbitra MCP server) to authenticate with a
+// personal API key instead of a browser session + CSRF token. The key is looked up in
+// `user_api_keys`; when found we populate the session context in-memory for this request
+// only, so all downstream handlers keep working unchanged.
+//   Header options:  Authorization: Bearer <api_key>   OR   X-Api-Key: <api_key>
+//   Permissions:     'read'  -> GET (read-only) actions only
+//                    'write' | 'full' -> read + write (POST) actions
+$apiKeyProvided = '';
+$hdrAuth = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+if ($hdrAuth === '' && function_exists('apache_request_headers')) {
+    $reqHeaders = apache_request_headers();
+    $hdrAuth = $reqHeaders['Authorization'] ?? ($reqHeaders['authorization'] ?? '');
+}
+if ($hdrAuth !== '' && preg_match('/Bearer\s+(\S+)/i', $hdrAuth, $mAuth)) {
+    $apiKeyProvided = trim($mAuth[1]);
+} elseif (!empty($_SERVER['HTTP_X_API_KEY'])) {
+    $apiKeyProvided = trim($_SERVER['HTTP_X_API_KEY']);
+}
+
+$apiKeyAuth = null; // ['id','user_id','permissions','role'] when authenticated via API key
+if ($apiKeyProvided !== '' && !isset($_SESSION['user_id'])) {
+    try {
+        $stmtKey = $pdo->prepare(
+            "SELECT k.id, k.user_id, k.permissions, u.role
+             FROM user_api_keys k JOIN users u ON u.id = k.user_id
+             WHERE k.api_key = ? LIMIT 1"
+        );
+        $stmtKey->execute([$apiKeyProvided]);
+        $keyRow = $stmtKey->fetch(PDO::FETCH_ASSOC);
+        if ($keyRow) {
+            $apiKeyAuth = $keyRow;
+            // Populate request-scoped auth context (not persisted — API clients are stateless).
+            $_SESSION['user_id'] = (int) $keyRow['user_id'];
+            $_SESSION['role'] = $keyRow['role'] ?? 'user';
+            $_SESSION['auth_via'] = 'api_key';
+            try {
+                $pdo->prepare("UPDATE user_api_keys SET last_used = datetime('now') WHERE id = ?")
+                    ->execute([$keyRow['id']]);
+            } catch (\Exception $e) {
+            }
+        } else {
+            http_response_code(401);
+            echo json_encode(['status' => 'error', 'message' => 'Invalid API key']);
+            exit;
+        }
+    } catch (\Exception $e) {
+    }
+}
+// =================================
+
 // === AUTHENTICATION MIDDLEWARE & CSRF ===
 $publicActions = ['login', 'check_setup', 'setup_first_user'];
 
@@ -101,7 +152,16 @@ if (!in_array($action, $publicActions)) {
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (!hash_equals($_SESSION['csrf_token'], $csrfToken)) {
+        // API-key clients are exempt from CSRF (they don't use cookies); enforce
+        // permission scope instead: read-only keys cannot perform write actions.
+        if ($apiKeyAuth !== null) {
+            $keyPerm = strtolower((string) ($apiKeyAuth['permissions'] ?? 'read'));
+            if ($keyPerm !== 'write' && $keyPerm !== 'full') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'API key is read-only (write permission required)']);
+                exit;
+            }
+        } elseif (!hash_equals($_SESSION['csrf_token'], $csrfToken)) {
             http_response_code(403);
             echo json_encode(['status' => 'error', 'message' => 'CSRF token mismatch']);
             exit;
@@ -6144,6 +6204,11 @@ try {
                 $data = json_decode(file_get_contents('php://input'), true);
                 $userId = $data['user_id'] ?? null;
                 $keyName = $data['key_name'] ?? 'API Key';
+                // Permission scope: 'read' (default, GET only) or 'write' (read + management).
+                $keyPermission = strtolower(trim((string) ($data['permissions'] ?? 'read')));
+                if (!in_array($keyPermission, ['read', 'write'], true)) {
+                    $keyPermission = 'read';
+                }
 
                 if (!$userId) {
                     echo json_encode(['status' => 'error', 'message' => 'Missing user_id']);
@@ -6153,10 +6218,10 @@ try {
                 // Generate random API key
                 $apiKey = bin2hex(random_bytes(32));
 
-                $stmt = $pdo->prepare("INSERT INTO user_api_keys (user_id, key_name, api_key, permissions) VALUES (?, ?, ?, 'read')");
-                $stmt->execute([$userId, $keyName, $apiKey]);
+                $stmt = $pdo->prepare("INSERT INTO user_api_keys (user_id, key_name, api_key, permissions) VALUES (?, ?, ?, ?)");
+                $stmt->execute([$userId, $keyName, $apiKey, $keyPermission]);
 
-                echo json_encode(['status' => 'success', 'data' => ['api_key' => $apiKey, 'id' => $pdo->lastInsertId()]]);
+                echo json_encode(['status' => 'success', 'data' => ['api_key' => $apiKey, 'id' => $pdo->lastInsertId(), 'permissions' => $keyPermission]]);
             }
             break;
 

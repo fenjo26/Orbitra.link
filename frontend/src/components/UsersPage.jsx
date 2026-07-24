@@ -221,11 +221,13 @@ const UsersPage = () => {
         }
     };
 
-    const generateApiKey = async () => {
+    const generateApiKey = async (permissions = 'read') => {
         try {
+            const label = permissions === 'write' ? 'MCP Write' : 'MCP Read';
             const res = await axios.post(`${API_URL}?action=generate_api_key`, {
                 user_id: currentUser.id,
-                key_name: `Key ${(currentUser.api_keys?.length || 0) + 1}`
+                key_name: `${label} ${(currentUser.api_keys?.length || 0) + 1}`,
+                permissions
             });
             if (res.data.status === 'success') {
                 showSuccess(t('common.success'));
@@ -583,7 +585,16 @@ const UsersPage = () => {
                                 {(currentUser.api_keys || []).map((key) => (
                                     <div key={key.id} className="flex items-center justify-between" style={{ padding: '12px', background: 'var(--color-bg-soft)', borderRadius: '12px' }}>
                                         <div>
-                                            <div style={{ fontWeight: 500, fontSize: '14px' }}>{key.key_name}</div>
+                                            <div style={{ fontWeight: 500, fontSize: '14px' }}>
+                                                {key.key_name}
+                                                <span style={{
+                                                    marginLeft: '8px', fontSize: '11px', padding: '2px 8px', borderRadius: '10px',
+                                                    background: key.permissions === 'write' ? 'var(--color-red-soft, #fee2e2)' : 'var(--color-bg-soft)',
+                                                    color: key.permissions === 'write' ? 'var(--color-red, #b91c1c)' : 'var(--color-text-muted)'
+                                                }}>
+                                                    {key.permissions === 'write' ? 'write' : 'read'}
+                                                </span>
+                                            </div>
                                             <code style={{ fontSize: '12px' }}>{key.api_key.substring(0, 16)}...</code>
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -611,14 +622,29 @@ const UsersPage = () => {
                                 )}
                             </div>
 
-                            <button
-                                onClick={generateApiKey}
-                                className="btn btn-secondary"
-                                style={{ width: '100%', borderStyle: 'dashed' }}
-                            >
-                                <Plus size={16} />
-                                {t('common.create')}
-                            </button>
+                            <div style={{
+                                fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '10px', lineHeight: 1.5
+                            }}>
+                                {t('users.apiKeyHint', 'Read keys allow analytics only. Write keys also allow managing campaigns/offers/domains — used by the Orbitra MCP server for AI assistants (see mcp/README.md).')}
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => generateApiKey('read')}
+                                    className="btn btn-secondary"
+                                    style={{ flex: 1, borderStyle: 'dashed' }}
+                                >
+                                    <Plus size={16} />
+                                    {t('users.newReadKey', 'Read key')}
+                                </button>
+                                <button
+                                    onClick={() => generateApiKey('write')}
+                                    className="btn btn-secondary"
+                                    style={{ flex: 1, borderStyle: 'dashed' }}
+                                >
+                                    <Plus size={16} />
+                                    {t('users.newWriteKey', 'Write key')}
+                                </button>
+                            </div>
 
                             <div className="modal-footer">
                                 <button onClick={() => setShowApiKeysModal(false)} className="btn btn-secondary">

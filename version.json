@@ -1,6 +1,6 @@
 {
-    "version": "0.9.4.2",
-    "release_notes": "Navbar polish: top menu items no longer wrap to a second line, fixing the alignment that broke on two-word labels. The navigation labels were also made more compact across all 7 languages (full page titles are unchanged).",
+    "version": "0.9.5.0",
+    "release_notes": "AI assistant integration via MCP: a new Model Context Protocol server (mcp/) lets Claude Desktop and other MCP clients read your stats and manage campaigns, offers, domains, sources and landings in plain language. Adds API-key authentication to the API (Authorization: Bearer / X-Api-Key) with read/write scopes, plus a UI to generate read or write keys under Users -> API Keys.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-06-24"
+    "released_at": "2026-07-24"
 }

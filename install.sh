@@ -1,5 +1,5 @@
 #!/bin/bash
-# Orbitra v0.9.4.2 Tracker Auto-Installer
+# Orbitra v0.9.5.0 Tracker Auto-Installer
 # Supported OS: Ubuntu 20.04, 22.04, 24.04 / Debian 11, 12
 # Root privileges required (sudo)
 
@@ -236,6 +236,21 @@ else
     echo "  > WARNING: package.json not found, skipping frontend build"
 fi
 
+# Prepare MCP server (optional AI-assistant integration).
+# Runs client-side (e.g. Claude Desktop), but we install deps here so it is ready to use.
+# Failures are non-fatal — the tracker works fine without it.
+echo "  > Preparing MCP server (AI assistant integration)..."
+if [ -d "/var/www/orbitra/mcp" ]; then
+    cd /var/www/orbitra/mcp
+    if npm install --silent --no-audit --no-fund; then
+        echo "  > MCP server ready (see mcp/README.md to connect Claude Desktop)."
+    else
+        echo "  > NOTE: MCP dependency install failed — run 'cd mcp && npm install' later. Skipping."
+    fi
+else
+    echo "  > NOTE: mcp/ folder not found, skipping MCP setup."
+fi
+
 # Get public IP for output
 SERVER_IP=$(curl -s http://checkip.amazonaws.com || echo "your_server_ip")
 
@@ -244,4 +259,9 @@ echo " ✅ INSTALLATION COMPLETED SUCCESSFULLY!                "
 echo "======================================================="
 echo " Complete the setup and create the first administrator:"
 echo " 🔗 http://$SERVER_IP/admin.php                        "
+echo "======================================================="
+echo " 🤖 AI assistant (MCP): connect Claude Desktop to your"
+echo "    tracker to analyse & manage campaigns in plain text."
+echo "    1) In the UI: Users -> API Keys -> generate a key."
+echo "    2) See mcp/README.md for the Claude Desktop config."
 echo "======================================================="
