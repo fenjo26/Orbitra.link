@@ -974,6 +974,9 @@ export default {
         "deleteError": "Löschfehler"
     },
     "users": {
+        "apiKeyHint": "Read-Schlüssel erlauben nur Analysen. Write-Schlüssel erlauben zusätzlich die Verwaltung von Kampagnen, Angeboten und Domains — verwendet vom Orbitra-MCP-Server für KI-Assistenten (siehe mcp/README.md).",
+        "newReadKey": "Read-Schlüssel",
+        "newWriteKey": "Write-Schlüssel",
         "title": "Benutzer",
         "loading": "Laden...",
         "addUser": "Benutzer hinzufügen",

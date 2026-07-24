@@ -974,6 +974,9 @@ export default {
         "deleteError": "Erreur de suppression"
     },
     "users": {
+        "apiKeyHint": "Les clés « read » ne donnent accès qu'aux analyses. Les clés « write » permettent aussi de gérer les campagnes, offres et domaines — utilisées par le serveur MCP d'Orbitra pour les assistants IA (voir mcp/README.md).",
+        "newReadKey": "Clé de lecture",
+        "newWriteKey": "Clé d'écriture",
         "title": "Utilisateurs",
         "loading": "Chargement en cours...",
         "addUser": "Ajouter un utilisateur",

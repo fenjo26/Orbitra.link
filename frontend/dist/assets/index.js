@@ -16874,6 +16874,9 @@ const ru = {
     "deleteError": "Ошибка удаления"
   },
   "users": {
+    "apiKeyHint": "Ключи «read» дают только аналитику. Ключи «write» также позволяют управлять кампаниями, офферами и доменами — их использует MCP-сервер Orbitra для нейросетей (см. mcp/README.md).",
+    "newReadKey": "Ключ чтения",
+    "newWriteKey": "Ключ записи",
     "title": "Пользователи",
     "loading": "Загрузка...",
     "addUser": "Добавить пользователя",
@@ -18730,6 +18733,9 @@ const en = {
     "deleteError": "Delete error"
   },
   "users": {
+    "apiKeyHint": "Read keys allow analytics only. Write keys also allow managing campaigns, offers and domains — used by the Orbitra MCP server for AI assistants (see mcp/README.md).",
+    "newReadKey": "Read key",
+    "newWriteKey": "Write key",
     "title": "Users",
     "loading": "Loading...",
     "addUser": "Add user",
@@ -20586,6 +20592,9 @@ const uk = {
     "deleteError": "Видалити помилку"
   },
   "users": {
+    "apiKeyHint": "Ключі «read» дають лише аналітику. Ключі «write» також дозволяють керувати кампаніями, оферами й доменами — їх використовує MCP-сервер Orbitra для нейромереж (див. mcp/README.md).",
+    "newReadKey": "Ключ читання",
+    "newWriteKey": "Ключ запису",
     "title": "Користувачі",
     "loading": "Завантаження...",
     "addUser": "Додати користувача",
@@ -22442,6 +22451,9 @@ const es = {
     "deleteError": "Eliminar error"
   },
   "users": {
+    "apiKeyHint": "Las claves «read» solo permiten análisis. Las claves «write» también permiten gestionar campañas, ofertas y dominios — las usa el servidor MCP de Orbitra para asistentes de IA (ver mcp/README.md).",
+    "newReadKey": "Clave de lectura",
+    "newWriteKey": "Clave de escritura",
     "title": "Usuarios",
     "loading": "Cargando...",
     "addUser": "Agregar usuario",
@@ -24298,6 +24310,9 @@ const zh = {
     "deleteError": "删除错误"
   },
   "users": {
+    "apiKeyHint": "只读密钥仅用于分析。写入密钥还可管理广告系列、报价和域名 —— 供面向 AI 助手的 Orbitra MCP 服务器使用（见 mcp/README.md）。",
+    "newReadKey": "只读密钥",
+    "newWriteKey": "写入密钥",
     "title": "用户",
     "loading": "正在加载...",
     "addUser": "添加用户",
@@ -26154,6 +26169,9 @@ const fr = {
     "deleteError": "Erreur de suppression"
   },
   "users": {
+    "apiKeyHint": "Les clés « read » ne donnent accès qu'aux analyses. Les clés « write » permettent aussi de gérer les campagnes, offres et domaines — utilisées par le serveur MCP d'Orbitra pour les assistants IA (voir mcp/README.md).",
+    "newReadKey": "Clé de lecture",
+    "newWriteKey": "Clé d'écriture",
     "title": "Utilisateurs",
     "loading": "Chargement en cours...",
     "addUser": "Ajouter un utilisateur",
@@ -28012,6 +28030,9 @@ const de = {
     "deleteError": "Löschfehler"
   },
   "users": {
+    "apiKeyHint": "Read-Schlüssel erlauben nur Analysen. Write-Schlüssel erlauben zusätzlich die Verwaltung von Kampagnen, Angeboten und Domains — verwendet vom Orbitra-MCP-Server für KI-Assistenten (siehe mcp/README.md).",
+    "newReadKey": "Read-Schlüssel",
+    "newWriteKey": "Write-Schlüssel",
     "title": "Benutzer",
     "loading": "Laden...",
     "addUser": "Benutzer hinzufügen",

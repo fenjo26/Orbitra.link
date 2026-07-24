@@ -974,6 +974,9 @@ export default {
         "deleteError": "删除错误"
     },
     "users": {
+        "apiKeyHint": "只读密钥仅用于分析。写入密钥还可管理广告系列、报价和域名 —— 供面向 AI 助手的 Orbitra MCP 服务器使用（见 mcp/README.md）。",
+        "newReadKey": "只读密钥",
+        "newWriteKey": "写入密钥",
         "title": "用户",
         "loading": "正在加载...",
         "addUser": "添加用户",

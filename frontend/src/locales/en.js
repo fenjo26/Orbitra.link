@@ -974,6 +974,9 @@ export default {
         "deleteError": "Delete error"
     },
     "users": {
+        "apiKeyHint": "Read keys allow analytics only. Write keys also allow managing campaigns, offers and domains — used by the Orbitra MCP server for AI assistants (see mcp/README.md).",
+        "newReadKey": "Read key",
+        "newWriteKey": "Write key",
         "title": "Users",
         "loading": "Loading...",
         "addUser": "Add user",

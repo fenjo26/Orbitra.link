@@ -1,5 +1,7 @@
 # Orbitra v0.9.5.0 Tracker
 
+**🌐 Language: English | [Русский](README.ru.md)**
+
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![PHP Version](https://img.shields.io/badge/PHP-8.0+-777BB4?logo=php)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
@@ -8,6 +10,16 @@
 ![Status](https://img.shields.io/badge/Status-Production_Ready-brightgreen)
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
+
+## 🖥 Live Demo
+
+Try the full panel — no install required:
+
+- **URL:** [https://demo.orbitra.link/admin.php](https://demo.orbitra.link/admin.php)
+- **Login:** `admin`
+- **Password:** `password`
+
+> Shared demo instance — please don't store anything sensitive; data may be reset at any time.
 
 ## 🚀 Quick Install (Ubuntu 20.04 / 22.04 / 24.04)
 
