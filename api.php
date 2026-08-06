@@ -3839,6 +3839,120 @@ try {
             echo json_encode(['status' => 'success', 'data' => ['deleted' => 1]]);
             break;
 
+        case 'postback_queue_install_user_cron':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+
+            $disableFunctions = (string) ini_get('disable_functions');
+            if (!function_exists('shell_exec') || (stripos($disableFunctions, 'shell_exec') !== false)) {
+                echo json_encode(['status' => 'error', 'message' => 'shell_exec is disabled on this server']);
+                break;
+            }
+
+            $crontabPath = trim((string) @shell_exec('command -v crontab 2>/dev/null'));
+            if ($crontabPath === '') {
+                echo json_encode(['status' => 'error', 'message' => 'crontab command not found']);
+                break;
+            }
+
+            $scriptPath = realpath(__DIR__ . '/postback_queue_cron.php');
+            if (!is_string($scriptPath) || $scriptPath === '') {
+                $scriptPath = __DIR__ . '/postback_queue_cron.php';
+            }
+            $logDir = __DIR__ . '/var/log';
+            if (!is_dir($logDir)) {
+                @mkdir($logDir, 0777, true);
+            }
+            $logPath = $logDir . '/postback_queue.log';
+
+            $phpPath = trim((string) @shell_exec('command -v php 2>/dev/null'));
+            if ($phpPath === '') {
+                $phpPath = 'php';
+            }
+
+            // Every minute: the backoff schedule is in seconds, so frequent runs keep
+            // delivery latency low without busy-waiting (due-query filters by next_retry_at).
+            $line = "* * * * * $phpPath " . escapeshellarg($scriptPath) . " >> " . escapeshellarg($logPath) . " 2>&1";
+            $block = "# ORBITRA_POSTBACK_QUEUE_BEGIN\n" . $line . "\n# ORBITRA_POSTBACK_QUEUE_END\n";
+
+            $existing = (string) @shell_exec('crontab -l 2>/dev/null');
+            $new = preg_replace("/\\n?# ORBITRA_POSTBACK_QUEUE_BEGIN[\\s\\S]*?# ORBITRA_POSTBACK_QUEUE_END\\n?/m", "\n", $existing);
+            $new = trim((string) $new);
+            if ($new !== '') {
+                $new .= "\n\n";
+            }
+            $new .= $block;
+
+            $tmp = @tempnam(sys_get_temp_dir(), 'orbitra_crontab_');
+            if (!is_string($tmp) || $tmp === '') {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to create temp file']);
+                break;
+            }
+            @file_put_contents($tmp, $new);
+            $out = (string) @shell_exec('crontab ' . escapeshellarg($tmp) . ' 2>&1');
+            @unlink($tmp);
+
+            if (stripos($out, 'error') !== false) {
+                echo json_encode(['status' => 'error', 'message' => trim($out) ?: 'crontab failed']);
+                break;
+            }
+
+            // Flip the worker on so the just-installed cron actually delivers.
+            $stmt = $pdo->prepare("INSERT INTO settings (key, value, updated_at) VALUES ('postback_queue_enabled', '1', datetime('now')) ON CONFLICT(key) DO UPDATE SET value = '1', updated_at = datetime('now')");
+            $stmt->execute();
+
+            echo json_encode(['status' => 'success', 'data' => ['line' => $line]]);
+            break;
+
+        case 'postback_queue_remove_user_cron':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+
+            $disableFunctions = (string) ini_get('disable_functions');
+            if (!function_exists('shell_exec') || (stripos($disableFunctions, 'shell_exec') !== false)) {
+                echo json_encode(['status' => 'error', 'message' => 'shell_exec is disabled on this server']);
+                break;
+            }
+
+            $crontabPath = trim((string) @shell_exec('command -v crontab 2>/dev/null'));
+            if ($crontabPath === '') {
+                echo json_encode(['status' => 'error', 'message' => 'crontab command not found']);
+                break;
+            }
+
+            $existing = (string) @shell_exec('crontab -l 2>/dev/null');
+            $new = preg_replace("/\\n?# ORBITRA_POSTBACK_QUEUE_BEGIN[\\s\\S]*?# ORBITRA_POSTBACK_QUEUE_END\\n?/m", "\n", $existing);
+            $new = trim((string) $new) . "\n";
+
+            $tmp = @tempnam(sys_get_temp_dir(), 'orbitra_crontab_');
+            if (!is_string($tmp) || $tmp === '') {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to create temp file']);
+                break;
+            }
+            @file_put_contents($tmp, $new);
+            $out = (string) @shell_exec('crontab ' . escapeshellarg($tmp) . ' 2>&1');
+            @unlink($tmp);
+
+            if (stripos($out, 'error') !== false) {
+                echo json_encode(['status' => 'error', 'message' => trim($out) ?: 'crontab failed']);
+                break;
+            }
+
+            echo json_encode(['status' => 'success', 'data' => ['deleted' => 1]]);
+            break;
+
         case 'backorder_install_cron':
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
@@ -7863,6 +7977,8 @@ try {
                 require_once __DIR__ . '/aggregator_engines/GenericApiEngine.php';
                 require_once __DIR__ . '/aggregator_engines/ReferOnEngine.php';
                 require_once __DIR__ . '/aggregator_engines/AffilkaEngine.php';
+                require_once __DIR__ . '/aggregator_engines/FacebookAdsEngine.php';
+                require_once __DIR__ . '/aggregator_engines/GoogleAdsEngine.php';
 
                 switch ($action) {
                     case 'aggregator_connections':
@@ -7946,6 +8062,12 @@ try {
                                 case 'affilka':
                                     $result = AffilkaEngine::testConnection($credentials);
                                     break;
+                                case 'facebook':
+                                    $result = FacebookAdsEngine::testConnection($credentials);
+                                    break;
+                                case 'google_ads':
+                                    $result = GoogleAdsEngine::testConnection($credentials);
+                                    break;
                                 default:
                                     $result = GenericApiEngine::testConnection($credentials);
                             }
@@ -7980,6 +8102,7 @@ try {
 
                             try {
                                 // Dispatch to correct engine
+                                $isCostEngine = false;
                                 switch ($conn['engine'] ?? 'generic') {
                                     case 'referon':
                                         $records = ReferOnEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
@@ -7987,8 +8110,84 @@ try {
                                     case 'affilka':
                                         $records = AffilkaEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
                                         break;
+                                    case 'facebook':
+                                        $records = FacebookAdsEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                                        $isCostEngine = true;
+                                        break;
+                                    case 'google_ads':
+                                        $records = GoogleAdsEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                                        $isCostEngine = true;
+                                        break;
                                     default:
                                         $records = GenericApiEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                                }
+
+                                // Cost engines write spend to cost_records and distribute it across clicks.
+                                if ($isCostEngine) {
+                                    $insertCost = $pdo->prepare("INSERT INTO cost_records (connection_id, external_id, source_campaign_id, ad_id, adset_id, amount, currency, click_date, raw_json, is_matched) VALUES (?,?,?,?,?,?,?,?,?,?)");
+                                    $dupCost = $pdo->prepare("SELECT id FROM cost_records WHERE connection_id = ? AND external_id = ?");
+                                    $findClicksByAd = $pdo->prepare("SELECT id FROM clicks WHERE json_extract(parameters_json, '$.ad_id') = ? AND date(created_at) = ?");
+                                    $findClicksByCampaign = $pdo->prepare("SELECT id FROM clicks WHERE json_extract(parameters_json, '$.campaign_id') = ? AND date(created_at) = ?");
+                                    $findClicksByCampaignGoogle = $pdo->prepare("SELECT id FROM clicks WHERE json_extract(parameters_json, '$.campaignid') = ? AND date(created_at) = ?");
+                                    $updateCostStmt = $pdo->prepare("UPDATE clicks SET cost = cost + ? WHERE id = ?");
+
+                                    $pdo->beginTransaction();
+                                    $fetched = count($records);
+                                    $matched = 0;
+                                    $newCount = 0;
+                                    foreach ($records as $rec) {
+                                        $externalId = $rec['external_id'] ?? null;
+                                        if ($externalId) {
+                                            $dupCost->execute([$connectionId, $externalId]);
+                                            if ($dupCost->fetch()) {
+                                                continue;
+                                            }
+                                        }
+                                        $amount = (float) ($rec['amount'] ?? 0);
+                                        $adId = (string) ($rec['ad_id'] ?? '');
+                                        $campaignId = (string) ($rec['source_campaign_id'] ?? '');
+                                        $clickDate = (string) ($rec['date'] ?? date('Y-m-d'));
+                                        $isMatched = 0;
+
+                                        $clickIds = [];
+                                        if ($adId !== '') {
+                                            $findClicksByAd->execute([$adId, $clickDate]);
+                                            $clickIds = $findClicksByAd->fetchAll(PDO::FETCH_COLUMN);
+                                        }
+                                        if (empty($clickIds) && $campaignId !== '') {
+                                            $findClicksByCampaign->execute([$campaignId, $clickDate]);
+                                            $clickIds = $findClicksByCampaign->fetchAll(PDO::FETCH_COLUMN);
+                                            if (empty($clickIds)) {
+                                                $findClicksByCampaignGoogle->execute([$campaignId, $clickDate]);
+                                                $clickIds = $findClicksByCampaignGoogle->fetchAll(PDO::FETCH_COLUMN);
+                                            }
+                                        }
+                                        if (!empty($clickIds) && $amount > 0) {
+                                            $cpc = $amount / count($clickIds);
+                                            foreach ($clickIds as $cid) {
+                                                $updateCostStmt->execute([$cpc, $cid]);
+                                            }
+                                            $isMatched = 1;
+                                            $matched++;
+                                        }
+                                        $insertCost->execute([
+                                            $connectionId, $externalId, $campaignId, $adId,
+                                            (string) ($rec['adset_id'] ?? ''), $amount,
+                                            (string) ($rec['currency'] ?? 'USD'), $clickDate,
+                                            $rec['raw_json'] ?? null, $isMatched,
+                                        ]);
+                                        $newCount++;
+                                    }
+                                    $pdo->commit();
+                                    $durationMs = round((microtime(true) - $startTime) * 1000);
+                                    $pdo->prepare("UPDATE aggregator_connections SET last_sync_at = datetime('now'), last_sync_status = 'success', last_sync_error = NULL WHERE id = ?")->execute([$connectionId]);
+                                    $pdo->prepare("INSERT INTO aggregator_sync_logs (connection_id, status, records_fetched, records_matched, records_new, duration_ms, date_from, date_to) VALUES (?,?,?,?,?,?,?,?)")
+                                        ->execute([$connectionId, 'success', $fetched, $matched, $newCount, $durationMs, $dateFrom, $dateTo]);
+                                    echo json_encode([
+                                        'status' => 'success',
+                                        'data' => ['fetched' => $fetched, 'matched' => $matched, 'new' => $newCount, 'duration_ms' => $durationMs],
+                                    ]);
+                                    break;
                                 }
 
                                 $insertStmt = $pdo->prepare("INSERT INTO revenue_records (connection_id, external_id, click_id, player_id, event_type, amount, currency, country, brand, sub_id, event_date, raw_json, is_matched) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
@@ -8201,6 +8400,12 @@ try {
                                 break;
                             case 'affilka':
                                 $fields = AffilkaEngine::getRequiredFields();
+                                break;
+                            case 'facebook':
+                                $fields = FacebookAdsEngine::getRequiredFields();
+                                break;
+                            case 'google_ads':
+                                $fields = GoogleAdsEngine::getRequiredFields();
                                 break;
                             default:
                                 $fields = GenericApiEngine::getRequiredFields();

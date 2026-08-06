@@ -312,9 +312,27 @@ const OfferEditor = ({ offerId, onClose }) => {
                                     className="form-select"
                                 >
                                     <option value="redirect">{t('offerEditor.httpRedirect')}</option>
-                                    <option value="frame">Iframe</option>
+                                    <option value="js">{t('redirectTypes.jsName')}</option>
+                                    <option value="meta_refresh">{t('redirectTypes.metaName')}</option>
+                                    <option value="frame">{t('redirectTypes.iframeName')}</option>
+                                    <option value="form_submit">{t('redirectTypes.formName')}</option>
                                     <option value="preload">{t('offerEditor.preloadCurl')}</option>
+                                    <option value="curl_proxy">{t('redirectTypes.curlProxyName')}</option>
                                 </select>
+                                {(() => {
+                                    const descKey = ({
+                                        redirect: 'redirectTypes.redirectDesc',
+                                        js: 'redirectTypes.jsDesc',
+                                        meta_refresh: 'redirectTypes.metaDesc',
+                                        frame: 'redirectTypes.iframeDesc',
+                                        form_submit: 'redirectTypes.formDesc',
+                                        preload: 'redirectTypes.preloadDesc',
+                                        curl_proxy: 'redirectTypes.curlProxyDesc',
+                                    })[formData.redirect_type];
+                                    return descKey ? (
+                                        <div className="form-hint">{t(descKey)}</div>
+                                    ) : null;
+                                })()}
                             </div>
 
                             {!formData.is_local && (

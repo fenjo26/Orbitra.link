@@ -1,6 +1,6 @@
 {
-    "version": "0.9.5.0",
-    "release_notes": "AI assistant integration via MCP: a new Model Context Protocol server (mcp/) lets Claude Desktop and other MCP clients read your stats and manage campaigns, offers, domains, sources and landings in plain language. Adds API-key authentication to the API (Authorization: Bearer / X-Api-Key) with read/write scopes, plus a UI to generate read or write keys under Users -> API Keys.",
+    "version": "0.9.6.0",
+    "release_notes": "Redirect types honored at runtime (JS / meta refresh / iframe / form submit / curl proxy in addition to HTTP 302), per-campaign cloaking with free datacenter/VPN ASN detection and a JS fingerprint check, a durable S2S postback queue with exponential-backoff retry (no more lost postbacks), and automated cost import from Facebook Ads and Google Ads via the aggregator engine.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-07-24"
+    "released_at": "2026-08-06"
 }

@@ -455,12 +455,18 @@ const Offers = ({ offers, refreshData }) => {
                                         <span className={`px-2 py-1 rounded text-xs font-semibold ${offer.redirect_type === 'redirect' ? 'bg-blue-100 text-blue-800' :
                                             offer.redirect_type === 'frame' ? 'bg-purple-100 text-purple-800' :
                                                 offer.redirect_type === 'local' ? 'bg-indigo-100 text-indigo-800' :
-                                                    'bg-gray-100 text-gray-800'
+                                                    offer.redirect_type === 'preload' || offer.redirect_type === 'curl_proxy' ? 'bg-teal-100 text-teal-800' :
+                                                        'bg-gray-100 text-gray-800'
                                             }`}>
                                             {offer.redirect_type === 'redirect' ? t('offers.redirect') :
                                                 offer.redirect_type === 'frame' ? t('offers.iframe') :
                                                     offer.redirect_type === 'local' ? t('offers.local') :
-                                                        offer.redirect_type}
+                                                        offer.redirect_type === 'js' ? t('redirectTypes.jsName') :
+                                                            offer.redirect_type === 'meta_refresh' ? t('redirectTypes.metaName') :
+                                                                offer.redirect_type === 'form_submit' ? t('redirectTypes.formName') :
+                                                                    offer.redirect_type === 'preload' ? t('offerEditor.preloadCurl') :
+                                                                        offer.redirect_type === 'curl_proxy' ? t('redirectTypes.curlProxyName') :
+                                                                            offer.redirect_type}
                                         </span>
                                     </td>
                                     <td>

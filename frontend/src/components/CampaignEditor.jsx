@@ -1384,6 +1384,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                         <option value="redirect">{t('editor.directLinking')}</option>
                                                         <option value="landing_offer">{t('editor.landingOffer')}</option>
                                                         <option value="action">{t('editor.action')}</option>
+                                                        <option value="cloak">{t('cloaking.mode')}</option>
                                                     </select>
                                                 </div>
 
@@ -1471,6 +1472,168 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                         </div>
                                                     </div>
                                                 )}
+
+                                                {stream.schema_type === 'cloak' && (() => {
+                                                    const sc = stream.schema_custom || {};
+                                                    const setCloakField = (field, value) => updateStream(idx, 'schema_custom', { ...sc, [field]: value });
+                                                    return (
+                                                        <div className="space-y-4 rounded-2xl p-3" style={{ border: '1px solid var(--color-border)', backgroundColor: 'rgba(168, 85, 247, 0.05)' }}>
+                                                            <div className="form-hint">{t('cloaking.description')}</div>
+
+                                                            {/* Detection layers */}
+                                                            <div>
+                                                                <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('cloaking.detectionLayers')}</span>
+                                                                <div className="flex flex-wrap gap-3 mt-2">
+                                                                    {[
+                                                                        ['detect_datacenter', t('cloaking.datacenter')],
+                                                                        ['detect_vpn', t('cloaking.vpnProxy')],
+                                                                        ['detect_bots', t('cloaking.bots')],
+                                                                        ['detect_ua', t('cloaking.uaHeuristics')],
+                                                                    ].map(([key, label]) => (
+                                                                        <label key={key} className="form-checkbox-label text-xs" style={{ color: 'var(--color-text-primary)' }}>
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                checked={sc[key] !== false}
+                                                                                onChange={e => setCloakField(key, e.target.checked)}
+                                                                            />
+                                                                            {label}
+                                                                        </label>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Sensitivity */}
+                                                            <div>
+                                                                <label className="text-xs font-semibold uppercase mb-1 block" style={{ color: 'var(--color-text-muted)' }}>{t('cloaking.sensitivity')}</label>
+                                                                <select
+                                                                    value={sc.sensitivity || 'medium'}
+                                                                    onChange={e => setCloakField('sensitivity', e.target.value)}
+                                                                    className="form-select text-sm"
+                                                                >
+                                                                    <option value="low">{t('cloaking.sensitivityLow')}</option>
+                                                                    <option value="medium">{t('cloaking.sensitivityMedium')}</option>
+                                                                    <option value="high">{t('cloaking.sensitivityHigh')}</option>
+                                                                </select>
+                                                                <div className="form-hint">{t('cloaking.sensitivityHint')}</div>
+                                                            </div>
+
+                                                            {/* Safe page */}
+                                                            <div className="pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                                                <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('cloaking.safePage')}</span>
+                                                                <div className="form-hint">{t('cloaking.safePageHint')}</div>
+                                                                <div className="space-y-2 mt-2">
+                                                                    <div>
+                                                                        <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('cloaking.safeLanding')}</label>
+                                                                        <select
+                                                                            value={sc.safe_landing_id || ''}
+                                                                            onChange={e => setCloakField('safe_landing_id', e.target.value ? parseInt(e.target.value) : null)}
+                                                                            className="form-select text-sm"
+                                                                        >
+                                                                            <option value="">{t('cloaking.safeLandingNone')}</option>
+                                                                            {allLandings.map(al => <option key={al.id} value={al.id}>{al.name}</option>)}
+                                                                        </select>
+                                                                    </div>
+                                                                    {!sc.safe_landing_id && (
+                                                                        <>
+                                                                            <div>
+                                                                                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('cloaking.safeUrl')}</label>
+                                                                                <input
+                                                                                    type="url"
+                                                                                    value={sc.safe_url || ''}
+                                                                                    onChange={e => setCloakField('safe_url', e.target.value)}
+                                                                                    className="form-input text-sm"
+                                                                                    placeholder="https://safe-page.example.com"
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('cloaking.safeHtml')}</label>
+                                                                                <textarea
+                                                                                    value={sc.safe_html || ''}
+                                                                                    onChange={e => setCloakField('safe_html', e.target.value)}
+                                                                                    className="form-input text-sm"
+                                                                                    rows={3}
+                                                                                    placeholder="<html>...inline safe page HTML...</html>"
+                                                                                />
+                                                                            </div>
+                                                                        </>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Money page — reuse the same landing + offer pickers */}
+                                                            <div className="pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                                                <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('cloaking.moneyPage')}</span>
+                                                                <div className="form-hint">{t('cloaking.moneyPageHint')}</div>
+                                                                <div className="mt-2">
+                                                                    <div className="flex justify-between mb-2">
+                                                                        <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.landings')}</span>
+                                                                        <button onClick={() => addSchemaItem(idx, 'landings')} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.add')}</button>
+                                                                    </div>
+                                                                    {(stream.schema_custom?.landings || []).map((l, lIdx, list) => (
+                                                                        <div key={lIdx} className="flex gap-2 mb-2">
+                                                                            <select
+                                                                                value={l.id}
+                                                                                onChange={e => updateSchemaItem(idx, 'landings', lIdx, 'id', parseInt(e.target.value))}
+                                                                                className="form-select text-sm"
+                                                                            >
+                                                                                <option value="">{t('editor.landingInfo')}</option>
+                                                                                {allLandings.map(al => <option key={al.id} value={al.id}>{al.name}</option>)}
+                                                                            </select>
+                                                                            <div className="flex items-center gap-1">
+                                                                                <input
+                                                                                    type="number"
+                                                                                    value={list.length === 1 ? 100 : l.weight}
+                                                                                    disabled={list.length === 1}
+                                                                                    onChange={e => updateSchemaItem(idx, 'landings', lIdx, 'weight', parseInt(e.target.value))}
+                                                                                    className="w-16 text-center rounded-lg px-1 py-1 text-sm"
+                                                                                    style={{ backgroundColor: list.length === 1 ? 'var(--color-bg-soft)' : 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: list.length === 1 ? 'var(--color-text-muted)' : 'var(--color-text-primary)' }}
+                                                                                    title={t('editor.weight')}
+                                                                                />
+                                                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
+                                                                            </div>
+                                                                            <button onClick={() => removeSchemaItem(idx, 'landings', lIdx)} className="action-btn text-red">
+                                                                                <X className="w-4 h-4" />
+                                                                            </button>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                                <div className="pt-3 mt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                                                    <div className="flex justify-between mb-2">
+                                                                        <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offers')}</span>
+                                                                        <button onClick={() => addSchemaItem(idx, 'offers')} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.add')}</button>
+                                                                    </div>
+                                                                    {(stream.schema_custom?.offers || []).map((o, oIdx, list) => (
+                                                                        <div key={oIdx} className="flex gap-2 mb-2">
+                                                                            <select
+                                                                                value={o.id}
+                                                                                onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'id', parseInt(e.target.value))}
+                                                                                className="form-select text-sm"
+                                                                            >
+                                                                                <option value="">{t('editor.offerInfo')}</option>
+                                                                                {allOffers.map(ao => <option key={ao.id} value={ao.id}>{ao.name}</option>)}
+                                                                            </select>
+                                                                            <div className="flex items-center gap-1">
+                                                                                <input
+                                                                                    type="number"
+                                                                                    value={list.length === 1 ? 100 : o.weight}
+                                                                                    disabled={list.length === 1}
+                                                                                    onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'weight', parseInt(e.target.value))}
+                                                                                    className="w-16 text-center rounded-lg px-1 py-1 text-sm"
+                                                                                    style={{ backgroundColor: list.length === 1 ? 'var(--color-bg-soft)' : 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: list.length === 1 ? 'var(--color-text-muted)' : 'var(--color-text-primary)' }}
+                                                                                    title={t('editor.weight')}
+                                                                                />
+                                                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
+                                                                            </div>
+                                                                            <button onClick={() => removeSchemaItem(idx, 'offers', oIdx)} className="action-btn text-red">
+                                                                                <X className="w-4 h-4" />
+                                                                            </button>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })()}
 
                                                 {stream.schema_type === 'redirect' && (
                                                     <div className="space-y-3 rounded-2xl p-3" style={{ border: '1px solid var(--color-border)', backgroundColor: 'rgba(59, 130, 246, 0.05)' }}>

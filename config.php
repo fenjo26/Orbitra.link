@@ -44,7 +44,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 10;
+    $LATEST_SCHEMA_VERSION = 11;
 
     $schemaVersion = 0;
     try {
@@ -977,6 +977,77 @@ try {
                 }
                 try {
                     $pdo->exec("ALTER TABLE campaigns ADD COLUMN challenge_custom_code TEXT");
+                } catch (\Throwable $e) {
+                    // Ignore if already exists.
+                }
+            }
+
+            // Migration 11: Durable S2S postback queue, cost import, OAuth token store.
+            if ($schemaVersion < 11) {
+                // s2s_postbacks_log becomes the retry queue: add attempt tracking.
+                $s2sCols = [
+                    'attempts INTEGER DEFAULT 0',
+                    'next_retry_at DATETIME',
+                    "status TEXT DEFAULT 'delivered'",
+                    'last_error TEXT',
+                    'http_code INTEGER',
+                    "method TEXT DEFAULT 'GET'",
+                    'postback_id INTEGER',
+                ];
+                foreach ($s2sCols as $colDef) {
+                    try {
+                        $pdo->exec('ALTER TABLE s2s_postbacks_log ADD COLUMN ' . $colDef);
+                    } catch (\Throwable $e) {
+                        // Ignore if already exists.
+                    }
+                }
+                // Queue index: pending rows due for retry. CREATE INDEX is idempotent
+                // enough for our purposes but we wrap to avoid a hard failure on re-run.
+                try {
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_s2s_postbacks_queue ON s2s_postbacks_log(status, next_retry_at)");
+                } catch (\Throwable $e) {
+                }
+
+                // cost_records — imported spend from traffic sources (FB / Google Ads / ...),
+                // parallel to revenue_records. Joined back to clicks via source_campaign_id / ad_id.
+                try {
+                    $pdo->exec("CREATE TABLE IF NOT EXISTS cost_records (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        connection_id INTEGER NOT NULL,
+                        external_id TEXT,
+                        source_campaign_id TEXT,
+                        ad_id TEXT,
+                        adset_id TEXT,
+                        amount REAL DEFAULT 0.00,
+                        currency TEXT DEFAULT 'USD',
+                        click_date DATE,
+                        raw_json TEXT,
+                        is_matched INTEGER DEFAULT 0,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (connection_id) REFERENCES aggregator_connections(id) ON DELETE CASCADE
+                    )");
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_cost_records_conn ON cost_records(connection_id, external_id)");
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_cost_records_date ON cost_records(click_date)");
+                } catch (\Throwable $e) {
+                    // Ignore if already exists.
+                }
+
+                // oauth_tokens — store for future OAuth2 flows (FB / Google Ads). Today
+                // the engines read tokens from aggregator_connections.credentials_json; this
+                // table is the forward-compatible home for access/refresh token lifecycles.
+                try {
+                    $pdo->exec("CREATE TABLE IF NOT EXISTS oauth_tokens (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        provider TEXT NOT NULL,
+                        connection_id INTEGER,
+                        access_token TEXT,
+                        refresh_token TEXT,
+                        expires_at DATETIME,
+                        scope TEXT,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (connection_id) REFERENCES aggregator_connections(id) ON DELETE CASCADE
+                    )");
+                    $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_oauth_tokens_provider_conn ON oauth_tokens(provider, connection_id)");
                 } catch (\Throwable $e) {
                     // Ignore if already exists.
                 }

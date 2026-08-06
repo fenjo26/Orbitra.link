@@ -1,4 +1,4 @@
-# Orbitra v0.9.5.0 Tracker
+# Orbitra v0.9.6.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -385,6 +385,14 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.6.0
+
+### Added
+- 🔀 **Redirect types honored at runtime** — offers now actually use their `redirect_type` setting. In addition to the default HTTP 302, you can choose **JS redirect** (bypasses server-side redirect blockers, keeps referrer), **Meta refresh** (maximum compatibility), **Iframe / frame** (renders the offer inside a full-page iframe), **Form submit** (posts data in the body instead of the URL), and **curl proxy** (serves a remote page through your server with an injected `<base>` tag). Each option explains when to use it right in the editor.
+- 🕵️ **Cloaking (safe page / money page)** — a new `cloak` stream mode routes bots, moderators and datacenter/VPN traffic to a safe page, while real visitors see the money page. Detection layers: free datacenter & hosting ASN lists, VPN/proxy flags, the existing bot IP/UA blocklists, and a JS fingerprint check. Per-stream sensitivity and layer toggles.
+- ♻️ **Durable S2S postback queue with retry** — outbound postbacks are no longer fire-and-forget. Each one is persisted and delivered by a background worker with exponential backoff (60s → 5m → 30m → 2h → 24h, up to 5 attempts) and full status logging. Fixes along the way: POST postbacks now send a body, and the macro set is extended (`{sub_id_1..30}`, `{campaign_id}`, `{cost}`, `{revenue}`, `{profit}`).
+- 💰 **Automated cost import (Facebook Ads / Google Ads)** — two new aggregator engines pull daily spend and attribute it to clicks via the ad IDs your traffic-source templates already capture, so ROI/profit dashboards are no longer zero-cost. Token-based auth now (long-lived/system tokens); built on the existing `aggregator_connections` pattern with an OAuth-ready `oauth_tokens` table for later.
 
 ## 📝 What's New in v0.9.5.0
 

@@ -8,7 +8,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import { apiGet, apiPost, config } from './client.js';
 
-const server = new McpServer({ name: 'orbitra-mcp', version: '0.9.5.0' });
+const server = new McpServer({ name: 'orbitra-mcp', version: '0.9.6.0' });
 
 // ---- helpers ---------------------------------------------------------------
 
@@ -341,7 +341,7 @@ const offerFields = {
   url: z.string().optional().describe('Offer/destination URL.'),
   affiliate_network_id: z.number().int().nullable().optional(),
   group_id: z.number().int().nullable().optional(),
-  redirect_type: z.string().optional().describe("Default 'redirect'."),
+  redirect_type: z.string().optional().describe("How the visitor is sent to the offer. One of: 'redirect' (HTTP 302, default), 'js' (client-side window.location), 'meta_refresh' (meta refresh tag), 'frame'/'iframe' (rendered in a full-page iframe), 'form_submit' (auto-submitted POST form), 'preload'/'curl_proxy' (remote page served through this server)."),
   is_local: z.boolean().optional(),
   geo: z.string().optional().describe('Comma-separated country codes, e.g. "US,CA".'),
   payout_type: z.enum(['cpa', 'cpl', 'crg', 'revshare']).optional().describe("Default 'cpa'."),

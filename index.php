@@ -5,6 +5,9 @@ require_once 'config.php';
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
 }
+// Cloaking detector (datacenter/VPN ASN + UA heuristics + bot blocklists). Lazy: only
+// consulted when a stream with schema_type='cloak' is selected.
+require_once __DIR__ . '/core/CloakDetector.php';
 
 // Получение реального IP адреса
 function getClientIp()
@@ -269,6 +272,97 @@ function applyOfferMacros($url, $clickId, $offerId, $params)
         $url = 'http://' . ltrim($url, '/');
     }
     return $url;
+}
+
+// Render the visitor response for a final destination URL according to the offer's
+// redirect_type. The default ("redirect") is the classic HTTP 302. The other types
+// return an HTML document so the browser performs the navigation client-side — useful
+// when an ad network blocks server-side redirects or when the destination needs to
+// receive data in the request body. $url is assumed already macro-substituted.
+function renderRedirectResponse($type, $url)
+{
+    $type = strtolower((string) ($type ?? ''));
+    if ($type === '' || $type === 'redirect') {
+        header('Location: ' . $url, true, 302);
+        return;
+    }
+
+    $escUrl = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+    $jsUrl  = json_encode($url); // safely quoted for embedding in a JS string literal
+
+    if ($type === 'js') {
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<!DOCTYPE html><html><head><meta charset="utf-8">'
+            . '<meta name="robots" content="noindex,nofollow"><title></title>'
+            . '<script>window.location.href=' . $jsUrl . ';</script>'
+            . '</head><body></body></html>';
+        return;
+    }
+
+    if ($type === 'meta_refresh') {
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<!DOCTYPE html><html><head><meta charset="utf-8">'
+            . '<meta name="robots" content="noindex,nofollow">'
+            . '<meta http-equiv="refresh" content="0;url=' . $escUrl . '">'
+            . '<title></title></head><body></body></html>';
+        return;
+    }
+
+    if ($type === 'iframe' || $type === 'frame') {
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<!DOCTYPE html><html><head><meta charset="utf-8">'
+            . '<meta name="robots" content="noindex,nofollow"><title></title>'
+            . '<style>html,body{margin:0;padding:0;height:100%;overflow:hidden}'
+            . 'iframe{border:0;width:100vw;height:100vh;position:fixed;inset:0}</style>'
+            . '</head><body><iframe src="' . $escUrl . '" allowfullscreen></iframe>'
+            . '</body></html>';
+        return;
+    }
+
+    if ($type === 'form_submit') {
+        // Move the query string into hidden POST fields so the destination receives
+        // the data in the request body rather than the URL.
+        $parsed  = parse_url($url);
+        $scheme  = $parsed['scheme'] ?? 'https';
+        $action  = $scheme . '://' . ($parsed['host'] ?? '') . ($parsed['path'] ?? '');
+        parse_str($parsed['query'] ?? '', $qsFields);
+        $hidden = '';
+        foreach ($qsFields as $name => $value) {
+            $hidden .= '<input type="hidden" name="' . htmlspecialchars((string) $name, ENT_QUOTES) . '"'
+                . ' value="' . htmlspecialchars((string) $value, ENT_QUOTES) . '">';
+        }
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<!DOCTYPE html><html><head><meta charset="utf-8">'
+            . '<meta name="robots" content="noindex,nofollow"><title></title></head><body>'
+            . '<form id="orbitra-redirect-form" method="POST" action="' . htmlspecialchars($action, ENT_QUOTES) . '">'
+            . $hidden . '</form>'
+            . '<script>document.getElementById("orbitra-redirect-form").submit();</script>'
+            . '</body></html>';
+        return;
+    }
+
+    if ($type === 'curl_proxy') {
+        // Serve a remote page through this server with a <base> tag so its relative
+        // assets resolve. Mirrors the landings "preload" behaviour, applied to an offer.
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT'] ?? 'Mozilla/5.0');
+        curl_setopt($ch, CURLOPT_TIMEOUT, 8);
+        $html = (string) curl_exec($ch);
+        $baseTag = '<base href="' . $escUrl . '">';
+        $htmlWithBase = preg_replace('/<head>/i', "<head>\n" . $baseTag, $html, 1);
+        if ($htmlWithBase === $html) {
+            $htmlWithBase = $baseTag . "\n" . $html;
+        }
+        header('Content-Type: text/html; charset=utf-8');
+        echo $htmlWithBase;
+        return;
+    }
+
+    // Unknown type — fall back to the safe default.
+    header('Location: ' . $url, true, 302);
 }
 
 function normalizeLanguageCode($value)
@@ -594,7 +688,7 @@ if (isset($_GET['_lp'])) {
     }
 
     $lpOffer = null;
-    $stmt = $pdo->prepare("SELECT url FROM offers WHERE id = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT url, redirect_type FROM offers WHERE id = ? LIMIT 1");
     $stmt->execute([$lpOfferId]);
     $lpOffer = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     if (!$lpOffer || empty($lpOffer['url'])) {
@@ -621,7 +715,7 @@ if (isset($_GET['_lp'])) {
     }
 
     $lpUrl = applyOfferMacros($lpOffer['url'], $lpClickId, $lpOfferId, $lpParams);
-    header('Location: ' . $lpUrl, true, 302);
+    renderRedirectResponse($lpOffer['redirect_type'] ?? 'redirect', $lpUrl);
     exit;
 }
 
@@ -1143,6 +1237,7 @@ function selectWeightedItem($items)
 $offerIdToLog = 0;
 $landingIdToLog = null;
 $finalUrl = '';
+$offerRedirectType = 'redirect';
 $actionToPerfrom = null;
 
 if ($selectedStream) {
@@ -1179,13 +1274,97 @@ if ($selectedStream) {
         }
 
         if ($offerIdToLog) {
-            $stmt = $pdo->prepare("SELECT url FROM offers WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT url, redirect_type FROM offers WHERE id = ?");
             $stmt->execute([$offerIdToLog]);
             $off = $stmt->fetch();
             if ($off) {
                 $offerUrl = $off['url'];
+                $offerRedirectType = $off['redirect_type'] ?? 'redirect';
                 if (!$landingIdToLog) {
                     $finalUrl = $offerUrl;
+                }
+            }
+        }
+    } else if ($schemaType === 'cloak') {
+        // Cloaking: route suspicious visitors (bots / moderators / datacenter traffic)
+        // to a safe page, real visitors to the money page. The detector's verdict is
+        // computed once here; the chosen branch reuses the same landing/offer serving
+        // logic as the landing_offer and redirect schemas.
+        $cloakConfig = [
+            'detect_datacenter' => $customSchema['detect_datacenter'] ?? true,
+            'detect_vpn'        => $customSchema['detect_vpn'] ?? true,
+            'detect_bots'       => $customSchema['detect_bots'] ?? true,
+            'detect_ua'         => $customSchema['detect_ua'] ?? true,
+            'sensitivity'       => $customSchema['sensitivity'] ?? 'medium',
+        ];
+        $cloakVisitorCtx = [
+            'ip'              => $ip,
+            'user_agent'      => $userAgent,
+            'asn'             => $geoData['asn'] ?? '',
+            'isp'             => $geoData['isp'] ?? '',
+            'accept_language' => $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '',
+        ];
+        $verdict = CloakDetector::detect($cloakVisitorCtx, $cloakConfig);
+        $cloakShowSafe = (bool) $verdict['is_suspicious'];
+
+        if ($cloakShowSafe) {
+            // --- Safe page ---
+            // Priority: explicit safe_landing_id (a managed landing), then inline safe_url,
+            // then inline safe_html. If none configured, serve a generic blank page so a
+            // misconfigured cloak stream never leaks the money page.
+            $safeLandingId = (int) ($customSchema['safe_landing_id'] ?? 0);
+            if ($safeLandingId > 0) {
+                $stmt = $pdo->prepare("SELECT type, url, action_payload FROM landings WHERE id = ?");
+                $stmt->execute([$safeLandingId]);
+                $safeLand = $stmt->fetch();
+                if ($safeLand) {
+                    $landingIdToLog = $safeLandingId;
+                    $landingType = $safeLand['type'];
+                    $landingUrl = $safeLand['url'];
+                    $landingAction = $safeLand['action_payload'];
+                }
+            } elseif (!empty($customSchema['safe_url'])) {
+                $finalUrl = (string) $customSchema['safe_url'];
+            } else {
+                // Inline HTML fallback — neutral, indexable-looking page.
+                header('Content-Type: text/html; charset=utf-8');
+                echo isset($customSchema['safe_html']) && $customSchema['safe_html'] !== ''
+                    ? $customSchema['safe_html']
+                    : '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Welcome</title></head><body><h1>Page</h1><p>Content is loading.</p></body></html>';
+                exit;
+            }
+        } else {
+            // --- Money page --- behaves like the landing_offer schema: a weighted landing
+            // and/or offer selection. Falls back to a plain redirect if only an offer is set.
+            $selectedLanding = selectWeightedItem($customSchema['landings'] ?? []);
+            $selectedOffer = selectWeightedItem($customSchema['offers'] ?? []);
+            if ($selectedOffer) {
+                $offerIdToLog = $selectedOffer['id'] ?? 0;
+            }
+            if ($selectedLanding) {
+                $landingIdToLog = $selectedLanding['id'] ?? null;
+            }
+
+            if ($landingIdToLog) {
+                $stmt = $pdo->prepare("SELECT type, url, action_payload FROM landings WHERE id = ?");
+                $stmt->execute([$landingIdToLog]);
+                $land = $stmt->fetch();
+                if ($land) {
+                    $landingType = $land['type'];
+                    $landingUrl = $land['url'];
+                    $landingAction = $land['action_payload'];
+                }
+            }
+            if ($offerIdToLog) {
+                $stmt = $pdo->prepare("SELECT url, redirect_type FROM offers WHERE id = ?");
+                $stmt->execute([$offerIdToLog]);
+                $off = $stmt->fetch();
+                if ($off) {
+                    $offerUrl = $off['url'];
+                    $offerRedirectType = $off['redirect_type'] ?? 'redirect';
+                    if (!$landingIdToLog) {
+                        $finalUrl = $offerUrl;
+                    }
                 }
             }
         }
@@ -1199,12 +1378,13 @@ if ($selectedStream) {
             $offerIdToLog = $selectedStream['offer_id'] ?? 0;
         }
 
-        $stmt = $pdo->prepare("SELECT url FROM offers WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT url, redirect_type FROM offers WHERE id = ?");
         $stmt->execute([$offerIdToLog]);
         $offer = $stmt->fetch();
         if ($offer) {
             $finalUrl = $offer['url'];
             $offerUrl = $offer['url'];
+            $offerRedirectType = $offer['redirect_type'] ?? 'redirect';
         }
     }
 }
@@ -1377,14 +1557,15 @@ if ($actionToPerfrom) {
     // Default behavior is redirect. Use redirect=0 for debug/integration checks.
     $shouldRedirect = ($_GET['redirect'] ?? '1') !== '0';
     if ($shouldRedirect) {
-        header('Location: ' . $finalUrl, true, 302);
+        renderRedirectResponse($offerRedirectType, $finalUrl);
     } else {
         header('Content-Type: application/json');
         header('Access-Control-Allow-Origin: *');
         echo json_encode([
             'status' => 'ok',
             'click_id' => $clickId,
-            'url' => $finalUrl
+            'url' => $finalUrl,
+            'redirect_type' => $offerRedirectType,
         ]);
     }
     exit;

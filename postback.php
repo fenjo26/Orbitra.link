@@ -153,48 +153,90 @@ try {
     // Don't break postback flow on notification error
     }
 
-    // Обработка S2S Postbacks для кампании
+    // Обработка S2S Postbacks для кампании — постановка в очередь надёжной доставки.
+    // Сама HTTP-отправка выполняется воркером postback_queue_cron.php с retry/backoff,
+    // чтобы медленный или упавший эндпоинт партнёрки не ломал ответ на входящий постбек
+    // и не приводил к потере данных.
     try {
         $pbStmt = $pdo->prepare("SELECT * FROM campaign_postbacks WHERE campaign_id = ?");
         $pbStmt->execute([$campaignId]);
         $postbacks = $pbStmt->fetchAll();
 
+        // Загружаем параметры исходного клика для подстановки макросов {sub_id_*}, {keyword} и т.д.
+        $clickParams = [];
+        $cpStmt = $pdo->prepare("SELECT parameters_json, cost, revenue FROM clicks WHERE id = ?");
+        $cpStmt->execute([$clickId]);
+        $cpRow = $cpStmt->fetch(PDO::FETCH_ASSOC);
+        if ($cpRow && !empty($cpRow['parameters_json'])) {
+            $decoded = json_decode($cpRow['parameters_json'], true);
+            if (is_array($decoded)) {
+                $clickParams = $decoded;
+            }
+        }
+        $clickCost = (float) ($cpRow['cost'] ?? 0);
+        $clickRevenue = (float) ($cpRow['revenue'] ?? 0);
+
+        // Определяем conversion_id для связи логов очереди с конверсией.
+        $convId = null;
+        if ($tid) {
+            $cidStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid = ? ORDER BY id DESC LIMIT 1");
+            $cidStmt->execute([$clickId, $tid]);
+        } else {
+            $cidStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid IS NULL ORDER BY id DESC LIMIT 1");
+            $cidStmt->execute([$clickId]);
+        }
+        $convId = (int) ($cidStmt->fetchColumn() ?: 0) ?: null;
+
+        $enqueueStmt = $pdo->prepare("
+            INSERT INTO s2s_postbacks_log
+                (conversion_id, url, method, status, attempts, next_retry_at, postback_id)
+            VALUES (?, ?, ?, 'pending', 0, datetime('now'), ?)
+        ");
+
         foreach ($postbacks as $pb) {
             $statuses = array_map('trim', explode(',', strtolower($pb['statuses'])));
-            if (in_array(strtolower($internalStatus), $statuses)) {
-                $url = $pb['url'];
-
-                // Замена макросов (основные: subid, status, payout, currency, external_id=tid)
-                $url = str_replace(
-                ['{subid}', '{status}', '{payout}', '{currency}', '{external_id}', '{tid}'],
-                [urlencode($clickId), urlencode($internalStatus), urlencode((string)$payout), urlencode($currency), urlencode((string)$tid), urlencode((string)$tid)],
-                    $url
-                );
-
-                // SSRF Protection: Prevent local/private IP requests
-                $parsedUrl = parse_url($url);
-                $host = $parsedUrl['host'] ?? '';
-                if ($host) {
-                    $ip = gethostbyname($host);
-                    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-                        continue; // Skip restricted IPs
-                    }
-                }
-
-                $ch = curl_init($url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 3);
-                // Security configurations
-                curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
-                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-                curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
-
-                if (strtoupper($pb['method'] ?? 'GET') === 'POST') {
-                    curl_setopt($ch, CURLOPT_POST, true);
-                }
-                curl_exec($ch);
-                curl_close($ch);
+            if (!in_array(strtolower($internalStatus), $statuses)) {
+                continue;
             }
+
+            // Подстановка расширенного набора макросов.
+            $macroValues = [
+                '{subid}'       => $clickId,
+                '{status}'      => $internalStatus,
+                '{payout}'      => (string) $payout,
+                '{currency}'    => $currency,
+                '{external_id}' => (string) $tid,
+                '{tid}'         => (string) $tid,
+                '{campaign_id}' => (string) $campaignId,
+                '{cost}'        => (string) $clickCost,
+                '{revenue}'     => (string) $clickRevenue,
+                '{profit}'      => (string) ($clickRevenue - $clickCost),
+            ];
+            // sub_id_1..30 и прочие сохранённые параметры клика.
+            if (!empty($clickParams)) {
+                foreach ($clickParams as $key => $val) {
+                    $macroValues['{' . $key . '}'] = (string) $val;
+                }
+            }
+            // urldecode обратный: макро-значения urlencode'им, как и раньше, чтобы URL был корректным.
+            $url = $pb['url'];
+            foreach ($macroValues as $macro => $value) {
+                $url = str_replace($macro, urlencode($value), $url);
+            }
+
+            // SSRF Protection: предотвращаем запросы к локальным/приватным IP.
+            // Проверку повторит и воркер (на случай смены DNS), но отсекаем очевидное уже при enqueue.
+            $parsedUrl = parse_url($url);
+            $host = $parsedUrl['host'] ?? '';
+            if ($host) {
+                $ip = gethostbyname($host);
+                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+                    continue; // Skip restricted IPs
+                }
+            }
+
+            $method = strtoupper($pb['method'] ?? 'GET') === 'POST' ? 'POST' : 'GET';
+            $enqueueStmt->execute([$convId, $url, $method, (int) $pb['id']]);
         }
     }
     catch (\Exception $e) {

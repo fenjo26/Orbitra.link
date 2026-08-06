@@ -167,8 +167,14 @@
   - `id`, `name`, `network_id`, `api_key`, `api_url`
   - `is_active`, `last_sync_at`
 
-- **`revenue_records`** — записи о доходах
+- **`revenue_records`** — записи о доходах (для revenue-engine: ReferOn, Affilka, Generic)
   - `id`, `connection_id`, `date`, `revenue`, `conversions`
+
+- **`cost_records`** (с v0.9.6.0) — импортированный рекламный расход (для cost-engine: Facebook Ads, Google Ads)
+  - `id`, `connection_id`, `external_id`, `source_campaign_id`, `ad_id`, `adset_id`, `amount`, `currency`, `click_date`, `is_matched`
+
+- **`oauth_tokens`** (с v0.9.6.0) — хранилище OAuth2-токенов (access/refresh) для будущих OAuth-flow; сейчас Google Ads engine кеширует здесь короткоживущий access_token
+  - `id`, `provider`, `connection_id`, `access_token`, `refresh_token`, `expires_at`, `scope`
 
 ### Связи между таблицами
 
@@ -361,7 +367,7 @@ src/
 ### Системные логи
 - **`system_logs`** — действия пользователей
 - **`audit_logs`** — изменения критических данных
-- **`s2s_postbacks_log`** — логи постбеков
+- **`s2s_postbacks_log`** — логи/очередь исходящих S2S-постбеков (с v0.9.6.0 — очередь с retry: `status` pending/in_flight/delivered/failed, `attempts`, `next_retry_at`, `last_error`, `http_code`; воркер `postback_queue_cron.php`)
 
 ### Telegram уведомления
 - **Конверсии** — мгновенные уведомления

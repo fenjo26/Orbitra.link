@@ -133,6 +133,7 @@ foreach ($connections as $conn) {
     try {
         // Load appropriate engine
         $records = [];
+        $isCostEngine = false;
         switch ($conn['engine']) {
             case 'referon':
                 if (file_exists(__DIR__ . '/aggregator_engines/ReferOnEngine.php')) {
@@ -152,8 +153,102 @@ foreach ($connections as $conn) {
                     $records = GenericApiEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
                 }
                 break;
+            case 'facebook':
+                if (file_exists(__DIR__ . '/aggregator_engines/FacebookAdsEngine.php')) {
+                    require_once __DIR__ . '/aggregator_engines/FacebookAdsEngine.php';
+                    $records = FacebookAdsEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                    $isCostEngine = true;
+                }
+                break;
+            case 'google_ads':
+                if (file_exists(__DIR__ . '/aggregator_engines/GoogleAdsEngine.php')) {
+                    require_once __DIR__ . '/aggregator_engines/GoogleAdsEngine.php';
+                    $records = GoogleAdsEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                    $isCostEngine = true;
+                }
+                break;
             default:
                 $records = GenericApiEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+        }
+
+        // Cost engines (FB / Google Ads) write spend into cost_records and distribute it
+        // across clicks by campaign_id / ad_id — those keys are captured by the
+        // traffic-source templates already. Revenue engines keep their own path below.
+        if ($isCostEngine) {
+            $insertCost = $pdo->prepare("INSERT INTO cost_records (connection_id, external_id, source_campaign_id, ad_id, adset_id, amount, currency, click_date, raw_json, is_matched) VALUES (?,?,?,?,?,?,?,?,?,?)");
+            $dupCost = $pdo->prepare("SELECT id FROM cost_records WHERE connection_id = ? AND external_id = ?");
+            // Distribute per-day, per-ad spend evenly across matching clicks of that day.
+            $findClicksByAd = $pdo->prepare("SELECT id FROM clicks WHERE json_extract(parameters_json, '$.ad_id') = ? AND date(created_at) = ?");
+            $findClicksByCampaign = $pdo->prepare("SELECT id FROM clicks WHERE json_extract(parameters_json, '$.campaign_id') = ? AND date(created_at) = ?");
+            $findClicksByCampaignGoogle = $pdo->prepare("SELECT id FROM clicks WHERE json_extract(parameters_json, '$.campaignid') = ? AND date(created_at) = ?");
+
+            $pdo->beginTransaction();
+            $fetched = count($records);
+            $matched = 0;
+            $newCount = 0;
+
+            foreach ($records as $rec) {
+                $externalId = $rec['external_id'] ?? null;
+                if ($externalId) {
+                    $dupCost->execute([$conn['id'], $externalId]);
+                    if ($dupCost->fetch()) {
+                        continue;
+                    }
+                }
+                $amount = (float) ($rec['amount'] ?? 0);
+                $adId = (string) ($rec['ad_id'] ?? '');
+                $campaignId = (string) ($rec['source_campaign_id'] ?? '');
+                $clickDate = (string) ($rec['date'] ?? date('Y-m-d'));
+                $isMatched = 0;
+
+                // Attribute spend to clicks. Prefer ad_id granularity; fall back to campaign_id.
+                // The day's spend is split evenly across the day's matching clicks (CPC model).
+                $clickIds = [];
+                if ($adId !== '') {
+                    $findClicksByAd->execute([$adId, $clickDate]);
+                    $clickIds = $findClicksByAd->fetchAll(PDO::FETCH_COLUMN);
+                }
+                if (empty($clickIds) && $campaignId !== '') {
+                    $findClicksByCampaign->execute([$campaignId, $clickDate]);
+                    $clickIds = $findClicksByCampaign->fetchAll(PDO::FETCH_COLUMN);
+                    if (empty($clickIds)) {
+                        // Google Ads ValueTrack uses {campaignid} → captured as campaignid.
+                        $findClicksByCampaignGoogle->execute([$campaignId, $clickDate]);
+                        $clickIds = $findClicksByCampaignGoogle->fetchAll(PDO::FETCH_COLUMN);
+                    }
+                }
+                if (!empty($clickIds) && $amount > 0) {
+                    $cpc = $amount / count($clickIds);
+                    $updateCostStmt = $pdo->prepare("UPDATE clicks SET cost = cost + ? WHERE id = ?");
+                    foreach ($clickIds as $cid) {
+                        $updateCostStmt->execute([$cpc, $cid]);
+                    }
+                    $isMatched = 1;
+                    $matched++;
+                }
+
+                $insertCost->execute([
+                    $conn['id'], $externalId, $campaignId, $adId,
+                    (string) ($rec['adset_id'] ?? ''), $amount,
+                    (string) ($rec['currency'] ?? 'USD'), $clickDate,
+                    $rec['raw_json'] ?? null, $isMatched,
+                ]);
+                $newCount++;
+            }
+
+            $pdo->commit();
+            $durationMs = round((microtime(true) - $startTime) * 1000);
+
+            $pdo->prepare("UPDATE aggregator_connections SET last_sync_at = datetime('now'), last_sync_status = 'success', last_sync_error = NULL WHERE id = ?")
+                ->execute([$conn['id']]);
+            $pdo->prepare("INSERT INTO aggregator_sync_logs (connection_id, status, records_fetched, records_matched, records_new, duration_ms, date_from, date_to) VALUES (?,?,?,?,?,?,?,?)")
+                ->execute([$conn['id'], 'success', $fetched, $matched, $newCount, $durationMs, $dateFrom, $dateTo]);
+
+            $totalFetched += $fetched;
+            $totalMatched += $matched;
+            $totalNew += $newCount;
+            cron_log("[$connName] ✓ Done (cost). Fetched: $fetched, Matched: $matched, New: $newCount ({$durationMs}ms)");
+            continue;
         }
 
         $insertStmt = $pdo->prepare("INSERT INTO revenue_records (connection_id, external_id, click_id, player_id, event_type, amount, currency, country, brand, sub_id, event_date, raw_json, is_matched) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
