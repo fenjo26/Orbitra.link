@@ -25,6 +25,19 @@ const AutomationSettings = () => {
     const [info, setInfo] = useState(null);
     const [enabled, setEnabled] = useState(true);
     const [intervalMin, setIntervalMin] = useState(15);
+    const [pqInfo, setPqInfo] = useState(null);
+
+    const fetchPostbackQueueInfo = async () => {
+        try {
+            const res = await fetch(`${API_URL}?action=postback_queue_info`);
+            const data = await res.json();
+            if (data.status === 'success') {
+                setPqInfo(data.data || null);
+            }
+        } catch (e) {
+            // Non-fatal: the backorder panel above stays usable.
+        }
+    };
 
     const fetchInfo = async () => {
         setLoading(true);
@@ -45,6 +58,7 @@ const AutomationSettings = () => {
         } finally {
             setLoading(false);
         }
+        await fetchPostbackQueueInfo();
     };
 
     useEffect(() => {
@@ -173,6 +187,48 @@ const AutomationSettings = () => {
             setCronBusy(false);
         }
     };
+
+    const installPostbackQueueCron = async () => {
+        setCronBusy(true);
+        setMessage({ text: '', type: '' });
+        try {
+            const res = await fetch(`${API_URL}?action=postback_queue_install_user_cron`, { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'success') {
+                setMessage({ text: t('postbackQueue.cronInstalled'), type: 'success' });
+                await fetchPostbackQueueInfo();
+            } else {
+                setMessage({ text: data.message || t('automation.installUserError'), type: 'error' });
+            }
+        } catch (e) {
+            setMessage({ text: t('automation.networkError'), type: 'error' });
+        } finally {
+            setCronBusy(false);
+        }
+    };
+
+    const removePostbackQueueCron = async () => {
+        setCronBusy(true);
+        setMessage({ text: '', type: '' });
+        try {
+            const res = await fetch(`${API_URL}?action=postback_queue_remove_user_cron`, { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'success') {
+                setMessage({ text: t('postbackQueue.cronRemoved'), type: 'success' });
+                await fetchPostbackQueueInfo();
+            } else {
+                setMessage({ text: data.message || t('automation.removeUserError'), type: 'error' });
+            }
+        } catch (e) {
+            setMessage({ text: t('automation.networkError'), type: 'error' });
+        } finally {
+            setCronBusy(false);
+        }
+    };
+
+    const pqCounts = pqInfo?.counts || {};
+    // Healthy only if the worker pinged recently AND is not disabled in settings.
+    const pqHealthy = Boolean(pqInfo?.healthy) && pqInfo?.enabled !== false;
 
     const bootstrap = info?.rdap_bootstrap || {};
     const bootstrapOk = Boolean(bootstrap?.mtime);
@@ -483,6 +539,109 @@ const AutomationSettings = () => {
                             )}
                         </div>
                         <div className="text-xs text-slate-600 mt-2">{t('automation.rdapHint')}</div>
+                    </div>
+                </div>
+
+                {/* Outbound S2S postback delivery worker. Without this cron nothing in the
+                    queue is ever delivered, so surface its health prominently. */}
+                <div className="form-section mt-6">
+                    <div className="mb-3">
+                        <div className="text-sm font-semibold text-gray-800">{t('postbackQueue.title')}</div>
+                        <div className="text-sm text-[var(--color-text-muted)] mt-1">{t('postbackQueue.description')}</div>
+                    </div>
+
+                    <div className={`alert ${pqHealthy ? 'alert-success' : 'alert-danger'} mb-3`}>
+                        <div className="flex items-center gap-2">
+                            {pqHealthy ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                            <span>{pqHealthy ? t('postbackQueue.queueHealthy') : t('postbackQueue.queueStale')}</span>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">{t('postbackQueue.statusPending')}</div>
+                            <div className="text-lg font-semibold text-gray-800 mt-1">{String(pqCounts.pending ?? 0)}</div>
+                        </div>
+                        <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">{t('postbackQueue.statusInFlight')}</div>
+                            <div className="text-lg font-semibold text-gray-800 mt-1">{String(pqCounts.in_flight ?? 0)}</div>
+                        </div>
+                        <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">{t('postbackQueue.statusDelivered')}</div>
+                            <div className="text-lg font-semibold text-gray-800 mt-1">{String(pqCounts.delivered ?? 0)}</div>
+                        </div>
+                        <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">{t('postbackQueue.statusFailed')}</div>
+                            <div className="text-lg font-semibold text-gray-800 mt-1">{String(pqCounts.failed ?? 0)}</div>
+                        </div>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">{t('automation.lastPing')}</div>
+                            <div className="text-sm font-mono text-gray-800 mt-1">{String(pqInfo?.last_ping_at || '-')}</div>
+                        </div>
+                        <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">{t('automation.userCronInstalled')}</div>
+                            <div className="text-sm font-semibold text-gray-800 mt-1">
+                                {pqInfo?.user_crontab_installed ? t('automation.yes') : t('automation.no')}
+                            </div>
+                        </div>
+                        <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">{t('postbackQueue.lastRun')}</div>
+                            <div className="text-sm font-mono text-gray-800 mt-1">
+                                {`${String(pqInfo?.last_run?.delivered ?? 0)} / ${String(pqInfo?.last_run?.processed ?? 0)}`}
+                            </div>
+                        </div>
+                    </div>
+
+                    {pqInfo?.last_error && (
+                        <div className="mt-3 bg-gray-50 border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">{t('postbackQueue.lastError')}</div>
+                            <div className="text-sm font-mono text-gray-800 mt-1 break-all">{String(pqInfo.last_error)}</div>
+                        </div>
+                    )}
+
+                    <div className="mt-3 flex gap-2 flex-wrap">
+                        <button
+                            onClick={installPostbackQueueCron}
+                            className="btn btn-primary"
+                            disabled={cronBusy || !pqInfo?.shell_exec_allowed}
+                            title={t('postbackQueue.installCron')}
+                        >
+                            {t('postbackQueue.installCron')}
+                        </button>
+                        <button
+                            onClick={removePostbackQueueCron}
+                            className="btn btn-secondary"
+                            disabled={cronBusy || !pqInfo?.shell_exec_allowed}
+                            title={t('postbackQueue.removeCron')}
+                        >
+                            {t('postbackQueue.removeCron')}
+                        </button>
+                    </div>
+
+                    <div className="mt-3">
+                        <div className="text-xs text-gray-500 mb-1">{t('automation.cronCommand')}</div>
+                        <div className="flex gap-2 items-stretch">
+                            <pre
+                                className="flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto"
+                                style={{ fontFamily: 'monospace', fontSize: '12px', lineHeight: 1.5, margin: 0 }}
+                            >
+                                {String(pqInfo?.cron_line || '-')}
+                            </pre>
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() => copyText(pqInfo?.cron_line)}
+                                disabled={!pqInfo?.cron_line}
+                                title={t('automation.copy')}
+                                style={{ whiteSpace: 'nowrap' }}
+                            >
+                                <Copy size={16} />
+                                {t('automation.copy')}
+                            </button>
+                        </div>
+                        <p className="form-hint mt-2">{t('postbackQueue.cronHint')}</p>
                     </div>
                 </div>
             </div>

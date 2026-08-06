@@ -1891,6 +1891,8 @@ export default {
         "curlProxyDesc": "Sirve una página remota a través de este servidor con una etiqueta base. Útil cuando necesitas alojar el contenido bajo tu propio dominio."
     },
     "cloaking": {
+        "jsChallenge": "Comprobación de JavaScript",
+        "jsChallengeHint": "El visitante ve primero la página segura; una comprobación del navegador en segundo plano decide si pasa a la money page. Lo que no ejecuta JS se queda en la página segura. Añade un salto extra.",
         "mode": "Cloaking",
         "description": "Los visitantes sospechosos (bots, moderadores, tráfico de datacenter/VPN) ven una página segura; los visitantes reales ven la página monetaria.",
         "detectionLayers": "Capas de detección",
@@ -1914,6 +1916,9 @@ export default {
     },
     "postbackQueue": {
         "title": "Cola de postbacks",
+        "description": "Los postbacks S2S salientes se ponen en cola y los entrega un worker en segundo plano con reintentos. Sin el cron instalado la cola nunca se vacía.",
+        "lastRun": "Última ejecución (entregados / procesados)",
+        "cronHint": "El worker se ejecuta cada minuto. Reintentos: 60s → 5m → 30m → 2h → 24h; después la fila se marca como fallida.",
         "status": "Estado",
         "statusPending": "Pendiente",
         "statusInFlight": "En envío",

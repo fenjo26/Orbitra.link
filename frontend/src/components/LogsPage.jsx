@@ -170,7 +170,22 @@ const LogsPage = () => {
                     </table>
                 );
 
-            case 's2s':
+            case 's2s': {
+                // Rows are queue entries written by postback.php and updated by
+                // postback_queue_cron.php. Delivery state lives in `status` / `http_code`;
+                // `status_code` is the pre-0.9.6 column and may be null on new rows.
+                const statusLabels = {
+                    pending: t('postbackQueue.statusPending'),
+                    in_flight: t('postbackQueue.statusInFlight'),
+                    delivered: t('postbackQueue.statusDelivered'),
+                    failed: t('postbackQueue.statusFailed'),
+                };
+                const statusClasses = {
+                    pending: 'status-pending',
+                    in_flight: 'status-pending',
+                    delivered: 'status-active',
+                    failed: 'status-inactive',
+                };
                 return (
                     <table className="page-table">
                         <thead>
@@ -178,25 +193,47 @@ const LogsPage = () => {
                                 <th>{t('logs.colTime')}</th>
                                 <th>{t('logs.colConversionId')}</th>
                                 <th>{t('logs.colUrl')}</th>
-                                <th className="text-right">{t('logs.colResponseCode')}</th>
+                                <th>{t('postbackQueue.status')}</th>
+                                <th className="text-right">{t('postbackQueue.attempts')}</th>
+                                <th className="text-right">{t('postbackQueue.httpCode')}</th>
+                                <th>{t('postbackQueue.lastError')}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {logs.map((log, i) => (
-                                <tr key={i}>
-                                    <td>{log.created_at}</td>
-                                    <td>#{log.conversion_id}</td>
-                                    <td className="truncate max-w-sm" title={log.url}>{log.url}</td>
-                                    <td className="text-right">
-                                        <span className={`status-badge ${log.status_code >= 200 && log.status_code < 300 ? 'status-active' : 'status-inactive'}`}>
-                                            {log.status_code || 'Err'}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
+                            {logs.map((log, i) => {
+                                // Legacy rows (pre-queue) carry no status: treat a 2xx/3xx
+                                // status_code as delivered so old logs still read correctly.
+                                const legacyCode = Number(log.status_code);
+                                const status = log.status
+                                    || (legacyCode >= 200 && legacyCode < 400 ? 'delivered' : 'failed');
+                                const httpCode = log.http_code ?? log.status_code;
+                                return (
+                                    <tr key={i}>
+                                        <td>{log.created_at}</td>
+                                        <td>{log.conversion_id ? `#${log.conversion_id}` : '-'}</td>
+                                        <td className="truncate max-w-sm" title={log.url}>{log.url}</td>
+                                        <td>
+                                            <span className={`status-badge ${statusClasses[status] || 'status-inactive'}`}>
+                                                {statusLabels[status] || status}
+                                            </span>
+                                            {status === 'pending' && log.next_retry_at && (
+                                                <div className="text-xs text-[var(--color-text-muted)] mt-1">
+                                                    {t('postbackQueue.nextRetry')}: {log.next_retry_at}
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td className="text-right">{Number(log.attempts ?? 0)}</td>
+                                        <td className="text-right">{httpCode ? Number(httpCode) : '-'}</td>
+                                        <td className="truncate max-w-xs" title={log.last_error || ''}>
+                                            {log.last_error || '-'}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 );
+            }
 
             default:
                 return null;

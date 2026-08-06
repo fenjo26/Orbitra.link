@@ -367,7 +367,14 @@ src/
 ### Системные логи
 - **`system_logs`** — действия пользователей
 - **`audit_logs`** — изменения критических данных
-- **`s2s_postbacks_log`** — логи/очередь исходящих S2S-постбеков (с v0.9.6.0 — очередь с retry: `status` pending/in_flight/delivered/failed, `attempts`, `next_retry_at`, `last_error`, `http_code`; воркер `postback_queue_cron.php`)
+- **`s2s_postbacks_log`** — логи/очередь исходящих S2S-постбеков (с v0.9.6.0 — очередь с retry: `status` pending/in_flight/delivered/failed, `attempts`, `next_retry_at`, `last_error`, `http_code`, `updated_at`; воркер `postback_queue_cron.php`). `updated_at` нужен для возврата в очередь строк, брошенных упавшим воркером в состоянии `in_flight`.
+
+### Ядро (`core/`)
+- **`CloakDetector.php`** — вердикт по посетителю для потоков `schema_type='cloak'`: ASN дата-центров/VPN (`core/data/asn_blocklist.json`), существующие блок-листы ботов, UA-эвристики. Сигналы делятся на жёсткие и мягкие, порог задаётся чувствительностью потока.
+- **`CostImporter.php`** — общий путь загрузки расходов для `aggregator_cron.php` и `api.php`. Апсертит `cost_records` по `(connection_id, external_id)` и переназначает `clicks.cost` (присваивание, не накопление), чтобы повторный синк того же дня был идемпотентным.
+
+### Схема БД
+Актуальная версия схемы — **12** (`PRAGMA user_version`, константа `$LATEST_SCHEMA_VERSION` в `config.php`). Файл `database.sql` — только справочный дамп, генерируемый из `config.php`; приложение его не загружает.
 
 ### Telegram уведомления
 - **Конверсии** — мгновенные уведомления

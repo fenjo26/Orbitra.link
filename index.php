@@ -324,12 +324,39 @@ function renderRedirectResponse($type, $url)
         // the data in the request body rather than the URL.
         $parsed  = parse_url($url);
         $scheme  = $parsed['scheme'] ?? 'https';
-        $action  = $scheme . '://' . ($parsed['host'] ?? '') . ($parsed['path'] ?? '');
+        // Keep userinfo/port — dropping the port silently sent the visitor to :443
+        // for offers hosted on a non-standard port.
+        $authority = '';
+        if (isset($parsed['user']) && $parsed['user'] !== '') {
+            $authority .= $parsed['user'];
+            if (isset($parsed['pass']) && $parsed['pass'] !== '') {
+                $authority .= ':' . $parsed['pass'];
+            }
+            $authority .= '@';
+        }
+        $authority .= ($parsed['host'] ?? '');
+        if (isset($parsed['port']) && $parsed['port']) {
+            $authority .= ':' . (int) $parsed['port'];
+        }
+        $action = $scheme . '://' . $authority . ($parsed['path'] ?? '');
         parse_str($parsed['query'] ?? '', $qsFields);
+        // parse_str() turns "a[]=1&a[]=2" into an array; emit one field per value so
+        // nothing is lost and (string) never gets handed an array.
         $hidden = '';
-        foreach ($qsFields as $name => $value) {
+        $addField = function ($name, $value) use (&$hidden) {
             $hidden .= '<input type="hidden" name="' . htmlspecialchars((string) $name, ENT_QUOTES) . '"'
                 . ' value="' . htmlspecialchars((string) $value, ENT_QUOTES) . '">';
+        };
+        foreach ($qsFields as $name => $value) {
+            if (is_array($value)) {
+                foreach ($value as $sub) {
+                    if (!is_array($sub)) {
+                        $addField($name . '[]', $sub);
+                    }
+                }
+            } else {
+                $addField($name, $value);
+            }
         }
         header('Content-Type: text/html; charset=utf-8');
         echo '<!DOCTYPE html><html><head><meta charset="utf-8">'
@@ -344,13 +371,43 @@ function renderRedirectResponse($type, $url)
     if ($type === 'curl_proxy') {
         // Serve a remote page through this server with a <base> tag so its relative
         // assets resolve. Mirrors the landings "preload" behaviour, applied to an offer.
+        //
+        // This is the one place the tracker makes a server-side request to a stored URL,
+        // so it gets the same SSRF guard as outbound postbacks: http/https only, and the
+        // target must not resolve to a private or reserved address. Offer URLs are
+        // admin-set, but an admin account should not be a pivot into the LAN.
+        $proxyHost = parse_url($url, PHP_URL_HOST);
+        $proxyScheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
+        $proxyIp = $proxyHost ? @gethostbyname($proxyHost) : '';
+        $proxyAllowed = $proxyHost
+            && ($proxyScheme === 'http' || $proxyScheme === 'https')
+            && filter_var($proxyIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
+
+        if (!$proxyAllowed) {
+            // Don't silently proxy something we couldn't vet — fall back to a plain redirect.
+            header('Location: ' . $url, true, 302);
+            return;
+        }
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
+        curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+        curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
         curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT'] ?? 'Mozilla/5.0');
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
         curl_setopt($ch, CURLOPT_TIMEOUT, 8);
         $html = (string) curl_exec($ch);
+        // curl_close() deprecated in PHP 8.5 - resources are auto-freed
+
+        if ($html === '') {
+            // Upstream gave us nothing; a blank page is worse than a redirect.
+            header('Location: ' . $url, true, 302);
+            return;
+        }
+
         $baseTag = '<base href="' . $escUrl . '">';
         $htmlWithBase = preg_replace('/<head>/i', "<head>\n" . $baseTag, $html, 1);
         if ($htmlWithBase === $html) {
@@ -437,6 +494,87 @@ function validateChallengeToken($ct, $cs, $secret, $campaignId) {
     // Campaign match
     if (!isset($payload['cid']) || (int)$payload['cid'] !== (int)$campaignId) return false;
     return true;
+}
+
+// --- Cloaking: JS fingerprint step ------------------------------------------
+//
+// The ASN/UA layers in CloakDetector are passive — they only see the request. A
+// moderator driving a real residential connection with a normal browser string
+// passes them. This step adds an active check: serve the SAFE page to everyone
+// first, run a few browser-authenticity probes in the background, and only send
+// visitors that pass on to the money page.
+//
+// Anything that does not execute JavaScript (curl, most crawlers, naive scrapers)
+// simply keeps looking at the white page. Opt-in — off unless js_challenge is set,
+// because it costs every real visitor one extra round trip.
+
+function generateCloakJsToken($campaignId, $secret)
+{
+    $payload = base64_encode(json_encode(['cid' => (int) $campaignId, 'ts' => time()]));
+    return [$payload, hash_hmac('sha256', $payload, $secret)];
+}
+
+function validateCloakJsToken($token, $sig, $secret, $campaignId)
+{
+    if (empty($token) || empty($sig)) {
+        return false;
+    }
+    if (!hash_equals(hash_hmac('sha256', $token, $secret), $sig)) {
+        return false;
+    }
+    $payload = json_decode(base64_decode($token), true);
+    if (!is_array($payload) || !isset($payload['ts'], $payload['cid'])) {
+        return false;
+    }
+    // Short TTL: the probe redirect happens within a second or two.
+    if ((time() - (int) $payload['ts']) > 300) {
+        return false;
+    }
+    return (int) $payload['cid'] === (int) $campaignId;
+}
+
+/**
+ * Render the safe page plus the silent probe. $safeHtml is shown as-is; the probe
+ * navigates to $nextUrl only when the browser looks real.
+ */
+function renderCloakJsChallenge($safeHtml, $nextUrl)
+{
+    header('Content-Type: text/html; charset=utf-8');
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    $jsNext = json_encode($nextUrl);
+    echo $safeHtml;
+    ?>
+<script>
+(function () {
+    try {
+        // Headless/automation give themselves away on these.
+        if (navigator.webdriver === true) return;
+        if (window.callPhantom || window._phantom || window.__nightmare) return;
+        if (navigator.plugins && navigator.plugins.length === 0 && !/Mobi|Android/i.test(navigator.userAgent)) return;
+        if (!navigator.languages || navigator.languages.length === 0) return;
+        // A real viewport has non-zero dimensions.
+        if (!screen.width || !screen.height || window.innerWidth === 0) return;
+        // Canvas must actually rasterise.
+        var c = document.createElement('canvas');
+        var ctx = c.getContext && c.getContext('2d');
+        if (!ctx) return;
+        ctx.fillText('x', 2, 2);
+        if (c.toDataURL().length < 32) return;
+
+        // Require one real frame plus a genuine timer tick: headless shells that stub
+        // rAF tend to fire it synchronously or not at all.
+        var moved = false;
+        requestAnimationFrame(function () { moved = true; });
+        setTimeout(function () {
+            if (!moved) return;
+            window.location.replace(<?php echo $jsNext; ?>);
+        }, 120);
+    } catch (e) {
+        // Any exception: stay on the safe page.
+    }
+})();
+</script>
+<?php
 }
 
 function renderChallengePage($campaign, $settings, $ct, $cs, $queryString) {
@@ -1306,6 +1444,35 @@ if ($selectedStream) {
         ];
         $verdict = CloakDetector::detect($cloakVisitorCtx, $cloakConfig);
         $cloakShowSafe = (bool) $verdict['is_suspicious'];
+
+        // Optional active step: a visitor who passed the passive layers still has to
+        // prove it runs a real browser before the money page is served. See
+        // renderCloakJsChallenge(). Off by default — it adds a round trip.
+        if (!$cloakShowSafe && !empty($customSchema['js_challenge'])) {
+            $cloakSecret = $settings['postback_key'] ?? 'orbitra_secret';
+            $jsToken = $_GET['_ocj'] ?? '';
+            $jsSig   = $_GET['_ocs'] ?? '';
+
+            if (!validateCloakJsToken($jsToken, $jsSig, $cloakSecret, $campaignId)) {
+                // Not yet verified: show the safe page and probe in the background.
+                [$newToken, $newSig] = generateCloakJsToken($campaignId, $cloakSecret);
+                $nextParams = array_diff_key($_GET, array_flip(['_ocj', '_ocs']));
+                $nextParams['_ocj'] = $newToken;
+                $nextParams['_ocs'] = $newSig;
+                $nextUrl = '?' . http_build_query($nextParams);
+
+                $safeHtml = '';
+                if (isset($customSchema['safe_html']) && $customSchema['safe_html'] !== '') {
+                    $safeHtml = (string) $customSchema['safe_html'];
+                } else {
+                    $safeHtml = '<!DOCTYPE html><html><head><meta charset="utf-8">'
+                        . '<title>Welcome</title></head><body><h1>Page</h1>'
+                        . '<p>Content is loading.</p></body></html>';
+                }
+                renderCloakJsChallenge($safeHtml, $nextUrl);
+                exit;
+            }
+        }
 
         if ($cloakShowSafe) {
             // --- Safe page ---

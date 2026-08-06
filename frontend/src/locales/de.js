@@ -1891,6 +1891,8 @@ export default {
         "curlProxyDesc": "Liefert eine Remote-Seite über diesen Server mit einem Base-Tag. Nützlich, wenn Sie Inhalte unter Ihrer eigenen Domain hosten müssen."
     },
     "cloaking": {
+        "jsChallenge": "JavaScript-Prüfung",
+        "jsChallengeHint": "Der Besucher sieht zuerst die sichere Seite; eine Browser-Prüfung im Hintergrund entscheidet über die Weiterleitung zur Money-Page. Alles ohne JS bleibt auf der sicheren Seite. Kostet einen zusätzlichen Aufruf.",
         "mode": "Cloaking",
         "description": "Verdächtige Besucher (Bots, Moderatoren, Datacenter-/VPN-Traffic) sehen eine sichere Seite; echte Besucher sehen die Money-Page.",
         "detectionLayers": "Erkennungsebenen",
@@ -1914,6 +1916,9 @@ export default {
     },
     "postbackQueue": {
         "title": "Postback-Warteschlange",
+        "description": "Ausgehende S2S-Postbacks werden in die Warteschlange gestellt und von einem Hintergrund-Worker mit Wiederholungen zugestellt. Ohne installierten Cron wird die Warteschlange nie geleert.",
+        "lastRun": "Letzter Lauf (zugestellt / verarbeitet)",
+        "cronHint": "Der Worker läuft jede Minute. Wiederholungsplan: 60s → 5m → 30m → 2h → 24h, danach gilt die Zeile als fehlgeschlagen.",
         "status": "Status",
         "statusPending": "Ausstehend",
         "statusInFlight": "In Zustellung",

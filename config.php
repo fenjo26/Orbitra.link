@@ -44,7 +44,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 11;
+    $LATEST_SCHEMA_VERSION = 12;
 
     $schemaVersion = 0;
     try {
@@ -1050,6 +1050,22 @@ try {
                     $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_oauth_tokens_provider_conn ON oauth_tokens(provider, connection_id)");
                 } catch (\Throwable $e) {
                     // Ignore if already exists.
+                }
+            }
+
+            if ($schemaVersion < 12) {
+                // Migration 12: the queue worker needs to know when a row was last touched
+                // so it can reclaim entries left in 'in_flight' by a crashed worker.
+                try {
+                    $pdo->exec("ALTER TABLE s2s_postbacks_log ADD COLUMN updated_at DATETIME");
+                } catch (\Throwable $e) {
+                    // Ignore if already exists.
+                }
+                try {
+                    $pdo->exec("UPDATE s2s_postbacks_log SET updated_at = created_at WHERE updated_at IS NULL");
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_s2s_postbacks_inflight ON s2s_postbacks_log(status, updated_at)");
+                } catch (\Throwable $e) {
+                    // Non-critical.
                 }
             }
 

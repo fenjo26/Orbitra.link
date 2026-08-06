@@ -175,66 +175,17 @@ foreach ($connections as $conn) {
         // across clicks by campaign_id / ad_id — those keys are captured by the
         // traffic-source templates already. Revenue engines keep their own path below.
         if ($isCostEngine) {
-            $insertCost = $pdo->prepare("INSERT INTO cost_records (connection_id, external_id, source_campaign_id, ad_id, adset_id, amount, currency, click_date, raw_json, is_matched) VALUES (?,?,?,?,?,?,?,?,?,?)");
-            $dupCost = $pdo->prepare("SELECT id FROM cost_records WHERE connection_id = ? AND external_id = ?");
-            // Distribute per-day, per-ad spend evenly across matching clicks of that day.
-            $findClicksByAd = $pdo->prepare("SELECT id FROM clicks WHERE json_extract(parameters_json, '$.ad_id') = ? AND date(created_at) = ?");
-            $findClicksByCampaign = $pdo->prepare("SELECT id FROM clicks WHERE json_extract(parameters_json, '$.campaign_id') = ? AND date(created_at) = ?");
-            $findClicksByCampaignGoogle = $pdo->prepare("SELECT id FROM clicks WHERE json_extract(parameters_json, '$.campaignid') = ? AND date(created_at) = ?");
+            // Shared with the manual "Sync now" path in api.php — see core/CostImporter.php.
+            // Records are upserted, not skipped on duplicate, so re-syncing the current
+            // day picks up spend accrued since the previous run.
+            require_once __DIR__ . '/core/CostImporter.php';
 
             $pdo->beginTransaction();
-            $fetched = count($records);
-            $matched = 0;
-            $newCount = 0;
-
-            foreach ($records as $rec) {
-                $externalId = $rec['external_id'] ?? null;
-                if ($externalId) {
-                    $dupCost->execute([$conn['id'], $externalId]);
-                    if ($dupCost->fetch()) {
-                        continue;
-                    }
-                }
-                $amount = (float) ($rec['amount'] ?? 0);
-                $adId = (string) ($rec['ad_id'] ?? '');
-                $campaignId = (string) ($rec['source_campaign_id'] ?? '');
-                $clickDate = (string) ($rec['date'] ?? date('Y-m-d'));
-                $isMatched = 0;
-
-                // Attribute spend to clicks. Prefer ad_id granularity; fall back to campaign_id.
-                // The day's spend is split evenly across the day's matching clicks (CPC model).
-                $clickIds = [];
-                if ($adId !== '') {
-                    $findClicksByAd->execute([$adId, $clickDate]);
-                    $clickIds = $findClicksByAd->fetchAll(PDO::FETCH_COLUMN);
-                }
-                if (empty($clickIds) && $campaignId !== '') {
-                    $findClicksByCampaign->execute([$campaignId, $clickDate]);
-                    $clickIds = $findClicksByCampaign->fetchAll(PDO::FETCH_COLUMN);
-                    if (empty($clickIds)) {
-                        // Google Ads ValueTrack uses {campaignid} → captured as campaignid.
-                        $findClicksByCampaignGoogle->execute([$campaignId, $clickDate]);
-                        $clickIds = $findClicksByCampaignGoogle->fetchAll(PDO::FETCH_COLUMN);
-                    }
-                }
-                if (!empty($clickIds) && $amount > 0) {
-                    $cpc = $amount / count($clickIds);
-                    $updateCostStmt = $pdo->prepare("UPDATE clicks SET cost = cost + ? WHERE id = ?");
-                    foreach ($clickIds as $cid) {
-                        $updateCostStmt->execute([$cpc, $cid]);
-                    }
-                    $isMatched = 1;
-                    $matched++;
-                }
-
-                $insertCost->execute([
-                    $conn['id'], $externalId, $campaignId, $adId,
-                    (string) ($rec['adset_id'] ?? ''), $amount,
-                    (string) ($rec['currency'] ?? 'USD'), $clickDate,
-                    $rec['raw_json'] ?? null, $isMatched,
-                ]);
-                $newCount++;
-            }
+            $costStats = CostImporter::import($pdo, (int) $conn['id'], $records);
+            $fetched  = $costStats['fetched'];
+            $matched  = $costStats['matched'];
+            $newCount = $costStats['new'];
+            $updatedCount = $costStats['updated'];
 
             $pdo->commit();
             $durationMs = round((microtime(true) - $startTime) * 1000);
@@ -247,7 +198,7 @@ foreach ($connections as $conn) {
             $totalFetched += $fetched;
             $totalMatched += $matched;
             $totalNew += $newCount;
-            cron_log("[$connName] ✓ Done (cost). Fetched: $fetched, Matched: $matched, New: $newCount ({$durationMs}ms)");
+            cron_log("[$connName] ✓ Done (cost). Fetched: $fetched, Matched: $matched, New: $newCount, Updated: $updatedCount ({$durationMs}ms)");
             continue;
         }
 

@@ -1891,6 +1891,8 @@ export default {
         "curlProxyDesc": "Serves a remote page through this server with a base tag. Useful when you need to host the content under your own domain."
     },
     "cloaking": {
+        "jsChallenge": "JavaScript check",
+        "jsChallengeHint": "The visitor sees the safe page first; a background browser check decides whether to forward them to the money page. Anything that does not run JS stays on the safe page. Costs one extra hop — enable when the passive layers are not enough.",
         "mode": "Cloaking",
         "description": "Suspicious visitors (bots, moderators, datacenter/VPN traffic) see a safe page; real visitors see the money page.",
         "detectionLayers": "Detection layers",
@@ -1914,6 +1916,9 @@ export default {
     },
     "postbackQueue": {
         "title": "Postback queue",
+        "description": "Outbound S2S postbacks are queued and delivered by a background worker with retries. Without the cron installed the queue is never drained and nothing is sent.",
+        "lastRun": "Last run (delivered / processed)",
+        "cronHint": "The worker runs every minute. Retry schedule: 60s → 5m → 30m → 2h → 24h, after which the row is marked failed.",
         "status": "Status",
         "statusPending": "Pending",
         "statusInFlight": "In flight",

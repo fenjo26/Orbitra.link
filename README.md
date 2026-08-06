@@ -1,4 +1,4 @@
-# Orbitra v0.9.6.0 Tracker
+# Orbitra v0.9.6.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -386,12 +386,29 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
 
+## 📝 What's New in v0.9.6.1
+
+> ⚠️ **If you are on 0.9.6.0, update.** Outbound S2S postbacks were queued but never delivered unless you installed the delivery cron by hand, so postbacks have been piling up undelivered. After updating, open **Settings → Automation → Postback queue** and press **Install delivery cron** — everything still in the queue goes out on the next run.
+
+### Fixed
+- ♻️ **Postback queue never ran** — there was no UI to install the delivery cron, so on a default install nothing left the queue. The Automation settings page now has a Postback queue panel with install/remove buttons, per-status counters, worker health and the ready-made crontab line.
+- 📋 **S2S log marked every postback as an error** — the log read the legacy `status_code` column that the queue no longer writes. It now shows real delivery status, attempt count, HTTP code, next retry and last error; pre-0.9.6 rows still render correctly.
+- 💀 **Rows abandoned by a crashed worker were stuck forever** — a postback claimed as `in_flight` when the worker died was invisible to the queue from then on. A stale claim is now returned to the queue after 10 minutes.
+- ⏱ **Retry ladder stopped one step short** — the final 24h retry was unreachable, so a row died after 2h instead. The full 60s → 5m → 30m → 2h → 24h schedule now runs.
+- 💰 **Today's ad spend froze at the first sync** — re-syncing Facebook/Google Ads for the current day was discarded as a duplicate, so spend accrued after the first sync never landed and ROI was wrong. Cost records are now upserted and attribution is recomputed, which also makes repeated syncs idempotent.
+- 🕵️ **Cloaking sensitivity had two levels, not three** — `medium` behaved identically to `high`. Signals are now split into hard (blocklist/ASN hits, missing or crawler UA) and soft (hosting keyword in ISP, missing `Accept-Language`): low = hard only, medium = hard or two soft, high = any single signal.
+- 🔒 **SSRF re-check could be bypassed** — the check before delivery skipped hosts written as a bare IP, so `http://127.0.0.1/` slipped through the second gate. Also hardened `curl proxy`, which fetched a stored URL with no validation at all. A failed DNS lookup is now a retryable error instead of a permanent failure.
+- 🔗 **`form_submit` dropped the port** — an offer on a non-standard port was posted to the default one.
+
+### Added
+- 🤖 **JS fingerprint check for cloaking** (optional, off by default) — the layer 0.9.6.0's notes promised but did not ship. The visitor gets the safe page first; background browser checks decide whether to forward them to the money page over a signed, short-lived link. Anything that doesn't run JavaScript stays on the safe page.
+
 ## 📝 What's New in v0.9.6.0
 
 ### Added
 - 🔀 **Redirect types honored at runtime** — offers now actually use their `redirect_type` setting. In addition to the default HTTP 302, you can choose **JS redirect** (bypasses server-side redirect blockers, keeps referrer), **Meta refresh** (maximum compatibility), **Iframe / frame** (renders the offer inside a full-page iframe), **Form submit** (posts data in the body instead of the URL), and **curl proxy** (serves a remote page through your server with an injected `<base>` tag). Each option explains when to use it right in the editor.
-- 🕵️ **Cloaking (safe page / money page)** — a new `cloak` stream mode routes bots, moderators and datacenter/VPN traffic to a safe page, while real visitors see the money page. Detection layers: free datacenter & hosting ASN lists, VPN/proxy flags, the existing bot IP/UA blocklists, and a JS fingerprint check. Per-stream sensitivity and layer toggles.
-- ♻️ **Durable S2S postback queue with retry** — outbound postbacks are no longer fire-and-forget. Each one is persisted and delivered by a background worker with exponential backoff (60s → 5m → 30m → 2h → 24h, up to 5 attempts) and full status logging. Fixes along the way: POST postbacks now send a body, and the macro set is extended (`{sub_id_1..30}`, `{campaign_id}`, `{cost}`, `{revenue}`, `{profit}`).
+- 🕵️ **Cloaking (safe page / money page)** — a new `cloak` stream mode routes bots, moderators and datacenter/VPN traffic to a safe page, while real visitors see the money page. Detection layers: free datacenter & hosting ASN lists, VPN/proxy flags, the existing bot IP/UA blocklists, and an optional active JS fingerprint check (safe page first, forward to the money page only once the browser proves itself). Per-stream sensitivity and layer toggles.
+- ♻️ **Durable S2S postback queue with retry** — outbound postbacks are no longer fire-and-forget. Each one is persisted and delivered by a background worker with exponential backoff (60s → 5m → 30m → 2h → 24h; 1 initial attempt plus 5 retries) and full status logging. **Install the delivery cron in Settings → Automation** — nothing leaves the queue until it runs. Fixes along the way: POST postbacks now send a body, and the macro set is extended (`{sub_id_1..30}`, `{campaign_id}`, `{cost}`, `{revenue}`, `{profit}`).
 - 💰 **Automated cost import (Facebook Ads / Google Ads)** — two new aggregator engines pull daily spend and attribute it to clicks via the ad IDs your traffic-source templates already capture, so ROI/profit dashboards are no longer zero-cost. Token-based auth now (long-lived/system tokens); built on the existing `aggregator_connections` pattern with an OAuth-ready `oauth_tokens` table for later.
 
 ## 📝 What's New in v0.9.5.0

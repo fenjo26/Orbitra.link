@@ -17805,6 +17805,70 @@ const ru = {
     "hintsNote": "Скопируйте merge-тег из таблицы в поле Macro соответствующего параметра.",
     "showHints": "Показать справочник ESP",
     "hideHints": "Скрыть справочник ESP"
+  },
+  "redirectTypes": {
+    "jsName": "JS-редирект",
+    "metaName": "Meta Refresh",
+    "iframeName": "Iframe",
+    "formName": "Form Submit",
+    "curlProxyName": "curl-прокси",
+    "redirectDesc": "Стандартный HTTP-редирект 302. Быстрый, по умолчанию для большинства офферов.",
+    "jsDesc": "Отдаёт HTML-страницу с редиректом через JavaScript. Обходит блокировки серверного редиректа и сохраняет referrer в новых браузерах.",
+    "metaDesc": "Использует тег meta refresh. Максимальная совместимость со старыми или ограниченными браузерами.",
+    "iframeDesc": "Показывает оффер внутри iframe на весь экран. Посетитель остаётся на вашем домене, просматривая оффер.",
+    "formDesc": "Авто-сабмит POST-формы: оффер получает данные трекинга в теле запроса, а не в URL.",
+    "preloadDesc": "Загружает удалённую страницу через ваш сервер и подставляет base-тег, чтобы ресурсы резолвились.",
+    "curlProxyDesc": "Отдаёт удалённую страницу через этот сервер с base-тегом. Полезно, когда нужно разместить контент под своим доменом."
+  },
+  "cloaking": {
+    "jsChallenge": "Проверка JavaScript",
+    "jsChallengeHint": "Посетитель сначала видит белую страницу; фоновая проверка браузера решает, пускать ли его на money page. Всё, что не выполняет JS, остаётся на белой. Добавляет один переход — включайте, если пассивных слоёв не хватает.",
+    "mode": "Cloaking",
+    "description": "Подозрительные посетители (боты, модераторы, трафик из дата-центров/VPN) видят белую страницу; реальные люди — денежную.",
+    "detectionLayers": "Слои определения",
+    "datacenter": "Дата-центры / хостинги",
+    "vpnProxy": "VPN / прокси",
+    "bots": "Чёрные списки ботов",
+    "uaHeuristics": "Эвристика User-Agent",
+    "sensitivity": "Чувствительность",
+    "sensitivityLow": "Низкая",
+    "sensitivityMedium": "Средняя",
+    "sensitivityHigh": "Высокая",
+    "sensitivityHint": "Низкая помечает только явные попадания в списки или несколько сигналов. Высокая — любой сигнал (максимально агрессивно).",
+    "safePage": "Белая страница (для ботов)",
+    "safePageHint": "Показывается подозрительным посетителям. Выберите лендинг, URL или встроенный HTML.",
+    "safeLanding": "Белый лендинг",
+    "safeLandingNone": "— нет —",
+    "safeUrl": "Белый URL",
+    "safeHtml": "Белый HTML (встроенный)",
+    "moneyPage": "Денежная страница (для посетителей)",
+    "moneyPageHint": "Показывается реальным посетителям. Работает как схема лендинг+оффер."
+  },
+  "postbackQueue": {
+    "title": "Очередь постбеков",
+    "description": "Исходящие S2S-постбеки ставятся в очередь и доставляются фоновым воркером с повторами. Без установленного крона очередь не разбирается и постбеки не уходят.",
+    "lastRun": "Последний запуск (доставлено / обработано)",
+    "cronHint": "Воркер запускается раз в минуту. Расписание повторов: 60с → 5м → 30м → 2ч → 24ч, затем строка помечается как проваленная.",
+    "status": "Статус",
+    "statusPending": "В очереди",
+    "statusInFlight": "В доставке",
+    "statusDelivered": "Доставлен",
+    "statusFailed": "Ошибка",
+    "attempts": "Попытки",
+    "nextRetry": "Следующая попытка",
+    "lastError": "Последняя ошибка",
+    "httpCode": "HTTP",
+    "installCron": "Установить cron доставки",
+    "removeCron": "Убрать cron доставки",
+    "cronInstalled": "Cron доставки постбеков установлен (запуск каждую минуту).",
+    "cronRemoved": "Cron доставки постбеков удалён.",
+    "queueHealthy": "Воркер доставки работает.",
+    "queueStale": "Воркер доставки давно не отмечался. Установите cron, чтобы включить повторы."
+  },
+  "costImport": {
+    "facebookAds": "Facebook Ads",
+    "googleAds": "Google Ads",
+    "description": "Импортирует дневной рекламный расход и атрибутирует его к кликам по рекламным ID, которые уже ловят шаблоны источников трафика."
   }
 };
 const en = {
@@ -19684,6 +19748,70 @@ const en = {
     "hintsNote": "Paste the merge tag from the table into the Macro field of the corresponding parameter.",
     "showHints": "Show ESP reference",
     "hideHints": "Hide ESP reference"
+  },
+  "redirectTypes": {
+    "jsName": "JS Redirect",
+    "metaName": "Meta Refresh",
+    "iframeName": "Iframe",
+    "formName": "Form Submit",
+    "curlProxyName": "curl Proxy",
+    "redirectDesc": "Standard HTTP 302 redirect. Fast and the default for most offers.",
+    "jsDesc": "Sends an HTML page that redirects via JavaScript. Bypasses blockers of server-side redirects and keeps the referrer on modern browsers.",
+    "metaDesc": "Uses a meta refresh tag. Maximum compatibility with old or restricted browsers.",
+    "iframeDesc": "Renders the offer inside a full-page iframe. The visitor stays on your domain while viewing the offer.",
+    "formDesc": "Auto-submits a POST form so the offer receives tracking data in the request body instead of the URL.",
+    "preloadDesc": "Fetches a remote page through your server and injects a base tag so its assets resolve.",
+    "curlProxyDesc": "Serves a remote page through this server with a base tag. Useful when you need to host the content under your own domain."
+  },
+  "cloaking": {
+    "jsChallenge": "JavaScript check",
+    "jsChallengeHint": "The visitor sees the safe page first; a background browser check decides whether to forward them to the money page. Anything that does not run JS stays on the safe page. Costs one extra hop — enable when the passive layers are not enough.",
+    "mode": "Cloaking",
+    "description": "Suspicious visitors (bots, moderators, datacenter/VPN traffic) see a safe page; real visitors see the money page.",
+    "detectionLayers": "Detection layers",
+    "datacenter": "Datacenter / hosting",
+    "vpnProxy": "VPN / proxy",
+    "bots": "Bot blocklists",
+    "uaHeuristics": "UA heuristics",
+    "sensitivity": "Sensitivity",
+    "sensitivityLow": "Low",
+    "sensitivityMedium": "Medium",
+    "sensitivityHigh": "High",
+    "sensitivityHint": "Low flags only clear blocklist hits or multiple signals. High flags on any signal (most aggressive).",
+    "safePage": "Safe page (for bots)",
+    "safePageHint": "Shown to suspicious visitors. Pick a landing, a URL, or inline HTML.",
+    "safeLanding": "Safe landing",
+    "safeLandingNone": "— none —",
+    "safeUrl": "Safe URL",
+    "safeHtml": "Safe HTML (inline)",
+    "moneyPage": "Money page (for visitors)",
+    "moneyPageHint": "Shown to real visitors. Behaves like the landing+offer schema."
+  },
+  "postbackQueue": {
+    "title": "Postback queue",
+    "description": "Outbound S2S postbacks are queued and delivered by a background worker with retries. Without the cron installed the queue is never drained and nothing is sent.",
+    "lastRun": "Last run (delivered / processed)",
+    "cronHint": "The worker runs every minute. Retry schedule: 60s → 5m → 30m → 2h → 24h, after which the row is marked failed.",
+    "status": "Status",
+    "statusPending": "Pending",
+    "statusInFlight": "In flight",
+    "statusDelivered": "Delivered",
+    "statusFailed": "Failed",
+    "attempts": "Attempts",
+    "nextRetry": "Next retry",
+    "lastError": "Last error",
+    "httpCode": "HTTP",
+    "installCron": "Install delivery cron",
+    "removeCron": "Remove delivery cron",
+    "cronInstalled": "Postback delivery cron installed (runs every minute).",
+    "cronRemoved": "Postback delivery cron removed.",
+    "queueHealthy": "Delivery worker is running.",
+    "queueStale": "Delivery worker has not pinged recently. Install the cron to enable retries."
+  },
+  "costImport": {
+    "facebookAds": "Facebook Ads",
+    "googleAds": "Google Ads",
+    "description": "Import daily ad spend and attribute it to clicks by the ad IDs your traffic-source templates already capture."
   }
 };
 const uk = {
@@ -21563,6 +21691,70 @@ const uk = {
     "hintsNote": "Вставте тег злиття з таблиці в поле макросу відповідного параметра.",
     "showHints": "Показати посилання ESP",
     "hideHints": "Приховати посилання ESP"
+  },
+  "redirectTypes": {
+    "jsName": "JS-редирект",
+    "metaName": "Meta Refresh",
+    "iframeName": "Iframe",
+    "formName": "Form Submit",
+    "curlProxyName": "curl-проксі",
+    "redirectDesc": "Стандартний HTTP-редирект 302. Швидкий, типовий для більшості офферів.",
+    "jsDesc": "Віддає HTML-сторінку з редиректом через JavaScript. Оминує блокування серверного редиректу і зберігає referrer у нових браузерах.",
+    "metaDesc": "Використовує тег meta refresh. Максимальна сумісність зі старими або обмеженими браузерами.",
+    "iframeDesc": "Показує оффер в iframe на весь екран. Відвідувач залишається на вашому домені, переглядаючи оффер.",
+    "formDesc": "Авто-відправка POST-форми: оффер отримує дані трекінгу в тілі запиту, а не в URL.",
+    "preloadDesc": "Завантажує віддалену сторінку через ваш сервер і підставляє base-тег, щоб ресурси резолвились.",
+    "curlProxyDesc": "Віддає віддалену сторінку через цей сервер з base-тегом. Корисно, коли треба розмістити контент під своїм доменом."
+  },
+  "cloaking": {
+    "jsChallenge": "Перевірка JavaScript",
+    "jsChallengeHint": "Відвідувач спершу бачить білу сторінку; фонова перевірка браузера вирішує, чи пускати його на money page. Усе, що не виконує JS, лишається на білій. Додає один перехід.",
+    "mode": "Cloaking",
+    "description": "Підозрілі відвідувачі (боти, модератори, трафік з дата-центрів/VPN) бачать безпечну сторінку; реальні люди — грошову.",
+    "detectionLayers": "Шари визначення",
+    "datacenter": "Дата-центри / хостинги",
+    "vpnProxy": "VPN / проксі",
+    "bots": "Чорні списки ботів",
+    "uaHeuristics": "Евристика User-Agent",
+    "sensitivity": "Чутливість",
+    "sensitivityLow": "Низька",
+    "sensitivityMedium": "Середня",
+    "sensitivityHigh": "Висока",
+    "sensitivityHint": "Низька позначає лише явні потрапляння у списки або кілька сигналів. Висока — будь-який сигнал (максимально агресивно).",
+    "safePage": "Безпечна сторінка (для ботів)",
+    "safePageHint": "Показується підозрілим відвідувачам. Оберіть лендинг, URL або вбудований HTML.",
+    "safeLanding": "Безпечний лендинг",
+    "safeLandingNone": "— немає —",
+    "safeUrl": "Безпечний URL",
+    "safeHtml": "Безпечний HTML (вбудований)",
+    "moneyPage": "Грошова сторінка (для відвідувачів)",
+    "moneyPageHint": "Показується реальним відвідувачам. Працює як схема лендинг+оффер."
+  },
+  "postbackQueue": {
+    "title": "Черга постбеків",
+    "description": "Вихідні S2S-постбеки потрапляють у чергу й доставляються фоновим воркером із повторами. Без встановленого крона черга не розбирається і постбеки не надсилаються.",
+    "lastRun": "Останній запуск (доставлено / оброблено)",
+    "cronHint": "Воркер запускається щохвилини. Розклад повторів: 60с → 5х → 30х → 2г → 24г, після чого рядок позначається як невдалий.",
+    "status": "Статус",
+    "statusPending": "У черзі",
+    "statusInFlight": "У доставці",
+    "statusDelivered": "Доставлено",
+    "statusFailed": "Помилка",
+    "attempts": "Спроби",
+    "nextRetry": "Наступна спроба",
+    "lastError": "Остання помилка",
+    "httpCode": "HTTP",
+    "installCron": "Встановити cron доставки",
+    "removeCron": "Прибрати cron доставки",
+    "cronInstalled": "Cron доставки постбеків встановлено (запуск щохвилини).",
+    "cronRemoved": "Cron доставки постбеків видалено.",
+    "queueHealthy": "Воркер доставки працює.",
+    "queueStale": "Воркер доставки давно не відзначався. Встановіть cron, щоб увімкнути повтори."
+  },
+  "costImport": {
+    "facebookAds": "Facebook Ads",
+    "googleAds": "Google Ads",
+    "description": "Імпортує денну рекламну витрату і атрибутує її до кліків за рекламними ID, які вже ловлять шаблони джерел трафіку."
   }
 };
 const es = {
@@ -23442,6 +23634,70 @@ const es = {
     "hintsNote": "Pegue la etiqueta de combinación de la tabla en el campo Macro del parámetro correspondiente.",
     "showHints": "Mostrar referencia ESP",
     "hideHints": "Ocultar referencia ESP"
+  },
+  "redirectTypes": {
+    "jsName": "Redirección JS",
+    "metaName": "Meta Refresh",
+    "iframeName": "Iframe",
+    "formName": "Envío de formulario",
+    "curlProxyName": "Proxy curl",
+    "redirectDesc": "Redirección HTTP 302 estándar. Rápida y la opción por defecto para la mayoría de ofertas.",
+    "jsDesc": "Envía una página HTML que redirige mediante JavaScript. Evita los bloqueos de redirecciones del lado del servidor y mantiene el referrer en navegadores modernos.",
+    "metaDesc": "Usa una etiqueta meta refresh. Máxima compatibilidad con navegadores antiguos o restringidos.",
+    "iframeDesc": "Muestra la oferta dentro de un iframe a página completa. El visitante permanece en tu dominio mientras ve la oferta.",
+    "formDesc": "Envía automáticamente un formulario POST para que la oferta reciba los datos en el cuerpo en lugar de la URL.",
+    "preloadDesc": "Obtiene una página remota a través de tu servidor e inyecta una etiqueta base para que sus recursos se resuelvan.",
+    "curlProxyDesc": "Sirve una página remota a través de este servidor con una etiqueta base. Útil cuando necesitas alojar el contenido bajo tu propio dominio."
+  },
+  "cloaking": {
+    "jsChallenge": "Comprobación de JavaScript",
+    "jsChallengeHint": "El visitante ve primero la página segura; una comprobación del navegador en segundo plano decide si pasa a la money page. Lo que no ejecuta JS se queda en la página segura. Añade un salto extra.",
+    "mode": "Cloaking",
+    "description": "Los visitantes sospechosos (bots, moderadores, tráfico de datacenter/VPN) ven una página segura; los visitantes reales ven la página monetaria.",
+    "detectionLayers": "Capas de detección",
+    "datacenter": "Datacenter / hosting",
+    "vpnProxy": "VPN / proxy",
+    "bots": "Listas de bloqueo de bots",
+    "uaHeuristics": "Heurísticas de UA",
+    "sensitivity": "Sensibilidad",
+    "sensitivityLow": "Baja",
+    "sensitivityMedium": "Media",
+    "sensitivityHigh": "Alta",
+    "sensitivityHint": "Baja marca solo coincidencias claras en listas o múltiples señales. Alta marca cualquier señal (más agresivo).",
+    "safePage": "Página segura (para bots)",
+    "safePageHint": "Se muestra a visitantes sospechosos. Elige un landing, una URL o HTML en línea.",
+    "safeLanding": "Landing seguro",
+    "safeLandingNone": "— ninguno —",
+    "safeUrl": "URL segura",
+    "safeHtml": "HTML seguro (en línea)",
+    "moneyPage": "Página monetaria (para visitantes)",
+    "moneyPageHint": "Se muestra a visitantes reales. Se comporta como el esquema landing+oferta."
+  },
+  "postbackQueue": {
+    "title": "Cola de postbacks",
+    "description": "Los postbacks S2S salientes se ponen en cola y los entrega un worker en segundo plano con reintentos. Sin el cron instalado la cola nunca se vacía.",
+    "lastRun": "Última ejecución (entregados / procesados)",
+    "cronHint": "El worker se ejecuta cada minuto. Reintentos: 60s → 5m → 30m → 2h → 24h; después la fila se marca como fallida.",
+    "status": "Estado",
+    "statusPending": "Pendiente",
+    "statusInFlight": "En envío",
+    "statusDelivered": "Entregado",
+    "statusFailed": "Fallido",
+    "attempts": "Intentos",
+    "nextRetry": "Próximo reintento",
+    "lastError": "Último error",
+    "httpCode": "HTTP",
+    "installCron": "Instalar cron de envío",
+    "removeCron": "Quitar cron de envío",
+    "cronInstalled": "Cron de envío de postbacks instalado (se ejecuta cada minuto).",
+    "cronRemoved": "Cron de envío de postbacks eliminado.",
+    "queueHealthy": "El worker de envío está activo.",
+    "queueStale": "El worker de envío no ha reportado recientemente. Instala el cron para habilitar reintentos."
+  },
+  "costImport": {
+    "facebookAds": "Facebook Ads",
+    "googleAds": "Google Ads",
+    "description": "Importa el gasto publicitario diario y lo atribuye a los clics por los IDs de anuncio que tus plantillas de fuente de tráfico ya capturan."
   }
 };
 const zh = {
@@ -25321,6 +25577,70 @@ const zh = {
     "hintsNote": "Paste the merge tag from the table into the Macro field of the corresponding parameter.",
     "showHints": "Show ESP reference",
     "hideHints": "Hide ESP reference"
+  },
+  "redirectTypes": {
+    "jsName": "JS 跳转",
+    "metaName": "Meta Refresh",
+    "iframeName": "Iframe",
+    "formName": "表单提交",
+    "curlProxyName": "curl 代理",
+    "redirectDesc": "标准 HTTP 302 跳转。速度快，是大多数 offer 的默认选项。",
+    "jsDesc": "发送一个通过 JavaScript 跳转的 HTML 页面。可绕过服务器端跳转拦截，并在现代浏览器中保留 referrer。",
+    "metaDesc": "使用 meta refresh 标签。对老旧或受限浏览器兼容性最好。",
+    "iframeDesc": "在整页 iframe 中展示 offer。访客在查看 offer 时始终停留在您的域名上。",
+    "formDesc": "自动提交 POST 表单，让 offer 在请求体而非 URL 中接收跟踪数据。",
+    "preloadDesc": "通过您的服务器抓取远程页面并注入 base 标签，使其资源可正确解析。",
+    "curlProxyDesc": "通过本服务器以 base 标签提供远程页面。当您需要在自己的域名下托管内容时非常有用。"
+  },
+  "cloaking": {
+    "jsChallenge": "JavaScript 校验",
+    "jsChallengeHint": "访客先看到安全页；后台浏览器校验决定是否放行到 money page。不执行 JS 的一律停留在安全页。会多一次跳转。",
+    "mode": "Cloaking",
+    "description": "可疑访客（机器人、审核员、数据中心/VPN 流量）看到安全页面；真实访客看到盈利页面。",
+    "detectionLayers": "检测层",
+    "datacenter": "数据中心 / 主机托管",
+    "vpnProxy": "VPN / 代理",
+    "bots": "机器人黑名单",
+    "uaHeuristics": "UA 启发式检测",
+    "sensitivity": "灵敏度",
+    "sensitivityLow": "低",
+    "sensitivityMedium": "中",
+    "sensitivityHigh": "高",
+    "sensitivityHint": "低：仅标记明显的名单命中或多个信号。高：标记任何信号（最激进）。",
+    "safePage": "安全页面（面向机器人）",
+    "safePageHint": "展示给可疑访客。可选择落地页、URL 或内联 HTML。",
+    "safeLanding": "安全落地页",
+    "safeLandingNone": "— 无 —",
+    "safeUrl": "安全 URL",
+    "safeHtml": "安全 HTML（内联）",
+    "moneyPage": "盈利页面（面向访客）",
+    "moneyPageHint": "展示给真实访客。行为与落地页+offer 模式相同。"
+  },
+  "postbackQueue": {
+    "title": "Postback 队列",
+    "description": "出站 S2S postback 会先进入队列，由后台 worker 带重试地投递。未安装 cron 时队列不会被处理，postback 不会发出。",
+    "lastRun": "上次运行（已投递 / 已处理）",
+    "cronHint": "Worker 每分钟运行一次。重试间隔：60秒 → 5分钟 → 30分钟 → 2小时 → 24小时，之后该行标记为失败。",
+    "status": "状态",
+    "statusPending": "待处理",
+    "statusInFlight": "投递中",
+    "statusDelivered": "已送达",
+    "statusFailed": "失败",
+    "attempts": "尝试次数",
+    "nextRetry": "下次重试",
+    "lastError": "最近错误",
+    "httpCode": "HTTP",
+    "installCron": "安装投递 cron",
+    "removeCron": "移除投递 cron",
+    "cronInstalled": "Postback 投递 cron 已安装（每分钟运行）。",
+    "cronRemoved": "Postback 投递 cron 已移除。",
+    "queueHealthy": "投递 worker 正在运行。",
+    "queueStale": "投递 worker 已较长时间未报告。请安装 cron 以启用重试。"
+  },
+  "costImport": {
+    "facebookAds": "Facebook Ads",
+    "googleAds": "Google Ads",
+    "description": "导入每日广告支出，并通过流量来源模板已捕获的广告 ID 将其归因到点击。"
   }
 };
 const fr = {
@@ -27202,6 +27522,70 @@ const fr = {
     "hintsNote": "Coller la balise de fusion du tableau dans le champ Macro du paramètre correspondant.",
     "showHints": "Afficher la référence ESP",
     "hideHints": "Masquer la référence ESP"
+  },
+  "redirectTypes": {
+    "jsName": "Redirection JS",
+    "metaName": "Meta Refresh",
+    "iframeName": "Iframe",
+    "formName": "Envoi de formulaire",
+    "curlProxyName": "Proxy curl",
+    "redirectDesc": "Redirection HTTP 302 standard. Rapide et valeur par défaut pour la plupart des offres.",
+    "jsDesc": "Envoie une page HTML qui redirige via JavaScript. Contourne les bloqueurs de redirection côté serveur et conserve le referrer sur les navigateurs modernes.",
+    "metaDesc": "Utilise une balise meta refresh. Compatibilité maximale avec les navigateurs anciens ou restreints.",
+    "iframeDesc": "Affiche l'offre dans un iframe en pleine page. Le visiteur reste sur votre domaine en consultant l'offre.",
+    "formDesc": "Soumet automatiquement un formulaire POST afin que l'offre reçoive les données de suivi dans le corps plutôt que dans l'URL.",
+    "preloadDesc": "Récupère une page distante via votre serveur et injecte une balise base pour que ses ressources se résolvent.",
+    "curlProxyDesc": "Sert une page distante via ce serveur avec une balise base. Utile lorsque vous devez héberger le contenu sous votre propre domaine."
+  },
+  "cloaking": {
+    "jsChallenge": "Vérification JavaScript",
+    "jsChallengeHint": "Le visiteur voit d'abord la page sûre ; une vérification du navigateur en arrière-plan décide de le rediriger vers la money page. Tout ce qui n'exécute pas JS reste sur la page sûre. Ajoute un aller-retour.",
+    "mode": "Cloaking",
+    "description": "Les visiteurs suspects (bots, modérateurs, trafic datacenter/VPN) voient une page sécurisée ; les vrais visiteurs voient la page monétisée.",
+    "detectionLayers": "Couches de détection",
+    "datacenter": "Datacenter / hébergement",
+    "vpnProxy": "VPN / proxy",
+    "bots": "Listes de blocage de bots",
+    "uaHeuristics": "Heuristiques UA",
+    "sensitivity": "Sensibilité",
+    "sensitivityLow": "Basse",
+    "sensitivityMedium": "Moyenne",
+    "sensitivityHigh": "Haute",
+    "sensitivityHint": "Bas ne signale que les correspondances claires dans les listes ou plusieurs signaux. Haut signale tout signal (le plus agressif).",
+    "safePage": "Page sécurisée (pour les bots)",
+    "safePageHint": "Affichée aux visiteurs suspects. Choisissez une landing, une URL ou du HTML en ligne.",
+    "safeLanding": "Landing sécurisé",
+    "safeLandingNone": "— aucun —",
+    "safeUrl": "URL sécurisée",
+    "safeHtml": "HTML sécurisé (en ligne)",
+    "moneyPage": "Page monétisée (pour les visiteurs)",
+    "moneyPageHint": "Affichée aux vrais visiteurs. Se comporte comme le schéma landing+offre."
+  },
+  "postbackQueue": {
+    "title": "File d'attente des postbacks",
+    "description": "Les postbacks S2S sortants sont mis en file d'attente et livrés par un worker en arrière-plan avec relances. Sans le cron installé, la file n'est jamais traitée.",
+    "lastRun": "Dernière exécution (livrés / traités)",
+    "cronHint": "Le worker tourne chaque minute. Relances : 60s → 5m → 30m → 2h → 24h, ensuite la ligne est marquée en échec.",
+    "status": "Statut",
+    "statusPending": "En attente",
+    "statusInFlight": "En livraison",
+    "statusDelivered": "Livré",
+    "statusFailed": "Échec",
+    "attempts": "Tentatives",
+    "nextRetry": "Prochain essai",
+    "lastError": "Dernière erreur",
+    "httpCode": "HTTP",
+    "installCron": "Installer le cron de livraison",
+    "removeCron": "Supprimer le cron de livraison",
+    "cronInstalled": "Cron de livraison des postbacks installé (s'exécute chaque minute).",
+    "cronRemoved": "Cron de livraison des postbacks supprimé.",
+    "queueHealthy": "Le worker de livraison fonctionne.",
+    "queueStale": "Le worker de livraison n'a pas signalé récemment. Installez le cron pour activer les réessais."
+  },
+  "costImport": {
+    "facebookAds": "Facebook Ads",
+    "googleAds": "Google Ads",
+    "description": "Importe les dépenses publicitaires quotidiennes et les attribue aux clics via les IDs d'annonce que vos modèles de source de trafic capturent déjà."
   }
 };
 const de = {
@@ -29081,6 +29465,70 @@ const de = {
     "hintsNote": "Fügen Sie das Merge-Tag aus der Tabelle ein in das Makrofeld des entsprechenden Parameters ein.",
     "showHints": "ESP-Referenz anzeigen",
     "hideHints": "ESP-Referenz ausblenden"
+  },
+  "redirectTypes": {
+    "jsName": "JS-Weiterleitung",
+    "metaName": "Meta Refresh",
+    "iframeName": "Iframe",
+    "formName": "Formular-Submit",
+    "curlProxyName": "curl-Proxy",
+    "redirectDesc": "Standard-HTTP-302-Weiterleitung. Schnell und Standard für die meisten Angebote.",
+    "jsDesc": "Sendet eine HTML-Seite, die per JavaScript weiterleitet. Umgeht Blockaden serverseitiger Weiterleitungen und behält den Referrer in modernen Browsern.",
+    "metaDesc": "Verwendet ein Meta-Refresh-Tag. Maximale Kompatibilität mit alten oder eingeschränkten Browsern.",
+    "iframeDesc": "Zeigt das Angebot in einem vollständigen Iframe an. Der Besucher bleibt auf Ihrer Domain, während er das Angebot ansieht.",
+    "formDesc": "Sendet automatisch ein POST-Formular, damit das Angebot die Tracking-Daten im Body statt in der URL erhält.",
+    "preloadDesc": "Ruft eine Remote-Seite über Ihren Server ab und injiziert ein Base-Tag, damit deren Assets aufgelöst werden.",
+    "curlProxyDesc": "Liefert eine Remote-Seite über diesen Server mit einem Base-Tag. Nützlich, wenn Sie Inhalte unter Ihrer eigenen Domain hosten müssen."
+  },
+  "cloaking": {
+    "jsChallenge": "JavaScript-Prüfung",
+    "jsChallengeHint": "Der Besucher sieht zuerst die sichere Seite; eine Browser-Prüfung im Hintergrund entscheidet über die Weiterleitung zur Money-Page. Alles ohne JS bleibt auf der sicheren Seite. Kostet einen zusätzlichen Aufruf.",
+    "mode": "Cloaking",
+    "description": "Verdächtige Besucher (Bots, Moderatoren, Datacenter-/VPN-Traffic) sehen eine sichere Seite; echte Besucher sehen die Money-Page.",
+    "detectionLayers": "Erkennungsebenen",
+    "datacenter": "Datacenter / Hosting",
+    "vpnProxy": "VPN / Proxy",
+    "bots": "Bot-Sperrlisten",
+    "uaHeuristics": "UA-Heuristik",
+    "sensitivity": "Empfindlichkeit",
+    "sensitivityLow": "Niedrig",
+    "sensitivityMedium": "Mittel",
+    "sensitivityHigh": "Hoch",
+    "sensitivityHint": "Niedrig markiert nur klare Listen-Treffer oder mehrere Signale. Hoch markiert jedes Signal (aggressivste Einstellung).",
+    "safePage": "Sichere Seite (für Bots)",
+    "safePageHint": "Wird verdächtigen Besuchern gezeigt. Wählen Sie ein Landing, eine URL oder Inline-HTML.",
+    "safeLanding": "Sicheres Landing",
+    "safeLandingNone": "— keines —",
+    "safeUrl": "Sichere URL",
+    "safeHtml": "Sicheres HTML (Inline)",
+    "moneyPage": "Money-Page (für Besucher)",
+    "moneyPageHint": "Wird echten Besuchern gezeigt. Verhält sich wie das Landing+Angebot-Schema."
+  },
+  "postbackQueue": {
+    "title": "Postback-Warteschlange",
+    "description": "Ausgehende S2S-Postbacks werden in die Warteschlange gestellt und von einem Hintergrund-Worker mit Wiederholungen zugestellt. Ohne installierten Cron wird die Warteschlange nie geleert.",
+    "lastRun": "Letzter Lauf (zugestellt / verarbeitet)",
+    "cronHint": "Der Worker läuft jede Minute. Wiederholungsplan: 60s → 5m → 30m → 2h → 24h, danach gilt die Zeile als fehlgeschlagen.",
+    "status": "Status",
+    "statusPending": "Ausstehend",
+    "statusInFlight": "In Zustellung",
+    "statusDelivered": "Zugestellt",
+    "statusFailed": "Fehlgeschlagen",
+    "attempts": "Versuche",
+    "nextRetry": "Nächster Versuch",
+    "lastError": "Letzter Fehler",
+    "httpCode": "HTTP",
+    "installCron": "Zustellungs-Cron installieren",
+    "removeCron": "Zustellungs-Cron entfernen",
+    "cronInstalled": "Postback-Zustellungs-Cron installiert (läuft jede Minute).",
+    "cronRemoved": "Postback-Zustellungs-Cron entfernt.",
+    "queueHealthy": "Zustellungs-Worker läuft.",
+    "queueStale": "Zustellungs-Worker hat sich lange nicht gemeldet. Installieren Sie den Cron, um Wiederholungen zu aktivieren."
+  },
+  "costImport": {
+    "facebookAds": "Facebook Ads",
+    "googleAds": "Google Ads",
+    "description": "Importiert tägliche Werbeausgaben und ordnet sie Klicks über die Anzeigen-IDs zu, die Ihre Traffic-Quell-Vorlagen bereits erfassen."
   }
 };
 const translations = { ru, en, uk, es, zh, fr, de };
@@ -45399,11 +45847,27 @@ const OfferEditor = ({ offerId, onClose }) => {
               className: "form-select",
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("offerEditor.httpRedirect") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "frame", children: "Iframe" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t("offerEditor.preloadCurl") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "js", children: t("redirectTypes.jsName") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "meta_refresh", children: t("redirectTypes.metaName") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "frame", children: t("redirectTypes.iframeName") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "form_submit", children: t("redirectTypes.formName") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t("offerEditor.preloadCurl") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "curl_proxy", children: t("redirectTypes.curlProxyName") })
               ]
             }
-          )
+          ),
+          (() => {
+            const descKey = {
+              redirect: "redirectTypes.redirectDesc",
+              js: "redirectTypes.jsDesc",
+              meta_refresh: "redirectTypes.metaDesc",
+              frame: "redirectTypes.iframeDesc",
+              form_submit: "redirectTypes.formDesc",
+              preload: "redirectTypes.preloadDesc",
+              curl_proxy: "redirectTypes.curlProxyDesc"
+            }[formData.redirect_type];
+            return descKey ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t(descKey) }) : null;
+          })()
         ] }),
         !formData.is_local && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
@@ -46157,7 +46621,7 @@ const Offers = ({ offers, refreshData }) => {
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: offer.group_name || "-" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: offer.affiliate_network_name || "-" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `px-2 py-1 rounded text-xs font-semibold ${offer.redirect_type === "redirect" ? "bg-blue-100 text-blue-800" : offer.redirect_type === "frame" ? "bg-purple-100 text-purple-800" : offer.redirect_type === "local" ? "bg-indigo-100 text-indigo-800" : "bg-gray-100 text-gray-800"}`, children: offer.redirect_type === "redirect" ? t("offers.redirect") : offer.redirect_type === "frame" ? t("offers.iframe") : offer.redirect_type === "local" ? t("offers.local") : offer.redirect_type }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `px-2 py-1 rounded text-xs font-semibold ${offer.redirect_type === "redirect" ? "bg-blue-100 text-blue-800" : offer.redirect_type === "frame" ? "bg-purple-100 text-purple-800" : offer.redirect_type === "local" ? "bg-indigo-100 text-indigo-800" : offer.redirect_type === "preload" || offer.redirect_type === "curl_proxy" ? "bg-teal-100 text-teal-800" : "bg-gray-100 text-gray-800"}`, children: offer.redirect_type === "redirect" ? t("offers.redirect") : offer.redirect_type === "frame" ? t("offers.iframe") : offer.redirect_type === "local" ? t("offers.local") : offer.redirect_type === "js" ? t("redirectTypes.jsName") : offer.redirect_type === "meta_refresh" ? t("redirectTypes.metaName") : offer.redirect_type === "form_submit" ? t("redirectTypes.formName") : offer.redirect_type === "preload" ? t("offerEditor.preloadCurl") : offer.redirect_type === "curl_proxy" ? t("redirectTypes.curlProxyName") : offer.redirect_type }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center text-xs font-medium", style: { color: offer.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `w-2 h-2 rounded-full mr-1.5`, style: { backgroundColor: offer.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" } }),
           offer.state === "active" ? t("components.active") : t("components.archive")
@@ -50313,7 +50777,7 @@ const ConversionTypesSettings = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
     message2.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `alert ${message2.type === "success" ? "alert-success" : "alert-danger"}`, children: message2.text }),
     !showForm ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "1px solid var(--color-border)", marginBottom: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "1px solid var(--color-border)", marginBottom: 0, padding: "20px 24px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 18, style: { color: "var(--color-primary)" } }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("conversionTypes.title") })
@@ -50562,7 +51026,7 @@ const CustomMetricsSettings = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
     message2.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `alert ${message2.type === "success" ? "alert-success" : "alert-danger"}`, children: message2.text }),
     !showForm ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "1px solid var(--color-border)", marginBottom: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "1px solid var(--color-border)", marginBottom: 0, padding: "20px 24px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(ChartNoAxesColumn, { size: 18, style: { color: "var(--color-primary)" } }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("customMetrics.title") })
@@ -50729,6 +51193,17 @@ const AutomationSettings = () => {
   const [info, setInfo] = reactExports.useState(null);
   const [enabled, setEnabled] = reactExports.useState(true);
   const [intervalMin, setIntervalMin] = reactExports.useState(15);
+  const [pqInfo, setPqInfo] = reactExports.useState(null);
+  const fetchPostbackQueueInfo = async () => {
+    try {
+      const res = await fetch(`${API_URL$c}?action=postback_queue_info`);
+      const data = await res.json();
+      if (data.status === "success") {
+        setPqInfo(data.data || null);
+      }
+    } catch (e) {
+    }
+  };
   const fetchInfo = async () => {
     setLoading(true);
     setMessage({ text: "", type: "" });
@@ -50748,6 +51223,7 @@ const AutomationSettings = () => {
     } finally {
       setLoading(false);
     }
+    await fetchPostbackQueueInfo();
   };
   reactExports.useEffect(() => {
     fetchInfo();
@@ -50866,6 +51342,44 @@ const AutomationSettings = () => {
       setCronBusy(false);
     }
   };
+  const installPostbackQueueCron = async () => {
+    setCronBusy(true);
+    setMessage({ text: "", type: "" });
+    try {
+      const res = await fetch(`${API_URL$c}?action=postback_queue_install_user_cron`, { method: "POST" });
+      const data = await res.json();
+      if (data.status === "success") {
+        setMessage({ text: t("postbackQueue.cronInstalled"), type: "success" });
+        await fetchPostbackQueueInfo();
+      } else {
+        setMessage({ text: data.message || t("automation.installUserError"), type: "error" });
+      }
+    } catch (e) {
+      setMessage({ text: t("automation.networkError"), type: "error" });
+    } finally {
+      setCronBusy(false);
+    }
+  };
+  const removePostbackQueueCron = async () => {
+    setCronBusy(true);
+    setMessage({ text: "", type: "" });
+    try {
+      const res = await fetch(`${API_URL$c}?action=postback_queue_remove_user_cron`, { method: "POST" });
+      const data = await res.json();
+      if (data.status === "success") {
+        setMessage({ text: t("postbackQueue.cronRemoved"), type: "success" });
+        await fetchPostbackQueueInfo();
+      } else {
+        setMessage({ text: data.message || t("automation.removeUserError"), type: "error" });
+      }
+    } catch (e) {
+      setMessage({ text: t("automation.networkError"), type: "error" });
+    } finally {
+      setCronBusy(false);
+    }
+  };
+  const pqCounts = pqInfo?.counts || {};
+  const pqHealthy = Boolean(pqInfo?.healthy) && pqInfo?.enabled !== false;
   const bootstrap = info?.rdap_bootstrap || {};
   const bootstrapOk = Boolean(bootstrap?.mtime);
   const bootstrapAge = formatAge(t, bootstrap?.age_seconds);
@@ -51132,6 +51646,102 @@ const AutomationSettings = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-slate-800", children: t("automation.rdapTitle") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-slate-700 mt-1", children: bootstrapOk ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("automation.rdapBootstrapOk").replace("{mtime}", String(bootstrap.mtime)).replace("{age}", String(bootstrapAge)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("automation.rdapBootstrapMissing") }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-slate-600 mt-2", children: t("automation.rdapHint") })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-section mt-6", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800", children: t("postbackQueue.title") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-[var(--color-text-muted)] mt-1", children: t("postbackQueue.description") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `alert ${pqHealthy ? "alert-success" : "alert-danger"} mb-3`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+          pqHealthy ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 16 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: pqHealthy ? t("postbackQueue.queueHealthy") : t("postbackQueue.queueStale") })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 md:grid-cols-4 gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("postbackQueue.statusPending") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-800 mt-1", children: String(pqCounts.pending ?? 0) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("postbackQueue.statusInFlight") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-800 mt-1", children: String(pqCounts.in_flight ?? 0) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("postbackQueue.statusDelivered") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-800 mt-1", children: String(pqCounts.delivered ?? 0) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("postbackQueue.statusFailed") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-800 mt-1", children: String(pqCounts.failed ?? 0) })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 grid grid-cols-1 md:grid-cols-3 gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.lastPing") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: String(pqInfo?.last_ping_at || "-") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("automation.userCronInstalled") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800 mt-1", children: pqInfo?.user_crontab_installed ? t("automation.yes") : t("automation.no") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("postbackQueue.lastRun") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1", children: `${String(pqInfo?.last_run?.delivered ?? 0)} / ${String(pqInfo?.last_run?.processed ?? 0)}` })
+          ] })
+        ] }),
+        pqInfo?.last_error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 bg-gray-50 border border-gray-100 rounded p-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: t("postbackQueue.lastError") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-mono text-gray-800 mt-1 break-all", children: String(pqInfo.last_error) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex gap-2 flex-wrap", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: installPostbackQueueCron,
+              className: "btn btn-primary",
+              disabled: cronBusy || !pqInfo?.shell_exec_allowed,
+              title: t("postbackQueue.installCron"),
+              children: t("postbackQueue.installCron")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: removePostbackQueueCron,
+              className: "btn btn-secondary",
+              disabled: cronBusy || !pqInfo?.shell_exec_allowed,
+              title: t("postbackQueue.removeCron"),
+              children: t("postbackQueue.removeCron")
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mb-1", children: t("automation.cronCommand") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-stretch", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "pre",
+              {
+                className: "flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 overflow-x-auto",
+                style: { fontFamily: "monospace", fontSize: "12px", lineHeight: 1.5, margin: 0 },
+                children: String(pqInfo?.cron_line || "-")
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                className: "btn btn-secondary",
+                onClick: () => copyText(pqInfo?.cron_line),
+                disabled: !pqInfo?.cron_line,
+                title: t("automation.copy"),
+                style: { whiteSpace: "nowrap" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 }),
+                  t("automation.copy")
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint mt-2", children: t("postbackQueue.cronHint") })
         ] })
       ] })
     ] }),
@@ -53379,24 +53989,52 @@ const LogsPage = () => {
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${log.status_code === 200 ? "status-active" : "status-inactive"}`, children: log.status_code }) })
           ] }, i)) })
         ] });
-      case "s2s":
+      case "s2s": {
+        const statusLabels = {
+          pending: t("postbackQueue.statusPending"),
+          in_flight: t("postbackQueue.statusInFlight"),
+          delivered: t("postbackQueue.statusDelivered"),
+          failed: t("postbackQueue.statusFailed")
+        };
+        const statusClasses = {
+          pending: "status-pending",
+          in_flight: "status-pending",
+          delivered: "status-active",
+          failed: "status-inactive"
+        };
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colTime") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colConversionId") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colUrl") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("logs.colResponseCode") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("postbackQueue.status") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("postbackQueue.attempts") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("postbackQueue.httpCode") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("postbackQueue.lastError") })
           ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: logs.map((log, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.created_at }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
-              "#",
-              log.conversion_id
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "truncate max-w-sm", title: log.url, children: log.url }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${log.status_code >= 200 && log.status_code < 300 ? "status-active" : "status-inactive"}`, children: log.status_code || "Err" }) })
-          ] }, i)) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: logs.map((log, i) => {
+            const legacyCode = Number(log.status_code);
+            const status = log.status || (legacyCode >= 200 && legacyCode < 400 ? "delivered" : "failed");
+            const httpCode = log.http_code ?? log.status_code;
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.created_at }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.conversion_id ? `#${log.conversion_id}` : "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "truncate max-w-sm", title: log.url, children: log.url }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${statusClasses[status] || "status-inactive"}`, children: statusLabels[status] || status }),
+                status === "pending" && log.next_retry_at && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-[var(--color-text-muted)] mt-1", children: [
+                  t("postbackQueue.nextRetry"),
+                  ": ",
+                  log.next_retry_at
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: Number(log.attempts ?? 0) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: httpCode ? Number(httpCode) : "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "truncate max-w-xs", title: log.last_error || "", children: log.last_error || "-" })
+            ] }, i);
+          }) })
         ] });
+      }
       default:
         return null;
     }
@@ -55455,6 +56093,8 @@ function AggregatorPage() {
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "generic", children: "Generic API" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "referon", children: "ReferOn" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "affilka", children: "Affilka (SoftSwiss)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "facebook", children: t("costImport.facebookAds") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "google_ads", children: t("costImport.googleAds") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "custom", children: "Custom" })
             ] })
           ] })
@@ -57848,7 +58488,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("editor.directLinking") }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "landing_offer", children: t("editor.landingOffer") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "action", children: t("editor.action") })
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "action", children: t("editor.action") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "cloak", children: t("cloaking.mode") })
                     ]
                   }
                 )
@@ -57942,6 +58583,188 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   ] }, oIdx))
                 ] })
               ] }),
+              stream.schema_type === "cloak" && (() => {
+                const sc = stream.schema_custom || {};
+                const setCloakField = (field, value) => updateStream(idx, "schema_custom", { ...sc, [field]: value });
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 rounded-2xl p-3", style: { border: "1px solid var(--color-border)", backgroundColor: "rgba(168, 85, 247, 0.05)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t("cloaking.description") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("cloaking.detectionLayers") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-3 mt-2", children: [
+                      ["detect_datacenter", t("cloaking.datacenter")],
+                      ["detect_vpn", t("cloaking.vpnProxy")],
+                      ["detect_bots", t("cloaking.bots")],
+                      ["detect_ua", t("cloaking.uaHeuristics")]
+                    ].map(([key, label]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-checkbox-label text-xs", style: { color: "var(--color-text-primary)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          checked: sc[key] !== false,
+                          onChange: (e) => setCloakField(key, e.target.checked)
+                        }
+                      ),
+                      label
+                    ] }, key)) })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-1 block", style: { color: "var(--color-text-muted)" }, children: t("cloaking.sensitivity") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "select",
+                      {
+                        value: sc.sensitivity || "medium",
+                        onChange: (e) => setCloakField("sensitivity", e.target.value),
+                        className: "form-select text-sm",
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "low", children: t("cloaking.sensitivityLow") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "medium", children: t("cloaking.sensitivityMedium") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "high", children: t("cloaking.sensitivityHigh") })
+                        ]
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t("cloaking.sensitivityHint") })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-checkbox-label text-xs", style: { color: "var(--color-text-primary)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          checked: Boolean(sc.js_challenge),
+                          onChange: (e) => setCloakField("js_challenge", e.target.checked)
+                        }
+                      ),
+                      t("cloaking.jsChallenge")
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t("cloaking.jsChallengeHint") })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("cloaking.safePage") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t("cloaking.safePageHint") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 mt-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("cloaking.safeLanding") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "select",
+                          {
+                            value: sc.safe_landing_id || "",
+                            onChange: (e) => setCloakField("safe_landing_id", e.target.value ? parseInt(e.target.value) : null),
+                            className: "form-select text-sm",
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("cloaking.safeLandingNone") }),
+                              allLandings.map((al) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: al.id, children: al.name }, al.id))
+                            ]
+                          }
+                        )
+                      ] }),
+                      !sc.safe_landing_id && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("cloaking.safeUrl") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "input",
+                            {
+                              type: "url",
+                              value: sc.safe_url || "",
+                              onChange: (e) => setCloakField("safe_url", e.target.value),
+                              className: "form-input text-sm",
+                              placeholder: "https://safe-page.example.com"
+                            }
+                          )
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("cloaking.safeHtml") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "textarea",
+                            {
+                              value: sc.safe_html || "",
+                              onChange: (e) => setCloakField("safe_html", e.target.value),
+                              className: "form-input text-sm",
+                              rows: 3,
+                              placeholder: "<html>...inline safe page HTML...</html>"
+                            }
+                          )
+                        ] })
+                      ] })
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("cloaking.moneyPage") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t("cloaking.moneyPageHint") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.landings") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "landings"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") })
+                      ] }),
+                      (stream.schema_custom?.landings || []).map((l, lIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mb-2", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "select",
+                          {
+                            value: l.id,
+                            onChange: (e) => updateSchemaItem(idx, "landings", lIdx, "id", parseInt(e.target.value)),
+                            className: "form-select text-sm",
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.landingInfo") }),
+                              allLandings.map((al) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: al.id, children: al.name }, al.id))
+                            ]
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "input",
+                            {
+                              type: "number",
+                              value: list.length === 1 ? 100 : l.weight,
+                              disabled: list.length === 1,
+                              onChange: (e) => updateSchemaItem(idx, "landings", lIdx, "weight", parseInt(e.target.value)),
+                              className: "w-16 text-center rounded-lg px-1 py-1 text-sm",
+                              style: { backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)", border: "1px solid var(--color-border)", color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)" },
+                              title: t("editor.weight")
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchemaItem(idx, "landings", lIdx), className: "action-btn text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }) })
+                      ] }, lIdx))
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3 mt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "offers"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") })
+                      ] }),
+                      (stream.schema_custom?.offers || []).map((o, oIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mb-2", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "select",
+                          {
+                            value: o.id,
+                            onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "id", parseInt(e.target.value)),
+                            className: "form-select text-sm",
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.offerInfo") }),
+                              allOffers.map((ao) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: ao.id, children: ao.name }, ao.id))
+                            ]
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "input",
+                            {
+                              type: "number",
+                              value: list.length === 1 ? 100 : o.weight,
+                              disabled: list.length === 1,
+                              onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "weight", parseInt(e.target.value)),
+                              className: "w-16 text-center rounded-lg px-1 py-1 text-sm",
+                              style: { backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)", border: "1px solid var(--color-border)", color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)" },
+                              title: t("editor.weight")
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchemaItem(idx, "offers", oIdx), className: "action-btn text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }) })
+                      ] }, oIdx))
+                    ] })
+                  ] })
+                ] });
+              })(),
               stream.schema_type === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-2xl p-3", style: { border: "1px solid var(--color-border)", backgroundColor: "rgba(59, 130, 246, 0.05)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2 items-center", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),

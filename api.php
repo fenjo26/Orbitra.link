@@ -3839,6 +3839,70 @@ try {
             echo json_encode(['status' => 'success', 'data' => ['deleted' => 1]]);
             break;
 
+        case 'postback_queue_info':
+            // Health/state of the outbound postback delivery worker, for the
+            // Automation settings panel. Read-only, admin session already enforced above.
+            $pqSettings = [];
+            try {
+                $rows = $pdo->query("SELECT key, value FROM settings WHERE key LIKE 'postback_queue_%'")->fetchAll(PDO::FETCH_KEY_PAIR);
+                if (is_array($rows)) {
+                    $pqSettings = $rows;
+                }
+            } catch (\Throwable $e) {
+                // Ignore: settings may be empty before the first run.
+            }
+
+            $pqCounts = ['pending' => 0, 'in_flight' => 0, 'delivered' => 0, 'failed' => 0];
+            try {
+                $cntStmt = $pdo->query("SELECT status, COUNT(*) AS c FROM s2s_postbacks_log GROUP BY status");
+                foreach ($cntStmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                    $pqCounts[(string) ($r['status'] ?? 'delivered')] = (int) $r['c'];
+                }
+            } catch (\Throwable $e) {
+                // Column may not exist yet on a partially migrated DB; leave zeros.
+            }
+
+            $pqScript = realpath(__DIR__ . '/postback_queue_cron.php');
+            if (!is_string($pqScript) || $pqScript === '') {
+                $pqScript = __DIR__ . '/postback_queue_cron.php';
+            }
+
+            $pqShellOk = function_exists('shell_exec') && stripos((string) ini_get('disable_functions'), 'shell_exec') === false;
+            $pqCrontabInstalled = false;
+            if ($pqShellOk) {
+                $pqCrontab = (string) @shell_exec('crontab -l 2>/dev/null');
+                $pqCrontabInstalled = strpos($pqCrontab, 'ORBITRA_POSTBACK_QUEUE_BEGIN') !== false;
+            }
+
+            // "Healthy" = the worker pinged within the last 5 minutes. It runs every
+            // minute, so a longer gap means cron is not firing.
+            $pqLastPing = $pqSettings['postback_queue_last_ping_at'] ?? null;
+            $pqPingAge = null;
+            if ($pqLastPing) {
+                // The worker writes this with date() (server-local), so parse it the same way.
+                $pqPingAge = max(0, time() - (int) strtotime((string) $pqLastPing));
+            }
+
+            echo json_encode(['status' => 'success', 'data' => [
+                'enabled'                => ($pqSettings['postback_queue_enabled'] ?? '1') !== '0',
+                'user_crontab_installed' => $pqCrontabInstalled,
+                'shell_exec_allowed'     => $pqShellOk,
+                'script_path'            => $pqScript,
+                'last_ping_at'           => $pqLastPing,
+                'last_ping_age_seconds'  => $pqPingAge,
+                'healthy'                => $pqPingAge !== null && $pqPingAge < 300,
+                'last_error'             => $pqSettings['postback_queue_last_error'] ?? null,
+                'last_run'               => [
+                    'processed' => (int) ($pqSettings['postback_queue_last_run_processed'] ?? 0),
+                    'delivered' => (int) ($pqSettings['postback_queue_last_run_delivered'] ?? 0),
+                    'requeued'  => (int) ($pqSettings['postback_queue_last_run_requeued'] ?? 0),
+                    'failed'    => (int) ($pqSettings['postback_queue_last_run_failed'] ?? 0),
+                ],
+                'counts'                 => $pqCounts,
+                'cron_line'              => '* * * * * php ' . $pqScript . ' >> ' . __DIR__ . '/var/log/postback_queue.log 2>&1',
+            ]]);
+            break;
+
         case 'postback_queue_install_user_cron':
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
@@ -8123,69 +8187,33 @@ try {
                                 }
 
                                 // Cost engines write spend to cost_records and distribute it across clicks.
+                                // Same helper the scheduled sync uses, so both paths upsert
+                                // identically and re-syncing today picks up new spend.
                                 if ($isCostEngine) {
-                                    $insertCost = $pdo->prepare("INSERT INTO cost_records (connection_id, external_id, source_campaign_id, ad_id, adset_id, amount, currency, click_date, raw_json, is_matched) VALUES (?,?,?,?,?,?,?,?,?,?)");
-                                    $dupCost = $pdo->prepare("SELECT id FROM cost_records WHERE connection_id = ? AND external_id = ?");
-                                    $findClicksByAd = $pdo->prepare("SELECT id FROM clicks WHERE json_extract(parameters_json, '$.ad_id') = ? AND date(created_at) = ?");
-                                    $findClicksByCampaign = $pdo->prepare("SELECT id FROM clicks WHERE json_extract(parameters_json, '$.campaign_id') = ? AND date(created_at) = ?");
-                                    $findClicksByCampaignGoogle = $pdo->prepare("SELECT id FROM clicks WHERE json_extract(parameters_json, '$.campaignid') = ? AND date(created_at) = ?");
-                                    $updateCostStmt = $pdo->prepare("UPDATE clicks SET cost = cost + ? WHERE id = ?");
+                                    require_once __DIR__ . '/core/CostImporter.php';
 
                                     $pdo->beginTransaction();
-                                    $fetched = count($records);
-                                    $matched = 0;
-                                    $newCount = 0;
-                                    foreach ($records as $rec) {
-                                        $externalId = $rec['external_id'] ?? null;
-                                        if ($externalId) {
-                                            $dupCost->execute([$connectionId, $externalId]);
-                                            if ($dupCost->fetch()) {
-                                                continue;
-                                            }
-                                        }
-                                        $amount = (float) ($rec['amount'] ?? 0);
-                                        $adId = (string) ($rec['ad_id'] ?? '');
-                                        $campaignId = (string) ($rec['source_campaign_id'] ?? '');
-                                        $clickDate = (string) ($rec['date'] ?? date('Y-m-d'));
-                                        $isMatched = 0;
-
-                                        $clickIds = [];
-                                        if ($adId !== '') {
-                                            $findClicksByAd->execute([$adId, $clickDate]);
-                                            $clickIds = $findClicksByAd->fetchAll(PDO::FETCH_COLUMN);
-                                        }
-                                        if (empty($clickIds) && $campaignId !== '') {
-                                            $findClicksByCampaign->execute([$campaignId, $clickDate]);
-                                            $clickIds = $findClicksByCampaign->fetchAll(PDO::FETCH_COLUMN);
-                                            if (empty($clickIds)) {
-                                                $findClicksByCampaignGoogle->execute([$campaignId, $clickDate]);
-                                                $clickIds = $findClicksByCampaignGoogle->fetchAll(PDO::FETCH_COLUMN);
-                                            }
-                                        }
-                                        if (!empty($clickIds) && $amount > 0) {
-                                            $cpc = $amount / count($clickIds);
-                                            foreach ($clickIds as $cid) {
-                                                $updateCostStmt->execute([$cpc, $cid]);
-                                            }
-                                            $isMatched = 1;
-                                            $matched++;
-                                        }
-                                        $insertCost->execute([
-                                            $connectionId, $externalId, $campaignId, $adId,
-                                            (string) ($rec['adset_id'] ?? ''), $amount,
-                                            (string) ($rec['currency'] ?? 'USD'), $clickDate,
-                                            $rec['raw_json'] ?? null, $isMatched,
-                                        ]);
-                                        $newCount++;
-                                    }
+                                    $costStats = CostImporter::import($pdo, (int) $connectionId, $records);
                                     $pdo->commit();
+
+                                    $fetched  = $costStats['fetched'];
+                                    $matched  = $costStats['matched'];
+                                    $newCount = $costStats['new'];
+
                                     $durationMs = round((microtime(true) - $startTime) * 1000);
                                     $pdo->prepare("UPDATE aggregator_connections SET last_sync_at = datetime('now'), last_sync_status = 'success', last_sync_error = NULL WHERE id = ?")->execute([$connectionId]);
                                     $pdo->prepare("INSERT INTO aggregator_sync_logs (connection_id, status, records_fetched, records_matched, records_new, duration_ms, date_from, date_to) VALUES (?,?,?,?,?,?,?,?)")
                                         ->execute([$connectionId, 'success', $fetched, $matched, $newCount, $durationMs, $dateFrom, $dateTo]);
                                     echo json_encode([
                                         'status' => 'success',
-                                        'data' => ['fetched' => $fetched, 'matched' => $matched, 'new' => $newCount, 'duration_ms' => $durationMs],
+                                        'data' => [
+                                            'fetched'     => $fetched,
+                                            'matched'     => $matched,
+                                            'new'         => $newCount,
+                                            'updated'     => $costStats['updated'],
+                                            'unmatched'   => $costStats['unmatched'],
+                                            'duration_ms' => $durationMs,
+                                        ],
                                     ]);
                                     break;
                                 }

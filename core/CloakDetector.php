@@ -58,13 +58,17 @@ class CloakDetector
     }
 
     /**
-     * Heuristic: does this User-Agent look like an automation tool or crawler?
+     * Classify a User-Agent.
+     *
+     * Returns a reason code or null. 'no_user_agent' and 'crawler_or_tool_ua' are
+     * treated as HARD signals by detect(): a request that self-identifies as curl or
+     * Googlebot, or sends no UA at all, is not a browser under any reasonable doubt.
      */
-    private static function uaLooksSuspicious(string $ua): bool
+    private static function classifyUa(string $ua): ?string
     {
         if ($ua === '') {
             // No User-Agent at all is highly unusual for a real browser.
-            return true;
+            return 'no_user_agent';
         }
         $uaLower = strtolower($ua);
         $toolSignatures = [
@@ -80,10 +84,10 @@ class CloakDetector
         ];
         foreach ($toolSignatures as $sig) {
             if (strpos($uaLower, $sig) !== false) {
-                return true;
+                return 'crawler_or_tool_ua';
             }
         }
-        return false;
+        return null;
     }
 
     /**
@@ -150,10 +154,12 @@ class CloakDetector
 
         // --- Layer 3: User-Agent heuristics ---
         if ($detectUa) {
-            if (self::uaLooksSuspicious((string) ($visitor['user_agent'] ?? ''))) {
-                $reasons[] = 'suspicious_ua';
+            $uaReason = self::classifyUa((string) ($visitor['user_agent'] ?? ''));
+            if ($uaReason !== null) {
+                $reasons[] = $uaReason;
             }
             // Missing Accept-Language is uncommon for real browsers but common for bots.
+            // Only meaningful when a UA was sent — no-UA is already covered above.
             $acceptLang = (string) ($visitor['accept_language'] ?? '');
             if ($acceptLang === '' && ($visitor['user_agent'] ?? '') !== '') {
                 $reasons[] = 'missing_accept_language';
@@ -161,20 +167,32 @@ class CloakDetector
         }
 
         // --- Threshold by sensitivity ---
-        // low  = flag only on blocklist hits or 2+ signals
-        // med  = flag on blocklist hits or 1+ signal
-        // high = flag on any signal (most aggressive)
-        $blocklistHit = in_array('bot_blocklist', $reasons, true)
-            || in_array('datacenter_asn', $reasons, true)
-            || in_array('vpn_proxy_asn', $reasons, true);
+        // Signals split into two confidence classes:
+        //   hard  — an explicit blocklist/ASN match. Near-certain bot or datacenter.
+        //   soft  — heuristics (hosting keyword in ISP string, tool-like UA, missing
+        //           Accept-Language). Individually noisy: privacy browsers and some
+        //           mobile carriers trip them.
+        //
+        // low    = hard signals only. Fewest false positives, lets soft bots through.
+        // medium = hard signals, or two soft signals corroborating each other.
+        // high   = any single signal. Most aggressive, will misclassify some real users.
+        //
+        // These must stay distinct — an earlier version had medium collapse into high
+        // because `$blocklistHit || !empty($reasons)` reduces to `!empty($reasons)`.
+        $hardSignals = [
+            'bot_blocklist', 'datacenter_asn', 'vpn_proxy_asn',
+            'no_user_agent', 'crawler_or_tool_ua',
+        ];
+        $hardHits = array_intersect($hardSignals, $reasons);
+        $softHits = array_diff($reasons, $hardSignals);
+        $blocklistHit = !empty($hardHits);
 
-        $isSuspicious = false;
         if ($sensitivity === 'high') {
             $isSuspicious = !empty($reasons);
         } elseif ($sensitivity === 'low') {
-            $isSuspicious = $blocklistHit || count($reasons) >= 2;
+            $isSuspicious = $blocklistHit;
         } else { // medium
-            $isSuspicious = $blocklistHit || !empty($reasons);
+            $isSuspicious = $blocklistHit || count($softHits) >= 2;
         }
 
         return [

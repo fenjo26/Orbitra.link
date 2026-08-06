@@ -189,8 +189,8 @@ try {
 
         $enqueueStmt = $pdo->prepare("
             INSERT INTO s2s_postbacks_log
-                (conversion_id, url, method, status, attempts, next_retry_at, postback_id)
-            VALUES (?, ?, ?, 'pending', 0, datetime('now'), ?)
+                (conversion_id, url, method, status, attempts, next_retry_at, postback_id, updated_at)
+            VALUES (?, ?, ?, 'pending', 0, datetime('now'), ?, datetime('now'))
         ");
 
         foreach ($postbacks as $pb) {

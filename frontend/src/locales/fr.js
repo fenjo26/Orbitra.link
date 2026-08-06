@@ -1891,6 +1891,8 @@ export default {
         "curlProxyDesc": "Sert une page distante via ce serveur avec une balise base. Utile lorsque vous devez héberger le contenu sous votre propre domaine."
     },
     "cloaking": {
+        "jsChallenge": "Vérification JavaScript",
+        "jsChallengeHint": "Le visiteur voit d'abord la page sûre ; une vérification du navigateur en arrière-plan décide de le rediriger vers la money page. Tout ce qui n'exécute pas JS reste sur la page sûre. Ajoute un aller-retour.",
         "mode": "Cloaking",
         "description": "Les visiteurs suspects (bots, modérateurs, trafic datacenter/VPN) voient une page sécurisée ; les vrais visiteurs voient la page monétisée.",
         "detectionLayers": "Couches de détection",
@@ -1914,6 +1916,9 @@ export default {
     },
     "postbackQueue": {
         "title": "File d'attente des postbacks",
+        "description": "Les postbacks S2S sortants sont mis en file d'attente et livrés par un worker en arrière-plan avec relances. Sans le cron installé, la file n'est jamais traitée.",
+        "lastRun": "Dernière exécution (livrés / traités)",
+        "cronHint": "Le worker tourne chaque minute. Relances : 60s → 5m → 30m → 2h → 24h, ensuite la ligne est marquée en échec.",
         "status": "Statut",
         "statusPending": "En attente",
         "statusInFlight": "En livraison",

@@ -50,6 +50,7 @@
 - `GET ?action=geo_profiles` / `GET ?action=countries_list` — справочники для Geo Selector (например: Страны Европы, СНГ).
 
 ## S2S Postback Queue (с версии 0.9.6.0)
+- `GET ?action=postback_queue_info` — состояние воркера доставки: установлен ли cron, доступен ли `shell_exec`, время последнего пинга, счётчики строк по статусам, итоги последнего запуска, последняя ошибка, готовая строка crontab. Используется панелью «Настройки → Автоматизация».
 - `POST ?action=postback_queue_install_user_cron` — устанавливает cron-задачу для воркера доставки постбеков (`postback_queue_cron.php`, запускается каждую минуту). Только admin.
 - `POST ?action=postback_queue_remove_user_cron` — удаляет cron-задачу доставки постбеков. Только admin.
 - `GET ?action=logs&type=s2s` — лог/очередь исходящих S2S-постбеков со статусами (`pending`, `in_flight`, `delivered`, `failed`), числом попыток, `next_retry_at`, `last_error`, `http_code`.
@@ -57,7 +58,7 @@
 ## Агрегатор расходов (Facebook Ads / Google Ads, с версии 0.9.6.0)
 - `GET ?action=aggregator_engine_fields&engine=facebook|google_ads` — поля формы для подключения (возвращаются движком `getRequiredFields()`).
 - `POST ?action=aggregator_test_connection` — проверка соединения с рекламным кабинетом (передаётся `engine` + `credentials`).
-- `POST ?action=aggregator_sync` — импорт расходов за период и атрибуция к кликам по ad_id/campaign_id. Записывает в `cost_records`, обновляет `clicks.cost`.
+- `POST ?action=aggregator_sync` — импорт расходов за период и атрибуция к кликам по ad_id/campaign_id. Записывает в `cost_records`, обновляет `clicks.cost`. Записи **обновляются, а не пропускаются** при повторном синке (`core/CostImporter.php`): рекламные кабинеты отдают накопительный расход за текущий день, поэтому второй синк за те же сутки должен доносить разницу. В ответе — `fetched` / `new` / `updated` / `matched` / `unmatched`.
 - `GET ?action=aggregator_revenue` / `GET ?action=aggregator_sync_logs` — обзор импортированных записей и истории синхронизаций.
 
 ## Telegram Bot API 🤖

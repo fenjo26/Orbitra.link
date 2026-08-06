@@ -1891,6 +1891,8 @@ export default {
         "curlProxyDesc": "通过本服务器以 base 标签提供远程页面。当您需要在自己的域名下托管内容时非常有用。"
     },
     "cloaking": {
+        "jsChallenge": "JavaScript 校验",
+        "jsChallengeHint": "访客先看到安全页；后台浏览器校验决定是否放行到 money page。不执行 JS 的一律停留在安全页。会多一次跳转。",
         "mode": "Cloaking",
         "description": "可疑访客（机器人、审核员、数据中心/VPN 流量）看到安全页面；真实访客看到盈利页面。",
         "detectionLayers": "检测层",
@@ -1914,6 +1916,9 @@ export default {
     },
     "postbackQueue": {
         "title": "Postback 队列",
+        "description": "出站 S2S postback 会先进入队列，由后台 worker 带重试地投递。未安装 cron 时队列不会被处理，postback 不会发出。",
+        "lastRun": "上次运行（已投递 / 已处理）",
+        "cronHint": "Worker 每分钟运行一次。重试间隔：60秒 → 5分钟 → 30分钟 → 2小时 → 24小时，之后该行标记为失败。",
         "status": "状态",
         "statusPending": "待处理",
         "statusInFlight": "投递中",

@@ -34,11 +34,16 @@ function orbitraPqLog(string $msg): void
 }
 
 // --- Configuration -----------------------------------------------------------
-const PQ_MAX_ATTEMPTS   = 5;
+// A row is delivered on attempt 1, then retried after each entry of PQ_BACKOFF_SECONDS.
+// So MAX_ATTEMPTS must be count(PQ_BACKOFF_SECONDS) + 1 for the whole schedule — including
+// the final 24h wait — to actually be used before the row is marked dead.
+const PQ_BACKOFF_SECONDS = [60, 300, 1800, 7200, 86400]; // 1m, 5m, 30m, 2h, 24h
+const PQ_MAX_ATTEMPTS   = 6;       // 1 initial attempt + 5 retries
 const PQ_BATCH_SIZE     = 50;      // rows per run
 const PQ_HTTP_TIMEOUT   = 8;       // seconds per delivery attempt
-// Exponential backoff schedule in seconds: attempt N waits this long before retry.
-const PQ_BACKOFF_SECONDS = [60, 300, 1800, 7200, 86400]; // 1m, 5m, 30m, 2h, 24h
+// A row claimed as 'in_flight' longer than this is assumed to belong to a worker that
+// died mid-delivery (fatal error, OOM, cron kill) and is returned to the queue.
+const PQ_INFLIGHT_STALE_SECONDS = 600; // 10 minutes
 
 // --- Single-instance lock ----------------------------------------------------
 $lockFile = __DIR__ . '/var/locks/postback_queue.lock';
@@ -64,9 +69,10 @@ $processed = 0;
 $delivered = 0;
 $requeued  = 0;
 $failed    = 0;
+// Defined outside the try so the catch block can always reference it.
+$ts = date('Y-m-d H:i:s');
 
 try {
-    $ts = date('Y-m-d H:i:s');
     orbitraPqSetSetting($pdo, 'postback_queue_last_ping_at', $ts);
 
     // Allow disabling the worker from UI while keeping cron in place.
@@ -82,6 +88,39 @@ try {
     if ($enabled === '0') {
         orbitraPqLog("postback_queue: disabled via settings");
         exit(0);
+    }
+
+    // Reclaim rows abandoned by a crashed worker. Without this a row that was claimed
+    // as 'in_flight' and never finished would be invisible to the due-query forever,
+    // because that query only looks at 'pending'.
+    try {
+        // attempts is incremented so a "poison" row that reliably kills the worker
+        // burns through its budget instead of looping forever.
+        $reap = $pdo->prepare("
+            UPDATE s2s_postbacks_log
+            SET status = 'pending',
+                attempts = attempts + 1,
+                updated_at = datetime('now'),
+                last_error = 'worker died mid-delivery; requeued'
+            WHERE status = 'in_flight'
+              AND COALESCE(updated_at, created_at) <= datetime('now', ?)
+        ");
+        $reap->execute(['-' . PQ_INFLIGHT_STALE_SECONDS . ' seconds']);
+        $reaped = $reap->rowCount();
+        if ($reaped > 0) {
+            orbitraPqLog("postback_queue: requeued $reaped stale in_flight row(s)");
+        }
+
+        // Retire pending rows that are out of attempts. Without this they would linger
+        // as 'pending' forever, invisible to the due-query and misleading in the UI.
+        $retire = $pdo->prepare("
+            UPDATE s2s_postbacks_log
+            SET status = 'failed', updated_at = datetime('now')
+            WHERE status = 'pending' AND attempts >= " . PQ_MAX_ATTEMPTS . "
+        ");
+        $retire->execute();
+    } catch (Throwable $e) {
+        orbitraPqLog('postback_queue: reaper failed: ' . $e->getMessage());
     }
 
     // Select due rows. Claiming is done by flipping status to 'in_flight' inside a
@@ -103,10 +142,12 @@ try {
         exit(0);
     }
 
-    $claimStmt = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'in_flight' WHERE id = ? AND status = 'pending'");
-    $doneStmt  = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'delivered', http_code = ?, last_error = NULL, attempts = attempts + 1 WHERE id = ?");
-    $retryStmt = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'pending', attempts = attempts + 1, next_retry_at = datetime('now', ?), http_code = ?, last_error = ? WHERE id = ?");
-    $deadStmt  = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'failed', attempts = attempts + 1, http_code = ?, last_error = ? WHERE id = ?");
+    // Every transition stamps updated_at so the reaper above can tell a live delivery
+    // from an abandoned one.
+    $claimStmt = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'in_flight', updated_at = datetime('now') WHERE id = ? AND status = 'pending'");
+    $doneStmt  = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'delivered', http_code = ?, status_code = ?, last_error = NULL, attempts = attempts + 1, updated_at = datetime('now') WHERE id = ?");
+    $retryStmt = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'pending', attempts = attempts + 1, next_retry_at = datetime('now', ?), http_code = ?, status_code = ?, last_error = ?, updated_at = datetime('now') WHERE id = ?");
+    $deadStmt  = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'failed', attempts = attempts + 1, http_code = ?, status_code = ?, last_error = ?, updated_at = datetime('now') WHERE id = ?");
 
     foreach ($rows as $row) {
         // Claim the row.
@@ -132,16 +173,39 @@ try {
         $parsedUrl = parse_url($url);
         $host = $parsedUrl['host'] ?? '';
         $ssrfBlocked = false;
+        $dnsFailed   = false;
         if ($host) {
+            // gethostbyname() returns the input unchanged both for an IP literal and on
+            // resolution failure, so do NOT skip the check when $ip === $host — that
+            // would wave through http://127.0.0.1/.
             $ip = @gethostbyname($host);
-            if ($ip && $ip !== $host && filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-                $ssrfBlocked = true;
+            if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                // Resolved (or already an IP literal): block private/reserved targets.
+                $ssrfBlocked = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false;
+            } else {
+                // Could not resolve. Likely transient — retry rather than kill the row.
+                $dnsFailed = true;
             }
+        }
+
+        if ($dnsFailed) {
+            $nextAttempt = (int) $row['attempts'] + 1;
+            $errMsg = 'DNS resolution failed for ' . $host;
+            if ($nextAttempt >= PQ_MAX_ATTEMPTS) {
+                $deadStmt->execute([0, 0, $errMsg, $row['id']]);
+                $failed++;
+            } else {
+                $backoff = PQ_BACKOFF_SECONDS[min($nextAttempt - 1, count(PQ_BACKOFF_SECONDS) - 1)];
+                $retryStmt->execute(['+' . $backoff . ' seconds', 0, 0, $errMsg, $row['id']]);
+                $requeued++;
+            }
+            orbitraPqLog("postback #{$row['id']} $errMsg");
+            continue;
         }
 
         if ($ssrfBlocked) {
             // Treat as permanent failure — do not retry a blocked target.
-            $deadStmt->execute([0, 'SSRF: target resolves to a private/reserved IP', $row['id']]);
+            $deadStmt->execute([0, 0, 'SSRF: target resolves to a private/reserved IP', $row['id']]);
             $failed++;
             orbitraPqLog("postback #{$row['id']} SSRF-blocked -> failed");
             continue;
@@ -176,7 +240,7 @@ try {
         $success = ($httpCode >= 200 && $httpCode < 400) && $curlErr === '';
 
         if ($success) {
-            $doneStmt->execute([$httpCode, $row['id']]);
+            $doneStmt->execute([$httpCode, $httpCode, $row['id']]);
             $delivered++;
             orbitraPqLog("postback #{$row['id']} delivered (HTTP $httpCode)");
         } else {
@@ -184,13 +248,14 @@ try {
             $nextAttempt = $attempt + 1;
             $errMsg = $curlErr !== '' ? $curlErr : "HTTP $httpCode";
             if ($nextAttempt >= PQ_MAX_ATTEMPTS) {
-                $deadStmt->execute([$httpCode, $errMsg, $row['id']]);
+                $deadStmt->execute([$httpCode, $httpCode, $errMsg, $row['id']]);
                 $failed++;
                 orbitraPqLog("postback #{$row['id']} FAILED after $nextAttempt attempts: $errMsg");
             } else {
                 $backoff = PQ_BACKOFF_SECONDS[min($nextAttempt - 1, count(PQ_BACKOFF_SECONDS) - 1)];
                 $retryStmt->execute([
                     '+' . $backoff . ' seconds',
+                    $httpCode,
                     $httpCode,
                     $errMsg,
                     $row['id'],

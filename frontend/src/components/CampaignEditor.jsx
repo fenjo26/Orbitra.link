@@ -1517,6 +1517,19 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                                 <div className="form-hint">{t('cloaking.sensitivityHint')}</div>
                                                             </div>
 
+                                                            {/* Active JS check */}
+                                                            <div>
+                                                                <label className="form-checkbox-label text-xs" style={{ color: 'var(--color-text-primary)' }}>
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={Boolean(sc.js_challenge)}
+                                                                        onChange={e => setCloakField('js_challenge', e.target.checked)}
+                                                                    />
+                                                                    {t('cloaking.jsChallenge')}
+                                                                </label>
+                                                                <div className="form-hint">{t('cloaking.jsChallengeHint')}</div>
+                                                            </div>
+
                                                             {/* Safe page */}
                                                             <div className="pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
                                                                 <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('cloaking.safePage')}</span>
