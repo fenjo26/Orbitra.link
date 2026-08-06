@@ -613,6 +613,19 @@ code {
   transition: box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
+/* Карточка-таблица: когда page-card обнуляет внутренний padding (style="padding:0"),
+   заголовок и/или футер всё равно должны иметь горизонтальные отступы, а таблица —
+   идти edge-to-edge. Без этого контент прижимается к краям карточки и выглядит
+   "обрезанным". Применяем горизонтальный padding к .page-header внутри таких карточек.
+   Селектор покрывает варианты написания: "padding: 0", "padding:0", "padding: 0px". */
+.page-card[style*="padding: 0"] > .page-header,
+.page-card[style*="padding:0"] > .page-header,
+.page-card[style*="padding:0px"] > .page-header,
+.page-card[style*="padding: 0px"] > .page-header {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
 /* Page Header - заголовок страницы с кнопками */
 .page-header {
   display: flex;
