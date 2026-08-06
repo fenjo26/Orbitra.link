@@ -131,7 +131,7 @@ const CustomMetricsSettings = () => {
 
             {!showForm ? (
                 <div className="page-card" style={{ padding: 0 }}>
-                    <div className="page-header" style={{ borderBottom: '1px solid var(--color-border)', marginBottom: 0 }}>
+                    <div className="page-header" style={{ borderBottom: '1px solid var(--color-border)', marginBottom: 0, padding: '20px 24px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <BarChart2 size={18} style={{ color: 'var(--color-primary)' }} />
                             <h3 className="page-title" style={{ margin: 0 }}>{t('customMetrics.title')}</h3>
