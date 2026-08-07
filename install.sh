@@ -71,6 +71,11 @@ cleanup_tmp() {
 }
 trap cleanup_tmp EXIT
 
+# A previous run that died before restoring (a failed clone, for instance) leaves
+# these behind, and "cp -r src dst" copies INTO an existing dst — turning the next
+# backup into var/var, geo/geo, landings/landings and losing part of the restore.
+rm -rf /tmp/orbitra_db_backup.sqlite /tmp/orbitra_var_backup /tmp/orbitra_geo_backup /tmp/orbitra_landings_backup
+
 if [ -f "/var/www/orbitra/orbitra_db.sqlite" ]; then
     echo "  > Backing up database..."
     cp /var/www/orbitra/orbitra_db.sqlite /tmp/orbitra_db_backup.sqlite
@@ -82,6 +87,13 @@ fi
 if [ -d "/var/www/orbitra/geo" ]; then
     echo "  > Backing up geo directory..."
     cp -r /var/www/orbitra/geo /tmp/orbitra_geo_backup
+fi
+# Uploaded landing pages are user data too — the repository only ships an empty
+# landings/ with a .gitkeep, so without this the rm -rf below silently destroys
+# every landing the user uploaded.
+if [ -d "/var/www/orbitra/landings" ]; then
+    echo "  > Backing up landings directory..."
+    cp -r /var/www/orbitra/landings /tmp/orbitra_landings_backup
 fi
 
 # Clone the repository into a temporary directory first to avoid downtime on clone failure.
@@ -110,6 +122,12 @@ if [ -d "/tmp/orbitra_geo_backup" ]; then
     mkdir -p /var/www/orbitra/geo
     cp -r /tmp/orbitra_geo_backup/* /var/www/orbitra/geo/ 2>/dev/null || true
     rm -rf /tmp/orbitra_geo_backup
+fi
+if [ -d "/tmp/orbitra_landings_backup" ]; then
+    echo "  > Restoring landings directory..."
+    mkdir -p /var/www/orbitra/landings
+    cp -r /tmp/orbitra_landings_backup/. /var/www/orbitra/landings/ 2>/dev/null || true
+    rm -rf /tmp/orbitra_landings_backup
 fi
 
 
