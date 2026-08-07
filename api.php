@@ -61,7 +61,9 @@ function orbitraRequestBody()
     if (isset($GLOBALS['ORBITRA_INTERNAL_REQUEST_BODY'])) {
         return (string) $GLOBALS['ORBITRA_INTERNAL_REQUEST_BODY'];
     }
-    return (string) orbitraRequestBody();
+    // Must stay a literal stream read: this is the one place that may not go
+    // through the helper, or the fallback calls itself forever.
+    return (string) file_get_contents('php://input');
 }
 
 function checkRateLimit($key, $maxRequests = 5, $window = 300)
