@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Copy, Check, Key, Terminal, Cpu } from 'lucide-react';
+import { Sparkles, Copy, Check, Key, Terminal, Cpu, Link2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const McpPage = () => {
@@ -13,7 +13,10 @@ const McpPage = () => {
     const config = JSON.stringify({
         mcpServers: {
             orbitra: {
-                command: 'node',
+                // An absolute path, not bare "node": the desktop app is not launched
+                // from a shell, so a Node installed via nvm or Homebrew is not on its
+                // PATH and the server fails to start with no useful error.
+                command: '/usr/local/bin/node',
                 args: ['/absolute/path/to/Orbitra/mcp/src/index.js'],
                 env: {
                     ORBITRA_URL: origin,
@@ -63,6 +66,21 @@ const McpPage = () => {
                     </p>
                 </div>
 
+                {/* Route A — the one most people want: paste a URL and be done. */}
+                <div style={{ ...cardStyle, border: '1px solid var(--color-accent, #2563eb)' }}>
+                    <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Link2 size={15} /> {t('mcpPage.remoteTitle', 'Option A — paste a URL (works in the browser and in the desktop app)')}
+                    </div>
+                    <p style={{ fontSize: '13.5px', color: 'var(--color-text-secondary)', margin: 0, lineHeight: 1.55 }}>
+                        {t('mcpPage.remoteDesc', 'Generate an API key in Users → API Keys, press the link button next to it to copy a ready-made URL, then paste that into Claude → Settings → Connectors → Add custom connector. Nothing to install. The key travels in the URL, so treat the URL as the credential and revoke the key to cut access.')}
+                    </p>
+                    <pre style={codeBlock}><code>{`${origin}/mcp.php?k=<your-api-key>`}</code></pre>
+                </div>
+
+                <div style={{ fontSize: '13px', color: 'var(--color-text-muted)', margin: '0 0 16px', lineHeight: 1.6 }}>
+                    {t('mcpPage.orLocal', 'Option B — run the server next to your assistant. Only Claude Desktop can do this; it cannot be added through the Connectors dialog, which is why that dialog has no field for an API key.')}
+                </div>
+
                 {/* Step 1 — API key */}
                 <div style={cardStyle}>
                     <div style={{ display: 'flex', alignItems: 'flex-start' }}>
@@ -73,6 +91,9 @@ const McpPage = () => {
                             </div>
                             <p style={{ fontSize: '13.5px', color: 'var(--color-text-secondary)', margin: 0, lineHeight: 1.55 }}>
                                 {t('mcpPage.step1Desc', 'Open Users → API Keys and generate a key. A Read key allows analytics only; a Write key also allows managing campaigns, offers and domains.')}
+                            </p>
+                            <p style={{ fontSize: '12.5px', color: 'var(--color-text-muted)', margin: '6px 0 0', lineHeight: 1.55 }}>
+                                {t('mcpPage.step1Hint', 'Asking the assistant to create or edit anything with a Read key comes back as "403 API key is read-only" — that needs a Write key.')}
                             </p>
                         </div>
                     </div>
@@ -109,12 +130,15 @@ const McpPage = () => {
                                 </button>
                             </div>
                             <p style={{ fontSize: '13.5px', color: 'var(--color-text-secondary)', margin: 0, lineHeight: 1.55 }}>
-                                {t('mcpPage.step3Desc', 'Paste this into your Claude Desktop config, then replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with the key from step 1.')}
+                                {t('mcpPage.step3Desc', 'Open Settings → Developer → Edit Config in Claude Desktop and paste this in, then replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with the key from step 1. Quit the app completely and reopen it — closing the window is not enough.')}
                             </p>
                             <pre style={codeBlock}><code>{config}</code></pre>
                             <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '10px', lineHeight: 1.6 }}>
                                 <div><strong>macOS:</strong> <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></div>
                                 <div><strong>Windows:</strong> <code>%APPDATA%\Claude\claude_desktop_config.json</code></div>
+                                <div style={{ marginTop: '8px' }}>
+                                    {t('mcpPage.nodePathHint', 'Check the path to Node with')} <code>which node</code> {t('mcpPage.nodePathHint2', '(macOS/Linux) or')} <code>where node</code> {t('mcpPage.nodePathHint3', '(Windows) and put the result in "command". A bare "node" only works if it sits in the system PATH.')}
+                                </div>
                             </div>
                         </div>
                     </div>

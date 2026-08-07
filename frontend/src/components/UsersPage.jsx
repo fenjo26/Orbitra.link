@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Plus, Edit2, Trash2, Key, Copy, Shield, User, Globe, Lock } from 'lucide-react';
+import { Plus, Edit2, Trash2, Key, Copy, Shield, User, Globe, Lock, Link2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
@@ -617,6 +617,16 @@ const UsersPage = () => {
                                             <code style={{ fontSize: '12px' }}>{key.api_key.substring(0, 16)}...</code>
                                         </div>
                                         <div className="flex items-center gap-2">
+                                            {/* The whole credential for a remote connector is the URL, so hand
+                                                it over ready-made — the connector dialog has no key field and
+                                                assembling this by hand is where people get stuck. */}
+                                            <button
+                                                onClick={() => copyToClipboard(`${window.location.origin}/mcp.php?k=${key.api_key}`)}
+                                                className="action-btn text-blue"
+                                                title={t('users.copyMcpUrl', 'Copy connector URL (for Claude → Add custom connector)')}
+                                            >
+                                                <Link2 size={16} />
+                                            </button>
                                             <button
                                                 onClick={() => copyToClipboard(key.api_key)}
                                                 className="action-btn text-blue"

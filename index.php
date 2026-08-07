@@ -422,6 +422,141 @@ function renderRedirectResponse($type, $url)
     header('Location: ' . $url, true, 302);
 }
 
+/**
+ * Serve a file belonging to a local landing, addressed from the domain root.
+ *
+ * Local landings are printed at the campaign URL while their files sit in
+ * /landings/<id>/, so "<img src="a.png">" arrives here as a request for "/a.png".
+ * If the visitor's orbitra_lp cookie points at a landing that owns that file, we
+ * serve it and exit; otherwise we return and let the caller 404 as before.
+ *
+ * Range requests are honoured because Safari refuses to play a <video> whose
+ * source cannot answer with 206, and landing pages routinely embed mp4.
+ */
+function serveLandingAsset($landingId, $uriPath)
+{
+    static $mimeTypes = [
+        'ico' => 'image/x-icon',
+        'png' => 'image/png',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'bmp' => 'image/bmp',
+        'webp' => 'image/webp',
+        'avif' => 'image/avif',
+        'svg' => 'image/svg+xml',
+        'css' => 'text/css',
+        'js' => 'application/javascript',
+        'mjs' => 'application/javascript',
+        'json' => 'application/json',
+        'map' => 'application/json',
+        'webmanifest' => 'application/manifest+json',
+        'woff' => 'font/woff',
+        'woff2' => 'font/woff2',
+        'ttf' => 'font/ttf',
+        'otf' => 'font/otf',
+        'eot' => 'application/vnd.ms-fontobject',
+        'mp4' => 'video/mp4',
+        'webm' => 'video/webm',
+        'm4v' => 'video/x-m4v',
+        'ogv' => 'video/ogg',
+        'mp3' => 'audio/mpeg',
+        'ogg' => 'audio/ogg',
+        'wav' => 'audio/wav',
+        'm4a' => 'audio/mp4',
+        'txt' => 'text/plain',
+        'pdf' => 'application/pdf',
+    ];
+
+    if ($landingId <= 0) {
+        return;
+    }
+
+    // Whitelist by extension: this must never hand back .php, .htaccess or the
+    // tracker's own files, whatever the landing directory happens to contain.
+    $ext = strtolower(pathinfo(parse_url($uriPath, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
+    if ($ext === '' || !isset($mimeTypes[$ext])) {
+        return;
+    }
+
+    $root = realpath(__DIR__ . '/landings/' . $landingId);
+    if ($root === false) {
+        return;
+    }
+
+    // realpath() collapses "..", so the prefix check below is what actually
+    // contains the request — a crafted "/../../config.php" cannot escape.
+    $file = realpath($root . '/' . ltrim(rawurldecode($uriPath), '/'));
+    if ($file === false || !is_file($file) || strpos($file, $root . DIRECTORY_SEPARATOR) !== 0) {
+        return;
+    }
+
+    $size = filesize($file);
+    $mtime = filemtime($file);
+    $etag = '"' . dechex($mtime) . '-' . dechex($size) . '"';
+
+    header('Content-Type: ' . $mimeTypes[$ext]);
+    header('X-Content-Type-Options: nosniff');
+    header('Accept-Ranges: bytes');
+    header('ETag: ' . $etag);
+    header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
+    // Short TTL rather than "immutable": re-uploading a landing keeps its id, so
+    // a year-long cache would pin visitors to the files it replaced.
+    header('Cache-Control: public, max-age=3600');
+
+    $ifNoneMatch = trim($_SERVER['HTTP_IF_NONE_MATCH'] ?? '');
+    $ifModifiedSince = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '') ?: 0;
+    if ($ifNoneMatch === $etag || ($ifNoneMatch === '' && $ifModifiedSince >= $mtime)) {
+        http_response_code(304);
+        exit;
+    }
+
+    $start = 0;
+    $end = $size - 1;
+    if (isset($_SERVER['HTTP_RANGE']) && preg_match('/^bytes=(\d*)-(\d*)$/', trim($_SERVER['HTTP_RANGE']), $m)) {
+        if ($m[1] === '' && $m[2] !== '') {
+            $start = max(0, $size - (int) $m[2]); // suffix range: last N bytes
+        } else {
+            $start = (int) $m[1];
+            if ($m[2] !== '') {
+                $end = min((int) $m[2], $size - 1);
+            }
+        }
+        if ($start > $end || $start >= $size) {
+            header('Content-Range: bytes */' . $size);
+            http_response_code(416);
+            exit;
+        }
+        http_response_code(206);
+        header('Content-Range: bytes ' . $start . '-' . $end . '/' . $size);
+    }
+
+    header('Content-Length: ' . ($end - $start + 1));
+
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD') {
+        exit;
+    }
+
+    $handle = fopen($file, 'rb');
+    if ($handle === false) {
+        return;
+    }
+    if ($start > 0) {
+        fseek($handle, $start);
+    }
+    $remaining = $end - $start + 1;
+    while ($remaining > 0 && !feof($handle)) {
+        $chunk = fread($handle, (int) min(262144, $remaining));
+        if ($chunk === false || $chunk === '') {
+            break;
+        }
+        echo $chunk;
+        $remaining -= strlen($chunk);
+    }
+    fclose($handle);
+    exit;
+}
+
 function normalizeLanguageCode($value)
 {
     if (!is_string($value)) {
@@ -749,7 +884,7 @@ if ($requestHost) {
 // ===================================
 
 // === PREVENT DOUBLE CLICKS FROM BACKGROUND FETCHES ===
-$staticExts = '/\.(ico|png|jpg|jpeg|gif|css|js|woff|woff2|ttf|svg|map|webmanifest)$/i';
+$staticExts = '/\.(ico|png|jpg|jpeg|gif|bmp|webp|avif|css|js|mjs|json|woff|woff2|ttf|otf|eot|svg|map|webmanifest|mp4|webm|m4v|ogv|mp3|ogg|wav|m4a)$/i';
 $uriPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
 
 // Keitaro-compatible Click API endpoint (v3).
@@ -760,6 +895,17 @@ if ($uriPath === '/click_api/v3' || $uriPath === '/click_api/v3/') {
     exit;
 }
 
+// Local landing asset passthrough (Keitaro-compatible).
+// A local landing's HTML is printed at the campaign URL ("/" or "/alias"), but its
+// files live in /landings/<id>/. Relative paths inside the landing ("img/a.png")
+// are therefore requested from the domain root, where nothing exists — which is
+// why every image, font and video used to 404. Resolve such requests against the
+// landing the visitor was actually shown, remembered in the orbitra_lp cookie.
+// This keeps uploaded landings working untouched, exactly as they do in Keitaro.
+if (!empty($_COOKIE['orbitra_lp']) && $uriPath !== null && $uriPath !== '/') {
+    serveLandingAsset((int) $_COOKIE['orbitra_lp'], $uriPath);
+}
+
 if (preg_match($staticExts, $uriPath)) {
     http_response_code(404);
     exit;
@@ -768,7 +914,7 @@ if (preg_match($staticExts, $uriPath)) {
 // Fetch Dest Header Check (Modern browsers tell us if they just want an image)
 if (isset($_SERVER['HTTP_SEC_FETCH_DEST'])) {
     $dest = $_SERVER['HTTP_SEC_FETCH_DEST'];
-    if (in_array($dest, ['image', 'style', 'script', 'font', 'manifest'])) {
+    if (in_array($dest, ['image', 'style', 'script', 'font', 'manifest', 'video', 'audio', 'track'])) {
         http_response_code(404);
         exit;
     }
@@ -1641,6 +1787,11 @@ if ($actionToPerfrom) {
         setcookie('subid', $clickId, $lpCookieOpts);
         if (!empty($offerIdToLog)) {
             setcookie('orbitra_offer', (string) $offerIdToLog, $lpCookieOpts);
+        }
+        // Lets serveLandingAsset() find the files behind this page's relative
+        // paths, which the browser will request from the domain root.
+        if (($landingType ?? '') === 'local') {
+            setcookie('orbitra_lp', (string) $landingIdToLog, $lpCookieOpts);
         }
     }
 

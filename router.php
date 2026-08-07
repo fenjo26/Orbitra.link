@@ -12,11 +12,14 @@ $domain = $stmt->fetch();
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Fast-fail common browser static asset requests that shouldn't trigger tracking
-if (preg_match('/\.(ico|png|jpg|jpeg|gif|css|js|woff|woff2|ttf|svg|map)$/i', $uri)) {
+// Fast-fail common browser static asset requests that shouldn't trigger tracking.
+// A miss is not necessarily a 404: a local landing's relative paths arrive at the
+// domain root, so hand the request to index.php, which resolves it against the
+// landing the visitor was shown and 404s itself if that leads nowhere.
+if (preg_match('/\.(ico|png|jpg|jpeg|gif|bmp|webp|avif|css|js|mjs|json|woff|woff2|ttf|otf|eot|svg|map|webmanifest|mp4|webm|m4v|ogv|mp3|ogg|wav|m4a)$/i', $uri)) {
     $file = __DIR__ . $uri;
     if (!file_exists($file)) {
-        http_response_code(404);
+        include 'index.php';
         exit;
     }
 }

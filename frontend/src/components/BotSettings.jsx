@@ -33,76 +33,59 @@ const BotSettings = () => {
         fetchData();
     }, []);
 
-    const handleAddIps = async () => {
-        if (!newIps.trim()) return;
+    // One place that speaks the API's contract, so a mismatch cannot creep back
+    // into three separate handlers. Anything but an explicit success is surfaced:
+    // these operations used to fail silently while still reporting success.
+    const mutate = async (type, payload) => {
+        const action = type === 'ip' ? 'bot_ips' : 'bot_signatures';
+        const res = await fetch(`${API_URL}?action=${action}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok || data?.status !== 'success') {
+            throw new Error(data?.message || `HTTP ${res.status}`);
+        }
+        return data;
+    };
+
+    const handleAdd = async (type) => {
+        const source = type === 'ip' ? newIps : newSigs;
+        if (!source.trim()) return;
+        const items = source.split('\n').map(s => s.trim()).filter(Boolean);
         try {
-            const items = newIps.split('\n').map(s => s.trim()).filter(Boolean);
-            const res = await fetch(`${API_URL}?action=bot_ips`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ items })
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                setNewIps('');
-                fetchData();
-                alert(`${t('botSettings.addedCount')} ${data.count || items.length}`);
-            }
+            const data = await mutate(type, { items });
+            (type === 'ip' ? setNewIps : setNewSigs)('');
+            fetchData();
+            const skipped = data.skipped || 0;
+            alert(`${t('botSettings.addedCount')} ${data.added ?? 0}`
+                + (skipped ? ` (${t('botSettings.skippedDuplicates')} ${skipped})` : ''));
         } catch (e) {
-            alert(t('botSettings.networkError'));
+            alert(`${t('botSettings.networkError')}: ${e.message}`);
         }
     };
 
-    const handleAddSigs = async () => {
-        if (!newSigs.trim()) return;
-        try {
-            const items = newSigs.split('\n').map(s => s.trim()).filter(Boolean);
-            const res = await fetch(`${API_URL}?action=bot_signatures`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ items })
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                setNewSigs('');
-                fetchData();
-                alert(`${t('botSettings.addedCount')} ${data.count || items.length}`);
-            }
-        } catch (e) {
-            alert(t('botSettings.networkError'));
-        }
-    };
+    const handleAddIps = () => handleAdd('ip');
+    const handleAddSigs = () => handleAdd('sig');
 
     const handleDelete = async (type, id) => {
         try {
-            const action = type === 'ip' ? 'bot_ips' : 'bot_signatures';
-            await fetch(`${API_URL}?action=${action}`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
-            });
+            await mutate(type, { action: 'delete', id });
             fetchData();
         } catch (e) {
-            alert(t('botSettings.deleteError'));
+            alert(`${t('botSettings.deleteError')}: ${e.message}`);
         }
     };
 
     const handleClear = async (type) => {
         if (!window.confirm(t('botSettings.confirmClear'))) return;
         try {
-            const action = type === 'ip' ? 'bot_ips' : 'bot_signatures';
-            const res = await fetch(`${API_URL}?action=${action}`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ clear_all: true })
-            });
-            const data = await res.json();
-            if (data.status === 'success') {
-                alert(t('botSettings.cleared'));
-                fetchData();
-            }
+            await mutate(type, { action: 'clear_all' });
+            alert(t('botSettings.cleared'));
+            fetchData();
         } catch (e) {
-            alert(t('botSettings.clearError'));
+            alert(`${t('botSettings.clearError')}: ${e.message}`);
         }
     };
 

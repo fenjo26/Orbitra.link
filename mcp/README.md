@@ -55,13 +55,17 @@ Edit Claude Desktop's config file:
 - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
+> ⚠️ **This is not the "Add custom connector" dialog.** Claude's Connectors section only accepts remote MCP servers over HTTPS and authenticates them with OAuth, which is why it has no field for an API key. This server speaks stdio: it runs locally next to the assistant and is declared in the config file below. A tracker URL pasted into the connector dialog will never work.
+
+You can open the file from the app: **Settings → Developer → Edit Config**.
+
 Add an `orbitra` server (use the absolute path to `mcp/src/index.js`):
 
 ```json
 {
   "mcpServers": {
     "orbitra": {
-      "command": "node",
+      "command": "/usr/local/bin/node",
       "args": ["/absolute/path/to/Orbitra/mcp/src/index.js"],
       "env": {
         "ORBITRA_URL": "https://tracker.example.com",
@@ -72,7 +76,14 @@ Add an `orbitra` server (use the absolute path to `mcp/src/index.js`):
 }
 ```
 
-Restart Claude Desktop. You should see the Orbitra tools appear.
+Quit Claude Desktop completely (⌘Q on macOS) and reopen it — the config is only read at startup, so closing the window is not enough. You should see the Orbitra tools appear.
+
+**If the server does not show up:**
+
+- **Node path.** `command` needs an absolute path: the app is not launched from your shell, so a Node installed via nvm or Homebrew is not on its `PATH` and the server fails to start silently. Find it with `which node` (macOS/Linux) or `where node` (Windows).
+- **Dependencies missing.** `cd mcp && npm install`.
+- **Wrong key or URL.** Check them on their own: `ORBITRA_URL=... ORBITRA_API_KEY=... npm run smoke -- --ping`.
+- **`403 API key is read-only`** on create or update — that needs a Write key; a Read key only returns analytics.
 
 > The same config works for any MCP-compatible client — just point it at
 > `node /absolute/path/to/mcp/src/index.js` with the two env vars.

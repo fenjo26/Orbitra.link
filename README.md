@@ -1,4 +1,4 @@
-# Orbitra v0.9.6.1 Tracker
+# Orbitra v0.9.6.2 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -385,6 +385,18 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.6.2
+
+### Added
+- 🔌 **Remote MCP over a URL** — the tracker now serves MCP over HTTP from a new `mcp.php`, so an AI assistant connects with a single address: **Users → API Keys** grew a button next to each key that copies a ready-made `https://your-tracker/mcp.php?k=KEY` to paste into Claude → Settings → Connectors → Add custom connector. No Node, no cloning the repo onto your own machine — and it is the only way to reach Orbitra from Claude in the browser, where local stdio servers are not supported at all. The key rides in the URL because that dialog has no field for one and speaks only OAuth, so treat the URL as a credential; revoking the key cuts access, and a Read key still cannot change anything. Both routes expose the same tools: `mcp/tools.json` is generated from the Node server and `node mcp/src/manifest.js --check` fails if they drift.
+
+### Fixed
+- 🖼 **Uploaded landings showed no images, video or fonts** — a local landing's files sit in `/landings/<id>/`, but the page itself is served at the campaign URL, so every relative path in it (`<img src="hero.jpg">`) was requested from the domain root, where nothing exists. The landing arrived as bare text. Such requests are now resolved against the landing the visitor was actually shown, the same way Keitaro does it, so an uploaded archive works with no edits: relative paths, `srcset`, `url()` inside stylesheets, anchors and forms all keep working because the HTML is passed through untouched. Byte ranges are supported (Safari refuses to play a `<video>` without them), along with `ETag`/`304` and browser caching.
+- 🎞 **Media requests could log a phantom click** — the guard that stops background asset fetches from being counted as clicks listed `.jpg` and `.png` but not `.webp`, `.mp4`, `.avif` or `.webm`. Those requests fell through into campaign matching, so a landing with five videos could add bogus clicks to a campaign and hand the browser HTML where it asked for a file.
+- 🤖 **The bot blacklists did nothing at all** — on **Settings → Bots**, adding IPs or user-agent signatures, deleting one entry and clearing the list were all no-ops, because the panel and `api.php` disagreed about the request body and the HTTP method. Worse, the page reported success either way: after pasting a list you were told "Records added: 40" while the table stayed empty. All three operations work now, the counter reports what actually landed (with duplicates listed separately), and a failure is shown instead of swallowed. If you added a blacklist before this release, add it again — it was never stored.
+- 🤖 **The MCP page pointed people at the wrong dialog** — nothing said that the server is wired up through the Claude Desktop config file rather than through "Add custom connector". That dialog only takes remote MCP servers over HTTPS with OAuth and has no field for an API key, so people pasted their tracker URL into it and hit a dead end. The page now says so outright, shows the Settings → Developer → Edit Config path, puts an absolute path to `node` in the template instead of a bare `node` (the app runs with a different `PATH`, so with nvm or Homebrew the server failed to start silently), and warns that a Read key only returns analytics. The same went into `docs/mcp.md` and `mcp/README.md`, along with a "server didn't show up?" checklist.
+- 🔒 **CSRF was only enforced on POST** — `PUT`, `PATCH` and `DELETE` skipped the check, and API keys skipped the read-only check with them. No endpoint accepted those methods before, so nothing was exploitable, but the guard now covers every method that can change data.
 
 ## 📝 What's New in v0.9.6.1
 

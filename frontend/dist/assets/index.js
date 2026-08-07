@@ -15934,10 +15934,17 @@ const ru = {
     "intro": "Подключите Claude Desktop и другие ИИ-ассистенты к трекеру и управляйте им на обычном языке — анализируйте кампании, создавайте их массово, подключайте домены, редактируйте офферы и многое другое.",
     "step1Title": "Создайте API-ключ",
     "step1Desc": "Откройте «Пользователи → API-ключи» и сгенерируйте ключ. Ключ Read — только аналитика; ключ Write — ещё и управление кампаниями, офферами и доменами.",
+    "step1Hint": "Если попросить ассистента что-то создать или изменить с Read-ключом, вернётся «403 API key is read-only» — для этого нужен Write-ключ.",
+    "remoteTitle": "Вариант A — вставить URL (работает и в браузере, и в приложении)",
+    "remoteDesc": "Создайте ключ в Пользователи → API-ключи, нажмите рядом с ним кнопку со ссылкой — в буфер попадёт готовый URL. Вставьте его в Claude → Settings → Connectors → Add custom connector. Ставить ничего не нужно. Ключ едет прямо в адресе, поэтому относитесь к URL как к паролю, а чтобы закрыть доступ — удалите ключ.",
+    "orLocal": "Вариант B — запустить сервер рядом с ассистентом. Так умеет только Claude Desktop, и через диалог Connectors это не подключается — именно поэтому там нет поля для API-ключа.",
+    "nodePathHint": "Путь к Node узнайте командой",
+    "nodePathHint2": "(macOS/Linux) или",
+    "nodePathHint3": "(Windows) и подставьте результат в «command». Просто «node» сработает, только если он есть в системном PATH.",
     "step2Title": "Установите сервер",
     "step2Desc": "На машине с ИИ-ассистентом один раз установите зависимости в папке трекера:",
     "step3Title": "Добавьте в Claude Desktop",
-    "step3Desc": "Вставьте это в конфиг Claude Desktop, затем замените путь на абсолютный путь к mcp/src/index.js, а ORBITRA_API_KEY — на ключ из шага 1.",
+    "step3Desc": "В Claude Desktop откройте Settings → Developer → Edit Config и вставьте это, затем замените путь на абсолютный путь к mcp/src/index.js, а ORBITRA_API_KEY — на ключ из шага 1. Перезапустите приложение полностью: закрыть окно недостаточно.",
     "copyConfig": "Скопировать конфиг",
     "copied": "Скопировано",
     "toolsNote": "Доступен 31 инструмент: аналитика (метрики, кампании, конверсии, отчёты) и управление (создание / массовое создание / редактирование / удаление кампаний, офферов, доменов, источников, лендингов).",
@@ -16924,6 +16931,7 @@ const ru = {
     "mcpDesc": "Сгенерируйте ключ выше, затем вставьте это в конфиг Claude Desktop. Замените путь на абсолютный путь к mcp/src/index.js, а ORBITRA_API_KEY — на ваш ключ. Полная инструкция: mcp/README.md.",
     "mcpCopyConfig": "Скопировать конфиг",
     "apiKeyHint": "Ключи «read» дают только аналитику. Ключи «write» также позволяют управлять кампаниями, офферами и доменами — их использует MCP-сервер Orbitra для нейросетей (см. mcp/README.md).",
+    "copyMcpUrl": "Скопировать URL коннектора (для Claude → Add custom connector)",
     "newReadKey": "Ключ чтения",
     "newWriteKey": "Ключ записи",
     "title": "Пользователи",
@@ -17090,6 +17098,7 @@ const ru = {
     "loading": "Загрузка...",
     "loadError": "Ошибка загрузки баз",
     "addedCount": "Добавлено записей:",
+    "skippedDuplicates": "дубликатов пропущено:",
     "networkError": "Ошибка сети",
     "deleteError": "Ошибка удаления",
     "clearError": "Ошибка очистки",
@@ -17877,10 +17886,17 @@ const en = {
     "intro": "Connect Claude Desktop and other AI assistants to your tracker and manage it in plain language — analyse campaigns, create them in bulk, connect domains, edit offers and more.",
     "step1Title": "Create an API key",
     "step1Desc": "Open Users → API Keys and generate a key. A Read key allows analytics only; a Write key also allows managing campaigns, offers and domains.",
+    "step1Hint": 'Asking the assistant to create or edit anything with a Read key comes back as "403 API key is read-only" — that needs a Write key.',
+    "remoteTitle": "Option A — paste a URL (works in the browser and in the desktop app)",
+    "remoteDesc": "Generate an API key in Users → API Keys, press the link button next to it to copy a ready-made URL, then paste that into Claude → Settings → Connectors → Add custom connector. Nothing to install. The key travels in the URL, so treat the URL as the credential and revoke the key to cut access.",
+    "orLocal": "Option B — run the server next to your assistant. Only Claude Desktop can do this; it cannot be added through the Connectors dialog, which is why that dialog has no field for an API key.",
+    "nodePathHint": "Check the path to Node with",
+    "nodePathHint2": "(macOS/Linux) or",
+    "nodePathHint3": '(Windows) and put the result in "command". A bare "node" only works if it sits in the system PATH.',
     "step2Title": "Install the server",
     "step2Desc": "On the machine running your AI assistant, install dependencies once inside the tracker folder:",
     "step3Title": "Add to Claude Desktop",
-    "step3Desc": "Paste this into your Claude Desktop config, then replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with the key from step 1.",
+    "step3Desc": "Open Settings → Developer → Edit Config in Claude Desktop and paste this in, then replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with the key from step 1. Quit the app completely and reopen it — closing the window is not enough.",
     "copyConfig": "Copy config",
     "copied": "Copied",
     "toolsNote": "31 tools are available: analytics (metrics, campaigns, conversions, reports) and management (create / bulk-create / edit / delete campaigns, offers, domains, sources, landings).",
@@ -18867,6 +18883,7 @@ const en = {
     "mcpDesc": "Generate a key above, then paste this into your Claude Desktop config. Replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with your key. Full guide: mcp/README.md.",
     "mcpCopyConfig": "Copy config",
     "apiKeyHint": "Read keys allow analytics only. Write keys also allow managing campaigns, offers and domains — used by the Orbitra MCP server for AI assistants (see mcp/README.md).",
+    "copyMcpUrl": "Copy connector URL (for Claude → Add custom connector)",
     "newReadKey": "Read key",
     "newWriteKey": "Write key",
     "title": "Users",
@@ -19033,6 +19050,7 @@ const en = {
     "loading": "Loading...",
     "loadError": "Error loading databases",
     "addedCount": "Records added:",
+    "skippedDuplicates": "duplicates skipped:",
     "networkError": "Network error",
     "deleteError": "Delete error",
     "clearError": "Clear error",
@@ -19820,10 +19838,17 @@ const uk = {
     "intro": "Підключіть Claude Desktop та інші ІІ-асистенти до трекера й керуйте ним звичайною мовою — аналізуйте кампанії, створюйте їх масово, підключайте домени, редагуйте офери тощо.",
     "step1Title": "Створіть API-ключ",
     "step1Desc": "Відкрийте «Користувачі → API-ключі» та згенеруйте ключ. Ключ Read — лише аналітика; ключ Write — ще й керування кампаніями, оферами й доменами.",
+    "step1Hint": "Якщо попросити асистента щось створити або змінити з Read-ключем, повернеться «403 API key is read-only» — для цього потрібен Write-ключ.",
+    "remoteTitle": "Варіант A — вставити URL (працює і в браузері, і в застосунку)",
+    "remoteDesc": "Створіть ключ у Користувачі → API-ключі, натисніть поруч кнопку з посиланням — у буфер потрапить готовий URL. Вставте його в Claude → Settings → Connectors → Add custom connector. Встановлювати нічого не треба. Ключ їде просто в адресі, тож ставтеся до URL як до пароля, а щоб закрити доступ — видаліть ключ.",
+    "orLocal": "Варіант B — запустити сервер поруч з асистентом. Так уміє лише Claude Desktop, і через діалог Connectors це не підключається — саме тому там немає поля для API-ключа.",
+    "nodePathHint": "Шлях до Node дізнайтеся командою",
+    "nodePathHint2": "(macOS/Linux) або",
+    "nodePathHint3": "(Windows) і підставте результат у «command». Просто «node» спрацює, лише якщо він є в системному PATH.",
     "step2Title": "Встановіть сервер",
     "step2Desc": "На машині з ІІ-асистентом один раз встановіть залежності в папці трекера:",
     "step3Title": "Додайте в Claude Desktop",
-    "step3Desc": "Вставте це в конфіг Claude Desktop, потім замініть шлях на абсолютний шлях до mcp/src/index.js, а ORBITRA_API_KEY — на ключ із кроку 1.",
+    "step3Desc": "У Claude Desktop відкрийте Settings → Developer → Edit Config і вставте це, потім замініть шлях на абсолютний шлях до mcp/src/index.js, а ORBITRA_API_KEY — на ключ із кроку 1. Перезапустіть застосунок повністю: закрити вікно недостатньо.",
     "copyConfig": "Скопіювати конфіг",
     "copied": "Скопійовано",
     "toolsNote": "Доступний 31 інструмент: аналітика (метрики, кампанії, конверсії, звіти) та керування (створення / масове створення / редагування / видалення кампаній, оферів, доменів, джерел, лендингів).",
@@ -20810,6 +20835,7 @@ const uk = {
     "mcpDesc": "Згенеруйте ключ вище, потім вставте це в конфіг Claude Desktop. Замініть шлях на абсолютний шлях до mcp/src/index.js, а ORBITRA_API_KEY — на ваш ключ. Повна інструкція: mcp/README.md.",
     "mcpCopyConfig": "Скопіювати конфіг",
     "apiKeyHint": "Ключі «read» дають лише аналітику. Ключі «write» також дозволяють керувати кампаніями, оферами й доменами — їх використовує MCP-сервер Orbitra для нейромереж (див. mcp/README.md).",
+    "copyMcpUrl": "Скопіювати URL конектора (для Claude → Add custom connector)",
     "newReadKey": "Ключ читання",
     "newWriteKey": "Ключ запису",
     "title": "Користувачі",
@@ -20976,6 +21002,7 @@ const uk = {
     "loading": "Завантаження...",
     "loadError": "Помилка завантаження баз даних",
     "addedCount": "Записи додано:",
+    "skippedDuplicates": "дублікатів пропущено:",
     "networkError": "Помилка мережі",
     "deleteError": "Видалити помилку",
     "clearError": "Очистити помилку",
@@ -21763,10 +21790,17 @@ const es = {
     "intro": "Conecta Claude Desktop y otros asistentes de IA a tu tracker y gestiónalo en lenguaje natural: analiza campañas, créalas en lote, conecta dominios, edita ofertas y más.",
     "step1Title": "Crea una clave API",
     "step1Desc": "Abre Usuarios → Claves API y genera una clave. Una clave Read solo permite análisis; una clave Write también permite gestionar campañas, ofertas y dominios.",
+    "step1Hint": "Pedir al asistente que cree o edite algo con una clave Read devuelve «403 API key is read-only»: para eso hace falta una clave Write.",
+    "remoteTitle": "Opción A — pegar una URL (funciona en el navegador y en la app de escritorio)",
+    "remoteDesc": "Genera una clave en Usuarios → Claves API, pulsa el botón de enlace que hay al lado para copiar una URL ya lista y pégala en Claude → Settings → Connectors → Add custom connector. No hay que instalar nada. La clave viaja en la URL, así que trátala como una credencial; para cortar el acceso, revoca la clave.",
+    "orLocal": "Opción B — ejecutar el servidor junto a tu asistente. Solo Claude Desktop puede hacerlo y no se añade desde el diálogo de conectores: por eso ese diálogo no tiene campo para una clave de API.",
+    "nodePathHint": "Consulta la ruta de Node con",
+    "nodePathHint2": "(macOS/Linux) o",
+    "nodePathHint3": "(Windows) y pon el resultado en «command». Un simple «node» solo funciona si está en el PATH del sistema.",
     "step2Title": "Instala el servidor",
     "step2Desc": "En la máquina con tu asistente de IA, instala las dependencias una vez dentro de la carpeta del tracker:",
     "step3Title": "Añade a Claude Desktop",
-    "step3Desc": "Pega esto en la configuración de Claude Desktop y reemplaza la ruta por la ruta absoluta a mcp/src/index.js y ORBITRA_API_KEY por la clave del paso 1.",
+    "step3Desc": "En Claude Desktop abre Settings → Developer → Edit Config y pega esto, luego sustituye la ruta por la ruta absoluta a mcp/src/index.js y ORBITRA_API_KEY por la clave del paso 1. Cierra la aplicación por completo y vuelve a abrirla: cerrar la ventana no basta.",
     "copyConfig": "Copiar config",
     "copied": "Copiado",
     "toolsNote": "Hay 31 herramientas disponibles: análisis (métricas, campañas, conversiones, informes) y gestión (crear / crear en lote / editar / eliminar campañas, ofertas, dominios, fuentes, landings).",
@@ -22753,6 +22787,7 @@ const es = {
     "mcpDesc": "Genere una clave arriba y pegue esto en la configuración de Claude Desktop. Reemplace la ruta por la ruta absoluta a mcp/src/index.js y ORBITRA_API_KEY por su clave. Guía completa: mcp/README.md.",
     "mcpCopyConfig": "Copiar configuración",
     "apiKeyHint": "Las claves «read» solo permiten análisis. Las claves «write» también permiten gestionar campañas, ofertas y dominios — las usa el servidor MCP de Orbitra para asistentes de IA (ver mcp/README.md).",
+    "copyMcpUrl": "Copiar URL del conector (para Claude → Add custom connector)",
     "newReadKey": "Clave de lectura",
     "newWriteKey": "Clave de escritura",
     "title": "Usuarios",
@@ -22919,6 +22954,7 @@ const es = {
     "loading": "Cargando...",
     "loadError": "Error al cargar bases de datos",
     "addedCount": "Registros agregados:",
+    "skippedDuplicates": "duplicados omitidos:",
     "networkError": "error de red",
     "deleteError": "Eliminar error",
     "clearError": "Borrar error",
@@ -23706,10 +23742,17 @@ const zh = {
     "intro": "将 Claude Desktop 及其他 AI 助手连接到你的跟踪器，用自然语言进行管理 —— 分析广告系列、批量创建、连接域名、编辑报价等。",
     "step1Title": "创建 API 密钥",
     "step1Desc": "打开「用户 → API 密钥」并生成密钥。只读密钥仅用于分析；写入密钥还可管理广告系列、报价和域名。",
+    "step1Hint": "用 Read 密钥让助手创建或修改任何内容都会返回「403 API key is read-only」，那需要 Write 密钥。",
+    "remoteTitle": "方式 A — 粘贴一个网址（浏览器和桌面端都可用）",
+    "remoteDesc": "在「用户 → API 密钥」中生成密钥，点击旁边的链接按钮复制现成的网址，然后粘贴到 Claude → Settings → Connectors → Add custom connector。无需安装任何东西。密钥就在网址里，请把这个网址当作凭据保管；要断开访问，删除该密钥即可。",
+    "orLocal": "方式 B — 在助手所在的机器上运行服务器。只有 Claude Desktop 支持，且无法通过 Connectors 对话框添加——这正是那个对话框没有 API 密钥输入框的原因。",
+    "nodePathHint": "用以下命令查看 Node 的路径：",
+    "nodePathHint2": "（macOS/Linux）或",
+    "nodePathHint3": "（Windows），并把结果填入「command」。直接写「node」只有在它位于系统 PATH 中时才有效。",
     "step2Title": "安装服务器",
     "step2Desc": "在运行 AI 助手的机器上，于跟踪器目录中安装一次依赖：",
     "step3Title": "添加到 Claude Desktop",
-    "step3Desc": "将此内容粘贴到 Claude Desktop 配置中，然后将路径替换为 mcp/src/index.js 的绝对路径，并将 ORBITRA_API_KEY 替换为第 1 步的密钥。",
+    "step3Desc": "在 Claude Desktop 中打开 Settings → Developer → Edit Config 并粘贴以下内容，然后把路径替换为 mcp/src/index.js 的绝对路径，把 ORBITRA_API_KEY 替换为第 1 步的密钥。完全退出并重新打开应用——只关闭窗口是不够的。",
     "copyConfig": "复制配置",
     "copied": "已复制",
     "toolsNote": "提供 31 个工具：分析（指标、广告系列、转化、报告）与管理（创建 / 批量创建 / 编辑 / 删除广告系列、报价、域名、来源、落地页）。",
@@ -24696,6 +24739,7 @@ const zh = {
     "mcpDesc": "先在上方生成密钥，然后将此内容粘贴到 Claude Desktop 配置中。将路径替换为 mcp/src/index.js 的绝对路径，并将 ORBITRA_API_KEY 替换为你的密钥。完整指南：mcp/README.md。",
     "mcpCopyConfig": "复制配置",
     "apiKeyHint": "只读密钥仅用于分析。写入密钥还可管理广告系列、报价和域名 —— 供面向 AI 助手的 Orbitra MCP 服务器使用（见 mcp/README.md）。",
+    "copyMcpUrl": "复制连接器网址（用于 Claude → Add custom connector）",
     "newReadKey": "只读密钥",
     "newWriteKey": "写入密钥",
     "title": "用户",
@@ -24862,6 +24906,7 @@ const zh = {
     "loading": "正在加载...",
     "loadError": "加载数据库时出错",
     "addedCount": "添加的记录：",
+    "skippedDuplicates": "已跳过重复项：",
     "networkError": "网络错误",
     "deleteError": "删除错误",
     "clearError": "清除错误",
@@ -25649,10 +25694,17 @@ const fr = {
     "intro": "Connectez Claude Desktop et d'autres assistants IA à votre tracker et gérez-le en langage naturel : analyser les campagnes, les créer en masse, connecter des domaines, modifier des offres, etc.",
     "step1Title": "Créer une clé API",
     "step1Desc": "Ouvrez Utilisateurs → Clés API et générez une clé. Une clé Read ne permet que les analyses ; une clé Write permet aussi de gérer les campagnes, offres et domaines.",
+    "step1Hint": "Demander à l'assistant de créer ou modifier quelque chose avec une clé Read renvoie « 403 API key is read-only » : il faut une clé Write.",
+    "remoteTitle": "Option A — coller une URL (fonctionne dans le navigateur et dans l'application)",
+    "remoteDesc": "Créez une clé dans Utilisateurs → Clés API, cliquez sur le bouton lien à côté pour copier une URL toute prête, puis collez-la dans Claude → Settings → Connectors → Add custom connector. Rien à installer. La clé voyage dans l'URL : traitez-la comme un mot de passe et révoquez la clé pour couper l'accès.",
+    "orLocal": "Option B — faire tourner le serveur à côté de votre assistant. Seul Claude Desktop en est capable, et cela ne s'ajoute pas via la boîte de dialogue Connectors — d'où l'absence de champ pour une clé d'API.",
+    "nodePathHint": "Trouvez le chemin de Node avec",
+    "nodePathHint2": "(macOS/Linux) ou",
+    "nodePathHint3": "(Windows) et reportez le résultat dans « command ». Un simple « node » ne marche que s'il est dans le PATH du système.",
     "step2Title": "Installer le serveur",
     "step2Desc": "Sur la machine exécutant votre assistant IA, installez les dépendances une fois dans le dossier du tracker :",
     "step3Title": "Ajouter à Claude Desktop",
-    "step3Desc": "Collez ceci dans la configuration de Claude Desktop, puis remplacez le chemin par le chemin absolu vers mcp/src/index.js et ORBITRA_API_KEY par la clé de l'étape 1.",
+    "step3Desc": "Dans Claude Desktop, ouvrez Settings → Developer → Edit Config et collez ceci, puis remplacez le chemin par le chemin absolu vers mcp/src/index.js et ORBITRA_API_KEY par la clé de l'étape 1. Quittez complètement l'application et rouvrez-la : fermer la fenêtre ne suffit pas.",
     "copyConfig": "Copier la config",
     "copied": "Copié",
     "toolsNote": "31 outils disponibles : analyses (métriques, campagnes, conversions, rapports) et gestion (créer / créer en masse / modifier / supprimer campagnes, offres, domaines, sources, landings).",
@@ -26639,6 +26691,7 @@ const fr = {
     "mcpDesc": "Générez une clé ci-dessus, puis collez ceci dans la configuration de Claude Desktop. Remplacez le chemin par le chemin absolu vers mcp/src/index.js et ORBITRA_API_KEY par votre clé. Guide complet : mcp/README.md.",
     "mcpCopyConfig": "Copier la configuration",
     "apiKeyHint": "Les clés « read » ne donnent accès qu'aux analyses. Les clés « write » permettent aussi de gérer les campagnes, offres et domaines — utilisées par le serveur MCP d'Orbitra pour les assistants IA (voir mcp/README.md).",
+    "copyMcpUrl": "Copier l'URL du connecteur (pour Claude → Add custom connector)",
     "newReadKey": "Clé de lecture",
     "newWriteKey": "Clé d'écriture",
     "title": "Utilisateurs",
@@ -26805,6 +26858,7 @@ const fr = {
     "loading": "Chargement...",
     "loadError": "Erreur lors du chargement des bases de données",
     "addedCount": "Enregistrements ajoutés :",
+    "skippedDuplicates": "doublons ignorés :",
     "networkError": "Erreur réseau",
     "deleteError": "Supprimer erreur",
     "clearError": "Effacer l'erreur",
@@ -27594,10 +27648,17 @@ const de = {
     "intro": "Verbinde Claude Desktop und andere KI-Assistenten mit deinem Tracker und verwalte ihn in natürlicher Sprache — Kampagnen analysieren, in großen Mengen anlegen, Domains verbinden, Angebote bearbeiten und mehr.",
     "step1Title": "API-Schlüssel erstellen",
     "step1Desc": "Öffne Benutzer → API-Schlüssel und erzeuge einen Schlüssel. Ein Read-Schlüssel erlaubt nur Analysen; ein Write-Schlüssel erlaubt auch die Verwaltung von Kampagnen, Angeboten und Domains.",
+    "step1Hint": "Wer den Assistenten mit einem Read-Schlüssel etwas anlegen oder ändern lässt, bekommt „403 API key is read-only“ — dafür ist ein Write-Schlüssel nötig.",
+    "remoteTitle": "Variante A — eine URL einfügen (funktioniert im Browser und in der Desktop-App)",
+    "remoteDesc": "Erzeuge einen Schlüssel unter Benutzer → API-Schlüssel, kopiere mit der Link-Schaltfläche daneben die fertige URL und füge sie in Claude → Settings → Connectors → Add custom connector ein. Es muss nichts installiert werden. Der Schlüssel steckt in der URL — behandle sie wie ein Passwort; zum Sperren den Schlüssel löschen.",
+    "orLocal": "Variante B — den Server neben dem Assistenten laufen lassen. Das kann nur Claude Desktop, und über den Connectors-Dialog lässt es sich nicht hinzufügen — deshalb gibt es dort kein Feld für einen API-Schlüssel.",
+    "nodePathHint": "Den Pfad zu Node ermittelst du mit",
+    "nodePathHint2": "(macOS/Linux) oder",
+    "nodePathHint3": "(Windows); trage das Ergebnis in „command“ ein. Ein bloßes „node“ funktioniert nur, wenn es im System-PATH liegt.",
     "step2Title": "Server installieren",
     "step2Desc": "Installiere auf dem Rechner mit deinem KI-Assistenten die Abhängigkeiten einmalig im Tracker-Ordner:",
     "step3Title": "Zu Claude Desktop hinzufügen",
-    "step3Desc": "Füge dies in die Claude-Desktop-Konfiguration ein und ersetze den Pfad durch den absoluten Pfad zu mcp/src/index.js und ORBITRA_API_KEY durch den Schlüssel aus Schritt 1.",
+    "step3Desc": "Öffne in Claude Desktop Settings → Developer → Edit Config und füge das hier ein, ersetze dann den Pfad durch den absoluten Pfad zu mcp/src/index.js und ORBITRA_API_KEY durch den Schlüssel aus Schritt 1. Beende die App vollständig und starte sie neu — das Fenster zu schließen genügt nicht.",
     "copyConfig": "Konfiguration kopieren",
     "copied": "Kopiert",
     "toolsNote": "31 Tools verfügbar: Analysen (Metriken, Kampagnen, Conversions, Berichte) und Verwaltung (Erstellen / Massenerstellung / Bearbeiten / Löschen von Kampagnen, Angeboten, Domains, Quellen, Landings).",
@@ -28584,6 +28645,7 @@ const de = {
     "mcpDesc": "Erzeugen Sie oben einen Schlüssel und fügen Sie dies in die Claude-Desktop-Konfiguration ein. Ersetzen Sie den Pfad durch den absoluten Pfad zu mcp/src/index.js und ORBITRA_API_KEY durch Ihren Schlüssel. Vollständige Anleitung: mcp/README.md.",
     "mcpCopyConfig": "Konfiguration kopieren",
     "apiKeyHint": "Read-Schlüssel erlauben nur Analysen. Write-Schlüssel erlauben zusätzlich die Verwaltung von Kampagnen, Angeboten und Domains — verwendet vom Orbitra-MCP-Server für KI-Assistenten (siehe mcp/README.md).",
+    "copyMcpUrl": "Connector-URL kopieren (für Claude → Add custom connector)",
     "newReadKey": "Read-Schlüssel",
     "newWriteKey": "Write-Schlüssel",
     "title": "Benutzer",
@@ -28750,6 +28812,7 @@ const de = {
     "loading": "Laden...",
     "loadError": "Fehler beim Laden der Datenbanken",
     "addedCount": "Einträge hinzugefügt:",
+    "skippedDuplicates": "Duplikate übersprungen:",
     "networkError": "Netzwerkfehler",
     "deleteError": "Löschfehler",
     "clearError": "Fehler löschen",
@@ -49492,6 +49555,15 @@ const UsersPage = () => {
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
+                onClick: () => copyToClipboard(`${window.location.origin}/mcp.php?k=${key.api_key}`),
+                className: "action-btn text-blue",
+                title: t("users.copyMcpUrl", "Copy connector URL (for Claude → Add custom connector)"),
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { size: 16 })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
                 onClick: () => copyToClipboard(key.api_key),
                 className: "action-btn text-blue",
                 title: t("common.copy"),
@@ -50545,73 +50617,51 @@ const BotSettings = () => {
   reactExports.useEffect(() => {
     fetchData();
   }, []);
-  const handleAddIps = async () => {
-    if (!newIps.trim()) return;
+  const mutate = async (type, payload) => {
+    const action = type === "ip" ? "bot_ips" : "bot_signatures";
+    const res = await fetch(`${API_URL$f}?action=${action}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok || data?.status !== "success") {
+      throw new Error(data?.message || `HTTP ${res.status}`);
+    }
+    return data;
+  };
+  const handleAdd = async (type) => {
+    const source = type === "ip" ? newIps : newSigs;
+    if (!source.trim()) return;
+    const items = source.split("\n").map((s) => s.trim()).filter(Boolean);
     try {
-      const items = newIps.split("\n").map((s) => s.trim()).filter(Boolean);
-      const res = await fetch(`${API_URL$f}?action=bot_ips`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items })
-      });
-      const data = await res.json();
-      if (data.status === "success") {
-        setNewIps("");
-        fetchData();
-        alert(`${t("botSettings.addedCount")} ${data.count || items.length}`);
-      }
+      const data = await mutate(type, { items });
+      (type === "ip" ? setNewIps : setNewSigs)("");
+      fetchData();
+      const skipped = data.skipped || 0;
+      alert(`${t("botSettings.addedCount")} ${data.added ?? 0}` + (skipped ? ` (${t("botSettings.skippedDuplicates")} ${skipped})` : ""));
     } catch (e) {
-      alert(t("botSettings.networkError"));
+      alert(`${t("botSettings.networkError")}: ${e.message}`);
     }
   };
-  const handleAddSigs = async () => {
-    if (!newSigs.trim()) return;
-    try {
-      const items = newSigs.split("\n").map((s) => s.trim()).filter(Boolean);
-      const res = await fetch(`${API_URL$f}?action=bot_signatures`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items })
-      });
-      const data = await res.json();
-      if (data.status === "success") {
-        setNewSigs("");
-        fetchData();
-        alert(`${t("botSettings.addedCount")} ${data.count || items.length}`);
-      }
-    } catch (e) {
-      alert(t("botSettings.networkError"));
-    }
-  };
+  const handleAddIps = () => handleAdd("ip");
+  const handleAddSigs = () => handleAdd("sig");
   const handleDelete = async (type, id) => {
     try {
-      const action = type === "ip" ? "bot_ips" : "bot_signatures";
-      await fetch(`${API_URL$f}?action=${action}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-      });
+      await mutate(type, { action: "delete", id });
       fetchData();
     } catch (e) {
-      alert(t("botSettings.deleteError"));
+      alert(`${t("botSettings.deleteError")}: ${e.message}`);
     }
   };
   const handleClear = async (type) => {
     if (!window.confirm(t("botSettings.confirmClear"))) return;
     try {
-      const action = type === "ip" ? "bot_ips" : "bot_signatures";
-      const res = await fetch(`${API_URL$f}?action=${action}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ clear_all: true })
-      });
-      const data = await res.json();
-      if (data.status === "success") {
-        alert(t("botSettings.cleared"));
-        fetchData();
-      }
+      await mutate(type, { action: "clear_all" });
+      alert(t("botSettings.cleared"));
+      fetchData();
     } catch (e) {
-      alert(t("botSettings.clearError"));
+      alert(`${t("botSettings.clearError")}: ${e.message}`);
     }
   };
   if (loading) {
@@ -54653,7 +54703,10 @@ const McpPage = () => {
   const config = JSON.stringify({
     mcpServers: {
       orbitra: {
-        command: "node",
+        // An absolute path, not bare "node": the desktop app is not launched
+        // from a shell, so a Node installed via nvm or Homebrew is not on its
+        // PATH and the server fails to start with no useful error.
+        command: "/usr/local/bin/node",
         args: ["/absolute/path/to/Orbitra/mcp/src/index.js"],
         env: {
           ORBITRA_URL: origin2,
@@ -54704,6 +54757,16 @@ const McpPage = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "page-title", children: t("mcpPage.title", "AI Assistant (MCP)") })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { background: "var(--color-info-bg)", borderRadius: "16px", padding: "16px", marginBottom: "24px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-info)", margin: 0, lineHeight: 1.55 }, children: t("mcpPage.intro", "Connect Claude Desktop and other AI assistants to your tracker and manage it in plain language — analyse campaigns, create them in bulk, connect domains, edit offers and more.") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { ...cardStyle, border: "1px solid var(--color-accent, #2563eb)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontWeight: 600, fontSize: "15px", marginBottom: "4px", display: "flex", alignItems: "center", gap: "6px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { size: 15 }),
+        " ",
+        t("mcpPage.remoteTitle", "Option A — paste a URL (works in the browser and in the desktop app)")
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13.5px", color: "var(--color-text-secondary)", margin: 0, lineHeight: 1.55 }, children: t("mcpPage.remoteDesc", "Generate an API key in Users → API Keys, press the link button next to it to copy a ready-made URL, then paste that into Claude → Settings → Connectors → Add custom connector. Nothing to install. The key travels in the URL, so treat the URL as the credential and revoke the key to cut access.") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { style: codeBlock, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: `${origin2}/mcp.php?k=<your-api-key>` }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", color: "var(--color-text-muted)", margin: "0 0 16px", lineHeight: 1.6 }, children: t("mcpPage.orLocal", "Option B — run the server next to your assistant. Only Claude Desktop can do this; it cannot be added through the Connectors dialog, which is why that dialog has no field for an API key.") }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: cardStyle, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: stepBadge, children: "1" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
@@ -54712,7 +54775,8 @@ const McpPage = () => {
           " ",
           t("mcpPage.step1Title", "Create an API key")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13.5px", color: "var(--color-text-secondary)", margin: 0, lineHeight: 1.55 }, children: t("mcpPage.step1Desc", "Open Users → API Keys and generate a key. A Read key allows analytics only; a Write key also allows managing campaigns, offers and domains.") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13.5px", color: "var(--color-text-secondary)", margin: 0, lineHeight: 1.55 }, children: t("mcpPage.step1Desc", "Open Users → API Keys and generate a key. A Read key allows analytics only; a Write key also allows managing campaigns, offers and domains.") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12.5px", color: "var(--color-text-muted)", margin: "6px 0 0", lineHeight: 1.55 }, children: t("mcpPage.step1Hint", 'Asking the assistant to create or edit anything with a Read key comes back as "403 API key is read-only" — that needs a Write key.') })
       ] })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: cardStyle, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start" }, children: [
@@ -54745,7 +54809,7 @@ const McpPage = () => {
             copied ? t("mcpPage.copied", "Copied") : t("mcpPage.copyConfig", "Copy config")
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13.5px", color: "var(--color-text-secondary)", margin: 0, lineHeight: 1.55 }, children: t("mcpPage.step3Desc", "Paste this into your Claude Desktop config, then replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with the key from step 1.") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13.5px", color: "var(--color-text-secondary)", margin: 0, lineHeight: 1.55 }, children: t("mcpPage.step3Desc", "Open Settings → Developer → Edit Config in Claude Desktop and paste this in, then replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with the key from step 1. Quit the app completely and reopen it — closing the window is not enough.") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { style: codeBlock, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: config }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "10px", lineHeight: 1.6 }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -54757,6 +54821,17 @@ const McpPage = () => {
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Windows:" }),
             " ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "%APPDATA%\\Claude\\claude_desktop_config.json" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "8px" }, children: [
+            t("mcpPage.nodePathHint", "Check the path to Node with"),
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "which node" }),
+            " ",
+            t("mcpPage.nodePathHint2", "(macOS/Linux) or"),
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "where node" }),
+            " ",
+            t("mcpPage.nodePathHint3", '(Windows) and put the result in "command". A bare "node" only works if it sits in the system PATH.')
           ] })
         ] })
       ] })

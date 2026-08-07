@@ -48,6 +48,22 @@ header('Content-Type: application/json');
 $action = $_GET['action'] ?? '';
 
 // Rate Limiting fallback implementation
+/**
+ * Raw request body, overridable for in-process calls.
+ *
+ * mcp.php dispatches an MCP tool by populating $_GET/$_SERVER and including this
+ * file, which means there is no real php://input to read — that stream can only
+ * be consumed from an actual HTTP request. Handlers therefore go through this
+ * helper instead of reading the stream directly.
+ */
+function orbitraRequestBody()
+{
+    if (isset($GLOBALS['ORBITRA_INTERNAL_REQUEST_BODY'])) {
+        return (string) $GLOBALS['ORBITRA_INTERNAL_REQUEST_BODY'];
+    }
+    return (string) orbitraRequestBody();
+}
+
 function checkRateLimit($key, $maxRequests = 5, $window = 300)
 {
     // Попробовать Redis, если расширение установлено
@@ -151,7 +167,10 @@ if (!in_array($action, $publicActions)) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Any method that can change data needs the same guard, not POST alone —
+    // otherwise an endpoint that also accepts DELETE would be reachable without
+    // a CSRF token and, for API keys, without the write-permission check.
+    if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
         // API-key clients are exempt from CSRF (they don't use cookies); enforce
         // permission scope instead: read-only keys cannot perform write actions.
         if ($apiKeyAuth !== null) {
@@ -217,6 +236,96 @@ function logAudit($pdo, $action, $resource, $resource_id = null, $context = null
     } catch (\Exception $e) {
         logSystem($pdo, 'ERROR', "Audit Log Error", $e->getMessage());
     }
+}
+
+/**
+ * Shared CRUD for the two bot blacklists (bot_ips, bot_signatures).
+ *
+ * The panel and this endpoint used to disagree on all three operations: the UI
+ * posted {items:[...]} while the handler read a newline-joined {ips:"..."} string,
+ * and it sent DELETE where the handler only looked at POST — so adding, removing
+ * and clearing all silently did nothing while still reporting success. Both call
+ * shapes are accepted now so an older built frontend keeps working after an
+ * update that only replaces the PHP files.
+ */
+function orbitraBotListEndpoint($pdo, $table, $column, $payloadKey)
+{
+    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+    if ($method === 'GET') {
+        $rows = $pdo->query("SELECT * FROM {$table} ORDER BY id DESC LIMIT 1000")->fetchAll();
+        $total = (int) $pdo->query("SELECT COUNT(*) AS c FROM {$table}")->fetch()['c'];
+        echo json_encode(['status' => 'success', 'data' => $rows, 'total' => $total]);
+        return;
+    }
+
+    $data = json_decode(orbitraRequestBody(), true);
+    if (!is_array($data)) {
+        $data = [];
+    }
+    $op = $data['action'] ?? null;
+
+    if ($op === 'clear_all' || !empty($data['clear_all'])) {
+        $removed = (int) $pdo->query("SELECT COUNT(*) AS c FROM {$table}")->fetch()['c'];
+        $pdo->exec("DELETE FROM {$table}");
+        echo json_encode(['status' => 'success', 'removed' => $removed]);
+        return;
+    }
+
+    if ($op === 'delete' || isset($data['id'])) {
+        $id = (int) ($data['id'] ?? 0);
+        if ($id <= 0) {
+            http_response_code(400);
+            echo json_encode(['status' => 'error', 'message' => 'Missing id']);
+            return;
+        }
+        $stmt = $pdo->prepare("DELETE FROM {$table} WHERE id = ?");
+        $stmt->execute([$id]);
+        if ($stmt->rowCount() === 0) {
+            http_response_code(404);
+            echo json_encode(['status' => 'error', 'message' => 'Entry not found']);
+            return;
+        }
+        echo json_encode(['status' => 'success', 'removed' => 1]);
+        return;
+    }
+
+    // Add. Accept either an array of entries or one newline-separated string.
+    $raw = $data['items'] ?? $data[$payloadKey] ?? [];
+    if (is_string($raw)) {
+        $raw = preg_split('/\r\n|\r|\n/', $raw);
+    }
+    if (!is_array($raw)) {
+        $raw = [];
+    }
+
+    $stmt = $pdo->prepare("INSERT OR IGNORE INTO {$table} ({$column}) VALUES (?)");
+    $added = 0;
+    $skipped = 0;
+    foreach ($raw as $entry) {
+        if (!is_scalar($entry)) {
+            continue;
+        }
+        $entry = trim((string) $entry);
+        if ($entry === '') {
+            continue;
+        }
+        $stmt->execute([$entry]);
+        // INSERT OR IGNORE swallows duplicates; report them so the panel can say
+        // how many entries actually landed instead of echoing the input count.
+        if ($stmt->rowCount() > 0) {
+            $added++;
+        } else {
+            $skipped++;
+        }
+    }
+
+    echo json_encode([
+        'status' => 'success',
+        'added' => $added,
+        'count' => $added,
+        'skipped' => $skipped,
+    ]);
 }
 
 // === NGINX AUTO-CONFIGURATION ===
@@ -1144,7 +1253,7 @@ try {
 
         case 'save_campaign':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $name = $data['name'] ?? '';
                 $alias = $data['alias'] ?? '';
@@ -1344,7 +1453,7 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
                 break;
             }
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(orbitraRequestBody(), true);
             $campaignId = (int) ($data['campaign_id'] ?? ($data['id'] ?? 0));
             if ($campaignId <= 0) {
                 echo json_encode(['status' => 'error', 'message' => 'Missing campaign_id']);
@@ -1381,7 +1490,7 @@ try {
 
         case 'delete_campaign':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 if (!empty($data['id'])) {
                     $pdo->prepare("UPDATE campaigns SET is_archived = 1, archived_at = datetime('now') WHERE id = ?")->execute([$data['id']]);
                     echo json_encode(['status' => 'success']);
@@ -1396,7 +1505,7 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
                 break;
             }
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(orbitraRequestBody(), true);
             $ids = $data['ids'] ?? [];
             if (!is_array($ids)) {
                 echo json_encode(['status' => 'error', 'message' => 'ids must be an array']);
@@ -1430,7 +1539,7 @@ try {
 
         case 'copy_campaign':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
 
                 if (!$id) {
@@ -1565,7 +1674,7 @@ try {
 
         case 'campaign_groups':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 if (!empty($data['name'])) {
                     $stmt = $pdo->prepare("INSERT INTO campaign_groups (name) VALUES (?)");
                     $stmt->execute([$data['name']]);
@@ -1581,7 +1690,7 @@ try {
 
         case 'traffic_sources':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $name = $data['name'] ?? '';
                 $template = $data['template'] ?? '';
@@ -1665,7 +1774,7 @@ try {
 
         case 'delete_traffic_source':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = $data['id'] ?? null;
                 if (!$id) {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
@@ -1699,7 +1808,7 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
                 break;
             }
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(orbitraRequestBody(), true);
             $ids = $data['ids'] ?? [];
             if (!is_array($ids)) {
                 echo json_encode(['status' => 'error', 'message' => 'ids must be an array']);
@@ -1791,7 +1900,7 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
                 break;
             }
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(orbitraRequestBody(), true);
             $lines = $data['lines'] ?? [];
 
             if (!is_array($lines)) {
@@ -1998,7 +2107,7 @@ try {
 
         case 'landing_groups':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 if (!empty($data['name'])) {
                     $stmt = $pdo->prepare("INSERT INTO landing_groups (name) VALUES (?)");
                     $stmt->execute([$data['name']]);
@@ -2067,7 +2176,7 @@ try {
 
         case 'save_landing':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 if (!empty($data['name'])) {
                     $id = $data['id'] ?? null;
                     $groupId = !empty($data['group_id']) ? $data['group_id'] : null;
@@ -2093,7 +2202,7 @@ try {
 
         case 'delete_landing':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = $data['id'] ?? null;
                 if (!$id) {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
@@ -2116,7 +2225,7 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
                 break;
             }
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(orbitraRequestBody(), true);
             $ids = $data['ids'] ?? [];
             if (!is_array($ids)) {
                 echo json_encode(['status' => 'error', 'message' => 'ids must be an array']);
@@ -2278,7 +2387,7 @@ try {
 
         case 'save_landing_file':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = $data['id'] ?? null;
                 $path = $data['path'] ?? null;
                 $content = $data['content'] ?? '';
@@ -2382,7 +2491,7 @@ try {
 
         case 'save_offer':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $name = $data['name'] ?? '';
                 $groupId = !empty($data['group_id']) ? (int) $data['group_id'] : null;
@@ -2475,7 +2584,7 @@ try {
 
         case 'delete_offer':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = $data['id'] ?? null;
                 if ($id) {
                     try {
@@ -2495,7 +2604,7 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
                 break;
             }
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(orbitraRequestBody(), true);
             $ids = $data['ids'] ?? [];
             if (!is_array($ids)) {
                 echo json_encode(['status' => 'error', 'message' => 'ids must be an array']);
@@ -2529,7 +2638,7 @@ try {
 
         case 'copy_offer':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
 
                 if (!$id) {
@@ -2600,7 +2709,7 @@ try {
 
         case 'offer_groups':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 if (!empty($data['name'])) {
                     try {
                         $stmt = $pdo->prepare("INSERT INTO offer_groups (name) VALUES (?)");
@@ -2620,7 +2729,7 @@ try {
 
         case 'delete_offer_group':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = $data['id'] ?? null;
                 if ($id) {
                     // Reset group_id for offers in this group
@@ -2635,7 +2744,7 @@ try {
 
         case 'affiliate_networks':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $name = $data['name'] ?? '';
                 $template = $data['template'] ?? '';
@@ -2695,7 +2804,7 @@ try {
 
         case 'delete_affiliate_network':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = $data['id'] ?? null;
                 if ($id) {
                     try {
@@ -2728,7 +2837,7 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
                 break;
             }
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(orbitraRequestBody(), true);
             $ids = $data['ids'] ?? [];
             if (!is_array($ids)) {
                 echo json_encode(['status' => 'error', 'message' => 'ids must be an array']);
@@ -4102,7 +4211,7 @@ try {
                 break;
             }
 
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(orbitraRequestBody(), true);
             $text = (string) ($data['domains_text'] ?? '');
             $lines = preg_split("/\\r\\n|\\n|\\r/", $text);
 
@@ -4146,7 +4255,7 @@ try {
                 break;
             }
 
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(orbitraRequestBody(), true);
             $id = !empty($data['id']) ? (int) $data['id'] : 0;
             if ($id <= 0) {
                 echo json_encode(['status' => 'error', 'message' => 'ID not provided']);
@@ -4172,7 +4281,7 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
                 break;
             }
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(orbitraRequestBody(), true);
             $id = !empty($data['id']) ? (int) $data['id'] : 0;
             if ($id <= 0) {
                 echo json_encode(['status' => 'error', 'message' => 'ID not provided']);
@@ -4187,7 +4296,7 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
                 break;
             }
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(orbitraRequestBody(), true);
             $ids = $data['ids'] ?? [];
             if (!is_array($ids) || empty($ids)) {
                 echo json_encode(['status' => 'error', 'message' => 'No IDs provided']);
@@ -4218,7 +4327,7 @@ try {
                 break;
             }
 
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(orbitraRequestBody(), true);
             $id = !empty($data['id']) ? (int) $data['id'] : 0;
             if ($id <= 0) {
                 echo json_encode(['status' => 'error', 'message' => 'ID not provided']);
@@ -4310,7 +4419,7 @@ try {
                 break;
             }
 
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(orbitraRequestBody(), true);
             $limit = isset($data['limit']) ? (int) $data['limit'] : 3;
             if ($limit <= 0) $limit = 3;
             if ($limit > 10) $limit = 10;
@@ -4549,7 +4658,7 @@ try {
 
         case 'save_domain':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $name = $data['name'] ?? '';
                 $indexCampId = !empty($data['index_campaign_id']) ? (int) $data['index_campaign_id'] : null;
@@ -4685,7 +4794,7 @@ try {
 
         case 'delete_domain':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
                 if ($id) {
                     $pdo->prepare("DELETE FROM domains WHERE id=?")->execute([$id]);
@@ -4790,7 +4899,7 @@ try {
 
         case 'clear_stats':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $campaignId = $data['campaign_id'] ?? null;
                 if ($campaignId) {
                     $pdo->prepare("DELETE FROM clicks WHERE campaign_id = ?")->execute([$campaignId]);
@@ -4805,7 +4914,7 @@ try {
 
         case 'clear_campaign_stats':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $campaignId = $data['campaign_id'] ?? null;
                 if ($campaignId) {
                     $pdo->prepare("DELETE FROM clicks WHERE campaign_id = ?")->execute([$campaignId]);
@@ -4820,7 +4929,7 @@ try {
 
         case 'update_costs':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $campaignId = $data['campaign_id'] ?? null;
                 $totalCost = (float) ($data['cost'] ?? 0);
                 $startDate = $data['start_date'] ?? null;
@@ -4859,7 +4968,7 @@ try {
 
         case 'simulate_traffic':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $campaignId = $data['campaign_id'] ?? null;
                 $ip = $data['ip'] ?? '127.0.0.1';
                 $userAgent = $data['user_agent'] ?? 'Mozilla/5.0';
@@ -5277,7 +5386,7 @@ try {
                 }
                 echo json_encode(['status' => 'success', 'data' => $data]);
             } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $input = json_decode(file_get_contents('php://input'), true);
+                $input = json_decode(orbitraRequestBody(), true);
                 $settings = $input['settings'] ?? [];
                 if (!empty($settings)) {
                     $stmt = $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value");
@@ -5295,7 +5404,7 @@ try {
 
         case 'save_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
 
                 try {
                     $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now'))");
@@ -5787,7 +5896,7 @@ try {
         case 'test_postback':
             // Test postback endpoint
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $subid = $data['subid'] ?? null;
                 $status = $data['status'] ?? 'lead';
                 $payout = $data['payout'] ?? 0;
@@ -5991,7 +6100,7 @@ try {
             // Security: limit execution time for downloads
             // set_time_limit(300); // Disabled for PHP-FPM compatibility
 
-            $input = json_decode(file_get_contents('php://input'), true);
+            $input = json_decode(orbitraRequestBody(), true);
             $dbId = $_POST['id'] ?? $input['id'] ?? null;
 
             if (!in_array($dbId, ['sypex_city_lite', 'maxmind_city', 'ip2location_lite_db11'])) {
@@ -6288,7 +6397,7 @@ try {
 
         case 'save_user':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $username = $data['username'] ?? '';
                 $password = $data['password'] ?? '';
@@ -6349,7 +6458,7 @@ try {
 
         case 'delete_user':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = $data['id'] ?? null;
                 if (!$id) {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
@@ -6379,7 +6488,7 @@ try {
 
         case 'generate_api_key':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $userId = $data['user_id'] ?? null;
                 $keyName = $data['key_name'] ?? 'API Key';
                 // Permission scope: 'read' (default, GET only) or 'write' (read + management).
@@ -6405,7 +6514,7 @@ try {
 
         case 'delete_api_key':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = $data['id'] ?? null;
                 if (!$id) {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
@@ -6424,7 +6533,7 @@ try {
                     break;
                 }
 
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $username = $data['username'] ?? '';
                 $password = $data['password'] ?? '';
 
@@ -6483,7 +6592,7 @@ try {
 
         case 'setup_first_user':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
 
                 // Check if users already exist
                 $stmt = $pdo->query("SELECT COUNT(*) FROM users");
@@ -6571,7 +6680,7 @@ try {
 
         case 'save_geo_profile':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $name = $data['name'] ?? '';
                 $countries = $data['countries'] ?? [];
@@ -6599,7 +6708,7 @@ try {
 
         case 'delete_geo_profile':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = $data['id'] ?? null;
                 if (!$id) {
                     echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
@@ -6842,7 +6951,7 @@ try {
 
         case 'conversion_types':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 if (isset($data['action']) && $data['action'] === 'delete') {
                     $pdo->prepare("DELETE FROM conversion_types WHERE id = ?")->execute([$data['id']]);
                     echo json_encode(['status' => 'success']);
@@ -6873,7 +6982,7 @@ try {
 
         case 'custom_metrics':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 if (isset($data['action']) && $data['action'] === 'delete') {
                     $pdo->prepare("DELETE FROM custom_metrics WHERE id = ?")->execute([$data['id']]);
                     echo json_encode(['status' => 'success']);
@@ -6900,68 +7009,16 @@ try {
             break;
 
         case 'bot_ips':
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
-                if (isset($data['action']) && $data['action'] === 'delete') {
-                    $pdo->prepare("DELETE FROM bot_ips WHERE id = ?")->execute([$data['id']]);
-                    echo json_encode(['status' => 'success']);
-                } elseif (isset($data['action']) && $data['action'] === 'clear_all') {
-                    $pdo->exec("DELETE FROM bot_ips");
-                    echo json_encode(['status' => 'success']);
-                } else {
-                    $ips = explode("\n", $data['ips'] ?? '');
-                    $stmt = $pdo->prepare("INSERT OR IGNORE INTO bot_ips (ip_or_cidr) VALUES (?)");
-                    $added = 0;
-                    foreach ($ips as $ip) {
-                        $ip = trim($ip);
-                        if ($ip) {
-                            $stmt->execute([$ip]);
-                            if ($stmt->rowCount() > 0)
-                                $added++;
-                        }
-                    }
-                    echo json_encode(['status' => 'success', 'added' => $added]);
-                }
-            } else {
-                $stmt = $pdo->query("SELECT * FROM bot_ips ORDER BY id DESC LIMIT 1000"); // Limit for performance if huge
-                $total = $pdo->query("SELECT COUNT(*) as c FROM bot_ips")->fetch()['c'];
-                echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll(), 'total' => $total]);
-            }
+            orbitraBotListEndpoint($pdo, 'bot_ips', 'ip_or_cidr', 'ips');
             break;
 
         case 'bot_signatures':
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
-                if (isset($data['action']) && $data['action'] === 'delete') {
-                    $pdo->prepare("DELETE FROM bot_signatures WHERE id = ?")->execute([$data['id']]);
-                    echo json_encode(['status' => 'success']);
-                } elseif (isset($data['action']) && $data['action'] === 'clear_all') {
-                    $pdo->exec("DELETE FROM bot_signatures");
-                    echo json_encode(['status' => 'success']);
-                } else {
-                    $sigs = explode("\n", $data['signatures'] ?? '');
-                    $stmt = $pdo->prepare("INSERT OR IGNORE INTO bot_signatures (signature) VALUES (?)");
-                    $added = 0;
-                    foreach ($sigs as $sig) {
-                        $sig = trim($sig);
-                        if ($sig) {
-                            $stmt->execute([$sig]);
-                            if ($stmt->rowCount() > 0)
-                                $added++;
-                        }
-                    }
-                    echo json_encode(['status' => 'success', 'added' => $added]);
-                }
-            } else {
-                $stmt = $pdo->query("SELECT * FROM bot_signatures ORDER BY id DESC LIMIT 1000");
-                $total = $pdo->query("SELECT COUNT(*) as c FROM bot_signatures")->fetch()['c'];
-                echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll(), 'total' => $total]);
-            }
+            orbitraBotListEndpoint($pdo, 'bot_signatures', 'signature', 'signatures');
             break;
 
         case 'profile_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $userId = $data['user_id'] ?? 1; // Defaulting to 1 for MVP single-user setup
                 $lang = $data['language'] ?? 'ru';
                 $tz = $data['timezone'] ?? 'Europe/Moscow';
@@ -7003,7 +7060,7 @@ try {
 
         case 'archive_restore':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $type = $data['type'] ?? '';
                 $id = $data['id'] ?? null;
                 $allowed = ['campaigns', 'offers', 'landings', 'traffic_sources', 'affiliate_networks'];
@@ -7024,7 +7081,7 @@ try {
 
         case 'archive_purge':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $type = $data['type'] ?? '';
                 $id = $data['id'] ?? null;
                 $action = $data['action'] ?? '';
@@ -7052,7 +7109,7 @@ try {
 
         case 'import_conversions':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $csv = $data['csv_data'] ?? '';
 
                 if (empty(trim($csv))) {
@@ -7289,7 +7346,7 @@ try {
             }
 
             // Safety guard: require explicit confirmation phrase from UI/user.
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(orbitraRequestBody(), true);
             if (!is_array($data)) {
                 $data = [];
             }
@@ -7602,7 +7659,7 @@ try {
 
         case 'run_migration':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $version = (int) ($data['version'] ?? 0);
 
                 $availableMigrations = [
@@ -7667,7 +7724,7 @@ try {
 
         case 'save_telegram_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $action = $data['action'] ?? 'save';
 
                 if ($action === 'disconnect') {
@@ -7807,7 +7864,7 @@ try {
 
         case 'save_campaign_pixel':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $campaign_id = $data['campaign_id'] ?? null;
                 $type = $data['type'] ?? '';
                 $pixel_id = $data['pixel_id'] ?? '';
@@ -7837,7 +7894,7 @@ try {
 
         case 'delete_campaign_pixel':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = $data['id'] ?? null;
                 if ($id) {
                     $stmt = $pdo->prepare("DELETE FROM campaign_pixels WHERE id = ?");
@@ -7862,7 +7919,7 @@ try {
 
         case 'save_app_config':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $name = $data['name'] ?? '';
                 $config_json = $data['config_json'] ?? '{}';
 
@@ -7900,7 +7957,7 @@ try {
 
         case 'delete_app_config':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(file_get_contents('php://input'), true);
+                $data = json_decode(orbitraRequestBody(), true);
                 $id = $data['id'] ?? null;
                 if ($id) {
                     $stmt = $pdo->prepare("DELETE FROM app_configs WHERE id = ?");
@@ -8047,7 +8104,7 @@ try {
                 switch ($action) {
                     case 'aggregator_connections':
                         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                            $data = json_decode(file_get_contents('php://input'), true);
+                            $data = json_decode(orbitraRequestBody(), true);
 
                             if (isset($data['action']) && $data['action'] === 'delete') {
                                 $pdo->prepare("DELETE FROM aggregator_connections WHERE id = ?")->execute([$data['id']]);
@@ -8115,7 +8172,7 @@ try {
 
                     case 'aggregator_test_connection':
                         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                            $data = json_decode(file_get_contents('php://input'), true);
+                            $data = json_decode(orbitraRequestBody(), true);
                             $credentials = $data['credentials'] ?? [];
                             $engine = $data['engine'] ?? 'generic';
 
@@ -8141,7 +8198,7 @@ try {
 
                     case 'aggregator_sync':
                         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                            $data = json_decode(file_get_contents('php://input'), true);
+                            $data = json_decode(orbitraRequestBody(), true);
                             $connectionId = $data['connection_id'] ?? null;
                             $dateFrom = $data['date_from'] ?? date('Y-m-d', strtotime('-7 days'));
                             $dateTo = $data['date_to'] ?? date('Y-m-d');

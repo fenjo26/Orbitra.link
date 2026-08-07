@@ -9,6 +9,7 @@
   "main": "./src/index.js",
   "scripts": {
     "start": "node src/index.js",
+    "manifest": "node src/manifest.js",
     "smoke": "node src/smoke.js"
   },
   "engines": {
