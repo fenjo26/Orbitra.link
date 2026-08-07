@@ -279,33 +279,43 @@ function mcpTools(): array
 }
 
 /**
- * Recursively coerce JSON-Schema fields that must be objects but were emitted
- * as arrays by an older generator. Empty arrays become {} (an object with no
- * keys); non-empty arrays become a permissive "allow anything" value for
- * additionalProperties or are dropped for properties/patternProperties, since
- * an array of property schemas has no unambiguous object representation.
+ * JSON-Schema fields that the spec defines as objects. json_decode(..., true)
+ * turns an empty {} into an empty PHP array, and json_encode turns an empty
+ * PHP array back into "[]" — not "{}" — so MCP clients that validate against
+ * the schema reject these as "expected record, received array". Coerce them to
+ * stdClass so they always serialise as objects, and recurse into nested schemas.
  */
 function mcpNormalizeSchema(array $schema): array
 {
-    foreach (['properties', 'patternProperties'] as $key) {
-        if (isset($schema[$key]) && is_array($schema[$key]) && array_is_list($schema[$key])) {
-            $schema[$key] = []; // {} once JSON-encoded
+    // Fields that MUST be objects. If empty, encode as {} (stdClass); if
+    // already a populated associative array, leave intact and recurse below.
+    foreach (['properties', 'patternProperties', '$defs', 'definitions'] as $key) {
+        if (array_key_exists($key, $schema)) {
+            if (!is_array($schema[$key]) || $schema[$key] === []) {
+                $schema[$key] = new stdClass();
+            } elseif (array_is_list($schema[$key])) {
+                // A list here is malformed; there is no faithful object form.
+                $schema[$key] = new stdClass();
+            }
         }
     }
-    if (array_key_exists('additionalProperties', $schema) && is_array($schema['additionalProperties'])) {
-        // An empty array means "no constraints" (treat as true); a list of
-        // schemas is also "any of these" which true approximates safely.
-        $schema['additionalProperties'] = true;
+
+    // additionalProperties may be a boolean or a schema object. An array value
+    // (incl. the empty array) is not valid for the empty-object case, so coerce
+    // empties to "true" (allow any) — the permissive, safe interpretation.
+    if (array_key_exists('additionalProperties', $schema)) {
+        $ap = $schema['additionalProperties'];
+        if (is_array($ap)) {
+            $schema['additionalProperties'] = $ap === [] ? true : mcpNormalizeSchema($ap);
+        }
     }
+
     foreach ($schema as $k => $v) {
-        if (is_array($v)) {
-            // Recurse into nested schema nodes (items, additionalProperties as
-            // an object, property definitions, anyOf branches, etc.).
-            if (array_is_list($v)) {
-                $schema[$k] = array_map('mcpNormalizeSchemaWrapped', $v);
-            } else {
-                $schema[$k] = mcpNormalizeSchema($v);
-            }
+        if (is_array($v) && !array_is_list($v)) {
+            $schema[$k] = mcpNormalizeSchema($v);
+        } elseif (is_array($v)) {
+            // Lists of subschemas: anyOf, oneOf, allOf, items-as-list, prefixItems.
+            $schema[$k] = array_map('mcpNormalizeSchemaWrapped', $v);
         }
     }
     return $schema;
