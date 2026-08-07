@@ -1,6 +1,6 @@
 {
   "name": "orbitra-mcp",
-  "version": "0.9.6.0",
+  "version": "0.9.6.3",
   "description": "Model Context Protocol (MCP) server for the Orbitra Tracker. Lets AI assistants (Claude, etc.) read stats and manage campaigns, offers, domains, sources and landings over the Orbitra API.",
   "type": "module",
   "bin": {

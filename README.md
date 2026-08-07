@@ -1,4 +1,4 @@
-# Orbitra v0.9.6.2 Tracker
+# Orbitra v0.9.6.3 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -385,6 +385,14 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.6.3
+
+### Fixed
+- 🔌 **MCP connector returned 0 tools** — `mcp.php` read `tools.json` with `json_decode(..., true)`, which turns an empty `{}` into an empty PHP array, and `json_encode` turns an empty PHP array back into `"[]"` instead of `"{}"`. So every parameter-less tool served `"properties":[]` and `"additionalProperties":[]`, both of which the MCP spec defines as records, and the client rejected the whole `tools/list` with *"expected record, received array"* — no tools loaded at all. `inputSchema` is now normalised at manifest load: `properties` / `patternProperties` / `$defs` / `definitions` become objects, and an array-valued `additionalProperties` becomes `true`. The fix holds regardless of which `tools.json` revision is deployed, and is recursive over nested schemas.
+- 🤖 **Every save in the panel 503'd** — the bulk edit in 0.9.6.2 rewrote the request-body helper so it recursed on itself instead of reading `php://input`, so every real POST (login, bot lists, every form save) spun until the PHP-FPM worker died and nginx answered 503. The helper reads the stream again.
+- 🤖 **The bot IP table rendered blank rows** — the panel read `item.value` while the table column is `ip_or_cidr`, so every row was empty. The API now returns a stable `value` alias alongside the field. Bot lists are also searched and paged in SQL now: a flat first-1000 fetch left everything past row 1000 invisible and impossible to delete, and blacklists routinely run to tens of thousands of rows. The panel gained a search box, a *shown-of-total* counter and a *load more* button.
+- 🔤 **Raw translation keys showed across the panel** — `t()` returns the key itself when a translation is missing and no fallback is passed, and 39 keys had no entry: the bot-list keys had been inserted under the wrong locale section (anchored on `"noRecords"`, which occurs earlier in the file), so the Bots page rendered literal key names; and the payout-model dropdown, campaign parameters, stream device types, all 15 admin tile descriptions and six common labels had no translation at all. Re-anchored and added across all seven locales (de / en / es / fr / ru / uk / zh); parity at 1838 keys.
 
 ## 📝 What's New in v0.9.6.2
 
