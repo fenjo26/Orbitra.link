@@ -16651,6 +16651,11 @@ const ru = {
     "amount": "Сумма",
     "country": "Страна",
     "noRecords": "Нет записей доходов за этот период",
+    "searchPlaceholder": "Поиск по списку…",
+    "showing": "показано",
+    "of": "из",
+    "ofTotal": "из всех",
+    "loadMore": "Показать ещё",
     "duration": "Длительность",
     "error": "Ошибка",
     "noLogs": "Пока нет логов синхронизации",
@@ -18603,6 +18608,11 @@ const en = {
     "amount": "Amount",
     "country": "Country",
     "noRecords": "No revenue records for this period",
+    "searchPlaceholder": "Search the list…",
+    "showing": "showing",
+    "of": "of",
+    "ofTotal": "of total",
+    "loadMore": "Load more",
     "duration": "Duration",
     "error": "Error",
     "noLogs": "No sync logs yet",
@@ -20555,6 +20565,11 @@ const uk = {
     "amount": "Сума",
     "country": "Країна",
     "noRecords": "Немає записів про доходи за цей період",
+    "searchPlaceholder": "Пошук у списку…",
+    "showing": "показано",
+    "of": "з",
+    "ofTotal": "із усіх",
+    "loadMore": "Показати ще",
     "duration": "Тривалість",
     "error": "Помилка",
     "noLogs": "Журналів синхронізації ще немає",
@@ -22507,6 +22522,11 @@ const es = {
     "amount": "Cantidad",
     "country": "País",
     "noRecords": "No hay registros de ingresos para este período",
+    "searchPlaceholder": "Buscar en la lista…",
+    "showing": "mostrando",
+    "of": "de",
+    "ofTotal": "del total",
+    "loadMore": "Cargar más",
     "duration": "Duración",
     "error": "error",
     "noLogs": "Aún no hay registros de sincronización",
@@ -24459,6 +24479,11 @@ const zh = {
     "amount": "金额",
     "country": "国家",
     "noRecords": "此期间无收入记录",
+    "searchPlaceholder": "搜索列表…",
+    "showing": "已显示",
+    "of": "/",
+    "ofTotal": "总计",
+    "loadMore": "加载更多",
     "duration": "持续时间",
     "error": "错误",
     "noLogs": "还没有同步日志",
@@ -26411,6 +26436,11 @@ const fr = {
     "amount": "Montant",
     "country": "Pays",
     "noRecords": "Aucun enregistrement de revenus pour cette période",
+    "searchPlaceholder": "Rechercher dans la liste…",
+    "showing": "affichés",
+    "of": "sur",
+    "ofTotal": "sur un total de",
+    "loadMore": "Charger plus",
     "duration": "Durée",
     "error": "Erreur",
     "noLogs": "Non synchroniser les journaux pour l'instant",
@@ -28365,6 +28395,11 @@ const de = {
     "amount": "Betrag",
     "country": "Land",
     "noRecords": "Keine Umsatzdatensätze für diesen Zeitraum",
+    "searchPlaceholder": "Liste durchsuchen…",
+    "showing": "angezeigt",
+    "of": "von",
+    "ofTotal": "von insgesamt",
+    "loadMore": "Mehr laden",
     "duration": "Dauer",
     "error": "Fehler",
     "noLogs": "Keine Synchronisierung Logs noch",
@@ -50592,31 +50627,52 @@ const ProfileSettings = () => {
   ] });
 };
 const API_URL$f = "/api.php";
+const PAGE_SIZE = 200;
 const BotSettings = () => {
   const { t } = useLanguage();
-  const [ipList, setIpList] = reactExports.useState([]);
-  const [sigList, setSigList] = reactExports.useState([]);
-  const [loading, setLoading] = reactExports.useState(true);
+  const emptyList = { items: [], total: 0, filtered: 0, search: "", loading: true };
+  const [lists, setLists] = reactExports.useState({ ip: { ...emptyList }, sig: { ...emptyList } });
   const [newIps, setNewIps] = reactExports.useState("");
   const [newSigs, setNewSigs] = reactExports.useState("");
-  const fetchData = async () => {
-    setLoading(true);
+  const searchTimers = reactExports.useRef({});
+  const endpointOf = (type) => type === "ip" ? "bot_ips" : "bot_signatures";
+  const load = reactExports.useCallback(async (type, { search = "", offset: offset2 = 0, append: append2 = false } = {}) => {
+    setLists((prev) => ({ ...prev, [type]: { ...prev[type], loading: true } }));
     try {
-      const [ipRes, sigRes] = await Promise.all([
-        fetch(`${API_URL$f}?action=bot_ips`).then((r2) => r2.json()),
-        fetch(`${API_URL$f}?action=bot_signatures`).then((r2) => r2.json())
-      ]);
-      if (ipRes.status === "success") setIpList(ipRes.data || []);
-      if (sigRes.status === "success") setSigList(sigRes.data || []);
+      const qs = new URLSearchParams({ action: endpointOf(type), limit: String(PAGE_SIZE), offset: String(offset2) });
+      if (search) qs.set("search", search);
+      const res = await fetch(`${API_URL$f}?${qs}`);
+      const data = await res.json();
+      if (data.status !== "success") throw new Error(data.message || `HTTP ${res.status}`);
+      setLists((prev) => ({
+        ...prev,
+        [type]: {
+          items: append2 ? [...prev[type].items, ...data.data || []] : data.data || [],
+          total: data.total ?? 0,
+          // Older builds of the API answered without "filtered".
+          filtered: data.filtered ?? data.total ?? 0,
+          search,
+          loading: false
+        }
+      }));
     } catch (e) {
-      alert(t("botSettings.loadError"));
-    } finally {
-      setLoading(false);
+      setLists((prev) => ({ ...prev, [type]: { ...prev[type], loading: false } }));
+      alert(`${t("botSettings.loadError")}: ${e.message}`);
     }
-  };
+  }, [t]);
+  reactExports.useCallback(() => {
+    load("ip", { search: lists.ip.search });
+    load("sig", { search: lists.sig.search });
+  }, [load, lists.ip.search, lists.sig.search]);
   reactExports.useEffect(() => {
-    fetchData();
-  }, []);
+    load("ip");
+    load("sig");
+  }, [load]);
+  const onSearch = (type, value) => {
+    setLists((prev) => ({ ...prev, [type]: { ...prev[type], search: value } }));
+    clearTimeout(searchTimers.current[type]);
+    searchTimers.current[type] = setTimeout(() => load(type, { search: value }), 300);
+  };
   const mutate = async (type, payload) => {
     const action = type === "ip" ? "bot_ips" : "bot_signatures";
     const res = await fetch(`${API_URL$f}?action=${action}`, {
@@ -50637,7 +50693,7 @@ const BotSettings = () => {
     try {
       const data = await mutate(type, { items });
       (type === "ip" ? setNewIps : setNewSigs)("");
-      fetchData();
+      load(type, { search: lists[type].search });
       const skipped = data.skipped || 0;
       alert(`${t("botSettings.addedCount")} ${data.added ?? 0}` + (skipped ? ` (${t("botSettings.skippedDuplicates")} ${skipped})` : ""));
     } catch (e) {
@@ -50649,7 +50705,15 @@ const BotSettings = () => {
   const handleDelete = async (type, id) => {
     try {
       await mutate(type, { action: "delete", id });
-      fetchData();
+      setLists((prev) => ({
+        ...prev,
+        [type]: {
+          ...prev[type],
+          items: prev[type].items.filter((i) => i.id !== id),
+          total: Math.max(0, prev[type].total - 1),
+          filtered: Math.max(0, prev[type].filtered - 1)
+        }
+      }));
     } catch (e) {
       alert(`${t("botSettings.deleteError")}: ${e.message}`);
     }
@@ -50659,14 +50723,51 @@ const BotSettings = () => {
     try {
       await mutate(type, { action: "clear_all" });
       alert(t("botSettings.cleared"));
-      fetchData();
+      load(type, { search: lists[type].search });
     } catch (e) {
       alert(`${t("botSettings.clearError")}: ${e.message}`);
     }
   };
-  if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("botSettings.loading") }) });
-  }
+  const renderList = (type) => {
+    const list = lists[type];
+    const hasMore = list.items.length < list.filtered;
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "16px", position: "relative" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 14, style: { position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)", pointerEvents: "none" } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            value: list.search,
+            onChange: (e) => onSearch(type, e.target.value),
+            placeholder: t("botSettings.searchPlaceholder"),
+            className: "form-input",
+            style: { paddingLeft: "30px", fontFamily: "monospace", fontSize: "13px" }
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "10px", fontSize: "12px", color: "var(--color-text-muted)" }, children: list.loading ? t("botSettings.loading") : `${t("botSettings.showing")} ${list.items.length} ${t("botSettings.of")} ${list.filtered}` + (list.search ? ` (${t("botSettings.ofTotal")} ${list.total})` : "") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "8px", maxHeight: "340px", overflowY: "auto" }, children: list.items.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)", fontSize: "14px" }, children: t("botSettings.noRecords") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("table", { className: "page-table", children: /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: list.items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontFamily: "monospace", fontSize: "13px" }, children: item.value ?? item.ip_or_cidr ?? item.signature }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { width: "40px", textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(type, item.id), className: "btn btn-ghost btn-sm", style: { color: "var(--color-danger)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 }) }) })
+      ] }, item.id)) }) }) }),
+      hasMore && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          onClick: () => load(type, { search: list.search, offset: list.items.length, append: true }),
+          className: "btn btn-secondary btn-sm",
+          style: { marginTop: "10px", width: "100%", borderStyle: "dashed" },
+          disabled: list.loading,
+          children: [
+            t("botSettings.loadMore"),
+            " (",
+            list.filtered - list.items.length,
+            ")"
+          ]
+        }
+      )
+    ] });
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: [
@@ -50696,10 +50797,7 @@ const BotSettings = () => {
           t("botSettings.addIp")
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "16px", maxHeight: "300px", overflowY: "auto" }, children: ipList.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)", fontSize: "14px" }, children: t("botSettings.noRecords") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("table", { className: "page-table", children: /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: ipList.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontFamily: "monospace", fontSize: "13px" }, children: item.value || item.ip }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { width: "40px", textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete("ip", item.id), className: "btn btn-ghost btn-sm", style: { color: "var(--color-danger)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 }) }) })
-      ] }, item.id)) }) }) })
+      renderList("ip")
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: [
@@ -50726,10 +50824,7 @@ const BotSettings = () => {
           t("botSettings.addSignature")
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "16px", maxHeight: "300px", overflowY: "auto" }, children: sigList.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)", fontSize: "14px" }, children: t("botSettings.noRecords") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("table", { className: "page-table", children: /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: sigList.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontFamily: "monospace", fontSize: "13px" }, children: item.value || item.signature }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { width: "40px", textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete("sig", item.id), className: "btn btn-ghost btn-sm", style: { color: "var(--color-danger)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 }) }) })
-      ] }, item.id)) }) }) })
+      renderList("sig")
     ] })
   ] });
 };

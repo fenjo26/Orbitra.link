@@ -255,9 +255,48 @@ function orbitraBotListEndpoint($pdo, $table, $column, $payloadKey)
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
     if ($method === 'GET') {
-        $rows = $pdo->query("SELECT * FROM {$table} ORDER BY id DESC LIMIT 1000")->fetchAll();
+        // Blacklists routinely run to tens of thousands of entries — public
+        // datacenter ranges alone are that big — so the list is searched and
+        // paged in SQL. Returning a flat first-1000 made everything past that
+        // invisible and impossible to delete from the panel.
+        $search = trim((string) ($_GET['search'] ?? ''));
+        $limit = (int) ($_GET['limit'] ?? 200);
+        $limit = max(1, min($limit, 1000));
+        $offset = max(0, (int) ($_GET['offset'] ?? 0));
+
+        $where = '';
+        $args = [];
+        if ($search !== '') {
+            // Escape the LIKE wildcards so searching for "1.2.3.%" is literal.
+            $where = " WHERE {$column} LIKE ? ESCAPE '\\'";
+            $args[] = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search) . '%';
+        }
+
+        // "value" is a stable alias over the differently named columns
+        // (ip_or_cidr / signature) that the panel renders.
+        $stmt = $pdo->prepare(
+            "SELECT *, {$column} AS value FROM {$table}{$where} ORDER BY id DESC LIMIT ? OFFSET ?"
+        );
+        $stmt->execute(array_merge($args, [$limit, $offset]));
+        $rows = $stmt->fetchAll();
+
         $total = (int) $pdo->query("SELECT COUNT(*) AS c FROM {$table}")->fetch()['c'];
-        echo json_encode(['status' => 'success', 'data' => $rows, 'total' => $total]);
+        if ($search === '') {
+            $filtered = $total;
+        } else {
+            $countStmt = $pdo->prepare("SELECT COUNT(*) AS c FROM {$table}{$where}");
+            $countStmt->execute($args);
+            $filtered = (int) $countStmt->fetch()['c'];
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'data' => $rows,
+            'total' => $total,
+            'filtered' => $filtered,
+            'limit' => $limit,
+            'offset' => $offset,
+        ]);
         return;
     }
 

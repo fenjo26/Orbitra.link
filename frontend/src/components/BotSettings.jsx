@@ -1,37 +1,64 @@
-import React, { useState, useEffect } from 'react';
-import { ShieldBan, Plus, Trash2, RotateCcw } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { ShieldBan, Plus, Trash2, RotateCcw, Search } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
+const PAGE_SIZE = 200;
 
 const BotSettings = () => {
     const { t } = useLanguage();
 
-    const [ipList, setIpList] = useState([]);
-    const [sigList, setSigList] = useState([]);
-    const [loading, setLoading] = useState(true);
+    // A blacklist can hold tens of thousands of rows, so each list is searched
+    // and paged on the server; the panel only ever holds what it has loaded.
+    const emptyList = { items: [], total: 0, filtered: 0, search: '', loading: true };
+    const [lists, setLists] = useState({ ip: { ...emptyList }, sig: { ...emptyList } });
     const [newIps, setNewIps] = useState('');
     const [newSigs, setNewSigs] = useState('');
+    const searchTimers = useRef({});
 
-    const fetchData = async () => {
-        setLoading(true);
+    const endpointOf = (type) => (type === 'ip' ? 'bot_ips' : 'bot_signatures');
+
+    const load = useCallback(async (type, { search = '', offset = 0, append = false } = {}) => {
+        setLists(prev => ({ ...prev, [type]: { ...prev[type], loading: true } }));
         try {
-            const [ipRes, sigRes] = await Promise.all([
-                fetch(`${API_URL}?action=bot_ips`).then(r => r.json()),
-                fetch(`${API_URL}?action=bot_signatures`).then(r => r.json()),
-            ]);
-            if (ipRes.status === 'success') setIpList(ipRes.data || []);
-            if (sigRes.status === 'success') setSigList(sigRes.data || []);
+            const qs = new URLSearchParams({ action: endpointOf(type), limit: String(PAGE_SIZE), offset: String(offset) });
+            if (search) qs.set('search', search);
+            const res = await fetch(`${API_URL}?${qs}`);
+            const data = await res.json();
+            if (data.status !== 'success') throw new Error(data.message || `HTTP ${res.status}`);
+            setLists(prev => ({
+                ...prev,
+                [type]: {
+                    items: append ? [...prev[type].items, ...(data.data || [])] : (data.data || []),
+                    total: data.total ?? 0,
+                    // Older builds of the API answered without "filtered".
+                    filtered: data.filtered ?? data.total ?? 0,
+                    search,
+                    loading: false,
+                },
+            }));
         } catch (e) {
-            alert(t('botSettings.loadError'));
-        } finally {
-            setLoading(false);
+            setLists(prev => ({ ...prev, [type]: { ...prev[type], loading: false } }));
+            alert(`${t('botSettings.loadError')}: ${e.message}`);
         }
-    };
+    }, [t]);
+
+    const fetchData = useCallback(() => {
+        load('ip', { search: lists.ip.search });
+        load('sig', { search: lists.sig.search });
+    }, [load, lists.ip.search, lists.sig.search]);
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        load('ip');
+        load('sig');
+    }, [load]);
+
+    // Debounced so typing an IP does not fire a query per keystroke.
+    const onSearch = (type, value) => {
+        setLists(prev => ({ ...prev, [type]: { ...prev[type], search: value } }));
+        clearTimeout(searchTimers.current[type]);
+        searchTimers.current[type] = setTimeout(() => load(type, { search: value }), 300);
+    };
 
     // One place that speaks the API's contract, so a mismatch cannot creep back
     // into three separate handlers. Anything but an explicit success is surfaced:
@@ -57,7 +84,7 @@ const BotSettings = () => {
         try {
             const data = await mutate(type, { items });
             (type === 'ip' ? setNewIps : setNewSigs)('');
-            fetchData();
+            load(type, { search: lists[type].search });
             const skipped = data.skipped || 0;
             alert(`${t('botSettings.addedCount')} ${data.added ?? 0}`
                 + (skipped ? ` (${t('botSettings.skippedDuplicates')} ${skipped})` : ''));
@@ -72,7 +99,17 @@ const BotSettings = () => {
     const handleDelete = async (type, id) => {
         try {
             await mutate(type, { action: 'delete', id });
-            fetchData();
+            // Drop the row locally so a delete deep in a long list does not
+            // reset the reader's scroll position back to the first page.
+            setLists(prev => ({
+                ...prev,
+                [type]: {
+                    ...prev[type],
+                    items: prev[type].items.filter(i => i.id !== id),
+                    total: Math.max(0, prev[type].total - 1),
+                    filtered: Math.max(0, prev[type].filtered - 1),
+                },
+            }));
         } catch (e) {
             alert(`${t('botSettings.deleteError')}: ${e.message}`);
         }
@@ -83,19 +120,72 @@ const BotSettings = () => {
         try {
             await mutate(type, { action: 'clear_all' });
             alert(t('botSettings.cleared'));
-            fetchData();
+            load(type, { search: lists[type].search });
         } catch (e) {
             alert(`${t('botSettings.clearError')}: ${e.message}`);
         }
     };
 
-    if (loading) {
+    const renderList = (type) => {
+        const list = lists[type];
+        const hasMore = list.items.length < list.filtered;
         return (
-            <div className="page-card">
-                <p style={{ color: 'var(--color-text-muted)' }}>{t('botSettings.loading')}</p>
-            </div>
+            <>
+                <div style={{ marginTop: '16px', position: 'relative' }}>
+                    <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', pointerEvents: 'none' }} />
+                    <input
+                        type="text"
+                        value={list.search}
+                        onChange={(e) => onSearch(type, e.target.value)}
+                        placeholder={t('botSettings.searchPlaceholder')}
+                        className="form-input"
+                        style={{ paddingLeft: '30px', fontFamily: 'monospace', fontSize: '13px' }}
+                    />
+                </div>
+
+                <div style={{ marginTop: '10px', fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                    {list.loading
+                        ? t('botSettings.loading')
+                        : `${t('botSettings.showing')} ${list.items.length} ${t('botSettings.of')} ${list.filtered}`
+                          + (list.search ? ` (${t('botSettings.ofTotal')} ${list.total})` : '')}
+                </div>
+
+                <div style={{ marginTop: '8px', maxHeight: '340px', overflowY: 'auto' }}>
+                    {list.items.length === 0 ? (
+                        <p style={{ color: 'var(--color-text-muted)', fontSize: '14px' }}>{t('botSettings.noRecords')}</p>
+                    ) : (
+                        <table className="page-table">
+                            <tbody>
+                                {list.items.map(item => (
+                                    <tr key={item.id}>
+                                        <td style={{ fontFamily: 'monospace', fontSize: '13px' }}>
+                                            {item.value ?? item.ip_or_cidr ?? item.signature}
+                                        </td>
+                                        <td style={{ width: '40px', textAlign: 'right' }}>
+                                            <button onClick={() => handleDelete(type, item.id)} className="btn btn-ghost btn-sm" style={{ color: 'var(--color-danger)' }}>
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+
+                {hasMore && (
+                    <button
+                        onClick={() => load(type, { search: list.search, offset: list.items.length, append: true })}
+                        className="btn btn-secondary btn-sm"
+                        style={{ marginTop: '10px', width: '100%', borderStyle: 'dashed' }}
+                        disabled={list.loading}
+                    >
+                        {t('botSettings.loadMore')} ({list.filtered - list.items.length})
+                    </button>
+                )}
+            </>
         );
-    }
+    };
 
     return (
         <div className="space-y-6">
@@ -127,26 +217,7 @@ const BotSettings = () => {
                     </button>
                 </div>
 
-                <div style={{ marginTop: '16px', maxHeight: '300px', overflowY: 'auto' }}>
-                    {ipList.length === 0 ? (
-                        <p style={{ color: 'var(--color-text-muted)', fontSize: '14px' }}>{t('botSettings.noRecords')}</p>
-                    ) : (
-                        <table className="page-table">
-                            <tbody>
-                                {ipList.map(item => (
-                                    <tr key={item.id}>
-                                        <td style={{ fontFamily: 'monospace', fontSize: '13px' }}>{item.value || item.ip}</td>
-                                        <td style={{ width: '40px', textAlign: 'right' }}>
-                                            <button onClick={() => handleDelete('ip', item.id)} className="btn btn-ghost btn-sm" style={{ color: 'var(--color-danger)' }}>
-                                                <Trash2 size={14} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
+                {renderList('ip')}
             </div>
 
             {/* Signatures Section */}
@@ -174,26 +245,7 @@ const BotSettings = () => {
                     </button>
                 </div>
 
-                <div style={{ marginTop: '16px', maxHeight: '300px', overflowY: 'auto' }}>
-                    {sigList.length === 0 ? (
-                        <p style={{ color: 'var(--color-text-muted)', fontSize: '14px' }}>{t('botSettings.noRecords')}</p>
-                    ) : (
-                        <table className="page-table">
-                            <tbody>
-                                {sigList.map(item => (
-                                    <tr key={item.id}>
-                                        <td style={{ fontFamily: 'monospace', fontSize: '13px' }}>{item.value || item.signature}</td>
-                                        <td style={{ width: '40px', textAlign: 'right' }}>
-                                            <button onClick={() => handleDelete('sig', item.id)} className="btn btn-ghost btn-sm" style={{ color: 'var(--color-danger)' }}>
-                                                <Trash2 size={14} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
+                {renderList('sig')}
             </div>
         </div>
     );
