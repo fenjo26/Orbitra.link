@@ -721,11 +721,6 @@ export default {
         "amount": "Montant",
         "country": "Pays",
         "noRecords": "Aucun enregistrement de revenus pour cette période",
-        "searchPlaceholder": "Rechercher dans la liste…",
-        "showing": "affichés",
-        "of": "sur",
-        "ofTotal": "sur un total de",
-        "loadMore": "Charger plus",
         "duration": "Durée",
         "error": "Erreur",
         "noLogs": "Non synchroniser les journaux pour l'instant",
@@ -1160,6 +1155,11 @@ export default {
         "notes": "Remarques"
     },
     "botSettings": {
+        "searchPlaceholder": "Rechercher dans la liste…",
+        "showing": "affichés",
+        "of": "sur",
+        "ofTotal": "sur un total de",
+        "loadMore": "Charger plus",
         "title": "Bot Protection",
         "ipTitle": "Adresses IP du bot",
         "signaturesTitle": "Signatures (agent utilisateur)",

@@ -721,11 +721,6 @@ export default {
         "amount": "金额",
         "country": "国家",
         "noRecords": "此期间无收入记录",
-        "searchPlaceholder": "搜索列表…",
-        "showing": "已显示",
-        "of": "/",
-        "ofTotal": "总计",
-        "loadMore": "加载更多",
         "duration": "持续时间",
         "error": "错误",
         "noLogs": "还没有同步日志",
@@ -1160,6 +1155,11 @@ export default {
         "notes": "注释"
     },
     "botSettings": {
+        "searchPlaceholder": "搜索列表…",
+        "showing": "已显示",
+        "of": "/",
+        "ofTotal": "总计",
+        "loadMore": "加载更多",
         "title": "机器人防护",
         "ipTitle": "机器人 IP 地址",
         "signaturesTitle": "签名（用户代理）",

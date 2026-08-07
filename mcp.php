@@ -265,10 +265,55 @@ function mcpTools(): array
     $tools = [];
     foreach ($manifest['tools'] as $t) {
         if (!empty($t['name'])) {
+            // Older versions of the manifest generator emitted JSON-Schema object
+            // fields as arrays for parameter-less tools (e.g. "properties": []).
+            // The MCP spec requires these to be records, so normalise defensively
+            // at load time instead of depending on the file being regenerated.
+            if (isset($t['inputSchema']) && is_array($t['inputSchema'])) {
+                $t['inputSchema'] = mcpNormalizeSchema($t['inputSchema']);
+            }
             $tools[$t['name']] = $t;
         }
     }
     return $tools;
+}
+
+/**
+ * Recursively coerce JSON-Schema fields that must be objects but were emitted
+ * as arrays by an older generator. Empty arrays become {} (an object with no
+ * keys); non-empty arrays become a permissive "allow anything" value for
+ * additionalProperties or are dropped for properties/patternProperties, since
+ * an array of property schemas has no unambiguous object representation.
+ */
+function mcpNormalizeSchema(array $schema): array
+{
+    foreach (['properties', 'patternProperties'] as $key) {
+        if (isset($schema[$key]) && is_array($schema[$key]) && array_is_list($schema[$key])) {
+            $schema[$key] = []; // {} once JSON-encoded
+        }
+    }
+    if (array_key_exists('additionalProperties', $schema) && is_array($schema['additionalProperties'])) {
+        // An empty array means "no constraints" (treat as true); a list of
+        // schemas is also "any of these" which true approximates safely.
+        $schema['additionalProperties'] = true;
+    }
+    foreach ($schema as $k => $v) {
+        if (is_array($v)) {
+            // Recurse into nested schema nodes (items, additionalProperties as
+            // an object, property definitions, anyOf branches, etc.).
+            if (array_is_list($v)) {
+                $schema[$k] = array_map('mcpNormalizeSchemaWrapped', $v);
+            } else {
+                $schema[$k] = mcpNormalizeSchema($v);
+            }
+        }
+    }
+    return $schema;
+}
+
+function mcpNormalizeSchemaWrapped($v)
+{
+    return is_array($v) && !array_is_list($v) ? mcpNormalizeSchema($v) : $v;
 }
 
 // ---------------------------------------------------------------------------
