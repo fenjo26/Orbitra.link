@@ -5823,6 +5823,26 @@ try {
                     break;
                 }
 
+                // Auto-update shells out to git, which needs exec()/shell_exec().
+                // Many shared hosts list these in disable_functions, in which case
+                // the bare exec() below fatals with "Call to undefined function"
+                // and nginx answers 500 with no JSON. Detect it up front so the
+                // panel gets an actionable message instead of a network error.
+                $disabled = array_filter(preg_split('/[\s,]+/', (string) ini_get('disable_functions')));
+                $canExec = function_exists('exec')
+                    && function_exists('shell_exec')
+                    && !in_array('exec', $disabled, true)
+                    && !in_array('shell_exec', $disabled, true);
+                if (!$canExec) {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Автоматическое обновление недоступно: на сервере отключены exec()/shell_exec() '
+                            . '(смотрите disable_functions в php.ini). Обновитесь вручную через SSH: '
+                            . 'cd ' . escapeshellarg(__DIR__) . ' && git pull origin main'
+                    ]);
+                    break;
+                }
+
                 // Perform a git pull if inside a git repository
                 $isGit = is_dir(__DIR__ . '/.git');
                 if ($isGit) {
