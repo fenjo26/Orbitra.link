@@ -5849,6 +5849,33 @@ try {
                     $repoDir = __DIR__;
                     $git = 'git -C ' . escapeshellarg($repoDir);
 
+                    // "dubious ownership": git refuses to touch a repository owned by
+                    // another user. It happens the moment someone pulls over SSH as
+                    // root, because this runs as the web user. Catch it first — every
+                    // git call below would otherwise fail, and the branch check would
+                    // report the error text as the branch name.
+                    $ownerProbe = [];
+                    $ownerCode = 0;
+                    exec($git . ' rev-parse --is-inside-work-tree 2>&1', $ownerProbe, $ownerCode);
+                    if (stripos(implode("\n", $ownerProbe), 'dubious ownership') !== false) {
+                        $webUser = function_exists('posix_getpwuid') && function_exists('posix_geteuid')
+                            ? (posix_getpwuid(posix_geteuid())['name'] ?? 'www-data')
+                            : 'www-data';
+                        $owner = @fileowner($repoDir) !== false && function_exists('posix_getpwuid')
+                            ? (posix_getpwuid(@fileowner($repoDir))['name'] ?? 'root')
+                            : 'root';
+                        echo json_encode([
+                            'status' => 'error',
+                            'message' => 'Git отказывается работать с репозиторием: каталог принадлежит пользователю "'
+                                . $owner . '", а обновление выполняется от "' . $webUser . '" (dubious ownership). '
+                                . 'Так бывает, если хоть раз потянуть обновление по SSH от root. '
+                                . 'Выполните на сервере: chown -R ' . $webUser . ':' . $webUser . ' ' . $repoDir
+                                . ' — после этого кнопка обновления заработает. '
+                                . 'Либо разово обновитесь вручную: sudo -u ' . $webUser . ' git -C ' . $repoDir . ' pull --ff-only origin main'
+                        ]);
+                        break;
+                    }
+
                     // Security: Ensure we are on a safe branch
                     $allowedBranches = ['main', 'master'];
                     $currentBranch = trim(exec($git . ' rev-parse --abbrev-ref HEAD 2>&1'));
