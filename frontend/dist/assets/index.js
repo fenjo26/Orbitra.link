@@ -15929,6 +15929,28 @@ const __iconNode = [
 ];
 const Zap = createLucideIcon("zap", __iconNode);
 const ru = {
+  "streams": {
+    "desktop": "Компьютер",
+    "mobile": "Телефон",
+    "tablet": "Планшет"
+  },
+  "parameters": {
+    "keyword": "Ключевое слово",
+    "cost": "Расход",
+    "currency": "Валюта",
+    "externalId": "Внешний ID",
+    "creativeId": "ID креатива",
+    "adCampaignId": "ID рекламной кампании",
+    "source": "Источник"
+  },
+  "costModels": {
+    "cpc": "CPC — оплата за клик",
+    "cpuc": "CPuC — оплата за уникальный клик",
+    "cpm": "CPM — оплата за 1000 показов",
+    "cpa": "CPA — оплата за действие",
+    "cps": "CPS — оплата за продажу",
+    "revShare": "RevShare — процент от дохода"
+  },
   "mcpPage": {
     "title": "ИИ-ассистент (MCP)",
     "intro": "Подключите Claude Desktop и другие ИИ-ассистенты к трекеру и управляйте им на обычном языке — анализируйте кампании, создавайте их массово, подключайте домены, редактируйте офферы и многое другое.",
@@ -16017,6 +16039,12 @@ const ru = {
     "importBtn": "Импортировать"
   },
   "common": {
+    "copied": "Скопировано",
+    "edit": "Изменить",
+    "status": "Статус",
+    "size": "Размер",
+    "update": "Обновить",
+    "deleteError": "Не удалось удалить",
     "save": "Сохранить изменения",
     "saving": "Сохранение...",
     "cancel": "Отмена",
@@ -16053,6 +16081,22 @@ const ru = {
     "checking": "Проверка..."
   },
   "nav": {
+    "navigation": "Навигация",
+    "adminUsers": "Пользователи, роли и API-ключи",
+    "adminBranding": "Логотип, цвета и тема",
+    "adminGeoProfiles": "Готовые наборы стран для фильтров",
+    "adminSettings": "Валюта, часовой пояс и системные параметры",
+    "adminIntegrations": "Партнёрки, источники трафика, постбеки",
+    "adminMcp": "Подключение ИИ-ассистента к трекеру",
+    "adminStatus": "Диск, база и расход ресурсов",
+    "adminLogs": "Запросы, постбеки и системные события",
+    "adminArchive": "Удалённое: восстановить или стереть",
+    "adminImport": "Загрузка конверсий из файла или по click ID",
+    "adminGeoDbs": "Базы геолокации по IP",
+    "adminMigrations": "Версии схемы и импорт из Keitaro",
+    "adminCleanup": "Очистка кликов и конверсий",
+    "adminUpdate": "Проверка и установка новой версии",
+    "adminAggregator": "Импорт дохода и расхода из внешних кабинетов",
     "dashboard": "Дашборд",
     "campaigns": "Кампании",
     "offers": "Офферы",
@@ -16526,6 +16570,7 @@ const ru = {
     "statusError": "Ошибка"
   },
   "admin": {
+    "of": "из",
     "mcp": "ИИ-ассистент (MCP)",
     "users": "Пользователи",
     "noGeoDb": "Не установлена ни одна гео-база. Гео-фильтры не будут работать.",
@@ -17886,6 +17931,28 @@ const ru = {
   }
 };
 const en = {
+  "streams": {
+    "desktop": "Desktop",
+    "mobile": "Mobile",
+    "tablet": "Tablet"
+  },
+  "parameters": {
+    "keyword": "Keyword",
+    "cost": "Cost",
+    "currency": "Currency",
+    "externalId": "External ID",
+    "creativeId": "Creative ID",
+    "adCampaignId": "Ad campaign ID",
+    "source": "Source"
+  },
+  "costModels": {
+    "cpc": "CPC — cost per click",
+    "cpuc": "CPuC — cost per unique click",
+    "cpm": "CPM — cost per 1000 impressions",
+    "cpa": "CPA — cost per action",
+    "cps": "CPS — cost per sale",
+    "revShare": "RevShare — share of revenue"
+  },
   "mcpPage": {
     "title": "AI Assistant (MCP)",
     "intro": "Connect Claude Desktop and other AI assistants to your tracker and manage it in plain language — analyse campaigns, create them in bulk, connect domains, edit offers and more.",
@@ -17974,6 +18041,12 @@ const en = {
     "importBtn": "Import"
   },
   "common": {
+    "copied": "Copied",
+    "edit": "Edit",
+    "status": "Status",
+    "size": "Size",
+    "update": "Update",
+    "deleteError": "Could not delete",
     "save": "Save changes",
     "saving": "Saving...",
     "cancel": "Cancel",
@@ -18010,6 +18083,22 @@ const en = {
     "checking": "Checking..."
   },
   "nav": {
+    "navigation": "Navigation",
+    "adminUsers": "Accounts, roles and API keys",
+    "adminBranding": "Logo, colours and theme",
+    "adminGeoProfiles": "Reusable country sets for filters",
+    "adminSettings": "Currency, time zone and system options",
+    "adminIntegrations": "Affiliate networks, traffic sources, postbacks",
+    "adminMcp": "Connect an AI assistant to the tracker",
+    "adminStatus": "Disk, database and resource usage",
+    "adminLogs": "Requests, postbacks and system events",
+    "adminArchive": "Deleted items, restore or purge",
+    "adminImport": "Upload conversions from a file or click IDs",
+    "adminGeoDbs": "IP geolocation databases",
+    "adminMigrations": "Schema versions and import from Keitaro",
+    "adminCleanup": "Wipe clicks and conversions",
+    "adminUpdate": "Check for and install a new version",
+    "adminAggregator": "Import revenue and ad spend from external accounts",
     "dashboard": "Dashboard",
     "campaigns": "Campaigns",
     "offers": "Offers",
@@ -18483,6 +18572,7 @@ const en = {
     "statusError": "Error"
   },
   "admin": {
+    "of": "of",
     "mcp": "AI Assistant (MCP)",
     "users": "Users",
     "noGeoDb": "No geo database installed. Geo filters will not work.",
@@ -19843,6 +19933,28 @@ const en = {
   }
 };
 const uk = {
+  "streams": {
+    "desktop": "Комп'ютер",
+    "mobile": "Телефон",
+    "tablet": "Планшет"
+  },
+  "parameters": {
+    "keyword": "Ключове слово",
+    "cost": "Витрати",
+    "currency": "Валюта",
+    "externalId": "Зовнішній ID",
+    "creativeId": "ID креативу",
+    "adCampaignId": "ID рекламної кампанії",
+    "source": "Джерело"
+  },
+  "costModels": {
+    "cpc": "CPC — оплата за клік",
+    "cpuc": "CPuC — оплата за унікальний клік",
+    "cpm": "CPM — оплата за 1000 показів",
+    "cpa": "CPA — оплата за дію",
+    "cps": "CPS — оплата за продаж",
+    "revShare": "RevShare — відсоток від доходу"
+  },
   "mcpPage": {
     "title": "ІІ-асистент (MCP)",
     "intro": "Підключіть Claude Desktop та інші ІІ-асистенти до трекера й керуйте ним звичайною мовою — аналізуйте кампанії, створюйте їх масово, підключайте домени, редагуйте офери тощо.",
@@ -19931,6 +20043,12 @@ const uk = {
     "importBtn": "Імпорт"
   },
   "common": {
+    "copied": "Скопійовано",
+    "edit": "Змінити",
+    "status": "Статус",
+    "size": "Розмір",
+    "update": "Оновити",
+    "deleteError": "Не вдалося видалити",
     "save": "Зберегти зміни",
     "saving": "Збереження...",
     "cancel": "Скасувати",
@@ -19967,6 +20085,22 @@ const uk = {
     "checking": "Перевірка..."
   },
   "nav": {
+    "navigation": "Навігація",
+    "adminUsers": "Користувачі, ролі та API-ключі",
+    "adminBranding": "Логотип, кольори та тема",
+    "adminGeoProfiles": "Готові набори країн для фільтрів",
+    "adminSettings": "Валюта, часовий пояс і системні параметри",
+    "adminIntegrations": "Партнерки, джерела трафіку, постбеки",
+    "adminMcp": "Підключення ШІ-асистента до трекера",
+    "adminStatus": "Диск, база та витрата ресурсів",
+    "adminLogs": "Запити, постбеки та системні події",
+    "adminArchive": "Видалене: відновити або стерти",
+    "adminImport": "Завантаження конверсій із файлу або за click ID",
+    "adminGeoDbs": "Бази геолокації за IP",
+    "adminMigrations": "Версії схеми та імпорт із Keitaro",
+    "adminCleanup": "Очищення кліків і конверсій",
+    "adminUpdate": "Перевірка та встановлення нової версії",
+    "adminAggregator": "Імпорт доходу й витрат із зовнішніх кабінетів",
     "dashboard": "Приладова панель",
     "campaigns": "Кампанії",
     "offers": "Пропозиції",
@@ -20440,6 +20574,7 @@ const uk = {
     "statusError": "Помилка"
   },
   "admin": {
+    "of": "з",
     "mcp": "ІІ-асистент (MCP)",
     "users": "Користувачі",
     "noGeoDb": "Геобаза даних не встановлена. Географічні фільтри не працюватимуть.",
@@ -21800,6 +21935,28 @@ const uk = {
   }
 };
 const es = {
+  "streams": {
+    "desktop": "Escritorio",
+    "mobile": "Móvil",
+    "tablet": "Tableta"
+  },
+  "parameters": {
+    "keyword": "Palabra clave",
+    "cost": "Coste",
+    "currency": "Moneda",
+    "externalId": "ID externo",
+    "creativeId": "ID de creatividad",
+    "adCampaignId": "ID de campaña publicitaria",
+    "source": "Fuente"
+  },
+  "costModels": {
+    "cpc": "CPC — coste por clic",
+    "cpuc": "CPuC — coste por clic único",
+    "cpm": "CPM — coste por 1000 impresiones",
+    "cpa": "CPA — coste por acción",
+    "cps": "CPS — coste por venta",
+    "revShare": "RevShare — porcentaje de ingresos"
+  },
   "mcpPage": {
     "title": "Asistente de IA (MCP)",
     "intro": "Conecta Claude Desktop y otros asistentes de IA a tu tracker y gestiónalo en lenguaje natural: analiza campañas, créalas en lote, conecta dominios, edita ofertas y más.",
@@ -21888,6 +22045,12 @@ const es = {
     "importBtn": "Importar"
   },
   "common": {
+    "copied": "Copiado",
+    "edit": "Editar",
+    "status": "Estado",
+    "size": "Tamaño",
+    "update": "Actualizar",
+    "deleteError": "No se pudo eliminar",
     "save": "Guardar cambios",
     "saving": "Guardando...",
     "cancel": "Cancelar",
@@ -21924,6 +22087,22 @@ const es = {
     "checking": "Comprobando..."
   },
   "nav": {
+    "navigation": "Navegación",
+    "adminUsers": "Cuentas, roles y claves API",
+    "adminBranding": "Logo, colores y tema",
+    "adminGeoProfiles": "Conjuntos de países reutilizables para filtros",
+    "adminSettings": "Moneda, zona horaria y opciones del sistema",
+    "adminIntegrations": "Redes de afiliados, fuentes de tráfico, postbacks",
+    "adminMcp": "Conectar un asistente de IA al tracker",
+    "adminStatus": "Disco, base de datos y uso de recursos",
+    "adminLogs": "Solicitudes, postbacks y eventos del sistema",
+    "adminArchive": "Elementos borrados: restaurar o eliminar",
+    "adminImport": "Subir conversiones desde archivo o click IDs",
+    "adminGeoDbs": "Bases de geolocalización por IP",
+    "adminMigrations": "Versiones del esquema e importación desde Keitaro",
+    "adminCleanup": "Borrar clics y conversiones",
+    "adminUpdate": "Buscar e instalar una nueva versión",
+    "adminAggregator": "Importar ingresos y gasto publicitario de cuentas externas",
     "dashboard": "Panel de control",
     "campaigns": "Campañas",
     "offers": "Ofertas",
@@ -22397,6 +22576,7 @@ const es = {
     "statusError": "error"
   },
   "admin": {
+    "of": "de",
     "mcp": "Asistente de IA (MCP)",
     "users": "Usuarios",
     "noGeoDb": "No hay ninguna base de datos geográfica instalada. Los filtros geográficos no funcionarán.",
@@ -23757,6 +23937,28 @@ const es = {
   }
 };
 const zh = {
+  "streams": {
+    "desktop": "电脑",
+    "mobile": "手机",
+    "tablet": "平板"
+  },
+  "parameters": {
+    "keyword": "关键词",
+    "cost": "成本",
+    "currency": "货币",
+    "externalId": "外部 ID",
+    "creativeId": "素材 ID",
+    "adCampaignId": "广告系列 ID",
+    "source": "来源"
+  },
+  "costModels": {
+    "cpc": "CPC — 按点击付费",
+    "cpuc": "CPuC — 按独立点击付费",
+    "cpm": "CPM — 按千次展示付费",
+    "cpa": "CPA — 按行动付费",
+    "cps": "CPS — 按成交付费",
+    "revShare": "RevShare — 收入分成"
+  },
   "mcpPage": {
     "title": "AI 助手（MCP）",
     "intro": "将 Claude Desktop 及其他 AI 助手连接到你的跟踪器，用自然语言进行管理 —— 分析广告系列、批量创建、连接域名、编辑报价等。",
@@ -23845,6 +24047,12 @@ const zh = {
     "importBtn": "进口"
   },
   "common": {
+    "copied": "已复制",
+    "edit": "编辑",
+    "status": "状态",
+    "size": "大小",
+    "update": "更新",
+    "deleteError": "删除失败",
     "save": "保存更改",
     "saving": "正在保存...",
     "cancel": "取消",
@@ -23881,6 +24089,22 @@ const zh = {
     "checking": "正在检查..."
   },
   "nav": {
+    "navigation": "导航",
+    "adminUsers": "账户、角色与 API 密钥",
+    "adminBranding": "标志、配色与主题",
+    "adminGeoProfiles": "可复用的国家集合，用于过滤",
+    "adminSettings": "货币、时区与系统选项",
+    "adminIntegrations": "联盟网络、流量来源、回传",
+    "adminMcp": "将 AI 助手连接到追踪器",
+    "adminStatus": "磁盘、数据库与资源占用",
+    "adminLogs": "请求、回传与系统事件",
+    "adminArchive": "已删除项：恢复或彻底清除",
+    "adminImport": "从文件或 click ID 导入转化",
+    "adminGeoDbs": "IP 地理位置数据库",
+    "adminMigrations": "架构版本与从 Keitaro 导入",
+    "adminCleanup": "清空点击与转化",
+    "adminUpdate": "检查并安装新版本",
+    "adminAggregator": "从外部账户导入收入与广告花费",
     "dashboard": "仪表板",
     "campaigns": "活动",
     "offers": "优惠",
@@ -24433,6 +24657,7 @@ const zh = {
     "networkErrorSending": "发送时网络错误："
   },
   "aggregator": {
+    "of": "/",
     "title": "收入聚合器",
     "connections": "连接",
     "revenue": "收入",
@@ -25714,6 +25939,28 @@ const zh = {
   }
 };
 const fr = {
+  "streams": {
+    "desktop": "Ordinateur",
+    "mobile": "Mobile",
+    "tablet": "Tablette"
+  },
+  "parameters": {
+    "keyword": "Mot-clé",
+    "cost": "Coût",
+    "currency": "Devise",
+    "externalId": "ID externe",
+    "creativeId": "ID de créa",
+    "adCampaignId": "ID de campagne publicitaire",
+    "source": "Source"
+  },
+  "costModels": {
+    "cpc": "CPC — coût par clic",
+    "cpuc": "CPuC — coût par clic unique",
+    "cpm": "CPM — coût pour 1000 impressions",
+    "cpa": "CPA — coût par action",
+    "cps": "CPS — coût par vente",
+    "revShare": "RevShare — part du revenu"
+  },
   "mcpPage": {
     "title": "Assistant IA (MCP)",
     "intro": "Connectez Claude Desktop et d'autres assistants IA à votre tracker et gérez-le en langage naturel : analyser les campagnes, les créer en masse, connecter des domaines, modifier des offres, etc.",
@@ -25802,6 +26049,12 @@ const fr = {
     "importBtn": "Importer"
   },
   "common": {
+    "copied": "Copié",
+    "edit": "Modifier",
+    "status": "Statut",
+    "size": "Taille",
+    "update": "Mettre à jour",
+    "deleteError": "Suppression impossible",
     "save": "Enregistrer les modifications",
     "saving": "Enregistrement...",
     "cancel": "Annuler",
@@ -25838,6 +26091,22 @@ const fr = {
     "checking": "Vérification..."
   },
   "nav": {
+    "navigation": "Navigation",
+    "adminUsers": "Comptes, rôles et clés API",
+    "adminBranding": "Logo, couleurs et thème",
+    "adminGeoProfiles": "Ensembles de pays réutilisables pour les filtres",
+    "adminSettings": "Devise, fuseau horaire et options système",
+    "adminIntegrations": "Réseaux d’affiliation, sources de trafic, postbacks",
+    "adminMcp": "Connecter un assistant IA au tracker",
+    "adminStatus": "Disque, base de données et ressources",
+    "adminLogs": "Requêtes, postbacks et événements système",
+    "adminArchive": "Éléments supprimés : restaurer ou effacer",
+    "adminImport": "Importer des conversions depuis un fichier ou des click ID",
+    "adminGeoDbs": "Bases de géolocalisation IP",
+    "adminMigrations": "Versions du schéma et import depuis Keitaro",
+    "adminCleanup": "Effacer les clics et les conversions",
+    "adminUpdate": "Rechercher et installer une nouvelle version",
+    "adminAggregator": "Importer revenus et dépenses publicitaires depuis des comptes externes",
     "dashboard": "Tableau de bord",
     "campaigns": "Campagnes",
     "offers": "Offres",
@@ -26390,6 +26659,7 @@ const fr = {
     "networkErrorSending": "Erreur réseau lors de l'envoi :"
   },
   "aggregator": {
+    "of": "sur",
     "title": "Agrégateur de revenus",
     "connections": "Connexions",
     "revenue": "Revenus",
@@ -27673,6 +27943,28 @@ const fr = {
   }
 };
 const de = {
+  "streams": {
+    "desktop": "Desktop",
+    "mobile": "Mobil",
+    "tablet": "Tablet"
+  },
+  "parameters": {
+    "keyword": "Keyword",
+    "cost": "Kosten",
+    "currency": "Währung",
+    "externalId": "Externe ID",
+    "creativeId": "Creative-ID",
+    "adCampaignId": "Werbekampagnen-ID",
+    "source": "Quelle"
+  },
+  "costModels": {
+    "cpc": "CPC — Kosten pro Klick",
+    "cpuc": "CPuC — Kosten pro eindeutigem Klick",
+    "cpm": "CPM — Kosten pro 1000 Impressionen",
+    "cpa": "CPA — Kosten pro Aktion",
+    "cps": "CPS — Kosten pro Verkauf",
+    "revShare": "RevShare — Umsatzbeteiligung"
+  },
   "mcpPage": {
     "title": "KI-Assistent (MCP)",
     "intro": "Verbinde Claude Desktop und andere KI-Assistenten mit deinem Tracker und verwalte ihn in natürlicher Sprache — Kampagnen analysieren, in großen Mengen anlegen, Domains verbinden, Angebote bearbeiten und mehr.",
@@ -27761,6 +28053,12 @@ const de = {
     "importBtn": "Importieren"
   },
   "common": {
+    "copied": "Kopiert",
+    "edit": "Bearbeiten",
+    "status": "Status",
+    "size": "Größe",
+    "update": "Aktualisieren",
+    "deleteError": "Löschen fehlgeschlagen",
     "save": "Änderungen speichern",
     "saving": "Speichern...",
     "cancel": "Abbrechen",
@@ -27797,6 +28095,22 @@ const de = {
     "checking": "Überprüft..."
   },
   "nav": {
+    "navigation": "Navigation",
+    "adminUsers": "Konten, Rollen und API-Schlüssel",
+    "adminBranding": "Logo, Farben und Design",
+    "adminGeoProfiles": "Wiederverwendbare Ländersets für Filter",
+    "adminSettings": "Währung, Zeitzone und Systemoptionen",
+    "adminIntegrations": "Affiliate-Netzwerke, Trafficquellen, Postbacks",
+    "adminMcp": "KI-Assistenten mit dem Tracker verbinden",
+    "adminStatus": "Speicher, Datenbank und Ressourcen",
+    "adminLogs": "Anfragen, Postbacks und Systemereignisse",
+    "adminArchive": "Gelöschtes wiederherstellen oder endgültig entfernen",
+    "adminImport": "Conversions aus Datei oder Click-IDs laden",
+    "adminGeoDbs": "IP-Geodatenbanken",
+    "adminMigrations": "Schemaversionen und Import aus Keitaro",
+    "adminCleanup": "Klicks und Conversions löschen",
+    "adminUpdate": "Nach neuer Version suchen und installieren",
+    "adminAggregator": "Umsatz und Werbeausgaben aus externen Konten importieren",
     "dashboard": "Dashboard",
     "campaigns": "Kampagnen",
     "offers": "Angebote",
@@ -28270,6 +28584,7 @@ const de = {
     "statusError": "Fehler"
   },
   "admin": {
+    "of": "von",
     "mcp": "KI-Assistent (MCP)",
     "users": "Benutzer",
     "noGeoDb": "Keine Geodatenbank installiert. Geofilter funktionieren nicht.",

@@ -1,4 +1,26 @@
 export default {
+    "streams": {
+        "desktop": "Ordinateur",
+        "mobile": "Mobile",
+        "tablet": "Tablette"
+    },
+    "parameters": {
+        "keyword": "Mot-clé",
+        "cost": "Coût",
+        "currency": "Devise",
+        "externalId": "ID externe",
+        "creativeId": "ID de créa",
+        "adCampaignId": "ID de campagne publicitaire",
+        "source": "Source"
+    },
+    "costModels": {
+        "cpc": "CPC — coût par clic",
+        "cpuc": "CPuC — coût par clic unique",
+        "cpm": "CPM — coût pour 1000 impressions",
+        "cpa": "CPA — coût par action",
+        "cps": "CPS — coût par vente",
+        "revShare": "RevShare — part du revenu"
+    },
     "mcpPage": {
         "title": "Assistant IA (MCP)",
         "intro": "Connectez Claude Desktop et d'autres assistants IA à votre tracker et gérez-le en langage naturel : analyser les campagnes, les créer en masse, connecter des domaines, modifier des offres, etc.",
@@ -87,6 +109,12 @@ export default {
         "importBtn": "Importer"
     },
     "common": {
+        "copied": "Copié",
+        "edit": "Modifier",
+        "status": "Statut",
+        "size": "Taille",
+        "update": "Mettre à jour",
+        "deleteError": "Suppression impossible",
         "save": "Enregistrer les modifications",
         "saving": "Enregistrement...",
         "cancel": "Annuler",
@@ -123,6 +151,22 @@ export default {
         "checking": "Vérification..."
     },
     "nav": {
+        "navigation": "Navigation",
+        "adminUsers": "Comptes, rôles et clés API",
+        "adminBranding": "Logo, couleurs et thème",
+        "adminGeoProfiles": "Ensembles de pays réutilisables pour les filtres",
+        "adminSettings": "Devise, fuseau horaire et options système",
+        "adminIntegrations": "Réseaux d’affiliation, sources de trafic, postbacks",
+        "adminMcp": "Connecter un assistant IA au tracker",
+        "adminStatus": "Disque, base de données et ressources",
+        "adminLogs": "Requêtes, postbacks et événements système",
+        "adminArchive": "Éléments supprimés : restaurer ou effacer",
+        "adminImport": "Importer des conversions depuis un fichier ou des click ID",
+        "adminGeoDbs": "Bases de géolocalisation IP",
+        "adminMigrations": "Versions du schéma et import depuis Keitaro",
+        "adminCleanup": "Effacer les clics et les conversions",
+        "adminUpdate": "Rechercher et installer une nouvelle version",
+        "adminAggregator": "Importer revenus et dépenses publicitaires depuis des comptes externes",
         "dashboard": "Tableau de bord",
         "campaigns": "Campagnes",
         "offers": "Offres",
@@ -675,6 +719,7 @@ export default {
         "networkErrorSending": "Erreur réseau lors de l'envoi :"
     },
     "aggregator": {
+        "of": "sur",
         "title": "Agrégateur de revenus",
         "connections": "Connexions",
         "revenue": "Revenus",

@@ -1,4 +1,26 @@
 export default {
+    "streams": {
+        "desktop": "Escritorio",
+        "mobile": "Móvil",
+        "tablet": "Tableta"
+    },
+    "parameters": {
+        "keyword": "Palabra clave",
+        "cost": "Coste",
+        "currency": "Moneda",
+        "externalId": "ID externo",
+        "creativeId": "ID de creatividad",
+        "adCampaignId": "ID de campaña publicitaria",
+        "source": "Fuente"
+    },
+    "costModels": {
+        "cpc": "CPC — coste por clic",
+        "cpuc": "CPuC — coste por clic único",
+        "cpm": "CPM — coste por 1000 impresiones",
+        "cpa": "CPA — coste por acción",
+        "cps": "CPS — coste por venta",
+        "revShare": "RevShare — porcentaje de ingresos"
+    },
     "mcpPage": {
         "title": "Asistente de IA (MCP)",
         "intro": "Conecta Claude Desktop y otros asistentes de IA a tu tracker y gestiónalo en lenguaje natural: analiza campañas, créalas en lote, conecta dominios, edita ofertas y más.",
@@ -87,6 +109,12 @@ export default {
         "importBtn": "Importar"
     },
     "common": {
+        "copied": "Copiado",
+        "edit": "Editar",
+        "status": "Estado",
+        "size": "Tamaño",
+        "update": "Actualizar",
+        "deleteError": "No se pudo eliminar",
         "save": "Guardar cambios",
         "saving": "Guardando...",
         "cancel": "Cancelar",
@@ -123,6 +151,22 @@ export default {
         "checking": "Comprobando..."
     },
     "nav": {
+        "navigation": "Navegación",
+        "adminUsers": "Cuentas, roles y claves API",
+        "adminBranding": "Logo, colores y tema",
+        "adminGeoProfiles": "Conjuntos de países reutilizables para filtros",
+        "adminSettings": "Moneda, zona horaria y opciones del sistema",
+        "adminIntegrations": "Redes de afiliados, fuentes de tráfico, postbacks",
+        "adminMcp": "Conectar un asistente de IA al tracker",
+        "adminStatus": "Disco, base de datos y uso de recursos",
+        "adminLogs": "Solicitudes, postbacks y eventos del sistema",
+        "adminArchive": "Elementos borrados: restaurar o eliminar",
+        "adminImport": "Subir conversiones desde archivo o click IDs",
+        "adminGeoDbs": "Bases de geolocalización por IP",
+        "adminMigrations": "Versiones del esquema e importación desde Keitaro",
+        "adminCleanup": "Borrar clics y conversiones",
+        "adminUpdate": "Buscar e instalar una nueva versión",
+        "adminAggregator": "Importar ingresos y gasto publicitario de cuentas externas",
         "dashboard": "Panel de control",
         "campaigns": "Campañas",
         "offers": "Ofertas",
@@ -596,6 +640,7 @@ export default {
         "statusError": "error"
     },
     "admin": {
+        "of": "de",
         "mcp": "Asistente de IA (MCP)",
         "users": "Usuarios",
         "noGeoDb": "No hay ninguna base de datos geográfica instalada. Los filtros geográficos no funcionarán.",

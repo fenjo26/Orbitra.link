@@ -1,4 +1,26 @@
 export default {
+    "streams": {
+        "desktop": "Desktop",
+        "mobile": "Mobile",
+        "tablet": "Tablet"
+    },
+    "parameters": {
+        "keyword": "Keyword",
+        "cost": "Cost",
+        "currency": "Currency",
+        "externalId": "External ID",
+        "creativeId": "Creative ID",
+        "adCampaignId": "Ad campaign ID",
+        "source": "Source"
+    },
+    "costModels": {
+        "cpc": "CPC — cost per click",
+        "cpuc": "CPuC — cost per unique click",
+        "cpm": "CPM — cost per 1000 impressions",
+        "cpa": "CPA — cost per action",
+        "cps": "CPS — cost per sale",
+        "revShare": "RevShare — share of revenue"
+    },
     "mcpPage": {
         "title": "AI Assistant (MCP)",
         "intro": "Connect Claude Desktop and other AI assistants to your tracker and manage it in plain language — analyse campaigns, create them in bulk, connect domains, edit offers and more.",
@@ -87,6 +109,12 @@ export default {
         "importBtn": "Import"
     },
     "common": {
+        "copied": "Copied",
+        "edit": "Edit",
+        "status": "Status",
+        "size": "Size",
+        "update": "Update",
+        "deleteError": "Could not delete",
         "save": "Save changes",
         "saving": "Saving...",
         "cancel": "Cancel",
@@ -123,6 +151,22 @@ export default {
         "checking": "Checking..."
     },
     "nav": {
+        "navigation": "Navigation",
+        "adminUsers": "Accounts, roles and API keys",
+        "adminBranding": "Logo, colours and theme",
+        "adminGeoProfiles": "Reusable country sets for filters",
+        "adminSettings": "Currency, time zone and system options",
+        "adminIntegrations": "Affiliate networks, traffic sources, postbacks",
+        "adminMcp": "Connect an AI assistant to the tracker",
+        "adminStatus": "Disk, database and resource usage",
+        "adminLogs": "Requests, postbacks and system events",
+        "adminArchive": "Deleted items, restore or purge",
+        "adminImport": "Upload conversions from a file or click IDs",
+        "adminGeoDbs": "IP geolocation databases",
+        "adminMigrations": "Schema versions and import from Keitaro",
+        "adminCleanup": "Wipe clicks and conversions",
+        "adminUpdate": "Check for and install a new version",
+        "adminAggregator": "Import revenue and ad spend from external accounts",
         "dashboard": "Dashboard",
         "campaigns": "Campaigns",
         "offers": "Offers",
@@ -596,6 +640,7 @@ export default {
         "statusError": "Error"
     },
     "admin": {
+        "of": "of",
         "mcp": "AI Assistant (MCP)",
         "users": "Users",
         "noGeoDb": "No geo database installed. Geo filters will not work.",

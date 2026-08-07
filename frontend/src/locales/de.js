@@ -1,4 +1,26 @@
 export default {
+    "streams": {
+        "desktop": "Desktop",
+        "mobile": "Mobil",
+        "tablet": "Tablet"
+    },
+    "parameters": {
+        "keyword": "Keyword",
+        "cost": "Kosten",
+        "currency": "Währung",
+        "externalId": "Externe ID",
+        "creativeId": "Creative-ID",
+        "adCampaignId": "Werbekampagnen-ID",
+        "source": "Quelle"
+    },
+    "costModels": {
+        "cpc": "CPC — Kosten pro Klick",
+        "cpuc": "CPuC — Kosten pro eindeutigem Klick",
+        "cpm": "CPM — Kosten pro 1000 Impressionen",
+        "cpa": "CPA — Kosten pro Aktion",
+        "cps": "CPS — Kosten pro Verkauf",
+        "revShare": "RevShare — Umsatzbeteiligung"
+    },
     "mcpPage": {
         "title": "KI-Assistent (MCP)",
         "intro": "Verbinde Claude Desktop und andere KI-Assistenten mit deinem Tracker und verwalte ihn in natürlicher Sprache — Kampagnen analysieren, in großen Mengen anlegen, Domains verbinden, Angebote bearbeiten und mehr.",
@@ -87,6 +109,12 @@ export default {
         "importBtn": "Importieren"
     },
     "common": {
+        "copied": "Kopiert",
+        "edit": "Bearbeiten",
+        "status": "Status",
+        "size": "Größe",
+        "update": "Aktualisieren",
+        "deleteError": "Löschen fehlgeschlagen",
         "save": "Änderungen speichern",
         "saving": "Speichern...",
         "cancel": "Abbrechen",
@@ -123,6 +151,22 @@ export default {
         "checking": "Überprüft..."
     },
     "nav": {
+        "navigation": "Navigation",
+        "adminUsers": "Konten, Rollen und API-Schlüssel",
+        "adminBranding": "Logo, Farben und Design",
+        "adminGeoProfiles": "Wiederverwendbare Ländersets für Filter",
+        "adminSettings": "Währung, Zeitzone und Systemoptionen",
+        "adminIntegrations": "Affiliate-Netzwerke, Trafficquellen, Postbacks",
+        "adminMcp": "KI-Assistenten mit dem Tracker verbinden",
+        "adminStatus": "Speicher, Datenbank und Ressourcen",
+        "adminLogs": "Anfragen, Postbacks und Systemereignisse",
+        "adminArchive": "Gelöschtes wiederherstellen oder endgültig entfernen",
+        "adminImport": "Conversions aus Datei oder Click-IDs laden",
+        "adminGeoDbs": "IP-Geodatenbanken",
+        "adminMigrations": "Schemaversionen und Import aus Keitaro",
+        "adminCleanup": "Klicks und Conversions löschen",
+        "adminUpdate": "Nach neuer Version suchen und installieren",
+        "adminAggregator": "Umsatz und Werbeausgaben aus externen Konten importieren",
         "dashboard": "Dashboard",
         "campaigns": "Kampagnen",
         "offers": "Angebote",
@@ -596,6 +640,7 @@ export default {
         "statusError": "Fehler"
     },
     "admin": {
+        "of": "von",
         "mcp": "KI-Assistent (MCP)",
         "users": "Benutzer",
         "noGeoDb": "Keine Geodatenbank installiert. Geofilter funktionieren nicht.",

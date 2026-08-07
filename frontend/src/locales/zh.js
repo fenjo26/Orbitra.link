@@ -1,4 +1,26 @@
 export default {
+    "streams": {
+        "desktop": "电脑",
+        "mobile": "手机",
+        "tablet": "平板"
+    },
+    "parameters": {
+        "keyword": "关键词",
+        "cost": "成本",
+        "currency": "货币",
+        "externalId": "外部 ID",
+        "creativeId": "素材 ID",
+        "adCampaignId": "广告系列 ID",
+        "source": "来源"
+    },
+    "costModels": {
+        "cpc": "CPC — 按点击付费",
+        "cpuc": "CPuC — 按独立点击付费",
+        "cpm": "CPM — 按千次展示付费",
+        "cpa": "CPA — 按行动付费",
+        "cps": "CPS — 按成交付费",
+        "revShare": "RevShare — 收入分成"
+    },
     "mcpPage": {
         "title": "AI 助手（MCP）",
         "intro": "将 Claude Desktop 及其他 AI 助手连接到你的跟踪器，用自然语言进行管理 —— 分析广告系列、批量创建、连接域名、编辑报价等。",
@@ -87,6 +109,12 @@ export default {
         "importBtn": "进口"
     },
     "common": {
+        "copied": "已复制",
+        "edit": "编辑",
+        "status": "状态",
+        "size": "大小",
+        "update": "更新",
+        "deleteError": "删除失败",
         "save": "保存更改",
         "saving": "正在保存...",
         "cancel": "取消",
@@ -123,6 +151,22 @@ export default {
         "checking": "正在检查..."
     },
     "nav": {
+        "navigation": "导航",
+        "adminUsers": "账户、角色与 API 密钥",
+        "adminBranding": "标志、配色与主题",
+        "adminGeoProfiles": "可复用的国家集合，用于过滤",
+        "adminSettings": "货币、时区与系统选项",
+        "adminIntegrations": "联盟网络、流量来源、回传",
+        "adminMcp": "将 AI 助手连接到追踪器",
+        "adminStatus": "磁盘、数据库与资源占用",
+        "adminLogs": "请求、回传与系统事件",
+        "adminArchive": "已删除项：恢复或彻底清除",
+        "adminImport": "从文件或 click ID 导入转化",
+        "adminGeoDbs": "IP 地理位置数据库",
+        "adminMigrations": "架构版本与从 Keitaro 导入",
+        "adminCleanup": "清空点击与转化",
+        "adminUpdate": "检查并安装新版本",
+        "adminAggregator": "从外部账户导入收入与广告花费",
         "dashboard": "仪表板",
         "campaigns": "活动",
         "offers": "优惠",
@@ -675,6 +719,7 @@ export default {
         "networkErrorSending": "发送时网络错误："
     },
     "aggregator": {
+        "of": "/",
         "title": "收入聚合器",
         "connections": "连接",
         "revenue": "收入",
