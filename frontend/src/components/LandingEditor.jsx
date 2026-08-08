@@ -484,7 +484,6 @@ const LandingEditor = ({ landingId, onClose }) => {
                                                 value={landing.action_payload || ''}
                                                 onChange={e => setLanding({ ...landing, action_payload: e.target.value })}
                                                 className="form-input font-mono text-sm"
-                                                placeholder={t('landingEditor.actionPayloadPlaceholder')}
                                             />
                                         </div>
                                     )}

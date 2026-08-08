@@ -7,6 +7,21 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.6.6] — 2026-08-08
+
+### Added
+- **Create and edit a landing from inside a campaign stream.** The quick modal a
+  stream opened (name / type / URL) is now the full landing editor: four type
+  tabs (Local / Redirect / Preload / Action), group and status, a named folder
+  for local landings, a redirect-method selector, the complete Action block
+  (send-to-campaign / 404 / text / HTML / nothing), and the offer-link hint with
+  a copy button and HTML/JS/PHP formats for redirect landings. A new Edit button
+  next to each landing in the stream opens the existing landing in the same
+  modal, so the full form is reachable from where the landing is wired up — not
+  only from the dedicated Landings page. The misleading
+  `window.location.replace('{offer}')` placeholder has been removed from the
+  Action text/HTML fields.
+
 ## [0.9.6.5] — 2026-08-08
 
 ### Added

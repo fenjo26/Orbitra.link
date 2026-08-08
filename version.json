@@ -1,6 +1,6 @@
 {
-    "version": "0.9.6.5",
-    "release_notes": "New: the landing create/edit form now matches Keitaro. The landing type is chosen from four tabs (Local / Redirect / Preload / Action) instead of a dropdown. A local landing gets a named folder (/lander/<slug>) so its files unpack into a readable directory rather than landings/<id>/ — existing landings are backfilled a slug from their name, and renaming the slug moves the folder. A redirect landing can pick its redirect method (HTTP 302 / JavaScript / Meta refresh) like an offer. The offer-link hint shows a copy button on every snippet and, for redirect landings, the three integration shapes an external page needs (plain HTML, document.write JS, server-side PHP with _token). Localised across all seven UI languages.",
+    "version": "0.9.6.6",
+    "release_notes": "New: creating and editing a landing directly from a campaign stream is no longer a 3-field quick form — it now matches the full landing editor (and Keitaro). Four type tabs (Local / Redirect / Preload / Action), group and status, a named folder for local landings, a redirect-method selector, the full Action block (send-to-campaign / 404 / text / HTML / nothing) with no more misleading placeholder in its input, and the offer-link hint with copy button and HTML/JS/PHP formats. A new Edit button next to each landing in the stream opens the existing landing in the same modal. Localised across all seven UI languages.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-08-08"
 }

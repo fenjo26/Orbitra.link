@@ -1,4 +1,4 @@
-# Orbitra v0.9.6.5 Tracker
+# Orbitra v0.9.6.6 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -385,6 +385,11 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.6.6
+
+### Added
+- 🪟 **Create and edit a landing without leaving the campaign stream.** The old 3-field quick form (name / type / URL) is now the full landing editor — four type tabs, group and status, a named folder for local landings, a redirect-method selector, the complete Action block (send-to-campaign, 404, text, HTML, nothing), and the offer-link hint with copy button and HTML/JS/PHP formats. A new **Edit** button next to each landing in the stream opens the existing landing in the same modal, so the full form is reachable from the place it is actually wired up. The misleading `window.location.replace('{offer}')` placeholder has been removed from the Action text/HTML fields.
 
 ## 📝 What's New in v0.9.6.5
 
