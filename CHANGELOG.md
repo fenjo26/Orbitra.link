@@ -7,6 +7,184 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.6.4] — 2026-08-08
+
+### Security
+- **Five System Settings fields were never saved.** `global_settings` had a
+  hardcoded key whitelist that accepted eight settings and silently discarded
+  five more that `SystemSettings.jsx` sends: `stats_enabled`,
+  `stats_retention_days`, `archive_retention_days`, `admin_ip_access` and
+  `ignore_prefetch`. The form showed them, the save reported success, and the
+  values were thrown away — so every value the operator believed they had set
+  was still the default. Three of them were never read by anything at all.
+  All five are now whitelisted for read and write, validated (booleans
+  normalised, retention windows clamped, the access list parsed before it is
+  stored), and — where they describe behaviour — actually enforced.
+- **`admin_ip_access` advertised access control that did nothing.** The panel
+  showed it under a shield icon as an IP allow-list for the admin surface, but
+  no code ever read it. It is now a real allow-list: an empty value leaves the
+  panel open to everyone (the default, unchanged), a populated list restricts
+  both `admin.php` and the authenticated `api.php` surface (sessions *and* API
+  keys) to the listed IPv4/IPv6 addresses and CIDR ranges. The check runs
+  before the session is created, so an unlisted client never reaches a login
+  form. First-time setup (no users yet) is exempt, so the operator cannot lock
+  themselves out before creating the first account.
+- **Any signed-in user could read files outside a landing's folder.** The landing
+  file endpoints interpolated the landing id into the path as a string, so
+  `?action=get_landing_file&id=..&path=config.php` pointed the "allowed" root at
+  the application directory and returned `config.php` — the postback signing key
+  and the database path — as well as `api.php` itself. The containment test was
+  also a bare string prefix, which treats `/landings/12` as living inside
+  `/landings/1`. Both are gone: the id is cast to an integer, the relative path is
+  normalised with any `..` segment rejected outright, and an existing file is
+  re-checked through `realpath()` so a symlink cannot lead out either. The same
+  resolver now serves every landing file operation.
+- **A bare `_subid` in the URL was accepted at the landing→offer transition.**
+  `/?_lp=1` resolved the original click first by signed `_token`, then by
+  cookie, then — as a documented "Keitaro-shaped" fallback — by an unsigned
+  `_subid` query parameter. That last step let anyone attribute a visit to any
+  click id they liked, since `_subid` carried no proof. The fallback is
+  removed: a signed `_token` (for landings on another domain) or the tracker's
+  own cookie (for local/preload landings) are the only accepted sources. The
+  documentation's claim that an unsigned click id is refused now matches the
+  code.
+
+### Added
+- **The `{offer}` macro in local landings.** A landing's buy button is written the
+  way it is in Keitaro — `<a href="{offer}">Buy</a>` — and the tracker substitutes
+  the URL of the offer bound to the stream, click id included. `{offer_id}`,
+  `{clickid}`, `{subid}`, `{token}` and every click parameter are substituted too,
+  with values taken from the URL escaped. No other braces are touched, so JS
+  template literals, Vue and Angular syntax inside a landing survive. With no offer
+  on the stream `{offer}` becomes `/?_lp=1` rather than an empty link. Note that
+  `{offer}` expands to the advertiser's URL, so choosing between several offers
+  goes through `/?_lp=1&offer_id=N`, which also re-attributes the click.
+- **Landing actions, as five choices instead of a free-text field.** Send to
+  campaign, show a 404, show as text, show as HTML, do nothing — available both on
+  a landing of type Action and on a stream with the Action schema, which
+  previously understood two of them and silently did nothing for the rest.
+  Existing action landings keep their behaviour: a payload becomes "show as HTML",
+  an empty one becomes "do nothing".
+- **`_token` for landings hosted elsewhere.** A redirect landing lives on another
+  domain and cannot read the tracker's cookies, so its offer link had no way to
+  say which click it belonged to and simply failed. The tracker now appends
+  `_subid` and a signed `_token` (HMAC-SHA256, 24 hours) to the landing URL, and
+  `/?_lp=1` accepts the token in the cookie's place. Unsigned click ids from
+  strangers are refused.
+- **JS adapter** (`js/orbitra-adapter.js`). Carries the click onto a landing's
+  inner pages and forms, and exposes `orbitraPostback()` so a thank-you page can
+  report a conversion with no affiliate network in between. Unlike its Keitaro
+  counterpart it leaves `#anchors`, `mailto:`, `tel:` and `javascript:` links
+  alone — rewriting those is what breaks popup forms and smooth scrolling — and
+  never hands the click id to a third-party domain.
+- **Create a landing or an offer without leaving the stream.** The schema editor
+  gained "Create landing" and "Create offer" next to "Add"; the new item drops
+  straight into the stream, and the cached dropdown is refreshed so it appears.
+- **File operations in the landing editor**: create, upload, rename, move and
+  delete. Writes are limited to a whitelist of extensions, so `.php` and
+  `.htaccess` cannot be created, uploaded, or arrived at by renaming an HTML file.
+- **Offer selection before or after the click.** A stream can defer the choice to
+  the moment the visitor leaves the landing, so a slot that fills up while they
+  read is not already spent on them. The click is logged without an offer and is
+  attributed when `/?_lp=1` fires.
+- **PHP landings**, off by default and enabled per instance in
+  Settings → General. Entry point `index.php`, `$rawClick->get('parameter')` for
+  the click, and an execution timeout of 1–9 seconds so one slow landing cannot
+  tie up the workers the whole site shares. Uploads are scanned with PHP's own
+  tokenizer for shell, `eval` and timeout-defeating calls, and a failing archive is
+  removed rather than left half-installed. The scan is a speed bump, not a
+  sandbox — `disable_functions` and `open_basedir` in `php.ini` are what actually
+  contain a landing, and the documentation says so.
+- **[docs/landing-pages.md](docs/landing-pages.md)** — one page covering all four
+  landing types, the macros, the adapter, PHP landings and the mistakes that
+  produce each error message.
+
+### Fixed
+- **The panel became unreachable at the server IP once a domain was parked.**
+  Two causes, one symptom. `updateNginxConfig()` rewrote the site config with
+  `server_name <parked domains>` and no catch-all block, so nothing explicitly
+  owned requests addressed to the bare IP; and SSL was issued with
+  `certbot --nginx`, whose installer plugin then edited that same file —
+  narrowing `server_name` to the domain being issued and appending
+  `return 404`, which the IP request landed on. It came back on every renewal.
+  Deleting the domain you always used left no way in short of remembering which
+  other domains were parked.
+
+  The generated config now always begins with a
+  `listen 80 default_server; server_name _;` block, so access by IP is
+  structural rather than incidental, and certificates are obtained with
+  `certbot certonly --webroot` — Certbot never touches nginx again. Orbitra
+  writes the HTTPS server blocks itself, as it already did.
+- **HTTPS on the server IP served a parked domain's certificate.** Let's Encrypt
+  does not issue for bare IPs, so `https://<ip>/admin.php` matched whichever
+  domain owned the first 443 block and failed on a name mismatch. The installer
+  now generates a self-signed certificate for the IP and gives it a
+  `listen 443 ssl default_server` block: the browser still warns, but the panel
+  opens.
+- **`/.well-known/acme-challenge/` was blocked by the dotfile deny rule**, so a
+  webroot certificate could never be issued. It is now served from an explicit
+  `location ^~` above the deny.
+- **The config hardcoded `php8.3-fpm.sock`**, so on any other PHP version the
+  first domain save produced a config that failed `nginx -t`. The socket is
+  detected.
+- **A failing config was installed anyway.** The old writer staged the new
+  config as `orbitra.tmp` — a file nginx does not include — then ran `nginx -t`,
+  which therefore tested the *old* config, and renamed the untested file into
+  place. A bad generation could leave a server that would not come back up after
+  a restart. The new config is tested where nginx actually reads it, and the
+  previous one is restored if the test fails.
+- **The installer, the panel and the recovery scripts each generated their own
+  config**, and the three had drifted apart. They now share
+  `core/nginx_config.php`.
+
+### Added
+- **`cli/nginx_sync.php`** — one command that rebuilds the web-server config
+  from the database, repairs renewal configs left behind by the old
+  `certbot --nginx` (otherwise the next renewal re-breaks IP access), and
+  generates the self-signed certificate:
+
+      sudo php /var/www/orbitra/cli/nginx_sync.php
+
+  Existing installations should run it once after updating. `fix_nginx.sh` and
+  `restore_https.sh` are now thin wrappers around it.
+- **Configurable admin panel path.** *Settings → System → Admin panel path*
+  moves the panel from `/admin.php` to `/your-path`, after which `/admin.php`
+  answers 404 — so the login form is not sitting at the one URL every scanner
+  tries against an IP range. This hides the panel; it does not replace the
+  password, and `/api.php` still answers and enforces its own authentication.
+  The way back in if the path is forgotten:
+
+      php /var/www/orbitra/cli/admin_path.php reset
+
+### Added
+- **Data retention is now enforced.** The *Log retention* and *Archive retention*
+  fields in System Settings were saved but never acted on — clicks, conversions
+  and archived campaigns accumulated forever. `cli/cleanup_cron.php` purges them
+  in chunks (so a multi-million-row table is not locked under one statement),
+  honouring the configured windows, and is meant to run once daily:
+
+      0 3 * * * php /var/www/orbitra/cli/cleanup_cron.php >> /var/log/orbitra_cleanup.log 2>&1
+
+  Conversions are deleted both by their own `created_at` and via the
+  `ON DELETE CASCADE` on `clicks(id)`, so neither table anchors the other.
+- **`ignore_prefetch` is now enforced on every click entry point**, not only
+  `index.php`. The header check also recognises modern `Sec-Purpose` /
+  `Sec-Fetch-Mode` hints, so current Chrome and Edge prefetches are dropped
+  instead of counted as real clicks.
+
+### Fixed
+- **The dead `fix_nginx` generator still shipped alongside the shared one.**
+  `action=fix_nginx` hand-wrote its own nginx config, hardcoded the `php8.3`
+  FPM socket, copied it into place via `sudo cp` and reloaded **without running
+  `nginx -t`** — exactly the class of bug the `core/nginx_config.php` rewrite
+  was written to eliminate. The action now delegates to that shared generator
+  (the same path `regenerate_nginx` uses), so a "fix my nginx" call produces a
+  tested, reload-safe config.
+- **The landing editor's code examples ignored the UI language.** The
+  `{offer}` / `/?_lp=1` snippets hardcoded Russian ("Купить", "Оффер 10")
+  regardless of the selected locale; only the surrounding prose was translated.
+  The example text is now localised across all seven languages.
+
 ## [0.9.6.3] — 2026-08-07
 
 ### Fixed

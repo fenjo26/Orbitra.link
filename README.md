@@ -1,4 +1,4 @@
-# Orbitra v0.9.6.3 Tracker
+# Orbitra v0.9.6.4 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -385,6 +385,26 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.6.4
+
+### Added
+- 🔒 **The admin panel path is configurable** — *Settings → System → Admin panel path* moves the panel from `/admin.php` to `/your-path`, after which `/admin.php` answers 404. The point is the bare server IP: `/admin.php` is the first thing anything walking a hosting provider's IP range tries. It hides the panel rather than replacing the password — `/api.php` still answers and still enforces its own authentication. Forgot the path? `php /var/www/orbitra/cli/admin_path.php reset`.
+- 🛠 **`cli/nginx_sync.php`** — one command that rebuilds the web-server config from the database, repairs Certbot renewal configs left behind by the old issuance mode, and generates the self-signed certificate used for HTTPS on the IP: `sudo php /var/www/orbitra/cli/nginx_sync.php`. Run it once after updating. `fix_nginx.sh` and `restore_https.sh` are now wrappers around it.
+- 🔗 **The `{offer}` macro in local landings** — the buy button is now written exactly as it is in Keitaro, `<a href="{offer}">Buy</a>`, and the tracker substitutes the URL of the offer bound to the stream, click id included. The macro used to reach the browser verbatim, so the button led nowhere and `/?_lp=1` was the only thing that worked — with nothing in the interface saying so. `{offer}`, `{offer_id}`, `{clickid}`, `{subid}` and every click parameter (`{keyword}`, `{sub_id_1}` … `{sub_id_30}`) are substituted, with values from the URL escaped. No other braces are touched, so JS template literals, Vue and Angular syntax inside a landing survive. With no offer on the stream `{offer}` becomes `/?_lp=1` rather than an empty link. The landing editor now shows the snippet.
+
+### Fixed
+- 🌐 **The panel became unreachable at the server IP once a domain was parked** — and stayed that way, so deleting the domain you always used meant remembering which other domains were parked before you could get back in. Two causes behind one symptom. The generated Nginx config listed only the parked domains in `server_name`, with no catch-all block owning requests addressed to the bare IP; and certificates were issued with `certbot --nginx`, whose installer plugin edits that same file — narrowing `server_name` to the domain being issued and appending `return 404`, which is what an IP request then landed on. It came back on every renewal. The config now always begins with a `listen 80 default_server; server_name _;` block, so access by IP is structural rather than incidental, and certificates are obtained with `certbot certonly --webroot`, which never touches Nginx. Orbitra writes the HTTPS server blocks itself, as it already did.
+- 🔐 **HTTPS on the server IP served a parked domain's certificate** — Let's Encrypt does not issue for bare IP addresses, so `https://<ip>/admin.php` matched whichever domain owned the first 443 block and failed on a name mismatch. A self-signed certificate for the IP now backs a `listen 443 ssl default_server` block: the browser warns, but the panel opens.
+- 📜 **`/.well-known/acme-challenge/` was swallowed by the dotfile deny rule**, which made webroot certificate issuance impossible. It is now served from an explicit `location ^~` placed above the deny.
+- ⚙️ **The config hardcoded `php8.3-fpm.sock`** — on any other PHP version the first domain save produced a config that failed `nginx -t`. The socket is detected.
+- 🧯 **A config that failed `nginx -t` was installed anyway** — the writer staged it as `orbitra.tmp`, a file Nginx does not include, so the test ran against the *old* config and the untested file was renamed into place. A bad generation could leave a server that would not come back up after a restart. The new config is now tested where Nginx actually reads it, and the previous one is restored if the test fails.
+- 🧩 **The installer, the panel and the recovery scripts each generated their own Nginx config** and had drifted apart. They now share `core/nginx_config.php`.
+- 💾 **Reinstalling destroyed uploaded landings** — `install.sh` backs up the database, `var/` and `geo/` before it `rm -rf`s the directory, but `landings/` was not on that list, so every uploaded landing disappeared without warning. It is now preserved alongside the database. Also: a run that died before the restore step left a backup in `/tmp`, and `cp -r` copies INTO an existing destination — the next run produced `var/var`, `geo/geo` and lost part of the restore. Stale backups are cleared first.
+- ⬆️ **The update button said nothing useful about "dubious ownership"** — pulling an update over SSH as root once changes who owns the tracker directory, after which git refuses to touch it as the web user. The panel surfaced that as `Unsafe branch: fatal: detected dubious ownership...`, because the error text landed in the branch check instead of a branch name. The condition is now detected before any other git call, and the reply names the directory owner, the user the update runs as, and the exact `chown` to fix it.
+
+### For developers
+- 🔤 **`npm run check:i18n`** — checks the translations against the code rather than against each other: it resolves every `t('...')` used in the components in all seven languages and exits non-zero. Key parity cannot catch this — the raw keys that shipped in 0.9.6.3 were identically wrong in all seven files.
 
 ## 📝 What's New in v0.9.6.3
 

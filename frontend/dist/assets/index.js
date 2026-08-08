@@ -16287,6 +16287,17 @@ const ru = {
     "copyErrors": "Ошибок"
   },
   "editor": {
+    "offerSelection": "Выбор оффера",
+    "offerSelectionBefore": "Перед кликом",
+    "offerSelectionAfter": "После клика",
+    "offerSelectionHint": "Когда определяется оффер. «После клика» выбирает его в момент ухода с лендинга — тогда слот, который закончился, пока человек читал, не окажется уже потраченным на него.",
+    "quickCreateLanding": "Создать лендинг",
+    "quickCreateOffer": "Создать оффер",
+    "quickCreateName": "Название",
+    "quickCreateType": "Тип",
+    "quickCreateZip": "ZIP-архив",
+    "quickCreateZipHint": "Необязательно — можно загрузить позже из редактора лендинга.",
+    "quickCreateError": "Не удалось создать",
     "newCampaign": "Новая кампания",
     "createCampaign": "Создание кампании",
     "campaign": "Кампания",
@@ -16934,7 +16945,15 @@ const ru = {
     "archiveRetentionHint": "Ресурсы, удаленные более указанного количества дней назад, будут безвозвратно стерты.",
     "adminAccess": "Доступ к админ-панели (IP/Подсети)",
     "adminAccessPlaceholder": "Оставьте пустым для доступа отовсюду",
-    "adminAccessHint": "Один IP или подсеть в строке. Внимание: вы можете заблокировать себя!"
+    "adminAccessHint": "Один IP или подсеть в строке. Внимание: вы можете заблокировать себя!",
+    "adminPath": "Путь к админ-панели",
+    "adminPathPlaceholder": "admin.php (по умолчанию)",
+    "adminPathHint": 'Переносит панель с /admin.php на /ваш-путь, чтобы форма входа не висела по адресу, который перебирает каждый сканер. 3-64 символа: строчные латинские буквы, цифры, "-" и "_". Пустое поле оставляет /admin.php. Это скрывает панель, но не заменяет пароль.',
+    "adminPathWarning": "Сохраните новый адрес в закладки, прежде чем уйти со страницы. Если забыли — выполните на сервере:",
+    "adminPathMoved": "Сохранено. Панель переехала на",
+    "adminPathInvalid": '3-64 символа: строчные латинские буквы, цифры, "-" и "_", первый символ — буква или цифра.',
+    "adminPathReserved": "Это имя занято самим трекером. Выберите другое.",
+    "adminPathAliasTaken": "Такой алиас уже есть у кампании — путь перекрыл бы её."
   },
   "conversionTypes": {
     "title": "Кастомные типы конверсий",
@@ -16998,6 +17017,41 @@ const ru = {
     "language": "Язык"
   },
   "landingEditor": {
+    "fileNew": "Новый файл",
+    "fileUpload": "Загрузить файл",
+    "fileRename": "Переименовать или перенести",
+    "fileNewPrompt": "Имя файла, например page2.html или css/style.css",
+    "fileRenamePrompt": "Новое имя или путь",
+    "fileDeleteConfirm": "Удалить этот файл?",
+    "fileUploadDirPrompt": "Папка для загрузки (пусто — в корень)",
+    "fileOpError": "Не удалось выполнить",
+    "adapterTitle": "JS-адаптер (по желанию)",
+    "adapterCopy": "Копировать",
+    "adapterCopied": "Скопировано",
+    "adapterHintLocal": "Переносит клик на внутренние страницы и формы лендинга, чтобы многостраничник продолжал знать посетителя. Вставьте в <head> на каждой странице.",
+    "adapterHintRedirect": "Обязателен для лендинга на чужом хостинге: без него страница не знает, какому клику принадлежит, и ссылка на оффер не сработает. Вставьте в <head> на каждой странице.",
+    "adapterPostbackHint": "Он же позволяет странице самой отправить конверсию, без партнёрки посередине:",
+    "actionTypeLabel": "Действие",
+    "actionToCampaign": "Отправить в кампанию",
+    "actionNotFound": "Показать 404 ошибку",
+    "actionShowText": "Показать как текст",
+    "actionShowHtml": "Показать как HTML",
+    "actionDoNothing": "Ничего не делать",
+    "actionToCampaignHint": "Передаёт посетителя в другую кампанию. Клик учитывается в обеих; в отличие от Keitaro это стоит одного лишнего редиректа.",
+    "actionNotFoundHint": "Отдаёт пустую страницу со статусом 404.",
+    "actionShowTextHint": "Отдаёт текст ниже как обычный текст.",
+    "actionShowHtmlHint": "Отдаёт HTML ниже как страницу.",
+    "actionDoNothingHint": "Отвечает без содержимого — посетитель остаётся там, где он есть.",
+    "actionTargetCampaign": "Целевая кампания",
+    "actionPickCampaign": "Выберите кампанию…",
+    "actionTextLabel": "Текст",
+    "actionHtmlLabel": "HTML",
+    "offerLinkTitle": "Ссылка на оффер",
+    "offerLinkHint": "Кнопку перехода оформите макросом {offer} — трекер подставит вместо него URL оффера, привязанного к этому потоку, вместе с click id. Остальная разметка не меняется.",
+    "offerLinkExtra": "Если офферов на странице несколько, выбор должен идти через трекер — {offer} всегда разворачивается в тот оффер, который выбрал поток:",
+    "offerLinkExampleSingle": '<a href="{offer}">Купить</a>',
+    "offerLinkExampleMulti": '<a href="/?_lp=1&offer_id=10">Оффер 10</a>\n<a href="/?_lp=1&offer_id=22">Оффер 22</a>',
+    "postbackExample": `<a href="{offer}" onclick="orbitraPostback(this, event, 'lead', 10)">Купить</a>`,
     "loadError": "Ошибка загрузки данных лендинга",
     "savedFiles": "Лендинг сохранен. Теперь вы можете загружать файлы.",
     "savedSuccess": "Данные сохранены успешно",
@@ -17464,6 +17518,10 @@ const ru = {
     "minutes": "мин"
   },
   "generalSettings": {
+    "allowPhpLandings": "Разрешить PHP-лендинги",
+    "allowPhpLandingsHint": "По умолчанию выключено. PHP-лендинг исполняет загруженный код внутри трекера, в вебруте. Загрузка проверяется на вызовы шелла и eval, но проверка исходников — не песочница: включайте только для лендингов, чьему коду доверяете.",
+    "phpLandingTimeout": "Таймаут выполнения, секунд",
+    "phpLandingTimeoutHint": "От 1 до 9. Лендинг, который работает дольше, обрывается — чтобы одна медленная страница не занимала воркеры, общие для всего сайта.",
     "title": "Общие настройки",
     "postbackKey": "Postback ключ",
     "postbackKeyHint": "Используется для генерации уникальных ссылок S2S постбэков.",
@@ -18289,6 +18347,17 @@ const en = {
     "copyErrors": "Errors"
   },
   "editor": {
+    "offerSelection": "Offer selection",
+    "offerSelectionBefore": "Before the click",
+    "offerSelectionAfter": "After the click",
+    "offerSelectionHint": 'When the offer is decided. "After the click" picks it as the visitor leaves the landing, so a slot that fills up while they read is not already spent on them.',
+    "quickCreateLanding": "Create landing",
+    "quickCreateOffer": "Create offer",
+    "quickCreateName": "Name",
+    "quickCreateType": "Type",
+    "quickCreateZip": "ZIP archive",
+    "quickCreateZipHint": "Optional — you can upload it later from the landing editor.",
+    "quickCreateError": "Could not create",
     "newCampaign": "New Campaign",
     "createCampaign": "Create Campaign",
     "campaign": "Campaign",
@@ -18936,7 +19005,15 @@ const en = {
     "archiveRetentionHint": "Resources deleted more than the specified number of days ago will be permanently erased.",
     "adminAccess": "Admin panel access (IP/Subnets)",
     "adminAccessPlaceholder": "Leave empty for access from anywhere",
-    "adminAccessHint": "One IP or subnet per line. Warning: you may block yourself!"
+    "adminAccessHint": "One IP or subnet per line. Warning: you may block yourself!",
+    "adminPath": "Admin panel path",
+    "adminPathPlaceholder": "admin.php (default)",
+    "adminPathHint": 'Moves the panel from /admin.php to /your-path, so the login form is not sitting at a URL every scanner tries. 3-64 characters: lowercase letters, digits, "-" and "_". Leave empty to keep /admin.php. This hides the panel; it does not replace the password.',
+    "adminPathWarning": "Bookmark the new address before you leave this page. If you forget it, run this on the server:",
+    "adminPathMoved": "Saved. The panel has moved to",
+    "adminPathInvalid": 'Use 3-64 characters: lowercase letters, digits, "-" and "_", starting with a letter or digit.',
+    "adminPathReserved": "That name is used by the tracker itself. Pick another one.",
+    "adminPathAliasTaken": "A campaign already uses that alias — the path would shadow the campaign."
   },
   "conversionTypes": {
     "title": "Custom Conversion Types",
@@ -19000,6 +19077,41 @@ const en = {
     "language": "Language"
   },
   "landingEditor": {
+    "fileNew": "New file",
+    "fileUpload": "Upload a file",
+    "fileRename": "Rename or move",
+    "fileNewPrompt": "File name, e.g. page2.html or css/style.css",
+    "fileRenamePrompt": "New name or path",
+    "fileDeleteConfirm": "Delete this file?",
+    "fileUploadDirPrompt": "Folder to upload into (leave empty for the root)",
+    "fileOpError": "Operation failed",
+    "adapterTitle": "JS adapter (optional)",
+    "adapterCopy": "Copy",
+    "adapterCopied": "Copied",
+    "adapterHintLocal": "Carries the click onto the landing's inner pages and forms, so a multi-page landing still knows who the visitor is. Paste it into <head> on every page.",
+    "adapterHintRedirect": "Required for a landing hosted elsewhere: without it the page cannot tell which click it belongs to, and the offer link will not work. Paste it into <head> on every page.",
+    "adapterPostbackHint": "It also lets a page report a conversion by itself, with no affiliate network in the middle:",
+    "actionTypeLabel": "Action",
+    "actionToCampaign": "Send to campaign",
+    "actionNotFound": "Show a 404 error",
+    "actionShowText": "Show as text",
+    "actionShowHtml": "Show as HTML",
+    "actionDoNothing": "Do nothing",
+    "actionToCampaignHint": "Hands the visitor to another campaign. The click is recorded in both campaigns; unlike Keitaro this costs one extra redirect.",
+    "actionNotFoundHint": "Returns a blank page with a 404 status.",
+    "actionShowTextHint": "Returns the text below as plain text.",
+    "actionShowHtmlHint": "Returns the HTML below as a page.",
+    "actionDoNothingHint": "Answers with no content, leaving the visitor where they are.",
+    "actionTargetCampaign": "Target campaign",
+    "actionPickCampaign": "Pick a campaign…",
+    "actionTextLabel": "Text",
+    "actionHtmlLabel": "HTML",
+    "offerLinkTitle": "Link to the offer",
+    "offerLinkHint": "Write the buy button with the {offer} macro — the tracker replaces it with the URL of the offer attached to this stream, click id included. Nothing else in the page is touched.",
+    "offerLinkExtra": "For several offers on one page the choice has to go through the tracker — {offer} always expands to the offer the stream picked:",
+    "offerLinkExampleSingle": '<a href="{offer}">Buy</a>',
+    "offerLinkExampleMulti": '<a href="/?_lp=1&offer_id=10">Offer 10</a>\n<a href="/?_lp=1&offer_id=22">Offer 22</a>',
+    "postbackExample": `<a href="{offer}" onclick="orbitraPostback(this, event, 'lead', 10)">Buy</a>`,
     "loadError": "Error loading landing data",
     "savedFiles": "Landing saved. Now you can upload files.",
     "savedSuccess": "Data saved successfully",
@@ -19491,6 +19603,10 @@ const en = {
     "minutes": "min"
   },
   "generalSettings": {
+    "allowPhpLandings": "Allow PHP landings",
+    "allowPhpLandingsHint": "Off by default. A PHP landing runs uploaded code inside the tracker, in the web root. Uploads are scanned for shell and eval calls, but a source scan is not a sandbox — only turn this on for landings whose code you trust.",
+    "phpLandingTimeout": "Execution timeout, seconds",
+    "phpLandingTimeoutHint": "1 to 9. A landing that runs longer is cut off, so one slow page cannot tie up the workers the whole site shares.",
     "title": "General Settings",
     "postbackKey": "Postback Key",
     "postbackKeyHint": "Used to generate unique S2S postback URLs.",
@@ -20291,6 +20407,17 @@ const uk = {
     "copyErrors": "Помилки"
   },
   "editor": {
+    "offerSelection": "Вибір офера",
+    "offerSelectionBefore": "Перед кліком",
+    "offerSelectionAfter": "Після кліку",
+    "offerSelectionHint": "Коли визначається офер. «Після кліку» обирає його в момент переходу з лендінга — тоді слот, що закінчився, поки людина читала, не виявиться вже витраченим на неї.",
+    "quickCreateLanding": "Створити лендінг",
+    "quickCreateOffer": "Створити офер",
+    "quickCreateName": "Назва",
+    "quickCreateType": "Тип",
+    "quickCreateZip": "ZIP-архів",
+    "quickCreateZipHint": "Необовʼязково — можна завантажити пізніше з редактора лендінга.",
+    "quickCreateError": "Не вдалося створити",
     "newCampaign": "Нова кампанія",
     "createCampaign": "Створити кампанію",
     "campaign": "Кампанія",
@@ -20938,7 +21065,15 @@ const uk = {
     "archiveRetentionHint": "Ресурси, видалені більше ніж указану кількість днів тому, будуть остаточно видалені.",
     "adminAccess": "Доступ до панелі адміністратора (IP/підмережі)",
     "adminAccessPlaceholder": "Залиште порожнім для доступу з будь-якого місця",
-    "adminAccessHint": "Один IP або підмережа на рядок. Попередження: ви можете заблокувати себе!"
+    "adminAccessHint": "Один IP або підмережа на рядок. Попередження: ви можете заблокувати себе!",
+    "adminPath": "Шлях до адмін-панелі",
+    "adminPathPlaceholder": "admin.php (за замовчуванням)",
+    "adminPathHint": 'Переносить панель з /admin.php на /ваш-шлях, щоб форма входу не була за адресою, яку перебирає кожен сканер. 3-64 символи: малі латинські літери, цифри, "-" та "_". Порожнє поле залишає /admin.php. Це приховує панель, але не замінює пароль.',
+    "adminPathWarning": "Збережіть нову адресу в закладки, перш ніж піти зі сторінки. Якщо забули — виконайте на сервері:",
+    "adminPathMoved": "Збережено. Панель переїхала на",
+    "adminPathInvalid": '3-64 символи: малі латинські літери, цифри, "-" та "_", перший символ — літера або цифра.',
+    "adminPathReserved": "Це ім'я зайняте самим трекером. Оберіть інше.",
+    "adminPathAliasTaken": "Такий алiас уже має кампанія — шлях перекрив би її."
   },
   "conversionTypes": {
     "title": "Спеціальні типи перетворення",
@@ -21002,6 +21137,41 @@ const uk = {
     "language": "Мова"
   },
   "landingEditor": {
+    "fileNew": "Новий файл",
+    "fileUpload": "Завантажити файл",
+    "fileRename": "Перейменувати або перенести",
+    "fileNewPrompt": "Назва файлу, наприклад page2.html або css/style.css",
+    "fileRenamePrompt": "Нова назва або шлях",
+    "fileDeleteConfirm": "Видалити цей файл?",
+    "fileUploadDirPrompt": "Тека для завантаження (порожньо — у корінь)",
+    "fileOpError": "Не вдалося виконати",
+    "adapterTitle": "JS-адаптер (за бажанням)",
+    "adapterCopy": "Копіювати",
+    "adapterCopied": "Скопійовано",
+    "adapterHintLocal": "Переносить клік на внутрішні сторінки та форми лендінга, щоб багатосторінковий лендінг далі знав відвідувача. Вставте в <head> на кожній сторінці.",
+    "adapterHintRedirect": "Обовʼязковий для лендінга на чужому хостингу: без нього сторінка не знає, якому кліку належить, і посилання на офер не спрацює. Вставте в <head> на кожній сторінці.",
+    "adapterPostbackHint": "Він же дозволяє сторінці самій надіслати конверсію, без партнерки посередині:",
+    "actionTypeLabel": "Дія",
+    "actionToCampaign": "Надіслати в кампанію",
+    "actionNotFound": "Показати 404 помилку",
+    "actionShowText": "Показати як текст",
+    "actionShowHtml": "Показати як HTML",
+    "actionDoNothing": "Нічого не робити",
+    "actionToCampaignHint": "Передає відвідувача в іншу кампанію. Клік враховується в обох; на відміну від Keitaro це коштує одного зайвого редиректу.",
+    "actionNotFoundHint": "Віддає порожню сторінку зі статусом 404.",
+    "actionShowTextHint": "Віддає текст нижче як звичайний текст.",
+    "actionShowHtmlHint": "Віддає HTML нижче як сторінку.",
+    "actionDoNothingHint": "Відповідає без вмісту — відвідувач залишається там, де він є.",
+    "actionTargetCampaign": "Цільова кампанія",
+    "actionPickCampaign": "Оберіть кампанію…",
+    "actionTextLabel": "Текст",
+    "actionHtmlLabel": "HTML",
+    "offerLinkTitle": "Посилання на офер",
+    "offerLinkHint": "Кнопку переходу оформіть макросом {offer} — трекер підставить замість нього URL офера, прив’язаного до цього потоку, разом із click id. Решта розмітки не змінюється.",
+    "offerLinkExtra": "Якщо оферів на сторінці кілька, вибір має йти через трекер — {offer} завжди розгортається в той офер, який обрав потік:",
+    "offerLinkExampleSingle": '<a href="{offer}">Купити</a>',
+    "offerLinkExampleMulti": '<a href="/?_lp=1&offer_id=10">Офер 10</a>\n<a href="/?_lp=1&offer_id=22">Офер 22</a>',
+    "postbackExample": `<a href="{offer}" onclick="orbitraPostback(this, event, 'lead', 10)">Купити</a>`,
     "loadError": "Помилка завантаження даних посадки",
     "savedFiles": "Посадка збережена. Тепер ви можете завантажувати файли.",
     "savedSuccess": "Дані успішно збережено",
@@ -21493,6 +21663,10 @@ const uk = {
     "minutes": "хв"
   },
   "generalSettings": {
+    "allowPhpLandings": "Дозволити PHP-лендінги",
+    "allowPhpLandingsHint": "Типово вимкнено. PHP-лендінг виконує завантажений код усередині трекера, у вебруті. Завантаження перевіряється на виклики шелла та eval, але перевірка вихідників — не пісочниця: вмикайте лише для лендінгів, чиєму коду довіряєте.",
+    "phpLandingTimeout": "Таймаут виконання, секунд",
+    "phpLandingTimeoutHint": "Від 1 до 9. Лендінг, що працює довше, обривається — щоб одна повільна сторінка не займала воркери, спільні для всього сайту.",
     "title": "Загальні налаштування",
     "postbackKey": "Ключ повернення",
     "postbackKeyHint": "Використовується для генерації унікальних URL-адрес для повернення S2S.",
@@ -22293,6 +22467,17 @@ const es = {
     "copyErrors": "Errores"
   },
   "editor": {
+    "offerSelection": "Selección de oferta",
+    "offerSelectionBefore": "Antes del clic",
+    "offerSelectionAfter": "Después del clic",
+    "offerSelectionHint": "Cuándo se decide la oferta. «Después del clic» la elige al salir del landing, así un cupo que se agota mientras el visitante lee no queda ya gastado en él.",
+    "quickCreateLanding": "Crear landing",
+    "quickCreateOffer": "Crear oferta",
+    "quickCreateName": "Nombre",
+    "quickCreateType": "Tipo",
+    "quickCreateZip": "Archivo ZIP",
+    "quickCreateZipHint": "Opcional: puedes subirlo después desde el editor del landing.",
+    "quickCreateError": "No se pudo crear",
     "newCampaign": "Nueva campaña",
     "createCampaign": "Crear campaña",
     "campaign": "Campaña",
@@ -22940,7 +23125,15 @@ const es = {
     "archiveRetentionHint": "Los recursos eliminados hace más del número de días especificado se borrarán permanentemente.",
     "adminAccess": "Acceso al panel de administración (IP/Subredes)",
     "adminAccessPlaceholder": "Déjelo vacío para acceder desde cualquier lugar",
-    "adminAccessHint": "Una IP o subred por línea. Advertencia: ¡puedes bloquearte!"
+    "adminAccessHint": "Una IP o subred por línea. Advertencia: ¡puedes bloquearte!",
+    "adminPath": "Ruta del panel de administración",
+    "adminPathPlaceholder": "admin.php (por defecto)",
+    "adminPathHint": 'Mueve el panel de /admin.php a /tu-ruta, para que el formulario de acceso no esté en una URL que prueba cualquier escáner. 3-64 caracteres: minúsculas, dígitos, "-" y "_". Déjalo vacío para mantener /admin.php. Esto oculta el panel, no sustituye a la contraseña.',
+    "adminPathWarning": "Guarda la nueva dirección en marcadores antes de salir de esta página. Si la olvidas, ejecuta en el servidor:",
+    "adminPathMoved": "Guardado. El panel se ha movido a",
+    "adminPathInvalid": '3-64 caracteres: minúsculas, dígitos, "-" y "_", empezando por letra o dígito.',
+    "adminPathReserved": "Ese nombre lo usa el propio tracker. Elige otro.",
+    "adminPathAliasTaken": "Una campaña ya usa ese alias — la ruta la ocultaría."
   },
   "conversionTypes": {
     "title": "Tipos de conversión personalizados",
@@ -23004,6 +23197,41 @@ const es = {
     "language": "Idioma"
   },
   "landingEditor": {
+    "fileNew": "Nuevo archivo",
+    "fileUpload": "Subir un archivo",
+    "fileRename": "Renombrar o mover",
+    "fileNewPrompt": "Nombre del archivo, p. ej. page2.html o css/style.css",
+    "fileRenamePrompt": "Nuevo nombre o ruta",
+    "fileDeleteConfirm": "¿Eliminar este archivo?",
+    "fileUploadDirPrompt": "Carpeta de destino (vacío para la raíz)",
+    "fileOpError": "No se pudo completar",
+    "adapterTitle": "Adaptador JS (opcional)",
+    "adapterCopy": "Copiar",
+    "adapterCopied": "Copiado",
+    "adapterHintLocal": "Lleva el clic a las páginas internas y los formularios del landing, para que un landing de varias páginas siga sabiendo quién es el visitante. Pégalo en <head> de cada página.",
+    "adapterHintRedirect": "Imprescindible para un landing alojado fuera: sin él la página no sabe a qué clic pertenece y el enlace a la oferta no funcionará. Pégalo en <head> de cada página.",
+    "adapterPostbackHint": "También permite que una página informe una conversión por sí misma, sin red de afiliación de por medio:",
+    "actionTypeLabel": "Acción",
+    "actionToCampaign": "Enviar a una campaña",
+    "actionNotFound": "Mostrar un error 404",
+    "actionShowText": "Mostrar como texto",
+    "actionShowHtml": "Mostrar como HTML",
+    "actionDoNothing": "No hacer nada",
+    "actionToCampaignHint": "Pasa al visitante a otra campaña. El clic se registra en ambas; a diferencia de Keitaro, cuesta una redirección extra.",
+    "actionNotFoundHint": "Devuelve una página en blanco con estado 404.",
+    "actionShowTextHint": "Devuelve el texto de abajo como texto plano.",
+    "actionShowHtmlHint": "Devuelve el HTML de abajo como página.",
+    "actionDoNothingHint": "Responde sin contenido y deja al visitante donde está.",
+    "actionTargetCampaign": "Campaña de destino",
+    "actionPickCampaign": "Elige una campaña…",
+    "actionTextLabel": "Texto",
+    "actionHtmlLabel": "HTML",
+    "offerLinkTitle": "Enlace a la oferta",
+    "offerLinkHint": "Escribe el botón de compra con la macro {offer}: el tracker la sustituye por la URL de la oferta asociada a este flujo, con el click id incluido. No se toca nada más de la página.",
+    "offerLinkExtra": "Con varias ofertas en una página la elección debe pasar por el tracker: {offer} siempre se expande a la oferta que eligió el flujo:",
+    "offerLinkExampleSingle": '<a href="{offer}">Comprar</a>',
+    "offerLinkExampleMulti": '<a href="/?_lp=1&offer_id=10">Oferta 10</a>\n<a href="/?_lp=1&offer_id=22">Oferta 22</a>',
+    "postbackExample": `<a href="{offer}" onclick="orbitraPostback(this, event, 'lead', 10)">Comprar</a>`,
     "loadError": "Error al cargar datos de aterrizaje",
     "savedFiles": "Aterrizaje salvado. Ahora puedes subir archivos.",
     "savedSuccess": "Datos guardados exitosamente",
@@ -23495,6 +23723,10 @@ const es = {
     "minutes": "mín."
   },
   "generalSettings": {
+    "allowPhpLandings": "Permitir landings en PHP",
+    "allowPhpLandingsHint": "Desactivado por defecto. Un landing PHP ejecuta código subido dentro del tracker, en la raíz web. Las subidas se analizan en busca de llamadas a shell y eval, pero un análisis del código no es un sandbox: actívalo solo para landings cuyo código sea de confianza.",
+    "phpLandingTimeout": "Tiempo límite de ejecución, segundos",
+    "phpLandingTimeoutHint": "De 1 a 9. Un landing que tarde más se corta, para que una página lenta no bloquee los procesos que comparte todo el sitio.",
     "title": "Configuraciones generales",
     "postbackKey": "Clave de devolución de datos",
     "postbackKeyHint": "Se utiliza para generar URL de devolución de datos S2S únicas.",
@@ -24295,6 +24527,17 @@ const zh = {
     "copyErrors": "错误"
   },
   "editor": {
+    "offerSelection": "报价选择",
+    "offerSelectionBefore": "点击前",
+    "offerSelectionAfter": "点击后",
+    "offerSelectionHint": "什么时候确定报价。「点击后」在访客离开落地页时才选，这样在他阅读期间被占满的名额不会已经算在他头上。",
+    "quickCreateLanding": "新建落地页",
+    "quickCreateOffer": "新建报价",
+    "quickCreateName": "名称",
+    "quickCreateType": "类型",
+    "quickCreateZip": "ZIP 压缩包",
+    "quickCreateZipHint": "可选——之后也可以在落地页编辑器里上传。",
+    "quickCreateError": "创建失败",
     "newCampaign": "新活动",
     "createCampaign": "创建营销活动",
     "campaign": "活动",
@@ -24942,7 +25185,15 @@ const zh = {
     "archiveRetentionHint": "超过指定天数之前删除的资源将被永久删除。",
     "adminAccess": "管理面板访问（IP/子网）",
     "adminAccessPlaceholder": "留空以便从任何地方访问",
-    "adminAccessHint": "每条线路一个 IP 或子网。警告：您可能会屏蔽自己！"
+    "adminAccessHint": "每条线路一个 IP 或子网。警告：您可能会屏蔽自己！",
+    "adminPath": "管理面板路径",
+    "adminPathPlaceholder": "admin.php（默认）",
+    "adminPathHint": '将面板从 /admin.php 移到 /你的路径，这样登录页就不在每个扫描器都会尝试的地址上。3-64 个字符：小写字母、数字、"-" 和 "_"。留空则保持 /admin.php。这只是隐藏面板，不能代替密码。',
+    "adminPathWarning": "离开本页前请先把新地址加入书签。如果忘记了，在服务器上执行：",
+    "adminPathMoved": "已保存。面板已迁移到",
+    "adminPathInvalid": '3-64 个字符：小写字母、数字、"-" 和 "_"，且以字母或数字开头。',
+    "adminPathReserved": "该名称已被追踪器自身占用，请另选一个。",
+    "adminPathAliasTaken": "已有活动使用该别名 — 该路径会覆盖它。"
   },
   "conversionTypes": {
     "title": "自定义转化类型",
@@ -25006,6 +25257,41 @@ const zh = {
     "language": "语言"
   },
   "landingEditor": {
+    "fileNew": "新建文件",
+    "fileUpload": "上传文件",
+    "fileRename": "重命名或移动",
+    "fileNewPrompt": "文件名，例如 page2.html 或 css/style.css",
+    "fileRenamePrompt": "新名称或路径",
+    "fileDeleteConfirm": "删除这个文件？",
+    "fileUploadDirPrompt": "上传到哪个文件夹（留空表示根目录）",
+    "fileOpError": "操作失败",
+    "adapterTitle": "JS 适配器（可选）",
+    "adapterCopy": "复制",
+    "adapterCopied": "已复制",
+    "adapterHintLocal": "把点击信息带到落地页的内页和表单上，让多页落地页始终知道访客是谁。请粘贴到每个页面的 <head> 中。",
+    "adapterHintRedirect": "对托管在别处的落地页是必需的：没有它，页面无法知道自己属于哪次点击，报价链接也不会生效。请粘贴到每个页面的 <head> 中。",
+    "adapterPostbackHint": "它还能让页面自行上报转化，中间无需联盟网络：",
+    "actionTypeLabel": "动作",
+    "actionToCampaign": "转到其他广告系列",
+    "actionNotFound": "显示 404 错误",
+    "actionShowText": "以纯文本显示",
+    "actionShowHtml": "以 HTML 显示",
+    "actionDoNothing": "什么都不做",
+    "actionToCampaignHint": "把访客交给另一个广告系列。点击会计入两个系列；与 Keitaro 不同，这会多一次跳转。",
+    "actionNotFoundHint": "返回状态为 404 的空白页。",
+    "actionShowTextHint": "把下面的文字作为纯文本返回。",
+    "actionShowHtmlHint": "把下面的 HTML 作为页面返回。",
+    "actionDoNothingHint": "不返回任何内容，访客留在原处。",
+    "actionTargetCampaign": "目标广告系列",
+    "actionPickCampaign": "选择广告系列…",
+    "actionTextLabel": "文本",
+    "actionHtmlLabel": "HTML",
+    "offerLinkTitle": "指向报价的链接",
+    "offerLinkHint": "用 {offer} 宏来写购买按钮——追踪器会把它替换成绑定到该流的报价网址，并带上 click id。页面其余部分不会被改动。",
+    "offerLinkExtra": "如果页面上有多个报价，选择必须经由追踪器完成——{offer} 始终会展开为该流所选中的那一个报价：",
+    "offerLinkExampleSingle": '<a href="{offer}">购买</a>',
+    "offerLinkExampleMulti": '<a href="/?_lp=1&offer_id=10">报价 10</a>\n<a href="/?_lp=1&offer_id=22">报价 22</a>',
+    "postbackExample": `<a href="{offer}" onclick="orbitraPostback(this, event, 'lead', 10)">购买</a>`,
     "loadError": "加载着陆数据时出错",
     "savedFiles": "着陆已保存。现在您可以上传文件了。",
     "savedSuccess": "数据保存成功",
@@ -25497,6 +25783,10 @@ const zh = {
     "minutes": "分钟"
   },
   "generalSettings": {
+    "allowPhpLandings": "允许 PHP 落地页",
+    "allowPhpLandingsHint": "默认关闭。PHP 落地页会在追踪器内部、网站根目录中执行上传的代码。上传时会扫描 shell 与 eval 调用，但源码扫描不是沙箱——只在你信任其代码的落地页上开启。",
+    "phpLandingTimeout": "执行超时（秒）",
+    "phpLandingTimeoutHint": "1 到 9。超时的落地页会被中断，避免一个慢页面占满整站共用的工作进程。",
     "title": "常规设置",
     "postbackKey": "回传键",
     "postbackKeyHint": "用于生成唯一的 S2S 回发 URL。",
@@ -26297,6 +26587,17 @@ const fr = {
     "copyErrors": "Erreurs"
   },
   "editor": {
+    "offerSelection": "Choix de l'offre",
+    "offerSelectionBefore": "Avant le clic",
+    "offerSelectionAfter": "Après le clic",
+    "offerSelectionHint": "Quand l'offre est décidée. « Après le clic » la choisit au départ du landing : un quota épuisé pendant la lecture n'est donc pas déjà consommé pour ce visiteur.",
+    "quickCreateLanding": "Créer un landing",
+    "quickCreateOffer": "Créer une offre",
+    "quickCreateName": "Nom",
+    "quickCreateType": "Type",
+    "quickCreateZip": "Archive ZIP",
+    "quickCreateZipHint": "Facultatif — vous pourrez l'envoyer plus tard depuis l'éditeur de landing.",
+    "quickCreateError": "Création impossible",
     "newCampaign": "Nouvelle campagne",
     "createCampaign": "Créer une campagne",
     "campaign": "Campagne",
@@ -26944,7 +27245,15 @@ const fr = {
     "archiveRetentionHint": "Les ressources supprimées il y a plus que le nombre de jours spécifié seront définitivement effacées.",
     "adminAccess": "Accès au panneau d'administration (IP/sous-réseaux)",
     "adminAccessPlaceholder": "Laissez vide pour un accès depuis n'importe où",
-    "adminAccessHint": "Une IP ou un sous-réseau par ligne. Attention : vous pouvez vous bloquer !"
+    "adminAccessHint": "Une IP ou un sous-réseau par ligne. Attention : vous pouvez vous bloquer !",
+    "adminPath": "Chemin du panneau d'administration",
+    "adminPathPlaceholder": "admin.php (par défaut)",
+    "adminPathHint": 'Déplace le panneau de /admin.php vers /votre-chemin, pour que le formulaire de connexion ne soit pas à une adresse que tous les scanners essaient. 3-64 caractères : minuscules, chiffres, "-" et "_". Laissez vide pour conserver /admin.php. Cela masque le panneau, cela ne remplace pas le mot de passe.',
+    "adminPathWarning": "Mettez la nouvelle adresse en favori avant de quitter cette page. En cas d'oubli, exécutez sur le serveur :",
+    "adminPathMoved": "Enregistré. Le panneau est désormais à",
+    "adminPathInvalid": '3-64 caractères : minuscules, chiffres, "-" et "_", commençant par une lettre ou un chiffre.',
+    "adminPathReserved": "Ce nom est utilisé par le tracker lui-même. Choisissez-en un autre.",
+    "adminPathAliasTaken": "Une campagne utilise déjà cet alias — le chemin la masquerait."
   },
   "conversionTypes": {
     "title": "Types de conversion personnalisés",
@@ -27008,6 +27317,41 @@ const fr = {
     "language": "Langue"
   },
   "landingEditor": {
+    "fileNew": "Nouveau fichier",
+    "fileUpload": "Envoyer un fichier",
+    "fileRename": "Renommer ou déplacer",
+    "fileNewPrompt": "Nom du fichier, p. ex. page2.html ou css/style.css",
+    "fileRenamePrompt": "Nouveau nom ou chemin",
+    "fileDeleteConfirm": "Supprimer ce fichier ?",
+    "fileUploadDirPrompt": "Dossier de destination (vide pour la racine)",
+    "fileOpError": "Opération impossible",
+    "adapterTitle": "Adaptateur JS (facultatif)",
+    "adapterCopy": "Copier",
+    "adapterCopied": "Copié",
+    "adapterHintLocal": "Transporte le clic vers les pages internes et les formulaires du landing, pour qu'un landing multipage sache toujours qui est le visiteur. Collez-le dans <head> sur chaque page.",
+    "adapterHintRedirect": "Indispensable pour un landing hébergé ailleurs : sans lui la page ignore à quel clic elle appartient et le lien vers l'offre ne fonctionnera pas. Collez-le dans <head> sur chaque page.",
+    "adapterPostbackHint": "Il permet aussi à une page de signaler une conversion elle-même, sans réseau d'affiliation :",
+    "actionTypeLabel": "Action",
+    "actionToCampaign": "Envoyer vers une campagne",
+    "actionNotFound": "Afficher une erreur 404",
+    "actionShowText": "Afficher en texte",
+    "actionShowHtml": "Afficher en HTML",
+    "actionDoNothing": "Ne rien faire",
+    "actionToCampaignHint": "Confie le visiteur à une autre campagne. Le clic est compté dans les deux ; contrairement à Keitaro, cela coûte une redirection supplémentaire.",
+    "actionNotFoundHint": "Renvoie une page vide avec un statut 404.",
+    "actionShowTextHint": "Renvoie le texte ci-dessous en texte brut.",
+    "actionShowHtmlHint": "Renvoie le HTML ci-dessous comme page.",
+    "actionDoNothingHint": "Répond sans contenu et laisse le visiteur où il est.",
+    "actionTargetCampaign": "Campagne cible",
+    "actionPickCampaign": "Choisissez une campagne…",
+    "actionTextLabel": "Texte",
+    "actionHtmlLabel": "HTML",
+    "offerLinkTitle": "Lien vers l'offre",
+    "offerLinkHint": "Écrivez le bouton d'achat avec la macro {offer} : le tracker la remplace par l'URL de l'offre rattachée à ce flux, click id compris. Le reste de la page n'est pas modifié.",
+    "offerLinkExtra": "Avec plusieurs offres sur une page, le choix doit passer par le tracker : {offer} correspond toujours à l'offre retenue par le flux :",
+    "offerLinkExampleSingle": '<a href="{offer}">Acheter</a>',
+    "offerLinkExampleMulti": '<a href="/?_lp=1&offer_id=10">Offre 10</a>\n<a href="/?_lp=1&offer_id=22">Offre 22</a>',
+    "postbackExample": `<a href="{offer}" onclick="orbitraPostback(this, event, 'lead', 10)">Acheter</a>`,
     "loadError": "Erreur lors du chargement des données d'atterrissage",
     "savedFiles": "Atterrissage enregistré. Vous pouvez maintenant télécharger des fichiers.",
     "savedSuccess": "Données enregistrées avec succès",
@@ -27499,6 +27843,10 @@ const fr = {
     "minutes": "min"
   },
   "generalSettings": {
+    "allowPhpLandings": "Autoriser les landings en PHP",
+    "allowPhpLandingsHint": "Désactivé par défaut. Un landing PHP exécute du code téléversé dans le tracker, à la racine web. Les envois sont analysés à la recherche d'appels shell et eval, mais une analyse de source n'est pas un bac à sable : n'activez ceci que pour des landings dont vous connaissez le code.",
+    "phpLandingTimeout": "Délai d'exécution, secondes",
+    "phpLandingTimeoutHint": "De 1 à 9. Un landing plus lent est interrompu, pour qu'une page lente ne monopolise pas les processus partagés par tout le site.",
     "title": "Paramètres généraux",
     "postbackKey": "Clé de publication",
     "postbackKeyHint": "Utilisée pour générer des URL de publication S2S uniques.",
@@ -28301,6 +28649,17 @@ const de = {
     "copyErrors": "Fehler"
   },
   "editor": {
+    "offerSelection": "Angebotsauswahl",
+    "offerSelectionBefore": "Vor dem Klick",
+    "offerSelectionAfter": "Nach dem Klick",
+    "offerSelectionHint": "Wann das Angebot feststeht. „Nach dem Klick“ wählt es beim Verlassen des Landings — ein Kontingent, das während des Lesens vollläuft, ist dann nicht schon auf ihn verbucht.",
+    "quickCreateLanding": "Landing anlegen",
+    "quickCreateOffer": "Angebot anlegen",
+    "quickCreateName": "Name",
+    "quickCreateType": "Typ",
+    "quickCreateZip": "ZIP-Archiv",
+    "quickCreateZipHint": "Optional — du kannst es später im Landing-Editor hochladen.",
+    "quickCreateError": "Konnte nicht angelegt werden",
     "newCampaign": "Neue Kampagne",
     "createCampaign": "Kampagne erstellen",
     "campaign": "Kampagne",
@@ -28948,7 +29307,15 @@ const de = {
     "archiveRetentionHint": "Ressourcen, die vor mehr als der angegebenen Anzahl von Tagen gelöscht wurden, werden dauerhaft gelöscht.",
     "adminAccess": "Admin-Panel-Zugriff (IP/Subnetze)",
     "adminAccessPlaceholder": "Leer lassen für Zugriff von überall",
-    "adminAccessHint": "Eine IP oder ein Subnetz pro Zeile. Warnung: Sie können sich selbst blockieren!"
+    "adminAccessHint": "Eine IP oder ein Subnetz pro Zeile. Warnung: Sie können sich selbst blockieren!",
+    "adminPath": "Pfad zum Admin-Panel",
+    "adminPathPlaceholder": "admin.php (Standard)",
+    "adminPathHint": 'Verschiebt das Panel von /admin.php nach /ihr-pfad, damit das Anmeldeformular nicht unter einer Adresse liegt, die jeder Scanner ausprobiert. 3-64 Zeichen: Kleinbuchstaben, Ziffern, "-" und "_". Leer lassen, um /admin.php zu behalten. Das verbirgt das Panel, ersetzt aber kein Passwort.',
+    "adminPathWarning": "Speichern Sie die neue Adresse als Lesezeichen, bevor Sie die Seite verlassen. Falls vergessen, auf dem Server ausführen:",
+    "adminPathMoved": "Gespeichert. Das Panel ist jetzt erreichbar unter",
+    "adminPathInvalid": '3-64 Zeichen: Kleinbuchstaben, Ziffern, "-" und "_", beginnend mit Buchstabe oder Ziffer.',
+    "adminPathReserved": "Dieser Name wird vom Tracker selbst verwendet. Bitte einen anderen wählen.",
+    "adminPathAliasTaken": "Eine Kampagne nutzt diesen Alias bereits — der Pfad würde sie verdecken."
   },
   "conversionTypes": {
     "title": "Benutzerdefinierte Konvertierungstypen",
@@ -29012,6 +29379,41 @@ const de = {
     "language": "Sprache"
   },
   "landingEditor": {
+    "fileNew": "Neue Datei",
+    "fileUpload": "Datei hochladen",
+    "fileRename": "Umbenennen oder verschieben",
+    "fileNewPrompt": "Dateiname, z. B. page2.html oder css/style.css",
+    "fileRenamePrompt": "Neuer Name oder Pfad",
+    "fileDeleteConfirm": "Diese Datei löschen?",
+    "fileUploadDirPrompt": "Zielordner (leer für das Stammverzeichnis)",
+    "fileOpError": "Vorgang fehlgeschlagen",
+    "adapterTitle": "JS-Adapter (optional)",
+    "adapterCopy": "Kopieren",
+    "adapterCopied": "Kopiert",
+    "adapterHintLocal": "Trägt den Klick auf Unterseiten und Formulare des Landings, damit ein mehrseitiges Landing weiß, wer der Besucher ist. Füge ihn auf jeder Seite in <head> ein.",
+    "adapterHintRedirect": "Für ein extern gehostetes Landing zwingend: ohne ihn weiß die Seite nicht, zu welchem Klick sie gehört, und der Angebots-Link funktioniert nicht. Füge ihn auf jeder Seite in <head> ein.",
+    "adapterPostbackHint": "Er erlaubt einer Seite außerdem, eine Conversion selbst zu melden — ganz ohne Affiliate-Netzwerk dazwischen:",
+    "actionTypeLabel": "Aktion",
+    "actionToCampaign": "An Kampagne übergeben",
+    "actionNotFound": "404-Fehler anzeigen",
+    "actionShowText": "Als Text anzeigen",
+    "actionShowHtml": "Als HTML anzeigen",
+    "actionDoNothing": "Nichts tun",
+    "actionToCampaignHint": "Übergibt den Besucher an eine andere Kampagne. Der Klick zählt in beiden; anders als bei Keitaro kostet das eine zusätzliche Weiterleitung.",
+    "actionNotFoundHint": "Liefert eine leere Seite mit Status 404.",
+    "actionShowTextHint": "Liefert den Text unten als reinen Text.",
+    "actionShowHtmlHint": "Liefert das HTML unten als Seite.",
+    "actionDoNothingHint": "Antwortet ohne Inhalt und lässt den Besucher, wo er ist.",
+    "actionTargetCampaign": "Zielkampagne",
+    "actionPickCampaign": "Kampagne wählen…",
+    "actionTextLabel": "Text",
+    "actionHtmlLabel": "HTML",
+    "offerLinkTitle": "Link zum Angebot",
+    "offerLinkHint": "Schreibe den Kauf-Button mit dem Makro {offer} — der Tracker ersetzt es durch die URL des Angebots, das an diesen Stream gebunden ist, samt Click-ID. Der Rest der Seite bleibt unangetastet.",
+    "offerLinkExtra": "Bei mehreren Angeboten auf einer Seite muss die Auswahl über den Tracker laufen — {offer} wird immer zu dem Angebot, das der Stream gewählt hat:",
+    "offerLinkExampleSingle": '<a href="{offer}">Kaufen</a>',
+    "offerLinkExampleMulti": '<a href="/?_lp=1&offer_id=10">Angebot 10</a>\n<a href="/?_lp=1&offer_id=22">Angebot 22</a>',
+    "postbackExample": `<a href="{offer}" onclick="orbitraPostback(this, event, 'lead', 10)">Kaufen</a>`,
     "loadError": "Fehler beim Laden der Landedaten",
     "savedFiles": "Landung gespeichert. Jetzt können Sie Dateien hochladen.",
     "savedSuccess": "Daten erfolgreich gespeichert",
@@ -29503,6 +29905,10 @@ const de = {
     "minutes": "min"
   },
   "generalSettings": {
+    "allowPhpLandings": "PHP-Landings erlauben",
+    "allowPhpLandingsHint": "Standardmäßig aus. Ein PHP-Landing führt hochgeladenen Code im Tracker aus, im Web-Root. Uploads werden auf Shell- und eval-Aufrufe geprüft, aber eine Quelltextprüfung ist keine Sandbox — schalte das nur für Landings ein, deren Code du kennst.",
+    "phpLandingTimeout": "Ausführungs-Timeout, Sekunden",
+    "phpLandingTimeoutHint": "1 bis 9. Ein Landing, das länger läuft, wird abgebrochen, damit eine langsame Seite nicht die Worker blockiert, die die ganze Site teilt.",
     "title": "Allgemeine Einstellungen",
     "postbackKey": "Postback-Schlüssel",
     "postbackKeyHint": "Wird zum Generieren eindeutiger S2S-Postback-URLs verwendet.",
@@ -45104,25 +45510,50 @@ const LandingEditor = ({ landingId, onClose }) => {
     type: "local",
     url: "",
     action_payload: "",
+    action_type: "",
     state: "active"
   });
   const [groups, setGroups] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(false);
+  const [campaigns, setCampaigns] = reactExports.useState([]);
+  const [postbackKey, setPostbackKey] = reactExports.useState("");
+  const [adapterCopied, setAdapterCopied] = reactExports.useState(false);
+  const origin2 = typeof window !== "undefined" && window.location && window.location.origin ? window.location.origin : "https://your-tracker.example.com";
+  const adapterSnippet = `<script src="${origin2}/js/orbitra-adapter.js"` + (postbackKey ? `
+        data-postback="${origin2}/${postbackKey}/postback"` : "") + `><\/script>`;
   const [files, setFiles] = reactExports.useState([]);
   const [selectedFile, setSelectedFile] = reactExports.useState(null);
   const [fileContent, setFileContent] = reactExports.useState("");
   const [savingFile, setSavingFile] = reactExports.useState(false);
   const [uploadingZip, setUploadingZip] = reactExports.useState(false);
   const fileInputRef = reactExports.useRef(null);
+  const assetInputRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    if (landing.type !== "action" || landing.action_type !== "to_campaign" || campaigns.length) return;
+    let cancelled = false;
+    axios.get(`${API_URL$v}?action=campaigns`).then((res) => {
+      if (!cancelled && res.data.status === "success") setCampaigns(res.data.data || []);
+    }).catch(() => {
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [landing.type, landing.action_type, campaigns.length]);
   reactExports.useEffect(() => {
     const fetchInitialData = async () => {
       setLoading(true);
       try {
-        const [groupsRes] = await Promise.all([
-          axios.get(`${API_URL$v}?action=landing_groups`)
+        const [groupsRes, settingsRes] = await Promise.all([
+          axios.get(`${API_URL$v}?action=landing_groups`),
+          // Needed to build the adapter's postback URL, which is keyed by
+          // the instance's postback_key.
+          axios.get(`${API_URL$v}?action=settings`).catch(() => null)
         ]);
         if (groupsRes.data.status === "success") {
           setGroups(groupsRes.data.data);
+        }
+        if (settingsRes && settingsRes.data && settingsRes.data.status === "success") {
+          setPostbackKey(settingsRes.data.data?.postback_key || "");
         }
         if (landingId) {
           const landingRes = await axios.get(`${API_URL$v}?action=get_landing&id=${landingId}`);
@@ -45171,6 +45602,60 @@ const LandingEditor = ({ landingId, onClose }) => {
       }
     } catch (error) {
       alert(t("landingEditor.networkError"));
+    }
+  };
+  const fileOp = async (payload, okMessage) => {
+    try {
+      const res = await axios.post(`${API_URL$v}?action=landing_file_op`, { id: landingId, ...payload });
+      if (res.data.status !== "success") throw new Error(res.data.message || "failed");
+      fetchLandingFiles(landingId);
+      if (okMessage) ;
+      return true;
+    } catch (e) {
+      alert(`${t("landingEditor.fileOpError")}: ${e.response?.data?.message || e.message}`);
+      return false;
+    }
+  };
+  const createFile = async () => {
+    const path = window.prompt(t("landingEditor.fileNewPrompt"), "page2.html");
+    if (!path) return;
+    await fileOp({ op: "create", path, content: "" });
+  };
+  const renameFile = async (file) => {
+    const to2 = window.prompt(t("landingEditor.fileRenamePrompt"), file);
+    if (!to2 || to2 === file) return;
+    if (await fileOp({ op: "rename", path: file, to: to2 }) && selectedFile === file) {
+      setSelectedFile(null);
+      setFileContent("");
+    }
+  };
+  const deleteFile = async (file) => {
+    if (!window.confirm(`${t("landingEditor.fileDeleteConfirm")}
+
+${file}`)) return;
+    if (await fileOp({ op: "delete", path: file }) && selectedFile === file) {
+      setSelectedFile(null);
+      setFileContent("");
+    }
+  };
+  const uploadFile = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !landingId) return;
+    const dir = window.prompt(t("landingEditor.fileUploadDirPrompt"), "") ?? "";
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("id", landingId);
+    fd.append("dir", dir);
+    try {
+      const res = await axios.post(`${API_URL$v}?action=upload_landing_file`, fd, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      if (res.data.status !== "success") throw new Error(res.data.message || "failed");
+      fetchLandingFiles(landingId);
+    } catch (err) {
+      alert(`${t("landingEditor.fileOpError")}: ${err.response?.data?.message || err.message}`);
+    } finally {
+      e.target.value = null;
     }
   };
   const handleZipUpload = async (e) => {
@@ -45317,19 +45802,130 @@ const LandingEditor = ({ landingId, onClose }) => {
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: landing.type === "preload" && t("landingEditor.preloadHint") })
         ] }),
-        landing.type === "action" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.actionPayloadLabel") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "textarea",
-            {
-              required: true,
-              rows: 6,
-              value: landing.action_payload || "",
-              onChange: (e) => setLanding({ ...landing, action_payload: e.target.value }),
-              className: "form-input font-mono text-sm",
-              placeholder: t("landingEditor.actionPayloadPlaceholder")
-            }
-          )
+        landing.type === "action" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.actionTypeLabel") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                value: landing.action_type || "not_found",
+                onChange: (e) => setLanding({ ...landing, action_type: e.target.value }),
+                className: "form-input",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "to_campaign", children: t("landingEditor.actionToCampaign") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "not_found", children: t("landingEditor.actionNotFound") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_text", children: t("landingEditor.actionShowText") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_html", children: t("landingEditor.actionShowHtml") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "do_nothing", children: t("landingEditor.actionDoNothing") })
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1", style: { fontSize: "12.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: {
+              to_campaign: t("landingEditor.actionToCampaignHint"),
+              not_found: t("landingEditor.actionNotFoundHint"),
+              show_text: t("landingEditor.actionShowTextHint"),
+              show_html: t("landingEditor.actionShowHtmlHint"),
+              do_nothing: t("landingEditor.actionDoNothingHint")
+            }[landing.action_type || "not_found"] })
+          ] }),
+          landing.action_type === "to_campaign" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.actionTargetCampaign") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                required: true,
+                value: landing.action_payload || "",
+                onChange: (e) => setLanding({ ...landing, action_payload: e.target.value }),
+                className: "form-input",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("landingEditor.actionPickCampaign") }),
+                  campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: c.id, children: [
+                    c.name,
+                    " (#",
+                    c.id,
+                    ")"
+                  ] }, c.id))
+                ]
+              }
+            )
+          ] }),
+          (landing.action_type === "show_text" || landing.action_type === "show_html") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: landing.action_type === "show_text" ? t("landingEditor.actionTextLabel") : t("landingEditor.actionHtmlLabel") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "textarea",
+              {
+                required: true,
+                rows: 6,
+                value: landing.action_payload || "",
+                onChange: (e) => setLanding({ ...landing, action_payload: e.target.value }),
+                className: "form-input font-mono text-sm",
+                placeholder: t("landingEditor.actionPayloadPlaceholder")
+              }
+            )
+          ] })
+        ] }),
+        (landing.type === "local" || landing.type === "preload") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 p-4 rounded-2xl text-sm", style: {
+          border: "1px solid var(--color-primary)",
+          backgroundColor: "var(--color-bg-soft)"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-1", style: { color: "var(--color-text-primary)" }, children: t("landingEditor.offerLinkTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mb-2", style: { color: "var(--color-text-secondary)", lineHeight: 1.55 }, children: t("landingEditor.offerLinkHint") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "p-2 rounded-lg overflow-x-auto", style: {
+            backgroundColor: "var(--color-bg-card)",
+            border: "1px solid var(--color-border)",
+            color: "var(--color-text-primary)",
+            fontSize: "12.5px",
+            margin: 0
+          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t("landingEditor.offerLinkExampleSingle") }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", style: { color: "var(--color-text-muted)", fontSize: "12.5px", lineHeight: 1.55 }, children: t("landingEditor.offerLinkExtra") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "p-2 rounded-lg overflow-x-auto mt-1", style: {
+            backgroundColor: "var(--color-bg-card)",
+            border: "1px solid var(--color-border)",
+            color: "var(--color-text-muted)",
+            fontSize: "12.5px",
+            margin: 0
+          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t("landingEditor.offerLinkExampleMulti") }) })
+        ] }),
+        (landing.type === "redirect" || landing.type === "local" || landing.type === "preload") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 p-4 rounded-2xl text-sm", style: {
+          border: "1px solid var(--color-border)",
+          backgroundColor: "var(--color-bg-soft)"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", style: { gap: "8px", marginBottom: "4px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: t("landingEditor.adapterTitle") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => {
+                  navigator.clipboard.writeText(adapterSnippet);
+                  setAdapterCopied(true);
+                  setTimeout(() => setAdapterCopied(false), 1800);
+                },
+                className: "btn btn-secondary btn-sm",
+                style: { flexShrink: 0 },
+                children: [
+                  adapterCopied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-4 h-4" }),
+                  adapterCopied ? t("landingEditor.adapterCopied") : t("landingEditor.adapterCopy")
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-secondary)", lineHeight: 1.55, margin: 0 }, children: landing.type === "redirect" ? t("landingEditor.adapterHintRedirect") : t("landingEditor.adapterHintLocal") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "p-2 rounded-lg overflow-x-auto mt-2", style: {
+            backgroundColor: "var(--color-bg-card)",
+            border: "1px solid var(--color-border)",
+            color: "var(--color-text-primary)",
+            fontSize: "12.5px",
+            margin: 0
+          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: adapterSnippet }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", style: { color: "var(--color-text-muted)", fontSize: "12.5px", lineHeight: 1.55 }, children: t("landingEditor.adapterPostbackHint") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "p-2 rounded-lg overflow-x-auto mt-1", style: {
+            backgroundColor: "var(--color-bg-card)",
+            border: "1px solid var(--color-border)",
+            color: "var(--color-text-muted)",
+            fontSize: "12.5px",
+            margin: 0
+          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t("landingEditor.postbackExample") }) })
         ] }),
         landing.type === "local" && !landingId && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 p-4 rounded-2xl text-sm", style: {
           backgroundColor: "var(--color-warning-bg)",
@@ -45384,22 +45980,33 @@ const LandingEditor = ({ landingId, onClose }) => {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-1 overflow-hidden", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1/4 overflow-y-auto", style: { borderRight: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: files.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 text-sm text-center italic", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.selectFile") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "py-2", children: files.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              onClick: () => loadFileContent(file),
-              className: `w-full text-left px-4 py-2 text-sm flex items-center transition ${selectedFile === file ? "font-medium" : ""}`,
-              style: {
-                backgroundColor: selectedFile === file ? "var(--color-primary-light)" : "transparent",
-                color: selectedFile === file ? "var(--color-primary)" : "var(--color-text-primary)",
-                borderRight: selectedFile === file ? "2px solid var(--color-primary)" : "none"
-              },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-3.5 h-3.5 mr-2", style: { color: "var(--color-text-muted)" } }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", title: file, children: file })
-              ]
-            }
-          ) }, file)) }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-1/4 overflow-y-auto", style: { borderRight: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 px-2 py-2", style: { borderBottom: "1px solid var(--color-border)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: createFile, className: "btn btn-ghost btn-sm", title: t("landingEditor.fileNew"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => assetInputRef.current?.click(), className: "btn btn-ghost btn-sm", title: t("landingEditor.fileUpload"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "w-3.5 h-3.5" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: assetInputRef, type: "file", className: "hidden", onChange: uploadFile })
+            ] }),
+            files.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 text-sm text-center italic", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.selectFile") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "py-2", children: files.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center group", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  onClick: () => loadFileContent(file),
+                  className: `flex-1 min-w-0 text-left px-4 py-2 text-sm flex items-center transition ${selectedFile === file ? "font-medium" : ""}`,
+                  style: {
+                    backgroundColor: selectedFile === file ? "var(--color-primary-light)" : "transparent",
+                    color: selectedFile === file ? "var(--color-primary)" : "var(--color-text-primary)",
+                    borderRight: selectedFile === file ? "2px solid var(--color-primary)" : "none"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-3.5 h-3.5 mr-2 flex-shrink-0", style: { color: "var(--color-text-muted)" } }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", title: file, children: file })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => renameFile(file), className: "action-btn text-blue", title: t("landingEditor.fileRename"), style: { flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-3.5 h-3.5" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => deleteFile(file), className: "action-btn text-red", title: t("common.delete"), style: { flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }) })
+            ] }, file)) })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 relative", style: { backgroundColor: "var(--color-bg-card)" }, children: selectedFile ? /* @__PURE__ */ jsxRuntimeExports.jsx(
             "textarea",
             {
@@ -50624,7 +51231,9 @@ const GeneralSettings = () => {
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
   const [settings, setSettings] = reactExports.useState({
     postback_key: "",
-    currency: "USD"
+    currency: "USD",
+    allow_php_landings: "0",
+    php_landing_timeout: "3"
   });
   reactExports.useEffect(() => {
     fetch(`${API_URL$h}?action=global_settings`).then((res) => res.json()).then((data) => {
@@ -50709,6 +51318,40 @@ const GeneralSettings = () => {
               }
             )
           ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "24px", paddingTop: "20px", borderTop: "1px solid var(--color-border)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2", style: { cursor: "pointer" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "checkbox",
+              name: "allow_php_landings",
+              checked: String(settings.allow_php_landings) === "1",
+              onChange: (e) => setSettings((prev) => ({ ...prev, allow_php_landings: e.target.checked ? "1" : "0" })),
+              style: { marginTop: "3px" }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600 }, children: t("generalSettings.allowPhpLandings") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "4px", lineHeight: 1.55 }, children: t("generalSettings.allowPhpLandingsHint") })
+          ] })
+        ] }),
+        String(settings.allow_php_landings) === "1" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "14px", maxWidth: "260px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("generalSettings.phpLandingTimeout") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "number",
+              min: "1",
+              max: "9",
+              name: "php_landing_timeout",
+              value: settings.php_landing_timeout || "3",
+              onChange: handleChange,
+              className: "form-input"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px", lineHeight: 1.55 }, children: t("generalSettings.phpLandingTimeoutHint") })
         ] })
       ] })
     ] }),
@@ -52225,15 +52868,18 @@ const SystemSettings = () => {
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
   const [settings, setSettings] = reactExports.useState({
     stats_enabled: "1",
-    stats_retention_days: "90",
-    archive_retention_days: "60",
+    stats_retention_days: "256",
+    archive_retention_days: "30",
     admin_ip_access: "",
-    ignore_prefetch: "1"
+    ignore_prefetch: "1",
+    admin_path: ""
   });
+  const [savedAdminPath, setSavedAdminPath] = reactExports.useState("");
   reactExports.useEffect(() => {
     fetch(`${API_URL$b}?action=global_settings`).then((res) => res.json()).then((data) => {
       if (data.status === "success" && data.data) {
         setSettings((prev) => ({ ...prev, ...data.data }));
+        setSavedAdminPath(data.data.admin_path || "");
       }
       setLoading(false);
     }).catch(() => setLoading(false));
@@ -52241,6 +52887,12 @@ const SystemSettings = () => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setSettings((prev) => ({ ...prev, [name]: type === "checkbox" ? checked ? "1" : "0" : value }));
+  };
+  const adminPathError = (code) => {
+    if (code === "admin_path_invalid") return t("systemSettings.adminPathInvalid");
+    if (code === "admin_path_reserved") return t("systemSettings.adminPathReserved");
+    if (code === "admin_path_alias_taken") return t("systemSettings.adminPathAliasTaken");
+    return code;
   };
   const handleSave = async () => {
     setSaving(true);
@@ -52255,15 +52907,25 @@ const SystemSettings = () => {
             stats_retention_days: settings.stats_retention_days,
             archive_retention_days: settings.archive_retention_days,
             admin_ip_access: settings.admin_ip_access,
-            ignore_prefetch: settings.ignore_prefetch
+            ignore_prefetch: settings.ignore_prefetch,
+            admin_path: (settings.admin_path || "").trim()
           }
         })
       });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage({ text: t("systemSettings.saveSuccess"), type: "success" });
+        const moved = typeof data.admin_path === "string" && data.admin_path !== savedAdminPath;
+        if (moved) {
+          setSavedAdminPath(data.admin_path);
+          setMessage({
+            text: t("systemSettings.adminPathMoved") + " " + window.location.origin + data.admin_url,
+            type: "success"
+          });
+        } else {
+          setMessage({ text: t("systemSettings.saveSuccess"), type: "success" });
+        }
       } else {
-        setMessage({ text: data.message || t("systemSettings.saveError"), type: "error" });
+        setMessage({ text: adminPathError(data.message) || t("systemSettings.saveError"), type: "error" });
       }
     } catch (error) {
       setMessage({ text: t("systemSettings.networkError"), type: "error" });
@@ -52321,7 +52983,7 @@ const SystemSettings = () => {
               {
                 type: "number",
                 name: "stats_retention_days",
-                value: settings.stats_retention_days || 90,
+                value: settings.stats_retention_days,
                 onChange: handleChange,
                 className: "form-input pl-12"
               }
@@ -52338,7 +53000,7 @@ const SystemSettings = () => {
               {
                 type: "number",
                 name: "archive_retention_days",
-                value: settings.archive_retention_days || 60,
+                value: settings.archive_retention_days,
                 onChange: handleChange,
                 className: "form-input pl-12"
               }
@@ -52364,6 +53026,47 @@ const SystemSettings = () => {
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint", children: t("systemSettings.adminAccessHint") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("systemSettings.adminPath") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(KeyRound, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                name: "admin_path",
+                value: settings.admin_path || "",
+                onChange: handleChange,
+                placeholder: t("systemSettings.adminPathPlaceholder"),
+                className: "form-input pl-12",
+                style: { fontFamily: "monospace" },
+                autoComplete: "off",
+                spellCheck: "false"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint", children: t("systemSettings.adminPathHint") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "alert mt-3",
+              style: {
+                display: "flex",
+                gap: "10px",
+                alignItems: "flex-start",
+                background: "var(--color-warning-light, #fef3c7)",
+                color: "var(--color-warning-text, #92400e)"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { size: 18, style: { flexShrink: 0, marginTop: "1px" } }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "13px", lineHeight: 1.5 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: t("systemSettings.adminPathWarning") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { display: "inline-block", marginTop: "6px" }, children: "php /var/www/orbitra/cli/admin_path.php reset" })
+                ] })
+              ]
+            }
+          )
         ] })
       ] })
     ] }),
@@ -57711,6 +58414,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [domains, setDomains] = reactExports.useState([]);
   const [allOffers, setAllOffers] = reactExports.useState([]);
   const [allLandings, setAllLandings] = reactExports.useState([]);
+  const [quickCreate, setQuickCreate] = reactExports.useState(null);
+  const [quickSaving, setQuickSaving] = reactExports.useState(false);
+  const quickFileRef = reactExports.useRef(null);
   const [formData, setFormData] = reactExports.useState({
     name: t("editor.newCampaign"),
     alias: generateAlias(),
@@ -58018,7 +58724,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       offer_id: 0,
       action_payload: "",
       filters: [],
-      schema_custom: { landings: [], offers: [] }
+      schema_custom: { landings: [], offers: [] },
+      offer_selection: "before"
     };
     setFormData((prev) => ({ ...prev, streams: [...prev.streams, newStream] }));
   };
@@ -58081,6 +58788,41 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const p = [...formData.postbacks];
     p.splice(index2, 1);
     setFormData({ ...formData, postbacks: p });
+  };
+  const submitQuickCreate = async () => {
+    if (!quickCreate?.name?.trim()) return;
+    setQuickSaving(true);
+    try {
+      const isLanding = quickCreate.kind === "landings";
+      const action = isLanding ? "save_landing" : "save_offer";
+      const payload = isLanding ? { name: quickCreate.name, type: quickCreate.type, url: quickCreate.url || "", state: "active" } : { name: quickCreate.name, url: quickCreate.url || "", payout_type: "CPA", payout_value: 0, state: "active" };
+      const res = await cachedPost(action, payload);
+      if (res.data.status !== "success") throw new Error(res.data.message || "save failed");
+      const newId = parseInt(res.data.data?.id, 10);
+      if (isLanding && quickCreate.type === "local" && quickCreate.file) {
+        const fd = new FormData();
+        fd.append("file", quickCreate.file);
+        fd.append("id", newId);
+        const up = await axios.post(`/api.php?action=upload_landing`, fd, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+        if (up.data.status !== "success") throw new Error(up.data.message || "upload failed");
+      }
+      const listRes = await cachedGet(isLanding ? "landings_simple" : "all_offers", { _: Date.now() }, 0);
+      if (listRes.data.status === "success") {
+        (isLanding ? setAllLandings : setAllOffers)(listRes.data.data);
+      }
+      const s = [...formData.streams];
+      const streamIdx = quickCreate.streamIdx;
+      if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
+      s[streamIdx].schema_custom[quickCreate.kind].push({ id: newId, weight: 100 });
+      setFormData({ ...formData, streams: s });
+      setQuickCreate(null);
+    } catch (e) {
+      alert(`${t("editor.quickCreateError")}: ${e.message}`);
+    } finally {
+      setQuickSaving(false);
+    }
   };
   const addSchemaItem = (streamIdx, type) => {
     const s = [...formData.streams];
@@ -58998,7 +59740,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.landings") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "landings"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") })
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "landings"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setQuickCreate({ kind: "landings", streamIdx: idx, name: "", type: "local", url: "", file: null }), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.quickCreateLanding") })
+                    ] })
                   ] }),
                   (stream.schema_custom?.landings || []).map((l, lIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mb-2", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -59034,7 +59779,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "offers"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") })
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "offers"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setQuickCreate({ kind: "offers", streamIdx: idx, name: "", type: "local", url: "", file: null }), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.quickCreateOffer") })
+                    ] })
                   ] }),
                   (stream.schema_custom?.offers || []).map((o, oIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mb-2", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -59065,7 +59813,22 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchemaItem(idx, "offers", oIdx), className: "action-btn text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }) })
-                  ] }, oIdx))
+                  ] }, oIdx)),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 pt-3", style: { borderTop: "1px dashed var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold mb-1", style: { color: "var(--color-text-primary)" }, children: t("editor.offerSelection") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-4", children: ["before", "after"].map((mode) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-1 text-xs cursor-pointer", style: { color: "var(--color-text-secondary)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "radio",
+                          checked: (stream.offer_selection || "before") === mode,
+                          onChange: () => updateStream(idx, "offer_selection", mode)
+                        }
+                      ),
+                      mode === "before" ? t("editor.offerSelectionBefore") : t("editor.offerSelectionAfter")
+                    ] }, mode)) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1", style: { fontSize: "11.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("editor.offerSelectionHint") })
+                  ] })
                 ] })
               ] }),
               stream.schema_type === "cloak" && (() => {
@@ -59598,6 +60361,69 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             ] })
           }
         )
+      ] })
+    ] }) }),
+    quickCreate && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => !quickSaving && setQuickCreate(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "520px" }, onClick: (e) => e.stopPropagation(), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: quickCreate.kind === "landings" ? t("editor.quickCreateLanding") : t("editor.quickCreateOffer") }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.quickCreateName") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              autoFocus: true,
+              value: quickCreate.name,
+              onChange: (e) => setQuickCreate({ ...quickCreate, name: e.target.value }),
+              className: "form-input"
+            }
+          )
+        ] }),
+        quickCreate.kind === "landings" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.quickCreateType") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: quickCreate.type,
+              onChange: (e) => setQuickCreate({ ...quickCreate, type: e.target.value }),
+              className: "form-input",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "local", children: t("landingEditor.localZip") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("landingEditor.redirect") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t("landingEditor.preload") })
+              ]
+            }
+          )
+        ] }),
+        (quickCreate.kind === "offers" || quickCreate.type !== "local") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "URL" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              value: quickCreate.url,
+              onChange: (e) => setQuickCreate({ ...quickCreate, url: e.target.value }),
+              className: "form-input",
+              placeholder: "https://example.com/?click={clickid}"
+            }
+          )
+        ] }),
+        quickCreate.kind === "landings" && quickCreate.type === "local" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.quickCreateZip") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              ref: quickFileRef,
+              type: "file",
+              accept: ".zip",
+              onChange: (e) => setQuickCreate({ ...quickCreate, file: e.target.files[0] || null }),
+              className: "form-input"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1", style: { fontSize: "12.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("editor.quickCreateZipHint") })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mt-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setQuickCreate(null), disabled: quickSaving, className: "btn btn-secondary", style: { flex: 1 }, children: t("common.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: submitQuickCreate, disabled: quickSaving || !quickCreate.name.trim(), className: "btn btn-primary", style: { flex: 1 }, children: quickSaving ? t("common.saving") : t("common.create") })
       ] })
     ] }) })
   ] });

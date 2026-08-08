@@ -1135,6 +1135,10 @@
     max-width: var(--container-xs);
   }
 
+  .min-w-0 {
+    min-width: calc(var(--spacing) * 0);
+  }
+
   .min-w-\[120px\] {
     min-width: 120px;
   }
@@ -2316,6 +2320,10 @@
 
   .text-yellow-700 {
     color: var(--color-yellow-700);
+  }
+
+  .lowercase {
+    text-transform: lowercase;
   }
 
   .uppercase {
