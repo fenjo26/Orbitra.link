@@ -158,6 +158,25 @@ if ($apiKeyProvided !== '' && !isset($_SESSION['user_id'])) {
 }
 // =================================
 
+// === ADMIN IP ACCESS LIST ===
+// The same list admin.php enforces at the panel entry. An empty list is open;
+// a populated list restricts every authenticated surface (session and API key)
+// to the listed addresses. First-time setup (no users yet) is exempt, so an
+// operator cannot lock themselves out before creating the first account.
+require_once __DIR__ . '/core/ip_access.php';
+$orbitraSetupInProgress = false;
+try {
+    $orbitraSetupInProgress = ((int) $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn()) === 0;
+} catch (\Throwable $e) {
+    // A DB without the users table is even more "not set up" — allow through.
+    $orbitraSetupInProgress = true;
+}
+if (!$orbitraSetupInProgress && !orbitraAdminIpAllowed($pdo)) {
+    http_response_code(403);
+    echo json_encode(['status' => 'error', 'message' => 'Access denied from this IP address']);
+    exit;
+}
+
 // === AUTHENTICATION MIDDLEWARE & CSRF ===
 $publicActions = ['login', 'check_setup', 'setup_first_user'];
 
@@ -238,6 +257,66 @@ function logAudit($pdo, $action, $resource, $resource_id = null, $context = null
     } catch (\Exception $e) {
         logSystem($pdo, 'ERROR', "Audit Log Error", $e->getMessage());
     }
+}
+
+/**
+ * Resolve a path inside one landing's directory, or null if it escapes.
+ *
+ * The landing file endpoints used to build this path inline, and two details made
+ * that unsafe: the id was interpolated as a string, so `id=..` pointed the "allowed"
+ * root at the application directory and let any signed-in user read config.php and
+ * api.php; and the containment test was a bare prefix comparison, which also treats
+ * /landings/12 as living inside /landings/1.
+ *
+ * @param bool $mustExist false when creating, where only the parent can be resolved
+ * @return string|null absolute path, guaranteed to sit inside landings/<id>/
+ */
+function orbitraLandingFilePath($id, $relPath, bool $mustExist = true): ?string
+{
+    $id = (int) $id;
+    if ($id <= 0) {
+        return null;
+    }
+    $root = realpath(__DIR__ . '/landings/' . $id);
+    if ($root === false) {
+        return null;
+    }
+
+    // Normalise the relative path ourselves rather than leaning on realpath():
+    // when creating a file the directories above it may not exist yet, and
+    // realpath() cannot resolve a path that is not there.
+    $segments = [];
+    foreach (explode('/', str_replace('\\', '/', (string) $relPath)) as $segment) {
+        if ($segment === '' || $segment === '.') {
+            continue;
+        }
+        if ($segment === '..') {
+            return null; // no climbing out, at any depth
+        }
+        $segments[] = $segment;
+    }
+    if (!$segments) {
+        return null;
+    }
+    $target = $root . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $segments);
+
+    $real = realpath($target);
+    if ($real === false) {
+        // Does not exist yet. With no ".." left in the path it cannot point outside
+        // $root, so it is safe to hand back for creation.
+        return $mustExist ? null : $target;
+    }
+    // It exists: re-check the resolved path, which also catches a symlink inside
+    // the landing that points somewhere else entirely.
+    return ($real === $root || strpos($real, $root . DIRECTORY_SEPARATOR) === 0) ? $real : null;
+}
+
+/** Extensions the landing editor may write. Never PHP: that is code execution. */
+function orbitraLandingEditableExtensions(): array
+{
+    return ['html', 'htm', 'css', 'js', 'mjs', 'json', 'txt', 'md', 'xml', 'svg',
+            'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'ico', 'bmp',
+            'woff', 'woff2', 'ttf', 'otf', 'eot', 'mp4', 'webm', 'mp3', 'ogg', 'wav'];
 }
 
 /**
@@ -379,187 +458,17 @@ function command_exists($cmd) {
 }
 
 /**
- * Automatically update Nginx server_name directive with all domains from database
- * Called after domain add/delete operations
+ * Rewrite /etc/nginx/sites-available/orbitra from the domains in the database.
+ * Called after every domain add / edit / delete and after an SSL certificate lands.
+ *
+ * The generated config always keeps a catch-all server block, so the panel stays
+ * reachable at the bare server IP however many domains are parked — and stays
+ * reachable after the domain you always used gets deleted.
  */
 function updateNginxConfig($pdo) {
-    try {
-        // Get all active domains from database
-        $stmt = $pdo->query("SELECT name FROM domains WHERE name IS NOT NULL AND name != '' ORDER BY name");
-        $domains = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    require_once __DIR__ . '/core/nginx_config.php';
 
-        if (empty($domains)) {
-            return ['status' => 'skip', 'message' => 'No domains in database'];
-        }
-
-        // Separate domains into SSL and non-SSL
-        $sslDomains = [];
-        $httpDomains = [];
-        foreach ($domains as $domain) {
-            $certPath = "/etc/letsencrypt/live/$domain/fullchain.pem";
-            if (file_exists($certPath)) {
-                $sslDomains[] = $domain;
-            } else {
-                $httpDomains[] = $domain;
-            }
-        }
-
-        // Build Nginx configuration
-        $config = "# Auto-generated by Orbitra - DO NOT EDIT MANUALLY\n\n";
-
-        // HTTP server block (all domains)
-        $allDomains = implode(' ', $domains);
-        $config .= "server {\n";
-        $config .= "    listen 80;\n";
-        $config .= "    server_name $allDomains;\n";
-        $config .= "    root /var/www/orbitra;\n";
-        $config .= "    index index.php admin.php index.html;\n\n";
-
-        // Access to React/Vite static files
-        $config .= "    # Access to React/Vite static files\n";
-        $config .= "    location /frontend/dist/ {\n";
-        $config .= "        alias /var/www/orbitra/frontend/dist/;\n";
-        $config .= "        try_files \$uri \$uri/ /frontend/dist/index.html;\n";
-        $config .= "    }\n\n";
-
-        // Router handling (API and clicks)
-        $config .= "    # Router handling (API and clicks)\n";
-        $config .= "    location / {\n";
-        $config .= "        try_files \$uri \$uri/ /index.php?\$query_string;\n";
-        $config .= "    }\n\n";
-
-        // Allow large file uploads for Geo DB
-        $config .= "    # Allow large file uploads for Geo DB\n";
-        $config .= "    client_max_body_size 256m;\n\n";
-
-        // PHP processing
-        $config .= "    # PHP processing\n";
-        $config .= "    location ~ \.php$ {\n";
-        $config .= "        include snippets/fastcgi-php.conf;\n";
-        $config .= "        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;\n";
-        $config .= "        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;\n";
-        $config .= "        include fastcgi_params;\n";
-        $config .= "    }\n\n";
-
-        // Deny access to SQLite DB and configurations
-        $config .= "    # Deny access to SQLite DB and configurations\n";
-        $config .= "    location ~ \.sqlite$ {\n";
-        $config .= "        deny all;\n";
-        $config .= "    }\n";
-        $config .= "    location ~ /\. {\n";
-        $config .= "        deny all;\n";
-        $config .= "    }\n";
-        $config .= "}\n\n";
-
-        // HTTPS server blocks (one per SSL domain)
-        foreach ($sslDomains as $domain) {
-            $config .= "server {\n";
-            $config .= "    listen 443 ssl;\n";
-            $config .= "    server_name $domain;\n\n";
-
-            // SSL certificates
-            $config .= "    ssl_certificate /etc/letsencrypt/live/$domain/fullchain.pem;\n";
-            $config .= "    ssl_certificate_key /etc/letsencrypt/live/$domain/privkey.pem;\n";
-            $config .= "    include /etc/letsencrypt/options-ssl-nginx.conf;\n";
-            $config .= "    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;\n\n";
-
-            $config .= "    root /var/www/orbitra;\n";
-            $config .= "    index index.php admin.php index.html;\n\n";
-
-            // Access to React/Vite static files
-            $config .= "    # Access to React/Vite static files\n";
-            $config .= "    location /frontend/dist/ {\n";
-            $config .= "        alias /var/www/orbitra/frontend/dist/;\n";
-            $config .= "        try_files \$uri \$uri/ /frontend/dist/index.html;\n";
-            $config .= "    }\n\n";
-
-            // Router handling (API and clicks)
-            $config .= "    # Router handling (API and clicks)\n";
-            $config .= "    location / {\n";
-            $config .= "        try_files \$uri \$uri/ /index.php?\$query_string;\n";
-            $config .= "    }\n\n";
-
-            // Allow large file uploads for Geo DB
-            $config .= "    # Allow large file uploads for Geo DB\n";
-            $config .= "    client_max_body_size 256m;\n\n";
-
-            // PHP processing
-            $config .= "    # PHP processing\n";
-            $config .= "    location ~ \.php$ {\n";
-            $config .= "        include snippets/fastcgi-php.conf;\n";
-            $config .= "        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;\n";
-            $config .= "        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;\n";
-            $config .= "        include fastcgi_params;\n";
-            $config .= "    }\n\n";
-
-            // Deny access to SQLite DB and configurations
-            $config .= "    # Deny access to SQLite DB and configurations\n";
-            $config .= "    location ~ \.sqlite$ {\n";
-            $config .= "        deny all;\n";
-            $config .= "    }\n";
-            $config .= "    location ~ /\. {\n";
-            $config .= "        deny all;\n";
-            $config .= "    }\n";
-            $config .= "}\n\n";
-        }
-
-        // Nginx config path
-        $nginxConfig = '/etc/nginx/sites-available/orbitra';
-
-        // Check if config file exists
-        if (!file_exists($nginxConfig)) {
-            return ['status' => 'error', 'message' => 'Nginx config not found at ' . $nginxConfig];
-        }
-
-        // Read existing config to compare
-        $currentConfig = file_get_contents($nginxConfig);
-
-        // Check if config changed
-        if (trim($config) === trim($currentConfig)) {
-            return ['status' => 'skip', 'message' => 'Config unchanged'];
-        }
-
-        // Write updated config to temp file first
-        $tempConfig = $nginxConfig . '.tmp';
-        $result = @file_put_contents($tempConfig, $config);
-
-        // Fallback: if direct write fails, use sudo
-        if ($result === false) {
-            $tempConfig = '/tmp/orbitra_nginx_update.conf';
-            file_put_contents($tempConfig, $config);
-            @shell_exec("sudo cp $tempConfig $nginxConfig");
-            @unlink($tempConfig);
-            $tempConfig = $nginxConfig; // Config already copied
-        }
-
-        // Test nginx config
-        $testResult = @shell_exec('sudo nginx -t 2>&1');
-        if (strpos($testResult, 'successful') === false && strpos($testResult, 'test is successful') === false) {
-            @unlink($tempConfig);
-            return ['status' => 'error', 'message' => 'Nginx config test failed: ' . $testResult];
-        }
-
-        // Replace original config (if using temp file in same directory)
-        if (file_exists($tempConfig) && $tempConfig !== $nginxConfig) {
-            rename($tempConfig, $nginxConfig);
-        }
-
-        // Reload nginx via sudo
-        $reloadResult = @shell_exec('sudo systemctl reload nginx 2>&1');
-        $reloadSuccess = ($reloadResult === null || strpos($reloadResult, 'failed') === false);
-
-        $sslCount = count($sslDomains);
-        $httpCount = count($httpDomains);
-
-        if ($reloadSuccess) {
-            $message = "Nginx updated: $httpCount HTTP + $sslCount HTTPS domains";
-            return ['status' => 'success', 'message' => $message];
-        } else {
-            return ['status' => 'pending', 'message' => 'Config updated, but nginx reload failed. Run: sudo systemctl reload nginx'];
-        }
-    } catch (\Exception $e) {
-        return ['status' => 'error', 'message' => $e->getMessage()];
-    }
+    return orbitraSyncNginx($pdo);
 }
 
 /**
@@ -567,6 +476,8 @@ function updateNginxConfig($pdo) {
  * Tries synchronous first (user just clicked save), falls back to background
  */
 function installSslForDomain($domain) {
+    require_once __DIR__ . '/core/nginx_config.php';
+
     // Check if certbot is available
     if (!command_exists('certbot')) {
         return false;
@@ -578,20 +489,26 @@ function installSslForDomain($domain) {
         return false; // Already has SSL
     }
 
-    // Try synchronous first (user just enabled HTTPS-only, they're waiting)
-    $cmd = "sudo certbot --nginx -n -d $domain --agree-tos --register-unsafely-without-email 2>&1";
-    $output = @shell_exec($cmd);
+    $cmd = orbitraCertbotCertonlyCommand($domain);
 
-    // Check if successful
-    if ($output && strpos($output, 'Successfully received certificate') !== false) {
-        // Reload nginx to apply SSL config
-        @shell_exec('sudo systemctl reload nginx 2>&1');
+    // Try synchronous first (user just enabled HTTPS-only, they're waiting)
+    $output = @shell_exec($cmd . ' 2>&1');
+
+    if (orbitraCertbotSucceeded($output, $domain)) {
+        // The certificate exists now, so regenerating the config adds the HTTPS
+        // server block for it. Certbot no longer does this for us — on purpose.
+        global $pdo;
+        if (isset($pdo) && $pdo instanceof PDO) {
+            updateNginxConfig($pdo);
+        } else {
+            @shell_exec('sudo systemctl reload nginx 2>&1');
+        }
         return true;
     }
 
-    // If failed or no output, run in background
-    $cmd = "sudo certbot --nginx -n -d $domain --agree-tos --register-unsafely-without-email > /dev/null 2>&1 &";
-    @shell_exec($cmd);
+    // If failed or no output, retry in the background via the SSL installer,
+    // which also records the error so the Domains page can show it.
+    @shell_exec($cmd . ' > /dev/null 2>&1 &');
 
     return true;
 }
@@ -1438,8 +1355,8 @@ try {
                     $pdo->prepare("DELETE FROM streams WHERE campaign_id = ?")->execute([$id]);
 
                     $stmtStream = $pdo->prepare("
-                        INSERT INTO streams (campaign_id, offer_id, weight, is_active, type, position, filters_json, schema_type, action_payload, schema_custom_json)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        INSERT INTO streams (campaign_id, offer_id, weight, is_active, type, position, filters_json, schema_type, action_payload, schema_custom_json, offer_selection)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ");
                     foreach ($streams as $str) {
                         // Convert offer_id = 0 to NULL to avoid FOREIGN KEY constraint error
@@ -1455,7 +1372,10 @@ try {
                             json_encode($str['filters'] ?? []),
                             $str['schema_type'] ?? 'redirect',
                             $str['action_payload'] ?? '',
-                            json_encode($str['schema_custom'] ?? [])
+                            json_encode($str['schema_custom'] ?? []),
+                            in_array($str['offer_selection'] ?? 'before', ['before', 'after'], true)
+                                ? $str['offer_selection']
+                                : 'before',
                         ]);
                     }
 
@@ -2226,12 +2146,25 @@ try {
                     $actionPayload = $data['action_payload'] ?? null;
                     $state = $data['state'] ?? 'active';
 
+                    // Only the five known actions are stored; anything else would
+                    // land in the tracker's runtime switch as an unknown value.
+                    $allowedActions = ['not_found', 'show_text', 'show_html', 'do_nothing', 'to_campaign'];
+                    $actionType = (string) ($data['action_type'] ?? '');
+                    if (!in_array($actionType, $allowedActions, true)) {
+                        $actionType = '';
+                    }
+                    if ($type === 'action' && $actionType === '') {
+                        // Landings saved before action types existed rendered their
+                        // payload as HTML; keep that meaning rather than inventing one.
+                        $actionType = ($actionPayload === null || $actionPayload === '') ? 'do_nothing' : 'show_html';
+                    }
+
                     if ($id) {
-                        $stmt = $pdo->prepare("UPDATE landings SET name=?, group_id=?, type=?, url=?, action_payload=?, state=? WHERE id=?");
-                        $stmt->execute([$data['name'], $groupId, $type, $url, $actionPayload, $state, $id]);
+                        $stmt = $pdo->prepare("UPDATE landings SET name=?, group_id=?, type=?, url=?, action_payload=?, action_type=?, state=? WHERE id=?");
+                        $stmt->execute([$data['name'], $groupId, $type, $url, $actionPayload, $actionType, $state, $id]);
                     } else {
-                        $stmt = $pdo->prepare("INSERT INTO landings (name, group_id, type, url, action_payload, state) VALUES (?, ?, ?, ?, ?, ?)");
-                        $stmt->execute([$data['name'], $groupId, $type, $url, $actionPayload, $state]);
+                        $stmt = $pdo->prepare("INSERT INTO landings (name, group_id, type, url, action_payload, action_type, state) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                        $stmt->execute([$data['name'], $groupId, $type, $url, $actionPayload, $actionType, $state]);
                         $id = $pdo->lastInsertId();
                     }
                     echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
@@ -2341,11 +2274,16 @@ try {
                     $errorMsg = '';
                     for ($i = 0; $i < $zip->numFiles; $i++) {
                         $filename = $zip->getNameIndex($i);
-                        // Deny PHP files
-                        if (preg_match('/\.(php|phtml|php5|php7)$/i', $filename)) {
-                            $safeToExtract = false;
-                            $errorMsg = 'PHP files not allowed';
-                            break;
+                        // PHP is refused unless an admin has deliberately allowed it;
+                        // when allowed the archive is still scanned after extraction.
+                        if (preg_match('/\.(php|phtml|php5|php7|phar)$/i', $filename)) {
+                            require_once __DIR__ . '/core/PhpLanding.php';
+                            if (!PhpLanding::enabled($pdo)) {
+                                $safeToExtract = false;
+                                $errorMsg = 'This archive contains PHP files. Turn on "Allow PHP landings" '
+                                    . 'in Settings -> General if you trust this landing\'s code.';
+                                break;
+                            }
                         }
                         // Deny path traversal inside zip
                         if (strpos($filename, '..') !== false || strpos($filename, '/') === 0) {
@@ -2357,6 +2295,33 @@ try {
 
                     if ($safeToExtract) {
                         $zip->extractTo($uploadDir);
+
+                        // Names alone cannot tell whether the PHP inside is acceptable,
+                        // so the check happens on the extracted source — and a failing
+                        // archive is removed rather than left half-installed.
+                        require_once __DIR__ . '/core/PhpLanding.php';
+                        $phpProblems = PhpLanding::scanDirectory($uploadDir);
+                        if ($phpProblems) {
+                            $lines = [];
+                            foreach ($phpProblems as $file => $names) {
+                                $lines[] = $file . ': ' . implode(', ', $names);
+                            }
+                            $it = new RecursiveIteratorIterator(
+                                new RecursiveDirectoryIterator($uploadDir, RecursiveDirectoryIterator::SKIP_DOTS),
+                                RecursiveIteratorIterator::CHILD_FIRST
+                            );
+                            foreach ($it as $entry) {
+                                $entry->isDir() ? @rmdir($entry->getPathname()) : @unlink($entry->getPathname());
+                            }
+                            echo json_encode([
+                                'status' => 'error',
+                                'message' => 'This landing uses calls that are not allowed in a PHP landing — '
+                                    . implode(' | ', $lines)
+                            ]);
+                            $zip->close();
+                            break;
+                        }
+
                         echo json_encode(['status' => 'success', 'message' => 'Files extracted successfully']);
                     } else {
                         echo json_encode(['status' => 'error', 'message' => $errorMsg]);
@@ -2402,19 +2367,12 @@ try {
             $id = $_GET['id'] ?? null;
             $path = $_GET['path'] ?? null;
             if ($id && $path) {
-                // Security: Normalize path and prevent traversal
-                $path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path);
-                $path = preg_replace('/\.\.+/', '', $path);
-
-                $fullPath = realpath(__DIR__ . '/landings/' . $id . '/' . ltrim($path, '/'));
-                $allowedPath = realpath(__DIR__ . '/landings/' . $id . '/');
-
-                if ($fullPath === false || strpos($fullPath, $allowedPath) !== 0) {
+                $file = orbitraLandingFilePath($id, $path);
+                if ($file === null) {
                     echo json_encode(['status' => 'error', 'message' => 'Access denied']);
                     break;
                 }
 
-                $file = $fullPath;
                 if (file_exists($file) && is_file($file)) {
                     $content = file_get_contents($file);
                     echo json_encode(['status' => 'success', 'data' => $content]);
@@ -2426,6 +2384,132 @@ try {
             }
             break;
 
+        // Create, upload, rename, move and delete inside a landing's folder.
+        // Every one of them resolves through orbitraLandingFilePath(), so a crafted
+        // path cannot reach outside landings/<id>/, and every write is checked
+        // against the extension whitelist — a .php here would be code execution
+        // in the web root.
+        case 'landing_file_op':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $data = json_decode(orbitraRequestBody(), true);
+            if (!is_array($data)) {
+                $data = [];
+            }
+            $op = (string) ($data['op'] ?? '');
+            $landingId = (int) ($data['id'] ?? 0);
+            if ($landingId <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing landing id']);
+                break;
+            }
+            $landingRoot = __DIR__ . '/landings/' . $landingId;
+            if (!is_dir($landingRoot)) {
+                @mkdir($landingRoot, 0775, true);
+            }
+
+            $checkWritable = function ($path) {
+                $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                return in_array($ext, orbitraLandingEditableExtensions(), true) ? '' : $ext;
+            };
+
+            if ($op === 'create') {
+                $target = orbitraLandingFilePath($landingId, $data['path'] ?? '', false);
+                if ($target === null) {
+                    echo json_encode(['status' => 'error', 'message' => 'Access denied']);
+                    break;
+                }
+                if (($bad = $checkWritable($target)) !== '') {
+                    echo json_encode(['status' => 'error', 'message' => 'This file type is not allowed: .' . $bad]);
+                    break;
+                }
+                if (file_exists($target)) {
+                    echo json_encode(['status' => 'error', 'message' => 'A file with that name already exists']);
+                    break;
+                }
+                @mkdir(dirname($target), 0775, true);
+                file_put_contents($target, (string) ($data['content'] ?? ''));
+                echo json_encode(['status' => 'success']);
+                break;
+            }
+
+            if ($op === 'delete') {
+                $target = orbitraLandingFilePath($landingId, $data['path'] ?? '');
+                if ($target === null || !is_file($target)) {
+                    echo json_encode(['status' => 'error', 'message' => 'File not found']);
+                    break;
+                }
+                echo json_encode(@unlink($target)
+                    ? ['status' => 'success']
+                    : ['status' => 'error', 'message' => 'Could not delete the file (check permissions)']);
+                break;
+            }
+
+            if ($op === 'rename' || $op === 'move') {
+                $from = orbitraLandingFilePath($landingId, $data['path'] ?? '');
+                $to = orbitraLandingFilePath($landingId, $data['to'] ?? '', false);
+                if ($from === null || !is_file($from)) {
+                    echo json_encode(['status' => 'error', 'message' => 'File not found']);
+                    break;
+                }
+                if ($to === null) {
+                    echo json_encode(['status' => 'error', 'message' => 'Access denied']);
+                    break;
+                }
+                if (($bad = $checkWritable($to)) !== '') {
+                    echo json_encode(['status' => 'error', 'message' => 'This file type is not allowed: .' . $bad]);
+                    break;
+                }
+                if (file_exists($to)) {
+                    echo json_encode(['status' => 'error', 'message' => 'A file with that name already exists']);
+                    break;
+                }
+                @mkdir(dirname($to), 0775, true);
+                echo json_encode(@rename($from, $to)
+                    ? ['status' => 'success']
+                    : ['status' => 'error', 'message' => 'Could not move the file (check permissions)']);
+                break;
+            }
+
+            echo json_encode(['status' => 'error', 'message' => 'Unknown operation: ' . $op]);
+            break;
+
+        case 'upload_landing_file':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $landingId = (int) ($_POST['id'] ?? 0);
+            $destDir = trim((string) ($_POST['dir'] ?? ''), '/');
+            if ($landingId <= 0 || !isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing landing id or file']);
+                break;
+            }
+            if ($_FILES['file']['size'] > 50 * 1024 * 1024) {
+                echo json_encode(['status' => 'error', 'message' => 'File too large (max 50MB)']);
+                break;
+            }
+            // The uploaded name is attacker-controlled: keep only its basename so
+            // "../../index.php" cannot become a path.
+            $safeName = basename(str_replace('\\', '/', (string) $_FILES['file']['name']));
+            $relative = ($destDir !== '' ? $destDir . '/' : '') . $safeName;
+            $target = orbitraLandingFilePath($landingId, $relative, false);
+            if ($target === null) {
+                echo json_encode(['status' => 'error', 'message' => 'Access denied']);
+                break;
+            }
+            $uploadExt = strtolower(pathinfo($target, PATHINFO_EXTENSION));
+            if (!in_array($uploadExt, orbitraLandingEditableExtensions(), true)) {
+                echo json_encode(['status' => 'error', 'message' => 'This file type is not allowed: .' . $uploadExt]);
+                break;
+            }
+            @mkdir(dirname($target), 0775, true);
+            echo json_encode(move_uploaded_file($_FILES['file']['tmp_name'], $target)
+                ? ['status' => 'success', 'data' => ['path' => $relative]]
+                : ['status' => 'error', 'message' => 'Could not store the file (check permissions)']);
+            break;
+
         case 'save_landing_file':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
@@ -2434,19 +2518,17 @@ try {
                 $content = $data['content'] ?? '';
 
                 if ($id && $path) {
-                    // Security: Normalize path and prevent traversal
-                    $path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path);
-                    $path = preg_replace('/\.\.+/', '', $path);
-
-                    $fullPath = realpath(__DIR__ . '/landings/' . $id . '/' . ltrim($path, '/'));
-                    $allowedPath = realpath(__DIR__ . '/landings/' . $id . '/');
-
-                    if ($fullPath === false || strpos($fullPath, $allowedPath) !== 0) {
+                    $file = orbitraLandingFilePath($id, $path);
+                    if ($file === null) {
                         echo json_encode(['status' => 'error', 'message' => 'Access denied']);
                         break;
                     }
+                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                    if (!in_array($ext, orbitraLandingEditableExtensions(), true)) {
+                        echo json_encode(['status' => 'error', 'message' => 'This file type cannot be edited: .' . $ext]);
+                        break;
+                    }
 
-                    $file = $fullPath;
                     if (file_exists($file) && is_file($file)) {
                         file_put_contents($file, $content);
                         echo json_encode(['status' => 'success']);
@@ -3318,98 +3400,37 @@ try {
             break;
 
         case 'fix_nginx':
-            // Fix broken Nginx configuration from Certbot
-            $configPath = '/etc/nginx/sites-available/orbitra';
-            $fixed = false;
-
-            // Check if config is broken (missing listen 80 or has return 404)
-            $configContent = @file_get_contents($configPath);
-            if ($configContent) {
-                $needsFix = false;
-
-                // Check for "return 404" (Certbot's broken config)
-                if (strpos($configContent, 'return 404') !== false) {
-                    $needsFix = true;
+            // Historically this hand-rolled its own nginx config: it hardcoded the
+            // php8.3-fpm socket, copied via sudo with no `nginx -t`, and knew nothing
+            // about HTTPS or the admin catch-all. That duplicated core/nginx_config.php
+            // and re-introduced exactly the bugs the shared generator fixed. It now
+            // delegates to that generator (the same path regenerate_nginx uses), so a
+            // "fix my nginx" call produces a config that is actually tested and reloads
+            // safely. The frontend never called this action directly, but it stays
+            // reachable for anything that still posts action=fix_nginx.
+            try {
+                $result = updateNginxConfig($pdo);
+                if ($result['status'] === 'success') {
+                    echo json_encode([
+                        'status' => 'success',
+                        'message' => 'Nginx configuration regenerated successfully',
+                        'result' => $result
+                    ]);
+                } else if ($result['status'] === 'skip') {
+                    echo json_encode([
+                        'status' => 'skip',
+                        'message' => 'No domains in database',
+                        'result' => $result
+                    ]);
+                } else {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => $result['message'] ?? 'Failed to regenerate nginx configuration',
+                        'result' => $result
+                    ]);
                 }
-
-                // Check for missing "listen 80" in first server block
-                $lines = explode("\n", $configContent);
-                $inFirstServer = false;
-                $foundListen80 = false;
-                foreach ($lines as $line) {
-                    if (preg_match('/^\s*server\s*\{/', $line)) {
-                        if (!$inFirstServer) {
-                            $inFirstServer = true;
-                        }
-                    } elseif ($inFirstServer && preg_match('/^\s*\}/', $line)) {
-                        break; // End of first server block
-                    } elseif ($inFirstServer && preg_match('/listen\s+80/', $line)) {
-                        $foundListen80 = true;
-                        break;
-                    }
-                }
-
-                if (!$foundListen80) {
-                    $needsFix = true;
-                }
-
-                // Fix if needed
-                if ($needsFix) {
-                    $newConfig = "# Auto-generated by Orbitra - DO NOT EDIT MANUALLY\n\n";
-                    $newConfig .= "server {\n";
-                    $newConfig .= "    listen 80 default_server;\n";
-                    $newConfig .= "    server_name _;\n";
-                    $newConfig .= "    root /var/www/orbitra;\n";
-                    $newConfig .= "    index index.php admin.php index.html;\n\n";
-
-                    $newConfig .= "    # Access to React/Vite static files\n";
-                    $newConfig .= "    location /frontend/dist/ {\n";
-                    $newConfig .= "        alias /var/www/orbitra/frontend/dist/;\n";
-                    $newConfig .= "        try_files \$uri \$uri/ /frontend/dist/index.html;\n";
-                    $newConfig .= "    }\n\n";
-
-                    $newConfig .= "    # Router handling (API and clicks)\n";
-                    $newConfig .= "    location / {\n";
-                    $newConfig .= "        try_files \$uri \$uri/ /index.php?\$query_string;\n";
-                    $newConfig .= "    }\n\n";
-
-                    $newConfig .= "    # Allow large file uploads for Geo DB\n";
-                    $newConfig .= "    client_max_body_size 256m;\n\n";
-
-                    $newConfig .= "    # PHP processing\n";
-                    $newConfig .= "    location ~ \.php$ {\n";
-                    $newConfig .= "        include snippets/fastcgi-php.conf;\n";
-                    $newConfig .= "        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;\n";
-                    $newConfig .= "        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;\n";
-                    $newConfig .= "        include fastcgi_params;\n";
-                    $newConfig .= "    }\n\n";
-
-                    $newConfig .= "    # Deny access to SQLite DB and configurations\n";
-                    $newConfig .= "    location ~ \.sqlite$ {\n";
-                    $newConfig .= "        deny all;\n";
-                    $newConfig .= "    }\n";
-                    $newConfig .= "    location ~ /\. {\n";
-                    $newConfig .= "        deny all;\n";
-                    $newConfig .= "    }\n";
-                    $newConfig .= "}\n";
-
-                    // Write to temp file first, then copy via sudo
-                    $tempConfig = '/tmp/orbitra_nginx_fix.conf';
-                    file_put_contents($tempConfig, $newConfig);
-                    @shell_exec("sudo cp $tempConfig $configPath");
-                    @unlink($tempConfig);
-
-                    // Reload nginx
-                    @shell_exec('sudo systemctl reload nginx 2>&1');
-
-                    $fixed = true;
-                }
-            }
-
-            if ($fixed) {
-                echo json_encode(['status' => 'success', 'message' => 'Nginx config fixed']);
-            } else {
-                echo json_encode(['status' => 'skip', 'message' => 'Config looks OK']);
+            } catch (\Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
             }
             break;
 
@@ -4734,20 +4755,21 @@ try {
                                 $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL WHERE id = ?")->execute([$id]);
                             }
 
-                            // Start background SSL installer if needed
-                            if ($sslQueued) {
-                                $cliPath = __DIR__ . '/cli/ssl_installer.php';
-                                if (file_exists($cliPath)) {
-                                    shell_exec("php $cliPath > /dev/null 2>&1 &");
-                                }
-                            }
                         } else {
                             // HTTPS-only disabled, reset SSL status
                             $pdo->prepare("UPDATE domains SET ssl_status = 'none', ssl_error = NULL WHERE id = ?")->execute([$id]);
                         }
 
-                        // Update Nginx configuration
+                        // Nginx first: the ACME challenge is served from the config
+                        // this writes, so issuing a certificate before it exists fails.
                         $nginxResult = updateNginxConfig($pdo);
+
+                        if (!empty($sslQueued)) {
+                            $cliPath = __DIR__ . '/cli/ssl_installer.php';
+                            if (file_exists($cliPath)) {
+                                shell_exec("php $cliPath > /dev/null 2>&1 &");
+                            }
+                        }
 
                         $response = ['status' => 'success', 'nginx' => $nginxResult];
                         if ($sslQueued) {
@@ -4800,6 +4822,10 @@ try {
                             }
                         }
 
+                        // Nginx first: the ACME challenge is served from the config
+                        // this writes, so issuing a certificate before it exists fails.
+                        $nginxResult = updateNginxConfig($pdo);
+
                         // Start background SSL installer if any domains need HTTPS
                         if ($sslPending) {
                             $cliPath = __DIR__ . '/cli/ssl_installer.php';
@@ -4807,9 +4833,6 @@ try {
                                 shell_exec("php $cliPath > /dev/null 2>&1 &");
                             }
                         }
-
-                        // Update Nginx configuration
-                        $nginxResult = updateNginxConfig($pdo);
 
                         $response = [
                             'status' => 'success',
@@ -5420,24 +5443,114 @@ try {
 
         case 'global_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token')");
+                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch')");
                 $data = [];
                 while ($row = $stmt->fetch()) {
                     $data[$row['key']] = $row['value'];
+                }
+                if (!isset($data['admin_path'])) {
+                    $data['admin_path'] = '';
+                }
+                // The retention/IP fields used to be discarded here, so the UI showed
+                // its own hardcoded defaults regardless of what was in the DB. Backfill
+                // the canonical config defaults so the form reflects reality.
+                if (!isset($data['stats_enabled'])) {
+                    $data['stats_enabled'] = '1';
+                }
+                if (!isset($data['stats_retention_days'])) {
+                    $data['stats_retention_days'] = '256';
+                }
+                if (!isset($data['archive_retention_days'])) {
+                    $data['archive_retention_days'] = '30';
+                }
+                if (!isset($data['admin_ip_access'])) {
+                    $data['admin_ip_access'] = '';
+                }
+                if (!isset($data['ignore_prefetch'])) {
+                    $data['ignore_prefetch'] = '1';
                 }
                 echo json_encode(['status' => 'success', 'data' => $data]);
             } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $input = json_decode(orbitraRequestBody(), true);
                 $settings = $input['settings'] ?? [];
+                $extra = [];
                 if (!empty($settings)) {
-                    $stmt = $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value");
-                    foreach (['postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token'] as $key) {
-                        if (isset($settings[$key])) {
-                            $stmt->execute([$key, $settings[$key]]);
+                    // Validate the admin path before writing anything: a bad value
+                    // moves the panel somewhere unreachable, and the user is holding
+                    // the only door handle.
+                    if (array_key_exists('admin_path', $settings) && ($_SESSION['role'] ?? '') !== 'admin') {
+                        unset($settings['admin_path']);
+                    }
+                    if (array_key_exists('admin_path', $settings)) {
+                        require_once __DIR__ . '/core/admin_path.php';
+                        $check = orbitraValidateAdminPath($pdo, $settings['admin_path']);
+                        if (!$check['ok']) {
+                            echo json_encode(['status' => 'error', 'message' => $check['error']]);
+                            break;
                         }
+                        $settings['admin_path'] = $check['value'];
+                        $extra['admin_path'] = $check['value'];
+                        $extra['admin_url'] = $check['value'] === '' ? '/admin.php' : '/' . $check['value'];
+                    }
+
+                    $stmt = $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value");
+                    foreach (['postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token',
+                              'allow_php_landings', 'php_landing_timeout', 'admin_path',
+                              'stats_enabled', 'stats_retention_days', 'archive_retention_days',
+                              'admin_ip_access', 'ignore_prefetch'] as $key) {
+                        if (!isset($settings[$key])) {
+                            continue;
+                        }
+                        $value = $settings[$key];
+                        // Turning PHP landings on is an admin decision, not something
+                        // any signed-in user gets to flip.
+                        if ($key === 'allow_php_landings') {
+                            if (($_SESSION['role'] ?? '') !== 'admin') {
+                                continue;
+                            }
+                            $value = $value === '1' || $value === 1 || $value === true ? '1' : '0';
+                        }
+                        if ($key === 'php_landing_timeout') {
+                            // Clamped to 1..9 like Keitaro's; anything absent, zero
+                            // or unparseable falls back to the 3-second default
+                            // rather than to "no limit".
+                            $seconds = (int) $value;
+                            $value = (string) max(1, min($seconds > 0 ? $seconds : 3, 9));
+                        }
+                        // The access list is a security control: only an admin may
+                        // change it, and it must parse before we persist it — a typo
+                        // in the only allowed address would otherwise lock out the
+                        // panel (or, worse, widen it by being discarded).
+                        if ($key === 'admin_ip_access') {
+                            if (($_SESSION['role'] ?? '') !== 'admin') {
+                                continue;
+                            }
+                            $cleaned = is_string($value) ? trim($value) : '';
+                            if ($cleaned !== '' && $cleaned !== '0') {
+                                require_once __DIR__ . '/core/ip_access.php';
+                                $parsed = orbitraParseIpAccess($cleaned);
+                                if (!empty($parsed['errors'])) {
+                                    echo json_encode(['status' => 'error', 'message' => 'admin_ip_access: invalid entries (' . implode(', ', $parsed['errors']) . ')']);
+                                    break 2;
+                                }
+                            }
+                            $value = $cleaned;
+                        }
+                        // Booleans normalised to '0'/'1'.
+                        if ($key === 'stats_enabled' || $key === 'ignore_prefetch') {
+                            $value = ($value === '1' || $value === 1 || $value === true) ? '1' : '0';
+                        }
+                        // Retention windows: positive integers, clamped to a sane
+                        // range (1 day..10 years). Empty/garbage falls back to the
+                        // config default rather than "keep forever" or "delete now".
+                        if ($key === 'stats_retention_days' || $key === 'archive_retention_days') {
+                            $days = (int) $value;
+                            $value = (string) max(1, min($days > 0 ? $days : ($key === 'stats_retention_days' ? 256 : 30), 3650));
+                        }
+                        $stmt->execute([$key, $value]);
                     }
                 }
-                echo json_encode(['status' => 'success']);
+                echo json_encode(array_merge(['status' => 'success'], $extra));
             }
             break;
 
@@ -5448,6 +5561,21 @@ try {
                 $data = json_decode(orbitraRequestBody(), true);
 
                 try {
+                    // The admin path decides where the panel is reachable, so a bad
+                    // value locks the user out of their own tracker. Validate before
+                    // writing anything, and report the URL the panel moves to.
+                    $adminPathNotice = null;
+                    if (array_key_exists('admin_path', $data)) {
+                        require_once __DIR__ . '/core/admin_path.php';
+                        $check = orbitraValidateAdminPath($pdo, $data['admin_path']);
+                        if (!$check['ok']) {
+                            echo json_encode(['status' => 'error', 'message' => $check['error']]);
+                            break;
+                        }
+                        $data['admin_path'] = $check['value'];
+                        $adminPathNotice = $check['value'];
+                    }
+
                     $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now'))");
 
                     foreach ($data as $key => $value) {
@@ -5457,7 +5585,14 @@ try {
                         $stmt->execute([$key, $value]);
                     }
 
-                    echo json_encode(['status' => 'success']);
+                    $result = ['status' => 'success'];
+                    if ($adminPathNotice !== null) {
+                        $result['admin_path'] = $adminPathNotice;
+                        $result['admin_url'] = $adminPathNotice === ''
+                            ? '/admin.php'
+                            : '/' . $adminPathNotice;
+                    }
+                    echo json_encode($result);
                 } catch (\Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }

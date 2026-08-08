@@ -13,6 +13,8 @@ const GeneralSettings = () => {
     const [settings, setSettings] = useState({
         postback_key: '',
         currency: 'USD',
+        allow_php_landings: '0',
+        php_landing_timeout: '3',
     });
 
     useEffect(() => {
@@ -115,6 +117,44 @@ const GeneralSettings = () => {
                             </select>
                         </div>
                     </div>
+                </div>
+
+                {/* PHP landings run uploaded code in the web root, so the switch
+                    says what it costs rather than just what it does. */}
+                <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--color-border)' }}>
+                    <label className="flex items-start gap-2" style={{ cursor: 'pointer' }}>
+                        <input
+                            type="checkbox"
+                            name="allow_php_landings"
+                            checked={String(settings.allow_php_landings) === '1'}
+                            onChange={e => setSettings(prev => ({ ...prev, allow_php_landings: e.target.checked ? '1' : '0' }))}
+                            style={{ marginTop: '3px' }}
+                        />
+                        <span>
+                            <span style={{ fontWeight: 600 }}>{t('generalSettings.allowPhpLandings')}</span>
+                            <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '4px', lineHeight: 1.55 }}>
+                                {t('generalSettings.allowPhpLandingsHint')}
+                            </p>
+                        </span>
+                    </label>
+
+                    {String(settings.allow_php_landings) === '1' && (
+                        <div style={{ marginTop: '14px', maxWidth: '260px' }}>
+                            <label className="form-label">{t('generalSettings.phpLandingTimeout')}</label>
+                            <input
+                                type="number"
+                                min="1"
+                                max="9"
+                                name="php_landing_timeout"
+                                value={settings.php_landing_timeout || '3'}
+                                onChange={handleChange}
+                                className="form-input"
+                            />
+                            <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '6px', lineHeight: 1.55 }}>
+                                {t('generalSettings.phpLandingTimeoutHint')}
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
 

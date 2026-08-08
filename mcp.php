@@ -64,6 +64,41 @@ function mcpToolText($text, bool $isError = false): array
     ];
 }
 
+// The in-process fallback includes api.php, which exits outright on some paths.
+// That would end the request with a bare API payload where the client expects a
+// JSON-RPC envelope, so whatever was produced is wrapped up here instead.
+register_shutdown_function(function () {
+    if (empty($GLOBALS['ORBITRA_MCP_INFLIGHT'])) {
+        return;
+    }
+    $GLOBALS['ORBITRA_MCP_INFLIGHT'] = false;
+    $chunks = [];
+    while (ob_get_level() > 0) {
+        $chunks[] = (string) ob_get_clean();
+    }
+    $out = implode('', array_reverse($chunks));
+
+    $decoded = json_decode($out, true);
+    $text = is_array($decoded)
+        ? (($decoded['status'] ?? '') === 'error'
+            ? 'Error: Orbitra API error: ' . ($decoded['message'] ?? 'unknown')
+            : json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES))
+        : 'Error: Orbitra returned a non-JSON response. ' . substr(trim($out), 0, 300);
+
+    if (!headers_sent()) {
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store');
+    }
+    echo json_encode([
+        'jsonrpc' => '2.0',
+        'id' => $GLOBALS['ORBITRA_MCP_RPC_ID'] ?? null,
+        'result' => [
+            'content' => [['type' => 'text', 'text' => $text]],
+            'isError' => !is_array($decoded) || ($decoded['status'] ?? '') === 'error',
+        ],
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+});
+
 // ---------------------------------------------------------------------------
 // Executing a tool: one CLI dispatch of api.php per api call
 // ---------------------------------------------------------------------------
@@ -101,17 +136,103 @@ function mcpPhpBinary(PDO $pdo): string
     return $resolved = 'php';
 }
 
+/** Is $name callable, i.e. neither undefined nor in disable_functions? */
+function mcpFunctionAvailable(string $name): bool
+{
+    static $disabled = null;
+    if ($disabled === null) {
+        $disabled = array_map(
+            'strtolower',
+            array_filter(array_map('trim', preg_split('/[\s,]+/', (string) ini_get('disable_functions'))))
+        );
+    }
+    return function_exists($name) && !in_array(strtolower($name), $disabled, true);
+}
+
+/**
+ * Run one api.php action in this very process.
+ *
+ * The fallback for hosts that disable proc_open() — a common shared-hosting
+ * default, and the reason the endpoint used to connect fine and then fail on
+ * every single tool call.
+ *
+ * api.php declares its functions at file scope, so it can only be included once
+ * per request; a second include would be a redeclaration fatal. One dispatch per
+ * request is therefore the hard limit here, which covers every tool that forwards
+ * a single call — all but three of them.
+ */
+function mcpCallApiInProcess(string $apiKey, string $method, string $action, array $params, array $body): array
+{
+    // api.php is included here, so it runs in this function's scope — and its own
+    // require_once of config.php is a no-op by then, since mcp.php already loaded
+    // it. Without these, $pdo would simply be null inside every handler.
+    global $pdo, $db_file, $postback_key;
+
+    static $spent = false;
+    if ($spent) {
+        throw new RuntimeException(
+            'This server disables proc_open(), so the HTTP endpoint can only run one api.php dispatch per request, '
+            . 'and "' . $action . '" needs several. Allow proc_open() in php.ini (remove it from disable_functions), '
+            . 'or use the local server in mcp/ which has no such limit.'
+        );
+    }
+    $spent = true;
+
+    $_GET = ['action' => $action];
+    foreach ($params as $k => $v) {
+        if ($v === null || $v === '' || is_array($v) || is_object($v)) {
+            continue;
+        }
+        $_GET[(string) $k] = is_bool($v) ? ($v ? '1' : '0') : (string) $v;
+    }
+    $_POST = [];
+    $_REQUEST = $_GET;
+    $_SERVER['REQUEST_METHOD'] = $method;
+    $_SERVER['REQUEST_URI'] = '/api.php?' . http_build_query($_GET);
+    $_SERVER['SCRIPT_NAME'] = '/api.php';
+    $_SERVER['HTTP_X_API_KEY'] = $apiKey;
+    $_SERVER['HTTP_AUTHORIZATION'] = 'Bearer ' . $apiKey;
+    $GLOBALS['ORBITRA_INTERNAL_REQUEST_BODY'] = $method === 'POST'
+        ? json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+        : '';
+
+    // api.php exits outright on some paths (auth failures, rate limiting). That
+    // would end this request mid-JSON-RPC, so the buffer is handed to a shutdown
+    // handler that still closes the envelope properly.
+    $GLOBALS['ORBITRA_MCP_INFLIGHT'] = true;
+    ob_start();
+    try {
+        require __DIR__ . '/api.php';
+    } finally {
+        $out = ob_get_clean();
+        $GLOBALS['ORBITRA_MCP_INFLIGHT'] = false;
+        unset($GLOBALS['ORBITRA_INTERNAL_REQUEST_BODY']);
+    }
+
+    $decoded = json_decode((string) $out, true);
+    if (!is_array($decoded)) {
+        throw new RuntimeException(
+            'Orbitra returned a non-JSON response for "' . $action . '". ' . substr(trim((string) $out), 0, 300)
+        );
+    }
+    if (($decoded['status'] ?? '') === 'error') {
+        throw new RuntimeException('Orbitra API error: ' . ($decoded['message'] ?? 'unknown'));
+    }
+    return $decoded;
+}
+
 /**
  * Run one api.php action and return its decoded JSON.
  * Throws on transport-level trouble; API-level errors come back in the payload.
  */
 function mcpCallApi(PDO $pdo, string $apiKey, string $method, string $action, array $params = [], array $body = []): array
 {
-    if (!function_exists('proc_open')) {
-        throw new RuntimeException(
-            'proc_open() is disabled on this server, so the HTTP MCP endpoint cannot dispatch tools. '
-            . 'Remove it from disable_functions in php.ini, or use the local server in mcp/ instead.'
-        );
+    // proc_open can be missing, listed in disable_functions, or present but unable
+    // to spawn anything (restricted containers, open_basedir, no CLI binary). All
+    // three end up on the in-process path; the third is only detectable by trying.
+    static $spawnWorks = null;
+    if ($spawnWorks === false || !mcpFunctionAvailable('proc_open')) {
+        return mcpCallApiInProcess($apiKey, $method, $action, $params, $body);
     }
 
     $payload = json_encode([
@@ -127,7 +248,8 @@ function mcpCallApi(PDO $pdo, string $apiKey, string $method, string $action, ar
     $cmd = [mcpPhpBinary($pdo), __DIR__ . '/cli/api_invoke.php'];
     $process = @proc_open($cmd, $descriptors, $pipes, __DIR__);
     if (!is_resource($process)) {
-        throw new RuntimeException('Could not start a PHP process to run "' . $action . '".');
+        $spawnWorks = false;
+        return mcpCallApiInProcess($apiKey, $method, $action, $params, $body);
     }
 
     fwrite($pipes[0], $payload);
@@ -140,11 +262,19 @@ function mcpCallApi(PDO $pdo, string $apiKey, string $method, string $action, ar
 
     $decoded = json_decode((string) $stdout, true);
     if (!is_array($decoded)) {
+        // Nothing on stdout and a non-zero exit means the CLI binary never ran —
+        // wrong path, open_basedir, whatever. Take the in-process route instead of
+        // reporting a failure the user cannot act on.
+        if (trim((string) $stdout) === '' && $exit !== 0) {
+            $spawnWorks = false;
+            return mcpCallApiInProcess($apiKey, $method, $action, $params, $body);
+        }
         $hint = trim((string) $stderr) !== '' ? trim((string) $stderr) : substr(trim((string) $stdout), 0, 300);
         throw new RuntimeException(
             'Orbitra returned a non-JSON response for "' . $action . '" (exit ' . $exit . '). ' . $hint
         );
     }
+    $spawnWorks = true;
     if (($decoded['status'] ?? '') === 'error') {
         throw new RuntimeException('Orbitra API error: ' . ($decoded['message'] ?? 'unknown'));
     }
@@ -464,6 +594,9 @@ foreach ($messages as $msg) {
                     break;
                 }
                 $tool = $tools[$name];
+                // Remembered for the shutdown handler, in case the in-process
+                // dispatch below is cut short by an exit() inside api.php.
+                $GLOBALS['ORBITRA_MCP_RPC_ID'] = $id;
 
                 // Refuse writes early with an explanation the model can act on,
                 // rather than letting api.php answer with a bare 403.

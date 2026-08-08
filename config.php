@@ -44,7 +44,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 12;
+    $LATEST_SCHEMA_VERSION = 14;
 
     $schemaVersion = 0;
     try {
@@ -152,6 +152,7 @@ try {
         type TEXT DEFAULT 'local',
         state TEXT DEFAULT 'active',
         action_payload TEXT,
+        action_type TEXT DEFAULT '',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         is_archived INTEGER DEFAULT 0,
         archived_at DATETIME
@@ -261,6 +262,7 @@ try {
         schema_type TEXT DEFAULT 'redirect',
         action_payload TEXT,
         schema_custom_json TEXT,
+        offer_selection TEXT DEFAULT 'before',
         FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE,
         FOREIGN KEY (offer_id) REFERENCES offers(id) ON DELETE SET NULL
     );
@@ -731,6 +733,11 @@ try {
         ['stats_retention_days', '256'],
         ['audit_retention_days', '30'],
         ['landing_token_ttl', '3600'],
+        // PHP landings execute uploaded code in the web root. Off unless an admin
+        // deliberately turns it on, and capped so a hung landing cannot occupy a
+        // PHP-FPM worker indefinitely.
+        ['allow_php_landings', '0'],
+        ['php_landing_timeout', '3'],
         ['archive_retention_days', '30'],
         ['report_display', 'table'],
         ['report_date_type', 'click'],
@@ -1066,6 +1073,55 @@ try {
                     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_s2s_postbacks_inflight ON s2s_postbacks_log(status, updated_at)");
                 } catch (\Throwable $e) {
                     // Non-critical.
+                }
+            }
+
+            if ($schemaVersion < 13) {
+                // Migration 13: landings gain an explicit action type. Until now the
+                // payload alone decided what happened, which meant a landing could
+                // only ever render HTML — 404, plain text, "do nothing" and handing
+                // the visitor to another campaign had nowhere to live.
+                try {
+                    $pdo->exec("ALTER TABLE landings ADD COLUMN action_type TEXT DEFAULT ''");
+                } catch (\Throwable $e) {
+                    // Ignore if already exists.
+                }
+                try {
+                    // Existing action landings kept working by echoing their payload
+                    // as HTML, so that is what they are, and an empty one did nothing.
+                    $pdo->exec(
+                        "UPDATE landings SET action_type = CASE
+                            WHEN action_payload IS NULL OR action_payload = '' THEN 'do_nothing'
+                            ELSE 'show_html' END
+                         WHERE type = 'action' AND (action_type IS NULL OR action_type = '')"
+                    );
+                } catch (\Throwable $e) {
+                    // Non-critical: an empty action_type falls back to the same behaviour.
+                }
+
+                // A stream can now decide when the offer is picked. 'before' keeps
+                // the existing behaviour — the offer is chosen while the landing is
+                // being served — so every existing stream keeps working untouched.
+                try {
+                    $pdo->exec("ALTER TABLE streams ADD COLUMN offer_selection TEXT DEFAULT 'before'");
+                } catch (\Throwable $e) {
+                    // Ignore if already exists.
+                }
+                try {
+                    $pdo->exec("UPDATE streams SET offer_selection = 'before' WHERE offer_selection IS NULL OR offer_selection = ''");
+                } catch (\Throwable $e) {
+                    // Non-critical: an empty value is read as 'before' anyway.
+                }
+            }
+
+            if ($schemaVersion < 14) {
+                // Migration 14: the admin panel can be moved off /admin.php.
+                // Empty means "stay at /admin.php", so every existing install
+                // keeps the URL its users have bookmarked.
+                try {
+                    $pdo->exec("INSERT OR IGNORE INTO settings (key, value) VALUES ('admin_path', '')");
+                } catch (\Throwable $e) {
+                    // Non-critical: an absent row reads as empty anyway.
                 }
             }
 
