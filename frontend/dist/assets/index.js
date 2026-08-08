@@ -17072,6 +17072,20 @@ const ru = {
     "active": "Активен",
     "archived": "В архиве",
     "landingType": "Тип лендинга",
+    "typeLocal": "Локальный",
+    "typeRedirect": "Редирект",
+    "typePreload": "Предзагрузка",
+    "typeAction": "Действие",
+    "slugLabel": "Папка",
+    "slugHint": "Папка, куда распакуются файлы лендинга. Оставьте пустым для авто-генерации из названия.",
+    "slugPlaceholder": "мой-лендинг",
+    "redirectMethodLabel": "Метод редиректа",
+    "redirectHttp": "HTTP 302 редирект",
+    "redirectJs": "JavaScript редирект",
+    "redirectMeta": "Meta refresh",
+    "copyCode": "Копировать",
+    "codeCopied": "Скопировано",
+    "offerLinkWord": "Купить",
     "localZip": "Локальный (ZIP Архив)",
     "redirect": "Редирект (URL)",
     "preload": "Предзагрузка (Preload URL)",
@@ -19132,6 +19146,20 @@ const en = {
     "active": "Active",
     "archived": "Archived",
     "landingType": "Landing Type",
+    "typeLocal": "Local",
+    "typeRedirect": "Redirect",
+    "typePreload": "Preload",
+    "typeAction": "Action",
+    "slugLabel": "Folder",
+    "slugHint": "The folder this landing's files unpack into. Leave blank to auto-generate from the name.",
+    "slugPlaceholder": "my-landing",
+    "redirectMethodLabel": "Redirect method",
+    "redirectHttp": "HTTP 302 redirect",
+    "redirectJs": "JavaScript redirect",
+    "redirectMeta": "Meta refresh",
+    "copyCode": "Copy",
+    "codeCopied": "Copied",
+    "offerLinkWord": "Buy",
     "localZip": "Local (ZIP Archive)",
     "redirect": "Redirect (URL)",
     "preload": "Preload (Preload URL)",
@@ -21192,6 +21220,20 @@ const uk = {
     "active": "Активний",
     "archived": "Архівовано",
     "landingType": "Тип посадки",
+    "typeLocal": "Локальний",
+    "typeRedirect": "Переспрямування",
+    "typePreload": "Передзавантаження",
+    "typeAction": "Дія",
+    "slugLabel": "Тека",
+    "slugHint": "Тека, куди розпакуються файли посадки. Залиште порожнім для авто-генерації з назви.",
+    "slugPlaceholder": "моя-посадка",
+    "redirectMethodLabel": "Метод переспрямування",
+    "redirectHttp": "HTTP 302 переспрямування",
+    "redirectJs": "JavaScript переспрямування",
+    "redirectMeta": "Meta refresh",
+    "copyCode": "Копіювати",
+    "codeCopied": "Скопійовано",
+    "offerLinkWord": "Купити",
     "localZip": "Місцевий (архів ZIP)",
     "redirect": "Переспрямування (URL)",
     "preload": "Попереднє завантаження (попереднє завантаження URL-адреси)",
@@ -23252,6 +23294,20 @@ const es = {
     "active": "Activo",
     "archived": "Archivado",
     "landingType": "Tipo de aterrizaje",
+    "typeLocal": "Local",
+    "typeRedirect": "Redirección",
+    "typePreload": "Precarga",
+    "typeAction": "Acción",
+    "slugLabel": "Carpeta",
+    "slugHint": "La carpeta donde se descomprimen los archivos del aterrizaje. Déjalo vacío para generar desde el nombre.",
+    "slugPlaceholder": "mi-aterrizaje",
+    "redirectMethodLabel": "Método de redirección",
+    "redirectHttp": "Redirección HTTP 302",
+    "redirectJs": "Redirección JavaScript",
+    "redirectMeta": "Meta refresh",
+    "copyCode": "Copiar",
+    "codeCopied": "Copiado",
+    "offerLinkWord": "Comprar",
     "localZip": "Local (Archivo ZIP)",
     "redirect": "Redireccionamiento (URL)",
     "preload": "Precarga (URL de precarga)",
@@ -25312,6 +25368,20 @@ const zh = {
     "active": "活跃",
     "archived": "已存档",
     "landingType": "着陆类型",
+    "typeLocal": "本地",
+    "typeRedirect": "重定向",
+    "typePreload": "预加载",
+    "typeAction": "动作",
+    "slugLabel": "文件夹",
+    "slugHint": "着陆文件解压到的文件夹。留空则根据名称自动生成。",
+    "slugPlaceholder": "我的着陆",
+    "redirectMethodLabel": "重定向方式",
+    "redirectHttp": "HTTP 302 重定向",
+    "redirectJs": "JavaScript 重定向",
+    "redirectMeta": "Meta 刷新",
+    "copyCode": "复制",
+    "codeCopied": "已复制",
+    "offerLinkWord": "购买",
     "localZip": "本地（ZIP 存档）",
     "redirect": "重定向（网址）",
     "preload": "预加载（预加载 URL）",
@@ -27372,6 +27442,20 @@ const fr = {
     "active": "Actif",
     "archived": "Archivé",
     "landingType": "Type d'atterrissage",
+    "typeLocal": "Local",
+    "typeRedirect": "Redirection",
+    "typePreload": "Précharge",
+    "typeAction": "Action",
+    "slugLabel": "Dossier",
+    "slugHint": "Le dossier dans lequel les fichiers de l'atterrissage sont décompressés. Laissez vide pour générer depuis le nom.",
+    "slugPlaceholder": "mon-atterrissage",
+    "redirectMethodLabel": "Méthode de redirection",
+    "redirectHttp": "Redirection HTTP 302",
+    "redirectJs": "Redirection JavaScript",
+    "redirectMeta": "Meta refresh",
+    "copyCode": "Copier",
+    "codeCopied": "Copié",
+    "offerLinkWord": "Acheter",
     "localZip": "Local (archive ZIP)",
     "redirect": "Redirection (URL)",
     "preload": "Préchargement (URL de préchargement)",
@@ -29434,6 +29518,20 @@ const de = {
     "active": "Aktiv",
     "archived": "Archiviert",
     "landingType": "Landing Type",
+    "typeLocal": "Lokal",
+    "typeRedirect": "Redirect",
+    "typePreload": "Preload",
+    "typeAction": "Aktion",
+    "slugLabel": "Ordner",
+    "slugHint": "Der Ordner, in den die Dateien der Landing entpackt werden. Leer lassen für automatische Generierung aus dem Namen.",
+    "slugPlaceholder": "meine-landing",
+    "redirectMethodLabel": "Weiterleitungsmethode",
+    "redirectHttp": "HTTP 302-Weiterleitung",
+    "redirectJs": "JavaScript-Weiterleitung",
+    "redirectMeta": "Meta Refresh",
+    "copyCode": "Kopieren",
+    "codeCopied": "Kopiert",
+    "offerLinkWord": "Kaufen",
     "localZip": "Lokal (ZIP-Archiv)",
     "redirect": "Redirect (URL)",
     "preload": "Preload (Preload-URL)",
@@ -45502,6 +45600,32 @@ const TrafficSimulation = () => {
   ] });
 };
 const API_URL$v = "/api.php";
+const CopyableCode = ({ text, copied, onCopy, t, muted = false }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative mt-1", children: [
+  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "button",
+    {
+      type: "button",
+      onClick: () => {
+        navigator.clipboard.writeText(text);
+        onCopy && onCopy();
+      },
+      className: "btn btn-secondary btn-sm",
+      style: { position: "absolute", top: "6px", right: "6px", padding: "2px 8px", fontSize: "11px", zIndex: 1 },
+      children: [
+        copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-3 h-3" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-3 h-3" }),
+        copied ? t("landingEditor.codeCopied") : t("landingEditor.copyCode")
+      ]
+    }
+  ),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "p-2 rounded-lg overflow-x-auto", style: {
+    backgroundColor: "var(--color-bg-card)",
+    border: "1px solid var(--color-border)",
+    color: muted ? "var(--color-text-muted)" : "var(--color-text-primary)",
+    fontSize: "12.5px",
+    margin: 0,
+    paddingRight: "90px"
+  }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: text }) })
+] });
 const LandingEditor = ({ landingId, onClose }) => {
   const { t } = useLanguage();
   const [landing, setLanding] = reactExports.useState({
@@ -45511,13 +45635,17 @@ const LandingEditor = ({ landingId, onClose }) => {
     url: "",
     action_payload: "",
     action_type: "",
-    state: "active"
+    state: "active",
+    slug: "",
+    redirect_type: "redirect"
   });
   const [groups, setGroups] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(false);
   const [campaigns, setCampaigns] = reactExports.useState([]);
   const [postbackKey, setPostbackKey] = reactExports.useState("");
   const [adapterCopied, setAdapterCopied] = reactExports.useState(false);
+  const [linkFormat, setLinkFormat] = reactExports.useState("html");
+  const [linkCopied, setLinkCopied] = reactExports.useState(false);
   const origin2 = typeof window !== "undefined" && window.location && window.location.origin ? window.location.origin : "https://your-tracker.example.com";
   const adapterSnippet = `<script src="${origin2}/js/orbitra-adapter.js"` + (postbackKey ? `
         data-postback="${origin2}/${postbackKey}/postback"` : "") + `><\/script>`;
@@ -45771,18 +45899,62 @@ ${file}`)) return;
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.landingType") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex rounded-xl overflow-hidden mb-3", style: { border: "1px solid var(--color-border)" }, children: [
+            { value: "local", label: t("landingEditor.typeLocal") },
+            { value: "redirect", label: t("landingEditor.typeRedirect") },
+            { value: "preload", label: t("landingEditor.typePreload") },
+            { value: "action", label: t("landingEditor.typeAction") }
+          ].map((opt, idx, arr) => {
+            const active = landing.type === opt.value;
+            return /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => setLanding({ ...landing, type: opt.value }),
+                className: "flex-1 px-4 py-2 text-sm font-medium transition",
+                style: {
+                  backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-card)",
+                  color: active ? "var(--color-primary)" : "var(--color-text-primary)",
+                  borderRight: idx < arr.length - 1 ? "1px solid var(--color-border)" : "none"
+                },
+                children: opt.label
+              },
+              opt.value
+            );
+          }) })
+        ] }),
+        landing.type === "local" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.slugLabel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-mono", style: { color: "var(--color-text-muted)" }, children: "/lander/" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: landing.slug || "",
+                onChange: (e) => setLanding({ ...landing, slug: e.target.value }),
+                className: "form-input font-mono",
+                style: { flex: 1 },
+                placeholder: t("landingEditor.slugPlaceholder"),
+                autoComplete: "off",
+                spellCheck: "false"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.slugHint") })
+        ] }),
+        landing.type === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.redirectMethodLabel") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
             {
-              value: landing.type,
-              onChange: (e) => setLanding({ ...landing, type: e.target.value }),
-              className: "form-select font-medium",
-              style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" },
+              value: landing.redirect_type || "redirect",
+              onChange: (e) => setLanding({ ...landing, redirect_type: e.target.value }),
+              className: "form-select",
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "local", children: t("landingEditor.localZip") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("landingEditor.redirect") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t("landingEditor.preload") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "action", children: t("landingEditor.action") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("landingEditor.redirectHttp") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "js", children: t("landingEditor.redirectJs") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "meta_refresh", children: t("landingEditor.redirectMeta") })
               ]
             }
           )
@@ -45864,27 +46036,60 @@ ${file}`)) return;
             )
           ] })
         ] }),
-        (landing.type === "local" || landing.type === "preload") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 p-4 rounded-2xl text-sm", style: {
+        (landing.type === "local" || landing.type === "preload" || landing.type === "redirect") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 p-4 rounded-2xl text-sm", style: {
           border: "1px solid var(--color-primary)",
           backgroundColor: "var(--color-bg-soft)"
         }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-1", style: { color: "var(--color-text-primary)" }, children: t("landingEditor.offerLinkTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", style: { gap: "8px", marginBottom: "4px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: t("landingEditor.offerLinkTitle") }),
+            landing.type === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex", style: { gap: "2px" }, children: ["html", "js", "php"].map((fmt) => {
+              const active = linkFormat === fmt;
+              return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setLinkFormat(fmt),
+                  className: "px-2 py-1 text-xs rounded-md transition",
+                  style: {
+                    backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-card)",
+                    color: active ? "var(--color-primary)" : "var(--color-text-muted)",
+                    border: "1px solid var(--color-border)"
+                  },
+                  children: fmt.toUpperCase()
+                },
+                fmt
+              );
+            }) })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mb-2", style: { color: "var(--color-text-secondary)", lineHeight: 1.55 }, children: t("landingEditor.offerLinkHint") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "p-2 rounded-lg overflow-x-auto", style: {
-            backgroundColor: "var(--color-bg-card)",
-            border: "1px solid var(--color-border)",
-            color: "var(--color-text-primary)",
-            fontSize: "12.5px",
-            margin: 0
-          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t("landingEditor.offerLinkExampleSingle") }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", style: { color: "var(--color-text-muted)", fontSize: "12.5px", lineHeight: 1.55 }, children: t("landingEditor.offerLinkExtra") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "p-2 rounded-lg overflow-x-auto mt-1", style: {
-            backgroundColor: "var(--color-bg-card)",
-            border: "1px solid var(--color-border)",
-            color: "var(--color-text-muted)",
-            fontSize: "12.5px",
-            margin: 0
-          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t("landingEditor.offerLinkExampleMulti") }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            CopyableCode,
+            {
+              text: landing.type === "redirect" ? linkFormat === "html" ? `<a href="${origin2}/?_lp=1">${t("landingEditor.offerLinkWord")}</a>` : linkFormat === "js" ? `<script>document.write('<a href="${origin2}/?_lp=1&'+window.location.search.substring(1)+'">${t("landingEditor.offerLinkWord")}</a>');<\/script>` : `<a href="${origin2}/?_lp=1&_token=<?= urlencode($_GET['_token']) ?>">${t("landingEditor.offerLinkWord")}</a>` : t("landingEditor.offerLinkExampleSingle"),
+              copied: linkCopied,
+              onCopy: () => {
+                setLinkCopied(true);
+                setTimeout(() => setLinkCopied(false), 1800);
+              },
+              t
+            }
+          ),
+          (landing.type === "local" || landing.type === "preload") && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", style: { color: "var(--color-text-muted)", fontSize: "12.5px", lineHeight: 1.55 }, children: t("landingEditor.offerLinkExtra") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              CopyableCode,
+              {
+                text: t("landingEditor.offerLinkExampleMulti"),
+                copied: linkCopied,
+                onCopy: () => {
+                  setLinkCopied(true);
+                  setTimeout(() => setLinkCopied(false), 1800);
+                },
+                t,
+                muted: true
+              }
+            )
+          ] })
         ] }),
         (landing.type === "redirect" || landing.type === "local" || landing.type === "preload") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 p-4 rounded-2xl text-sm", style: {
           border: "1px solid var(--color-border)",

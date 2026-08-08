@@ -7,6 +7,33 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.6.5] — 2026-08-08
+
+### Added
+- **The landing create/edit form now matches Keitaro.** The landing type is
+  chosen from four tabs (Local / Redirect / Preload / Action) instead of a
+  dropdown, matching the offer editor's tab pattern.
+- **Named folders for local landings.** A local landing's files used to unpack
+  into `landings/<id>/` — functional but opaque. Landings now carry a `slug`,
+  and the directory is `landings/<slug>/` (shown as `/lander/<slug>` in the
+  editor). The slug is the single source of truth resolved through one helper,
+  `orbitraLandingDir()`, so every path-bearing endpoint (upload, file list,
+  file operations, asset serving) follows it. The visitor never controls the
+  slug: the cookie carries the landing's numeric id and the slug is looked up
+  server-side, so a request cannot be aimed at an arbitrary directory. Existing
+  landings are backfilled a slug from their name on migrate (transliterated,
+  uniqueness ensured), and renaming the slug in the editor moves the folder.
+  An empty slug falls back to `landings/<id>/`, so nothing ever breaks.
+- **Redirect method for redirect landings.** A redirect landing can pick its
+  method — HTTP 302, JavaScript, or Meta refresh — the way an offer already
+  could. The chosen method applies on the final hop to the landing URL.
+- **Copyable offer-link snippets in three formats.** The offer-link hint now
+  carries a copy button on every snippet, is shown for redirect landings too
+  (not only local/preload), and for a redirect landing offers the three
+  integration shapes an external page needs: plain HTML (`<a href="{offer}">`),
+  `document.write` JS (carrying `window.location.search`), and server-side PHP
+  (carrying `_token`). Localised across all seven UI languages.
+
 ## [0.9.6.4] — 2026-08-08
 
 ### Security

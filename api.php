@@ -277,7 +277,17 @@ function orbitraLandingFilePath($id, $relPath, bool $mustExist = true): ?string
     if ($id <= 0) {
         return null;
     }
-    $root = realpath(__DIR__ . '/landings/' . $id);
+    // A landing's directory may now live under its slug rather than its id, so
+    // resolve through orbitraLandingDir() which reads the slug from the DB. The
+    // visitor never controls the slug here — the id is cast to int and the slug
+    // is looked up server-side — so this cannot be aimed at an arbitrary path.
+    global $pdo;
+    if ($pdo instanceof PDO) {
+        $resolved = orbitraLandingDir($pdo, $id);
+    } else {
+        $resolved = __DIR__ . '/landings/' . $id;
+    }
+    $root = realpath($resolved);
     if ($root === false) {
         return null;
     }
@@ -2159,12 +2169,58 @@ try {
                         $actionType = ($actionPayload === null || $actionPayload === '') ? 'do_nothing' : 'show_html';
                     }
 
+                    // Redirect method only matters for a redirect landing; a stray
+                    // value on another type is dropped so it cannot reach the runtime.
+                    $redirectType = (string) ($data['redirect_type'] ?? 'redirect');
+                    if (!in_array($redirectType, ['redirect', 'js', 'meta_refresh'], true)) {
+                        $redirectType = 'redirect';
+                    }
+                    if ($type !== 'redirect') {
+                        $redirectType = 'redirect';
+                    }
+
+                    // Slug: the folder a local landing's files live under. Validate
+                    // before writing — a duplicate or malformed slug would either
+                    // merge two landings' files or break path resolution.
+                    $slugRaw = trim((string) ($data['slug'] ?? ''));
+                    if ($slugRaw === '' && $type === 'local' && !$id) {
+                        // No slug given on create: derive one from the name so the
+                        // folder is human-readable rather than landings/<id>/.
+                        $slugRaw = orbitraSlugify($data['name']);
+                    }
+                    $slugCheck = orbitraValidateLandingSlug($pdo, $slugRaw, $id ?: null);
+                    if (!$slugCheck['ok']) {
+                        echo json_encode(['status' => 'error', 'message' => $slugCheck['error']]);
+                        break;
+                    }
+                    $slug = $slugCheck['value'];
+
                     if ($id) {
-                        $stmt = $pdo->prepare("UPDATE landings SET name=?, group_id=?, type=?, url=?, action_payload=?, action_type=?, state=? WHERE id=?");
-                        $stmt->execute([$data['name'], $groupId, $type, $url, $actionPayload, $actionType, $state, $id]);
+                        // Renaming a slug moves the landing's folder, so the old path
+                        // stops answering and the new one starts. Only do this when the
+                        // slug actually changed and the landing has files on disk.
+                        try {
+                            $oldRow = $pdo->prepare("SELECT slug FROM landings WHERE id = ? LIMIT 1");
+                            $oldRow->execute([$id]);
+                            $oldSlug = (string) $oldRow->fetchColumn();
+                        } catch (\Throwable $e) {
+                            $oldSlug = '';
+                        }
+                        $oldDir = orbitraLandingDir($pdo, $id);
+                        $stmt = $pdo->prepare("UPDATE landings SET name=?, group_id=?, type=?, url=?, action_payload=?, action_type=?, state=?, slug=?, redirect_type=? WHERE id=?");
+                        $stmt->execute([$data['name'], $groupId, $type, $url, $actionPayload, $actionType, $state, $slug, $redirectType, $id]);
+
+                        // Recompute the target dir AFTER the update so orbitraLandingDir
+                        // reflects the new slug, then move the folder if both exist.
+                        if (($slug !== '' && $slug !== $oldSlug) || ($slug === '' && $oldSlug !== '')) {
+                            $newDir = orbitraLandingDir($pdo, $id);
+                            if (is_dir($oldDir) && realpath($oldDir) !== realpath($newDir) && !is_dir($newDir)) {
+                                @rename($oldDir, $newDir);
+                            }
+                        }
                     } else {
-                        $stmt = $pdo->prepare("INSERT INTO landings (name, group_id, type, url, action_payload, action_type, state) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                        $stmt->execute([$data['name'], $groupId, $type, $url, $actionPayload, $actionType, $state]);
+                        $stmt = $pdo->prepare("INSERT INTO landings (name, group_id, type, url, action_payload, action_type, state, slug, redirect_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        $stmt->execute([$data['name'], $groupId, $type, $url, $actionPayload, $actionType, $state, $slug, $redirectType]);
                         $id = $pdo->lastInsertId();
                     }
                     echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
@@ -2262,7 +2318,7 @@ try {
                     break;
                 }
 
-                $uploadDir = __DIR__ . '/landings/' . $id . '/';
+                $uploadDir = orbitraLandingDir($pdo, $id) . '/';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
@@ -2336,7 +2392,7 @@ try {
         case 'landing_files':
             $id = $_GET['id'] ?? null;
             if ($id) {
-                $dir = __DIR__ . '/landings/' . $id;
+                $dir = orbitraLandingDir($pdo, $id);
                 if (!is_dir($dir)) {
                     echo json_encode(['status' => 'success', 'data' => []]);
                     break;
@@ -2404,7 +2460,7 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Missing landing id']);
                 break;
             }
-            $landingRoot = __DIR__ . '/landings/' . $landingId;
+            $landingRoot = orbitraLandingDir($pdo, $landingId);
             if (!is_dir($landingRoot)) {
                 @mkdir($landingRoot, 0775, true);
             }

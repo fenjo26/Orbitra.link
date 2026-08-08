@@ -1,4 +1,4 @@
-# Orbitra v0.9.6.4 Tracker
+# Orbitra v0.9.6.5 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -385,6 +385,11 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.6.5
+
+### Added
+- 🗂 **The landing form now matches Keitaro.** The landing type is chosen from four tabs (Local / Redirect / Preload / Action) instead of a dropdown. A local landing gets a named folder — `/lander/<slug>` — so its files unpack into a readable directory rather than `landings/<id>/`. Existing landings are backfilled a slug from their name, and renaming the slug moves the folder on disk. A redirect landing can pick its redirect method (HTTP 302 / JavaScript / Meta refresh), the way an offer already could. The offer-link hint now carries a copy button on every snippet and, for redirect landings, the three integration shapes an external page needs: plain HTML, `document.write` JS, and server-side PHP with `_token`. The hint is also shown for redirect landings, not only local/preload. Localised across all seven UI languages.
 
 ## 📝 What's New in v0.9.6.4
 

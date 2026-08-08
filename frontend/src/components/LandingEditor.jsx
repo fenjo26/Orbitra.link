@@ -5,6 +5,30 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
 
+// A read-only code block with a copy button. Reused by the offer-link hint so
+// every snippet gets the same one-click copy the JS-adapter block already had.
+const CopyableCode = ({ text, copied, onCopy, t, muted = false }) => (
+    <div className="relative mt-1">
+        <button
+            type="button"
+            onClick={() => { navigator.clipboard.writeText(text); onCopy && onCopy(); }}
+            className="btn btn-secondary btn-sm"
+            style={{ position: 'absolute', top: '6px', right: '6px', padding: '2px 8px', fontSize: '11px', zIndex: 1 }}
+        >
+            {copied ? <Check className="w-3 h-3" /> : <Code className="w-3 h-3" />}
+            {copied ? t('landingEditor.codeCopied') : t('landingEditor.copyCode')}
+        </button>
+        <pre className="p-2 rounded-lg overflow-x-auto" style={{
+            backgroundColor: 'var(--color-bg-card)',
+            border: '1px solid var(--color-border)',
+            color: muted ? 'var(--color-text-muted)' : 'var(--color-text-primary)',
+            fontSize: '12.5px',
+            margin: 0,
+            paddingRight: '90px'
+        }}><code>{text}</code></pre>
+    </div>
+);
+
 const LandingEditor = ({ landingId, onClose }) => {
     const { t } = useLanguage();
     const [landing, setLanding] = useState({
@@ -14,7 +38,9 @@ const LandingEditor = ({ landingId, onClose }) => {
         url: '',
         action_payload: '',
         action_type: '',
-        state: 'active'
+        state: 'active',
+        slug: '',
+        redirect_type: 'redirect'
     });
     const [groups, setGroups] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -22,6 +48,10 @@ const LandingEditor = ({ landingId, onClose }) => {
     const [campaigns, setCampaigns] = useState([]);
     const [postbackKey, setPostbackKey] = useState('');
     const [adapterCopied, setAdapterCopied] = useState(false);
+    // Offer-link hint: which code format to show for redirect landings, and a
+    // per-snippet "copied" toast for the copy button.
+    const [linkFormat, setLinkFormat] = useState('html');
+    const [linkCopied, setLinkCopied] = useState(false);
 
     const origin = (typeof window !== 'undefined' && window.location && window.location.origin)
         ? window.location.origin
@@ -311,18 +341,75 @@ const LandingEditor = ({ landingId, onClose }) => {
 
                             <div>
                                 <label className="form-label">{t('landingEditor.landingType')}</label>
-                                <select
-                                    value={landing.type}
-                                    onChange={e => setLanding({ ...landing, type: e.target.value })}
-                                    className="form-select font-medium"
-                                    style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}
-                                >
-                                    <option value="local">{t('landingEditor.localZip')}</option>
-                                    <option value="redirect">{t('landingEditor.redirect')}</option>
-                                    <option value="preload">{t('landingEditor.preload')}</option>
-                                    <option value="action">{t('landingEditor.action')}</option>
-                                </select>
+                                <div className="flex rounded-xl overflow-hidden mb-3" style={{ border: '1px solid var(--color-border)' }}>
+                                    {[
+                                        { value: 'local', label: t('landingEditor.typeLocal') },
+                                        { value: 'redirect', label: t('landingEditor.typeRedirect') },
+                                        { value: 'preload', label: t('landingEditor.typePreload') },
+                                        { value: 'action', label: t('landingEditor.typeAction') },
+                                    ].map((opt, idx, arr) => {
+                                        const active = landing.type === opt.value;
+                                        return (
+                                            <button
+                                                key={opt.value}
+                                                type="button"
+                                                onClick={() => setLanding({ ...landing, type: opt.value })}
+                                                className="flex-1 px-4 py-2 text-sm font-medium transition"
+                                                style={{
+                                                    backgroundColor: active ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
+                                                    color: active ? 'var(--color-primary)' : 'var(--color-text-primary)',
+                                                    borderRight: idx < arr.length - 1 ? '1px solid var(--color-border)' : 'none'
+                                                }}
+                                            >
+                                                {opt.label}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </div>
+
+                            {/* Folder name for a local landing. Files land in
+                                landings/<slug>/ instead of landings/<id>/, so the
+                                directory a campaign archive unpacks into is readable. */}
+                            {landing.type === 'local' && (
+                                <div>
+                                    <label className="form-label">{t('landingEditor.slugLabel')}</label>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm font-mono" style={{ color: 'var(--color-text-muted)' }}>/lander/</span>
+                                        <input
+                                            type="text"
+                                            value={landing.slug || ''}
+                                            onChange={e => setLanding({ ...landing, slug: e.target.value })}
+                                            className="form-input font-mono"
+                                            style={{ flex: 1 }}
+                                            placeholder={t('landingEditor.slugPlaceholder')}
+                                            autoComplete="off"
+                                            spellCheck="false"
+                                        />
+                                    </div>
+                                    <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                                        {t('landingEditor.slugHint')}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Redirect method for a redirect landing — an offer can
+                                already pick HTTP/JS/meta; a landing that simply
+                                forwards should be able to do the same. */}
+                            {landing.type === 'redirect' && (
+                                <div>
+                                    <label className="form-label">{t('landingEditor.redirectMethodLabel')}</label>
+                                    <select
+                                        value={landing.redirect_type || 'redirect'}
+                                        onChange={e => setLanding({ ...landing, redirect_type: e.target.value })}
+                                        className="form-select"
+                                    >
+                                        <option value="redirect">{t('landingEditor.redirectHttp')}</option>
+                                        <option value="js">{t('landingEditor.redirectJs')}</option>
+                                        <option value="meta_refresh">{t('landingEditor.redirectMeta')}</option>
+                                    </select>
+                                </div>
+                            )}
 
                             {(landing.type === 'redirect' || landing.type === 'preload') && (
                                 <div>
@@ -408,30 +495,72 @@ const LandingEditor = ({ landingId, onClose }) => {
                                 This is the first thing people get wrong when moving
                                 a landing over from another tracker, so it lives next
                                 to the upload rather than in the documentation. */}
-                            {(landing.type === 'local' || landing.type === 'preload') && (
+                            {(landing.type === 'local' || landing.type === 'preload' || landing.type === 'redirect') && (
                                 <div className="mt-4 p-4 rounded-2xl text-sm" style={{
                                     border: '1px solid var(--color-primary)',
                                     backgroundColor: 'var(--color-bg-soft)'
                                 }}>
-                                    <div className="font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>
-                                        {t('landingEditor.offerLinkTitle')}
+                                    <div className="flex items-center justify-between" style={{ gap: '8px', marginBottom: '4px' }}>
+                                        <div className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                            {t('landingEditor.offerLinkTitle')}
+                                        </div>
+                                        {/* For a redirect landing the integration code has three
+                                            shapes (an external page can build the link with plain
+                                            HTML, document.write JS, or server-side PHP). Local and
+                                            preload landings live on the tracker, where {offer} is
+                                            substituted directly, so a single HTML snippet is enough. */}
+                                        {landing.type === 'redirect' && (
+                                            <div className="flex" style={{ gap: '2px' }}>
+                                                {['html', 'js', 'php'].map(fmt => {
+                                                    const active = linkFormat === fmt;
+                                                    return (
+                                                        <button
+                                                            key={fmt}
+                                                            type="button"
+                                                            onClick={() => setLinkFormat(fmt)}
+                                                            className="px-2 py-1 text-xs rounded-md transition"
+                                                            style={{
+                                                                backgroundColor: active ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
+                                                                color: active ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                                                border: '1px solid var(--color-border)'
+                                                            }}
+                                                        >
+                                                            {fmt.toUpperCase()}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
                                     </div>
                                     <p className="mb-2" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.55 }}>
                                         {t('landingEditor.offerLinkHint')}
                                     </p>
-                                    <pre className="p-2 rounded-lg overflow-x-auto" style={{
-                                        backgroundColor: 'var(--color-bg-card)',
-                                        border: '1px solid var(--color-border)',
-                                        color: 'var(--color-text-primary)', fontSize: '12.5px', margin: 0
-                                    }}><code>{t('landingEditor.offerLinkExampleSingle')}</code></pre>
-                                    <p className="mt-2" style={{ color: 'var(--color-text-muted)', fontSize: '12.5px', lineHeight: 1.55 }}>
-                                        {t('landingEditor.offerLinkExtra')}
-                                    </p>
-                                    <pre className="p-2 rounded-lg overflow-x-auto mt-1" style={{
-                                        backgroundColor: 'var(--color-bg-card)',
-                                        border: '1px solid var(--color-border)',
-                                        color: 'var(--color-text-muted)', fontSize: '12.5px', margin: 0
-                                    }}><code>{t('landingEditor.offerLinkExampleMulti')}</code></pre>
+                                    <CopyableCode
+                                        text={landing.type === 'redirect'
+                                            ? (linkFormat === 'html'
+                                                ? `<a href="${origin}/?_lp=1">${t('landingEditor.offerLinkWord')}</a>`
+                                                : linkFormat === 'js'
+                                                    ? `<script>document.write('<a href="${origin}/?_lp=1&'+window.location.search.substring(1)+'">${t('landingEditor.offerLinkWord')}</a>');</script>`
+                                                    : `<a href="${origin}/?_lp=1&_token=<?= urlencode($_GET['_token']) ?>">${t('landingEditor.offerLinkWord')}</a>`)
+                                            : t('landingEditor.offerLinkExampleSingle')}
+                                        copied={linkCopied}
+                                        onCopy={() => { setLinkCopied(true); setTimeout(() => setLinkCopied(false), 1800); }}
+                                        t={t}
+                                    />
+                                    {(landing.type === 'local' || landing.type === 'preload') && (
+                                        <>
+                                            <p className="mt-2" style={{ color: 'var(--color-text-muted)', fontSize: '12.5px', lineHeight: 1.55 }}>
+                                                {t('landingEditor.offerLinkExtra')}
+                                            </p>
+                                            <CopyableCode
+                                                text={t('landingEditor.offerLinkExampleMulti')}
+                                                copied={linkCopied}
+                                                onCopy={() => { setLinkCopied(true); setTimeout(() => setLinkCopied(false), 1800); }}
+                                                t={t}
+                                                muted
+                                            />
+                                        </>
+                                    )}
                                 </div>
                             )}
 

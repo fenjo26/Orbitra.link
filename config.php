@@ -1,5 +1,10 @@
 <?php
 // config.php
+// Landing slug/path helpers are needed by the migration below (slug backfill)
+// and by the API + index.php path resolution. Safe to load before $pdo exists:
+// the functions only touch the database when given a $pdo argument.
+require_once __DIR__ . '/core/landing_path.php';
+
 $db_file = __DIR__ . '/orbitra_db.sqlite';
 $postback_key = 'fd12e72';
 
@@ -44,7 +49,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 14;
+    $LATEST_SCHEMA_VERSION = 15;
 
     $schemaVersion = 0;
     try {
@@ -153,6 +158,8 @@ try {
         state TEXT DEFAULT 'active',
         action_payload TEXT,
         action_type TEXT DEFAULT '',
+        slug TEXT DEFAULT '',
+        redirect_type TEXT DEFAULT 'redirect',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         is_archived INTEGER DEFAULT 0,
         archived_at DATETIME
@@ -1122,6 +1129,47 @@ try {
                     $pdo->exec("INSERT OR IGNORE INTO settings (key, value) VALUES ('admin_path', '')");
                 } catch (\Throwable $e) {
                     // Non-critical: an absent row reads as empty anyway.
+                }
+            }
+
+            if ($schemaVersion < 15) {
+                // Migration 15: landings gain a slug (so files live in
+                // landings/<slug>/ instead of landings/<id>/, matching Keitaro's
+                // /lander/<name>) and a redirect_type (so a redirect landing can
+                // pick HTTP 302 / JS / meta-refresh like an offer can).
+                try {
+                    $pdo->exec("ALTER TABLE landings ADD COLUMN slug TEXT DEFAULT ''");
+                } catch (\Throwable $e) {
+                    // Column may already exist on a half-migrated DB.
+                }
+                try {
+                    $pdo->exec("ALTER TABLE landings ADD COLUMN redirect_type TEXT DEFAULT 'redirect'");
+                } catch (\Throwable $e) {
+                }
+
+                // Backfill slugs for existing local landings that have none. The
+                // folder for these still resolves by id as a fallback, so an empty
+                // slug is safe — but generating one lets every landing move to the
+                // /lander/<slug> layout on its next edit. Idempotent: only fills
+                // rows where slug = ''.
+                try {
+                    $rows = $pdo->query("SELECT id, name, slug FROM landings WHERE slug IS NULL OR slug = ''")->fetchAll(PDO::FETCH_ASSOC);
+                    $used = [];
+                    foreach ($rows as $row) {
+                        $base = orbitraSlugify($row['name'] ?? ('landing-' . $row['id']));
+                        if ($base === '') {
+                            $base = 'landing-' . $row['id'];
+                        }
+                        $slug = $base;
+                        $n = 2;
+                        while (isset($used[$slug]) || $pdo->query("SELECT 1 FROM landings WHERE slug = " . $pdo->quote($slug) . " LIMIT 1")->fetchColumn()) {
+                            $slug = $base . '-' . $n++;
+                        }
+                        $used[$slug] = true;
+                        $pdo->prepare("UPDATE landings SET slug = ? WHERE id = ?")->execute([$slug, $row['id']]);
+                    }
+                } catch (\Throwable $e) {
+                    // Non-critical: an empty slug resolves by id.
                 }
             }
 

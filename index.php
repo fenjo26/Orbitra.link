@@ -482,7 +482,15 @@ function serveLandingAsset($landingId, $uriPath)
         return;
     }
 
-    $root = realpath(__DIR__ . '/landings/' . $landingId);
+    // $pdo is global here (index.php bootstraps config.php which builds it);
+    // orbitraLandingDir resolves the landing's slug→dir, falling back to id.
+    $assetPdo = $GLOBALS['pdo'] ?? null;
+    if ($assetPdo instanceof PDO) {
+        $resolved = orbitraLandingDir($assetPdo, $landingId);
+    } else {
+        $resolved = __DIR__ . '/landings/' . (int) $landingId;
+    }
+    $root = realpath($resolved);
     if ($root === false) {
         return;
     }
@@ -1737,6 +1745,7 @@ $offerIdToLog = 0;
 $landingIdToLog = null;
 $finalUrl = '';
 $offerRedirectType = 'redirect';
+$landingRedirectType = 'redirect';
 $actionToPerfrom = null;
 
 if ($selectedStream) {
@@ -1769,7 +1778,7 @@ if ($selectedStream) {
         $offerUrl = null;
 
         if ($landingIdToLog) {
-            $stmt = $pdo->prepare("SELECT type, url, action_payload, action_type FROM landings WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT type, url, action_payload, action_type, redirect_type FROM landings WHERE id = ?");
             $stmt->execute([$landingIdToLog]);
             $land = $stmt->fetch();
             if ($land) {
@@ -1777,6 +1786,7 @@ if ($selectedStream) {
                 $landingUrl = $land['url'];
                 $landingAction = $land['action_payload'];
                 $landingActionType = $land['action_type'] ?? '';
+                $landingRedirectType = $land['redirect_type'] ?? 'redirect';
             }
         }
 
@@ -2022,7 +2032,7 @@ if ($actionToPerfrom) {
 
     if (isset($landingType) && $landingType !== 'redirect') {
         if ($landingType === 'local') {
-            $landingDir = __DIR__ . '/landings/' . $landingIdToLog;
+            $landingDir = orbitraLandingDir($pdo, $landingIdToLog);
             if (file_exists($landingDir . '/index.php')) {
                 require_once __DIR__ . '/core/PhpLanding.php';
                 if (!PhpLanding::enabled($pdo)) {
@@ -2107,6 +2117,9 @@ if ($actionToPerfrom) {
     // redirect here. This makes "landing only" streams work without an offer.
     if (!$finalUrl && !empty($landingIdToLog) && !empty($landingUrl)) {
         $finalUrl = $landingUrl;
+        // The destination is the landing rather than the offer, so the landing's
+        // own redirect method (http/js/meta_refresh) applies on the final hop.
+        $offerRedirectType = $landingRedirectType;
 
         // A landing on another domain cannot read this tracker's cookies, so its
         // offer link has nothing to identify the visitor with. Hand it a signed
