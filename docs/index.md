@@ -54,7 +54,8 @@ wget -qO- https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh
    - Продакшн конфигурация
    - SSL сертификаты
 
-5. **[Миграция из Keitaro](keitaro-migration.md)**
+5. **[Лендинги](landing-pages.md)** (English) — все четыре типа, макросы, JS-адаптер, PHP-лендинги и разбор частых ошибок
+6. **[Миграция из Keitaro](keitaro-migration.md)**
    - Создание бекапа Keitaro
    - Загрузка дампа в Orbitra
    - Сохранение токенов Click API

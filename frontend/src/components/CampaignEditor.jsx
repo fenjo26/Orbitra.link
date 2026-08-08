@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
 import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play } from 'lucide-react';
 import CampaignReports from './CampaignReports';
 import ConversionsLog from './ConversionsLog';
 import { useLanguage } from '../contexts/LanguageContext';
+import axios from 'axios';
 import { cachedGet, cachedPost } from '../utils/apiCache';
 
 // Generate random alias like Keitaro (8 chars: a-z0-9)
@@ -68,6 +69,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [domains, setDomains] = useState([]);
     const [allOffers, setAllOffers] = useState([]);
     const [allLandings, setAllLandings] = useState([]);
+    // Creating a landing or offer without leaving the stream you are wiring up.
+    // Going to another page and back used to mean losing the unsaved campaign.
+    const [quickCreate, setQuickCreate] = useState(null);
+    const [quickSaving, setQuickSaving] = useState(false);
+    const quickFileRef = useRef(null);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -410,7 +416,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             offer_id: 0,
             action_payload: '',
             filters: [],
-            schema_custom: { landings: [], offers: [] }
+            schema_custom: { landings: [], offers: [] },
+            offer_selection: 'before'
         };
         setFormData(prev => ({ ...prev, streams: [...prev.streams, newStream] }));
     };
@@ -482,6 +489,55 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     };
 
     // Schema item management
+    /**
+     * Create a landing or an offer and drop it straight into the stream.
+     *
+     * The list this feeds is cached, so it is refreshed with a cache-busting read
+     * rather than waiting out the five-minute TTL — otherwise the thing you just
+     * made would be missing from the dropdown that is supposed to show it.
+     */
+    const submitQuickCreate = async () => {
+        if (!quickCreate?.name?.trim()) return;
+        setQuickSaving(true);
+        try {
+            const isLanding = quickCreate.kind === 'landings';
+            const action = isLanding ? 'save_landing' : 'save_offer';
+            const payload = isLanding
+                ? { name: quickCreate.name, type: quickCreate.type, url: quickCreate.url || '', state: 'active' }
+                : { name: quickCreate.name, url: quickCreate.url || '', payout_type: 'CPA', payout_value: 0, state: 'active' };
+
+            const res = await cachedPost(action, payload);
+            if (res.data.status !== 'success') throw new Error(res.data.message || 'save failed');
+            const newId = parseInt(res.data.data?.id, 10);
+
+            if (isLanding && quickCreate.type === 'local' && quickCreate.file) {
+                const fd = new FormData();
+                fd.append('file', quickCreate.file);
+                fd.append('id', newId);
+                const up = await axios.post(`/api.php?action=upload_landing`, fd, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                if (up.data.status !== 'success') throw new Error(up.data.message || 'upload failed');
+            }
+
+            const listRes = await cachedGet(isLanding ? 'landings_simple' : 'all_offers', { _: Date.now() }, 0);
+            if (listRes.data.status === 'success') {
+                (isLanding ? setAllLandings : setAllOffers)(listRes.data.data);
+            }
+
+            const s = [...formData.streams];
+            const streamIdx = quickCreate.streamIdx;
+            if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
+            s[streamIdx].schema_custom[quickCreate.kind].push({ id: newId, weight: 100 });
+            setFormData({ ...formData, streams: s });
+            setQuickCreate(null);
+        } catch (e) {
+            alert(`${t('editor.quickCreateError')}: ${e.message}`);
+        } finally {
+            setQuickSaving(false);
+        }
+    };
+
     const addSchemaItem = (streamIdx, type) => {
         const s = [...formData.streams];
         if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
@@ -1407,7 +1463,10 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                         <div>
                                                             <div className="flex justify-between mb-2">
                                                                 <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.landings')}</span>
-                                                                <button onClick={() => addSchemaItem(idx, 'landings')} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.add')}</button>
+                                                                <div className="flex gap-3">
+                                                                    <button onClick={() => addSchemaItem(idx, 'landings')} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.add')}</button>
+                                                                    <button onClick={() => setQuickCreate({ kind: 'landings', streamIdx: idx, name: '', type: 'local', url: '', file: null })} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.quickCreateLanding')}</button>
+                                                                </div>
                                                             </div>
                                                             {(stream.schema_custom?.landings || []).map((l, lIdx, list) => (
                                                                 <div key={lIdx} className="flex gap-2 mb-2">
@@ -1440,7 +1499,10 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                         <div className="pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
                                                             <div className="flex justify-between mb-2">
                                                                 <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offers')}</span>
-                                                                <button onClick={() => addSchemaItem(idx, 'offers')} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.add')}</button>
+                                                                <div className="flex gap-3">
+                                                                    <button onClick={() => addSchemaItem(idx, 'offers')} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.add')}</button>
+                                                                    <button onClick={() => setQuickCreate({ kind: 'offers', streamIdx: idx, name: '', type: 'local', url: '', file: null })} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.quickCreateOffer')}</button>
+                                                                </div>
                                                             </div>
                                                             {(stream.schema_custom?.offers || []).map((o, oIdx, list) => (
                                                                 <div key={oIdx} className="flex gap-2 mb-2">
@@ -1469,6 +1531,23 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                                     </button>
                                                                 </div>
                                                             ))}
+
+                                                            <div className="mt-3 pt-3" style={{ borderTop: '1px dashed var(--color-border)' }}>
+                                                                <div className="text-xs font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offerSelection')}</div>
+                                                                <div className="flex gap-4">
+                                                                    {['before', 'after'].map(mode => (
+                                                                        <label key={mode} className="flex items-center gap-1 text-xs cursor-pointer" style={{ color: 'var(--color-text-secondary)' }}>
+                                                                            <input
+                                                                                type="radio"
+                                                                                checked={(stream.offer_selection || 'before') === mode}
+                                                                                onChange={() => updateStream(idx, 'offer_selection', mode)}
+                                                                            />
+                                                                            {mode === 'before' ? t('editor.offerSelectionBefore') : t('editor.offerSelectionAfter')}
+                                                                        </label>
+                                                                    ))}
+                                                                </div>
+                                                                <p className="mt-1" style={{ fontSize: '11.5px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>{t('editor.offerSelectionHint')}</p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 )}
@@ -2063,6 +2142,82 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                         <Play size={16} /> {t('editor.runSimulation')}
                                     </span>
                                 )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {quickCreate && (
+                <div className="modal-overlay" onClick={() => !quickSaving && setQuickCreate(null)}>
+                    <div className="modal-content" style={{ maxWidth: '520px' }} onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3 className="modal-title">
+                                {quickCreate.kind === 'landings' ? t('editor.quickCreateLanding') : t('editor.quickCreateOffer')}
+                            </h3>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div>
+                                <label className="form-label">{t('editor.quickCreateName')}</label>
+                                <input
+                                    autoFocus
+                                    value={quickCreate.name}
+                                    onChange={e => setQuickCreate({ ...quickCreate, name: e.target.value })}
+                                    className="form-input"
+                                />
+                            </div>
+
+                            {quickCreate.kind === 'landings' && (
+                                <div>
+                                    <label className="form-label">{t('editor.quickCreateType')}</label>
+                                    <select
+                                        value={quickCreate.type}
+                                        onChange={e => setQuickCreate({ ...quickCreate, type: e.target.value })}
+                                        className="form-input"
+                                    >
+                                        <option value="local">{t('landingEditor.localZip')}</option>
+                                        <option value="redirect">{t('landingEditor.redirect')}</option>
+                                        <option value="preload">{t('landingEditor.preload')}</option>
+                                    </select>
+                                </div>
+                            )}
+
+                            {(quickCreate.kind === 'offers' || quickCreate.type !== 'local') && (
+                                <div>
+                                    <label className="form-label">URL</label>
+                                    <input
+                                        value={quickCreate.url}
+                                        onChange={e => setQuickCreate({ ...quickCreate, url: e.target.value })}
+                                        className="form-input"
+                                        placeholder="https://example.com/?click={clickid}"
+                                    />
+                                </div>
+                            )}
+
+                            {quickCreate.kind === 'landings' && quickCreate.type === 'local' && (
+                                <div>
+                                    <label className="form-label">{t('editor.quickCreateZip')}</label>
+                                    <input
+                                        ref={quickFileRef}
+                                        type="file"
+                                        accept=".zip"
+                                        onChange={e => setQuickCreate({ ...quickCreate, file: e.target.files[0] || null })}
+                                        className="form-input"
+                                    />
+                                    <p className="mt-1" style={{ fontSize: '12.5px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                                        {t('editor.quickCreateZipHint')}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex gap-2 mt-4">
+                            <button onClick={() => setQuickCreate(null)} disabled={quickSaving} className="btn btn-secondary" style={{ flex: 1 }}>
+                                {t('common.cancel')}
+                            </button>
+                            <button onClick={submitQuickCreate} disabled={quickSaving || !quickCreate.name.trim()} className="btn btn-primary" style={{ flex: 1 }}>
+                                {quickSaving ? t('common.saving') : t('common.create')}
                             </button>
                         </div>
                     </div>

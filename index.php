@@ -8,6 +8,9 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 // Cloaking detector (datacenter/VPN ASN + UA heuristics + bot blocklists). Lazy: only
 // consulted when a stream with schema_type='cloak' is selected.
 require_once __DIR__ . '/core/CloakDetector.php';
+// Shared prefetch / preload detection (ignore_prefetch setting), used here and by
+// click.php / core/click_api.php so all three entry points behave identically.
+require_once __DIR__ . '/core/prefetch.php';
 
 // Получение реального IP адреса
 function getClientIp()
@@ -557,6 +560,162 @@ function serveLandingAsset($landingId, $uriPath)
     exit;
 }
 
+/**
+ * Sign a click id so a landing on another domain can prove which click it came from.
+ *
+ * The landing→offer link (/?_lp=1) resolves the visitor's click from the
+ * orbitra_click cookie. That works for a local landing, which is served from the
+ * tracker's own domain, but a redirect landing lives somewhere else entirely and
+ * never sees that cookie — so its offer link had no way to identify the click and
+ * simply failed. The tracker therefore appends _subid and _token to a redirect
+ * landing's URL, and accepts the token in place of the cookie.
+ *
+ * Signed rather than just passed along: without a signature anyone could hand the
+ * tracker an arbitrary click id and attribute their traffic to someone else's click.
+ */
+function issueLpToken($clickId, $secret, $ttl = 86400)
+{
+    $payload = base64_encode(json_encode(['c' => $clickId, 'e' => time() + (int) $ttl]));
+    $payload = rtrim(strtr($payload, '+/', '-_'), '=');
+    $sig = substr(hash_hmac('sha256', $payload, $secret), 0, 32);
+    return $payload . '.' . $sig;
+}
+
+/** @return string|null the click id, or null if the token is forged, malformed or expired */
+function verifyLpToken($token, $secret)
+{
+    if (!is_string($token) || strpos($token, '.') === false) {
+        return null;
+    }
+    [$payload, $sig] = explode('.', $token, 2);
+    $expected = substr(hash_hmac('sha256', $payload, $secret), 0, 32);
+    if (!hash_equals($expected, (string) $sig)) {
+        return null;
+    }
+    $json = base64_decode(strtr($payload, '-_', '+/') . str_repeat('=', (4 - strlen($payload) % 4) % 4), true);
+    $data = $json === false ? null : json_decode($json, true);
+    if (!is_array($data) || empty($data['c']) || empty($data['e'])) {
+        return null;
+    }
+    if ((int) $data['e'] < time()) {
+        return null;
+    }
+    return (string) $data['c'];
+}
+
+/**
+ * Perform a landing/stream "action" and end the request.
+ *
+ * The five behaviours a tracker is expected to offer, shared by both places an
+ * action can be configured: a stream with schema "action", and a landing of type
+ * "action". Before this they diverged — a stream understood two of them and
+ * silently fell through to "Do nothing." for anything else, while a landing just
+ * echoed its payload as HTML whatever you meant by it.
+ *
+ * @param string $type    not_found | show_text | show_html | do_nothing | to_campaign
+ * @param string $payload text/HTML to show, or the target campaign id
+ */
+function performTrackerAction($type, $payload = '')
+{
+    $type = trim((string) $type);
+    // Anything unrecognised means an install from before action types existed,
+    // where the payload was always treated as HTML.
+    if ($type === '' || !in_array($type, ['not_found', 'show_text', 'show_html', 'do_nothing', 'to_campaign'], true)) {
+        $type = $payload === '' ? 'do_nothing' : 'show_html';
+    }
+
+    switch ($type) {
+        case 'not_found':
+            http_response_code(404);
+            header('Content-Type: text/html; charset=utf-8');
+            echo '<!DOCTYPE html><html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>';
+            exit;
+
+        case 'show_text':
+            header('Content-Type: text/plain; charset=utf-8');
+            echo $payload;
+            exit;
+
+        case 'show_html':
+            header('Content-Type: text/html; charset=utf-8');
+            echo $payload;
+            exit;
+
+        case 'to_campaign':
+            // Keitaro hands the visitor to another campaign without a redirect.
+            // Doing that here would mean re-entering this script, which declares
+            // its functions at file scope and cannot be included twice, so this is
+            // a redirect instead. The click is recorded in both campaigns either
+            // way; the visitor just makes one extra hop.
+            $targetId = (int) $payload;
+            if ($targetId <= 0) {
+                http_response_code(500);
+                header('Content-Type: text/plain; charset=utf-8');
+                echo 'Action "to_campaign" has no target campaign id configured.';
+                exit;
+            }
+            $query = $_GET;
+            unset($query['campaign'], $query['campaign_id'], $query['fallback_campaign_id'], $query['_lp']);
+            $query['campaign_id'] = $targetId;
+            header('Location: /?' . http_build_query($query), true, 302);
+            exit;
+
+        case 'do_nothing':
+        default:
+            // Nothing to render and nowhere to send them: answer without a body
+            // so the browser leaves the page as it is.
+            http_response_code(204);
+            exit;
+    }
+}
+
+/**
+ * Substitute tracker macros in a local landing's HTML.
+ *
+ * Keitaro-compatible: a landing's buy button is written as
+ *
+ *     <a href="{offer}">Buy</a>
+ *
+ * and {offer} becomes the URL of the offer bound to this stream, with the click
+ * id already in it. Without this the macro reached the browser verbatim and the
+ * button led nowhere, which is the single most common thing to get wrong when
+ * moving a landing over from Keitaro.
+ *
+ * Only the tracker's own macros are touched — never a blanket sweep of every
+ * {...} in the page, or a landing using JS template literals, Vue or Angular
+ * would be mangled. Anything not recognised is left exactly as it was.
+ */
+function applyLandingMacros($html, $clickId, $offerId, $offerUrl, array $clickParams = [], $lpToken = '')
+{
+    if (!is_string($html) || $html === '' || strpos($html, '{') === false) {
+        return $html;
+    }
+
+    $macros = [
+        '{clickid}' => $clickId,
+        '{subid}' => $clickId,
+        // Consumed by the JS adapter; harmless on a landing that doesn't use it.
+        '{token}' => (string) $lpToken,
+        '{offer_id}' => (string) ($offerId ?: ''),
+        // Not url-encoded: this lands in an href, so it has to stay a usable URL.
+        // The redirect path encodes it because there it is nested inside another
+        // query string; here it is the destination itself.
+        //
+        // With no offer on the stream, fall back to the tracked transition link
+        // rather than an empty href — clicking then explains what is missing
+        // instead of silently reloading the landing.
+        '{offer}' => (string) $offerUrl !== '' ? (string) $offerUrl : '/?_lp=1',
+    ];
+
+    foreach ($clickParams as $key => $val) {
+        if (is_scalar($val)) {
+            $macros['{' . $key . '}'] = htmlspecialchars((string) $val, ENT_QUOTES, 'UTF-8');
+        }
+    }
+
+    return str_replace(array_keys($macros), array_values($macros), $html);
+}
+
 function normalizeLanguageCode($value)
 {
     if (!is_string($value)) {
@@ -883,6 +1042,16 @@ if ($requestHost) {
 }
 // ===================================
 
+// === SECRET ADMIN PATH ===
+// Runs before any campaign routing: the panel must win over an alias lookup, and
+// it must be reachable on every host — the parked domains and the bare server IP
+// alike — so that parking or deleting a domain can never lock anyone out.
+require_once __DIR__ . '/core/admin_path.php';
+if (orbitraTryServeAdminPath($pdo, parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH))) {
+    exit;
+}
+// =========================
+
 // === PREVENT DOUBLE CLICKS FROM BACKGROUND FETCHES ===
 $staticExts = '/\.(ico|png|jpg|jpeg|gif|bmp|webp|avif|css|js|mjs|json|woff|woff2|ttf|otf|eot|svg|map|webmanifest|mp4|webm|m4v|ogv|mp3|ogg|wav|m4a)$/i';
 $uriPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
@@ -940,10 +1109,37 @@ if (empty($alias) && isset($_SERVER['REQUEST_URI'])) {
 // shown) and redirect to it. Runs before campaign resolution so it works even
 // on a bare "/?_lp=1" link without campaign parameters.
 if (isset($_GET['_lp'])) {
-    $lpClickId = $_COOKIE['orbitra_click'] ?? ($_COOKIE['subid'] ?? '');
+    // A signed token wins over the cookie: it is the only thing a landing hosted
+    // on another domain can carry, and it is proof rather than a claim. A bare
+    // _subid is NOT accepted — accepting an unsigned click id from the URL would
+    // let anyone attribute a visit to any click they like. A local landing that
+    // carries the click in a cookie does not need _subid at all.
+    // This block runs before the settings map is loaded, so the signing key is
+    // read on its own rather than silently falling back to a constant — which
+    // would make every token verifiable by anyone running Orbitra.
+    $lpSecret = 'orbitra_secret';
+    try {
+        $lpSecretRow = $pdo->query("SELECT value FROM settings WHERE key = 'postback_key' LIMIT 1")->fetchColumn();
+        if (is_string($lpSecretRow) && $lpSecretRow !== '') {
+            $lpSecret = $lpSecretRow;
+        }
+    } catch (\Throwable $e) {
+        // Falls back to the constant; a wrong key only rejects tokens, never accepts.
+    }
+    $lpClickId = '';
+    if (!empty($_GET['_token'])) {
+        $lpClickId = (string) (verifyLpToken((string) $_GET['_token'], $lpSecret) ?? '');
+        if ($lpClickId === '') {
+            http_response_code(400);
+            die('Landing transition failed: the _token is invalid or has expired.');
+        }
+    }
+    if ($lpClickId === '') {
+        $lpClickId = $_COOKIE['orbitra_click'] ?? ($_COOKIE['subid'] ?? '');
+    }
     if ($lpClickId === '') {
         http_response_code(400);
-        die('Landing transition failed: original click not found (cookies disabled?).');
+        die('Landing transition failed: original click not found. A landing on another domain must carry a signed _token (see docs/landing-pages.md); a local landing recovers the click from its cookie.');
     }
 
     $lpClick = null;
@@ -964,6 +1160,26 @@ if (isset($_GET['_lp'])) {
         $lpOfferId = (int) $lpClick['offer_id'];
     } elseif (isset($_COOKIE['orbitra_offer']) && (int) $_COOKIE['orbitra_offer'] > 0) {
         $lpOfferId = (int) $_COOKIE['orbitra_offer'];
+    }
+
+    // Nothing bound yet: this is a stream configured to pick the offer after the
+    // click, so the choice happens now, from the same weighted list the stream
+    // would have used earlier.
+    if ($lpOfferId === 0 && $lpClick && !empty($lpClick['stream_id'])) {
+        try {
+            $lpStmt = $pdo->prepare("SELECT schema_custom_json, offer_selection FROM streams WHERE id = ? LIMIT 1");
+            $lpStmt->execute([(int) $lpClick['stream_id']]);
+            $lpStream = $lpStmt->fetch(PDO::FETCH_ASSOC);
+            if ($lpStream && ($lpStream['offer_selection'] ?? 'before') === 'after') {
+                $lpSchema = json_decode($lpStream['schema_custom_json'] ?? '{}', true);
+                $lpPicked = selectWeightedItem(is_array($lpSchema) ? ($lpSchema['offers'] ?? []) : []);
+                if ($lpPicked && !empty($lpPicked['id'])) {
+                    $lpOfferId = (int) $lpPicked['id'];
+                }
+            }
+        } catch (\Throwable $e) {
+            // Leaves $lpOfferId at 0, which reports "no offer" below rather than 500.
+        }
     }
 
     if ($lpOfferId <= 0) {
@@ -989,8 +1205,12 @@ if (isset($_GET['_lp'])) {
         }
     }
 
-    // If an explicit offer override was used, attribute the click to it.
-    if ($lpClick && isset($_GET['offer_id']) && (int) $_GET['offer_id'] > 0 && $lpOfferId !== (int) ($lpClick['offer_id'] ?? 0)) {
+    // Attribute the click to whichever offer it ends up going to — either an
+    // explicit override, or the one just picked for a stream that defers the
+    // choice. Without this the click stays offer-less in reports and an incoming
+    // conversion has nothing to credit.
+    $lpShouldAttribute = $lpClick && $lpOfferId > 0 && $lpOfferId !== (int) ($lpClick['offer_id'] ?? 0);
+    if ($lpShouldAttribute) {
         try {
             $pdo->prepare("UPDATE clicks SET offer_id = ? WHERE id = ?")->execute([$lpOfferId, $lpClickId]);
         } catch (\Throwable $e) {
@@ -1104,12 +1324,7 @@ foreach ($stmtSets->fetchAll() as $row) {
 }
 
 if (($settings['ignore_prefetch'] ?? '1') === '1') {
-    if (
-        (isset($_SERVER['HTTP_X_PURPOSE']) && $_SERVER['HTTP_X_PURPOSE'] == 'preview') ||
-        (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
-    ) {
-        die("Prefetch ignored.");
-    }
+    orbitraMaybeDieOnPrefetch('1');
 }
 
 // === BOT CHALLENGE VERIFICATION ===
@@ -1534,7 +1749,13 @@ if ($selectedStream) {
         $actionToPerfrom = $selectedStream['action_payload'] ?? 'do_nothing';
     } else if ($schemaType === 'landing_offer') {
         $selectedLanding = selectWeightedItem($customSchema['landings'] ?? []);
-        $selectedOffer = selectWeightedItem($customSchema['offers'] ?? []);
+
+        // "After the click" defers the choice to the moment the visitor leaves the
+        // landing, so a slot that ran out of cap while they were reading is not
+        // already burned on them. The click is logged without an offer and gets
+        // one when /?_lp=1 fires.
+        $deferOffer = ($selectedStream['offer_selection'] ?? 'before') === 'after';
+        $selectedOffer = $deferOffer ? null : selectWeightedItem($customSchema['offers'] ?? []);
 
         if ($selectedOffer)
             $offerIdToLog = $selectedOffer['id'] ?? 0;
@@ -1544,16 +1765,18 @@ if ($selectedStream) {
         $landingType = null;
         $landingUrl = null;
         $landingAction = null;
+        $landingActionType = '';
         $offerUrl = null;
 
         if ($landingIdToLog) {
-            $stmt = $pdo->prepare("SELECT type, url, action_payload FROM landings WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT type, url, action_payload, action_type FROM landings WHERE id = ?");
             $stmt->execute([$landingIdToLog]);
             $land = $stmt->fetch();
             if ($land) {
                 $landingType = $land['type'];
                 $landingUrl = $land['url'];
                 $landingAction = $land['action_payload'];
+                $landingActionType = $land['action_type'] ?? '';
             }
         }
 
@@ -1627,7 +1850,7 @@ if ($selectedStream) {
             // misconfigured cloak stream never leaks the money page.
             $safeLandingId = (int) ($customSchema['safe_landing_id'] ?? 0);
             if ($safeLandingId > 0) {
-                $stmt = $pdo->prepare("SELECT type, url, action_payload FROM landings WHERE id = ?");
+                $stmt = $pdo->prepare("SELECT type, url, action_payload, action_type FROM landings WHERE id = ?");
                 $stmt->execute([$safeLandingId]);
                 $safeLand = $stmt->fetch();
                 if ($safeLand) {
@@ -1635,6 +1858,7 @@ if ($selectedStream) {
                     $landingType = $safeLand['type'];
                     $landingUrl = $safeLand['url'];
                     $landingAction = $safeLand['action_payload'];
+                    $landingActionType = $safeLand['action_type'] ?? '';
                 }
             } elseif (!empty($customSchema['safe_url'])) {
                 $finalUrl = (string) $customSchema['safe_url'];
@@ -1659,13 +1883,14 @@ if ($selectedStream) {
             }
 
             if ($landingIdToLog) {
-                $stmt = $pdo->prepare("SELECT type, url, action_payload FROM landings WHERE id = ?");
+                $stmt = $pdo->prepare("SELECT type, url, action_payload, action_type FROM landings WHERE id = ?");
                 $stmt->execute([$landingIdToLog]);
                 $land = $stmt->fetch();
                 if ($land) {
                     $landingType = $land['type'];
                     $landingUrl = $land['url'];
                     $landingAction = $land['action_payload'];
+                    $landingActionType = $land['action_type'] ?? '';
                 }
             }
             if ($offerIdToLog) {
@@ -1767,14 +1992,14 @@ if (!$selectedStream) {
 
 // 6. Редирект или Выполнение действия
 if ($actionToPerfrom) {
-    if ($actionToPerfrom === 'not_found') {
-        http_response_code(404);
-        die("404 Not Found");
-    } else if ($actionToPerfrom === 'show_html') {
-        die("<h1>Default HTML Content</h1>");
-    } else {
-        die("Do nothing.");
+    // A stream action stores "type" or "type:payload" — the second form carries
+    // the text, HTML or target campaign id the action needs.
+    $streamActionType = $actionToPerfrom;
+    $streamActionPayload = '';
+    if (strpos($actionToPerfrom, ':') !== false) {
+        [$streamActionType, $streamActionPayload] = explode(':', $actionToPerfrom, 2);
     }
+    performTrackerAction($streamActionType, $streamActionPayload);
 } else {
     $offerUrlMacros = str_replace('{clickid}', $clickId, $offerUrl ?? '');
 
@@ -1799,21 +2024,59 @@ if ($actionToPerfrom) {
         if ($landingType === 'local') {
             $landingDir = __DIR__ . '/landings/' . $landingIdToLog;
             if (file_exists($landingDir . '/index.php')) {
+                require_once __DIR__ . '/core/PhpLanding.php';
+                if (!PhpLanding::enabled($pdo)) {
+                    // The file is there but the feature is off — say so instead of
+                    // serving source or a blank page.
+                    http_response_code(503);
+                    header('Content-Type: text/plain; charset=utf-8');
+                    echo 'This landing is written in PHP, which is disabled on this tracker. '
+                        . 'Enable it in Settings -> General -> "Allow PHP landings" if you trust its code.';
+                    exit;
+                }
+
+                // A hung landing otherwise occupies a PHP-FPM worker until the
+                // server's own limit, which on a small box means the site stops
+                // answering. set_time_limit is disallowed inside the landing itself.
+                @set_time_limit(PhpLanding::timeout($pdo));
+
+                // Keitaro-compatible: the click is reachable as $rawClick->get('...').
+                $rawClick = new OrbitraRawClick(array_merge(
+                    $clickParams ?? [],
+                    [
+                        'click_id' => $clickId,
+                        'subid' => $clickId,
+                        'campaign_id' => $campaignId ?? null,
+                        'offer_id' => $offerIdToLog,
+                        'landing_id' => $landingIdToLog,
+                        'offer' => $offerUrlMacros,
+                    ]
+                ));
+
                 require $landingDir . '/index.php';
             } else if (file_exists($landingDir . '/index.html')) {
-                echo file_get_contents($landingDir . '/index.html');
+                echo applyLandingMacros(
+                    file_get_contents($landingDir . '/index.html'),
+                    $clickId,
+                    $offerIdToLog,
+                    $offerUrlMacros,
+                    $clickParams ?? [],
+                    issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
+                );
             } else {
                 die("Local landing files not found in " . $landingDir);
             }
             exit;
         } else if ($landingType === 'action') {
-            $payload = str_replace(
-                ['{clickid}', '{offer_id}', '{offer}'],
-                [$clickId, $offerIdToLog, $offerUrlMacros],
-                $landingAction
+            $payload = applyLandingMacros(
+                (string) $landingAction,
+                $clickId,
+                $offerIdToLog,
+                $offerUrlMacros,
+                $clickParams ?? [],
+                issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
             );
-            echo $payload;
-            exit;
+            performTrackerAction($landingActionType ?? '', $payload);
         } else if ($landingType === 'preload') {
             $url = str_replace(
                 ['{clickid}', '{offer_id}', '{offer}'],
@@ -1844,6 +2107,17 @@ if ($actionToPerfrom) {
     // redirect here. This makes "landing only" streams work without an offer.
     if (!$finalUrl && !empty($landingIdToLog) && !empty($landingUrl)) {
         $finalUrl = $landingUrl;
+
+        // A landing on another domain cannot read this tracker's cookies, so its
+        // offer link has nothing to identify the visitor with. Hand it a signed
+        // token (and the raw subid, which Keitaro-shaped snippets expect) that
+        // /?_lp=1 will accept in the cookie's place.
+        if ($landingType === 'redirect') {
+            $lpSecretOut = $settings['postback_key'] ?? 'orbitra_secret';
+            $finalUrl .= (strpos($finalUrl, '?') === false ? '?' : '&')
+                . '_subid=' . rawurlencode($clickId)
+                . '&_token=' . rawurlencode(issueLpToken($clickId, $lpSecretOut));
+        }
     }
 
     if (!$finalUrl) {
