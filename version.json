@@ -1,6 +1,6 @@
 {
-    "version": "0.9.6.6",
-    "release_notes": "New: creating and editing a landing directly from a campaign stream is no longer a 3-field quick form — it now matches the full landing editor (and Keitaro). Four type tabs (Local / Redirect / Preload / Action), group and status, a named folder for local landings, a redirect-method selector, the full Action block (send-to-campaign / 404 / text / HTML / nothing) with no more misleading placeholder in its input, and the offer-link hint with copy button and HTML/JS/PHP formats. A new Edit button next to each landing in the stream opens the existing landing in the same modal. Localised across all seven UI languages.",
+    "version": "0.9.6.7",
+    "release_notes": "Fixed: creating a local or action landing failed with a NOT NULL constraint violation on the url column when the caller did not send a URL — which both those landing types legitimately have none. The url field now defaults to an empty string instead of null, so the MCP tools, the old quick form and the new stream modal all save cleanly. Behind this, the stream's landing create/edit modal (v0.9.6.6) is unchanged.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-08-08"
 }

@@ -1,4 +1,4 @@
-# Orbitra v0.9.6.6 Tracker
+# Orbitra v0.9.6.7 Tracker
 
 **🌐 Язык: [English](README.md) | Русский**
 

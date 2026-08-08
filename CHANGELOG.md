@@ -7,6 +7,17 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.6.7] — 2026-08-08
+
+### Fixed
+- **Creating a local or action landing failed with a NOT NULL constraint
+  violation.** The `url` column on `landings` is `NOT NULL`, but local and
+  action landings legitimately have no URL, and `save_landing` passed `null`
+  through whenever the caller (the MCP tools, the old quick form, the new
+  stream modal) did not send one. The field now defaults to an empty string,
+  so every caller saves cleanly. Surfaced by the v0.9.6.6 stream modal, which
+  sends no URL for those two types.
+
 ## [0.9.6.6] — 2026-08-08
 
 ### Added

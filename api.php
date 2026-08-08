@@ -2152,7 +2152,15 @@ try {
                     $id = $data['id'] ?? null;
                     $groupId = !empty($data['group_id']) ? $data['group_id'] : null;
                     $type = $data['type'] ?? 'local';
-                    $url = $data['url'] ?? null;
+                    // url is NOT NULL in the schema, but only redirect/preload
+                    // actually use it — local/action landings have no URL. Coerce
+                    // an absent/null url to '' so any caller (MCP, the old quick
+                    // form, the new modal) saves cleanly instead of tripping the
+                    // NOT NULL constraint.
+                    $url = $data['url'] ?? '';
+                    if (!is_string($url)) {
+                        $url = '';
+                    }
                     $actionPayload = $data['action_payload'] ?? null;
                     $state = $data['state'] ?? 'active';
 
