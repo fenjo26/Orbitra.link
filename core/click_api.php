@@ -379,6 +379,14 @@ function orbitraClickApiV3(PDO $pdo): void
         return;
     }
 
+    // Apply ignore_prefetch consistently with the other click entry points. The
+    // helper is loaded by index.php for this path; require once keeps it safe if
+    // the file is ever reached another way.
+    if (!function_exists('orbitraMaybeDieOnPrefetch')) {
+        require_once __DIR__ . '/prefetch.php';
+    }
+    orbitraMaybeDieOnPrefetch($settings['ignore_prefetch'] ?? '1');
+
     $stmt = $pdo->prepare("SELECT * FROM campaigns WHERE is_archived = 0 AND token = ? LIMIT 1");
     $stmt->execute([$token]);
     $campaign = $stmt->fetch(PDO::FETCH_ASSOC);

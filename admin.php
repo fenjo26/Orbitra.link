@@ -1,4 +1,31 @@
 <?php
+// The IP access list runs before anything else: an unlisted client must never
+// learn the panel exists, so it does not see the login form, the secret-path
+// 404, or even the fact that this URL serves an admin surface. An empty list
+// (the default) leaves the panel open to everyone.
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/core/ip_access.php';
+if (!orbitraAdminIpAllowed($pdo)) {
+    http_response_code(403);
+    header('Content-Type: text/html; charset=utf-8');
+    echo "<!doctype html><html><head><title>403 Forbidden</title></head><body><h1>403 Forbidden</h1></body></html>";
+    exit;
+}
+
+// When a secret admin path is configured, the panel is only served through it.
+// A direct hit on /admin.php then answers 404 — otherwise the secret would be
+// pointless, since the default URL would still work.
+if (!defined('ORBITRA_ADMIN_ROUTED')) {
+    require_once __DIR__ . '/core/admin_path.php';
+
+    if (orbitraAdminPath($pdo) !== '') {
+        http_response_code(404);
+        header('Content-Type: text/html; charset=utf-8');
+        echo "<!doctype html><html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>";
+        exit;
+    }
+}
+
 require_once __DIR__ . '/session_bootstrap.php';
 orbitraBootstrapSession();
 

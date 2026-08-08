@@ -17,6 +17,7 @@
 chdir(dirname(__DIR__));
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../core/nginx_config.php';
 
 // Find domains with pending SSL (limit to 5 per run)
 $stmt = $pdo->prepare("SELECT id, name FROM domains WHERE ssl_status = 'pending' AND https_only = 1 LIMIT 5");
@@ -43,32 +44,25 @@ foreach ($domains as $domain) {
         continue;
     }
 
-    // Install SSL using Certbot
-    $cmd = "sudo certbot --nginx -n -d $domainName --agree-tos --register-unsafely-without-email 2>&1";
-    $output = shell_exec($cmd);
+    // Obtain the certificate. certonly + webroot on purpose: Certbot's nginx
+    // installer used to rewrite the site config, narrowing server_name to this
+    // domain and appending `return 404`, which is what cut off access by IP.
+    $output = shell_exec(orbitraCertbotCertonlyCommand($domainName) . ' 2>&1');
 
     if ($output === null) {
         $output = '';
     }
 
-    // Check if installation was successful
-    if (strpos($output, 'successfully') !== false ||
-        strpos($output, 'certificate was successfully deployed') !== false ||
-        file_exists($certPath)) {
-
+    if (orbitraCertbotSucceeded($output, $domainName)) {
         // Mark as installed
         $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL WHERE id = ?")->execute([$domainId]);
 
-        // Regenerate Nginx config to include HTTPS block for this domain
+        // Regenerate the config so this domain gets its HTTPS server block.
+        // Certbot deliberately no longer does this for us.
         try {
-            // Include the api.php file to get the updateNginxConfig function
-            if (file_exists(__DIR__ . '/../api.php')) {
-                // We need to call updateNginxConfig but can't include api.php directly
-                // because it will try to handle the request. Instead, reload nginx.
-                shell_exec('sudo systemctl reload nginx 2>&1');
-            }
+            orbitraSyncNginx($pdo);
         } catch (Throwable $e) {
-            // Ignore nginx reload errors
+            // Non-fatal: the certificate exists, the next sync will pick it up.
         }
     } else {
         // Mark as failed with error message

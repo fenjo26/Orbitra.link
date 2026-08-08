@@ -11,6 +11,22 @@ require_once 'config.php';
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
 }
+// Same prefetch guard as the main click path — a speculative request here would
+// otherwise be counted as a real click.
+require_once __DIR__ . '/core/prefetch.php';
+
+// ignore_prefetch is read before any campaign lookup so a dropped request never
+// touches the DB. Default is on, matching index.php.
+$ignorePrefetch = '1';
+try {
+    $prefetchRow = $pdo->query("SELECT value FROM settings WHERE key = 'ignore_prefetch' LIMIT 1")->fetchColumn();
+    if (is_string($prefetchRow)) {
+        $ignorePrefetch = $prefetchRow;
+    }
+} catch (\Throwable $e) {
+    // Default stands on a read error.
+}
+orbitraMaybeDieOnPrefetch($ignorePrefetch);
 
 $campaignId = $_GET['campaign_id'] ?? null;
 $token = $_GET['token'] ?? ($_GET['api_token'] ?? null);
