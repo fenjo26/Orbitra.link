@@ -8286,6 +8286,186 @@ try {
             ]);
             break;
 
+        // === COHORT ANALYSIS API ===
+        // Campaign-launch cohorts: campaigns grouped by creation month/quarter,
+        // metrics tracked across each cohort's lifetime periods (M0..Mn).
+        // GET, read-only — covered by the auth gates (lines 111-217), works
+        // with read-scoped API keys. Mirrors the trends/campaign_report shape.
+        case 'cohort':
+            $granularity = $_GET['granularity'] ?? 'month';
+            if (!in_array($granularity, ['month', 'quarter'], true)) {
+                $granularity = 'month';
+            }
+            $dateFrom = $_GET['date_from'] ?? date('Y-m-d', strtotime('-6 months'));
+            $dateTo   = $_GET['date_to']   ?? date('Y-m-d');
+            $groupId  = $_GET['group_id'] ?? '';
+            $maxPeriods = (int)($_GET['max_periods'] ?? 12);
+            if ($maxPeriods < 1)  { $maxPeriods = 12; }
+            if ($maxPeriods > 36) { $maxPeriods = 36; }
+            $filters = json_decode($_GET['filters'] ?? '[]', true) ?? [];
+
+            // Whitelisted filter fields (campaign_report pattern, injection-safe).
+            // Unlike trends (which interpolates $field raw), this maps user keys
+            // to explicit qualified columns.
+            $allowedFilterFields = [
+                'country_code' => 'cl.country_code',
+                'country'      => 'cl.country',
+                'device_type'  => 'cl.device_type',
+                'language'     => 'cl.language',
+                'browser'      => 'cl.browser',
+                'os'           => 'cl.os',
+                'campaign_id'  => 'cl.campaign_id',
+                'offer_id'     => 'cl.offer_id',
+                'source_id'    => 'cl.source_id',
+                'stream_id'    => 'cl.stream_id',
+                'ip'           => 'cl.ip',
+            ];
+            $allowedOperators = ['contains', 'not_contains', 'equals', 'not_equals', 'starts_with', 'ends_with'];
+
+            // Period expressions. cohort_label is the row key (human label);
+            // cohort_period / click_period are absolute integer period numbers
+            // whose difference is the lifetime period_index (0 = launch period).
+            // $dbTzOffset applied as the 3rd strftime arg (chart pattern, not
+            // the trends pattern which drops it).
+            if ($granularity === 'quarter') {
+                $cohortLabelExpr  = "strftime('%Y', c.created_at, '$dbTzOffset') || '-Q' || ((CAST(strftime('%m', c.created_at, '$dbTzOffset') AS INTEGER) - 1) / 3 + 1)";
+                $cohortPeriodExpr = "(CAST(strftime('%Y', c.created_at, '$dbTzOffset') AS INTEGER) * 4 + (CAST(strftime('%m', c.created_at, '$dbTzOffset') AS INTEGER) - 1) / 3 + 1)";
+                $clickPeriodExpr  = "(CAST(strftime('%Y', cl.created_at, '$dbTzOffset') AS INTEGER) * 4 + (CAST(strftime('%m', cl.created_at, '$dbTzOffset') AS INTEGER) - 1) / 3 + 1)";
+            } else {
+                $cohortLabelExpr  = "strftime('%Y-%m', c.created_at, '$dbTzOffset')";
+                $cohortPeriodExpr = "(CAST(strftime('%Y', c.created_at, '$dbTzOffset') AS INTEGER) * 12 + CAST(strftime('%m', c.created_at, '$dbTzOffset') AS INTEGER))";
+                $clickPeriodExpr  = "(CAST(strftime('%Y', cl.created_at, '$dbTzOffset') AS INTEGER) * 12 + CAST(strftime('%m', cl.created_at, '$dbTzOffset') AS INTEGER))";
+            }
+
+            // Money columns via schema-introspecting helpers (api.php:714-752).
+            // Never hardcode 'amount'/'payout' — the column name varies by schema.
+            $conversionsValueColumn = getConversionsValueColumn($pdo);
+            $cohortRevenueExpr = $conversionsValueColumn !== null
+                ? "(SELECT COALESCE(SUM($conversionsValueColumn), 0) FROM conversions WHERE click_id = cl.id)"
+                : "0";
+            $revenueRecordsValueColumn = getRevenueRecordsValueColumn($pdo);
+            $cohortRealRevenueExpr = $revenueRecordsValueColumn !== null
+                ? "(SELECT COALESCE(SUM($revenueRecordsValueColumn), 0) FROM revenue_records WHERE click_id = cl.id)"
+                : "0";
+
+            // WHERE: click date range + optional group_id + whitelisted filters.
+            $innerWhere = ["cl.created_at >= ?", "cl.created_at <= ?"];
+            $params = [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'];
+            if ($groupId !== '') {
+                $innerWhere[] = "c.group_id = ?";
+                $params[] = (int)$groupId;
+            }
+            foreach ($filters as $f) {
+                $field    = $f['field'] ?? '';
+                $operator = $f['operator'] ?? 'contains';
+                $value    = $f['value'] ?? '';
+                if (!$field || $value === '' || $value === null) { continue; }
+                if (!isset($allowedFilterFields[$field])) { continue; }
+                if (!in_array($operator, $allowedOperators, true)) { continue; }
+                $col = $allowedFilterFields[$field];
+                switch ($operator) {
+                    case 'contains':     $innerWhere[] = "$col LIKE ?";    $params[] = "%$value%"; break;
+                    case 'not_contains': $innerWhere[] = "$col NOT LIKE ?"; $params[] = "%$value%"; break;
+                    case 'equals':       $innerWhere[] = "$col = ?";        $params[] = $value;     break;
+                    case 'not_equals':   $innerWhere[] = "$col != ?";       $params[] = $value;     break;
+                    case 'starts_with':  $innerWhere[] = "$col LIKE ?";     $params[] = "$value%";  break;
+                    case 'ends_with':    $innerWhere[] = "$col LIKE ?";     $params[] = "%$value";  break;
+                }
+            }
+            $whereSQL = implode(' AND ', $innerWhere);
+
+            // Two-layer query (campaign_report pattern): inner computes per-click
+            // cohort assignment + revenue subqueries; outer aggregates by
+            // (cohort_label, period_index). period_index gated to [0, maxPeriods].
+            $periodDiff = "(click_period - cohort_period)";
+            $sql = "SELECT cohort_label, $periodDiff AS period_index,
+                       COUNT(click_id) AS clicks,
+                       COUNT(DISTINCT click_ip) AS unique_clicks,
+                       SUM(is_conversion) AS conversions,
+                       COALESCE(SUM(click_revenue), 0) AS revenue,
+                       COALESCE(SUM(click_real_revenue), 0) AS real_revenue,
+                       COALESCE(SUM(cost), 0) AS cost,
+                       COUNT(DISTINCT campaign_id) AS campaigns_active
+                    FROM (
+                        SELECT
+                            $cohortLabelExpr AS cohort_label,
+                            $cohortPeriodExpr AS cohort_period,
+                            $clickPeriodExpr AS click_period,
+                            c.id AS campaign_id,
+                            cl.id AS click_id, cl.ip AS click_ip,
+                            cl.is_conversion, cl.cost,
+                            $cohortRevenueExpr AS click_revenue,
+                            $cohortRealRevenueExpr AS click_real_revenue
+                        FROM clicks cl
+                        JOIN campaigns c ON cl.campaign_id = c.id
+                        WHERE $whereSQL
+                    )
+                    WHERE $periodDiff >= 0 AND $periodDiff <= $maxPeriods
+                    GROUP BY cohort_label, $periodDiff
+                    ORDER BY cohort_label ASC, period_index ASC";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            $rawRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Post-process derived metrics (campaign_report formulas, api.php:5769).
+            $rows = [];
+            foreach ($rawRows as $r) {
+                $clicks      = (int)$r['clicks'];
+                $conversions = (int)$r['conversions'];
+                $revenue     = (float)$r['revenue'];
+                $realRevenue = (float)$r['real_revenue'];
+                $cost        = (float)$r['cost'];
+                $profit      = $revenue - $cost;
+                $realProfit  = $realRevenue - $cost;
+                $rows[] = [
+                    'cohort_label'     => $r['cohort_label'],
+                    'period_index'     => (int)$r['period_index'],
+                    'clicks'           => $clicks,
+                    'unique_clicks'    => (int)$r['unique_clicks'],
+                    'conversions'      => $conversions,
+                    'revenue'          => round($revenue, 2),
+                    'real_revenue'     => round($realRevenue, 2),
+                    'cost'             => round($cost, 2),
+                    'profit'           => round($profit, 2),
+                    'real_profit'      => round($realProfit, 2),
+                    'cr'      => $clicks > 0 ? round(($conversions / $clicks) * 100, 2) : 0,
+                    'roi'     => $cost > 0 ? round(($profit / $cost) * 100, 2) : ($profit > 0 ? 100 : 0),
+                    'real_roi'=> $cost > 0 ? round(($realProfit / $cost) * 100, 2) : ($realProfit > 0 ? 100 : 0),
+                    'campaigns_active' => (int)$r['campaigns_active'],
+                ];
+            }
+
+            // Cohort denominator: campaigns launched per cohort (independent of
+            // the click date range, so a cohort with traffic only later still
+            // shows its full launch count).
+            $launchedParams = [];
+            $launchedSql = "SELECT $cohortLabelExpr AS cohort_label, COUNT(*) AS launched
+                            FROM campaigns c
+                            WHERE c.created_at IS NOT NULL";
+            if ($groupId !== '') {
+                $launchedSql .= " AND c.group_id = ?";
+                $launchedParams[] = (int)$groupId;
+            }
+            $launchedSql .= " GROUP BY cohort_label";
+            $launchedStmt = $pdo->prepare($launchedSql);
+            $launchedStmt->execute($launchedParams);
+            $launchedMap = [];
+            foreach ($launchedStmt->fetchAll(PDO::FETCH_ASSOC) as $lr) {
+                $launchedMap[$lr['cohort_label']] = (int)$lr['launched'];
+            }
+
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'granularity' => $granularity,
+                    'max_period'  => $maxPeriods,
+                    'rows'        => $rows,
+                    'launched'    => $launchedMap,
+                ]
+            ]);
+            break;
+
         case 'run_migration':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);

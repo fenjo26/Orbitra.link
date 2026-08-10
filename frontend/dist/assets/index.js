@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1A = [
+const __iconNode$1C = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$1A = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1A);
-const __iconNode$1z = [
+const Activity = createLucideIcon("activity", __iconNode$1C);
+const __iconNode$1B = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1z);
-const __iconNode$1y = [
+const Archive = createLucideIcon("archive", __iconNode$1B);
+const __iconNode$1A = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1y);
-const __iconNode$1x = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1A);
+const __iconNode$1z = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1x);
-const __iconNode$1w = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1z);
+const __iconNode$1y = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1w);
-const __iconNode$1v = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1y);
+const __iconNode$1x = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$1v = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1v);
-const __iconNode$1u = [
+const BellOff = createLucideIcon("bell-off", __iconNode$1x);
+const __iconNode$1w = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$1u = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1u);
-const __iconNode$1t = [
+const Bell = createLucideIcon("bell", __iconNode$1w);
+const __iconNode$1v = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1t);
-const __iconNode$1s = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$1v);
+const __iconNode$1u = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1s);
-const __iconNode$1r = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1u);
+const __iconNode$1t = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1r);
-const __iconNode$1q = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1t);
+const __iconNode$1s = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$1q = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1q);
-const __iconNode$1p = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1p);
-const __iconNode$1o = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1o);
-const __iconNode$1n = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1n);
-const __iconNode$1m = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1m);
-const __iconNode$1l = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1l);
-const __iconNode$1k = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1s);
+const __iconNode$1r = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1r);
+const __iconNode$1q = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1q);
+const __iconNode$1p = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1p);
+const __iconNode$1o = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1o);
+const __iconNode$1n = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1n);
+const __iconNode$1m = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1k);
-const __iconNode$1j = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1m);
+const __iconNode$1l = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1j);
-const __iconNode$1i = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1l);
+const __iconNode$1k = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1i);
-const __iconNode$1h = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1k);
+const __iconNode$1j = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1h);
-const __iconNode$1g = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1j);
+const __iconNode$1i = [
   [
     "path",
     {
@@ -15240,35 +15240,35 @@ const __iconNode$1g = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1g);
-const __iconNode$1f = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1i);
+const __iconNode$1h = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1f);
-const __iconNode$1e = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1h);
+const __iconNode$1g = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1e);
-const __iconNode$1d = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1g);
+const __iconNode$1f = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1d);
-const __iconNode$1c = [
+const Clock = createLucideIcon("clock", __iconNode$1f);
+const __iconNode$1e = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1c);
-const __iconNode$1b = [
+const Code = createLucideIcon("code", __iconNode$1e);
+const __iconNode$1d = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1b);
-const __iconNode$1a = [
+const Copy = createLucideIcon("copy", __iconNode$1d);
+const __iconNode$1c = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15284,25 +15284,25 @@ const __iconNode$1a = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1a);
-const __iconNode$19 = [
+const Cpu = createLucideIcon("cpu", __iconNode$1c);
+const __iconNode$1b = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$19);
-const __iconNode$18 = [
+const Database = createLucideIcon("database", __iconNode$1b);
+const __iconNode$1a = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$18);
-const __iconNode$17 = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1a);
+const __iconNode$19 = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$17);
-const __iconNode$16 = [
+const Download = createLucideIcon("download", __iconNode$19);
+const __iconNode$18 = [
   [
     "path",
     {
@@ -15311,20 +15311,20 @@ const __iconNode$16 = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$16);
-const __iconNode$15 = [
+const Droplet = createLucideIcon("droplet", __iconNode$18);
+const __iconNode$17 = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$15);
-const __iconNode$14 = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$17);
+const __iconNode$16 = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$14);
-const __iconNode$13 = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$16);
+const __iconNode$15 = [
   [
     "path",
     {
@@ -15342,8 +15342,8 @@ const __iconNode$13 = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$13);
-const __iconNode$12 = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$15);
+const __iconNode$14 = [
   [
     "path",
     {
@@ -15353,8 +15353,8 @@ const __iconNode$12 = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$12);
-const __iconNode$11 = [
+const Eye = createLucideIcon("eye", __iconNode$14);
+const __iconNode$13 = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15365,8 +15365,8 @@ const __iconNode$11 = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$11);
-const __iconNode$10 = [
+const FileStack = createLucideIcon("file-stack", __iconNode$13);
+const __iconNode$12 = [
   [
     "path",
     {
@@ -15379,8 +15379,8 @@ const __iconNode$10 = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$10);
-const __iconNode$$ = [
+const FileText = createLucideIcon("file-text", __iconNode$12);
+const __iconNode$11 = [
   [
     "path",
     {
@@ -15389,14 +15389,22 @@ const __iconNode$$ = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$$);
-const __iconNode$_ = [
+const Funnel = createLucideIcon("funnel", __iconNode$11);
+const __iconNode$10 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$_);
-const __iconNode$Z = [
+const Globe = createLucideIcon("globe", __iconNode$10);
+const __iconNode$$ = [
+  ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
+  ["path", { d: "M3 9h18", key: "1pudct" }],
+  ["path", { d: "M3 15h18", key: "5xshup" }],
+  ["path", { d: "M9 3v18", key: "fh3hqa" }],
+  ["path", { d: "M15 3v18", key: "14nvp0" }]
+];
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$$);
+const __iconNode$_ = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15408,8 +15416,8 @@ const __iconNode$Z = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$Z);
-const __iconNode$Y = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$_);
+const __iconNode$Z = [
   [
     "path",
     {
@@ -15418,20 +15426,20 @@ const __iconNode$Y = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$Y);
-const __iconNode$X = [
+const Heart = createLucideIcon("heart", __iconNode$Z);
+const __iconNode$Y = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$X);
-const __iconNode$W = [
+const Image = createLucideIcon("image", __iconNode$Y);
+const __iconNode$X = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$W);
-const __iconNode$V = [
+const Info = createLucideIcon("info", __iconNode$X);
+const __iconNode$W = [
   [
     "path",
     {
@@ -15441,21 +15449,21 @@ const __iconNode$V = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$V);
-const __iconNode$U = [
+const KeyRound = createLucideIcon("key-round", __iconNode$W);
+const __iconNode$V = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$U);
-const __iconNode$T = [
+const Key = createLucideIcon("key", __iconNode$V);
+const __iconNode$U = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$T);
-const __iconNode$S = [
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$U);
+const __iconNode$T = [
   [
     "path",
     {
@@ -15466,19 +15474,19 @@ const __iconNode$S = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$S);
-const __iconNode$R = [
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$T);
+const __iconNode$S = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-const Link2 = createLucideIcon("link-2", __iconNode$R);
-const __iconNode$Q = [
+const Link2 = createLucideIcon("link-2", __iconNode$S);
+const __iconNode$R = [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ];
-const Link = createLucideIcon("link", __iconNode$Q);
-const __iconNode$P = [
+const Link = createLucideIcon("link", __iconNode$R);
+const __iconNode$Q = [
   ["path", { d: "M12 2v4", key: "3427ic" }],
   ["path", { d: "m16.2 7.8 2.9-2.9", key: "r700ao" }],
   ["path", { d: "M18 12h4", key: "wj9ykh" }],
@@ -15488,24 +15496,24 @@ const __iconNode$P = [
   ["path", { d: "M2 12h4", key: "j09sii" }],
   ["path", { d: "m4.9 4.9 2.9 2.9", key: "giyufr" }]
 ];
-const Loader = createLucideIcon("loader", __iconNode$P);
-const __iconNode$O = [
+const Loader = createLucideIcon("loader", __iconNode$Q);
+const __iconNode$P = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$O);
-const __iconNode$N = [
+const Lock = createLucideIcon("lock", __iconNode$P);
+const __iconNode$O = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$N);
-const __iconNode$M = [
+const LogOut = createLucideIcon("log-out", __iconNode$O);
+const __iconNode$N = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Mail = createLucideIcon("mail", __iconNode$M);
-const __iconNode$L = [
+const Mail = createLucideIcon("mail", __iconNode$N);
+const __iconNode$M = [
   [
     "path",
     {
@@ -15515,8 +15523,8 @@ const __iconNode$L = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$L);
-const __iconNode$K = [
+const MapPin = createLucideIcon("map-pin", __iconNode$M);
+const __iconNode$L = [
   [
     "path",
     {
@@ -15527,14 +15535,14 @@ const __iconNode$K = [
   ["path", { d: "M15 5.764v15", key: "1pn4in" }],
   ["path", { d: "M9 3.236v15", key: "1uimfh" }]
 ];
-const Map$1 = createLucideIcon("map", __iconNode$K);
-const __iconNode$J = [
+const Map$1 = createLucideIcon("map", __iconNode$L);
+const __iconNode$K = [
   ["path", { d: "M4 5h16", key: "1tepv9" }],
   ["path", { d: "M4 12h16", key: "1lakjw" }],
   ["path", { d: "M4 19h16", key: "1djgab" }]
 ];
-const Menu = createLucideIcon("menu", __iconNode$J);
-const __iconNode$I = [
+const Menu = createLucideIcon("menu", __iconNode$K);
+const __iconNode$J = [
   [
     "path",
     {
@@ -15543,8 +15551,8 @@ const __iconNode$I = [
     }
   ]
 ];
-const MessageCircle = createLucideIcon("message-circle", __iconNode$I);
-const __iconNode$H = [
+const MessageCircle = createLucideIcon("message-circle", __iconNode$J);
+const __iconNode$I = [
   [
     "path",
     {
@@ -15553,14 +15561,14 @@ const __iconNode$H = [
     }
   ]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$H);
-const __iconNode$G = [
+const MessageSquare = createLucideIcon("message-square", __iconNode$I);
+const __iconNode$H = [
   ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
   ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
   ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
 ];
-const Monitor = createLucideIcon("monitor", __iconNode$G);
-const __iconNode$F = [
+const Monitor = createLucideIcon("monitor", __iconNode$H);
+const __iconNode$G = [
   [
     "path",
     {
@@ -15569,8 +15577,8 @@ const __iconNode$F = [
     }
   ]
 ];
-const Moon = createLucideIcon("moon", __iconNode$F);
-const __iconNode$E = [
+const Moon = createLucideIcon("moon", __iconNode$G);
+const __iconNode$F = [
   [
     "path",
     {
@@ -15583,8 +15591,8 @@ const __iconNode$E = [
   ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
   ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
 ];
-const Palette = createLucideIcon("palette", __iconNode$E);
-const __iconNode$D = [
+const Palette = createLucideIcon("palette", __iconNode$F);
+const __iconNode$E = [
   ["path", { d: "M13 21h8", key: "1jsn5i" }],
   [
     "path",
@@ -15594,8 +15602,8 @@ const __iconNode$D = [
     }
   ]
 ];
-const PenLine = createLucideIcon("pen-line", __iconNode$D);
-const __iconNode$C = [
+const PenLine = createLucideIcon("pen-line", __iconNode$E);
+const __iconNode$D = [
   [
     "path",
     {
@@ -15604,8 +15612,8 @@ const __iconNode$C = [
     }
   ]
 ];
-const Pen = createLucideIcon("pen", __iconNode$C);
-const __iconNode$B = [
+const Pen = createLucideIcon("pen", __iconNode$D);
+const __iconNode$C = [
   [
     "path",
     {
@@ -15614,8 +15622,8 @@ const __iconNode$B = [
     }
   ]
 ];
-const Play = createLucideIcon("play", __iconNode$B);
-const __iconNode$A = [
+const Play = createLucideIcon("play", __iconNode$C);
+const __iconNode$B = [
   ["path", { d: "M12 22v-5", key: "1ega77" }],
   ["path", { d: "M15 8V2", key: "18g5xt" }],
   [
@@ -15624,30 +15632,30 @@ const __iconNode$A = [
   ],
   ["path", { d: "M9 8V2", key: "14iosj" }]
 ];
-const Plug = createLucideIcon("plug", __iconNode$A);
-const __iconNode$z = [
+const Plug = createLucideIcon("plug", __iconNode$B);
+const __iconNode$A = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ];
-const Plus = createLucideIcon("plus", __iconNode$z);
-const __iconNode$y = [
+const Plus = createLucideIcon("plus", __iconNode$A);
+const __iconNode$z = [
   ["path", { d: "M12 2v10", key: "mnfbl" }],
   ["path", { d: "M18.4 6.6a9 9 0 1 1-12.77.04", key: "obofu9" }]
 ];
-const Power = createLucideIcon("power", __iconNode$y);
-const __iconNode$x = [
+const Power = createLucideIcon("power", __iconNode$z);
+const __iconNode$y = [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
   ["path", { d: "M8 16H3v5", key: "1cv678" }]
 ];
-const RefreshCw = createLucideIcon("refresh-cw", __iconNode$x);
-const __iconNode$w = [
+const RefreshCw = createLucideIcon("refresh-cw", __iconNode$y);
+const __iconNode$x = [
   ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
   ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
 ];
-const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$w);
-const __iconNode$v = [
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$x);
+const __iconNode$w = [
   [
     "path",
     {
@@ -15658,13 +15666,13 @@ const __iconNode$v = [
   ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
   ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
 ];
-const Save = createLucideIcon("save", __iconNode$v);
-const __iconNode$u = [
+const Save = createLucideIcon("save", __iconNode$w);
+const __iconNode$v = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
-const Search = createLucideIcon("search", __iconNode$u);
-const __iconNode$t = [
+const Search = createLucideIcon("search", __iconNode$v);
+const __iconNode$u = [
   [
     "path",
     {
@@ -15674,8 +15682,8 @@ const __iconNode$t = [
   ],
   ["path", { d: "m21.854 2.147-10.94 10.939", key: "12cjpa" }]
 ];
-const Send = createLucideIcon("send", __iconNode$t);
-const __iconNode$s = [
+const Send = createLucideIcon("send", __iconNode$u);
+const __iconNode$t = [
   [
     "path",
     {
@@ -15694,22 +15702,22 @@ const __iconNode$s = [
   ["path", { d: "M6 18h.01", key: "uhywen" }],
   ["path", { d: "m13 6-4 6h6l-4 6", key: "14hqih" }]
 ];
-const ServerCrash = createLucideIcon("server-crash", __iconNode$s);
-const __iconNode$r = [
+const ServerCrash = createLucideIcon("server-crash", __iconNode$t);
+const __iconNode$s = [
   ["rect", { width: "20", height: "8", x: "2", y: "2", rx: "2", ry: "2", key: "ngkwjq" }],
   ["rect", { width: "20", height: "8", x: "2", y: "14", rx: "2", ry: "2", key: "iecqi9" }],
   ["line", { x1: "6", x2: "6.01", y1: "6", y2: "6", key: "16zg32" }],
   ["line", { x1: "6", x2: "6.01", y1: "18", y2: "18", key: "nzw8ys" }]
 ];
-const Server = createLucideIcon("server", __iconNode$r);
-const __iconNode$q = [
+const Server = createLucideIcon("server", __iconNode$s);
+const __iconNode$r = [
   ["path", { d: "M14 17H5", key: "gfn3mx" }],
   ["path", { d: "M19 7h-9", key: "6i9tg" }],
   ["circle", { cx: "17", cy: "17", r: "3", key: "18b49y" }],
   ["circle", { cx: "7", cy: "7", r: "3", key: "dfmy0x" }]
 ];
-const Settings2 = createLucideIcon("settings-2", __iconNode$q);
-const __iconNode$p = [
+const Settings2 = createLucideIcon("settings-2", __iconNode$r);
+const __iconNode$q = [
   [
     "path",
     {
@@ -15719,8 +15727,8 @@ const __iconNode$p = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Settings$1 = createLucideIcon("settings", __iconNode$p);
-const __iconNode$o = [
+const Settings$1 = createLucideIcon("settings", __iconNode$q);
+const __iconNode$p = [
   [
     "path",
     {
@@ -15731,8 +15739,8 @@ const __iconNode$o = [
   ["path", { d: "M12 8v4", key: "1got3b" }],
   ["path", { d: "M12 16h.01", key: "1drbdi" }]
 ];
-const ShieldAlert = createLucideIcon("shield-alert", __iconNode$o);
-const __iconNode$n = [
+const ShieldAlert = createLucideIcon("shield-alert", __iconNode$p);
+const __iconNode$o = [
   [
     "path",
     {
@@ -15742,8 +15750,8 @@ const __iconNode$n = [
   ],
   ["path", { d: "m4.243 5.21 14.39 12.472", key: "1c9a7c" }]
 ];
-const ShieldBan = createLucideIcon("shield-ban", __iconNode$n);
-const __iconNode$m = [
+const ShieldBan = createLucideIcon("shield-ban", __iconNode$o);
+const __iconNode$n = [
   [
     "path",
     {
@@ -15752,13 +15760,13 @@ const __iconNode$m = [
     }
   ]
 ];
-const Shield = createLucideIcon("shield", __iconNode$m);
-const __iconNode$l = [
+const Shield = createLucideIcon("shield", __iconNode$n);
+const __iconNode$m = [
   ["rect", { width: "14", height: "20", x: "5", y: "2", rx: "2", ry: "2", key: "1yt0o3" }],
   ["path", { d: "M12 18h.01", key: "mhygvu" }]
 ];
-const Smartphone = createLucideIcon("smartphone", __iconNode$l);
-const __iconNode$k = [
+const Smartphone = createLucideIcon("smartphone", __iconNode$m);
+const __iconNode$l = [
   [
     "path",
     {
@@ -15770,8 +15778,8 @@ const __iconNode$k = [
   ["path", { d: "M22 4h-4", key: "gwowj6" }],
   ["circle", { cx: "4", cy: "20", r: "2", key: "6kqj1y" }]
 ];
-const Sparkles = createLucideIcon("sparkles", __iconNode$k);
-const __iconNode$j = [
+const Sparkles = createLucideIcon("sparkles", __iconNode$l);
+const __iconNode$k = [
   ["path", { d: "M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7", key: "1m0v6g" }],
   [
     "path",
@@ -15781,14 +15789,14 @@ const __iconNode$j = [
     }
   ]
 ];
-const SquarePen = createLucideIcon("square-pen", __iconNode$j);
-const __iconNode$i = [
+const SquarePen = createLucideIcon("square-pen", __iconNode$k);
+const __iconNode$j = [
   ["path", { d: "m7 11 2-2-2-2", key: "1lz0vl" }],
   ["path", { d: "M11 13h4", key: "1p7l4v" }],
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }]
 ];
-const SquareTerminal = createLucideIcon("square-terminal", __iconNode$i);
-const __iconNode$h = [
+const SquareTerminal = createLucideIcon("square-terminal", __iconNode$j);
+const __iconNode$i = [
   ["circle", { cx: "12", cy: "12", r: "4", key: "4exip2" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
@@ -15799,7 +15807,17 @@ const __iconNode$h = [
   ["path", { d: "m6.34 17.66-1.41 1.41", key: "1m8zz5" }],
   ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }]
 ];
-const Sun = createLucideIcon("sun", __iconNode$h);
+const Sun = createLucideIcon("sun", __iconNode$i);
+const __iconNode$h = [
+  [
+    "path",
+    {
+      d: "M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18",
+      key: "gugj83"
+    }
+  ]
+];
+const Table2 = createLucideIcon("table-2", __iconNode$h);
 const __iconNode$g = [
   ["path", { d: "M12 3v18", key: "108xh3" }],
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
@@ -16108,8 +16126,50 @@ const ru = {
     "system": "Система",
     "logout": "Выйти",
     "trends": "Тренды",
+    "analytics": "Аналитика",
     "domains": "Домены",
     "backorder": "Backorder"
+  },
+  "analytics": {
+    "trends": "Тренд",
+    "cohort": "Когорта"
+  },
+  "cohort": {
+    "bannerTitle": "Когорты кампаний",
+    "banner": "Кампании группируются по месяцу или кварталу запуска, а каждый столбец показывает, как ведёт себя когорта по мере взросления. Стабильная общая прибыль, которую держат только старые когорты — сигнал, что свежие запуски уже не заводятся.",
+    "granularity": "Гранулярность:",
+    "month": "Месяц",
+    "quarter": "Квартал",
+    "metric": "Метрика:",
+    "revenue": "Доход",
+    "realRevenue": "Реальный доход",
+    "clicks": "Клики",
+    "conversions": "Конверсии",
+    "cost": "Расход",
+    "profit": "Прибыль",
+    "roi": "ROI",
+    "realRoi": "Реальный ROI",
+    "cr": "CR",
+    "campaignsActive": "Активные кампании",
+    "launched": "Запущено",
+    "cohortLabel": "Когорта",
+    "period": "Период",
+    "loading": "Загрузка...",
+    "noData": "Нет данных для отображения",
+    "noDataTitle": "Нет данных",
+    "noDataText": "Нет когортных данных за выбранный период. Попробуйте расширить диапазон дат.",
+    "matrixTitle": "Матрица когорт",
+    "summaryTitle": "Сводка по когортам",
+    "totalClicks": "Всего кликов",
+    "totalRevenue": "Всего доход",
+    "totalProfit": "Всего прибыль",
+    "avgRoi": "Средний ROI",
+    "campaigns": "Кампании",
+    "firstSeen": "Первый период",
+    "lastSeen": "Последний период",
+    "exportCsv": "Экспорт CSV",
+    "helpMetric": "Выберите, какая метрика заполняет ячейки теплокарты.",
+    "helpGranularity": "Группировать когорты по месяцам или по кварталам."
   },
   "adminMenu": {
     "mcp": "ИИ / MCP",
@@ -18232,8 +18292,50 @@ const en = {
     "system": "System",
     "logout": "Logout",
     "trends": "Trends",
+    "analytics": "Analytics",
     "domains": "Domains",
     "backorder": "Backorder"
+  },
+  "analytics": {
+    "trends": "Trend",
+    "cohort": "Cohort"
+  },
+  "cohort": {
+    "bannerTitle": "Campaign cohorts",
+    "banner": "Campaigns are grouped by the month or quarter they were created, and each column shows how a cohort performs as it ages. A stable total held up only by old cohorts is a warning that recent launches no longer take off.",
+    "granularity": "Granularity:",
+    "month": "Month",
+    "quarter": "Quarter",
+    "metric": "Metric:",
+    "revenue": "Revenue",
+    "realRevenue": "Real revenue",
+    "clicks": "Clicks",
+    "conversions": "Conversions",
+    "cost": "Cost",
+    "profit": "Profit",
+    "roi": "ROI",
+    "realRoi": "Real ROI",
+    "cr": "CR",
+    "campaignsActive": "Active campaigns",
+    "launched": "Launched",
+    "cohortLabel": "Cohort",
+    "period": "Period",
+    "loading": "Loading...",
+    "noData": "No data to display",
+    "noDataTitle": "No data",
+    "noDataText": "No cohort data for the selected period. Try widening the date range.",
+    "matrixTitle": "Cohort matrix",
+    "summaryTitle": "Cohort summary",
+    "totalClicks": "Total clicks",
+    "totalRevenue": "Total revenue",
+    "totalProfit": "Total profit",
+    "avgRoi": "Avg ROI",
+    "campaigns": "Campaigns",
+    "firstSeen": "First active",
+    "lastSeen": "Last active",
+    "exportCsv": "Export CSV",
+    "helpMetric": "Pick which metric fills the heatmap cells.",
+    "helpGranularity": "Group cohorts by month or by quarter."
   },
   "adminMenu": {
     "mcp": "AI / MCP",
@@ -20356,8 +20458,50 @@ const uk = {
     "system": "система",
     "logout": "Вийти",
     "trends": "Тенденції",
+    "analytics": "Аналітика",
     "domains": "Домени",
     "backorder": "Замовлення"
+  },
+  "analytics": {
+    "trends": "Тренд",
+    "cohort": "Когорта"
+  },
+  "cohort": {
+    "bannerTitle": "Когорти кампаній",
+    "banner": "Кампанії групуються за місяцем або кварталом створення, а кожен стовпець показує, як поводиться когорта з віком. Стабільний загальний прибуток, який тримають лише старі когорти — сигнал, що свіжі запуски вже не заводяться.",
+    "granularity": "Гранулярність:",
+    "month": "Місяць",
+    "quarter": "Квартал",
+    "metric": "Метрика:",
+    "revenue": "Дохід",
+    "realRevenue": "Реальний дохід",
+    "clicks": "Кліки",
+    "conversions": "Конверсії",
+    "cost": "Витрати",
+    "profit": "Прибуток",
+    "roi": "ROI",
+    "realRoi": "Реальний ROI",
+    "cr": "CR",
+    "campaignsActive": "Активні кампанії",
+    "launched": "Запущено",
+    "cohortLabel": "Когорта",
+    "period": "Період",
+    "loading": "Завантаження...",
+    "noData": "Немає даних для відображення",
+    "noDataTitle": "Немає даних",
+    "noDataText": "Немає когортних даних за обраний період. Спробуйте розширити діапазон дат.",
+    "matrixTitle": "Матриця когорт",
+    "summaryTitle": "Зведення за когортами",
+    "totalClicks": "Усього кліків",
+    "totalRevenue": "Усього дохід",
+    "totalProfit": "Усього прибуток",
+    "avgRoi": "Середній ROI",
+    "campaigns": "Кампанії",
+    "firstSeen": "Перший період",
+    "lastSeen": "Останній період",
+    "exportCsv": "Експорт CSV",
+    "helpMetric": "Оберіть, яка метрика заповнює клітинки теплокарти.",
+    "helpGranularity": "Групувати когорти за місяцями чи за кварталами."
   },
   "adminMenu": {
     "mcp": "ІІ / MCP",
@@ -22480,8 +22624,50 @@ const es = {
     "system": "Sistema",
     "logout": "Cerrar sesión",
     "trends": "Tendencias",
+    "analytics": "Analítica",
     "domains": "Dominios",
     "backorder": "Pedido pendiente"
+  },
+  "analytics": {
+    "trends": "Tendencia",
+    "cohort": "Cohorte"
+  },
+  "cohort": {
+    "bannerTitle": "Cohortes de campañas",
+    "banner": "Las campañas se agrupan por el mes o trimestre de creación y cada columna muestra cómo se comporta una cohorte a medida que envejece. Un beneficio total estable sostenido solo por cohortes antiguas es una señal de que los lanzamientos recientes ya no despegan.",
+    "granularity": "Granularidad:",
+    "month": "Mes",
+    "quarter": "Trimestre",
+    "metric": "Métrica:",
+    "revenue": "Ingresos",
+    "realRevenue": "Ingresos reales",
+    "clicks": "Clics",
+    "conversions": "Conversiones",
+    "cost": "Coste",
+    "profit": "Beneficio",
+    "roi": "ROI",
+    "realRoi": "ROI real",
+    "cr": "CR",
+    "campaignsActive": "Campañas activas",
+    "launched": "Lanzadas",
+    "cohortLabel": "Cohorte",
+    "period": "Periodo",
+    "loading": "Cargando...",
+    "noData": "No hay datos para mostrar",
+    "noDataTitle": "Sin datos",
+    "noDataText": "No hay datos de cohorte para el periodo seleccionado. Prueba a ampliar el rango de fechas.",
+    "matrixTitle": "Matriz de cohortes",
+    "summaryTitle": "Resumen de cohortes",
+    "totalClicks": "Clics totales",
+    "totalRevenue": "Ingresos totales",
+    "totalProfit": "Beneficio total",
+    "avgRoi": "ROI medio",
+    "campaigns": "Campañas",
+    "firstSeen": "Primer periodo activo",
+    "lastSeen": "Último periodo activo",
+    "exportCsv": "Exportar CSV",
+    "helpMetric": "Elige qué métrica rellena las celdas del mapa de calor.",
+    "helpGranularity": "Agrupar cohortes por mes o por trimestre."
   },
   "adminMenu": {
     "mcp": "IA / MCP",
@@ -24604,8 +24790,50 @@ const zh = {
     "system": "系统",
     "logout": "退出",
     "trends": "趋势",
+    "analytics": "分析",
     "domains": "域名",
     "backorder": "延期交货"
+  },
+  "analytics": {
+    "trends": "趋势",
+    "cohort": "队列"
+  },
+  "cohort": {
+    "bannerTitle": "广告系列队列",
+    "banner": "广告系列按创建月份或季度分组，每一列显示一个队列随时间推移的表现。总利润稳定但仅由老队列支撑，是近期投放已不再起飞的信号。",
+    "granularity": "粒度：",
+    "month": "月",
+    "quarter": "季度",
+    "metric": "指标：",
+    "revenue": "收入",
+    "realRevenue": "真实收入",
+    "clicks": "点击",
+    "conversions": "转化",
+    "cost": "成本",
+    "profit": "利润",
+    "roi": "ROI",
+    "realRoi": "真实 ROI",
+    "cr": "CR",
+    "campaignsActive": "活跃广告系列",
+    "launched": "已启动",
+    "cohortLabel": "队列",
+    "period": "周期",
+    "loading": "加载中...",
+    "noData": "暂无数据可显示",
+    "noDataTitle": "无数据",
+    "noDataText": "所选周期暂无队列数据。请尝试扩大日期范围。",
+    "matrixTitle": "队列矩阵",
+    "summaryTitle": "队列汇总",
+    "totalClicks": "总点击",
+    "totalRevenue": "总收入",
+    "totalProfit": "总利润",
+    "avgRoi": "平均 ROI",
+    "campaigns": "广告系列",
+    "firstSeen": "首个活跃周期",
+    "lastSeen": "最后活跃周期",
+    "exportCsv": "导出 CSV",
+    "helpMetric": "选择填充热力图单元格的指标。",
+    "helpGranularity": "按月份或季度对队列进行分组。"
   },
   "adminMenu": {
     "mcp": "AI / MCP",
@@ -26728,8 +26956,50 @@ const fr = {
     "system": "Système",
     "logout": "Déconnexion",
     "trends": "Tendances",
+    "analytics": "Analytique",
     "domains": "Domaines",
     "backorder": "Recommandation"
+  },
+  "analytics": {
+    "trends": "Tendance",
+    "cohort": "Cohorte"
+  },
+  "cohort": {
+    "bannerTitle": "Cohortes de campagnes",
+    "banner": "Les campagnes sont regroupées par mois ou trimestre de création, et chaque colonne montre comment une cohorte se comporte en vieillissant. Un profit total stable, maintenu uniquement par d'anciennes cohortes, est un signal que les lancements récents ne décollent plus.",
+    "granularity": "Granularité :",
+    "month": "Mois",
+    "quarter": "Trimestre",
+    "metric": "Métrique :",
+    "revenue": "Revenus",
+    "realRevenue": "Revenus réels",
+    "clicks": "Clics",
+    "conversions": "Conversions",
+    "cost": "Coût",
+    "profit": "Bénéfice",
+    "roi": "ROI",
+    "realRoi": "ROI réel",
+    "cr": "CR",
+    "campaignsActive": "Campagnes actives",
+    "launched": "Lancées",
+    "cohortLabel": "Cohorte",
+    "period": "Période",
+    "loading": "Chargement...",
+    "noData": "Aucune donnée à afficher",
+    "noDataTitle": "Aucune donnée",
+    "noDataText": "Aucune donnée de cohorte pour la période sélectionnée. Essayez d'élargir la plage de dates.",
+    "matrixTitle": "Matrice des cohortes",
+    "summaryTitle": "Résumé des cohortes",
+    "totalClicks": "Total des clics",
+    "totalRevenue": "Total des revenus",
+    "totalProfit": "Total des bénéfices",
+    "avgRoi": "ROI moyen",
+    "campaigns": "Campagnes",
+    "firstSeen": "Première période active",
+    "lastSeen": "Dernière période active",
+    "exportCsv": "Exporter CSV",
+    "helpMetric": "Choisissez la métrique qui remplit les cellules de la carte de chaleur.",
+    "helpGranularity": "Regrouper les cohortes par mois ou par trimestre."
   },
   "adminMenu": {
     "mcp": "IA / MCP",
@@ -28854,8 +29124,50 @@ const de = {
     "system": "System",
     "logout": "Abmelden",
     "trends": "Trends",
+    "analytics": "Analytik",
     "domains": "Domains",
     "backorder": "Backorder"
+  },
+  "analytics": {
+    "trends": "Trend",
+    "cohort": "Kohorte"
+  },
+  "cohort": {
+    "bannerTitle": "Kampagnen-Kohorten",
+    "banner": "Kampagnen werden nach Erstellungsmonat oder Quartal gruppiert, und jede Spalte zeigt, wie sich eine Kohorte mit zunehmendem Alter verhält. Ein stabiler Gesamtgewinn, der nur von alten Kohorten getragen wird, ist ein Signal dafür, dass frische Starts nicht mehr anlaufen.",
+    "granularity": "Granularität:",
+    "month": "Monat",
+    "quarter": "Quartal",
+    "metric": "Metrik:",
+    "revenue": "Umsatz",
+    "realRevenue": "Realer Umsatz",
+    "clicks": "Klicks",
+    "conversions": "Conversions",
+    "cost": "Kosten",
+    "profit": "Gewinn",
+    "roi": "ROI",
+    "realRoi": "Realer ROI",
+    "cr": "CR",
+    "campaignsActive": "Aktive Kampagnen",
+    "launched": "Gestartet",
+    "cohortLabel": "Kohorte",
+    "period": "Periode",
+    "loading": "Laden...",
+    "noData": "Keine Daten anzeigen",
+    "noDataTitle": "Keine Daten",
+    "noDataText": "Keine Kohortendaten für den gewählten Zeitraum. Versuchen Sie, den Datumsbereich zu erweitern.",
+    "matrixTitle": "Kohortenmatrix",
+    "summaryTitle": "Kohortenzusammenfassung",
+    "totalClicks": "Klicks gesamt",
+    "totalRevenue": "Umsatz gesamt",
+    "totalProfit": "Gewinn gesamt",
+    "avgRoi": "Ø ROI",
+    "campaigns": "Kampagnen",
+    "firstSeen": "Erste aktive Periode",
+    "lastSeen": "Letzte aktive Periode",
+    "exportCsv": "CSV exportieren",
+    "helpMetric": "Wählen Sie, welche Metrik die Zellen der Heatmap füllt.",
+    "helpGranularity": "Kohorten nach Monaten oder Quartalen gruppieren."
   },
   "adminMenu": {
     "mcp": "KI / MCP",
@@ -30937,7 +31249,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { size: 18 }), label: t("nav.offers"), tab: "offers" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 18 }), label: t("nav.networks"), tab: "networks" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 18 }), label: t("nav.sources"), tab: "sources" },
-    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { size: 18 }), label: t("nav.trends"), tab: "trends" },
+    { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { size: 18 }), label: t("nav.analytics"), tab: "trends" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t("nav.domains"), tab: "domains" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 18 }), label: t("nav.backorder"), tab: "backorder" }
   ];
@@ -30955,7 +31267,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { size: 18 }), label: t("nav.offers"), active: activeTab === "offers", onClick: () => setActiveTab("offers") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 18 }), label: t("nav.networks"), active: activeTab === "networks", onClick: () => setActiveTab("networks") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 18 }), label: t("nav.sources"), active: activeTab === "sources", onClick: () => setActiveTab("sources") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { size: 18 }), label: t("nav.trends"), active: activeTab === "trends", onClick: () => setActiveTab("trends") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { size: 18 }), label: t("nav.analytics"), active: activeTab === "trends", onClick: () => setActiveTab("trends") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t("nav.domains"), active: activeTab === "domains", onClick: () => setActiveTab("domains") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 18 }), label: t("nav.backorder"), active: activeTab === "backorder", onClick: () => setActiveTab("backorder") })
         ] })
@@ -31212,7 +31524,7 @@ const NavItem = ({ icon, label, active, onClick }) => {
     }
   );
 };
-const API_URL$C = "/api.php";
+const API_URL$D = "/api.php";
 const Login = ({ onLogin }) => {
   const { t } = useLanguage();
   const [username, setUsername] = reactExports.useState("");
@@ -31255,7 +31567,7 @@ const Login = ({ onLogin }) => {
       return;
     }
     try {
-      const res = await fetch(`${API_URL$C}?action=login`, {
+      const res = await fetch(`${API_URL$D}?action=login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
@@ -31424,7 +31736,7 @@ const Login = ({ onLogin }) => {
     ] }) })
   ] });
 };
-const API_URL$B = "/api.php";
+const API_URL$C = "/api.php";
 const SetupWizard = ({ onComplete }) => {
   const { t, setLanguage: setContextLanguage, language } = useLanguage();
   const [step, setStep] = reactExports.useState(1);
@@ -31479,7 +31791,7 @@ const SetupWizard = ({ onComplete }) => {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL$B}?action=setup_first_user`, {
+      const res = await fetch(`${API_URL$C}?action=setup_first_user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
@@ -43694,7 +44006,7 @@ const MainChart = ({ chartData, activeMetrics = [], currency = "USD" }) => {
       backgroundColor: (context) => {
         const ctx = context.chart.ctx;
         const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        const hexToRgba = (hex2, alpha2) => {
+        const hexToRgba2 = (hex2, alpha2) => {
           let r2 = 0, g = 0, b = 0;
           if (hex2.startsWith("#")) {
             if (hex2.length === 4) {
@@ -43711,8 +44023,8 @@ const MainChart = ({ chartData, activeMetrics = [], currency = "USD" }) => {
           }
           return `rgba(${r2}, ${g}, ${b}, ${alpha2})`;
         };
-        gradient.addColorStop(0, hexToRgba(color2, 0.15));
-        gradient.addColorStop(1, hexToRgba(color2, 0));
+        gradient.addColorStop(0, hexToRgba2(color2, 0.15));
+        gradient.addColorStop(1, hexToRgba2(color2, 0));
         return gradient;
       },
       fill: true,
@@ -43781,7 +44093,7 @@ const TableWidget = ({ title, data, t }) => {
 };
 var reactDomExports = requireReactDom();
 const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(reactDomExports);
-const API_URL$A = "/api.php";
+const API_URL$B = "/api.php";
 const ClickDetailsModal = ({ clickId, onClose }) => {
   const { t } = useLanguage();
   const [data, setData] = reactExports.useState(null);
@@ -43792,7 +44104,7 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     const fetchDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL$A}?action=click_details&id=${clickId}`);
+        const response = await axios.get(`${API_URL$B}?action=click_details&id=${clickId}`);
         if (response.data.status === "success") {
           setData(response.data.data);
         } else {
@@ -44247,7 +44559,7 @@ const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} })
             ` })
   ] });
 };
-const API_URL$z = "/api.php";
+const API_URL$A = "/api.php";
 const cache = /* @__PURE__ */ new Map();
 const CACHE_TTL = 3e4;
 function getCacheKey(action, params = {}) {
@@ -44264,7 +44576,7 @@ async function cachedGet(action, params = {}, ttl = CACHE_TTL) {
   if (cached && isCacheValid(cached)) {
     return { data: cached.data, fromCache: true };
   }
-  const response = await axios.get(API_URL$z, { params: { action, ...params } });
+  const response = await axios.get(API_URL$A, { params: { action, ...params } });
   if (response.data?.status === "success") {
     cache.set(cacheKey, {
       data: response.data,
@@ -44275,7 +44587,7 @@ async function cachedGet(action, params = {}, ttl = CACHE_TTL) {
   return { data: response.data, fromCache: false };
 }
 async function cachedPost(action, data = {}, params = {}) {
-  const response = await axios.post(API_URL$z, data, { params: { action, ...params } });
+  const response = await axios.post(API_URL$A, data, { params: { action, ...params } });
   if (response.data?.status === "success") {
     cache.clear();
   }
@@ -44775,7 +45087,7 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
     ] }) })
   ] });
 };
-const API_URL$y = "/api.php";
+const API_URL$z = "/api.php";
 const statusMeta = (t, status) => {
   switch (status) {
     case "available":
@@ -44836,7 +45148,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   const fetchRows = async ({ silent = false } = {}) => {
     if (!silent) setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$y}?action=backorder_domains`);
+      const res = await axios.get(`${API_URL$z}?action=backorder_domains`);
       if (res.data.status === "success") {
         setRows(res.data.data || []);
       }
@@ -44866,7 +45178,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     if (runStartedAt && Number(runStartedAt) > 0) {
       payload.run_started_at = Number(runStartedAt);
     }
-    const res = await axios.post(`${API_URL$y}?action=backorder_check_batch`, payload);
+    const res = await axios.post(`${API_URL$z}?action=backorder_check_batch`, payload);
     if (res.data.status !== "success") {
       const msg = res.data.message || t("common.error");
       throw new Error(msg);
@@ -45003,7 +45315,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   const deleteOne = async (id) => {
     if (!window.confirm(t("common.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$y}?action=backorder_delete`, { id });
+      await axios.post(`${API_URL$z}?action=backorder_delete`, { id });
       setSelectedIds((prev) => {
         const n = new Set(prev);
         n.delete(id);
@@ -45019,7 +45331,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     if (ids.length === 0) return;
     if (!window.confirm(t("backorder.deleteSelectedConfirm").replace("{count}", String(ids.length)))) return;
     try {
-      await axios.post(`${API_URL$y}?action=backorder_delete_selected`, { ids });
+      await axios.post(`${API_URL$z}?action=backorder_delete_selected`, { ids });
       setSelectedIds(/* @__PURE__ */ new Set());
       fetchRows();
     } catch (e) {
@@ -45049,7 +45361,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         ahrefs_ur: editForm.ahrefs_ur,
         ahrefs_ref_domains: editForm.ahrefs_ref_domains
       };
-      const res = await axios.post(`${API_URL$y}?action=backorder_update`, payload);
+      const res = await axios.post(`${API_URL$z}?action=backorder_update`, payload);
       if (res.data.status === "success") {
         setShowEdit(false);
         fetchRows();
@@ -45062,7 +45374,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   };
   const checkNow = async (id) => {
     try {
-      await axios.post(`${API_URL$y}?action=backorder_check_now`, { id });
+      await axios.post(`${API_URL$z}?action=backorder_check_now`, { id });
       fetchRows();
     } catch (e) {
       console.error(e);
@@ -45073,7 +45385,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     setImportError("");
     setImportResult(null);
     try {
-      const res = await axios.post(`${API_URL$y}?action=backorder_import`, { domains_text: importText });
+      const res = await axios.post(`${API_URL$z}?action=backorder_import`, { domains_text: importText });
       if (res.data.status === "success") {
         setImportResult(res.data.data);
         fetchRows();
@@ -45444,7 +45756,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     ] }) })
   ] });
 };
-const API_URL$x = "/api.php";
+const API_URL$y = "/api.php";
 const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId }) => {
   const { t } = useLanguage();
   const [actionModal, setActionModal] = reactExports.useState({ type: null, campaignId: null });
@@ -45465,7 +45777,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   const handleDelete = async (id) => {
     if (window.confirm(t("campaigns.deleteConfirm"))) {
       try {
-        await axios.post(`${API_URL$x}?action=delete_campaign`, { id });
+        await axios.post(`${API_URL$y}?action=delete_campaign`, { id });
         refreshData();
       } catch (err) {
         alert(t("common.deleteError"));
@@ -45551,7 +45863,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     const msg = (t("common.deleteSelectedConfirm") || t("campaigns.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$x}?action=bulk_delete_campaigns`, { ids });
+      await axios.post(`${API_URL$y}?action=bulk_delete_campaigns`, { ids });
       setSelectedCampaignIds(/* @__PURE__ */ new Set());
       refreshData();
     } catch (err) {
@@ -45567,7 +45879,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     let errorCount = 0;
     for (const id of ids) {
       try {
-        await axios.post(`${API_URL$x}?action=copy_campaign`, { id });
+        await axios.post(`${API_URL$y}?action=copy_campaign`, { id });
         successCount++;
       } catch (err) {
         errorCount++;
@@ -45643,7 +45955,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   };
   const handleClearStats = async () => {
     try {
-      await axios.post(`${API_URL$x}?action=clear_stats`, { campaign_id: actionModal.campaignId });
+      await axios.post(`${API_URL$y}?action=clear_stats`, { campaign_id: actionModal.campaignId });
       refreshData();
       setActionModal({ type: null, campaignId: null });
     } catch (err) {
@@ -45661,7 +45973,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
       unique_only: fd.get("unique_only") === "on"
     };
     try {
-      const res = await axios.post(`${API_URL$x}?action=update_costs`, data);
+      const res = await axios.post(`${API_URL$y}?action=update_costs`, data);
       if (res.data.status === "success") {
         alert(t("campaigns.updatedClicks").replace("{count}", res.data.updated_clicks));
         refreshData();
@@ -45867,7 +46179,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     ] }) })
   ] });
 };
-const API_URL$w = "/api.php";
+const API_URL$x = "/api.php";
 const TrafficSimulation = () => {
   const { t } = useLanguage();
   const [campaigns, setCampaigns] = reactExports.useState([]);
@@ -45882,7 +46194,7 @@ const TrafficSimulation = () => {
   const [trace, setTrace] = reactExports.useState(null);
   const [loading, setLoading] = reactExports.useState(false);
   reactExports.useEffect(() => {
-    axios.get(`${API_URL$w}?action=campaigns`).then((res) => {
+    axios.get(`${API_URL$x}?action=campaigns`).then((res) => {
       if (res.data.status === "success") {
         setCampaigns(res.data.data);
         if (res.data.data.length > 0) {
@@ -45896,7 +46208,7 @@ const TrafficSimulation = () => {
     setLoading(true);
     setTrace(null);
     try {
-      const res = await axios.post(`${API_URL$w}?action=simulate_traffic`, formData);
+      const res = await axios.post(`${API_URL$x}?action=simulate_traffic`, formData);
       if (res.data.status === "success") {
         setTrace(res.data.trace);
       } else {
@@ -46091,7 +46403,7 @@ function translateLandingRequestError(t, error) {
   }
   return t("landingEditor.networkError");
 }
-const API_URL$v = "/api.php";
+const API_URL$w = "/api.php";
 const CopyableCode = ({ text, copied, onCopy, t, muted = false }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative mt-1", children: [
   /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "button",
@@ -46156,7 +46468,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   reactExports.useEffect(() => {
     if (landing.type !== "action" || landing.action_type !== "to_campaign" || campaigns.length) return;
     let cancelled = false;
-    axios.get(`${API_URL$v}?action=campaigns`).then((res) => {
+    axios.get(`${API_URL$w}?action=campaigns`).then((res) => {
       if (!cancelled && res.data.status === "success") setCampaigns(res.data.data || []);
     }).catch(() => {
     });
@@ -46169,10 +46481,10 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
       setLoading(true);
       try {
         const [groupsRes, settingsRes] = await Promise.all([
-          axios.get(`${API_URL$v}?action=landing_groups`),
+          axios.get(`${API_URL$w}?action=landing_groups`),
           // Needed to build the adapter's postback URL, which is keyed by
           // the instance's postback_key.
-          axios.get(`${API_URL$v}?action=settings`).catch(() => null)
+          axios.get(`${API_URL$w}?action=settings`).catch(() => null)
         ]);
         if (groupsRes.data.status === "success") {
           setGroups(groupsRes.data.data);
@@ -46181,7 +46493,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
           setPostbackKey(settingsRes.data.data?.postback_key || "");
         }
         if (landingId) {
-          const landingRes = await axios.get(`${API_URL$v}?action=get_landing&id=${landingId}`);
+          const landingRes = await axios.get(`${API_URL$w}?action=get_landing&id=${landingId}`);
           if (landingRes.data.status === "success") {
             setLanding(landingRes.data.data);
             if (landingRes.data.data.type === "local") {
@@ -46200,7 +46512,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   }, [landingId]);
   const fetchLandingFiles = async (id) => {
     try {
-      const res = await axios.get(`${API_URL$v}?action=landing_files&id=${id}`);
+      const res = await axios.get(`${API_URL$w}?action=landing_files&id=${id}`);
       if (res.data.status === "success") {
         setFiles(res.data.data);
       }
@@ -46213,7 +46525,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     try {
       const payload = { ...landing };
       if (landingId) payload.id = landingId;
-      const res = await axios.post(`${API_URL$v}?action=save_landing`, payload);
+      const res = await axios.post(`${API_URL$w}?action=save_landing`, payload);
       if (res.data.status === "success") {
         setSavedSomething(true);
         const newId = res.data.data?.id;
@@ -46240,7 +46552,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   };
   const fileOp = async (payload, okMessage) => {
     try {
-      const res = await axios.post(`${API_URL$v}?action=landing_file_op`, { id: landingId, ...payload });
+      const res = await axios.post(`${API_URL$w}?action=landing_file_op`, { id: landingId, ...payload });
       if (res.data.status !== "success") throw new Error(res.data.message || "failed");
       fetchLandingFiles(landingId);
       if (okMessage) ;
@@ -46281,7 +46593,7 @@ ${file}`)) return;
     fd.append("id", landingId);
     fd.append("dir", dir);
     try {
-      const res = await axios.post(`${API_URL$v}?action=upload_landing_file`, fd, {
+      const res = await axios.post(`${API_URL$w}?action=upload_landing_file`, fd, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status !== "success") throw new Error(res.data.message || "failed");
@@ -46298,7 +46610,7 @@ ${file}`)) return;
     formData.append("file", file);
     formData.append("id", id);
     try {
-      const res = await axios.post(`${API_URL$v}?action=upload_landing`, formData, {
+      const res = await axios.post(`${API_URL$w}?action=upload_landing`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status === "success") {
@@ -46323,7 +46635,7 @@ ${file}`)) return;
   };
   const loadFileContent = async (path) => {
     try {
-      const res = await axios.get(`${API_URL$v}?action=get_landing_file&id=${landingId}&path=${encodeURIComponent(path)}`);
+      const res = await axios.get(`${API_URL$w}?action=get_landing_file&id=${landingId}&path=${encodeURIComponent(path)}`);
       if (res.data.status === "success") {
         setSelectedFile(path);
         setFileContent(res.data.data);
@@ -46338,7 +46650,7 @@ ${file}`)) return;
     if (!selectedFile) return;
     setSavingFile(true);
     try {
-      const res = await axios.post(`${API_URL$v}?action=save_landing_file`, {
+      const res = await axios.post(`${API_URL$w}?action=save_landing_file`, {
         id: landingId,
         path: selectedFile,
         content: fileContent
@@ -46811,7 +47123,7 @@ ${file}`)) return;
     ] })
   ] }) });
 };
-const API_URL$u = "/api.php";
+const API_URL$v = "/api.php";
 const Landings = ({ landings, refreshData }) => {
   const { t } = useLanguage();
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
@@ -46834,7 +47146,7 @@ const Landings = ({ landings, refreshData }) => {
   const handleDelete = async (id) => {
     if (window.confirm(t("common.deleteConfirm"))) {
       try {
-        const res = await axios.post(`${API_URL$u}?action=delete_landing`, { id });
+        const res = await axios.post(`${API_URL$v}?action=delete_landing`, { id });
         if (res?.data?.status !== "success") {
           alert(res?.data?.message || t("common.error"));
           return;
@@ -46886,7 +47198,7 @@ const Landings = ({ landings, refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$u}?action=bulk_delete_landings`, { ids });
+      await axios.post(`${API_URL$v}?action=bulk_delete_landings`, { ids });
       setSelectedLandingIds(/* @__PURE__ */ new Set());
       refreshData();
     } catch (err) {
@@ -47114,7 +47426,7 @@ const Landings = ({ landings, refreshData }) => {
     ] }) })
   ] });
 };
-const API_URL$t = "/api.php";
+const API_URL$u = "/api.php";
 const getCountryFlag = (code) => {
   if (!code || code === "Unknown" || code === "??") return "🏳️";
   if (code.length !== 2) return "📍";
@@ -47139,8 +47451,8 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
     const loadData = async () => {
       try {
         const [cRes, pRes] = await Promise.all([
-          axios.get(`${API_URL$t}?action=countries_list`),
-          axios.get(`${API_URL$t}?action=geo_profiles`)
+          axios.get(`${API_URL$u}?action=countries_list`),
+          axios.get(`${API_URL$u}?action=geo_profiles`)
         ]);
         if (cRes.data?.data) setCountries(cRes.data.data);
         if (pRes.data?.data) setProfiles(pRes.data.data);
@@ -47357,7 +47669,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
     ] })
   ] });
 };
-const API_URL$s = "/api.php";
+const API_URL$t = "/api.php";
 const OfferEditor = ({ offerId, onClose }) => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
@@ -47392,9 +47704,9 @@ const OfferEditor = ({ offerId, onClose }) => {
     const fetchDeps = async () => {
       try {
         const [gRes, anRes, oRes] = await Promise.all([
-          axios.get(`${API_URL$s}?action=offer_groups`),
-          axios.get(`${API_URL$s}?action=affiliate_networks`),
-          axios.get(`${API_URL$s}?action=all_offers`)
+          axios.get(`${API_URL$t}?action=offer_groups`),
+          axios.get(`${API_URL$t}?action=affiliate_networks`),
+          axios.get(`${API_URL$t}?action=all_offers`)
         ]);
         if (gRes.data.status === "success") setGroups(gRes.data.data);
         if (anRes.data.status === "success") setAffiliateNetworks(anRes.data.data);
@@ -47406,7 +47718,7 @@ const OfferEditor = ({ offerId, onClose }) => {
     fetchDeps();
     if (offerId) {
       setLoading(true);
-      axios.get(`${API_URL$s}?action=get_offer&id=${offerId}`).then((res) => {
+      axios.get(`${API_URL$t}?action=get_offer&id=${offerId}`).then((res) => {
         if (res.data.status === "success") {
           const data = res.data.data;
           setFormData({
@@ -47446,7 +47758,7 @@ const OfferEditor = ({ offerId, onClose }) => {
       setLoading(true);
       const payload = { ...formData };
       if (offerId) payload.id = offerId;
-      const res = await axios.post(`${API_URL$s}?action=save_offer`, payload);
+      const res = await axios.post(`${API_URL$t}?action=save_offer`, payload);
       if (res.data.status === "success") {
         onClose(true);
       } else {
@@ -47914,7 +48226,7 @@ const OfferEditor = ({ offerId, onClose }) => {
     ] }) })
   ] }) });
 };
-const API_URL$r = "/api.php";
+const API_URL$s = "/api.php";
 const GroupsModal = ({ type, onClose }) => {
   const { t } = useLanguage();
   const [groups, setGroups] = reactExports.useState([]);
@@ -47951,7 +48263,7 @@ const GroupsModal = ({ type, onClose }) => {
   const fetchGroups = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$r}?action=${endpoint}`);
+      const res = await axios.get(`${API_URL$s}?action=${endpoint}`);
       if (res.data.status === "success") setGroups(res.data.data);
     } catch (err) {
       console.error("Error fetching groups:", err);
@@ -47962,7 +48274,7 @@ const GroupsModal = ({ type, onClose }) => {
   const handleCreate = async () => {
     if (!newGroupName.trim()) return;
     try {
-      const res = await axios.post(`${API_URL$r}?action=${endpoint}`, { name: newGroupName.trim() });
+      const res = await axios.post(`${API_URL$s}?action=${endpoint}`, { name: newGroupName.trim() });
       if (res.data.status === "success") {
         setNewGroupName("");
         fetchGroups();
@@ -47975,7 +48287,7 @@ const GroupsModal = ({ type, onClose }) => {
     if (!window.confirm(t("groupsModal.deleteConfirm"))) return;
     try {
       const del = type === "offer" ? "delete_offer_group" : endpoint;
-      await axios.post(`${API_URL$r}?action=${del}`, { id });
+      await axios.post(`${API_URL$s}?action=${del}`, { id });
       fetchGroups();
     } catch {
       alert(t("groupsModal.deleteError"));
@@ -48009,7 +48321,7 @@ const GroupsModal = ({ type, onClose }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition", children: t("groupsModal.close") }) })
   ] }) });
 };
-const API_URL$q = "/api.php";
+const API_URL$r = "/api.php";
 const Offers = ({ offers, refreshData }) => {
   const { t } = useLanguage();
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
@@ -48093,7 +48405,7 @@ const Offers = ({ offers, refreshData }) => {
   const handleDelete = async (id) => {
     if (window.confirm(t("common.deleteConfirm"))) {
       try {
-        await axios.post(`${API_URL$q}?action=delete_offer`, { id });
+        await axios.post(`${API_URL$r}?action=delete_offer`, { id });
         refreshData();
       } catch (err) {
         alert(t("common.error"));
@@ -48127,7 +48439,7 @@ const Offers = ({ offers, refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$q}?action=bulk_delete_offers`, { ids });
+      await axios.post(`${API_URL$r}?action=bulk_delete_offers`, { ids });
       setSelectedOfferIds(/* @__PURE__ */ new Set());
       refreshData();
     } catch (err) {
@@ -48143,7 +48455,7 @@ const Offers = ({ offers, refreshData }) => {
     let errorCount = 0;
     for (const id of ids) {
       try {
-        await axios.post(`${API_URL$q}?action=copy_offer`, { id });
+        await axios.post(`${API_URL$r}?action=copy_offer`, { id });
         successCount++;
       } catch (err) {
         errorCount++;
@@ -48480,7 +48792,7 @@ const Offers = ({ offers, refreshData }) => {
     ] }) })
   ] });
 };
-const API_URL$p = "/api.php";
+const API_URL$q = "/api.php";
 const TrafficSourceEditor = ({ id, onClose, onSave }) => {
   const { t, language } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
@@ -48500,14 +48812,14 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     status_message: null
   });
   reactExports.useEffect(() => {
-    axios.get(`${API_URL$p}?action=traffic_source_templates`).then((res) => {
+    axios.get(`${API_URL$q}?action=traffic_source_templates`).then((res) => {
       if (res.data.status === "success") {
         setTemplates(res.data.data);
       }
     });
     if (id) {
       setLoading(true);
-      axios.get(`${API_URL$p}?action=get_traffic_source&id=${id}`).then((res) => {
+      axios.get(`${API_URL$q}?action=get_traffic_source&id=${id}`).then((res) => {
         if (res.data.status === "success") {
           const data = res.data.data;
           setFormData({
@@ -48568,7 +48880,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     }
     try {
       const payload = { ...formData, id };
-      await axios.post(`${API_URL$p}?action=traffic_sources`, payload);
+      await axios.post(`${API_URL$q}?action=traffic_sources`, payload);
       onSave();
     } catch (error) {
       console.error("Error saving traffic source:", error);
@@ -48827,7 +49139,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     ] })
   ] }) });
 };
-const API_URL$o = "/api.php";
+const API_URL$p = "/api.php";
 const BulkImportSources = ({ onClose, onSave }) => {
   const { t } = useLanguage();
   const [lines, setLines] = reactExports.useState("");
@@ -48842,7 +49154,7 @@ const BulkImportSources = ({ onClose, onSave }) => {
     setResult(null);
     try {
       const linesArray = lines.split("\n").map((l) => l.trim()).filter((l) => l);
-      const res = await axios.post(`${API_URL$o}?action=bulk_import_sources`, { lines: linesArray });
+      const res = await axios.post(`${API_URL$p}?action=bulk_import_sources`, { lines: linesArray });
       if (res.data.status === "success") {
         setResult(res.data.data);
       }
@@ -48962,7 +49274,7 @@ ${t("bulkImport.mySource")}|https://example3.com`,
     ] })
   ] }) });
 };
-const API_URL$n = "/api.php";
+const API_URL$o = "/api.php";
 const TrafficSources = ({ refreshData }) => {
   const { t } = useLanguage();
   const [sources, setSources] = reactExports.useState([]);
@@ -48980,7 +49292,7 @@ const TrafficSources = ({ refreshData }) => {
   const fetchSources = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$n}?action=traffic_sources`);
+      const res = await axios.get(`${API_URL$o}?action=traffic_sources`);
       if (res.data.status === "success") {
         setSources(res.data.data);
       }
@@ -49011,7 +49323,7 @@ const TrafficSources = ({ refreshData }) => {
   const handleDelete = async (id) => {
     if (!confirm(t("sources.deleteConfirm"))) return;
     try {
-      const res = await axios.post(`${API_URL$n}?action=delete_traffic_source`, { id });
+      const res = await axios.post(`${API_URL$o}?action=delete_traffic_source`, { id });
       if (res?.data?.status !== "success") {
         alert(res?.data?.message || t("common.error"));
         return;
@@ -49050,7 +49362,7 @@ const TrafficSources = ({ refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("sources.deleteConfirm")).replace("{count}", String(ids.length));
     if (!confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$n}?action=bulk_delete_traffic_sources`, { ids });
+      await axios.post(`${API_URL$o}?action=bulk_delete_traffic_sources`, { ids });
       setSelectedIds(/* @__PURE__ */ new Set());
       fetchSources();
       refreshData && refreshData();
@@ -49103,7 +49415,7 @@ const TrafficSources = ({ refreshData }) => {
   };
   const checkSourceUrl = async (id) => {
     try {
-      await axios.get(`${API_URL$n}?action=check_source_url&id=${id}`);
+      await axios.get(`${API_URL$o}?action=check_source_url&id=${id}`);
       fetchSources();
     } catch (error) {
       console.error("Error checking URL:", error);
@@ -49113,7 +49425,7 @@ const TrafficSources = ({ refreshData }) => {
     if (checkingUrls) return;
     setCheckingUrls(true);
     try {
-      await axios.post(`${API_URL$n}?action=check_all_source_urls`);
+      await axios.post(`${API_URL$o}?action=check_all_source_urls`);
       fetchSources();
     } catch (error) {
       console.error("Error checking URLs:", error);
@@ -49357,7 +49669,7 @@ const TrafficSources = ({ refreshData }) => {
     ] }) })
   ] });
 };
-const API_URL$m = "/api.php";
+const API_URL$n = "/api.php";
 const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
   const { t } = useLanguage();
   const [conversions, setConversions] = reactExports.useState([]);
@@ -49379,7 +49691,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
       if (dateFrom) params.append("date_from", dateFrom);
       if (dateTo) params.append("date_to", dateTo);
       if (effectiveCampaignId) params.append("campaign_id", effectiveCampaignId);
-      const res = await axios.get(`${API_URL$m}?${params.toString()}`);
+      const res = await axios.get(`${API_URL$n}?${params.toString()}`);
       if (res.data.status === "success") {
         setConversions(res.data.data);
         setPagination(res.data.pagination);
@@ -49662,7 +49974,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
     )
   ] });
 };
-const API_URL$l = "/api.php";
+const API_URL$m = "/api.php";
 const PostbackSettings = () => {
   const { t } = useLanguage();
   const [settings, setSettings] = reactExports.useState({
@@ -49697,8 +50009,8 @@ const PostbackSettings = () => {
     setLoading(true);
     try {
       const [settingsRes, urlRes] = await Promise.all([
-        axios.get(`${API_URL$l}?action=settings`),
-        axios.get(`${API_URL$l}?action=postback_url`)
+        axios.get(`${API_URL$m}?action=settings`),
+        axios.get(`${API_URL$m}?action=postback_url`)
       ]);
       if (settingsRes.data.status === "success") {
         setSettings((prev) => ({ ...prev, ...settingsRes.data.data }));
@@ -49716,7 +50028,7 @@ const PostbackSettings = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await axios.post(`${API_URL$l}?action=save_settings`, {
+      await axios.post(`${API_URL$m}?action=save_settings`, {
         postback_key: settings.postback_key,
         currency: settings.currency,
         postback_aliases: settings.postback_aliases
@@ -49737,7 +50049,7 @@ const PostbackSettings = () => {
     }
     setTestResult(null);
     try {
-      const res = await axios.post(`${API_URL$l}?action=test_postback`, {
+      const res = await axios.post(`${API_URL$m}?action=test_postback`, {
         subid: testSubid,
         status: testStatus,
         payout: parseFloat(testPayout) || 0
@@ -50740,7 +51052,7 @@ const AffiliateNetworks = () => {
     ] }) })
   ] });
 };
-const API_URL$k = "/api.php";
+const API_URL$l = "/api.php";
 const UsersPage = () => {
   const { t, setLanguage: setContextLanguage } = useLanguage();
   const [users, setUsers] = reactExports.useState([]);
@@ -50805,7 +51117,7 @@ const UsersPage = () => {
   }, [showModal, formData.username, formData.password]);
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(`${API_URL$k}?action=users`);
+      const res = await axios.get(`${API_URL$l}?action=users`);
       if (res.data.status === "success") {
         setUsers(res.data.data);
       }
@@ -50859,7 +51171,7 @@ const UsersPage = () => {
   };
   const openApiKeysModal = async (user) => {
     try {
-      const res = await axios.get(`${API_URL$k}?action=get_user&id=${user.id}`);
+      const res = await axios.get(`${API_URL$l}?action=get_user&id=${user.id}`);
       if (res.data.status === "success") {
         setCurrentUser({ ...user, api_keys: res.data.data.api_keys || [] });
         setShowApiKeysModal(true);
@@ -50884,7 +51196,7 @@ const UsersPage = () => {
       if (currentUser) {
         data.id = currentUser.id;
       }
-      const res = await axios.post(`${API_URL$k}?action=save_user`, data);
+      const res = await axios.post(`${API_URL$l}?action=save_user`, data);
       if (res.data.status === "success") {
         showSuccess(currentUser ? t("common.success") : t("common.success"));
         if (data.language) {
@@ -50909,7 +51221,7 @@ const UsersPage = () => {
   const handleDelete = async (user) => {
     if (!window.confirm(t("users.deleteConfirm"))) return;
     try {
-      const res = await axios.post(`${API_URL$k}?action=delete_user`, { id: user.id });
+      const res = await axios.post(`${API_URL$l}?action=delete_user`, { id: user.id });
       if (res.data.status === "success") {
         showSuccess(t("common.success"));
         fetchUsers();
@@ -50922,7 +51234,7 @@ const UsersPage = () => {
   };
   const handleSavePermissions = async () => {
     try {
-      const res = await axios.post(`${API_URL$k}?action=save_user`, {
+      const res = await axios.post(`${API_URL$l}?action=save_user`, {
         id: currentUser.id,
         username: currentUser.username,
         permissions
@@ -50939,7 +51251,7 @@ const UsersPage = () => {
   const generateApiKey = async (permissions2 = "read") => {
     try {
       const label = permissions2 === "write" ? "MCP Write" : "MCP Read";
-      const res = await axios.post(`${API_URL$k}?action=generate_api_key`, {
+      const res = await axios.post(`${API_URL$l}?action=generate_api_key`, {
         user_id: currentUser.id,
         key_name: `${label} ${(currentUser.api_keys?.length || 0) + 1}`,
         permissions: permissions2
@@ -50955,7 +51267,7 @@ const UsersPage = () => {
   const deleteApiKey = async (keyId) => {
     if (!window.confirm(t("common.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$k}?action=delete_api_key`, { id: keyId });
+      await axios.post(`${API_URL$l}?action=delete_api_key`, { id: keyId });
       showSuccess(t("common.success"));
       openApiKeysModal(currentUser);
     } catch (err) {
@@ -51387,7 +51699,7 @@ const UsersPage = () => {
     ] }) })
   ] });
 };
-const API_URL$j = "/api.php";
+const API_URL$k = "/api.php";
 const DEFAULT_CUSTOM_COLORS = {
   "--color-primary": "#f05a3e",
   "--color-bg-main": "#f4f5f7",
@@ -51442,7 +51754,7 @@ const BrandingPage = () => {
       if (mode === "custom") {
         localStorage.setItem("orbitra_custom_colors", JSON.stringify(customColors));
       }
-      await axios.post(`${API_URL$j}?action=save_settings`, {
+      await axios.post(`${API_URL$k}?action=save_settings`, {
         mode,
         custom_colors: mode === "custom" ? customColors : null,
         theme: "default"
@@ -51679,7 +51991,7 @@ const BrandingPage = () => {
     ] })
   ] });
 };
-const API_URL$i = "/api.php";
+const API_URL$j = "/api.php";
 const GeoProfilesPage = () => {
   const { t } = useLanguage();
   const [profiles, setProfiles] = reactExports.useState([]);
@@ -51699,8 +52011,8 @@ const GeoProfilesPage = () => {
   const loadData = async () => {
     try {
       const [profilesRes, countriesRes] = await Promise.all([
-        axios.get(`${API_URL$i}?action=geo_profiles`),
-        axios.get(`${API_URL$i}?action=countries_list`)
+        axios.get(`${API_URL$j}?action=geo_profiles`),
+        axios.get(`${API_URL$j}?action=countries_list`)
       ]);
       setProfiles(profilesRes.data.data || []);
       setCountries(countriesRes.data.data || []);
@@ -51746,7 +52058,7 @@ const GeoProfilesPage = () => {
       if (editingProfile) {
         payload.id = editingProfile.id;
       }
-      await axios.post(`${API_URL$i}?action=save_geo_profile`, payload);
+      await axios.post(`${API_URL$j}?action=save_geo_profile`, payload);
       closeModal();
       loadData();
     } catch (err) {
@@ -51756,7 +52068,7 @@ const GeoProfilesPage = () => {
   const handleDelete = async (id) => {
     if (!confirm(t("geoProfiles.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$i}?action=delete_geo_profile`, { id });
+      await axios.post(`${API_URL$j}?action=delete_geo_profile`, { id });
       loadData();
     } catch (err) {
       alert(t("geoProfiles.deleteError") + " " + (err.response?.data?.message || err.message));
@@ -52002,7 +52314,7 @@ const GeoProfilesPage = () => {
     ] }) })
   ] });
 };
-const API_URL$h = "/api.php";
+const API_URL$i = "/api.php";
 const GeneralSettings = () => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
@@ -52015,7 +52327,7 @@ const GeneralSettings = () => {
     php_landing_timeout: "3"
   });
   reactExports.useEffect(() => {
-    fetch(`${API_URL$h}?action=global_settings`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$i}?action=global_settings`).then((res) => res.json()).then((data) => {
       if (data.status === "success" && data.data) {
         setSettings((prev) => ({ ...prev, ...data.data }));
       }
@@ -52030,7 +52342,7 @@ const GeneralSettings = () => {
     setSaving(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$h}?action=global_settings`, {
+      const res = await fetch(`${API_URL$i}?action=global_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -52148,7 +52460,7 @@ const GeneralSettings = () => {
     ) })
   ] });
 };
-const API_URL$g = "/api.php";
+const API_URL$h = "/api.php";
 const ProfileSettings = () => {
   const { t, setLanguage: setContextLanguage } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
@@ -52164,7 +52476,7 @@ const ProfileSettings = () => {
   });
   reactExports.useEffect(() => {
     const userId = currentUser.id || 1;
-    fetch(`${API_URL$g}?action=profile_settings&user_id=${userId}`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$h}?action=profile_settings&user_id=${userId}`).then((res) => res.json()).then((data) => {
       if (data.status === "success" && data.data) {
         setProfile({
           ...profile,
@@ -52192,7 +52504,7 @@ const ProfileSettings = () => {
     setMessage({ text: "", type: "" });
     try {
       const userId = currentUser.id || 1;
-      const res = await fetch(`${API_URL$g}?action=profile_settings`, {
+      const res = await fetch(`${API_URL$h}?action=profile_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -52363,7 +52675,7 @@ const ProfileSettings = () => {
     ) })
   ] });
 };
-const API_URL$f = "/api.php";
+const API_URL$g = "/api.php";
 const PAGE_SIZE = 200;
 const BotSettings = () => {
   const { t } = useLanguage();
@@ -52378,7 +52690,7 @@ const BotSettings = () => {
     try {
       const qs = new URLSearchParams({ action: endpointOf(type), limit: String(PAGE_SIZE), offset: String(offset2) });
       if (search) qs.set("search", search);
-      const res = await fetch(`${API_URL$f}?${qs}`);
+      const res = await fetch(`${API_URL$g}?${qs}`);
       const data = await res.json();
       if (data.status !== "success") throw new Error(data.message || `HTTP ${res.status}`);
       setLists((prev) => ({
@@ -52412,7 +52724,7 @@ const BotSettings = () => {
   };
   const mutate = async (type, payload) => {
     const action = type === "ip" ? "bot_ips" : "bot_signatures";
-    const res = await fetch(`${API_URL$f}?action=${action}`, {
+    const res = await fetch(`${API_URL$g}?action=${action}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -52565,7 +52877,7 @@ const BotSettings = () => {
     ] })
   ] });
 };
-const API_URL$e = "/api.php";
+const API_URL$f = "/api.php";
 const emptyForm$1 = {
   id: null,
   name: "",
@@ -52586,7 +52898,7 @@ const ConversionTypesSettings = () => {
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
   const fetchTypes = async () => {
     try {
-      const res = await fetch(`${API_URL$e}?action=conversion_types`).then((r2) => r2.json());
+      const res = await fetch(`${API_URL$f}?action=conversion_types`).then((r2) => r2.json());
       if (res.status === "success") {
         setTypes(res.data || []);
       }
@@ -52611,7 +52923,7 @@ const ConversionTypesSettings = () => {
     setSaving(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$e}?action=conversion_types`, {
+      const res = await fetch(`${API_URL$f}?action=conversion_types`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
@@ -52633,7 +52945,7 @@ const ConversionTypesSettings = () => {
   const handleDelete = async (id) => {
     if (!confirm(t("conversionTypes.deleteConfirm"))) return;
     try {
-      await fetch(`${API_URL$e}?action=conversion_types`, {
+      await fetch(`${API_URL$f}?action=conversion_types`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "delete", id })
@@ -52799,7 +53111,7 @@ const ConversionTypesSettings = () => {
     ] })
   ] });
 };
-const API_URL$d = "/api.php";
+const API_URL$e = "/api.php";
 const emptyForm = {
   id: null,
   name: "",
@@ -52817,7 +53129,7 @@ const CustomMetricsSettings = () => {
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
   const fetchMetrics = async () => {
     try {
-      const res = await fetch(`${API_URL$d}?action=custom_metrics`).then((r2) => r2.json());
+      const res = await fetch(`${API_URL$e}?action=custom_metrics`).then((r2) => r2.json());
       if (res.status === "success") {
         setMetrics(res.data || []);
       }
@@ -52842,7 +53154,7 @@ const CustomMetricsSettings = () => {
     setSaving(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$d}?action=custom_metrics`, {
+      const res = await fetch(`${API_URL$e}?action=custom_metrics`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -52870,7 +53182,7 @@ const CustomMetricsSettings = () => {
   const handleDelete = async (id) => {
     if (!confirm(t("customMetrics.deleteConfirm"))) return;
     try {
-      await fetch(`${API_URL$d}?action=custom_metrics`, {
+      await fetch(`${API_URL$e}?action=custom_metrics`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "delete", id })
@@ -53055,7 +53367,7 @@ const CustomMetricsSettings = () => {
     ] })
   ] });
 };
-const API_URL$c = "/api.php";
+const API_URL$d = "/api.php";
 const formatAge = (t, seconds) => {
   if (seconds === null || seconds === void 0) return "-";
   const s = Math.max(0, Number(seconds) || 0);
@@ -53078,7 +53390,7 @@ const AutomationSettings = () => {
   const [pqInfo, setPqInfo] = reactExports.useState(null);
   const fetchPostbackQueueInfo = async () => {
     try {
-      const res = await fetch(`${API_URL$c}?action=postback_queue_info`);
+      const res = await fetch(`${API_URL$d}?action=postback_queue_info`);
       const data = await res.json();
       if (data.status === "success") {
         setPqInfo(data.data || null);
@@ -53090,7 +53402,7 @@ const AutomationSettings = () => {
     setLoading(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$c}?action=backorder_cron_info`);
+      const res = await fetch(`${API_URL$d}?action=backorder_cron_info`);
       const data = await res.json();
       if (data.status === "success") {
         setInfo(data.data || null);
@@ -53131,7 +53443,7 @@ const AutomationSettings = () => {
     try {
       const cleanMin = Math.max(1, Math.min(1440, Number(intervalMin) || 15));
       const intervalSec = String(Math.max(15, Math.round(cleanMin * 60)));
-      const res = await fetch(`${API_URL$c}?action=save_settings`, {
+      const res = await fetch(`${API_URL$d}?action=save_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -53156,7 +53468,7 @@ const AutomationSettings = () => {
     setCronBusy(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$c}?action=backorder_install_cron`, { method: "POST" });
+      const res = await fetch(`${API_URL$d}?action=backorder_install_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
         setMessage({ text: t("automation.installSuccess"), type: "success" });
@@ -53174,7 +53486,7 @@ const AutomationSettings = () => {
     setCronBusy(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$c}?action=backorder_remove_cron`, { method: "POST" });
+      const res = await fetch(`${API_URL$d}?action=backorder_remove_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
         setMessage({ text: t("automation.removeSuccess"), type: "success" });
@@ -53192,7 +53504,7 @@ const AutomationSettings = () => {
     setCronBusy(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$c}?action=backorder_install_user_cron`, { method: "POST" });
+      const res = await fetch(`${API_URL$d}?action=backorder_install_user_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
         setMessage({ text: t("automation.installUserSuccess"), type: "success" });
@@ -53210,7 +53522,7 @@ const AutomationSettings = () => {
     setCronBusy(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$c}?action=backorder_remove_user_cron`, { method: "POST" });
+      const res = await fetch(`${API_URL$d}?action=backorder_remove_user_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
         setMessage({ text: t("automation.removeUserSuccess"), type: "success" });
@@ -53228,7 +53540,7 @@ const AutomationSettings = () => {
     setCronBusy(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$c}?action=postback_queue_install_user_cron`, { method: "POST" });
+      const res = await fetch(`${API_URL$d}?action=postback_queue_install_user_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
         setMessage({ text: t("postbackQueue.cronInstalled"), type: "success" });
@@ -53246,7 +53558,7 @@ const AutomationSettings = () => {
     setCronBusy(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$c}?action=postback_queue_remove_user_cron`, { method: "POST" });
+      const res = await fetch(`${API_URL$d}?action=postback_queue_remove_user_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
         setMessage({ text: t("postbackQueue.cronRemoved"), type: "success" });
@@ -53639,7 +53951,7 @@ const AutomationSettings = () => {
     ] })
   ] });
 };
-const API_URL$b = "/api.php";
+const API_URL$c = "/api.php";
 const SystemSettings = () => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
@@ -53655,7 +53967,7 @@ const SystemSettings = () => {
   });
   const [savedAdminPath, setSavedAdminPath] = reactExports.useState("");
   reactExports.useEffect(() => {
-    fetch(`${API_URL$b}?action=global_settings`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$c}?action=global_settings`).then((res) => res.json()).then((data) => {
       if (data.status === "success" && data.data) {
         setSettings((prev) => ({ ...prev, ...data.data }));
         setSavedAdminPath(data.data.admin_path || "");
@@ -53677,7 +53989,7 @@ const SystemSettings = () => {
     setSaving(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$b}?action=global_settings`, {
+      const res = await fetch(`${API_URL$c}?action=global_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -53855,7 +54167,7 @@ const SystemSettings = () => {
     ] }) })
   ] });
 };
-const API_URL$a = "/api.php";
+const API_URL$b = "/api.php";
 const PrivacySettings = () => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
@@ -53867,7 +54179,7 @@ const PrivacySettings = () => {
     privacy_redirect_url: ""
   });
   reactExports.useEffect(() => {
-    fetch(`${API_URL$a}?action=global_settings`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$b}?action=global_settings`).then((res) => res.json()).then((data) => {
       if (data.status === "success" && data.data) {
         setSettings((prev) => ({ ...prev, ...data.data }));
       }
@@ -53882,7 +54194,7 @@ const PrivacySettings = () => {
     setSaving(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$a}?action=global_settings`, {
+      const res = await fetch(`${API_URL$b}?action=global_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -54075,7 +54387,7 @@ const Settings = () => {
     ] })
   ] });
 };
-const API_URL$9 = "/api.php";
+const API_URL$a = "/api.php";
 const IntegrationsPage = () => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("kclient_php");
@@ -54113,7 +54425,7 @@ const IntegrationsPage = () => {
   const fetchTelegramSettings = reactExports.useCallback(async () => {
     setTgLoading(true);
     try {
-      const res = await axios.get(`${API_URL$9}?action=telegram_settings`);
+      const res = await axios.get(`${API_URL$a}?action=telegram_settings`);
       if (res.data.status === "success") {
         setTgSettings(res.data.data);
         setTgNotifyConversions(res.data.data.notify_conversions);
@@ -54127,7 +54439,7 @@ const IntegrationsPage = () => {
   }, []);
   const fetchRcSettings = reactExports.useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL$9}?action=settings`);
+      const res = await axios.get(`${API_URL$a}?action=settings`);
       if (res.data.status === "success") {
         const s = res.data.data || {};
         setRcSettings({
@@ -54146,7 +54458,7 @@ const IntegrationsPage = () => {
     setRcSaving(true);
     setRcMessage(null);
     try {
-      await axios.post(`${API_URL$9}?action=save_settings`, rcSettings);
+      await axios.post(`${API_URL$a}?action=save_settings`, rcSettings);
       setRcMessage({ type: "success", text: t("recaptcha.saved") });
     } catch (err) {
       setRcMessage({ type: "error", text: t("recaptcha.saveError") });
@@ -54168,7 +54480,7 @@ const IntegrationsPage = () => {
     setTgSaving(true);
     setTgMessage(null);
     try {
-      const res = await axios.post(`${API_URL$9}?action=save_telegram_settings`, {
+      const res = await axios.post(`${API_URL$a}?action=save_telegram_settings`, {
         token: tgToken,
         notify_conversions: tgNotifyConversions,
         daily_time: tgDailyTime
@@ -54189,7 +54501,7 @@ const IntegrationsPage = () => {
   const handleTelegramDisconnect = async () => {
     setTgSaving(true);
     try {
-      await axios.post(`${API_URL$9}?action=save_telegram_settings`, { action: "disconnect" });
+      await axios.post(`${API_URL$a}?action=save_telegram_settings`, { action: "disconnect" });
       setTgSettings(null);
       setTgMessage({ type: "success", text: t("telegram.disconnected") });
       fetchTelegramSettings();
@@ -54203,7 +54515,7 @@ const IntegrationsPage = () => {
     setTgTesting(true);
     setTgMessage(null);
     try {
-      const res = await axios.post(`${API_URL$9}?action=telegram_test`);
+      const res = await axios.post(`${API_URL$a}?action=telegram_test`);
       setTgMessage({
         type: res.data.status === "success" ? "success" : "error",
         text: res.data.message || (res.data.status === "success" ? t("telegram.testSent") : t("telegram.testFailed"))
@@ -54217,7 +54529,7 @@ const IntegrationsPage = () => {
   const handleSaveSettings = async () => {
     setTgSaving(true);
     try {
-      await axios.post(`${API_URL$9}?action=save_telegram_settings`, {
+      await axios.post(`${API_URL$a}?action=save_telegram_settings`, {
         notify_conversions: tgNotifyConversions,
         daily_time: tgDailyTime
       });
@@ -54231,7 +54543,7 @@ const IntegrationsPage = () => {
   const fetchConfigs = reactExports.useCallback(async () => {
     setConfigLoading(true);
     try {
-      const res = await axios.get(`${API_URL$9}?action=app_configs`);
+      const res = await axios.get(`${API_URL$a}?action=app_configs`);
       if (res.data.status === "success") setConfigs(res.data.data || []);
     } catch (err) {
       console.error(err);
@@ -54241,7 +54553,7 @@ const IntegrationsPage = () => {
   }, []);
   const fetchCampaigns = reactExports.useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL$9}?action=campaigns`);
+      const res = await axios.get(`${API_URL$a}?action=campaigns`);
       if (res.data.status === "success") setCampaigns(res.data.data || []);
     } catch (err) {
       console.error(err);
@@ -54270,7 +54582,7 @@ const IntegrationsPage = () => {
     try {
       const payload = { ...configForm };
       if (editingConfig && editingConfig !== "new") payload.id = editingConfig;
-      const res = await axios.post(`${API_URL$9}?action=save_app_config`, payload);
+      const res = await axios.post(`${API_URL$a}?action=save_app_config`, payload);
       if (res.data.status === "success") {
         setConfigMessage({ type: "success", text: t("appConfig.saved") });
         setEditingConfig(null);
@@ -54282,7 +54594,7 @@ const IntegrationsPage = () => {
   };
   const handleDeleteConfig = async (id) => {
     if (!confirm(t("appConfig.confirmDelete"))) return;
-    await axios.post(`${API_URL$9}?action=delete_app_config`, { id });
+    await axios.post(`${API_URL$a}?action=delete_app_config`, { id });
     setConfigMessage({ type: "success", text: t("appConfig.deleted") });
     fetchConfigs();
   };
@@ -54404,7 +54716,7 @@ const IntegrationsPage = () => {
           t("appConfig.edit")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: async () => {
-          await axios.post(`${API_URL$9}?action=save_app_config`, { id: cfg.id, name: cfg.name, config_json: cfg.config_json, is_active: cfg.is_active ? 0 : 1 });
+          await axios.post(`${API_URL$a}?action=save_app_config`, { id: cfg.id, name: cfg.name, config_json: cfg.config_json, is_active: cfg.is_active ? 0 : 1 });
           fetchConfigs();
         }, className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Power, { size: 12 }),
@@ -55822,7 +56134,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
     ] }) })
   ] });
 };
-const API_URL$8 = "/api.php";
+const API_URL$9 = "/api.php";
 const LogsPage = () => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("traffic");
@@ -55837,7 +56149,7 @@ const LogsPage = () => {
   };
   reactExports.useEffect(() => {
     setLoading(true);
-    fetch(`${API_URL$8}?action=logs&type=${activeTab}&limit=100`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$9}?action=logs&type=${activeTab}&limit=100`).then((res) => res.json()).then((data) => {
       if (data.status === "success") {
         setLogs(data.data);
       } else {
@@ -56002,7 +56314,7 @@ const LogsPage = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 text-xs text-[var(--color-text-muted)]", children: t("logs.lastRecords") })
   ] });
 };
-const API_URL$7 = "/api.php";
+const API_URL$8 = "/api.php";
 const ArchivePage = () => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("campaigns");
@@ -56024,7 +56336,7 @@ const ArchivePage = () => {
   ];
   const fetchArchive = () => {
     setLoading(true);
-    fetch(`${API_URL$7}?action=archive_items`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$8}?action=archive_items`).then((res) => res.json()).then((data) => {
       if (data.status === "success") {
         setItems(data.data);
       }
@@ -56038,7 +56350,7 @@ const ArchivePage = () => {
     if (!window.confirm(t("archive.confirmAction"))) return;
     setActionLoading(true);
     try {
-      const res = await fetch(`${API_URL$7}?action=${endpointAction}`, {
+      const res = await fetch(`${API_URL$8}?action=${endpointAction}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -56210,7 +56522,7 @@ const ArchivePage = () => {
     ] }) })
   ] });
 };
-const API_URL$6 = "/api.php";
+const API_URL$7 = "/api.php";
 const GeoDBPage = () => {
   const { t } = useLanguage();
   const [dbs, setDbs] = reactExports.useState([]);
@@ -56226,7 +56538,7 @@ const GeoDBPage = () => {
   const fileInputRef = reactExports.useRef(null);
   const fetchDbs = () => {
     setLoading(true);
-    fetch(`${API_URL$6}?action=geo_dbs`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$7}?action=geo_dbs`).then((res) => res.json()).then((data) => {
       if (data.status === "success") {
         setDbs(data.data);
       }
@@ -56234,7 +56546,7 @@ const GeoDBPage = () => {
     }).catch(() => setLoading(false));
   };
   const fetchSettings = () => {
-    fetch(`${API_URL$6}?action=global_settings`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$7}?action=global_settings`).then((res) => res.json()).then((data) => {
       if (data.status === "success" && data.data) {
         setMaxmindKey(data.data.maxmind_license_key || "");
         setMaxmindAccountId(data.data.maxmind_account_id || "");
@@ -56259,7 +56571,7 @@ const GeoDBPage = () => {
     setMessage("");
     setError("");
     try {
-      const res = await fetch(`${API_URL$6}?action=geo_db_update`, {
+      const res = await fetch(`${API_URL$7}?action=geo_db_update`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id })
@@ -56288,7 +56600,7 @@ const GeoDBPage = () => {
     formData.append("file", file);
     formData.append("db_id", "sypex_city_lite");
     try {
-      const res = await fetch(`${API_URL$6}?action=geo_db_upload`, {
+      const res = await fetch(`${API_URL$7}?action=geo_db_upload`, {
         method: "POST",
         body: formData
       });
@@ -56311,7 +56623,7 @@ const GeoDBPage = () => {
     setMessage("");
     setError("");
     try {
-      const res = await fetch(`${API_URL$6}?action=global_settings`, {
+      const res = await fetch(`${API_URL$7}?action=global_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ settings: { maxmind_license_key: maxmindKey, maxmind_account_id: maxmindAccountId, ip2location_token: ip2locationToken } })
@@ -56739,7 +57051,7 @@ const McpPage = () => {
     ] })
   ] }) });
 };
-const API_URL$5 = "/api.php";
+const API_URL$6 = "/api.php";
 const MigrationsPage = () => {
   const { t } = useLanguage();
   const [migrations, setMigrations] = reactExports.useState([]);
@@ -56800,7 +57112,7 @@ const MigrationsPage = () => {
   };
   const fetchMigrations = () => {
     setLoading(true);
-    fetch(`${API_URL$5}?action=migrations`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$6}?action=migrations`).then((res) => res.json()).then((data) => {
       if (data.status === "success") {
         setMigrations(data.data);
       }
@@ -56813,7 +57125,7 @@ const MigrationsPage = () => {
   const handleRunMigration = async (version2) => {
     setActionLoading(version2);
     try {
-      const res = await fetch(`${API_URL$5}?action=run_migration`, {
+      const res = await fetch(`${API_URL$6}?action=run_migration`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ version: version2 })
@@ -56852,7 +57164,7 @@ const MigrationsPage = () => {
       fd.append("import_streams", kImportStreams ? "1" : "0");
       fd.append("import_campaign_postbacks", kImportCampaignPostbacks ? "1" : "0");
       fd.append("preserve_campaign_ids", kPreserveCampaignIds && kImportCampaigns ? "1" : "0");
-      const res = await fetch(`${API_URL$5}?action=keitaro_import_sql`, {
+      const res = await fetch(`${API_URL$6}?action=keitaro_import_sql`, {
         method: "POST",
         body: fd
       });
@@ -56873,7 +57185,7 @@ const MigrationsPage = () => {
     setPurgeError("");
     setPurgeResult(null);
     try {
-      const res = await fetch(`${API_URL$5}?action=purge_metadata`, {
+      const res = await fetch(`${API_URL$6}?action=purge_metadata`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -57307,7 +57619,7 @@ scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz $env:USERPROFI
     ] })
   ] });
 };
-const API_URL$4 = "/api.php";
+const API_URL$5 = "/api.php";
 const UpdatePage = () => {
   const { t } = useLanguage();
   const [updateInfo, setUpdateInfo] = reactExports.useState(null);
@@ -57320,7 +57632,7 @@ const UpdatePage = () => {
   const checkUpdate = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$4}?action=check_update`);
+      const res = await axios.get(`${API_URL$5}?action=check_update`);
       if (res.data.status === "success") {
         setUpdateInfo(res.data.data);
       }
@@ -57346,7 +57658,7 @@ const UpdatePage = () => {
     try {
       await new Promise((r2) => setTimeout(r2, 800));
       setUpdateStep("installing");
-      const res = await axios.post(`${API_URL$4}?action=run_update`);
+      const res = await axios.post(`${API_URL$5}?action=run_update`);
       const data = res.data;
       if (data.status === "success") {
         setUpdateStep("complete");
@@ -58239,13 +58551,13 @@ const FeedbackPage = () => {
     ] })
   ] }) });
 };
-const API_URL$3 = "/api.php";
+const API_URL$4 = "/api.php";
 const StatusContent = () => {
   const { t } = useLanguage();
   const [statusData, setStatusData] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   React.useEffect(() => {
-    fetch(`${API_URL$3}?action=system_status`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$4}?action=system_status`).then((res) => res.json()).then((data) => {
       if (data.status === "success") {
         setStatusData(data.data);
       }
@@ -58503,7 +58815,7 @@ const ImportContent = () => {
     setMessage("");
     setErrorMsg("");
     try {
-      const res = await fetch(`${API_URL$3}?action=import_conversions`, {
+      const res = await fetch(`${API_URL$4}?action=import_conversions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ csv_data: csvData })
@@ -58773,10 +59085,425 @@ const AdminPage = ({ page }) => {
     ] }) : config.content
   ] });
 };
+const API_URL$3 = "/api.php";
+const PRIMARY_HEX = "#f05a3e";
+const hexToRgba = (hex2, alpha2) => {
+  let r2 = 0, g = 0, b = 0;
+  if (hex2.startsWith("#")) {
+    if (hex2.length === 4) {
+      r2 = parseInt(hex2[1] + hex2[1], 16);
+      g = parseInt(hex2[2] + hex2[2], 16);
+      b = parseInt(hex2[3] + hex2[3], 16);
+    } else if (hex2.length === 7) {
+      r2 = parseInt(hex2.slice(1, 3), 16);
+      g = parseInt(hex2.slice(3, 5), 16);
+      b = parseInt(hex2.slice(5, 7), 16);
+    }
+  }
+  return `rgba(${r2}, ${g}, ${b}, ${alpha2})`;
+};
+const formatCohortLabel = (label, granularity, t) => {
+  if (!label) return "";
+  if (granularity === "quarter") {
+    const [year2, q] = label.split("-Q");
+    if (!year2 || !q) return label;
+    return `${q} ${year2}`;
+  }
+  const [year, month] = label.split("-");
+  if (!year || !month) return label;
+  const date = new Date(Number(year), Number(month) - 1, 1);
+  return date.toLocaleDateString(void 0, { month: "short", year: "numeric" });
+};
+const formatCellValue = (metric, value) => {
+  const n = Number(value || 0);
+  if (["revenue", "real_revenue", "cost", "profit"].includes(metric)) {
+    return `$${n.toFixed(2)}`;
+  }
+  if (["roi", "real_roi", "cr"].includes(metric)) {
+    return `${n.toFixed(2)}%`;
+  }
+  return n.toLocaleString("ru-RU");
+};
+const CohortView = () => {
+  const { t } = useLanguage();
+  const [granularity, setGranularity] = reactExports.useState("month");
+  const [metric, setMetric] = reactExports.useState("revenue");
+  const [dateFrom, setDateFrom] = reactExports.useState(() => {
+    const d = /* @__PURE__ */ new Date();
+    d.setMonth(d.getMonth() - 6);
+    return d.toISOString().split("T")[0];
+  });
+  const [dateTo, setDateTo] = reactExports.useState(() => (/* @__PURE__ */ new Date()).toISOString().split("T")[0]);
+  const [loading, setLoading] = reactExports.useState(true);
+  const [data, setData] = reactExports.useState(null);
+  const [error, setError] = reactExports.useState("");
+  const availableMetrics = reactExports.useMemo(() => [
+    { key: "revenue", label: t("cohort.revenue") },
+    { key: "real_revenue", label: t("cohort.realRevenue") },
+    { key: "clicks", label: t("cohort.clicks") },
+    { key: "conversions", label: t("cohort.conversions") },
+    { key: "cost", label: t("cohort.cost") },
+    { key: "profit", label: t("cohort.profit") },
+    { key: "roi", label: t("cohort.roi") },
+    { key: "real_roi", label: t("cohort.realRoi") },
+    { key: "cr", label: t("cohort.cr") },
+    { key: "campaigns_active", label: t("cohort.campaignsActive") }
+  ], [t]);
+  const fetchCohort = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const params = new URLSearchParams({
+        action: "cohort",
+        granularity,
+        date_from: dateFrom,
+        date_to: dateTo
+      });
+      const res = await fetch(`${API_URL$3}?${params}`);
+      const json = await res.json();
+      if (json.status === "success") {
+        setData(json.data);
+      } else {
+        setError(json.message || "Error");
+        setData(null);
+      }
+    } catch (e) {
+      console.error("Error fetching cohort:", e);
+      setError(String(e));
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+  reactExports.useEffect(() => {
+    fetchCohort();
+  }, [granularity, dateFrom, dateTo]);
+  const { matrix, cohortLabels, maxPeriod } = reactExports.useMemo(() => {
+    if (!data || !data.rows || data.rows.length === 0) {
+      return { matrix: {}, cohortLabels: [], maxPeriod: 0 };
+    }
+    const m = {};
+    let maxP = 0;
+    for (const row of data.rows) {
+      const lbl = row.cohort_label;
+      if (!m[lbl]) m[lbl] = {};
+      m[lbl][row.period_index] = row;
+      if (row.period_index > maxP) maxP = row.period_index;
+    }
+    const labels = Object.keys(m).sort();
+    return { matrix: m, cohortLabels: labels, maxPeriod: Math.min(maxP, data.max_period ?? maxP) };
+  }, [data]);
+  const rowMax = (cohortLabel) => {
+    const cohort = matrix[cohortLabel];
+    if (!cohort) return 0;
+    let mx = 0;
+    for (let p = 0; p <= maxPeriod; p++) {
+      const v = cohort[p]?.[metric];
+      if (typeof v === "number" && v > mx) mx = v;
+    }
+    return mx;
+  };
+  const exportCSV = () => {
+    if (!data || !data.rows || data.rows.length === 0) return;
+    const headers = [
+      "cohort",
+      "period_index",
+      "clicks",
+      "unique_clicks",
+      "conversions",
+      "revenue",
+      "real_revenue",
+      "cost",
+      "profit",
+      "cr",
+      "roi",
+      "real_roi",
+      "campaigns_active",
+      "campaigns_launched"
+    ];
+    const launchedMap2 = data.launched || {};
+    const lines = [headers.join(";")];
+    const sorted = [...data.rows].sort((a, b) => a.cohort_label.localeCompare(b.cohort_label) || a.period_index - b.period_index);
+    for (const r2 of sorted) {
+      lines.push([
+        r2.cohort_label,
+        r2.period_index,
+        r2.clicks,
+        r2.unique_clicks,
+        r2.conversions,
+        r2.revenue,
+        r2.real_revenue,
+        r2.cost,
+        r2.profit,
+        r2.cr,
+        r2.roi,
+        r2.real_roi,
+        r2.campaigns_active,
+        launchedMap2[r2.cohort_label] ?? 0
+      ].join(";"));
+    }
+    const csv = "\uFEFF" + lines.join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `cohort_${granularity}_${dateFrom}_${dateTo}.csv`;
+    link.click();
+  };
+  const summary = reactExports.useMemo(() => {
+    if (cohortLabels.length === 0) return [];
+    return cohortLabels.map((label) => {
+      const cohort = matrix[label];
+      let clicks = 0, conversions = 0, revenue = 0, cost = 0, profit = 0, realRevenue = 0;
+      let campaignsActive = 0, firstIdx = null, lastIdx = null;
+      for (let p = 0; p <= maxPeriod; p++) {
+        const r2 = cohort[p];
+        if (!r2) continue;
+        clicks += r2.clicks;
+        conversions += r2.conversions;
+        revenue += r2.revenue;
+        cost += r2.cost;
+        profit += r2.profit;
+        realRevenue += r2.real_revenue;
+        if (r2.campaigns_active > campaignsActive) campaignsActive = r2.campaigns_active;
+        if (firstIdx === null) firstIdx = p;
+        lastIdx = p;
+      }
+      const roi = cost > 0 ? profit / cost * 100 : profit > 0 ? 100 : 0;
+      return {
+        label,
+        clicks,
+        conversions,
+        revenue,
+        cost,
+        profit,
+        realRevenue,
+        campaignsActive,
+        launched: data?.launched?.[label] ?? 0,
+        roi: Math.round(roi * 100) / 100,
+        firstIdx,
+        lastIdx
+      };
+    });
+  }, [cohortLabels, matrix, maxPeriod, data]);
+  const hasData = data && data.rows && data.rows.length > 0;
+  const launchedMap = data?.launched || {};
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_cohort", title: t("cohort.bannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("cohort.banner") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Grid3x3, { className: "w-4 h-4", style: { color: "var(--color-text-muted)" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", style: { margin: 0 }, children: t("cohort.granularity") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: granularity,
+              onChange: (e) => setGranularity(e.target.value),
+              className: "form-select",
+              style: { width: "auto", padding: "8px 12px" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "month", children: t("cohort.month") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "quarter", children: t("cohort.quarter") })
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar$1, { className: "w-4 h-4", style: { color: "var(--color-text-muted)" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "date",
+              value: dateFrom,
+              onChange: (e) => setDateFrom(e.target.value),
+              className: "form-input",
+              style: { width: "auto", padding: "8px 12px" }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "—" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "date",
+              value: dateTo,
+              onChange: (e) => setDateTo(e.target.value),
+              className: "form-input",
+              style: { width: "auto", padding: "8px 12px" }
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: exportCSV, className: "btn btn-secondary btn-sm", disabled: !hasData, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "w-4 h-4" }),
+          t("cohort.exportCsv")
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", style: { marginTop: "12px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "form-label", style: { margin: 0 }, children: t("cohort.metric") }),
+        availableMetrics.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => setMetric(m.key),
+            className: `btn btn-sm ${metric === m.key ? "" : "btn-secondary"}`,
+            style: metric === m.key ? { backgroundColor: "var(--color-primary)", color: "white" } : {},
+            children: m.label
+          },
+          m.key
+        ))
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { padding: "16px 24px", marginBottom: 0 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { className: "w-5 h-5", style: { color: "var(--color-text-muted)" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", children: t("cohort.matrixTitle") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "14px", color: "var(--color-text-muted)" }, children: [
+          cohortLabels.length,
+          " ",
+          t("cohort.cohortLabel").toLowerCase()
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", style: { padding: "48px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("cohort.loading") }) }) : !hasData ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", style: { padding: "48px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("cohort.noDataTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("cohort.noDataText") })
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: {
+            position: "sticky",
+            left: 0,
+            zIndex: 2,
+            background: "var(--color-bg-card)"
+          }, children: t("cohort.cohortLabel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.launched") }),
+          Array.from({ length: maxPeriod + 1 }, (_, p) => /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "text-right", children: [
+            "M",
+            p
+          ] }, p))
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: cohortLabels.map((label) => {
+          const cohort = matrix[label];
+          const mx = rowMax(label);
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: {
+              fontWeight: 500,
+              position: "sticky",
+              left: 0,
+              zIndex: 1,
+              background: "var(--color-bg-card)"
+            }, children: formatCohortLabel(label, granularity) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", style: { color: "var(--color-text-muted)" }, children: launchedMap[label] ?? 0 }),
+            Array.from({ length: maxPeriod + 1 }, (_, p) => {
+              const cell = cohort[p];
+              if (!cell) {
+                return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "td",
+                  {
+                    className: "text-right",
+                    style: {
+                      background: "var(--color-bg-soft)",
+                      color: "var(--color-text-muted)"
+                    },
+                    children: "—"
+                  },
+                  p
+                );
+              }
+              const v = cell[metric];
+              const ratio = mx > 0 ? Math.max(0, Number(v || 0)) / mx : 0;
+              const alpha2 = 0.12 + ratio * (0.92 - 0.12);
+              const bg = hexToRgba(PRIMARY_HEX, alpha2);
+              const textColor = ratio > 0.55 ? "#fff" : "var(--color-text-primary)";
+              return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "td",
+                {
+                  className: "text-right",
+                  title: formatCohortLabel(label, granularity) + " · M" + p,
+                  style: {
+                    background: bg,
+                    color: textColor,
+                    fontWeight: ratio > 0.55 ? 600 : 400
+                  },
+                  children: formatCellValue(metric, v)
+                },
+                p
+              );
+            })
+          ] }, label);
+        }) })
+      ] }) })
+    ] }),
+    hasData && !loading && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { padding: "16px 24px", marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Table2, { className: "w-5 h-5", style: { color: "var(--color-text-muted)" } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", children: t("cohort.summaryTitle") })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("cohort.cohortLabel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.launched") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.campaignsActive") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.totalClicks") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.conversions") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.totalRevenue") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.totalProfit") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.avgRoi") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.firstSeen") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.lastSeen") })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: summary.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: formatCohortLabel(s.label, granularity) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", style: { color: "var(--color-text-muted)" }, children: s.launched }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: s.campaignsActive }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: s.clicks.toLocaleString("ru-RU") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: s.conversions }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "text-right", children: [
+            "$",
+            s.revenue.toFixed(2)
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "td",
+            {
+              className: "text-right",
+              style: { color: s.profit >= 0 ? "var(--color-success)" : "var(--color-danger)" },
+              children: [
+                "$",
+                s.profit.toFixed(2)
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "td",
+            {
+              className: "text-right",
+              style: { color: s.roi >= 0 ? "var(--color-success)" : "var(--color-danger)" },
+              children: [
+                s.roi.toFixed(2),
+                "%"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "text-right", style: { color: "var(--color-text-muted)" }, children: [
+            "M",
+            s.firstIdx ?? 0
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "text-right", style: { color: "var(--color-text-muted)" }, children: [
+            "M",
+            s.lastIdx ?? 0
+          ] })
+        ] }, s.label)) })
+      ] }) })
+    ] })
+  ] });
+};
 Chart$1.register(CategoryScale, LinearScale, PointElement, LineElement, plugin_title, plugin_tooltip, plugin_legend, index$2);
 const API_URL$2 = "/api.php";
 const TrendsPage = () => {
   const { t } = useLanguage();
+  const [view, setView] = reactExports.useState(() => localStorage.getItem("orbitra_analytics_view") || "trend");
+  const handleSetView = (v) => {
+    setView(v);
+    localStorage.setItem("orbitra_analytics_view", v);
+  };
   const [groupBy, setGroupBy] = reactExports.useState("day");
   const [dateFrom, setDateFrom] = reactExports.useState(() => {
     const d = /* @__PURE__ */ new Date();
@@ -58879,7 +59606,47 @@ const TrendsPage = () => {
     scales: { y: { beginAtZero: true } },
     interaction: { mode: "nearest", axis: "x", intersect: false }
   };
+  const viewSwitcher = /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "flex items-center gap-1 p-1 rounded-2xl",
+      style: { background: "var(--color-bg-soft)", width: "fit-content" },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => handleSetView("trend"),
+            className: "btn btn-sm",
+            style: view === "trend" ? { backgroundColor: "var(--color-primary)", color: "white" } : { background: "transparent", color: "var(--color-text-secondary)", boxShadow: "none" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "w-4 h-4" }),
+              t("analytics.trends")
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => handleSetView("cohort"),
+            className: "btn btn-sm",
+            style: view === "cohort" ? { backgroundColor: "var(--color-primary)", color: "white" } : { background: "transparent", color: "var(--color-text-secondary)", boxShadow: "none" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Grid3x3, { className: "w-4 h-4" }),
+              t("analytics.cohort")
+            ]
+          }
+        )
+      ]
+    }
+  );
+  if (view === "cohort") {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+      viewSwitcher,
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CohortView, {})
+    ] });
+  }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+    viewSwitcher,
     /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_trends", title: t("help.trendsBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.trendsBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-4", children: [

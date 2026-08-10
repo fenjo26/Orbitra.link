@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Filter, Download, BarChart3, TrendingUp, Clock, PieChart } from 'lucide-react';
+import { Calendar, Filter, Download, BarChart3, TrendingUp, Clock, PieChart, Grid3x3 } from 'lucide-react';
 import InfoBanner from './InfoBanner';
+import CohortView from './CohortView';
 import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
@@ -14,6 +15,11 @@ const API_URL = '/api.php';
 
 const TrendsPage = () => {
     const { t } = useLanguage();
+    const [view, setView] = useState(() => localStorage.getItem('orbitra_analytics_view') || 'trend');
+    const handleSetView = (v) => {
+        setView(v);
+        localStorage.setItem('orbitra_analytics_view', v);
+    };
     const [groupBy, setGroupBy] = useState('day');
     const [dateFrom, setDateFrom] = useState(() => {
         const d = new Date(); d.setDate(d.getDate() - 7);
@@ -113,8 +119,42 @@ const TrendsPage = () => {
         interaction: { mode: 'nearest', axis: 'x', intersect: false }
     };
 
+    // Segmented switch between Trend and Cohort views. Persisted to localStorage
+    // so a reload keeps the user on the same analytics sub-view.
+    const viewSwitcher = (
+        <div className="flex items-center gap-1 p-1 rounded-2xl"
+            style={{ background: 'var(--color-bg-soft)', width: 'fit-content' }}>
+            <button
+                onClick={() => handleSetView('trend')}
+                className="btn btn-sm"
+                style={view === 'trend'
+                    ? { backgroundColor: 'var(--color-primary)', color: 'white' }
+                    : { background: 'transparent', color: 'var(--color-text-secondary)', boxShadow: 'none' }}>
+                <TrendingUp className="w-4 h-4" />{t('analytics.trends')}
+            </button>
+            <button
+                onClick={() => handleSetView('cohort')}
+                className="btn btn-sm"
+                style={view === 'cohort'
+                    ? { backgroundColor: 'var(--color-primary)', color: 'white' }
+                    : { background: 'transparent', color: 'var(--color-text-secondary)', boxShadow: 'none' }}>
+                <Grid3x3 className="w-4 h-4" />{t('analytics.cohort')}
+            </button>
+        </div>
+    );
+
+    if (view === 'cohort') {
+        return (
+            <div className="space-y-4">
+                {viewSwitcher}
+                <CohortView />
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-4">
+            {viewSwitcher}
             <InfoBanner storageKey="help_trends" title={t('help.trendsBannerTitle')}>
                 <p>{t('help.trendsBanner')}</p>
             </InfoBanner>

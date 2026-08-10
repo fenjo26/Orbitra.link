@@ -84,7 +84,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         { icon: <DollarSign size={18} />, label: t('nav.offers'), tab: 'offers' },
         { icon: <Users size={18} />, label: t('nav.networks'), tab: 'networks' },
         { icon: <Link size={18} />, label: t('nav.sources'), tab: 'sources' },
-        { icon: <TrendingUp size={18} />, label: t('nav.trends'), tab: 'trends' },
+        { icon: <TrendingUp size={18} />, label: t('nav.analytics'), tab: 'trends' },
         { icon: <Globe size={18} />, label: t('nav.domains'), tab: 'domains' },
         { icon: <Search size={18} />, label: t('nav.backorder'), tab: 'backorder' },
     ];
@@ -106,7 +106,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                         <NavItem icon={<DollarSign size={18} />} label={t('nav.offers')} active={activeTab === 'offers'} onClick={() => setActiveTab('offers')} />
                         <NavItem icon={<Users size={18} />} label={t('nav.networks')} active={activeTab === 'networks'} onClick={() => setActiveTab('networks')} />
                         <NavItem icon={<Link size={18} />} label={t('nav.sources')} active={activeTab === 'sources'} onClick={() => setActiveTab('sources')} />
-                        <NavItem icon={<TrendingUp size={18} />} label={t('nav.trends')} active={activeTab === 'trends'} onClick={() => setActiveTab('trends')} />
+                        <NavItem icon={<TrendingUp size={18} />} label={t('nav.analytics')} active={activeTab === 'trends'} onClick={() => setActiveTab('trends')} />
                         <NavItem icon={<Globe size={18} />} label={t('nav.domains')} active={activeTab === 'domains'} onClick={() => setActiveTab('domains')} />
                         <NavItem icon={<Search size={18} />} label={t('nav.backorder')} active={activeTab === 'backorder'} onClick={() => setActiveTab('backorder')} />
                     </div>
