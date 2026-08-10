@@ -39,6 +39,12 @@ Thumbs.db
 .idea/
 .vscode/
 
+# FUSE temp files (mount artifacts on Linux, show up on this dev box)
+.fuse_hidden*
+
+# ZCode session/plans (local agent state, not source)
+.zcode/
+
 # Node logs
 npm-debug.log
 yarn-error.log

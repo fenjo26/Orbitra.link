@@ -1,4 +1,4 @@
-# Orbitra v0.9.6.9 Tracker
+# Orbitra v0.9.7.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -386,11 +386,12 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
 
-## 📝 What's New in v0.9.6.9
+## 📝 What's New in v0.9.7.0
 
 ### Added
 - 🌐 **A local landing is served at its own `/lander/<slug>/`, matching Keitaro.** The Folder field advertised that URL from the day slugs arrived, but nothing answered it — a landing's files were reachable only during a real click, resolved from the `orbitra_lp` cookie, so a landing could not be looked at without pushing traffic through a campaign. As Keitaro does, the served HTML gets a `<base>` tag injected so the page's relative paths (`img/a.png`) resolve inside its folder, which is exactly why Keitaro's requirements say the landing must not ship a `<base>` of its own. Assets go through the same extension whitelist and path containment the click flow uses; `.php` is neither served nor executed there, since a PHP landing needs the click context this route has none of. Nothing is logged — this is a look at the landing, not a visit to a campaign.
 - 👁 **Code / Preview toggle in the landing editor.** Preview loads the landing from `/lander/<slug>/` in an iframe, so it is the page as a visitor receives it — images, video, CSS and scripts included — not a rendering of the HTML on its own. Switching to it forces a reload, so it never shows the state from before the last save or upload, and a button opens the same URL in a new tab.
+- 🛡️ **The Domains page says why SSL is unavailable.** On shared hosting where `shell_exec` is removed or Certbot is not installed, a parked domain used to sit at "waiting for certificate" with no hint that the server can never issue one. The page now checks the server's capability once on load and shows a banner naming the blocker (no shell, no Certbot, no nginx config, non-writable ACME dir) so the operator knows to use a dedicated VPS or issue through their hosting instead of waiting.
 
 ### Changed
 - 🧩 **The campaign stream no longer carries its own copy of the landing form.** `CampaignEditor` held a 271-line duplicate of `LandingEditor` — which is exactly why the two behaved differently: the stream's copy accepted a ZIP while creating a landing and the Landings page did not, and every fix had to be written twice. The stream now renders the same `LandingEditor` and receives the saved id through a new `onSaved` callback to wire it into the rotation. `CampaignEditor` sheds 309 lines along with the state that existed only to feed the copy (landing groups, the campaign list, the postback key, the offer-link hint) and three API calls it made on every open.
@@ -404,6 +405,8 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 - 📦 **"ZIP upload error" was all a failed archive upload ever said.** Every non-2xx answer landed in a `catch` that alerted a fixed string, so an oversized archive, a missing PHP extension and a read-only directory looked identical. `upload_landing` now names each failure: `post_max_size` exceeded (with the actual sizes), each `UPLOAD_ERR_*` code in words, a missing `zip` or `fileinfo` extension with the package to install, a `landings/` directory the web server cannot write to with the `chown` command, and the MIME type actually detected when the file is not a ZIP. The handler is wrapped, so a fatal returns JSON instead of a 500.
 - 🕳 **A failed extraction was reported as a successful upload.** The return values of `mkdir()` and `ZipArchive::extractTo()` were discarded, so on a permissions problem the panel claimed success while the landing quietly served nothing. Both are checked now.
 - 🗜 **An archive PHP cannot decompress looked like a permissions problem.** The "maximum compression" preset in 7-Zip and WinRAR writes LZMA, BZip2 or PPMd entries, and libzip is normally built with Store and Deflate only — so the archive opens, the file list reads fine, and only extraction fails. A failed extraction now inspects each entry's compression method, names the unsupported one and says to repack with Deflate.
+- 🔗 **A half-chain certificate showed as installed.** A `fullchain.pem` holding only the leaf — missing the intermediate — opens in Firefox (which fills the gap from its own store) but fails in Chrome and curl with *unable to get local issuer certificate*. `core/ssl_manager.php` now counts the certificates in the chain on every run and marks the domain `failed` with an `incomplete_chain` reason when fewer than two are present, so the browser never gets served a chain it cannot close — both right after issue and later, catching a file that went wrong after the fact.
+- 🌐 **Server error messages were hard-coded in Russian.** `upload_landing` and the SSL worker returned whole Russian sentences; in a panel that ships seven locales a backend string the frontend cannot translate is a bug. The backend now returns machine codes plus a `detail` object of the measured facts, and the frontend phrases them per locale — Certbot's own output passes through untranslated.
 
 ## 📝 What's New in v0.9.6.8
 

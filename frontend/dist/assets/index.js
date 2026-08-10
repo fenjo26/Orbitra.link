@@ -16538,7 +16538,17 @@ const ru = {
     "sslStatus": "Статус SSL",
     "sslInstalled": "SSL установлен",
     "sslInstalling": "SSL устанавливается...",
+    "sslEnvAcmeNotWritable": "Каталог для проверки Let's Encrypt закрыт для записи — валидация домена не пройдёт.",
+    "sslCertbotNoOutput": "Certbot ничего не ответил — проверьте, что он установлен и доступен веб-серверу через sudo.",
+    "sslIncompleteChain": "В файле сертификата нет промежуточного — сайт открывается в Firefox, но не в Chrome. Перевыпустите сертификат.",
+    "sslDnsSeen": "A-запись домена",
+    "sslNoARecord": "A-записи нет",
     "sslPending": "Ожидает установки",
+    "sslEnvTitle": "Автовыпуск SSL на этом сервере недоступен",
+    "sslEnvNoShell": "PHP здесь не может запускать внешние команды — значит, ни certbot, ни планировщик отсюда не запустить. Домены так и будут висеть в ожидании сертификата.",
+    "sslEnvNoCertbot": "На сервере не установлен certbot — выпускать сертификаты нечем. Установите его: apt install certbot",
+    "sslEnvNoNginx": "Конфиг nginx не найден: похоже, сервер работает не на nginx, и вписать выпущенный сертификат автоматически не выйдет.",
+    "sslEnvHint": "Сертификаты придётся выпускать и подключать средствами вашего хостинга. Автовыпуск рассчитан на отдельный VPS с root-доступом — так ставит install.sh.",
     "issueSsl": "Выпустить SSL",
     "issueSslTitle": "Запросить сертификаты для доменов, у которых их ещё нет",
     "sslRunIssued": "Выпущено сертификатов",
@@ -17073,6 +17083,24 @@ const ru = {
     "slugReserved": "Эта папка зарезервирована системой, выберите другую",
     "slugTaken": "Такая папка уже занята другим лендингом",
     "slugCheckFailed": "Не удалось проверить папку — попробуйте ещё раз",
+    "uploadExceedsPostMax": "Архив больше, чем разрешает PHP: увеличьте post_max_size и upload_max_filesize в php.ini",
+    "uploadErrIniSize": "Файл больше, чем upload_max_filesize в php.ini",
+    "uploadErrFormSize": "Файл больше лимита, заданного формой",
+    "uploadErrPartial": "Файл передан не полностью — попробуйте ещё раз",
+    "uploadErrNoFile": "Файл не был передан",
+    "uploadErrNoTmpDir": "На сервере нет временного каталога для загрузок (upload_tmp_dir)",
+    "uploadErrCantWrite": "Сервер не смог записать файл на диск — проверьте права",
+    "uploadErrExtension": "Загрузку остановило расширение PHP",
+    "uploadErrUnknown": "Загрузка не удалась",
+    "missingExtFileinfo": "На сервере нет расширения PHP fileinfo. Установите: apt install php-fileinfo",
+    "missingExtZip": "На сервере нет расширения PHP zip. Установите: apt install php-zip",
+    "notAZip": "Это не ZIP-архив — сервер определил другой тип файла",
+    "dirNotCreated": "Не удалось создать каталог лендинга: у веб-сервера нет прав на запись в landings/",
+    "dirNotWritable": "Каталог лендинга закрыт для записи веб-серверу",
+    "zipUnsupportedCompression": "Архив собран методом сжатия, который PHP не распаковывает. Пересоберите ZIP обычным Deflate",
+    "zipExtractFailed": "Архив открылся, но распаковать не вышло — проверьте права и место на диске",
+    "zipOpenFailed": "Не удалось открыть ZIP-архив: файл повреждён или это не ZIP",
+    "uploadFailed": "Не удалось загрузить архив",
     "archiveUploaded": "Архив успешно загружен и распакован.",
     "archiveError": "Ошибка загрузки ZIP",
     "fileUploadError": "Не удалось загрузить файл.",
@@ -18634,7 +18662,17 @@ const en = {
     "sslStatus": "SSL Status",
     "sslInstalled": "SSL installed",
     "sslInstalling": "SSL installing...",
+    "sslEnvAcmeNotWritable": "The Let's Encrypt challenge directory is not writable — domain validation will fail.",
+    "sslCertbotNoOutput": "Certbot returned nothing — check that it is installed and reachable by the web server via sudo.",
+    "sslIncompleteChain": "The certificate file is missing the intermediate — the site opens in Firefox but fails in Chrome. Re-issue the certificate.",
+    "sslDnsSeen": "The domain's A record",
+    "sslNoARecord": "no A record",
     "sslPending": "Awaiting installation",
+    "sslEnvTitle": "Automatic SSL issuance is unavailable on this server",
+    "sslEnvNoShell": "PHP cannot run external commands here, so neither Certbot nor the scheduler can be started. Domains will sit waiting for a certificate indefinitely.",
+    "sslEnvNoCertbot": "Certbot is not installed on this server, so there is nothing to issue certificates with. Install it: apt install certbot",
+    "sslEnvNoNginx": "No nginx config found: this server does not appear to run nginx, so an issued certificate cannot be wired in automatically.",
+    "sslEnvHint": "Certificates will have to be issued and installed through your hosting. Automatic issuance targets a dedicated VPS with root access, which is what install.sh sets up.",
     "issueSsl": "Issue SSL",
     "issueSslTitle": "Request certificates for domains that do not have one yet",
     "sslRunIssued": "Certificates issued",
@@ -19169,6 +19207,24 @@ const en = {
     "slugReserved": "That folder name is reserved by the system, pick another",
     "slugTaken": "Another landing already uses that folder",
     "slugCheckFailed": "The folder could not be checked — please try again",
+    "uploadExceedsPostMax": "The archive is larger than PHP allows: raise post_max_size and upload_max_filesize in php.ini",
+    "uploadErrIniSize": "The file is larger than upload_max_filesize in php.ini",
+    "uploadErrFormSize": "The file exceeds the limit set by the form",
+    "uploadErrPartial": "The file was only partially uploaded — please try again",
+    "uploadErrNoFile": "No file was sent",
+    "uploadErrNoTmpDir": "The server has no temporary upload directory (upload_tmp_dir)",
+    "uploadErrCantWrite": "The server could not write the file to disk — check permissions",
+    "uploadErrExtension": "A PHP extension stopped the upload",
+    "uploadErrUnknown": "The upload failed",
+    "missingExtFileinfo": "The PHP fileinfo extension is missing. Install it: apt install php-fileinfo",
+    "missingExtZip": "The PHP zip extension is missing. Install it: apt install php-zip",
+    "notAZip": "This is not a ZIP archive — the server detected a different file type",
+    "dirNotCreated": "Could not create the landing directory: the web server cannot write into landings/",
+    "dirNotWritable": "The landing directory is not writable by the web server",
+    "zipUnsupportedCompression": "The archive uses a compression method PHP cannot extract. Repack the ZIP with plain Deflate",
+    "zipExtractFailed": "The archive opened but could not be extracted — check permissions and free disk space",
+    "zipOpenFailed": "Could not open the ZIP archive: it is corrupt or not a ZIP",
+    "uploadFailed": "Could not upload the archive",
     "archiveUploaded": "Archive successfully uploaded and extracted.",
     "archiveError": "ZIP upload error",
     "fileUploadError": "Could not upload file.",
@@ -20730,7 +20786,17 @@ const uk = {
     "sslStatus": "SSL Status",
     "sslInstalled": "SSL installed",
     "sslInstalling": "SSL installing...",
+    "sslEnvAcmeNotWritable": "Каталог для перевірки Let's Encrypt закритий для запису — валідація домену не пройде.",
+    "sslCertbotNoOutput": "Certbot нічого не відповів — перевірте, що він встановлений і доступний вебсерверу через sudo.",
+    "sslIncompleteChain": "У файлі сертифіката немає проміжного — сайт відкривається у Firefox, але не в Chrome. Перевипустіть сертифікат.",
+    "sslDnsSeen": "A-запис домену",
+    "sslNoARecord": "A-запису немає",
     "sslPending": "Awaiting installation",
+    "sslEnvTitle": "Автовипуск SSL на цьому сервері недоступний",
+    "sslEnvNoShell": "PHP тут не може запускати зовнішні команди — ні certbot, ні планувальник звідси не запустити. Домени так і чекатимуть на сертифікат.",
+    "sslEnvNoCertbot": "На сервері не встановлено certbot — випускати сертифікати нічим. Встановіть: apt install certbot",
+    "sslEnvNoNginx": "Конфіг nginx не знайдено: схоже, сервер працює не на nginx, і вписати випущений сертифікат автоматично не вийде.",
+    "sslEnvHint": "Сертифікати доведеться випускати та підключати засобами вашого хостингу. Автовипуск розрахований на окремий VPS з root-доступом — саме так ставить install.sh.",
     "issueSsl": "Випустити SSL",
     "issueSslTitle": "Запросити сертифікати для доменів, які їх ще не мають",
     "sslRunIssued": "Випущено сертифікатів",
@@ -21265,6 +21331,24 @@ const uk = {
     "slugReserved": "Цю папку зарезервовано системою, оберіть іншу",
     "slugTaken": "Таку папку вже зайнято іншим лендингом",
     "slugCheckFailed": "Не вдалося перевірити папку — спробуйте ще раз",
+    "uploadExceedsPostMax": "Архів більший, ніж дозволяє PHP: збільште post_max_size та upload_max_filesize у php.ini",
+    "uploadErrIniSize": "Файл більший за upload_max_filesize у php.ini",
+    "uploadErrFormSize": "Файл перевищує ліміт, заданий формою",
+    "uploadErrPartial": "Файл передано не повністю — спробуйте ще раз",
+    "uploadErrNoFile": "Файл не було надіслано",
+    "uploadErrNoTmpDir": "На сервері немає тимчасового каталогу для завантажень (upload_tmp_dir)",
+    "uploadErrCantWrite": "Сервер не зміг записати файл на диск — перевірте права",
+    "uploadErrExtension": "Завантаження зупинило розширення PHP",
+    "uploadErrUnknown": "Завантаження не вдалося",
+    "missingExtFileinfo": "На сервері немає розширення PHP fileinfo. Встановіть: apt install php-fileinfo",
+    "missingExtZip": "На сервері немає розширення PHP zip. Встановіть: apt install php-zip",
+    "notAZip": "Це не ZIP-архів — сервер визначив інший тип файлу",
+    "dirNotCreated": "Не вдалося створити каталог лендингу: вебсервер не може писати в landings/",
+    "dirNotWritable": "Каталог лендингу закритий для запису вебсерверу",
+    "zipUnsupportedCompression": "Архів стиснуто методом, який PHP не розпаковує. Перезберіть ZIP звичайним Deflate",
+    "zipExtractFailed": "Архів відкрився, але розпакувати не вдалося — перевірте права та місце на диску",
+    "zipOpenFailed": "Не вдалося відкрити ZIP-архів: файл пошкоджено або це не ZIP",
+    "uploadFailed": "Не вдалося завантажити архів",
     "archiveUploaded": "Архів успішно завантажено та розпаковано.",
     "archiveError": "Помилка завантаження ZIP",
     "fileUploadError": "Не вдалося завантажити файл.",
@@ -22826,7 +22910,17 @@ const es = {
     "sslStatus": "SSL Status",
     "sslInstalled": "SSL installed",
     "sslInstalling": "SSL installing...",
+    "sslEnvAcmeNotWritable": "El directorio de validación de Let's Encrypt no admite escritura: la validación del dominio fallará.",
+    "sslCertbotNoOutput": "Certbot no devolvió nada: compruebe que está instalado y accesible para el servidor web vía sudo.",
+    "sslIncompleteChain": "Al archivo de certificado le falta el intermedio — el sitio abre en Firefox pero no en Chrome. Vuelva a emitir el certificado.",
+    "sslDnsSeen": "Registro A del dominio",
+    "sslNoARecord": "sin registro A",
     "sslPending": "Awaiting installation",
+    "sslEnvTitle": "La emisión automática de SSL no está disponible en este servidor",
+    "sslEnvNoShell": "Aquí PHP no puede ejecutar comandos externos, así que no se puede iniciar ni Certbot ni el planificador. Los dominios quedarán esperando certificado indefinidamente.",
+    "sslEnvNoCertbot": "Certbot no está instalado en este servidor, no hay con qué emitir certificados. Instálelo: apt install certbot",
+    "sslEnvNoNginx": "No se encontró la configuración de nginx: este servidor no parece usar nginx, y un certificado emitido no podrá integrarse automáticamente.",
+    "sslEnvHint": "Los certificados deberán emitirse e instalarse desde su hosting. La emisión automática está pensada para un VPS dedicado con acceso root, que es lo que configura install.sh.",
     "issueSsl": "Emitir SSL",
     "issueSslTitle": "Solicitar certificados para los dominios que aún no tienen",
     "sslRunIssued": "Certificados emitidos",
@@ -23361,6 +23455,24 @@ const es = {
     "slugReserved": "Ese nombre de carpeta está reservado por el sistema, elija otro",
     "slugTaken": "Otra landing ya usa esa carpeta",
     "slugCheckFailed": "No se pudo comprobar la carpeta — inténtelo de nuevo",
+    "uploadExceedsPostMax": "El archivo supera lo permitido por PHP: aumente post_max_size y upload_max_filesize en php.ini",
+    "uploadErrIniSize": "El archivo supera upload_max_filesize en php.ini",
+    "uploadErrFormSize": "El archivo supera el límite fijado por el formulario",
+    "uploadErrPartial": "El archivo se subió solo parcialmente: inténtelo de nuevo",
+    "uploadErrNoFile": "No se envió ningún archivo",
+    "uploadErrNoTmpDir": "El servidor no tiene directorio temporal de subidas (upload_tmp_dir)",
+    "uploadErrCantWrite": "El servidor no pudo escribir el archivo en disco: revise los permisos",
+    "uploadErrExtension": "Una extensión de PHP detuvo la subida",
+    "uploadErrUnknown": "La subida falló",
+    "missingExtFileinfo": "Falta la extensión fileinfo de PHP. Instálela: apt install php-fileinfo",
+    "missingExtZip": "Falta la extensión zip de PHP. Instálela: apt install php-zip",
+    "notAZip": "Esto no es un archivo ZIP: el servidor detectó otro tipo de archivo",
+    "dirNotCreated": "No se pudo crear el directorio de la landing: el servidor web no puede escribir en landings/",
+    "dirNotWritable": "El servidor web no puede escribir en el directorio de la landing",
+    "zipUnsupportedCompression": "El archivo usa un método de compresión que PHP no puede extraer. Vuelva a empaquetarlo con Deflate normal",
+    "zipExtractFailed": "El archivo se abrió pero no se pudo extraer: revise permisos y espacio en disco",
+    "zipOpenFailed": "No se pudo abrir el ZIP: está dañado o no es un ZIP",
+    "uploadFailed": "No se pudo subir el archivo",
     "archiveUploaded": "Archivo cargado y extraído correctamente.",
     "archiveError": "Error al subir el ZIP",
     "fileUploadError": "No se pudo cargar el archivo.",
@@ -24922,7 +25034,17 @@ const zh = {
     "sslStatus": "SSL Status",
     "sslInstalled": "SSL installed",
     "sslInstalling": "SSL installing...",
+    "sslEnvAcmeNotWritable": "Let's Encrypt 验证目录不可写 —— 域名验证将失败。",
+    "sslCertbotNoOutput": "Certbot 没有任何输出 —— 请确认已安装且 Web 服务器可通过 sudo 调用。",
+    "sslIncompleteChain": "证书文件缺少中间证书 —— 网站在 Firefox 能打开但在 Chrome 失败。请重新签发证书。",
+    "sslDnsSeen": "域名的 A 记录",
+    "sslNoARecord": "无 A 记录",
     "sslPending": "Awaiting installation",
+    "sslEnvTitle": "此服务器不支持自动签发 SSL",
+    "sslEnvNoShell": "此处 PHP 无法执行外部命令，因此无法启动 Certbot 或计划任务。域名将一直处于等待证书状态。",
+    "sslEnvNoCertbot": "服务器未安装 Certbot，没有工具可以签发证书。请安装：apt install certbot",
+    "sslEnvNoNginx": "未找到 nginx 配置：此服务器似乎并非运行 nginx，已签发的证书无法自动接入。",
+    "sslEnvHint": "证书需通过您的主机服务签发和安装。自动签发面向具有 root 权限的独立 VPS —— 即 install.sh 所配置的环境。",
     "issueSsl": "签发 SSL",
     "issueSslTitle": "为尚无证书的域名申请证书",
     "sslRunIssued": "已签发证书",
@@ -25457,6 +25579,24 @@ const zh = {
     "slugReserved": "该文件夹名称已被系统保留，请另选一个",
     "slugTaken": "另一个着陆页已使用该文件夹",
     "slugCheckFailed": "无法校验该文件夹 — 请重试",
+    "uploadExceedsPostMax": "压缩包超出 PHP 允许的大小：请在 php.ini 中调高 post_max_size 和 upload_max_filesize",
+    "uploadErrIniSize": "文件超过 php.ini 中的 upload_max_filesize",
+    "uploadErrFormSize": "文件超过表单设定的上限",
+    "uploadErrPartial": "文件仅部分上传 —— 请重试",
+    "uploadErrNoFile": "未发送任何文件",
+    "uploadErrNoTmpDir": "服务器缺少临时上传目录（upload_tmp_dir）",
+    "uploadErrCantWrite": "服务器无法将文件写入磁盘 —— 请检查权限",
+    "uploadErrExtension": "某个 PHP 扩展中止了上传",
+    "uploadErrUnknown": "上传失败",
+    "missingExtFileinfo": "服务器缺少 PHP fileinfo 扩展。请安装：apt install php-fileinfo",
+    "missingExtZip": "服务器缺少 PHP zip 扩展。请安装：apt install php-zip",
+    "notAZip": "这不是 ZIP 压缩包 —— 服务器识别为其他文件类型",
+    "dirNotCreated": "无法创建着陆页目录：Web 服务器无法写入 landings/",
+    "dirNotWritable": "Web 服务器无法写入该着陆页目录",
+    "zipUnsupportedCompression": "压缩包使用了 PHP 无法解压的压缩方式。请用普通 Deflate 重新打包",
+    "zipExtractFailed": "压缩包已打开但解压失败 —— 请检查权限和磁盘空间",
+    "zipOpenFailed": "无法打开 ZIP 压缩包：文件已损坏或不是 ZIP",
+    "uploadFailed": "无法上传压缩包",
     "archiveUploaded": "存档已成功上传并提取。",
     "archiveError": "ZIP 上传错误",
     "fileUploadError": "无法上传文件。",
@@ -27018,7 +27158,17 @@ const fr = {
     "sslStatus": "Statut SSL",
     "sslInstalled": "SSL installé",
     "sslInstalling": "Installation SSL...",
+    "sslEnvAcmeNotWritable": "Le répertoire de validation Let's Encrypt n'est pas accessible en écriture — la validation du domaine échouera.",
+    "sslCertbotNoOutput": "Certbot n'a rien renvoyé — vérifiez qu'il est installé et accessible au serveur web via sudo.",
+    "sslIncompleteChain": "Il manque l'intermédiaire dans le fichier de certificat — le site s'ouvre dans Firefox mais pas dans Chrome. Réémettez le certificat.",
+    "sslDnsSeen": "Enregistrement A du domaine",
+    "sslNoARecord": "aucun enregistrement A",
     "sslPending": "En attente d'installation",
+    "sslEnvTitle": "L'émission automatique de SSL n'est pas disponible sur ce serveur",
+    "sslEnvNoShell": "PHP ne peut pas exécuter de commandes externes ici : ni Certbot ni le planificateur ne peuvent être lancés. Les domaines resteront en attente de certificat.",
+    "sslEnvNoCertbot": "Certbot n'est pas installé sur ce serveur, il n'y a donc rien pour émettre des certificats. Installez-le : apt install certbot",
+    "sslEnvNoNginx": "Aucune configuration nginx trouvée : ce serveur ne semble pas utiliser nginx, un certificat émis ne pourra pas être intégré automatiquement.",
+    "sslEnvHint": "Les certificats devront être émis et installés via votre hébergement. L'émission automatique vise un VPS dédié avec accès root, ce que met en place install.sh.",
     "issueSsl": "Émettre SSL",
     "issueSslTitle": "Demander des certificats pour les domaines qui n'en ont pas encore",
     "sslRunIssued": "Certificats émis",
@@ -27553,6 +27703,24 @@ const fr = {
     "slugReserved": "Ce nom de dossier est réservé par le système, choisissez-en un autre",
     "slugTaken": "Une autre landing utilise déjà ce dossier",
     "slugCheckFailed": "Le dossier n'a pas pu être vérifié — veuillez réessayer",
+    "uploadExceedsPostMax": "L'archive dépasse ce que PHP autorise : augmentez post_max_size et upload_max_filesize dans php.ini",
+    "uploadErrIniSize": "Le fichier dépasse upload_max_filesize dans php.ini",
+    "uploadErrFormSize": "Le fichier dépasse la limite fixée par le formulaire",
+    "uploadErrPartial": "Le fichier n'a été que partiellement transféré — réessayez",
+    "uploadErrNoFile": "Aucun fichier n'a été envoyé",
+    "uploadErrNoTmpDir": "Le serveur n'a pas de répertoire temporaire d'envoi (upload_tmp_dir)",
+    "uploadErrCantWrite": "Le serveur n'a pas pu écrire le fichier sur le disque — vérifiez les droits",
+    "uploadErrExtension": "Une extension PHP a interrompu l'envoi",
+    "uploadErrUnknown": "L'envoi a échoué",
+    "missingExtFileinfo": "L'extension PHP fileinfo est absente. Installez-la : apt install php-fileinfo",
+    "missingExtZip": "L'extension PHP zip est absente. Installez-la : apt install php-zip",
+    "notAZip": "Ce n'est pas une archive ZIP — le serveur a détecté un autre type de fichier",
+    "dirNotCreated": "Impossible de créer le dossier de la landing : le serveur web ne peut pas écrire dans landings/",
+    "dirNotWritable": "Le dossier de la landing n'est pas accessible en écriture au serveur web",
+    "zipUnsupportedCompression": "L'archive utilise une méthode de compression que PHP ne sait pas extraire. Recompressez le ZIP en Deflate standard",
+    "zipExtractFailed": "L'archive s'est ouverte mais n'a pas pu être extraite — vérifiez les droits et l'espace disque",
+    "zipOpenFailed": "Impossible d'ouvrir l'archive ZIP : elle est corrompue ou ce n'est pas un ZIP",
+    "uploadFailed": "Impossible d'envoyer l'archive",
     "archiveUploaded": "Archive téléchargée et extraite avec succès.",
     "archiveError": "Erreur de téléchargement ZIP",
     "fileUploadError": "Impossible de télécharger le fichier.",
@@ -29116,7 +29284,17 @@ const de = {
     "sslStatus": "SSL-Status",
     "sslInstalled": "SSL installiert",
     "sslInstalling": "SSL wird installiert...",
+    "sslEnvAcmeNotWritable": "Das Let's-Encrypt-Challenge-Verzeichnis ist nicht beschreibbar — die Domain-Validierung schlägt fehl.",
+    "sslCertbotNoOutput": "Certbot hat nichts zurückgegeben — prüfen Sie, ob es installiert und für den Webserver per sudo erreichbar ist.",
+    "sslIncompleteChain": "In der Zertifikatsdatei fehlt das Intermediate — die Seite öffnet sich in Firefox, aber nicht in Chrome. Stellen Sie das Zertifikat neu aus.",
+    "sslDnsSeen": "A-Eintrag der Domain",
+    "sslNoARecord": "kein A-Eintrag",
     "sslPending": "Warten auf Installation",
+    "sslEnvTitle": "Automatische SSL-Ausstellung ist auf diesem Server nicht verfügbar",
+    "sslEnvNoShell": "PHP kann hier keine externen Befehle ausführen — weder Certbot noch der Planer lassen sich starten. Domains warten dauerhaft auf ein Zertifikat.",
+    "sslEnvNoCertbot": "Certbot ist auf diesem Server nicht installiert, es gibt also nichts, womit Zertifikate ausgestellt werden könnten. Installieren: apt install certbot",
+    "sslEnvNoNginx": "Keine nginx-Konfiguration gefunden: der Server läuft offenbar nicht auf nginx, ein ausgestelltes Zertifikat kann nicht automatisch eingebunden werden.",
+    "sslEnvHint": "Zertifikate müssen über Ihr Hosting ausgestellt und eingerichtet werden. Die automatische Ausstellung ist für einen eigenen VPS mit Root-Zugang gedacht, wie ihn install.sh einrichtet.",
     "issueSsl": "SSL ausstellen",
     "issueSslTitle": "Zertifikate für Domains anfordern, die noch keines haben",
     "sslRunIssued": "Ausgestellte Zertifikate",
@@ -29651,6 +29829,24 @@ const de = {
     "slugReserved": "Dieser Ordnername ist vom System reserviert, bitte einen anderen wählen",
     "slugTaken": "Eine andere Landingpage verwendet diesen Ordner bereits",
     "slugCheckFailed": "Der Ordner konnte nicht geprüft werden — bitte erneut versuchen",
+    "uploadExceedsPostMax": "Das Archiv ist größer als PHP erlaubt: post_max_size und upload_max_filesize in php.ini erhöhen",
+    "uploadErrIniSize": "Die Datei ist größer als upload_max_filesize in php.ini",
+    "uploadErrFormSize": "Die Datei überschreitet das Limit des Formulars",
+    "uploadErrPartial": "Die Datei wurde nur teilweise übertragen — bitte erneut versuchen",
+    "uploadErrNoFile": "Es wurde keine Datei gesendet",
+    "uploadErrNoTmpDir": "Auf dem Server fehlt das temporäre Upload-Verzeichnis (upload_tmp_dir)",
+    "uploadErrCantWrite": "Der Server konnte die Datei nicht schreiben — Rechte prüfen",
+    "uploadErrExtension": "Eine PHP-Erweiterung hat den Upload gestoppt",
+    "uploadErrUnknown": "Der Upload ist fehlgeschlagen",
+    "missingExtFileinfo": "Die PHP-Erweiterung fileinfo fehlt. Installieren: apt install php-fileinfo",
+    "missingExtZip": "Die PHP-Erweiterung zip fehlt. Installieren: apt install php-zip",
+    "notAZip": "Das ist kein ZIP-Archiv — der Server hat einen anderen Dateityp erkannt",
+    "dirNotCreated": "Das Landing-Verzeichnis konnte nicht angelegt werden: der Webserver darf nicht in landings/ schreiben",
+    "dirNotWritable": "Das Landing-Verzeichnis ist für den Webserver nicht beschreibbar",
+    "zipUnsupportedCompression": "Das Archiv nutzt ein Kompressionsverfahren, das PHP nicht entpacken kann. Bitte als normales Deflate-ZIP neu packen",
+    "zipExtractFailed": "Das Archiv ließ sich öffnen, aber nicht entpacken — Rechte und freien Speicher prüfen",
+    "zipOpenFailed": "Das ZIP-Archiv ließ sich nicht öffnen: beschädigt oder kein ZIP",
+    "uploadFailed": "Das Archiv konnte nicht hochgeladen werden",
     "archiveUploaded": "Archiv erfolgreich hochgeladen und extrahiert.",
     "archiveError": "ZIP-Upload-Fehler",
     "fileUploadError": "Datei konnte nicht hochgeladen werden.",
@@ -44099,6 +44295,7 @@ const Domains = ({ campaigns }) => {
   const [copiedIp, setCopiedIp] = reactExports.useState(false);
   const [forceChecking, setForceChecking] = reactExports.useState(false);
   const [sslRunning, setSslRunning] = reactExports.useState(false);
+  const [sslEnv, setSslEnv] = reactExports.useState(null);
   const [showModal, setShowModal] = reactExports.useState(false);
   const [formData, setFormData] = reactExports.useState({
     id: null,
@@ -44171,6 +44368,46 @@ const Domains = ({ campaigns }) => {
       setForceChecking(false);
     }
   };
+  reactExports.useEffect(() => {
+    let cancelled = false;
+    cachedGet("ssl_environment").then(({ data }) => {
+      if (!cancelled && data.status === "success") setSslEnv(data.data);
+    }).catch(() => {
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const translateSslCode = (code) => {
+    const keys = {
+      php_no_shell: "domains.sslEnvNoShell",
+      no_certbot: "domains.sslEnvNoCertbot",
+      no_nginx_config: "domains.sslEnvNoNginx",
+      acme_not_writable: "domains.sslEnvAcmeNotWritable",
+      certbot_no_output: "domains.sslCertbotNoOutput",
+      incomplete_chain: "domains.sslIncompleteChain",
+      dns_mismatch: "domains.sslWaitingDns"
+    };
+    return keys[code] ? t(keys[code]) : String(code);
+  };
+  const describeSslError = (raw) => {
+    if (!raw) return "";
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.code) {
+        const text = translateSslCode(parsed.code);
+        if (parsed.code === "dns_mismatch") {
+          const seen = Array.isArray(parsed.seen) && parsed.seen.length ? parsed.seen.join(", ") : t("domains.sslNoARecord");
+          return `${text}
+${t("domains.sslDnsSeen")}: ${seen}
+${t("domains.serverIp")}: ${parsed.expected || "—"}`;
+        }
+        return text;
+      }
+    } catch (e) {
+    }
+    return String(raw);
+  };
   const runSslWorker = async () => {
     setSslRunning(true);
     try {
@@ -44183,7 +44420,7 @@ const Domains = ({ campaigns }) => {
           `${t("domains.sslRunFailed")}: ${r2.failed ?? 0}`
         ];
         if (r2.server_ip) lines.push(`${t("domains.serverIp")}: ${r2.server_ip}`);
-        if (Array.isArray(r2.notes) && r2.notes.length) lines.push("", ...r2.notes);
+        if (Array.isArray(r2.notes) && r2.notes.length) lines.push("", ...r2.notes.map(translateSslCode));
         alert(lines.join("\n"));
         fetchDomains();
       } else {
@@ -44343,6 +44580,18 @@ const Domains = ({ campaigns }) => {
         )
       ] })
     ] }),
+    sslEnv && !sslEnv.can_issue && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4 p-4 rounded-2xl flex gap-3", style: {
+      backgroundColor: "var(--color-warning-bg)",
+      border: "1px solid var(--color-warning)"
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { size: 20, style: { color: "var(--color-warning)", flexShrink: 0, marginTop: "2px" } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { color: "var(--color-text-primary)", fontSize: "13.5px", lineHeight: 1.55 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-1", style: { color: "var(--color-warning)" }, children: t("domains.sslEnvTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0 }, children: sslEnv.shell === false ? t("domains.sslEnvNoShell") : t("domains.sslEnvNoCertbot") }),
+        sslEnv.nginx_config === false && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1", style: { margin: "4px 0 0" }, children: t("domains.sslEnvNoNginx") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1", style: { margin: "4px 0 0", color: "var(--color-text-secondary)" }, children: t("domains.sslEnvHint") })
+      ] })
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.domain") }),
@@ -44373,9 +44622,9 @@ const Domains = ({ campaigns }) => {
         ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: domain.index_campaign_name || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "italic", style: { color: "var(--color-text-muted)" }, children: t("domains.notSelected") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: domain.https_only ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" } }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: domain.ssl_status === "installed" && domain.https_active === false ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-orange-500 mx-auto", title: t("domains.sslNotWired") }) : domain.ssl_status === "installed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto", title: t("domains.sslInstalled") }) : domain.ssl_status === "installing" ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "text-blue-500 mx-auto animate-spin", title: t("domains.sslInstalling") }) : domain.ssl_status === "waiting_dns" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: domain.ssl_error || t("domains.sslWaitingDns") }) : domain.ssl_status === "failed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-red-500 mx-auto", title: `${t("domains.sslRetrying")}
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: domain.ssl_status === "installed" && domain.https_active === false ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-orange-500 mx-auto", title: t("domains.sslNotWired") }) : domain.ssl_status === "installed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto", title: t("domains.sslInstalled") }) : domain.ssl_status === "installing" ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "text-blue-500 mx-auto animate-spin", title: t("domains.sslInstalling") }) : domain.ssl_status === "waiting_dns" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: describeSslError(domain.ssl_error) || t("domains.sslWaitingDns") }) : domain.ssl_status === "failed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-red-500 mx-auto", title: `${t("domains.sslRetrying")}
 
-${domain.ssl_error || ""}` }) : domain.ssl_status === "pending" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: t("domains.sslPending") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" }, title: t("domains.sslPending") }) }),
+${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: t("domains.sslPending") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" }, title: t("domains.sslPending") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: domain.created_at }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(domain), className: "hover:text-[var(--color-primary)] transition", style: { color: "var(--color-text-muted)" }, title: t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 }) }),
@@ -45797,18 +46046,42 @@ const SLUG_ERROR_KEYS = {
   landing_slug_invalid: "landingEditor.slugInvalid",
   landing_slug_reserved: "landingEditor.slugReserved",
   landing_slug_taken: "landingEditor.slugTaken",
-  landing_slug_check_failed: "landingEditor.slugCheckFailed"
+  landing_slug_check_failed: "landingEditor.slugCheckFailed",
+  // Archive upload. The API answers with codes rather than sentences: this
+  // panel speaks seven languages, so the wording lives in the locale files and
+  // the backend only reports what happened.
+  upload_exceeds_post_max: "landingEditor.uploadExceedsPostMax",
+  upload_err_ini_size: "landingEditor.uploadErrIniSize",
+  upload_err_form_size: "landingEditor.uploadErrFormSize",
+  upload_err_partial: "landingEditor.uploadErrPartial",
+  upload_err_no_file: "landingEditor.uploadErrNoFile",
+  upload_err_no_tmp_dir: "landingEditor.uploadErrNoTmpDir",
+  upload_err_cant_write: "landingEditor.uploadErrCantWrite",
+  upload_err_extension: "landingEditor.uploadErrExtension",
+  upload_err_unknown: "landingEditor.uploadErrUnknown",
+  missing_ext_fileinfo: "landingEditor.missingExtFileinfo",
+  missing_ext_zip: "landingEditor.missingExtZip",
+  not_a_zip: "landingEditor.notAZip",
+  landing_dir_not_created: "landingEditor.dirNotCreated",
+  landing_dir_not_writable: "landingEditor.dirNotWritable",
+  zip_unsupported_compression: "landingEditor.zipUnsupportedCompression",
+  zip_extract_failed: "landingEditor.zipExtractFailed",
+  zip_open_failed: "landingEditor.zipOpenFailed",
+  upload_failed: "landingEditor.uploadFailed"
 };
-function translateLandingError(t, message2) {
+function translateLandingError(t, message2, detail) {
   if (!message2) return "";
   const key = SLUG_ERROR_KEYS[message2];
-  return key ? t(key) : String(message2);
+  if (!key) return String(message2);
+  const text = t(key);
+  const facts = detail && typeof detail === "object" ? Object.values(detail).filter((v) => v !== null && v !== void 0 && v !== "").join(", ") : "";
+  return facts ? `${text} (${facts})` : text;
 }
 function translateLandingRequestError(t, error) {
   const body = error?.response?.data;
   const serverMessage = body && typeof body === "object" ? body.message : null;
   if (serverMessage) {
-    return translateLandingError(t, serverMessage);
+    return translateLandingError(t, serverMessage, body.detail);
   }
   if (error?.response?.status) {
     return `${t("landingEditor.serverError")} (HTTP ${error.response.status})`;
@@ -45959,7 +46232,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
         alert(t("landingEditor.savedSuccess"));
         onClose(true);
       } else {
-        alert(translateLandingError(t, res.data.message) || t("landingEditor.saveError"));
+        alert(translateLandingError(t, res.data.message, res.data.detail) || t("landingEditor.saveError"));
       }
     } catch (error) {
       alert(translateLandingRequestError(t, error));
@@ -46033,7 +46306,7 @@ ${file}`)) return;
         fetchLandingFiles(id);
         return true;
       }
-      alert(res.data.message || t("landingEditor.archiveError"));
+      alert(translateLandingError(t, res.data.message, res.data.detail) || t("landingEditor.archiveError"));
       return false;
     } catch (error) {
       alert(`${t("landingEditor.archiveError")}: ${translateLandingRequestError(t, error)}`);

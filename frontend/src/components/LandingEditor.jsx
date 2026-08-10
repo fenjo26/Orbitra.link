@@ -189,7 +189,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                 alert(t('landingEditor.savedSuccess'));
                 onClose(true);
             } else {
-                alert(translateLandingError(t, res.data.message) || t('landingEditor.saveError'));
+                alert(translateLandingError(t, res.data.message, res.data.detail) || t('landingEditor.saveError'));
             }
         } catch (error) {
             // The server's own message is far more useful than "network error" —
@@ -274,7 +274,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                 fetchLandingFiles(id);
                 return true;
             }
-            alert(res.data.message || t('landingEditor.archiveError'));
+            alert(translateLandingError(t, res.data.message, res.data.detail) || t('landingEditor.archiveError'));
             return false;
         } catch (error) {
             // A 500 or a 413 from the upload used to arrive here and be reduced to

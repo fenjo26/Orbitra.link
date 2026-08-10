@@ -83,6 +83,75 @@ function orbitraEnsureSslCron(): bool
 }
 
 /**
+ * Can this server issue certificates at all, and if not, why not?
+ *
+ * Answered in one place so the panel's banner, the "issue now" button and the
+ * worker cannot disagree with each other. Everything here is about the server,
+ * not about any particular domain: a host that cannot run external commands will
+ * never issue anything, and an operator staring at "waiting for certificate"
+ * deserves to be told that rather than left to guess.
+ *
+ * @return array{can_issue: bool, shell: bool, certbot: bool, nginx_config: bool, acme_writable: bool, problems: string[]}
+ */
+function orbitraSslEnvironment(): array
+{
+    $shell = orbitraShellAvailable();
+    $certbot = $shell && orbitraCommandExists('certbot');
+    $nginxConfig = file_exists(ORBITRA_NGINX_CONFIG_PATH);
+    $acmeWritable = is_dir(ORBITRA_ACME_WEBROOT) && is_writable(ORBITRA_ACME_WEBROOT);
+
+    $problems = [];
+    if (!$shell) {
+        $problems[] = 'php_no_shell';
+    } elseif (!$certbot) {
+        $problems[] = 'no_certbot';
+    }
+    if (!$nginxConfig) {
+        $problems[] = 'no_nginx_config';
+    }
+    if (!$acmeWritable) {
+        $problems[] = 'acme_not_writable';
+    }
+
+    return [
+        // Issuing needs a shell and Certbot; wiring the result into the web
+        // server needs the nginx config. Without the first two nothing can be
+        // obtained at all, which is the distinction the panel shows.
+        'can_issue' => $shell && $certbot,
+        'shell' => $shell,
+        'certbot' => $certbot,
+        'nginx_config' => $nginxConfig,
+        'acme_writable' => $acmeWritable,
+        'problems' => $problems,
+    ];
+}
+
+/**
+ * Does a fullchain.pem actually carry the full chain?
+ *
+ * Let's Encrypt writes leaf + intermediate into fullchain.pem, so a healthy file
+ * has at least two `BEGIN CERTIFICATE` blocks. A file with only one — just the
+ * leaf — is what produces the single most confusing TLS support ticket: Firefox
+ * accepts the site because it fills in the missing intermediate from its own
+ * store, while Chrome and curl fail with "unable to get local issuer
+ * certificate". That happens when an old config pointed at cert.pem, when a
+ * manual edit truncated the file, or when a certbot version/plugin wrote leaf
+ * only. Counting the blocks is cheaper and more reliable than parsing with
+ * openssl (which may not be on PATH here), and two is the floor: one issuer the
+ * browser already trusts is all a chain needs to close.
+ *
+ * @return array{ok: bool, count: int}
+ */
+function orbitraCertificateChainComplete(string $certFile): array
+{
+    if (!is_file($certFile)) {
+        return ['ok' => false, 'count' => 0];
+    }
+    $count = substr_count((string) @file_get_contents($certFile), '-----BEGIN CERTIFICATE-----');
+    return ['ok' => $count >= 2, 'count' => $count];
+}
+
+/**
  * How long to wait before retrying, by attempt count.
  *
  * Deliberately widening, and measured in hours because the worker runs hourly.
@@ -239,6 +308,23 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
 
         // Already covered. Make sure nginx knows about it, then move on.
         if (file_exists($certFile)) {
+            // A fullchain.pem with only the leaf is the Firefox-ok / Chrome-fail
+            // case: it looks present but the chain is broken. Re-checking it on
+            // every run catches a file that went wrong after the original issue
+            // (a manual edit, a botched renewal) instead of leaving the domain
+            // falsely green.
+            $chain = orbitraCertificateChainComplete($certFile);
+            if (!$chain['ok']) {
+                $error = json_encode([
+                    'code' => 'incomplete_chain',
+                    'count' => $chain['count'],
+                    'path' => $certFile,
+                ], JSON_UNESCAPED_UNICODE);
+                $pdo->prepare("UPDATE domains SET ssl_status = 'failed', ssl_error = ? WHERE id = ?")
+                    ->execute([$error, $id]);
+                $result['failed']++;
+                continue;
+            }
             if (($row['ssl_status'] ?? '') !== 'installed') {
                 $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL WHERE id = ?")->execute([$id]);
             }
@@ -265,10 +351,16 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
         // hostname per hour.
         $dns = orbitraDomainPointsHere($domain);
         if (!$dns['ok']) {
-            $seen = $dns['ips'] ? implode(', ', $dns['ips']) : 'нет A-записи';
-            $expected = $dns['server_ip'] !== '' ? $dns['server_ip'] : 'неизвестен';
+            // A code, not a sentence. This string is shown in a panel that speaks
+            // seven languages, so the wording belongs in the locale files; what
+            // the backend knows is the fact and the two addresses involved.
+            $detail = json_encode([
+                'code' => 'dns_mismatch',
+                'seen' => $dns['ips'],
+                'expected' => $dns['server_ip'],
+            ], JSON_UNESCAPED_UNICODE);
             $pdo->prepare("UPDATE domains SET ssl_status = 'waiting_dns', ssl_error = ? WHERE id = ?")
-                ->execute(["Домен пока не указывает на этот сервер. A-запись: $seen, ожидается: $expected", $id]);
+                ->execute([$detail, $id]);
             $result['waiting']++;
             continue;
         }
@@ -279,12 +371,35 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
         $output = (string) orbitraShell(orbitraCertbotCertonlyCommand($domain) . ' 2>&1');
 
         if (orbitraCertbotSucceeded($output, $domain)) {
+            // certbot wrote the files, but the one that matters — fullchain.pem —
+            // must actually carry the chain. A single-cert file is what leaves a
+            // site green in Firefox (which fetches the intermediate itself) and
+            // red in Chrome (which will not), which is exactly the ticket that is
+            // hardest to diagnose from the panel. Catching it here marks the
+            // domain failed with a named reason instead of "installed", so the
+            // operator sees it before a visitor's browser does.
+            $chain = orbitraCertificateChainComplete($certFile);
+            if (!$chain['ok']) {
+                $error = json_encode([
+                    'code' => 'incomplete_chain',
+                    'count' => $chain['count'],
+                    'path' => $certFile,
+                ], JSON_UNESCAPED_UNICODE);
+                $pdo->prepare("UPDATE domains SET ssl_status = 'failed', ssl_error = ?, ssl_attempts = ssl_attempts + 1, ssl_last_attempt = datetime('now') WHERE id = ?")
+                    ->execute([$error, $id]);
+                $result['failed']++;
+                continue;
+            }
             $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?")
                 ->execute([$id]);
             $needsSync = true;
             $result['issued']++;
         } else {
-            $error = trim($output) !== '' ? substr(trim($output), -500) : 'Certbot ничего не вывел — проверьте, что он установлен и доступен веб-серверу через sudo.';
+            // Certbot's own output is not UI copy — it is diagnostic text from the
+            // server and is shown as-is. Only our own fallback needs translating.
+            $error = trim($output) !== ''
+                ? substr(trim($output), -500)
+                : json_encode(['code' => 'certbot_no_output'], JSON_UNESCAPED_UNICODE);
             $pdo->prepare("UPDATE domains SET ssl_status = 'failed', ssl_error = ?, ssl_attempts = ssl_attempts + 1, ssl_last_attempt = datetime('now') WHERE id = ?")
                 ->execute([$error, $id]);
             $result['failed']++;

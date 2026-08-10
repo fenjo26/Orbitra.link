@@ -147,7 +147,12 @@ mkdir -p /var/www/orbitra/var/acme/.well-known/acme-challenge
 chown -R www-data:www-data /var/www/orbitra
 find /var/www/orbitra -type d -exec chmod 775 {} \;
 find /var/www/orbitra -type f -exec chmod 664 {} \;
-chmod +x /var/www/orbitra/cli/*.php 2>/dev/null || true
+# Deliberately NOT chmod +x on cli/*.php. Those scripts have no shebang and are
+# always run as `php /path/script.php`, so the bit buys nothing — but git tracks
+# it, so setting it made every one of them look locally modified and aborted the
+# next `git pull` with "your local changes would be overwritten". Telling git to
+# ignore the mode as well, so a stray chmod from anywhere never blocks an update.
+git -C /var/www/orbitra config core.fileMode false 2>/dev/null || true
 
 echo "[5/5] Configuring Nginx web server and building frontend..."
 

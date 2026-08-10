@@ -21,6 +21,11 @@ const Domains = ({ campaigns }) => {
     const [copiedIp, setCopiedIp] = useState(false);
     const [forceChecking, setForceChecking] = useState(false);
     const [sslRunning, setSslRunning] = useState(false);
+    // What this server can actually do about certificates. Fetched once: a host
+    // that cannot run external commands will never issue anything, and leaving
+    // the operator to work that out from a permanent "waiting" status is the
+    // single most confusing thing this page did.
+    const [sslEnv, setSslEnv] = useState(null);
 
     // Edit Modal State
     const [showModal, setShowModal] = useState(false);
@@ -110,6 +115,57 @@ const Domains = ({ campaigns }) => {
      * no way to see why. This runs the same worker inside the request and reports
      * back, including the reasons it could not work.
      */
+    useEffect(() => {
+        let cancelled = false;
+        cachedGet('ssl_environment')
+            .then(({ data }) => { if (!cancelled && data.status === 'success') setSslEnv(data.data); })
+            .catch(() => { /* the page works without the banner */ });
+        return () => { cancelled = true; };
+    }, []);
+
+    /**
+     * The SSL endpoints answer with codes, not sentences — the panel speaks seven
+     * languages, so the wording lives in the locale files. Anything unmapped is
+     * shown as sent: Certbot's own output is diagnostic text from the server and
+     * is not ours to translate.
+     */
+    const translateSslCode = (code) => {
+        const keys = {
+            php_no_shell: 'domains.sslEnvNoShell',
+            no_certbot: 'domains.sslEnvNoCertbot',
+            no_nginx_config: 'domains.sslEnvNoNginx',
+            acme_not_writable: 'domains.sslEnvAcmeNotWritable',
+            certbot_no_output: 'domains.sslCertbotNoOutput',
+            incomplete_chain: 'domains.sslIncompleteChain',
+            dns_mismatch: 'domains.sslWaitingDns',
+        };
+        return keys[code] ? t(keys[code]) : String(code);
+    };
+
+    /**
+     * ssl_error carries either a JSON payload we produced (a code plus the
+     * addresses involved) or raw Certbot output. Both end up in the same tooltip.
+     */
+    const describeSslError = (raw) => {
+        if (!raw) return '';
+        try {
+            const parsed = JSON.parse(raw);
+            if (parsed && parsed.code) {
+                const text = translateSslCode(parsed.code);
+                if (parsed.code === 'dns_mismatch') {
+                    const seen = Array.isArray(parsed.seen) && parsed.seen.length
+                        ? parsed.seen.join(', ')
+                        : t('domains.sslNoARecord');
+                    return `${text}\n${t('domains.sslDnsSeen')}: ${seen}\n${t('domains.serverIp')}: ${parsed.expected || '—'}`;
+                }
+                return text;
+            }
+        } catch (e) {
+            // Not ours — Certbot output, shown verbatim.
+        }
+        return String(raw);
+    };
+
     const runSslWorker = async () => {
         setSslRunning(true);
         try {
@@ -122,7 +178,7 @@ const Domains = ({ campaigns }) => {
                     `${t('domains.sslRunFailed')}: ${r.failed ?? 0}`,
                 ];
                 if (r.server_ip) lines.push(`${t('domains.serverIp')}: ${r.server_ip}`);
-                if (Array.isArray(r.notes) && r.notes.length) lines.push('', ...r.notes);
+                if (Array.isArray(r.notes) && r.notes.length) lines.push('', ...r.notes.map(translateSslCode));
                 alert(lines.join('\n'));
                 fetchDomains();
             } else {
@@ -278,6 +334,35 @@ const Domains = ({ campaigns }) => {
                 </div>
             </div>
 
+            {/* Said once, on load, rather than only after clicking "Issue SSL".
+                A server that cannot run external commands never issues anything,
+                and a permanent "waiting for certificate" with no explanation is
+                what sent people hunting through logs. */}
+            {sslEnv && !sslEnv.can_issue && (
+                <div className="mb-4 p-4 rounded-2xl flex gap-3" style={{
+                    backgroundColor: 'var(--color-warning-bg)',
+                    border: '1px solid var(--color-warning)'
+                }}>
+                    <ShieldAlert size={20} style={{ color: 'var(--color-warning)', flexShrink: 0, marginTop: '2px' }} />
+                    <div style={{ color: 'var(--color-text-primary)', fontSize: '13.5px', lineHeight: 1.55 }}>
+                        <div className="font-semibold mb-1" style={{ color: 'var(--color-warning)' }}>
+                            {t('domains.sslEnvTitle')}
+                        </div>
+                        <p style={{ margin: 0 }}>
+                            {sslEnv.shell === false
+                                ? t('domains.sslEnvNoShell')
+                                : t('domains.sslEnvNoCertbot')}
+                        </p>
+                        {sslEnv.nginx_config === false && (
+                            <p className="mt-1" style={{ margin: '4px 0 0' }}>{t('domains.sslEnvNoNginx')}</p>
+                        )}
+                        <p className="mt-1" style={{ margin: '4px 0 0', color: 'var(--color-text-secondary)' }}>
+                            {t('domains.sslEnvHint')}
+                        </p>
+                    </div>
+                </div>
+            )}
+
             <div className="overflow-x-auto">
                 <table className="page-table">
                     <thead>
@@ -333,9 +418,9 @@ const Domains = ({ campaigns }) => {
                                         ) : domain.ssl_status === 'installing' ? (
                                             <RefreshCw size={16} className="text-blue-500 mx-auto animate-spin" title={t('domains.sslInstalling')} />
                                         ) : domain.ssl_status === 'waiting_dns' ? (
-                                            <Clock size={16} className="text-yellow-500 mx-auto" title={domain.ssl_error || t('domains.sslWaitingDns')} />
+                                            <Clock size={16} className="text-yellow-500 mx-auto" title={describeSslError(domain.ssl_error) || t('domains.sslWaitingDns')} />
                                         ) : domain.ssl_status === 'failed' ? (
-                                            <AlertCircle size={16} className="text-red-500 mx-auto" title={`${t('domains.sslRetrying')}\n\n${domain.ssl_error || ''}`} />
+                                            <AlertCircle size={16} className="text-red-500 mx-auto" title={`${t('domains.sslRetrying')}\n\n${describeSslError(domain.ssl_error)}`} />
                                         ) : domain.ssl_status === 'pending' ? (
                                             <Clock size={16} className="text-yellow-500 mx-auto" title={t('domains.sslPending')} />
                                         ) : (

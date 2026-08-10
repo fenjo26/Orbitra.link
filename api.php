@@ -2365,9 +2365,8 @@ try {
                     if (empty($_POST) && empty($_FILES) && $contentLength > 0) {
                         echo json_encode([
                             'status' => 'error',
-                            'message' => 'Архив больше, чем разрешает PHP: запрос ' . round($contentLength / 1048576, 1)
-                                . ' МБ при post_max_size = ' . $postMax . '. Увеличьте post_max_size и upload_max_filesize '
-                                . 'в php.ini, затем перезапустите PHP-FPM.',
+                            'message' => 'upload_exceeds_post_max',
+                            'detail' => ['size_mb' => round($contentLength / 1048576, 1), 'limit' => $postMax],
                         ]);
                         break;
                     }
@@ -2379,16 +2378,20 @@ try {
                     // a size limit, a missing tmp dir and an aborted transfer are
                     // three different problems with three different fixes.
                     $uploadErr = $_FILES['file']['error'] ?? UPLOAD_ERR_NO_FILE;
-                    $uploadErrText = [
-                        UPLOAD_ERR_INI_SIZE => 'файл больше upload_max_filesize (' . ini_get('upload_max_filesize') . ') в php.ini',
-                        UPLOAD_ERR_FORM_SIZE => 'файл больше лимита, заданного формой',
-                        UPLOAD_ERR_PARTIAL => 'файл передан не полностью — попробуйте загрузить ещё раз',
-                        UPLOAD_ERR_NO_FILE => 'файл не был передан',
-                        UPLOAD_ERR_NO_TMP_DIR => 'на сервере нет временного каталога для загрузок (upload_tmp_dir)',
-                        UPLOAD_ERR_CANT_WRITE => 'сервер не смог записать файл на диск — проверьте права',
-                        UPLOAD_ERR_EXTENSION => 'загрузку остановило расширение PHP',
-                    ][$uploadErr] ?? ('код ошибки ' . $uploadErr);
-                    echo json_encode(['status' => 'error', 'message' => 'Загрузка не удалась: ' . $uploadErrText]);
+                    $uploadErrCode = [
+                        UPLOAD_ERR_INI_SIZE => 'upload_err_ini_size',
+                        UPLOAD_ERR_FORM_SIZE => 'upload_err_form_size',
+                        UPLOAD_ERR_PARTIAL => 'upload_err_partial',
+                        UPLOAD_ERR_NO_FILE => 'upload_err_no_file',
+                        UPLOAD_ERR_NO_TMP_DIR => 'upload_err_no_tmp_dir',
+                        UPLOAD_ERR_CANT_WRITE => 'upload_err_cant_write',
+                        UPLOAD_ERR_EXTENSION => 'upload_err_extension',
+                    ][$uploadErr] ?? 'upload_err_unknown';
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => $uploadErrCode,
+                        'detail' => ['limit' => ini_get('upload_max_filesize'), 'code' => $uploadErr],
+                    ]);
                     break;
                 }
 
@@ -2406,16 +2409,14 @@ try {
                 if (!function_exists('finfo_open')) {
                     echo json_encode([
                         'status' => 'error',
-                        'message' => 'На сервере нет расширения PHP fileinfo — без него нельзя проверить тип архива. '
-                            . 'Установите его: apt install php-fileinfo, затем перезапустите PHP-FPM.',
+                        'message' => 'missing_ext_fileinfo',
                     ]);
                     break;
                 }
                 if (!class_exists('ZipArchive')) {
                     echo json_encode([
                         'status' => 'error',
-                        'message' => 'На сервере нет расширения PHP zip — без него нельзя распаковать архив. '
-                            . 'Установите его: apt install php-zip, затем перезапустите PHP-FPM.',
+                        'message' => 'missing_ext_zip',
                     ]);
                     break;
                 }
@@ -2427,7 +2428,8 @@ try {
                 if (!in_array($mimeType, $allowedMimes)) {
                     echo json_encode([
                         'status' => 'error',
-                        'message' => 'Это не ZIP-архив: сервер определил тип как "' . $mimeType . '". Разрешён только ZIP.',
+                        'message' => 'not_a_zip',
+                        'detail' => ['mime' => $mimeType],
                     ]);
                     break;
                 }
@@ -2439,16 +2441,16 @@ try {
                     // leaving a landing that serves nothing.
                     echo json_encode([
                         'status' => 'error',
-                        'message' => 'Не удалось создать каталог лендинга ' . $uploadDir . ' — у веб-сервера нет прав на запись в landings/. '
-                            . 'Выполните на сервере: chown -R www-data:www-data ' . __DIR__,
+                        'message' => 'landing_dir_not_created',
+                        'detail' => ['path' => $uploadDir, 'root' => __DIR__],
                     ]);
                     break;
                 }
                 if (!is_writable($uploadDir)) {
                     echo json_encode([
                         'status' => 'error',
-                        'message' => 'Каталог лендинга ' . $uploadDir . ' закрыт для записи веб-серверу. '
-                            . 'Выполните на сервере: chown -R www-data:www-data ' . __DIR__,
+                        'message' => 'landing_dir_not_writable',
+                        'detail' => ['path' => $uploadDir, 'root' => __DIR__],
                     ]);
                     break;
                 }
@@ -2511,17 +2513,15 @@ try {
                                 }
                                 echo json_encode([
                                     'status' => 'error',
-                                    'message' => 'Архив собран методом сжатия ' . implode(', ', $named)
-                                        . ' — PHP (libzip) распаковывает только Store и Deflate. '
-                                        . 'Пересоберите ZIP обычным способом: в 7-Zip формат ZIP и метод Deflate '
-                                        . '(вместо «Ультра»/LZMA), либо стандартной упаковкой Windows или macOS.',
+                                    'message' => 'zip_unsupported_compression',
+                                    'detail' => ['methods' => $named],
                                 ]);
                                 break;
                             }
                             echo json_encode([
                                 'status' => 'error',
-                                'message' => 'Архив открылся, но распаковать его в ' . $uploadDir . ' не вышло — '
-                                    . 'скорее всего у веб-сервера нет прав на запись или кончилось место на диске.',
+                                'message' => 'zip_extract_failed',
+                                'detail' => ['path' => $uploadDir],
                             ]);
                             break;
                         }
@@ -2558,7 +2558,7 @@ try {
                     }
                     $zip->close();
                 } else {
-                    echo json_encode(['status' => 'error', 'message' => 'Не удалось открыть ZIP-архив — файл повреждён или это не ZIP.']);
+                    echo json_encode(['status' => 'error', 'message' => 'zip_open_failed']);
                 }
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'POST required']);
@@ -2567,7 +2567,8 @@ try {
                 error_log('upload_landing failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
                 echo json_encode([
                     'status' => 'error',
-                    'message' => 'Не удалось загрузить архив: ' . $e->getMessage(),
+                    'message' => 'upload_failed',
+                    'detail' => ['error' => $e->getMessage()],
                 ]);
             }
             break;
@@ -5109,6 +5110,22 @@ try {
             }
             break;
 
+        case 'ssl_environment':
+            // Whether this server can issue certificates at all. Read-only, and
+            // admin-only: it reports what is installed and writable, which is not
+            // something to hand to anyone who can reach the panel URL.
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            try {
+                require_once __DIR__ . '/core/ssl_manager.php';
+                echo json_encode(['status' => 'success', 'data' => orbitraSslEnvironment()]);
+            } catch (\Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
         case 'run_ssl_worker':
             // Issue certificates now, in this request, and report what happened.
             //
@@ -5130,21 +5147,17 @@ try {
 
                 // Certbot is the one dependency worth naming outright: without it
                 // every domain sits at "pending" forever and the reason is invisible.
+                // One source of truth for "can this server do it", shared with
+                // the banner on the Domains page.
+                $env = orbitraSslEnvironment();
                 $notes = [];
-                if (orbitraShellAvailable() && !command_exists('certbot')) {
-                    $notes[] = 'Certbot не установлен на сервере — сертификаты выпускать нечем. Установите: apt install certbot';
-                }
-                if (!orbitraShellAvailable()) {
-                    $notes[] = 'На этом сервере PHP не может запускать внешние команды (shell_exec отключён или удалён). '
-                        . 'Ни certbot, ни планировщик отсюда не запустить — сертификаты придётся выпускать на сервере вручную.';
-                }
-                if (!file_exists(ORBITRA_NGINX_CONFIG_PATH)) {
-                    $notes[] = 'Конфиг nginx не найден по пути ' . ORBITRA_NGINX_CONFIG_PATH
-                        . ' — похоже, сервер работает не на nginx, и вписать сертификат в конфиг автоматически не получится.';
+                foreach ($env['problems'] as $problem) {
+                    $notes[] = $problem;
                 }
 
                 $result = orbitraProcessSslQueue($pdo);
                 $result['cron_scheduled'] = orbitraEnsureSslCron();
+                $result['environment'] = $env;
                 $result['server_ip'] = orbitraServerIp();
                 if ($notes) {
                     $result['notes'] = $notes;
@@ -6353,6 +6366,14 @@ try {
                         ]);
                         break;
                     }
+
+                    // The installer used to `chmod +x cli/*.php`, and git tracks the
+                    // executable bit — so those files looked locally modified and
+                    // every pull touching them aborted with "your local changes
+                    // would be overwritten". The chmod is gone, but installs that
+                    // already have it need git told to stop caring about the mode,
+                    // or they can never update again.
+                    exec($git . ' config core.fileMode false 2>&1');
 
                     // Security: Ensure we are on a safe branch
                     $allowedBranches = ['main', 'master'];

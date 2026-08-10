@@ -7,7 +7,7 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [0.9.6.9] — 2026-08-10
+## [0.9.7.0] — 2026-08-10
 
 ### Added
 - **A local landing is served at its own `/lander/<slug>/`, matching Keitaro.**
@@ -30,7 +30,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   images, video, CSS and scripts included — rather than a rendering of the HTML
   on its own. Switching to it forces a reload, so it never shows the state from
   before the last save or upload, and a button opens the same URL in a new tab.
+- **The Domains page says why SSL is unavailable instead of leaving it to guess.**
+  On shared hosting where `shell_exec` is removed or Certbot is not installed, a
+  parked domain sat at "waiting for certificate" with no indication that the
+  server can never issue one. The page now checks the server's capability once
+  on load — shell, Certbot, nginx config, writable ACME directory — and shows a
+  banner naming the blocker when issuance is impossible, so the operator knows
+  to use a dedicated VPS or issue through their hosting instead of waiting.
 
+
+  `chmod +x /var/www/orbitra/cli/*.php`, and git tracks the executable bit — so
+  those files were permanently "locally modified" and any update touching one of
+  them stopped with *your local changes would be overwritten by merge*. The bit
+  bought nothing: the scripts are invoked as `php <path>`. It is no longer set,
+  `core.fileMode` is turned off for the repository, and the panel's update button
+  turns it off too, so installs that already carry the mode change can update
+  without being reinstalled.
+- **PHP called `shell_exec` directly in 46 places.** On hosts where the function
+  has been removed rather than merely disabled, PHP 8 raises an `Error` that `@`
+  does not suppress — so saving a domain, syncing the nginx config or checking
+  for Certbot died as a bare 500 with no explanation. Everything goes through
+  `core/shell.php` now: `orbitraShell()` returns `null` instead of fataling,
+  `orbitraShellAvailable()` lets a feature check before it starts, and
+  `orbitraRemoveDirectory()` replaces the two `system('rm -rf …')` calls that had
+  the same problem. Certificate issuance checks for a usable shell and for
+  Certbot before touching any domain, rather than marking domains failed for a
+  reason that has nothing to do with them.
 - **Nothing could start issuance from the panel.** The queue was worked only by
   cron and by a process spawned in the background on save, both of which need
   `shell_exec` — disabled on a great many hosts. Where it is, every domain sat at
@@ -128,6 +153,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   operation.** Reading, saving and uploading a file inside a landing each
   alerted a generic string. They all show what the server said, falling back to
   the HTTP status and only then to "network error".
+- **A certificate the browser rejected could show as installed.** A
+  `fullchain.pem` that holds only the leaf — missing the intermediate — is the
+  single most confusing TLS state: Firefox fills the gap from its own store and
+  opens the site, while Chrome and curl fail with *unable to get local issuer
+  certificate*. That happens when a config pointed at `cert.pem`, a manual edit
+  truncated the file, or a certbot run wrote leaf only. `core/ssl_manager.php`
+  now counts the `BEGIN CERTIFICATE` blocks in the chain on every run: fewer
+  than two marks the domain `failed` with a named reason (`incomplete_chain`)
+  instead of `installed`, both right after issue and on the later pass that
+  catches a file that went wrong after the fact. nginx is never pointed at a
+  half-chain.
+- **Server-side error messages were hard-coded in Russian.** `upload_landing`
+  and the SSL worker returned whole sentences in Russian — the DNS mismatch
+  detail, the Certbot-no-output fallback, every archive-upload error. In a panel
+  that ships seven locales, a backend string the frontend cannot translate is a
+  bug, not a stylistic preference. The backend now returns machine codes
+  (`dns_mismatch`, `certbot_no_output`, `not_a_zip`, `zip_unsupported_compression`,
+  …) plus a `detail` object of the measured facts (sizes, addresses, the MIME
+  type detected), and the frontend phrases them per locale. Certbot's own output
+  is diagnostic text and passes through untranslated.
 
 ## [0.9.6.8] — 2026-08-10
 
