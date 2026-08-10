@@ -423,7 +423,10 @@ if (!empty($allStreams)) {
     }
 }
 
-$offerId = 0;
+// null (not 0) when there is no offer — clicks.offer_id is a FK to
+// offers(id), and id=0 never exists, so a 0 here trips FOREIGN KEY
+// constraint failed on campaigns that have no stream/offer assigned.
+$offerId = null;
 $streamId = null;
 $sourceId = $campaign['source_id'] ?? null;
 $offerUrl = '';
