@@ -12,27 +12,6 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 const API_URL = '/api.php';
 
-// Centralized design system primary color (mirrors --color-primary token).
-// Kept as a constant so the heatmap matches the app theme on every theme.
-const PRIMARY_HEX = '#f05a3e';
-
-const hexToRgba = (hex, alpha) => {
-    let r = 0, g = 0, b = 0;
-    if (typeof hex !== 'string') return `rgba(240, 90, 62, ${alpha})`;
-    if (hex.startsWith('#')) {
-        if (hex.length === 4) {
-            r = parseInt(hex[1] + hex[1], 16);
-            g = parseInt(hex[2] + hex[2], 16);
-            b = parseInt(hex[3] + hex[3], 16);
-        } else if (hex.length === 7) {
-            r = parseInt(hex.slice(1, 3), 16);
-            g = parseInt(hex.slice(3, 5), 16);
-            b = parseInt(hex.slice(5, 7), 16);
-        }
-    }
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-};
-
 // Map Orbitra UI language codes to BCP47 locale tags for date formatting.
 const LOCALE_TAGS = {
     ru: 'ru-RU', en: 'en-US', uk: 'uk-UA', es: 'es-ES',
@@ -180,6 +159,38 @@ const CohortView = () => {
             if (v !== null && v > mx) mx = v;
         }
         return mx;
+    };
+
+    // Cell background + text colour. Two scales:
+    //  - retention: semantic traffic-light thresholds (>=90 green, 70-89 light
+    //    green, 50-69 amber, <50 red) — readable at a glance, matches the
+    //    cadence-dashboard cohort heatmap pattern.
+    //  - absolute: proportional intensity of --color-primary relative to the
+    //    row peak. Uses color-mix() with the theme's --color-primary so it
+    //    adapts to every theme (light/dark/green/neon/custom) automatically,
+    //    instead of a hardcoded hex that would clash with non-coral themes.
+    const cellStyle = (v, mx) => {
+        if (v === null || v === undefined) {
+            return { background: 'var(--color-bg-soft)', color: 'var(--color-text-muted)' };
+        }
+        if (viewMode === 'retention') {
+            let bg, color = '#fff', weight = 600;
+            if (v >= 90)      bg = 'var(--color-success)';
+            else if (v >= 70) bg = 'color-mix(in srgb, var(--color-success) 50%, transparent)';
+            else if (v >= 50) bg = 'var(--color-warning)';
+            else              bg = 'var(--color-danger)';
+            return { background: bg, color, fontWeight: weight };
+        }
+        const ratio = mx > 0 ? Math.max(0, v) / mx : 0;
+        // Map ratio [0..1] to primary opacity [12%..92%] via color-mix so the
+        // scale follows whatever --color-primary the active theme defines.
+        const pct = Math.round(12 + ratio * (92 - 12));
+        const ratioForText = ratio > 0.55;
+        return {
+            background: `color-mix(in srgb, var(--color-primary) ${pct}%, transparent)`,
+            color: ratioForText ? '#fff' : 'var(--color-text-primary)',
+            fontWeight: ratioForText ? 600 : 400
+        };
     };
 
     const exportCSV = () => {
@@ -423,28 +434,21 @@ const CohortView = () => {
                                             </td>
                                             {Array.from({ length: maxPeriod + 1 }, (_, p) => {
                                                 const v = cellValue(label, p);
+                                                const style = cellStyle(v, mx);
                                                 if (v === null) {
-                                                    // Future period (cohort not old enough yet) or M0 missing.
                                                     return (
                                                         <td key={p} className="text-right"
-                                                            style={{ background: 'var(--color-bg-soft)',
-                                                                color: 'var(--color-text-muted)' }}>—</td>
+                                                            style={style}>—</td>
                                                     );
                                                 }
-                                                // Heat intensity: ratio of this cell to the row's peak.
-                                                // Clamp alpha to [0.12, 0.92] so even the peak isn't unreadable.
-                                                const ratio = mx > 0 ? Math.max(0, v) / mx : 0;
-                                                const alpha = 0.12 + ratio * (0.92 - 0.12);
-                                                const bg = hexToRgba(PRIMARY_HEX, alpha);
-                                                const textColor = ratio > 0.55 ? '#fff' : 'var(--color-text-primary)';
                                                 const display = viewMode === 'retention'
                                                     ? `${v.toFixed(1)}%`
                                                     : formatCellValue(metric, v, language);
+                                                const cohortName = formatCohortLabel(label, granularity, language);
                                                 return (
                                                     <td key={p} className="text-right"
-                                                        title={formatCohortLabel(label, granularity, language) + ' · M' + p}
-                                                        style={{ background: bg, color: textColor,
-                                                            fontWeight: ratio > 0.55 ? 600 : 400 }}>
+                                                        title={`${cohortName} · M${p}: ${display}`}
+                                                        style={{ ...style, fontVariantNumeric: 'tabular-nums' }}>
                                                         {display}
                                                     </td>
                                                 );

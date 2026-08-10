@@ -59294,6 +59294,27 @@ const CohortView = () => {
     }
     return mx;
   };
+  const cellStyle = (v, mx) => {
+    if (v === null || v === void 0) {
+      return { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" };
+    }
+    if (viewMode === "retention") {
+      let bg, color2 = "#fff", weight = 600;
+      if (v >= 90) bg = "var(--color-success)";
+      else if (v >= 70) bg = "rgba(16, 185, 129, 0.55)";
+      else if (v >= 50) bg = "var(--color-warning)";
+      else bg = "var(--color-danger)";
+      return { background: bg, color: color2, fontWeight: weight };
+    }
+    const ratio = mx > 0 ? Math.max(0, v) / mx : 0;
+    const alpha2 = 0.12 + ratio * (0.92 - 0.12);
+    const ratioForText = ratio > 0.55;
+    return {
+      background: hexToRgba(PRIMARY_HEX, alpha2),
+      color: ratioForText ? "#fff" : "var(--color-text-primary)",
+      fontWeight: ratioForText ? 600 : 400
+    };
+  };
   const exportCSV = () => {
     if (!data || !data.rows || data.rows.length === 0) return;
     const headers = [
@@ -59563,35 +59584,26 @@ const CohortView = () => {
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", style: { color: "var(--color-text-muted)" }, children: launchedMap[label] ?? 0 }),
             Array.from({ length: maxPeriod + 1 }, (_, p) => {
               const v = cellValue(label, p);
+              const style = cellStyle(v, mx);
               if (v === null) {
                 return /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "td",
                   {
                     className: "text-right",
-                    style: {
-                      background: "var(--color-bg-soft)",
-                      color: "var(--color-text-muted)"
-                    },
+                    style,
                     children: "—"
                   },
                   p
                 );
               }
-              const ratio = mx > 0 ? Math.max(0, v) / mx : 0;
-              const alpha2 = 0.12 + ratio * (0.92 - 0.12);
-              const bg = hexToRgba(PRIMARY_HEX, alpha2);
-              const textColor = ratio > 0.55 ? "#fff" : "var(--color-text-primary)";
               const display = viewMode === "retention" ? `${v.toFixed(1)}%` : formatCellValue(metric, v, language);
+              const cohortName = formatCohortLabel(label, granularity, language);
               return /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "td",
                 {
                   className: "text-right",
-                  title: formatCohortLabel(label, granularity, language) + " · M" + p,
-                  style: {
-                    background: bg,
-                    color: textColor,
-                    fontWeight: ratio > 0.55 ? 600 : 400
-                  },
+                  title: `${cohortName} · M${p}: ${display}`,
+                  style: { ...style, fontVariantNumeric: "tabular-nums" },
                   children: display
                 },
                 p
