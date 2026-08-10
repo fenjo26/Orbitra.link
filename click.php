@@ -341,6 +341,12 @@ function clickGenerateUuid()
 $ip = clickGetClientIp();
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $referer = $_SERVER['HTTP_REFERER'] ?? '';
+
+// Wrap the click-logging path so a failure (geo lookup, DB insert, etc.)
+// is reported as a JSON error + logged to system_logs, instead of a bare
+// HTTP 500 with an empty body. A bare 500 is undebuggable from a client
+// and looks like a broken tracker to integration scripts.
+try {
 $geoData = clickGetGeoData($ip);
 $country = $geoData['country_code'];
 $countryCode = $geoData['country_code'];
@@ -548,4 +554,34 @@ else {
     header('Content-Type: application/json');
     header('Access-Control-Allow-Origin: *');
     echo json_encode(['status' => 'ok', 'click_id' => $clickId]);
+}
+} // end try
+catch (\Throwable $e) {
+    // Log the real cause to system_logs so it's visible from the API/panel,
+    // and return a JSON error instead of a bare HTML 500.
+    try {
+        $logStmt = $pdo->prepare("INSERT INTO system_logs (level, message, context) VALUES ('error', ?, ?)");
+        $logStmt->execute([
+            'click.php failed: ' . $e->getMessage(),
+            json_encode([
+                'file' => basename($e->getFile()),
+                'line' => $e->getLine(),
+                'campaign_id' => $campaignId ?? null,
+                'ip' => $ip ?? null,
+                'trace' => array_slice(explode("\n", $e->getTraceAsString()), 0, 8),
+            ], JSON_UNESCAPED_UNICODE)
+        ]);
+    } catch (\Throwable $logErr) { /* never let logging mask the original error */ }
+
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Origin: *');
+    }
+    echo json_encode([
+        'error' => 'click_log_failed',
+        'message' => $e->getMessage(),
+        'file' => basename($e->getFile()),
+        'line' => $e->getLine(),
+    ]);
 }
