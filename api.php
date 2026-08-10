@@ -8469,7 +8469,14 @@ try {
             if ($revenueRecordsValueColumn !== null) {
                 // event_date is a DATE; fall back to created_at when null.
                 $rrDateCol = "COALESCE(NULLIF(rr.event_date, ''), DATE(rr.created_at))";
-                $realPeriodExpr = "CASE WHEN $rrDateCol IS NULL OR $rrDateCol = '' THEN NULL ELSE $periodExpr('$rrDateCol') END";
+                // Build the period expression inline — $periodExpr is a closure that
+                // expects a bare column name and can't take a SQL expression, so the
+                // real-revenue period is constructed directly from the same template.
+                if ($granularity === 'quarter') {
+                    $realPeriodExpr = "(CAST(strftime('%Y', $rrDateCol, '$dbTzOffset') AS INTEGER) * 4 + (CAST(strftime('%m', $rrDateCol, '$dbTzOffset') AS INTEGER) - 1) / 3 + 1)";
+                } else {
+                    $realPeriodExpr = "(CAST(strftime('%Y', $rrDateCol, '$dbTzOffset') AS INTEGER) * 12 + CAST(strftime('%m', $rrDateCol, '$dbTzOffset') AS INTEGER))";
+                }
                 $realSql = "SELECT $cohortLabel AS cohort_label, $cohortPeriod AS cohort_period,
                                 $realPeriodExpr AS event_period,
                                 COALESCE(SUM(rr.$revenueRecordsValueColumn), 0) AS real_revenue
