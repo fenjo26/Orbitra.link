@@ -8452,6 +8452,7 @@ try {
                 $convSql = "SELECT $cohortLabel AS cohort_label, $cohortPeriod AS cohort_period,
                                 $convPeriodExpr AS event_period,
                                 COUNT(*) AS conversions,
+                                COUNT(DISTINCT cv.click_id) AS converting_clicks,
                                 COALESCE(SUM(cv.$conversionsValueColumn), 0) AS revenue,
                                 COUNT(DISTINCT cl.campaign_id) AS campaigns_active
                              FROM conversions cv
@@ -8506,6 +8507,7 @@ try {
                     if (!isset($cells[$label][$idx])) {
                         $cells[$label][$idx] = [
                             'clicks' => 0, 'unique_clicks' => 0, 'conversions' => 0,
+                            'converting_clicks' => 0,
                             'revenue' => 0.0, 'real_revenue' => 0.0, 'cost' => 0.0,
                             'campaigns_active' => 0,
                         ];
@@ -8523,6 +8525,7 @@ try {
             ]);
             $mergeRows($convRows, fn($r) => [
                 'conversions' => (int)$r['conversions'],
+                'converting_clicks' => (int)$r['converting_clicks'],
                 'revenue' => (float)$r['revenue'],
                 'campaigns_active' => (int)$r['campaigns_active'],
             ]);
@@ -8535,13 +8538,14 @@ try {
             foreach ($cells as $label => $periods) {
                 ksort($periods);
                 foreach ($periods as $idx => $m) {
-                    $clicks      = $m['clicks'];
-                    $conversions = $m['conversions'];
-                    $revenue     = $m['revenue'];
-                    $realRevenue = $m['real_revenue'];
-                    $cost        = $m['cost'];
-                    $profit      = $revenue - $cost;
-                    $realProfit  = $realRevenue - $cost;
+                    $clicks           = $m['clicks'];
+                    $conversions      = $m['conversions'];
+                    $convertingClicks = $m['converting_clicks'];
+                    $revenue          = $m['revenue'];
+                    $realRevenue      = $m['real_revenue'];
+                    $cost             = $m['cost'];
+                    $profit           = $revenue - $cost;
+                    $realProfit       = $realRevenue - $cost;
                     $rows[] = [
                         'cohort_label'  => $label,
                         'period_index'  => $idx,
@@ -8553,7 +8557,10 @@ try {
                         'cost'          => round($cost, 2),
                         'profit'        => round($profit, 2),
                         'real_profit'   => round($realProfit, 2),
-                        'cr'      => $clicks > 0 ? round(($conversions / $clicks) * 100, 2) : 0,
+                        // CR = share of clicks that converted at least once, so it
+                        // stays within [0, 100] even when a click has several
+                        // conversions (the CPA-tracker convention).
+                        'cr'      => $clicks > 0 ? round(($convertingClicks / $clicks) * 100, 2) : 0,
                         'roi'     => $cost > 0 ? round(($profit / $cost) * 100, 2) : ($profit > 0 ? 100 : 0),
                         'real_roi'=> $cost > 0 ? round(($realProfit / $cost) * 100, 2) : ($realProfit > 0 ? 100 : 0),
                         'campaigns_active' => $m['campaigns_active'],
