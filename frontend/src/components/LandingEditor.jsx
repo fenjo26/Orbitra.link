@@ -30,8 +30,30 @@ const CopyableCode = ({ text, copied, onCopy, t, muted = false }) => (
     </div>
 );
 
-const LandingEditor = ({ landingId, onClose }) => {
+/**
+ * The landing form. One implementation, used by the Landings page and by the
+ * campaign stream alike — the stream used to carry its own copy of this markup,
+ * which is why the two drifted apart (an archive picker in one, none in the
+ * other) and why every fix had to be written twice.
+ *
+ * onSaved(id) fires after each successful write, so a caller that needs the
+ * landing's id — the stream wires it straight into its rotation — gets it
+ * without waiting for the modal to close.
+ */
+const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     const { t } = useLanguage();
+    // The id is state, not just the prop it started as. Creating a landing used
+    // to say "now you can upload files" and immediately close the modal, so the
+    // file panel it was pointing at could only be reached by reopening the
+    // landing from the list. Saving now moves this component into edit mode in
+    // place, which is what the campaign-stream modal already did.
+    const [landingId, setLandingId] = useState(initialLandingId);
+    // Whether anything was written, so closing can tell the list to refresh even
+    // when the last click was Cancel.
+    const [savedSomething, setSavedSomething] = useState(false);
+    // A ZIP chosen before the landing exists. It cannot be uploaded yet — the
+    // endpoint needs an id — so it is held here and sent the moment we have one.
+    const [pendingZip, setPendingZip] = useState(null);
     const [landing, setLanding] = useState({
         name: '',
         group_id: '',
@@ -139,13 +161,28 @@ const LandingEditor = ({ landingId, onClose }) => {
 
             const res = await axios.post(`${API_URL}?action=save_landing`, payload);
             if (res.data.status === 'success') {
-                if (!landingId && res.data.data.id && landing.type === 'local') {
-                    alert(t('landingEditor.savedFiles'));
-                    onClose(true);
-                } else {
-                    alert(t('landingEditor.savedSuccess'));
-                    onClose(true);
+                setSavedSomething(true);
+                const newId = res.data.data?.id;
+                if (onSaved) onSaved(newId || landingId);
+
+                // A local landing that has just been created keeps the modal open
+                // and switches to edit mode: the archive panel needs an id, and
+                // closing the window right after saying "now you can upload files"
+                // is what forced the trip back through the list.
+                if (!landingId && newId && landing.type === 'local') {
+                    setLandingId(newId);
+                    if (pendingZip) {
+                        const zip = pendingZip;
+                        setPendingZip(null);
+                        await uploadZip(newId, zip);
+                    } else {
+                        alert(t('landingEditor.savedFiles'));
+                    }
+                    return;
                 }
+
+                alert(t('landingEditor.savedSuccess'));
+                onClose(true);
             } else {
                 alert(translateLandingError(t, res.data.message) || t('landingEditor.saveError'));
             }
@@ -215,14 +252,13 @@ const LandingEditor = ({ landingId, onClose }) => {
         }
     };
 
-    const handleZipUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file || !landingId) return;
-
+    // Shared by the toolbar button and by the archive picked before the landing
+    // existed, so both paths report success and failure identically.
+    const uploadZip = async (id, file) => {
         setUploadingZip(true);
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('id', landingId);
+        formData.append('id', id);
 
         try {
             const res = await axios.post(`${API_URL}?action=upload_landing`, formData, {
@@ -230,19 +266,27 @@ const LandingEditor = ({ landingId, onClose }) => {
             });
             if (res.data.status === 'success') {
                 alert(t('landingEditor.archiveUploaded'));
-                fetchLandingFiles(landingId);
-            } else {
-                alert(res.data.message || t('landingEditor.archiveError'));
+                fetchLandingFiles(id);
+                return true;
             }
+            alert(res.data.message || t('landingEditor.archiveError'));
+            return false;
         } catch (error) {
             // A 500 or a 413 from the upload used to arrive here and be reduced to
             // "ZIP upload error", which says nothing about a size limit, a missing
             // extension or a read-only directory.
             alert(`${t('landingEditor.archiveError')}: ${translateLandingRequestError(t, error)}`);
+            return false;
         } finally {
             setUploadingZip(false);
-            e.target.value = null;
         }
+    };
+
+    const handleZipUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file || !landingId) return;
+        await uploadZip(landingId, file);
+        e.target.value = null;
     };
 
     const loadFileContent = async (path) => {
@@ -297,7 +341,7 @@ const LandingEditor = ({ landingId, onClose }) => {
                     <h3 className="modal-title">
                         {landingId ? t('landingEditor.saveChanges') : t('landingEditor.createLanding')}
                     </h3>
-                    <button onClick={() => onClose(false)} className="action-btn">
+                    <button onClick={() => onClose(savedSomething)} className="action-btn">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -612,14 +656,27 @@ const LandingEditor = ({ landingId, onClose }) => {
                                 </div>
                             )}
 
-                            {/* Info for Local landing when NOT saved yet */}
+                            {/* A local landing that does not exist yet can still be
+                                given its archive here: upload needs an id, so the
+                                file is held and sent as soon as the landing is
+                                created. Same behaviour as the stream's modal. */}
                             {landing.type === 'local' && !landingId && (
                                 <div className="mt-4 p-4 rounded-2xl text-sm" style={{
-                                    backgroundColor: 'var(--color-warning-bg)',
-                                    border: '1px solid var(--color-warning)',
-                                    color: 'var(--color-warning)'
+                                    border: '1px solid var(--color-border)',
+                                    backgroundColor: 'var(--color-bg-soft)'
                                 }}>
-                                    {t('landingEditor.saveFirst')}
+                                    <div className="font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>
+                                        {t('landingEditor.uploadZip')}
+                                    </div>
+                                    <input
+                                        type="file"
+                                        accept=".zip"
+                                        onChange={e => setPendingZip(e.target.files[0] || null)}
+                                        className="form-input"
+                                    />
+                                    <p className="mt-1" style={{ fontSize: '12.5px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                                        {t('landingEditor.zipOnCreateHint')}
+                                    </p>
                                 </div>
                             )}
                         </form>
@@ -729,7 +786,7 @@ const LandingEditor = ({ landingId, onClose }) => {
                 </div>
 
                 <div className="modal-footer">
-                    <button onClick={() => onClose(false)} type="button" className="btn btn-secondary">
+                    <button onClick={() => onClose(savedSomething)} type="button" className="btn btn-secondary">
                         {t('landingEditor.cancel')}
                     </button>
                     <button type="submit" form="landing-form" className="btn btn-primary">

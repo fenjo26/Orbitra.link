@@ -1175,6 +1175,7 @@ export default {
         "actionPayloadPlaceholder": "window.location.replace('{offer}');",
         "saveFirst": "Enregistrez d'abord la destination paramètres pour télécharger les fichiers d'archive.",
         "uploadZip": "Télécharger le fichier ZIP",
+        "zipOnCreateHint": "Facultatif. L'archive est envoyée dès la création de la landing — la fenêtre reste ouverte et les fichiers apparaissent à droite.",
         "selectFile": "Sélectionner le fichier à modifier",
         "cancel": "Annuler",
         "save": "Enregistrer",

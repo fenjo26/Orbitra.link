@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
 import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3 } from 'lucide-react';
 import CampaignReports from './CampaignReports';
 import ConversionsLog from './ConversionsLog';
+import LandingEditor from './LandingEditor';
 import { useLanguage } from '../contexts/LanguageContext';
-import axios from 'axios';
 import { cachedGet, cachedPost } from '../utils/apiCache';
 import { translateLandingRequestError } from '../utils/landingErrors';
 
@@ -70,24 +70,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [domains, setDomains] = useState([]);
     const [allOffers, setAllOffers] = useState([]);
     const [allLandings, setAllLandings] = useState([]);
-    // Landing-group / campaign / postback-key lookups feed the full landing
-    // create+edit modal that the stream opens, so it matches the dedicated
-    // LandingEditor instead of the old 3-field quick form.
-    const [landingGroups, setLandingGroups] = useState([]);
-    const [allCampaigns, setAllCampaigns] = useState([]);
-    const [postbackKey, setPostbackKey] = useState('');
     // Creating a landing or offer without leaving the stream you are wiring up.
     // Going to another page and back used to mean losing the unsaved campaign.
+    // Landing groups, the campaign list, the postback key and the offer-link
+    // hint state used to live here too, purely to feed a second copy of the
+    // landing form; LandingEditor fetches what it needs itself.
     const [quickCreate, setQuickCreate] = useState(null);
     const [quickSaving, setQuickSaving] = useState(false);
-    const quickFileRef = useRef(null);
-    // Offer-link hint inside the landing modal: which code format is shown, and
-    // the per-snippet "copied" affordance. Mirrors LandingEditor.jsx.
-    const [linkFormat, setLinkFormat] = useState('html');
-    const [linkCopied, setLinkCopied] = useState(false);
-
-    const origin = (typeof window !== 'undefined' && window.location && window.location.origin)
-        ? window.location.origin : 'https://your-tracker.example.com';
 
     // Form State
     const [formData, setFormData] = useState({
@@ -210,24 +199,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             try {
                 // Cache dropdown data for 5 minutes - rarely changes
                 const TTL = 300000;
-                const [gRes, sRes, dRes, oRes, lRes, lgRes, cRes, skRes] = await Promise.all([
+                const [gRes, sRes, dRes, oRes, lRes] = await Promise.all([
                     cachedGet('campaign_groups', {}, TTL),
                     cachedGet('traffic_sources', {}, TTL),
                     cachedGet('domains', {}, TTL),
                     cachedGet('all_offers', {}, TTL),
-                    cachedGet('landings_simple', {}, TTL), // Use optimized endpoint without heavy joins
-                    cachedGet('landing_groups', {}, TTL),
-                    cachedGet('campaigns', {}, TTL),
-                    cachedGet('settings', {}, TTL)
+                    cachedGet('landings_simple', {}, TTL) // Use optimized endpoint without heavy joins
                 ]);
                 if (gRes.data.status === 'success') setGroups(gRes.data.data);
                 if (sRes.data.status === 'success') setSources(sRes.data.data);
                 if (dRes.data.status === 'success') setDomains(dRes.data.data);
                 if (oRes.data.status === 'success') setAllOffers(oRes.data.data);
                 if (lRes.data.status === 'success') setAllLandings(lRes.data.data);
-                if (lgRes.data.status === 'success') setLandingGroups(lgRes.data.data);
-                if (cRes.data.status === 'success') setAllCampaigns(cRes.data.data);
-                if (skRes.data.status === 'success') setPostbackKey(skRes.data.data?.postback_key || '');
             } catch (err) {
                 console.error(err);
             }
@@ -510,7 +493,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     // Schema item management
     /**
-     * Create a landing or an offer and drop it straight into the stream.
+     * Create an offer and drop it straight into the stream.
+     *
+     * Landings do not come through here any more: they render the shared
+     * LandingEditor, which owns its own saving, and report back through
+     * attachLandingToStream.
      *
      * The list this feeds is cached, so it is refreshed with a cache-busting read
      * rather than waiting out the five-minute TTL — otherwise the thing you just
@@ -520,55 +507,27 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         if (!quickCreate?.name?.trim()) return;
         setQuickSaving(true);
         try {
-            const isLanding = quickCreate.kind === 'landings';
-            const action = isLanding ? 'save_landing' : 'save_offer';
-            const payload = isLanding
-                ? {
-                    name: quickCreate.name,
-                    type: quickCreate.type,
-                    url: quickCreate.url || '',
-                    state: quickCreate.state || 'active',
-                    group_id: quickCreate.group_id || '',
-                    slug: quickCreate.slug || '',
-                    redirect_type: quickCreate.redirect_type || 'redirect',
-                    action_type: quickCreate.action_type || '',
-                    action_payload: quickCreate.action_payload || '',
-                    // On edit, the landing id is what makes save_landing UPDATE
-                    // rather than INSERT a duplicate.
-                    ...(quickCreate.editingId ? { id: quickCreate.editingId } : {})
-                }
-                : { name: quickCreate.name, url: quickCreate.url || '', payout_type: 'CPA', payout_value: 0, state: 'active' };
-
-            const res = await cachedPost(action, payload);
+            const res = await cachedPost('save_offer', {
+                name: quickCreate.name,
+                url: quickCreate.url || '',
+                payout_type: 'CPA',
+                payout_value: 0,
+                state: 'active'
+            });
             if (res.data.status !== 'success') throw new Error(res.data.message || 'save failed');
             const newId = parseInt(res.data.data?.id, 10);
 
-            // A local landing created with a ZIP uploads it right away. Editing an
-            // existing landing that already has files does not re-upload.
-            if (isLanding && quickCreate.type === 'local' && quickCreate.file && !quickCreate.editingId) {
-                const fd = new FormData();
-                fd.append('file', quickCreate.file);
-                fd.append('id', newId);
-                const up = await axios.post(`/api.php?action=upload_landing`, fd, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-                if (up.data.status !== 'success') throw new Error(up.data.message || 'upload failed');
-            }
-
-            const listRes = await cachedGet(isLanding ? 'landings_simple' : 'all_offers', { _: Date.now() }, 0);
+            const listRes = await cachedGet('all_offers', { _: Date.now() }, 0);
             if (listRes.data.status === 'success') {
-                (isLanding ? setAllLandings : setAllOffers)(listRes.data.data);
+                setAllOffers(listRes.data.data);
             }
 
-            // Adding the new landing into the stream's rotation only happens on
-            // create; an edit of an already-wired landing just refreshes its data.
-            if (!quickCreate.editingId) {
-                const s = [...formData.streams];
-                const streamIdx = quickCreate.streamIdx;
-                if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
-                s[streamIdx].schema_custom[quickCreate.kind].push({ id: newId, weight: 100 });
-                setFormData({ ...formData, streams: s });
-            }
+            const s = [...formData.streams];
+            const streamIdx = quickCreate.streamIdx;
+            if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
+            s[streamIdx].schema_custom.offers.push({ id: newId, weight: 100 });
+            setFormData({ ...formData, streams: s });
+
             setQuickCreate(null);
         } catch (e) {
             alert(`${t('editor.quickCreateError')}: ${translateLandingRequestError(t, e)}`);
@@ -577,33 +536,45 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         }
     };
 
-    // Open an existing landing in the same rich modal used to create one. Fetches
-    // the full row (slug, redirect_type, action_type, …) so the editor is not
-    // limited to the 4 fields landings_simple exposes.
-    const openLandingEdit = async (landingId, streamIdx) => {
+    /**
+     * A landing was saved inside the stream's modal — refresh the dropdown and,
+     * when it is new, wire it into this stream's rotation.
+     *
+     * Called on every save, including the one that creates the landing before its
+     * archive is uploaded, so the stream holds the id from the first moment. The
+     * guard against duplicates matters because the editor stays open after
+     * creating: saving twice must not add the landing to the rotation twice.
+     */
+    const attachLandingToStream = async (newId) => {
+        const id = parseInt(newId, 10);
+        if (!id) return;
         try {
-            const res = await axios.get(`/api.php?action=get_landing&id=${landingId}`);
-            if (res.data.status === 'success' && res.data.data) {
-                const d = res.data.data;
-                setQuickCreate({
-                    kind: 'landings',
-                    streamIdx,
-                    editingId: landingId,
-                    name: d.name || '',
-                    type: d.type || 'local',
-                    url: d.url || '',
-                    state: d.state || 'active',
-                    group_id: d.group_id || '',
-                    slug: d.slug || '',
-                    redirect_type: d.redirect_type || 'redirect',
-                    action_type: d.action_type || '',
-                    action_payload: d.action_payload || '',
-                    file: null
-                });
+            const listRes = await cachedGet('landings_simple', { _: Date.now() }, 0);
+            if (listRes.data.status === 'success') {
+                setAllLandings(listRes.data.data);
             }
         } catch (e) {
-            alert(`${t('editor.quickCreateError')}: ${e.message}`);
+            // A stale dropdown is survivable; the landing itself is already saved.
         }
+
+        if (quickCreate?.editingId) return;
+
+        const streamIdx = quickCreate?.streamIdx;
+        if (streamIdx === undefined || streamIdx === null) return;
+        const s = [...formData.streams];
+        if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
+        if (s[streamIdx].schema_custom.landings.some(l => parseInt(l.id, 10) === id)) return;
+        s[streamIdx].schema_custom.landings.push({ id, weight: 100 });
+        setFormData({ ...formData, streams: s });
+    };
+
+    /**
+     * Open an existing landing in the shared editor. Nothing to prefetch: the
+     * editor loads the full row itself from the id, which is the whole point of
+     * reusing it instead of copying its fields into local state.
+     */
+    const openLandingEdit = (landingId, streamIdx) => {
+        setQuickCreate({ kind: 'landings', streamIdx, editingId: landingId });
     };
 
     const addSchemaItem = (streamIdx, type) => {
@@ -666,15 +637,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         const s = [...formData.streams];
         s[streamIdx].filters.splice(filterIdx, 1);
         setFormData({ ...formData, streams: s });
-    };
-
-    // Generate landing code
-    const generateLandingCode = () => {
-        const uid = formData.alias + '-' + Date.now().toString(36);
-        return `<span id="${uid}"></span>
-<script type="application/javascript">
-document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_referrer=' + encodeURIComponent(document.referrer) + '&default_keyword=' + encodeURIComponent(document.title) + '&'+window.location.search.replace('?', '&')+'">Link</a>';
-</script>`;
     };
 
     return (
@@ -1533,7 +1495,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                                                 <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.landings')}</span>
                                                                 <div className="flex gap-3">
                                                                     <button onClick={() => addSchemaItem(idx, 'landings')} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.add')}</button>
-                                                                    <button onClick={() => setQuickCreate({ kind: 'landings', streamIdx: idx, name: '', type: 'local', url: '', file: null })} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.quickCreateLanding')}</button>
+                                                                    <button onClick={() => setQuickCreate({ kind: 'landings', streamIdx: idx })} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.quickCreateLanding')}</button>
                                                                 </div>
                                                             </div>
                                                             {(stream.schema_custom?.landings || []).map((l, lIdx, list) => (
@@ -2225,15 +2187,23 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                 </div>
             )}
 
-            {quickCreate && (
+            {/* Landings render the one landing form there is. The stream used to
+                carry its own copy of this markup, which is exactly why the two
+                drifted: an archive picker in one, none in the other, and every
+                fix written twice. */}
+            {quickCreate && quickCreate.kind === 'landings' && (
+                <LandingEditor
+                    landingId={quickCreate.editingId || null}
+                    onSaved={attachLandingToStream}
+                    onClose={() => setQuickCreate(null)}
+                />
+            )}
+
+            {quickCreate && quickCreate.kind === 'offers' && (
                 <div className="modal-overlay" onClick={() => !quickSaving && setQuickCreate(null)}>
                     <div className="modal-content" style={{ maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
                         <div className="modal-header">
-                            <h3 className="modal-title">
-                                {quickCreate.kind === 'landings'
-                                    ? (quickCreate.editingId ? t('editor.editLanding') : t('editor.quickCreateLanding'))
-                                    : t('editor.quickCreateOffer')}
-                            </h3>
+                            <h3 className="modal-title">{t('editor.quickCreateOffer')}</h3>
                         </div>
 
                         <div className="space-y-3">
@@ -2247,294 +2217,15 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                 />
                             </div>
 
-                            {quickCreate.kind === 'landings' && (
-                                <>
-                                    {/* Group + status row */}
-                                    <div className="flex gap-3">
-                                        <div className="flex-1">
-                                            <label className="form-label">{t('landingEditor.group')}</label>
-                                            <select
-                                                value={quickCreate.group_id || ''}
-                                                onChange={e => setQuickCreate({ ...quickCreate, group_id: e.target.value })}
-                                                className="form-select"
-                                            >
-                                                <option value="">{t('landingEditor.noGroup')}</option>
-                                                {landingGroups.map(g => (
-                                                    <option key={g.id} value={g.id}>{g.name}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div className="flex-1">
-                                            <label className="form-label">{t('landingEditor.status')}</label>
-                                            <select
-                                                value={quickCreate.state || 'active'}
-                                                onChange={e => setQuickCreate({ ...quickCreate, state: e.target.value })}
-                                                className="form-select"
-                                            >
-                                                <option value="active">{t('landingEditor.active')}</option>
-                                                <option value="paused">{t('landingEditor.paused') || 'Paused'}</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    {/* Type as tabs (matches LandingEditor + Keitaro) */}
-                                    <div>
-                                        <label className="form-label">{t('landingEditor.landingType')}</label>
-                                        <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
-                                            {[
-                                                { value: 'local', label: t('landingEditor.typeLocal') },
-                                                { value: 'redirect', label: t('landingEditor.typeRedirect') },
-                                                { value: 'preload', label: t('landingEditor.typePreload') },
-                                                { value: 'action', label: t('landingEditor.typeAction') },
-                                            ].map((opt, idx, arr) => {
-                                                const active = quickCreate.type === opt.value;
-                                                return (
-                                                    <button
-                                                        key={opt.value}
-                                                        type="button"
-                                                        onClick={() => setQuickCreate({ ...quickCreate, type: opt.value })}
-                                                        className="flex-1 px-3 py-2 text-sm font-medium transition"
-                                                        style={{
-                                                            backgroundColor: active ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
-                                                            color: active ? 'var(--color-primary)' : 'var(--color-text-primary)',
-                                                            borderRight: idx < arr.length - 1 ? '1px solid var(--color-border)' : 'none'
-                                                        }}
-                                                    >
-                                                        {opt.label}
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-
-                                    {/* Folder (slug) for local landings */}
-                                    {quickCreate.type === 'local' && (
-                                        <div>
-                                            <label className="form-label">{t('landingEditor.slugLabel')}</label>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-sm font-mono" style={{ color: 'var(--color-text-muted)' }}>/lander/</span>
-                                                <input
-                                                    type="text"
-                                                    value={quickCreate.slug || ''}
-                                                    onChange={e => setQuickCreate({ ...quickCreate, slug: e.target.value })}
-                                                    className="form-input font-mono"
-                                                    style={{ flex: 1 }}
-                                                    placeholder={t('landingEditor.slugPlaceholder')}
-                                                    autoComplete="off"
-                                                    spellCheck="false"
-                                                />
-                                            </div>
-                                            <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
-                                                {t('landingEditor.slugHint')}
-                                            </p>
-                                        </div>
-                                    )}
-
-                                    {/* URL for redirect/preload */}
-                                    {(quickCreate.type === 'redirect' || quickCreate.type === 'preload') && (
-                                        <div>
-                                            <label className="form-label">{t('landingEditor.urlLabel')} *</label>
-                                            <input
-                                                type="url"
-                                                value={quickCreate.url}
-                                                onChange={e => setQuickCreate({ ...quickCreate, url: e.target.value })}
-                                                className="form-input"
-                                                placeholder={t('landingEditor.urlPlaceholder')}
-                                            />
-                                            {quickCreate.type === 'preload' && (
-                                                <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
-                                                    {t('landingEditor.preloadHint')}
-                                                </p>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {/* Redirect method for redirect landings */}
-                                    {quickCreate.type === 'redirect' && (
-                                        <div>
-                                            <label className="form-label">{t('landingEditor.redirectMethodLabel')}</label>
-                                            <select
-                                                value={quickCreate.redirect_type || 'redirect'}
-                                                onChange={e => setQuickCreate({ ...quickCreate, redirect_type: e.target.value })}
-                                                className="form-select"
-                                            >
-                                                <option value="redirect">{t('landingEditor.redirectHttp')}</option>
-                                                <option value="js">{t('landingEditor.redirectJs')}</option>
-                                                <option value="meta_refresh">{t('landingEditor.redirectMeta')}</option>
-                                            </select>
-                                        </div>
-                                    )}
-
-                                    {/* ZIP for a new local landing */}
-                                    {quickCreate.type === 'local' && !quickCreate.editingId && (
-                                        <div>
-                                            <label className="form-label">{t('editor.quickCreateZip')}</label>
-                                            <input
-                                                ref={quickFileRef}
-                                                type="file"
-                                                accept=".zip"
-                                                onChange={e => setQuickCreate({ ...quickCreate, file: e.target.files[0] || null })}
-                                                className="form-input"
-                                            />
-                                            <p className="mt-1" style={{ fontSize: '12.5px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                                                {t('editor.quickCreateZipHint')}
-                                            </p>
-                                        </div>
-                                    )}
-                                    {quickCreate.type === 'local' && quickCreate.editingId && (
-                                        <p style={{ fontSize: '12.5px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                                            {t('editor.quickCreateEditFilesHint')}
-                                        </p>
-                                    )}
-
-                                    {/* Action type + conditional payload */}
-                                    {quickCreate.type === 'action' && (
-                                        <div className="space-y-3">
-                                            <div>
-                                                <label className="form-label">{t('landingEditor.actionTypeLabel')}</label>
-                                                <select
-                                                    value={quickCreate.action_type || 'not_found'}
-                                                    onChange={e => setQuickCreate({ ...quickCreate, action_type: e.target.value })}
-                                                    className="form-input"
-                                                >
-                                                    <option value="to_campaign">{t('landingEditor.actionToCampaign')}</option>
-                                                    <option value="not_found">{t('landingEditor.actionNotFound')}</option>
-                                                    <option value="show_text">{t('landingEditor.actionShowText')}</option>
-                                                    <option value="show_html">{t('landingEditor.actionShowHtml')}</option>
-                                                    <option value="do_nothing">{t('landingEditor.actionDoNothing')}</option>
-                                                </select>
-                                                <p className="mt-1" style={{ fontSize: '12.5px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                                                    {{
-                                                        to_campaign: t('landingEditor.actionToCampaignHint'),
-                                                        not_found: t('landingEditor.actionNotFoundHint'),
-                                                        show_text: t('landingEditor.actionShowTextHint'),
-                                                        show_html: t('landingEditor.actionShowHtmlHint'),
-                                                        do_nothing: t('landingEditor.actionDoNothingHint'),
-                                                    }[quickCreate.action_type || 'not_found']}
-                                                </p>
-                                            </div>
-
-                                            {quickCreate.action_type === 'to_campaign' && (
-                                                <div>
-                                                    <label className="form-label">{t('landingEditor.actionTargetCampaign')}</label>
-                                                    <select
-                                                        value={quickCreate.action_payload || ''}
-                                                        onChange={e => setQuickCreate({ ...quickCreate, action_payload: e.target.value })}
-                                                        className="form-input"
-                                                    >
-                                                        <option value="">{t('landingEditor.actionPickCampaign')}</option>
-                                                        {allCampaigns.map(c => (
-                                                            <option key={c.id} value={c.id}>{c.name} (#{c.id})</option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                            )}
-
-                                            {(quickCreate.action_type === 'show_text' || quickCreate.action_type === 'show_html') && (
-                                                <div>
-                                                    <label className="form-label">
-                                                        {quickCreate.action_type === 'show_text'
-                                                            ? t('landingEditor.actionTextLabel')
-                                                            : t('landingEditor.actionHtmlLabel')}
-                                                    </label>
-                                                    <textarea
-                                                        rows={5}
-                                                        value={quickCreate.action_payload || ''}
-                                                        onChange={e => setQuickCreate({ ...quickCreate, action_payload: e.target.value })}
-                                                        className="form-input font-mono text-sm"
-                                                    />
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {/* Offer-link hint with copy button + HTML/JS/PHP formats for redirect */}
-                                    {(quickCreate.type === 'local' || quickCreate.type === 'preload' || quickCreate.type === 'redirect') && (
-                                        <div className="p-3 rounded-2xl text-sm" style={{
-                                            border: '1px solid var(--color-primary)',
-                                            backgroundColor: 'var(--color-bg-soft)'
-                                        }}>
-                                            <div className="flex items-center justify-between" style={{ gap: '8px', marginBottom: '4px' }}>
-                                                <div className="font-semibold" style={{ color: 'var(--color-text-primary)', fontSize: '13px' }}>
-                                                    {t('landingEditor.offerLinkTitle')}
-                                                </div>
-                                                {quickCreate.type === 'redirect' && (
-                                                    <div className="flex" style={{ gap: '2px' }}>
-                                                        {['html', 'js', 'php'].map(fmt => {
-                                                            const active = linkFormat === fmt;
-                                                            return (
-                                                                <button
-                                                                    key={fmt}
-                                                                    type="button"
-                                                                    onClick={() => setLinkFormat(fmt)}
-                                                                    className="px-2 py-1 text-xs rounded-md transition"
-                                                                    style={{
-                                                                        backgroundColor: active ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
-                                                                        color: active ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                                                                        border: '1px solid var(--color-border)'
-                                                                    }}
-                                                                >
-                                                                    {fmt.toUpperCase()}
-                                                                </button>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <p className="mb-2" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.5, fontSize: '12.5px' }}>
-                                                {t('landingEditor.offerLinkHint')}
-                                            </p>
-                                            {(() => {
-                                                const snippet = quickCreate.type === 'redirect'
-                                                    ? (linkFormat === 'html'
-                                                        ? `<a href="${origin}/?_lp=1">${t('landingEditor.offerLinkWord')}</a>`
-                                                        : linkFormat === 'js'
-                                                            ? `<script>document.write('<a href="${origin}/?_lp=1&'+window.location.search.substring(1)+'">${t('landingEditor.offerLinkWord')}</a>');</script>`
-                                                            : `<a href="${origin}/?_lp=1&_token=<?= urlencode($_GET['_token']) ?>">${t('landingEditor.offerLinkWord')}</a>`)
-                                                    : t('landingEditor.offerLinkExampleSingle');
-                                                return (
-                                                    <div className="relative">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => { navigator.clipboard.writeText(snippet); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 1800); }}
-                                                            className="btn btn-secondary btn-sm"
-                                                            style={{ position: 'absolute', top: '6px', right: '6px', padding: '2px 8px', fontSize: '11px', zIndex: 1 }}
-                                                        >
-                                                            {linkCopied ? <Check className="w-3 h-3" /> : <Code className="w-3 h-3" />}
-                                                            {linkCopied ? t('landingEditor.codeCopied') : t('landingEditor.copyCode')}
-                                                        </button>
-                                                        <pre className="p-2 rounded-lg overflow-x-auto" style={{
-                                                            backgroundColor: 'var(--color-bg-card)',
-                                                            border: '1px solid var(--color-border)',
-                                                            color: 'var(--color-text-primary)',
-                                                            fontSize: '12.5px',
-                                                            margin: 0,
-                                                            paddingRight: '90px'
-                                                        }}><code>{snippet}</code></pre>
-                                                    </div>
-                                                );
-                                            })()}
-                                            {(quickCreate.type === 'local' || quickCreate.type === 'preload') && (
-                                                <p className="mt-2" style={{ color: 'var(--color-text-muted)', fontSize: '12.5px', lineHeight: 1.55 }}>
-                                                    {t('landingEditor.offerLinkExtra')}
-                                                </p>
-                                            )}
-                                        </div>
-                                    )}
-                                </>
-                            )}
-
-                            {quickCreate.kind === 'offers' && (
-                                <div>
-                                    <label className="form-label">URL</label>
-                                    <input
-                                        value={quickCreate.url}
-                                        onChange={e => setQuickCreate({ ...quickCreate, url: e.target.value })}
-                                        className="form-input"
-                                        placeholder="https://example.com/?click={clickid}"
-                                    />
-                                </div>
-                            )}
+                            <div>
+                                <label className="form-label">URL</label>
+                                <input
+                                    value={quickCreate.url}
+                                    onChange={e => setQuickCreate({ ...quickCreate, url: e.target.value })}
+                                    className="form-input"
+                                    placeholder="https://example.com/?click={clickid}"
+                                />
+                            </div>
                         </div>
 
                         <div className="flex gap-2 mt-4">
@@ -2542,7 +2233,7 @@ document.getElementById('${uid}').innerHTML = '<a href="${getCampaignUrl()}?&se_
                                 {t('common.cancel')}
                             </button>
                             <button onClick={submitQuickCreate} disabled={quickSaving || !quickCreate.name.trim()} className="btn btn-primary" style={{ flex: 1 }}>
-                                {quickSaving ? t('common.saving') : (quickCreate.editingId ? t('common.save') : t('common.create'))}
+                                {quickSaving ? t('common.saving') : t('common.create')}
                             </button>
                         </div>
                     </div>

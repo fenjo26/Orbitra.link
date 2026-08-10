@@ -17105,6 +17105,7 @@ const ru = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "Сперва сохраните настройки лендинга, чтобы загрузить файлы архива.",
     "uploadZip": "Загрузить ZIP",
+    "zipOnCreateHint": "Необязательно. Архив загрузится сразу после создания лендинга — окно останется открытым, файлы появятся справа.",
     "selectFile": "Выберите файл для редактирования",
     "cancel": "Отмена",
     "save": "Сохранить",
@@ -19187,6 +19188,7 @@ const en = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "First save the landing settings to upload archive files.",
     "uploadZip": "Upload ZIP",
+    "zipOnCreateHint": "Optional. The archive is uploaded as soon as the landing is created — the window stays open and the files appear on the right.",
     "selectFile": "Select file to edit",
     "cancel": "Cancel",
     "save": "Save",
@@ -21269,6 +21271,7 @@ const uk = {
     "actionPayloadPlaceholder": "window.location.replace('{пропозиція}');",
     "saveFirst": "Спочатку збережіть налаштування посадки для завантаження архівних файлів.",
     "uploadZip": "Завантажити ZIP",
+    "zipOnCreateHint": "Необов'язково. Архів завантажиться одразу після створення лендингу — вікно залишиться відкритим, файли з'являться праворуч.",
     "selectFile": "Виберіть файл для редагування",
     "cancel": "Скасувати",
     "save": "зберегти",
@@ -23351,6 +23354,7 @@ const es = {
     "actionPayloadPlaceholder": "ventana.ubicación.replace('{oferta}');",
     "saveFirst": "Primero guarde la configuración de aterrizaje para cargar archivos.",
     "uploadZip": "Subir ZIP",
+    "zipOnCreateHint": "Opcional. El archivo se sube en cuanto se crea la landing: la ventana permanece abierta y los archivos aparecen a la derecha.",
     "selectFile": "Seleccionar archivo para editar",
     "cancel": "Cancelar",
     "save": "Guardar",
@@ -25433,6 +25437,7 @@ const zh = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "首先保存登陆设置上传存档文件。",
     "uploadZip": "上传ZIP",
+    "zipOnCreateHint": "可选。着陆页创建后立即上传压缩包 —— 窗口保持打开，文件会出现在右侧。",
     "selectFile": "选择要编辑的文件",
     "cancel": "取消",
     "save": "保存",
@@ -27515,6 +27520,7 @@ const fr = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "Enregistrez d'abord la destination paramètres pour télécharger les fichiers d'archive.",
     "uploadZip": "Télécharger le fichier ZIP",
+    "zipOnCreateHint": "Facultatif. L'archive est envoyée dès la création de la landing — la fenêtre reste ouverte et les fichiers apparaissent à droite.",
     "selectFile": "Sélectionner le fichier à modifier",
     "cancel": "Annuler",
     "save": "Enregistrer",
@@ -29599,6 +29605,7 @@ const de = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "Speichern Sie zuerst die Landung Einstellungen zum Hochladen von Archivdateien.",
     "uploadZip": "ZIP hochladen",
+    "zipOnCreateHint": "Optional. Das Archiv wird hochgeladen, sobald die Landingpage angelegt ist — das Fenster bleibt offen, die Dateien erscheinen rechts.",
     "selectFile": "Datei zum Bearbeiten auswählen",
     "cancel": "Abbrechen",
     "save": "Speichern",
@@ -45707,8 +45714,11 @@ const CopyableCode = ({ text, copied, onCopy, t, muted = false }) => /* @__PURE_
     paddingRight: "90px"
   }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: text }) })
 ] });
-const LandingEditor = ({ landingId, onClose }) => {
+const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   const { t } = useLanguage();
+  const [landingId, setLandingId] = reactExports.useState(initialLandingId);
+  const [savedSomething, setSavedSomething] = reactExports.useState(false);
+  const [pendingZip, setPendingZip] = reactExports.useState(null);
   const [landing, setLanding] = reactExports.useState({
     name: "",
     group_id: "",
@@ -45799,13 +45809,22 @@ const LandingEditor = ({ landingId, onClose }) => {
       if (landingId) payload.id = landingId;
       const res = await axios.post(`${API_URL$v}?action=save_landing`, payload);
       if (res.data.status === "success") {
-        if (!landingId && res.data.data.id && landing.type === "local") {
-          alert(t("landingEditor.savedFiles"));
-          onClose(true);
-        } else {
-          alert(t("landingEditor.savedSuccess"));
-          onClose(true);
+        setSavedSomething(true);
+        const newId = res.data.data?.id;
+        if (onSaved) onSaved(newId || landingId);
+        if (!landingId && newId && landing.type === "local") {
+          setLandingId(newId);
+          if (pendingZip) {
+            const zip = pendingZip;
+            setPendingZip(null);
+            await uploadZip(newId, zip);
+          } else {
+            alert(t("landingEditor.savedFiles"));
+          }
+          return;
         }
+        alert(t("landingEditor.savedSuccess"));
+        onClose(true);
       } else {
         alert(translateLandingError(t, res.data.message) || t("landingEditor.saveError"));
       }
@@ -45867,29 +45886,34 @@ ${file}`)) return;
       e.target.value = null;
     }
   };
-  const handleZipUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file || !landingId) return;
+  const uploadZip = async (id, file) => {
     setUploadingZip(true);
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("id", landingId);
+    formData.append("id", id);
     try {
       const res = await axios.post(`${API_URL$v}?action=upload_landing`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status === "success") {
         alert(t("landingEditor.archiveUploaded"));
-        fetchLandingFiles(landingId);
-      } else {
-        alert(res.data.message || t("landingEditor.archiveError"));
+        fetchLandingFiles(id);
+        return true;
       }
+      alert(res.data.message || t("landingEditor.archiveError"));
+      return false;
     } catch (error) {
       alert(`${t("landingEditor.archiveError")}: ${translateLandingRequestError(t, error)}`);
+      return false;
     } finally {
       setUploadingZip(false);
-      e.target.value = null;
     }
+  };
+  const handleZipUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !landingId) return;
+    await uploadZip(landingId, file);
+    e.target.value = null;
   };
   const loadFileContent = async (path) => {
     try {
@@ -45928,7 +45952,7 @@ ${file}`)) return;
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "1200px", width: "100%" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: landingId ? t("landingEditor.saveChanges") : t("landingEditor.createLanding") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(savedSomething), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-0 flex flex-col md:flex-row", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-6 ${isLocal && landingId ? "md:w-1/3" : "w-full"} flex flex-col pt-4`, style: { borderRight: isLocal && landingId ? "1px solid var(--color-border)" : "none" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { id: "landing-form", onSubmit: handleFormSubmit, className: "space-y-4", children: [
@@ -46212,11 +46236,22 @@ ${file}`)) return;
             margin: 0
           }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t("landingEditor.postbackExample") }) })
         ] }),
-        landing.type === "local" && !landingId && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 p-4 rounded-2xl text-sm", style: {
-          backgroundColor: "var(--color-warning-bg)",
-          border: "1px solid var(--color-warning)",
-          color: "var(--color-warning)"
-        }, children: t("landingEditor.saveFirst") })
+        landing.type === "local" && !landingId && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 p-4 rounded-2xl text-sm", style: {
+          border: "1px solid var(--color-border)",
+          backgroundColor: "var(--color-bg-soft)"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-1", style: { color: "var(--color-text-primary)" }, children: t("landingEditor.uploadZip") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "file",
+              accept: ".zip",
+              onChange: (e) => setPendingZip(e.target.files[0] || null),
+              className: "form-input"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1", style: { fontSize: "12.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("landingEditor.zipOnCreateHint") })
+        ] })
       ] }) }),
       isLocal && landingId && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden min-h-[400px]", style: { backgroundColor: "var(--color-bg-soft)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center p-3", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
@@ -46309,7 +46344,7 @@ ${file}`)) return;
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), type: "button", className: "btn btn-secondary", children: t("landingEditor.cancel") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(savedSomething), type: "button", className: "btn btn-secondary", children: t("landingEditor.cancel") }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "submit", form: "landing-form", className: "btn btn-primary", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 mr-2" }),
         landingId ? t("landingEditor.saveChanges") : t("landingEditor.createLanding")
@@ -58699,15 +58734,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [domains, setDomains] = reactExports.useState([]);
   const [allOffers, setAllOffers] = reactExports.useState([]);
   const [allLandings, setAllLandings] = reactExports.useState([]);
-  const [landingGroups, setLandingGroups] = reactExports.useState([]);
-  const [allCampaigns, setAllCampaigns] = reactExports.useState([]);
-  const [postbackKey, setPostbackKey] = reactExports.useState("");
   const [quickCreate, setQuickCreate] = reactExports.useState(null);
   const [quickSaving, setQuickSaving] = reactExports.useState(false);
-  const quickFileRef = reactExports.useRef(null);
-  const [linkFormat, setLinkFormat] = reactExports.useState("html");
-  const [linkCopied, setLinkCopied] = reactExports.useState(false);
-  const origin2 = typeof window !== "undefined" && window.location && window.location.origin ? window.location.origin : "https://your-tracker.example.com";
   const [formData, setFormData] = reactExports.useState({
     name: t("editor.newCampaign"),
     alias: generateAlias(),
@@ -58810,25 +58838,19 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const fetchDeps = async () => {
       try {
         const TTL = 3e5;
-        const [gRes, sRes, dRes, oRes, lRes, lgRes, cRes, skRes] = await Promise.all([
+        const [gRes, sRes, dRes, oRes, lRes] = await Promise.all([
           cachedGet("campaign_groups", {}, TTL),
           cachedGet("traffic_sources", {}, TTL),
           cachedGet("domains", {}, TTL),
           cachedGet("all_offers", {}, TTL),
-          cachedGet("landings_simple", {}, TTL),
+          cachedGet("landings_simple", {}, TTL)
           // Use optimized endpoint without heavy joins
-          cachedGet("landing_groups", {}, TTL),
-          cachedGet("campaigns", {}, TTL),
-          cachedGet("settings", {}, TTL)
         ]);
         if (gRes.data.status === "success") setGroups(gRes.data.data);
         if (sRes.data.status === "success") setSources(sRes.data.data);
         if (dRes.data.status === "success") setDomains(dRes.data.data);
         if (oRes.data.status === "success") setAllOffers(oRes.data.data);
         if (lRes.data.status === "success") setAllLandings(lRes.data.data);
-        if (lgRes.data.status === "success") setLandingGroups(lgRes.data.data);
-        if (cRes.data.status === "success") setAllCampaigns(cRes.data.data);
-        if (skRes.data.status === "success") setPostbackKey(skRes.data.data?.postback_key || "");
       } catch (err) {
         console.error(err);
       }
@@ -59090,45 +59112,24 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     if (!quickCreate?.name?.trim()) return;
     setQuickSaving(true);
     try {
-      const isLanding = quickCreate.kind === "landings";
-      const action = isLanding ? "save_landing" : "save_offer";
-      const payload = isLanding ? {
+      const res = await cachedPost("save_offer", {
         name: quickCreate.name,
-        type: quickCreate.type,
         url: quickCreate.url || "",
-        state: quickCreate.state || "active",
-        group_id: quickCreate.group_id || "",
-        slug: quickCreate.slug || "",
-        redirect_type: quickCreate.redirect_type || "redirect",
-        action_type: quickCreate.action_type || "",
-        action_payload: quickCreate.action_payload || "",
-        // On edit, the landing id is what makes save_landing UPDATE
-        // rather than INSERT a duplicate.
-        ...quickCreate.editingId ? { id: quickCreate.editingId } : {}
-      } : { name: quickCreate.name, url: quickCreate.url || "", payout_type: "CPA", payout_value: 0, state: "active" };
-      const res = await cachedPost(action, payload);
+        payout_type: "CPA",
+        payout_value: 0,
+        state: "active"
+      });
       if (res.data.status !== "success") throw new Error(res.data.message || "save failed");
       const newId = parseInt(res.data.data?.id, 10);
-      if (isLanding && quickCreate.type === "local" && quickCreate.file && !quickCreate.editingId) {
-        const fd = new FormData();
-        fd.append("file", quickCreate.file);
-        fd.append("id", newId);
-        const up = await axios.post(`/api.php?action=upload_landing`, fd, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
-        if (up.data.status !== "success") throw new Error(up.data.message || "upload failed");
-      }
-      const listRes = await cachedGet(isLanding ? "landings_simple" : "all_offers", { _: Date.now() }, 0);
+      const listRes = await cachedGet("all_offers", { _: Date.now() }, 0);
       if (listRes.data.status === "success") {
-        (isLanding ? setAllLandings : setAllOffers)(listRes.data.data);
+        setAllOffers(listRes.data.data);
       }
-      if (!quickCreate.editingId) {
-        const s = [...formData.streams];
-        const streamIdx = quickCreate.streamIdx;
-        if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
-        s[streamIdx].schema_custom[quickCreate.kind].push({ id: newId, weight: 100 });
-        setFormData({ ...formData, streams: s });
-      }
+      const s = [...formData.streams];
+      const streamIdx = quickCreate.streamIdx;
+      if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
+      s[streamIdx].schema_custom.offers.push({ id: newId, weight: 100 });
+      setFormData({ ...formData, streams: s });
       setQuickCreate(null);
     } catch (e) {
       alert(`${t("editor.quickCreateError")}: ${translateLandingRequestError(t, e)}`);
@@ -59136,30 +59137,27 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       setQuickSaving(false);
     }
   };
-  const openLandingEdit = async (landingId, streamIdx) => {
+  const attachLandingToStream = async (newId) => {
+    const id = parseInt(newId, 10);
+    if (!id) return;
     try {
-      const res = await axios.get(`/api.php?action=get_landing&id=${landingId}`);
-      if (res.data.status === "success" && res.data.data) {
-        const d = res.data.data;
-        setQuickCreate({
-          kind: "landings",
-          streamIdx,
-          editingId: landingId,
-          name: d.name || "",
-          type: d.type || "local",
-          url: d.url || "",
-          state: d.state || "active",
-          group_id: d.group_id || "",
-          slug: d.slug || "",
-          redirect_type: d.redirect_type || "redirect",
-          action_type: d.action_type || "",
-          action_payload: d.action_payload || "",
-          file: null
-        });
+      const listRes = await cachedGet("landings_simple", { _: Date.now() }, 0);
+      if (listRes.data.status === "success") {
+        setAllLandings(listRes.data.data);
       }
     } catch (e) {
-      alert(`${t("editor.quickCreateError")}: ${e.message}`);
     }
+    if (quickCreate?.editingId) return;
+    const streamIdx = quickCreate?.streamIdx;
+    if (streamIdx === void 0 || streamIdx === null) return;
+    const s = [...formData.streams];
+    if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
+    if (s[streamIdx].schema_custom.landings.some((l) => parseInt(l.id, 10) === id)) return;
+    s[streamIdx].schema_custom.landings.push({ id, weight: 100 });
+    setFormData({ ...formData, streams: s });
+  };
+  const openLandingEdit = (landingId, streamIdx) => {
+    setQuickCreate({ kind: "landings", streamIdx, editingId: landingId });
   };
   const addSchemaItem = (streamIdx, type) => {
     const s = [...formData.streams];
@@ -60079,7 +60077,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.landings") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "landings"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setQuickCreate({ kind: "landings", streamIdx: idx, name: "", type: "local", url: "", file: null }), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.quickCreateLanding") })
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setQuickCreate({ kind: "landings", streamIdx: idx }), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.quickCreateLanding") })
                     ] })
                   ] }),
                   (stream.schema_custom?.landings || []).map((l, lIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mb-2", children: [
@@ -60711,8 +60709,16 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         )
       ] })
     ] }) }),
-    quickCreate && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => !quickSaving && setQuickCreate(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "640px", maxHeight: "90vh", overflowY: "auto" }, onClick: (e) => e.stopPropagation(), children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: quickCreate.kind === "landings" ? quickCreate.editingId ? t("editor.editLanding") : t("editor.quickCreateLanding") : t("editor.quickCreateOffer") }) }),
+    quickCreate && quickCreate.kind === "landings" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      LandingEditor,
+      {
+        landingId: quickCreate.editingId || null,
+        onSaved: attachLandingToStream,
+        onClose: () => setQuickCreate(null)
+      }
+    ),
+    quickCreate && quickCreate.kind === "offers" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => !quickSaving && setQuickCreate(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "640px", maxHeight: "90vh", overflowY: "auto" }, onClick: (e) => e.stopPropagation(), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.quickCreateOffer") }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.quickCreateName") }),
@@ -60726,252 +60732,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             }
           )
         ] }),
-        quickCreate.kind === "landings" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.group") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  value: quickCreate.group_id || "",
-                  onChange: (e) => setQuickCreate({ ...quickCreate, group_id: e.target.value }),
-                  className: "form-select",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("landingEditor.noGroup") }),
-                    landingGroups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
-                  ]
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.status") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  value: quickCreate.state || "active",
-                  onChange: (e) => setQuickCreate({ ...quickCreate, state: e.target.value }),
-                  className: "form-select",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("landingEditor.active") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("landingEditor.paused") || "Paused" })
-                  ]
-                }
-              )
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.landingType") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex rounded-xl overflow-hidden", style: { border: "1px solid var(--color-border)" }, children: [
-              { value: "local", label: t("landingEditor.typeLocal") },
-              { value: "redirect", label: t("landingEditor.typeRedirect") },
-              { value: "preload", label: t("landingEditor.typePreload") },
-              { value: "action", label: t("landingEditor.typeAction") }
-            ].map((opt, idx, arr) => {
-              const active = quickCreate.type === opt.value;
-              return /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  type: "button",
-                  onClick: () => setQuickCreate({ ...quickCreate, type: opt.value }),
-                  className: "flex-1 px-3 py-2 text-sm font-medium transition",
-                  style: {
-                    backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-card)",
-                    color: active ? "var(--color-primary)" : "var(--color-text-primary)",
-                    borderRight: idx < arr.length - 1 ? "1px solid var(--color-border)" : "none"
-                  },
-                  children: opt.label
-                },
-                opt.value
-              );
-            }) })
-          ] }),
-          quickCreate.type === "local" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.slugLabel") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-mono", style: { color: "var(--color-text-muted)" }, children: "/lander/" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "text",
-                  value: quickCreate.slug || "",
-                  onChange: (e) => setQuickCreate({ ...quickCreate, slug: e.target.value }),
-                  className: "form-input font-mono",
-                  style: { flex: 1 },
-                  placeholder: t("landingEditor.slugPlaceholder"),
-                  autoComplete: "off",
-                  spellCheck: "false"
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.slugHint") })
-          ] }),
-          (quickCreate.type === "redirect" || quickCreate.type === "preload") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-              t("landingEditor.urlLabel"),
-              " *"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "url",
-                value: quickCreate.url,
-                onChange: (e) => setQuickCreate({ ...quickCreate, url: e.target.value }),
-                className: "form-input",
-                placeholder: t("landingEditor.urlPlaceholder")
-              }
-            ),
-            quickCreate.type === "preload" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.preloadHint") })
-          ] }),
-          quickCreate.type === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.redirectMethodLabel") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "select",
-              {
-                value: quickCreate.redirect_type || "redirect",
-                onChange: (e) => setQuickCreate({ ...quickCreate, redirect_type: e.target.value }),
-                className: "form-select",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("landingEditor.redirectHttp") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "js", children: t("landingEditor.redirectJs") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "meta_refresh", children: t("landingEditor.redirectMeta") })
-                ]
-              }
-            )
-          ] }),
-          quickCreate.type === "local" && !quickCreate.editingId && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.quickCreateZip") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                ref: quickFileRef,
-                type: "file",
-                accept: ".zip",
-                onChange: (e) => setQuickCreate({ ...quickCreate, file: e.target.files[0] || null }),
-                className: "form-input"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1", style: { fontSize: "12.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("editor.quickCreateZipHint") })
-          ] }),
-          quickCreate.type === "local" && quickCreate.editingId && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("editor.quickCreateEditFilesHint") }),
-          quickCreate.type === "action" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.actionTypeLabel") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  value: quickCreate.action_type || "not_found",
-                  onChange: (e) => setQuickCreate({ ...quickCreate, action_type: e.target.value }),
-                  className: "form-input",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "to_campaign", children: t("landingEditor.actionToCampaign") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "not_found", children: t("landingEditor.actionNotFound") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_text", children: t("landingEditor.actionShowText") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_html", children: t("landingEditor.actionShowHtml") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "do_nothing", children: t("landingEditor.actionDoNothing") })
-                  ]
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1", style: { fontSize: "12.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: {
-                to_campaign: t("landingEditor.actionToCampaignHint"),
-                not_found: t("landingEditor.actionNotFoundHint"),
-                show_text: t("landingEditor.actionShowTextHint"),
-                show_html: t("landingEditor.actionShowHtmlHint"),
-                do_nothing: t("landingEditor.actionDoNothingHint")
-              }[quickCreate.action_type || "not_found"] })
-            ] }),
-            quickCreate.action_type === "to_campaign" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.actionTargetCampaign") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  value: quickCreate.action_payload || "",
-                  onChange: (e) => setQuickCreate({ ...quickCreate, action_payload: e.target.value }),
-                  className: "form-input",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("landingEditor.actionPickCampaign") }),
-                    allCampaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: c.id, children: [
-                      c.name,
-                      " (#",
-                      c.id,
-                      ")"
-                    ] }, c.id))
-                  ]
-                }
-              )
-            ] }),
-            (quickCreate.action_type === "show_text" || quickCreate.action_type === "show_html") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: quickCreate.action_type === "show_text" ? t("landingEditor.actionTextLabel") : t("landingEditor.actionHtmlLabel") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "textarea",
-                {
-                  rows: 5,
-                  value: quickCreate.action_payload || "",
-                  onChange: (e) => setQuickCreate({ ...quickCreate, action_payload: e.target.value }),
-                  className: "form-input font-mono text-sm"
-                }
-              )
-            ] })
-          ] }),
-          (quickCreate.type === "local" || quickCreate.type === "preload" || quickCreate.type === "redirect") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-2xl text-sm", style: {
-            border: "1px solid var(--color-primary)",
-            backgroundColor: "var(--color-bg-soft)"
-          }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", style: { gap: "8px", marginBottom: "4px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold", style: { color: "var(--color-text-primary)", fontSize: "13px" }, children: t("landingEditor.offerLinkTitle") }),
-              quickCreate.type === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex", style: { gap: "2px" }, children: ["html", "js", "php"].map((fmt) => {
-                const active = linkFormat === fmt;
-                return /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: () => setLinkFormat(fmt),
-                    className: "px-2 py-1 text-xs rounded-md transition",
-                    style: {
-                      backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-card)",
-                      color: active ? "var(--color-primary)" : "var(--color-text-muted)",
-                      border: "1px solid var(--color-border)"
-                    },
-                    children: fmt.toUpperCase()
-                  },
-                  fmt
-                );
-              }) })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mb-2", style: { color: "var(--color-text-secondary)", lineHeight: 1.5, fontSize: "12.5px" }, children: t("landingEditor.offerLinkHint") }),
-            (() => {
-              const snippet = quickCreate.type === "redirect" ? linkFormat === "html" ? `<a href="${origin2}/?_lp=1">${t("landingEditor.offerLinkWord")}</a>` : linkFormat === "js" ? `<script>document.write('<a href="${origin2}/?_lp=1&'+window.location.search.substring(1)+'">${t("landingEditor.offerLinkWord")}</a>');<\/script>` : `<a href="${origin2}/?_lp=1&_token=<?= urlencode($_GET['_token']) ?>">${t("landingEditor.offerLinkWord")}</a>` : t("landingEditor.offerLinkExampleSingle");
-              return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: () => {
-                      navigator.clipboard.writeText(snippet);
-                      setLinkCopied(true);
-                      setTimeout(() => setLinkCopied(false), 1800);
-                    },
-                    className: "btn btn-secondary btn-sm",
-                    style: { position: "absolute", top: "6px", right: "6px", padding: "2px 8px", fontSize: "11px", zIndex: 1 },
-                    children: [
-                      linkCopied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-3 h-3" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-3 h-3" }),
-                      linkCopied ? t("landingEditor.codeCopied") : t("landingEditor.copyCode")
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "p-2 rounded-lg overflow-x-auto", style: {
-                  backgroundColor: "var(--color-bg-card)",
-                  border: "1px solid var(--color-border)",
-                  color: "var(--color-text-primary)",
-                  fontSize: "12.5px",
-                  margin: 0,
-                  paddingRight: "90px"
-                }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: snippet }) })
-              ] });
-            })(),
-            (quickCreate.type === "local" || quickCreate.type === "preload") && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", style: { color: "var(--color-text-muted)", fontSize: "12.5px", lineHeight: 1.55 }, children: t("landingEditor.offerLinkExtra") })
-          ] })
-        ] }),
-        quickCreate.kind === "offers" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "URL" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
@@ -60986,7 +60747,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mt-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setQuickCreate(null), disabled: quickSaving, className: "btn btn-secondary", style: { flex: 1 }, children: t("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: submitQuickCreate, disabled: quickSaving || !quickCreate.name.trim(), className: "btn btn-primary", style: { flex: 1 }, children: quickSaving ? t("common.saving") : quickCreate.editingId ? t("common.save") : t("common.create") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: submitQuickCreate, disabled: quickSaving || !quickCreate.name.trim(), className: "btn btn-primary", style: { flex: 1 }, children: quickSaving ? t("common.saving") : t("common.create") })
       ] })
     ] }) })
   ] });

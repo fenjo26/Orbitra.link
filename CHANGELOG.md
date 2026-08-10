@@ -9,7 +9,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [0.9.6.9] — 2026-08-10
 
+### Changed
+- **The campaign stream no longer carries its own copy of the landing form.** It
+  had one — 271 lines duplicating `LandingEditor` — which is why the two behaved
+  differently: the stream's copy took a ZIP while creating a landing and the
+  Landings page did not, and every fix had to be written twice. The stream now
+  renders `LandingEditor` and receives the saved id through a new `onSaved`
+  callback to wire the landing into its rotation. `CampaignEditor` loses 309
+  lines along with the state that existed only to feed the copy (landing groups,
+  the campaign list, the postback key, the offer-link hint) and three API calls
+  it made on every open.
+
 ### Fixed
+- **Creating a local landing from the Landings page gave no way to upload the
+  archive.** The form said "save the landing settings first to upload archive
+  files" and then closed the window, so the file panel it was pointing at could
+  only be reached by finding the landing in the list and reopening it. Saving now
+  keeps the editor open and switches it to edit mode in place, and the create
+  form takes a ZIP directly — held until the landing has an id, then uploaded.
 - **The update button failed with `unable to unlink old
   'frontend/dist/assets/index.js': Permission denied` on every install made by
   `install.sh`.** The script chowned the tree to `www-data` and *then* built the

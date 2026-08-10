@@ -1175,6 +1175,7 @@ export default {
         "actionPayloadPlaceholder": "window.location.replace('{offer}');",
         "saveFirst": "首先保存登陆设置上传存档文件。",
         "uploadZip": "上传ZIP",
+        "zipOnCreateHint": "可选。着陆页创建后立即上传压缩包 —— 窗口保持打开，文件会出现在右侧。",
         "selectFile": "选择要编辑的文件",
         "cancel": "取消",
         "save": "保存",

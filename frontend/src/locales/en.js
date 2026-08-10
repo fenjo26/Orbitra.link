@@ -1175,6 +1175,7 @@ export default {
         "actionPayloadPlaceholder": "window.location.replace('{offer}');",
         "saveFirst": "First save the landing settings to upload archive files.",
         "uploadZip": "Upload ZIP",
+        "zipOnCreateHint": "Optional. The archive is uploaded as soon as the landing is created — the window stays open and the files appear on the right.",
         "selectFile": "Select file to edit",
         "cancel": "Cancel",
         "save": "Save",

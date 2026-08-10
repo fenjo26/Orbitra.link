@@ -1175,6 +1175,7 @@ export default {
         "actionPayloadPlaceholder": "ventana.ubicación.replace('{oferta}');",
         "saveFirst": "Primero guarde la configuración de aterrizaje para cargar archivos.",
         "uploadZip": "Subir ZIP",
+        "zipOnCreateHint": "Opcional. El archivo se sube en cuanto se crea la landing: la ventana permanece abierta y los archivos aparecen a la derecha.",
         "selectFile": "Seleccionar archivo para editar",
         "cancel": "Cancelar",
         "save": "Guardar",

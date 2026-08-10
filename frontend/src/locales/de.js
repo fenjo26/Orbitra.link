@@ -1175,6 +1175,7 @@ export default {
         "actionPayloadPlaceholder": "window.location.replace('{offer}');",
         "saveFirst": "Speichern Sie zuerst die Landung Einstellungen zum Hochladen von Archivdateien.",
         "uploadZip": "ZIP hochladen",
+        "zipOnCreateHint": "Optional. Das Archiv wird hochgeladen, sobald die Landingpage angelegt ist — das Fenster bleibt offen, die Dateien erscheinen rechts.",
         "selectFile": "Datei zum Bearbeiten auswählen",
         "cancel": "Abbrechen",
         "save": "Speichern",
