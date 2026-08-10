@@ -8179,6 +8179,45 @@ try {
             $stmt->execute($params);
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+            // Zero-fill the time axis for day/hour granularity so the chart
+            // spans the full selected range instead of collapsing to only the
+            // periods that had traffic (which makes a single data point look
+            // "stuck" at the X-axis origin). Mirrors the dashboard chart logic.
+            // month and day_of_week are unaffected — bucketing is not linear.
+            $zeroFilled = [];
+            if (in_array($groupBy, ['day', 'hour'], true)) {
+                $filled = []; // period-key => raw row
+                if ($groupBy === 'hour') {
+                    // Single-day hourly: 00:00 .. 23:00 for the dateFrom day.
+                    $baseDate = substr($dateFrom, 0, 10);
+                    for ($h = 0; $h <= 23; $h++) {
+                        $key = $baseDate . ' ' . str_pad($h, 2, '0', STR_PAD_LEFT) . ':00:00';
+                        $filled[$key] = ['period' => $key, 'clicks' => 0, 'unique_clicks' => 0,
+                            'conversions' => 0, 'revenue' => 0, 'real_revenue' => 0, 'cost' => 0];
+                    }
+                    foreach ($rows as $row) {
+                        if (isset($filled[$row['period']])) { $filled[$row['period']] = $row; }
+                    }
+                } else {
+                    // Multi-day: walk dateFrom..dateTo, one bucket per day.
+                    $cursor = substr($dateFrom, 0, 10);
+                    $endDay = substr($dateTo, 0, 10);
+                    $guard = 0;
+                    while (strcmp($cursor, $endDay) <= 0 && $guard < 800) {
+                        $filled[$cursor] = ['period' => $cursor, 'clicks' => 0, 'unique_clicks' => 0,
+                            'conversions' => 0, 'revenue' => 0, 'real_revenue' => 0, 'cost' => 0];
+                        $cursor = date('Y-m-d', strtotime($cursor . ' +1 day'));
+                        $guard++;
+                    }
+                    foreach ($rows as $row) {
+                        if (isset($filled[$row['period']])) { $filled[$row['period']] = $row; }
+                    }
+                }
+                ksort($filled);
+                $zeroFilled = array_values($filled);
+            }
+            $effectiveRows = !empty($zeroFilled) ? $zeroFilled : $rows;
+
             // Calculate derived metrics and format data
             $tableData = [];
             $chartLabels = [];
@@ -8190,7 +8229,7 @@ try {
                 $metricData[$m] = [];
             }
 
-            foreach ($rows as $row) {
+            foreach ($effectiveRows as $row) {
                 $period = $row['period'];
 
                 // Format period label
