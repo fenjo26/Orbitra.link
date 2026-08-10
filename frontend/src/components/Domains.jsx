@@ -63,7 +63,7 @@ const Domains = ({ campaigns }) => {
     useEffect(() => {
         const interval = setInterval(async () => {
             // Only poll if there are domains with pending/installing SSL
-            const hasPending = domains.some(d => d.https_only && ['pending', 'installing'].includes(d.ssl_status));
+            const hasPending = domains.some(d => ['pending', 'installing', 'waiting_dns'].includes(d.ssl_status));
             if (hasPending) {
                 await fetchDomains();
             }
@@ -275,20 +275,27 @@ const Domains = ({ campaigns }) => {
                                         {domain.https_only ? <Check size={16} className="text-green-500 mx-auto" /> : <X size={16} className="mx-auto" style={{ color: 'var(--color-text-muted)' }} />}
                                     </td>
                                     <td className="text-center">
-                                        {domain.https_only ? (
-                                            domain.ssl_status === 'installed' ? (
-                                                <Check size={16} className="text-green-500 mx-auto" title={t('domains.sslInstalled')} />
-                                            ) : domain.ssl_status === 'installing' ? (
-                                                <RefreshCw size={16} className="text-blue-500 mx-auto animate-spin" title={t('domains.sslInstalling')} />
-                                            ) : domain.ssl_status === 'failed' ? (
-                                                <X size={16} className="text-red-500 mx-auto" title={domain.ssl_error || t('domains.sslFailed')} />
-                                            ) : domain.ssl_status === 'pending' ? (
-                                                <Clock size={16} className="text-yellow-500 mx-auto" title={t('domains.sslPending')} />
-                                            ) : (
-                                                <Clock size={16} className="mx-auto" style={{ color: 'var(--color-text-muted)' }} title={t('domains.sslPending')} />
-                                            )
+                                        {/* A tick here used to mean "a certificate file exists",
+                                            which is not the same as "the browser gets it": nginx
+                                            only serves it once its config was rebuilt with the
+                                            certificate already on disk. https_active carries that
+                                            distinction, so a certificate nobody wired up no longer
+                                            shows as done. The status is also no longer gated on
+                                            https_only — every parked domain gets a certificate. */}
+                                        {domain.ssl_status === 'installed' && domain.https_active === false ? (
+                                            <AlertCircle size={16} className="text-orange-500 mx-auto" title={t('domains.sslNotWired')} />
+                                        ) : domain.ssl_status === 'installed' ? (
+                                            <Check size={16} className="text-green-500 mx-auto" title={t('domains.sslInstalled')} />
+                                        ) : domain.ssl_status === 'installing' ? (
+                                            <RefreshCw size={16} className="text-blue-500 mx-auto animate-spin" title={t('domains.sslInstalling')} />
+                                        ) : domain.ssl_status === 'waiting_dns' ? (
+                                            <Clock size={16} className="text-yellow-500 mx-auto" title={domain.ssl_error || t('domains.sslWaitingDns')} />
+                                        ) : domain.ssl_status === 'failed' ? (
+                                            <AlertCircle size={16} className="text-red-500 mx-auto" title={`${t('domains.sslRetrying')}\n\n${domain.ssl_error || ''}`} />
+                                        ) : domain.ssl_status === 'pending' ? (
+                                            <Clock size={16} className="text-yellow-500 mx-auto" title={t('domains.sslPending')} />
                                         ) : (
-                                            <X size={16} className="mx-auto" style={{ color: 'var(--color-text-muted)' }} />
+                                            <Clock size={16} className="mx-auto" style={{ color: 'var(--color-text-muted)' }} title={t('domains.sslPending')} />
                                         )}
                                     </td>
                                     <td className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{domain.created_at}</td>

@@ -295,6 +295,23 @@ fi
 # directory matters for the same reason — root-owned, git refuses to work with
 # it at all ("dubious ownership"). Chowning here, after the last root-run step,
 # is what makes in-panel updates work at all.
+# Certificate worker. Issuance is not a one-shot: a domain pointed at this server
+# minutes ago has DNS that has not propagated yet, so the first attempt fails and
+# something has to try again. The certificate is requested immediately when the
+# domain is added; this hourly pass only picks up what could not be issued then.
+# Hourly on purpose — Let's Encrypt rate-limits failed validations, and a lockout
+# costs far more than the minutes a tighter schedule would save.
+echo "  > Scheduling the SSL certificate worker..."
+SSL_CRON_MARKER="# orbitra-ssl-renew"
+if ! crontab -u www-data -l 2>/dev/null | grep -qF "$SSL_CRON_MARKER"; then
+    {
+        crontab -u www-data -l 2>/dev/null
+        echo "17 * * * * php /var/www/orbitra/cli/ssl_installer.php >> /var/www/orbitra/var/logs/ssl_installer.log 2>&1 $SSL_CRON_MARKER"
+    } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Worker scheduled (hourly)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: 17 * * * * php /var/www/orbitra/cli/ssl_installer.php"
+fi
+
 echo "  > Handing the installation over to www-data..."
 chown -R www-data:www-data /var/www/orbitra
 # Permissions are re-applied only where a root step created files. node_modules

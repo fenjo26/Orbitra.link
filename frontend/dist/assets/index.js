@@ -16539,6 +16539,9 @@ const ru = {
     "sslInstalled": "SSL установлен",
     "sslInstalling": "SSL устанавливается...",
     "sslPending": "Ожидает установки",
+    "sslWaitingDns": "Ожидание DNS — домен пока не указывает на этот сервер. Сертификат выпустится автоматически, как только A-запись разойдётся.",
+    "sslRetrying": "Последняя попытка выпуска не удалась. Трекер продолжит пытаться автоматически.",
+    "sslNotWired": "Сертификат выпущен, но веб-сервер его ещё не отдаёт — конфиг пересобирается.",
     "sslFailed": "Ошибка SSL"
   },
   "backorder": {
@@ -18626,6 +18629,9 @@ const en = {
     "sslInstalled": "SSL installed",
     "sslInstalling": "SSL installing...",
     "sslPending": "Awaiting installation",
+    "sslWaitingDns": "Waiting for DNS — the domain does not point at this server yet. The certificate will be issued as soon as the A record propagates.",
+    "sslRetrying": "The last issuance attempt failed. The tracker keeps retrying automatically.",
+    "sslNotWired": "The certificate exists but the web server is not serving it yet — the config is being rebuilt.",
     "sslFailed": "SSL error"
   },
   "backorder": {
@@ -20713,6 +20719,9 @@ const uk = {
     "sslInstalled": "SSL installed",
     "sslInstalling": "SSL installing...",
     "sslPending": "Awaiting installation",
+    "sslWaitingDns": "Очікування DNS — домен поки не вказує на цей сервер. Сертифікат випишеться автоматично, щойно A-запис розійдеться.",
+    "sslRetrying": "Остання спроба випуску не вдалася. Трекер продовжить намагатися автоматично.",
+    "sslNotWired": "Сертифікат випущено, але вебсервер його ще не віддає — конфіг перезбирається.",
     "sslFailed": "SSL error"
   },
   "backorder": {
@@ -22800,6 +22809,9 @@ const es = {
     "sslInstalled": "SSL installed",
     "sslInstalling": "SSL installing...",
     "sslPending": "Awaiting installation",
+    "sslWaitingDns": "Esperando DNS: el dominio aún no apunta a este servidor. El certificado se emitirá en cuanto se propague el registro A.",
+    "sslRetrying": "El último intento de emisión falló. El tracker seguirá reintentando automáticamente.",
+    "sslNotWired": "El certificado existe pero el servidor web todavía no lo sirve: se está regenerando la configuración.",
     "sslFailed": "SSL error"
   },
   "backorder": {
@@ -24887,6 +24899,9 @@ const zh = {
     "sslInstalled": "SSL installed",
     "sslInstalling": "SSL installing...",
     "sslPending": "Awaiting installation",
+    "sslWaitingDns": "等待 DNS —— 域名尚未指向此服务器。A 记录生效后将自动签发证书。",
+    "sslRetrying": "上次签发尝试失败。追踪器会自动继续重试。",
+    "sslNotWired": "证书已签发，但 Web 服务器尚未使用它 —— 正在重新生成配置。",
     "sslFailed": "SSL error"
   },
   "backorder": {
@@ -26974,6 +26989,9 @@ const fr = {
     "sslInstalled": "SSL installé",
     "sslInstalling": "Installation SSL...",
     "sslPending": "En attente d'installation",
+    "sslWaitingDns": "En attente du DNS — le domaine ne pointe pas encore vers ce serveur. Le certificat sera émis dès la propagation de l'enregistrement A.",
+    "sslRetrying": "La dernière tentative d'émission a échoué. Le tracker continue automatiquement.",
+    "sslNotWired": "Le certificat existe mais le serveur web ne le sert pas encore — la configuration est en cours de régénération.",
     "sslFailed": "Erreur SSL"
   },
   "backorder": {
@@ -29063,6 +29081,9 @@ const de = {
     "sslInstalled": "SSL installiert",
     "sslInstalling": "SSL wird installiert...",
     "sslPending": "Warten auf Installation",
+    "sslWaitingDns": "Warten auf DNS — die Domain zeigt noch nicht auf diesen Server. Das Zertifikat wird ausgestellt, sobald der A-Eintrag verteilt ist.",
+    "sslRetrying": "Der letzte Ausstellungsversuch ist fehlgeschlagen. Der Tracker versucht es automatisch weiter.",
+    "sslNotWired": "Das Zertifikat existiert, wird vom Webserver aber noch nicht ausgeliefert — die Konfiguration wird neu erzeugt.",
     "sslFailed": "SSL-Fehler"
   },
   "backorder": {
@@ -44073,7 +44094,7 @@ const Domains = ({ campaigns }) => {
   }, [ignoreDnsUi]);
   reactExports.useEffect(() => {
     const interval = setInterval(async () => {
-      const hasPending = domains.some((d) => d.https_only && ["pending", "installing"].includes(d.ssl_status));
+      const hasPending = domains.some((d) => ["pending", "installing", "waiting_dns"].includes(d.ssl_status));
       if (hasPending) {
         await fetchDomains();
       }
@@ -44272,7 +44293,9 @@ const Domains = ({ campaigns }) => {
         ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: domain.index_campaign_name || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "italic", style: { color: "var(--color-text-muted)" }, children: t("domains.notSelected") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: domain.https_only ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" } }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: domain.https_only ? domain.ssl_status === "installed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto", title: t("domains.sslInstalled") }) : domain.ssl_status === "installing" ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "text-blue-500 mx-auto animate-spin", title: t("domains.sslInstalling") }) : domain.ssl_status === "failed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "text-red-500 mx-auto", title: domain.ssl_error || t("domains.sslFailed") }) : domain.ssl_status === "pending" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: t("domains.sslPending") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" }, title: t("domains.sslPending") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" } }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: domain.ssl_status === "installed" && domain.https_active === false ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-orange-500 mx-auto", title: t("domains.sslNotWired") }) : domain.ssl_status === "installed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto", title: t("domains.sslInstalled") }) : domain.ssl_status === "installing" ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "text-blue-500 mx-auto animate-spin", title: t("domains.sslInstalling") }) : domain.ssl_status === "waiting_dns" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: domain.ssl_error || t("domains.sslWaitingDns") }) : domain.ssl_status === "failed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-red-500 mx-auto", title: `${t("domains.sslRetrying")}
+
+${domain.ssl_error || ""}` }) : domain.ssl_status === "pending" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: t("domains.sslPending") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" }, title: t("domains.sslPending") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: domain.created_at }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(domain), className: "hover:text-[var(--color-primary)] transition", style: { color: "var(--color-text-muted)" }, title: t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 }) }),

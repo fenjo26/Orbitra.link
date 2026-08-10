@@ -609,6 +609,9 @@ export default {
         "sslInstalled": "SSL installed",
         "sslInstalling": "SSL installing...",
         "sslPending": "Awaiting installation",
+        "sslWaitingDns": "等待 DNS —— 域名尚未指向此服务器。A 记录生效后将自动签发证书。",
+        "sslRetrying": "上次签发尝试失败。追踪器会自动继续重试。",
+        "sslNotWired": "证书已签发，但 Web 服务器尚未使用它 —— 正在重新生成配置。",
         "sslFailed": "SSL error"
     },
     "backorder": {

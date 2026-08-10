@@ -609,6 +609,9 @@ export default {
         "sslInstalled": "SSL installed",
         "sslInstalling": "SSL installing...",
         "sslPending": "Awaiting installation",
+        "sslWaitingDns": "Очікування DNS — домен поки не вказує на цей сервер. Сертифікат випишеться автоматично, щойно A-запис розійдеться.",
+        "sslRetrying": "Остання спроба випуску не вдалася. Трекер продовжить намагатися автоматично.",
+        "sslNotWired": "Сертифікат випущено, але вебсервер його ще не віддає — конфіг перезбирається.",
         "sslFailed": "SSL error"
     },
     "backorder": {

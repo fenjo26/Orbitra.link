@@ -609,6 +609,9 @@ export default {
         "sslInstalled": "SSL installiert",
         "sslInstalling": "SSL wird installiert...",
         "sslPending": "Warten auf Installation",
+        "sslWaitingDns": "Warten auf DNS — die Domain zeigt noch nicht auf diesen Server. Das Zertifikat wird ausgestellt, sobald der A-Eintrag verteilt ist.",
+        "sslRetrying": "Der letzte Ausstellungsversuch ist fehlgeschlagen. Der Tracker versucht es automatisch weiter.",
+        "sslNotWired": "Das Zertifikat existiert, wird vom Webserver aber noch nicht ausgeliefert — die Konfiguration wird neu erzeugt.",
         "sslFailed": "SSL-Fehler"
     },
     "backorder": {

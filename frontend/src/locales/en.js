@@ -609,6 +609,9 @@ export default {
         "sslInstalled": "SSL installed",
         "sslInstalling": "SSL installing...",
         "sslPending": "Awaiting installation",
+        "sslWaitingDns": "Waiting for DNS — the domain does not point at this server yet. The certificate will be issued as soon as the A record propagates.",
+        "sslRetrying": "The last issuance attempt failed. The tracker keeps retrying automatically.",
+        "sslNotWired": "The certificate exists but the web server is not serving it yet — the config is being rebuilt.",
         "sslFailed": "SSL error"
     },
     "backorder": {

@@ -31,6 +31,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   on its own. Switching to it forces a reload, so it never shows the state from
   before the last save or upload, and a button opens the same URL in a new tab.
 
+- **A certificate was attempted once and never again.** Issuance was a single
+  background shot fired when a domain was saved with HTTPS-only ticked, and
+  nothing was ever scheduled to run it a second time — `install.sh` installs no
+  cron at all. Minutes after pointing an A record, DNS has not propagated, so
+  that one attempt failed, the domain was marked `failed`, and it stayed on a
+  broken certificate until a human reopened and re-saved it. Certificates are now
+  worked by `core/ssl_manager.php`: every parked domain is a candidate, the
+  domain's A record is compared with this server's address *before* Certbot runs
+  so a domain that cannot validate never spends one of Let's Encrypt's five
+  failures per hostname per hour, and a failure is rescheduled on a widening
+  ladder (1h, 1h, 2h, 6h, then 12h) rather than being final. A domain still gets
+  its certificate immediately on being added; the hourly pass exists only to
+  finish what could not be issued then.
+- **Issuance was tied to the HTTPS-only toggle.** Adding a domain without it left
+  `ssl_status` at `none`, which meant no certificate was ever requested, and
+  turning it off later reset the status and dropped the domain out of the queue.
+  Parking a domain is now the request for a certificate, as it is in Keitaro;
+  HTTPS-only only decides whether `http://` redirects to `https://`.
+- **A domain could show an SSL tick while the browser was served the catch-all's
+  self-signed certificate.** `ssl_status` was set to `installed` the moment a
+  certificate appeared under `/etc/letsencrypt/live/<domain>/`, and nothing ever
+  checked whether nginx was actually serving it — the HTTPS server block for a
+  domain is written only when the config is regenerated with its `fullchain.pem`
+  already on disk. `cli/ssl_installer.php` made this reachable: when it found a
+  certificate already present it marked the domain installed and `continue`d,
+  skipping the config rebuild entirely. `check_ssl_status` now reconciles every
+  answer against the filesystem and the live config, returns `cert_present` and
+  `https_active` separately, and rebuilds the config once when a certificate
+  exists that nothing is pointing at. The installer reconciles once per run
+  instead of per domain, including on the path where the certificate was already
+  there.
+
 ### Changed
 - **The campaign stream no longer carries its own copy of the landing form.** It
   had one — 271 lines duplicating `LandingEditor` — which is why the two behaved

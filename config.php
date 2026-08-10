@@ -49,7 +49,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 15;
+    $LATEST_SCHEMA_VERSION = 16;
 
     $schemaVersion = 0;
     try {
@@ -173,8 +173,10 @@ try {
         group_id INTEGER,
         is_noindex INTEGER DEFAULT 0,
         https_only INTEGER DEFAULT 0,
-        ssl_status TEXT DEFAULT 'none',                  -- 'none'|'pending'|'installing'|'installed'|'failed'
-        ssl_error TEXT,                                   -- SSL installation error message
+        ssl_status TEXT DEFAULT 'none',                  -- 'none'|'pending'|'waiting_dns'|'installing'|'installed'|'failed'
+        ssl_error TEXT,                                   -- last Certbot output / DNS mismatch detail
+        ssl_attempts INTEGER DEFAULT 0,                   -- failures so far, drives the retry backoff
+        ssl_last_attempt TEXT,                            -- when the last attempt ran
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (index_campaign_id) REFERENCES campaigns(id) ON DELETE SET NULL,
         FOREIGN KEY (group_id) REFERENCES offer_groups(id) ON DELETE SET NULL
@@ -1170,6 +1172,30 @@ try {
                     }
                 } catch (\Throwable $e) {
                     // Non-critical: an empty slug resolves by id.
+                }
+            }
+
+            if ($schemaVersion < 16) {
+                // Migration 16: certificate issuance retries instead of giving up
+                // after one attempt, so it needs to remember how many times it has
+                // tried and when — without that there is no way to space attempts
+                // and Let's Encrypt's five-failures-per-hour limit gets burned.
+                try {
+                    $pdo->exec("ALTER TABLE domains ADD COLUMN ssl_attempts INTEGER DEFAULT 0");
+                } catch (\Throwable $e) {
+                    // Column may already exist on a half-migrated DB.
+                }
+                try {
+                    $pdo->exec("ALTER TABLE domains ADD COLUMN ssl_last_attempt TEXT");
+                } catch (\Throwable $e) {
+                }
+                // A domain left in 'failed' by the old one-shot installer has most
+                // likely just never been retried. Put those back in the queue so
+                // the worker picks them up on its next run.
+                try {
+                    $pdo->exec("UPDATE domains SET ssl_status = 'pending', ssl_attempts = 0 WHERE ssl_status = 'failed'");
+                } catch (\Throwable $e) {
+                    // Non-critical: the worker re-evaluates every domain anyway.
                 }
             }
 

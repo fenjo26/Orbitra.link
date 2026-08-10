@@ -477,6 +477,13 @@ function command_exists($cmd) {
  */
 function updateNginxConfig($pdo) {
     require_once __DIR__ . '/core/nginx_config.php';
+    require_once __DIR__ . '/core/ssl_manager.php';
+
+    // Every domain add, edit and delete passes through here, which makes it the
+    // one place guaranteed to run when this tracker starts managing domains —
+    // and therefore where the certificate worker gets scheduled. Idempotent and
+    // silent when the environment does not allow touching the crontab.
+    orbitraEnsureSslCron();
 
     return orbitraSyncNginx($pdo);
 }
@@ -487,6 +494,12 @@ function updateNginxConfig($pdo) {
  */
 function installSslForDomain($domain) {
     require_once __DIR__ . '/core/nginx_config.php';
+    require_once __DIR__ . '/core/ssl_manager.php';
+
+    // Saving a domain is the moment we know this tracker manages domains, so it
+    // is the moment to make sure the retry worker is scheduled. Idempotent, and
+    // silent when the environment does not allow it.
+    orbitraEnsureSslCron();
 
     // Check if certbot is available
     if (!command_exists('certbot')) {
@@ -4963,23 +4976,17 @@ try {
                         $stmt->execute([$name, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $id]);
                         logAudit($pdo, 'UPDATE', 'Domain', $id, "Name: $name");
 
-                        // If HTTPS-only was just enabled, queue SSL installation
+                        // Every parked domain wants a certificate, whether or not
+                        // http:// is redirected to https://. Turning HTTPS-only off
+                        // used to reset the status to 'none', which took the domain
+                        // out of the queue and left it on the self-signed catch-all.
+                        $certPath = "/etc/letsencrypt/live/$name/cert.pem";
                         $sslQueued = false;
-                        if ($httpsOnly) {
-                            // Check if SSL already exists
-                            $certPath = "/etc/letsencrypt/live/$name/cert.pem";
-                            if (!file_exists($certPath)) {
-                                // Update ssl_status to pending
-                                $pdo->prepare("UPDATE domains SET ssl_status = 'pending', ssl_error = NULL WHERE id = ?")->execute([$id]);
-                                $sslQueued = true;
-                            } else {
-                                // SSL already exists, mark as installed
-                                $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL WHERE id = ?")->execute([$id]);
-                            }
-
+                        if (file_exists($certPath)) {
+                            $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL WHERE id = ?")->execute([$id]);
                         } else {
-                            // HTTPS-only disabled, reset SSL status
-                            $pdo->prepare("UPDATE domains SET ssl_status = 'none', ssl_error = NULL WHERE id = ?")->execute([$id]);
+                            $pdo->prepare("UPDATE domains SET ssl_status = 'pending', ssl_error = NULL, ssl_attempts = 0, ssl_last_attempt = NULL WHERE id = ?")->execute([$id]);
+                            $sslQueued = true;
                         }
 
                         // Nginx first: the ACME challenge is served from the config
@@ -4989,7 +4996,7 @@ try {
                         if (!empty($sslQueued)) {
                             $cliPath = __DIR__ . '/cli/ssl_installer.php';
                             if (file_exists($cliPath)) {
-                                shell_exec("php $cliPath > /dev/null 2>&1 &");
+                                @shell_exec("php " . escapeshellarg($cliPath) . " > /dev/null 2>&1 &");
                             }
                         }
 
@@ -5020,8 +5027,12 @@ try {
                                 continue;
                             }
 
-                            // Determine initial SSL status
-                            $sslStatus = $httpsOnly ? 'pending' : 'none';
+                            // Parking the domain is the request for a certificate,
+                            // as it is in Keitaro — not the HTTPS-only toggle, which
+                            // only decides whether http:// redirects to https://.
+                            // A domain added without it used to sit at 'none' and
+                            // never get a certificate at all.
+                            $sslStatus = 'pending';
 
                             try {
                                 $stmt = $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status) VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -5029,9 +5040,7 @@ try {
                                 $newId = $pdo->lastInsertId();
                                 $results[] = ['id' => $newId, 'name' => $domainName];
 
-                                if ($httpsOnly) {
-                                    $sslPending = true;
-                                }
+                                $sslPending = true;
 
                                 logAudit($pdo, 'CREATE', 'Domain', $newId, "Name: $domainName");
                             } catch (\Exception $e) {
@@ -5052,7 +5061,7 @@ try {
                         if ($sslPending) {
                             $cliPath = __DIR__ . '/cli/ssl_installer.php';
                             if (file_exists($cliPath)) {
-                                shell_exec("php $cliPath > /dev/null 2>&1 &");
+                                @shell_exec("php " . escapeshellarg($cliPath) . " > /dev/null 2>&1 &");
                             }
                         }
 
@@ -5097,7 +5106,17 @@ try {
             break;
 
         case 'check_ssl_status':
-            // Check SSL installation status for all HTTPS-only domains
+            // Check SSL installation status for all HTTPS-only domains.
+            //
+            // The stored status is a record of what happened, not of what is true
+            // now: it said "installed" as soon as a certificate appeared on disk,
+            // while nginx only serves that certificate if the config was
+            // regenerated afterwards — the HTTPS server block for a domain is
+            // written only when its fullchain.pem already exists. A domain could
+            // therefore show a tick in the panel while the browser was still being
+            // handed the catch-all's self-signed certificate. Every answer here is
+            // now reconciled against the filesystem and the live config, and a
+            // certificate that exists but is not wired up triggers one rebuild.
             try {
                 $stmt = $pdo->query("SELECT id, name, https_only, ssl_status, ssl_error FROM domains ORDER BY id DESC");
                 $domains = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -5107,9 +5126,56 @@ try {
                     return $d['https_only'] == 1;
                 });
 
+                $liveConfig = (string) @file_get_contents('/etc/nginx/sites-available/orbitra');
+                $needsSync = false;
+                $reconciled = [];
+
+                foreach ($httpsDomains as $d) {
+                    $name = (string) $d['name'];
+                    $certFile = '/etc/letsencrypt/live/' . $name . '/fullchain.pem';
+                    $hasCert = $name !== '' && file_exists($certFile);
+                    // The block is identified by the certificate path it points at,
+                    // which appears only inside that domain's own 443 server block.
+                    $isWired = $hasCert && strpos($liveConfig, $certFile) !== false;
+
+                    if ($hasCert && $d['ssl_status'] !== 'installed') {
+                        $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL WHERE id = ?")
+                            ->execute([$d['id']]);
+                        $d['ssl_status'] = 'installed';
+                    } elseif (!$hasCert && $d['ssl_status'] === 'installed') {
+                        // The certificate was removed or never really landed.
+                        $pdo->prepare("UPDATE domains SET ssl_status = 'pending' WHERE id = ?")
+                            ->execute([$d['id']]);
+                        $d['ssl_status'] = 'pending';
+                    }
+
+                    if ($hasCert && !$isWired) {
+                        $needsSync = true;
+                    }
+
+                    $d['cert_present'] = $hasCert;
+                    $d['https_active'] = $isWired;
+                    $reconciled[] = $d;
+                }
+
+                // A certificate nobody wired into the config is the one failure the
+                // panel used to hide. Rebuilding is idempotent — orbitraSyncNginx()
+                // compares with what is on disk and skips when they match.
+                if ($needsSync) {
+                    $syncResult = updateNginxConfig($pdo);
+                    if (is_array($syncResult) && ($syncResult['status'] ?? '') === 'success') {
+                        $liveConfig = (string) @file_get_contents('/etc/nginx/sites-available/orbitra');
+                        foreach ($reconciled as &$d) {
+                            $d['https_active'] = !empty($d['cert_present'])
+                                && strpos($liveConfig, '/etc/letsencrypt/live/' . $d['name'] . '/fullchain.pem') !== false;
+                        }
+                        unset($d);
+                    }
+                }
+
                 echo json_encode([
                     'status' => 'success',
-                    'data' => array_values($httpsDomains)
+                    'data' => $reconciled
                 ]);
             } catch (Exception $e) {
                 echo json_encode([
