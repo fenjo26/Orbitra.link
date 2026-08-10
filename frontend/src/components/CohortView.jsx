@@ -295,7 +295,19 @@ const CohortView = () => {
     return (
         <div className="space-y-4">
             <InfoBanner storageKey="help_cohort" title={t('cohort.bannerTitle')}>
-                <p>{t('cohort.banner')}</p>
+                <p style={{ marginBottom: '10px' }}>{t('cohort.banner')}</p>
+                <div style={{ marginBottom: '8px' }}>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>{t('cohort.what')}</strong>
+                    <span style={{ marginLeft: '6px' }}>{t('cohort.whatText')}</span>
+                </div>
+                <div style={{ marginBottom: '8px' }}>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>{t('cohort.why')}</strong>
+                    <span style={{ marginLeft: '6px' }}>{t('cohort.whyText')}</span>
+                </div>
+                <div>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>{t('cohort.how')}</strong>
+                    <span style={{ marginLeft: '6px' }}>{t('cohort.howText')}</span>
+                </div>
             </InfoBanner>
 
             {/* Controls */}

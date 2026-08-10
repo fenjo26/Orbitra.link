@@ -1,4 +1,4 @@
-# Orbitra v0.9.7.0 Tracker
+# Orbitra v0.9.7.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -385,6 +385,17 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.7.1
+
+### Added
+- 📊 **Cohort analysis** (the *Trends* tab is now *Analytics*). Campaigns are grouped by the month or quarter they were created, and each cohort is tracked across its lifetime periods (M0 = launch month, M1 = next month, …). Three views work together: **retention curves** (one line per cohort decaying across M0..Mn), a **heatmap matrix** with an **Absolute / % of M0** toggle so cohorts of different sizes can be compared by decay shape, and a **per-cohort summary** with totals and ROI. Revenue and conversions are attributed to the period the event actually occurred — delayed payouts no longer collapse into the launch month — and CR is the share of clicks that converted (0–100%). An in-page guide explains what cohorts are, why they matter, and how to read the matrix, in all seven languages.
+- 🌐 **First-time visitors open in their browser's language**, not a hard-coded Russian default. The same `'ru'` fallback was removed across user creation, login and profile settings.
+
+### Fixed
+- 🩹 **click.php returned a bare HTTP 500 on any campaign without a configured stream/offer** (`FOREIGN KEY constraint failed` on `offer_id = 0`). Clicks now log with `offer_id NULL`, and the click path is wrapped in try/catch so any failure returns a JSON error plus a `system_logs` row instead of a silent empty-body 500.
+- 📈 **The Trends chart only plotted days that had traffic**, so a single active day looked "stuck" at the X origin. Days and hours are now zero-filled across the selected range, matching the dashboard.
+- 🌐 **Hard-coded Russian labels in the Trends tooltip, and browser-locale date/number formatting in Cohort**, now follow the selected UI language across all seven locales. The heatmap intensity reads `--color-primary` via `color-mix`, so it adapts to every theme instead of a hard-coded coral hex.
 
 ## 📝 What's New in v0.9.7.0
 

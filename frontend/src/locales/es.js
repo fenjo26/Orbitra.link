@@ -189,6 +189,12 @@ export default {
     "cohort": {
         "bannerTitle": "Cohortes de campañas",
         "banner": "Las campañas se agrupan por el mes o trimestre de creación y cada columna muestra cómo se comporta una cohorte a medida que envejece. Un beneficio total estable sostenido solo por cohortes antiguas es una señal de que los lanzamientos recientes ya no despegan.",
+        "what": "Qué es",
+        "whatText": "El análisis de cohortes agrupa tus campañas por cuándo se lanzaron y sigue cada grupo a lo largo de los meses siguientes (M0 = mes de lanzamiento, M1 = al siguiente, etc.). En lugar de un único total, ves cómo se comporta cada generación de lanzamiento al envejecer.",
+        "why": "Por qué importa",
+        "whyText": "Los ingresos totales pueden parecer estables mientras los sostienen, de forma silenciosa, campañas antiguas y los lanzamientos nuevos casi no aportan. Cuando los antiguos se desvanecen, los ingresos caen y ya es tarde para reaccionar. Las cohortes lo exponen antes: ves si cada lanzamiento realmente despega o solo gasta presupuesto.",
+        "how": "Cómo leerlo",
+        "howText": "Cada fila es una cohorte (un mes de lanzamiento); M0, M1, M2… son sus meses de vida. El color de calor muestra la intensidad de la métrica seleccionada. Cambia a «% de M0» para comparar cohortes de distinto tamaño por su forma de decaimiento: una línea cerca del 100% retiene a la audiencia; una que cae rápido la pierde.",
         "granularity": "Granularidad:",
         "month": "Mes",
         "quarter": "Trimestre",

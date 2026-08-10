@@ -16137,6 +16137,12 @@ const ru = {
   "cohort": {
     "bannerTitle": "Когорты кампаний",
     "banner": "Кампании группируются по месяцу или кварталу запуска, а каждый столбец показывает, как ведёт себя когорта по мере взросления. Стабильная общая прибыль, которую держат только старые когорты — сигнал, что свежие запуски уже не заводятся.",
+    "what": "Что это такое",
+    "whatText": "Когортный анализ группирует кампании по времени запуска и отслеживает каждую группу по месяцам жизни (M0 — месяц запуска, M1 — следующий, и так далее). Вместо одного общего итога видно, как ведёт себя каждый «возраст» запуска со временем.",
+    "why": "Зачем это нужно",
+    "whyText": "Общая выручка может казаться стабильной, хотя её незаметно тянут старые кампании, а свежие запуски почти ничего не приносят. Когда старые отойдут, выручка просядет — и реагировать уже поздно. Когорты показывают это заранее: видно, реально ли каждый новый запуск заводится или только расходует бюджет.",
+    "how": "Как читать",
+    "howText": "Каждая строка — одна когорта (месяц запуска); M0, M1, M2… — её месяцы жизни. Тепло ячейки показывает интенсивность выбранной метрики. Переключите «% от M0», чтобы сравнивать когорты разного размера по форме затухания: линия около 100% удерживает аудиторию, быстро падающая — теряет.",
     "granularity": "Гранулярность:",
     "month": "Месяц",
     "quarter": "Квартал",
@@ -18309,6 +18315,12 @@ const en = {
   "cohort": {
     "bannerTitle": "Campaign cohorts",
     "banner": "Campaigns are grouped by the month or quarter they were created, and each column shows how a cohort performs as it ages. A stable total held up only by old cohorts is a warning that recent launches no longer take off.",
+    "what": "What this is",
+    "whatText": "Cohort analysis groups your campaigns by when they were launched and tracks each group over the following months (M0 = launch month, M1 = next month, and so on). Instead of a single total, you see how each launch vintage behaves as it ages.",
+    "why": "Why it matters",
+    "whyText": "Total revenue can look stable while it is silently carried by old campaigns and fresh launches bring in almost nothing. By the time the old ones fade, revenue drops and it is too late to react. Cohorts expose this early — you see whether each new launch actually takes off or just spends budget.",
+    "how": "How to read it",
+    "howText": `Each row is one cohort (a launch month); M0, M1, M2… are its lifetime months. Heat colour shows the selected metric's intensity. Switch to "% of M0" to compare cohorts of different sizes by their decay shape: a line staying near 100% holds its audience; one dropping fast is bleeding.`,
     "granularity": "Granularity:",
     "month": "Month",
     "quarter": "Quarter",
@@ -20481,6 +20493,12 @@ const uk = {
   "cohort": {
     "bannerTitle": "Когорти кампаній",
     "banner": "Кампанії групуються за місяцем або кварталом створення, а кожен стовпець показує, як поводиться когорта з віком. Стабільний загальний прибуток, який тримають лише старі когорти — сигнал, що свіжі запуски вже не заводяться.",
+    "what": "Що це таке",
+    "whatText": "Когортний аналіз групує кампанії за часом запуску та відстежує кожну групу за місяцями життя (M0 — місяць запуску, M1 — наступний тощо). Замість одного загального підсумку видно, як поводиться кожен «вік» запуску з часом.",
+    "why": "Навіщо це потрібно",
+    "whyText": "Загальний дохід може здаватися стабільним, хоча його непомітно тягнуть старі кампанії, а свіжі запуски майже нічого не приносять. Коли старі відійдуть, дохід просяде — і реагувати вже запізно. Когорти показують це заздалегідь: видно, чи справді кожен новий запуск заводиться, чи лише витрачає бюджет.",
+    "how": "Як читати",
+    "howText": "Кожен рядок — одна когорта (місяць запуску); M0, M1, M2… — її місяці життя. Тепло клітинки показує інтенсивність обраної метрики. Перемкніть «% від M0», щоб порівнювати когорти різного розміру за формою затухання: лінія близько 100% утримує аудиторію, та, що швидко падає — втрачає.",
     "granularity": "Гранулярність:",
     "month": "Місяць",
     "quarter": "Квартал",
@@ -22653,6 +22671,12 @@ const es = {
   "cohort": {
     "bannerTitle": "Cohortes de campañas",
     "banner": "Las campañas se agrupan por el mes o trimestre de creación y cada columna muestra cómo se comporta una cohorte a medida que envejece. Un beneficio total estable sostenido solo por cohortes antiguas es una señal de que los lanzamientos recientes ya no despegan.",
+    "what": "Qué es",
+    "whatText": "El análisis de cohortes agrupa tus campañas por cuándo se lanzaron y sigue cada grupo a lo largo de los meses siguientes (M0 = mes de lanzamiento, M1 = al siguiente, etc.). En lugar de un único total, ves cómo se comporta cada generación de lanzamiento al envejecer.",
+    "why": "Por qué importa",
+    "whyText": "Los ingresos totales pueden parecer estables mientras los sostienen, de forma silenciosa, campañas antiguas y los lanzamientos nuevos casi no aportan. Cuando los antiguos se desvanecen, los ingresos caen y ya es tarde para reaccionar. Las cohortes lo exponen antes: ves si cada lanzamiento realmente despega o solo gasta presupuesto.",
+    "how": "Cómo leerlo",
+    "howText": "Cada fila es una cohorte (un mes de lanzamiento); M0, M1, M2… son sus meses de vida. El color de calor muestra la intensidad de la métrica seleccionada. Cambia a «% de M0» para comparar cohortes de distinto tamaño por su forma de decaimiento: una línea cerca del 100% retiene a la audiencia; una que cae rápido la pierde.",
     "granularity": "Granularidad:",
     "month": "Mes",
     "quarter": "Trimestre",
@@ -24825,6 +24849,12 @@ const zh = {
   "cohort": {
     "bannerTitle": "广告系列队列",
     "banner": "广告系列按创建月份或季度分组，每一列显示一个队列随时间推移的表现。总利润稳定但仅由老队列支撑，是近期投放已不再起飞的信号。",
+    "what": "这是什么",
+    "whatText": "队列分析将广告系列按启动时间分组，并跟踪每组在随后的几个月中的表现（M0 = 启动月，M1 = 下一个月，依此类推）。你看到的不是一个单一总数，而是每一批启动如何随时间变化。",
+    "why": "为什么重要",
+    "whyText": "总收入看起来可能很稳定，实际上却是由老广告系列默默支撑，而新启动几乎不带来收入。当老的消退时，收入会下滑，到时再反应就太晚了。队列分析能提前揭示这一点——你能看到每次新启动是否真正起飞，还是只是消耗预算。",
+    "how": "如何阅读",
+    "howText": "每一行是一个队列（启动月份）；M0、M1、M2… 是它的生命周期月份。热色显示所选指标的强度。切换到“% 占 M0”可以按衰减形态比较不同规模的队列：接近 100% 的线条在留住受众，快速下降的在流失。",
     "granularity": "粒度：",
     "month": "月",
     "quarter": "季度",
@@ -26997,6 +27027,12 @@ const fr = {
   "cohort": {
     "bannerTitle": "Cohortes de campagnes",
     "banner": "Les campagnes sont regroupées par mois ou trimestre de création, et chaque colonne montre comment une cohorte se comporte en vieillissant. Un profit total stable, maintenu uniquement par d'anciennes cohortes, est un signal que les lancements récents ne décollent plus.",
+    "what": "De quoi s'agit-il",
+    "whatText": "L'analyse de cohorte regroupe vos campagnes par leur date de lancement et suit chaque groupe sur les mois suivants (M0 = mois de lancement, M1 = le suivant, etc.). Au lieu d'un seul total, vous voyez comment chaque promotion se comporte en vieillissant.",
+    "why": "Pourquoi c'est important",
+    "whyText": "Le chiffre d'affaires total peut paraître stable alors qu'il est silencieusement porté par d'anciennes campagnes et que les lancements récents ne rapportent presque rien. Quand les anciennes s'éteignent, les revenus chutent et il est trop tard pour réagir. Les cohortes l'exposent tôt : vous voyez si chaque lancement décolle vraiment ou ne fait que dépenser le budget.",
+    "how": "Comment le lire",
+    "howText": "Chaque ligne est une cohorte (un mois de lancement) ; M0, M1, M2… sont ses mois de vie. La couleur montre l'intensité de la métrique sélectionnée. Passez en « % de M0 » pour comparer des cohortes de tailles différentes par leur forme de décroissance : une ligne près de 100 % retient son audience ; une qui chute vite la perd.",
     "granularity": "Granularité :",
     "month": "Mois",
     "quarter": "Trimestre",
@@ -29171,6 +29207,12 @@ const de = {
   "cohort": {
     "bannerTitle": "Kampagnen-Kohorten",
     "banner": "Kampagnen werden nach Erstellungsmonat oder Quartal gruppiert, und jede Spalte zeigt, wie sich eine Kohorte mit zunehmendem Alter verhält. Ein stabiler Gesamtgewinn, der nur von alten Kohorten getragen wird, ist ein Signal dafür, dass frische Starts nicht mehr anlaufen.",
+    "what": "Was das ist",
+    "whatText": "Die Kohortenanalyse gruppiert Kampagnen nach ihrem Startzeitpunkt und verfolgt jede Gruppe über die folgenden Monate (M0 = Startmonat, M1 = der nächste usw.). Statt einer einzigen Gesamtzahl sehen Sie, wie sich jeder Start-Jahrgang mit der Zeit verhält.",
+    "why": "Warum es wichtig ist",
+    "whyText": "Der Gesamtumsatz kann stabil wirken, während er still von alten Kampagnen getragen wird und Neustarts fast nichts einbringen. Wenn die alten verschwinden, fällt der Umsatz – und dann ist es zu spät zu reagieren. Kohorten zeigen das früh: Sie sehen, ob jeder Start wirklich anläuft oder nur Budget verbrennt.",
+    "how": "Wie man es liest",
+    "howText": "Jede Zeile ist eine Kohorte (ein Startmonat); M0, M1, M2… sind ihre Lebensmonate. Die Wärme der Zelle zeigt die Intensität der gewählten Metrik. Schalten Sie auf „% von M0“, um Kohorten unterschiedlicher Größe nach ihrer Abnahme zu vergleichen: Eine Linie nahe 100 % hält ihr Publikum, eine schnell fallende verliert es.",
     "granularity": "Granularität:",
     "month": "Monat",
     "quarter": "Quartal",
@@ -44067,7 +44109,7 @@ const MainChart = ({ chartData, activeMetrics = [], currency = "USD" }) => {
       backgroundColor: (context) => {
         const ctx = context.chart.ctx;
         const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        const hexToRgba2 = (hex2, alpha2) => {
+        const hexToRgba = (hex2, alpha2) => {
           let r2 = 0, g = 0, b = 0;
           if (hex2.startsWith("#")) {
             if (hex2.length === 4) {
@@ -44084,8 +44126,8 @@ const MainChart = ({ chartData, activeMetrics = [], currency = "USD" }) => {
           }
           return `rgba(${r2}, ${g}, ${b}, ${alpha2})`;
         };
-        gradient.addColorStop(0, hexToRgba2(color2, 0.15));
-        gradient.addColorStop(1, hexToRgba2(color2, 0));
+        gradient.addColorStop(0, hexToRgba(color2, 0.15));
+        gradient.addColorStop(1, hexToRgba(color2, 0));
         return gradient;
       },
       fill: true,
@@ -59148,22 +59190,6 @@ const AdminPage = ({ page }) => {
 };
 Chart$1.register(CategoryScale, LinearScale, PointElement, LineElement, plugin_title, plugin_tooltip, plugin_legend, index$2);
 const API_URL$3 = "/api.php";
-const PRIMARY_HEX = "#f05a3e";
-const hexToRgba = (hex2, alpha2) => {
-  let r2 = 0, g = 0, b = 0;
-  if (hex2.startsWith("#")) {
-    if (hex2.length === 4) {
-      r2 = parseInt(hex2[1] + hex2[1], 16);
-      g = parseInt(hex2[2] + hex2[2], 16);
-      b = parseInt(hex2[3] + hex2[3], 16);
-    } else if (hex2.length === 7) {
-      r2 = parseInt(hex2.slice(1, 3), 16);
-      g = parseInt(hex2.slice(3, 5), 16);
-      b = parseInt(hex2.slice(5, 7), 16);
-    }
-  }
-  return `rgba(${r2}, ${g}, ${b}, ${alpha2})`;
-};
 const LOCALE_TAGS = {
   ru: "ru-RU",
   en: "en-US",
@@ -59301,16 +59327,16 @@ const CohortView = () => {
     if (viewMode === "retention") {
       let bg, color2 = "#fff", weight = 600;
       if (v >= 90) bg = "var(--color-success)";
-      else if (v >= 70) bg = "rgba(16, 185, 129, 0.55)";
+      else if (v >= 70) bg = "color-mix(in srgb, var(--color-success) 50%, transparent)";
       else if (v >= 50) bg = "var(--color-warning)";
       else bg = "var(--color-danger)";
       return { background: bg, color: color2, fontWeight: weight };
     }
     const ratio = mx > 0 ? Math.max(0, v) / mx : 0;
-    const alpha2 = 0.12 + ratio * (0.92 - 0.12);
+    const pct = Math.round(12 + ratio * (92 - 12));
     const ratioForText = ratio > 0.55;
     return {
-      background: hexToRgba(PRIMARY_HEX, alpha2),
+      background: `color-mix(in srgb, var(--color-primary) ${pct}%, transparent)`,
       color: ratioForText ? "#fff" : "var(--color-text-primary)",
       fontWeight: ratioForText ? 600 : 400
     };
@@ -59440,7 +59466,21 @@ const CohortView = () => {
     interaction: { mode: "nearest", axis: "x", intersect: false }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_cohort", title: t("cohort.bannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("cohort.banner") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(InfoBanner, { storageKey: "help_cohort", title: t("cohort.bannerTitle"), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { marginBottom: "10px" }, children: t("cohort.banner") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "8px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { color: "var(--color-text-primary)" }, children: t("cohort.what") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { marginLeft: "6px" }, children: t("cohort.whatText") })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "8px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { color: "var(--color-text-primary)" }, children: t("cohort.why") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { marginLeft: "6px" }, children: t("cohort.whyText") })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { color: "var(--color-text-primary)" }, children: t("cohort.how") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { marginLeft: "6px" }, children: t("cohort.howText") })
+      ] })
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [

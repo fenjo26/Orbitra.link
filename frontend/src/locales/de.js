@@ -189,6 +189,12 @@ export default {
     "cohort": {
         "bannerTitle": "Kampagnen-Kohorten",
         "banner": "Kampagnen werden nach Erstellungsmonat oder Quartal gruppiert, und jede Spalte zeigt, wie sich eine Kohorte mit zunehmendem Alter verhält. Ein stabiler Gesamtgewinn, der nur von alten Kohorten getragen wird, ist ein Signal dafür, dass frische Starts nicht mehr anlaufen.",
+        "what": "Was das ist",
+        "whatText": "Die Kohortenanalyse gruppiert Kampagnen nach ihrem Startzeitpunkt und verfolgt jede Gruppe über die folgenden Monate (M0 = Startmonat, M1 = der nächste usw.). Statt einer einzigen Gesamtzahl sehen Sie, wie sich jeder Start-Jahrgang mit der Zeit verhält.",
+        "why": "Warum es wichtig ist",
+        "whyText": "Der Gesamtumsatz kann stabil wirken, während er still von alten Kampagnen getragen wird und Neustarts fast nichts einbringen. Wenn die alten verschwinden, fällt der Umsatz – und dann ist es zu spät zu reagieren. Kohorten zeigen das früh: Sie sehen, ob jeder Start wirklich anläuft oder nur Budget verbrennt.",
+        "how": "Wie man es liest",
+        "howText": "Jede Zeile ist eine Kohorte (ein Startmonat); M0, M1, M2… sind ihre Lebensmonate. Die Wärme der Zelle zeigt die Intensität der gewählten Metrik. Schalten Sie auf „% von M0“, um Kohorten unterschiedlicher Größe nach ihrer Abnahme zu vergleichen: Eine Linie nahe 100 % hält ihr Publikum, eine schnell fallende verliert es.",
         "granularity": "Granularität:",
         "month": "Monat",
         "quarter": "Quartal",

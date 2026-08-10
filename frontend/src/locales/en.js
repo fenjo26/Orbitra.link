@@ -189,6 +189,12 @@ export default {
     "cohort": {
         "bannerTitle": "Campaign cohorts",
         "banner": "Campaigns are grouped by the month or quarter they were created, and each column shows how a cohort performs as it ages. A stable total held up only by old cohorts is a warning that recent launches no longer take off.",
+        "what": "What this is",
+        "whatText": "Cohort analysis groups your campaigns by when they were launched and tracks each group over the following months (M0 = launch month, M1 = next month, and so on). Instead of a single total, you see how each launch vintage behaves as it ages.",
+        "why": "Why it matters",
+        "whyText": "Total revenue can look stable while it is silently carried by old campaigns and fresh launches bring in almost nothing. By the time the old ones fade, revenue drops and it is too late to react. Cohorts expose this early — you see whether each new launch actually takes off or just spends budget.",
+        "how": "How to read it",
+        "howText": "Each row is one cohort (a launch month); M0, M1, M2… are its lifetime months. Heat colour shows the selected metric's intensity. Switch to \"% of M0\" to compare cohorts of different sizes by their decay shape: a line staying near 100% holds its audience; one dropping fast is bleeding.",
         "granularity": "Granularity:",
         "month": "Month",
         "quarter": "Quarter",

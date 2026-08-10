@@ -7,6 +7,41 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.7.1] — 2026-08-10
+
+### Added
+- **Cohort analysis** (new *Analytics* tab, was *Trends*). Campaigns are grouped
+  by the month or quarter they were created, and each cohort is tracked across
+  its lifetime periods (M0, M1, M2…):
+  - **Retention curves** — one line per cohort decaying/growing across M0..Mn,
+    the canonical cohort chart.
+  - **Heatmap matrix** with an **Absolute / % of M0** toggle. Retention mode
+    normalises each cohort to its first period so cohorts of very different
+    sizes can be compared by decay shape.
+  - **Per-cohort summary** with totals, ROI, and first/last active period.
+  - Revenue and conversions are attributed to the period the event occurred,
+    not the click period — delayed payouts no longer collapse into the launch
+    month. CR is the share of clicks that converted (0–100%).
+- **Browser-language detection** for first-time visitors: the UI now opens in
+  the language the browser reports instead of a hard-coded Russian default. The
+  same `'ru'` fallback was removed across user creation, login and profile
+  settings.
+
+### Fixed
+- **click.php** returned a bare HTTP 500 on any campaign without a configured
+  stream/offer (`FOREIGN KEY constraint failed` on `offer_id = 0`). Clicks now
+  log with `offer_id NULL`, and the click path is wrapped in try/catch so any
+  future failure returns a JSON error + a `system_logs` row instead of a silent
+  empty-body 500.
+- **Trends** only plotted days that had traffic, so a single active day looked
+  "stuck" at the X origin. Days and hours are now zero-filled across the
+  selected range, matching the dashboard.
+- **i18n**: hardcoded Russian labels in the Trends chart tooltip, and
+  browser-locale date/number formatting in Cohort, now follow the selected UI
+  language across all seven locales (en, ru, uk, es, zh, fr, de). The heatmap
+  intensity scale reads `--color-primary` via `color-mix`, so it adapts to every
+  theme (light/dark/green/neon/custom) instead of a hard-coded coral hex.
+
 ## [0.9.7.0] — 2026-08-10
 
 ### Added

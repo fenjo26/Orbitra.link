@@ -189,6 +189,12 @@ export default {
     "cohort": {
         "bannerTitle": "Cohortes de campagnes",
         "banner": "Les campagnes sont regroupées par mois ou trimestre de création, et chaque colonne montre comment une cohorte se comporte en vieillissant. Un profit total stable, maintenu uniquement par d'anciennes cohortes, est un signal que les lancements récents ne décollent plus.",
+        "what": "De quoi s'agit-il",
+        "whatText": "L'analyse de cohorte regroupe vos campagnes par leur date de lancement et suit chaque groupe sur les mois suivants (M0 = mois de lancement, M1 = le suivant, etc.). Au lieu d'un seul total, vous voyez comment chaque promotion se comporte en vieillissant.",
+        "why": "Pourquoi c'est important",
+        "whyText": "Le chiffre d'affaires total peut paraître stable alors qu'il est silencieusement porté par d'anciennes campagnes et que les lancements récents ne rapportent presque rien. Quand les anciennes s'éteignent, les revenus chutent et il est trop tard pour réagir. Les cohortes l'exposent tôt : vous voyez si chaque lancement décolle vraiment ou ne fait que dépenser le budget.",
+        "how": "Comment le lire",
+        "howText": "Chaque ligne est une cohorte (un mois de lancement) ; M0, M1, M2… sont ses mois de vie. La couleur montre l'intensité de la métrique sélectionnée. Passez en « % de M0 » pour comparer des cohortes de tailles différentes par leur forme de décroissance : une ligne près de 100 % retient son audience ; une qui chute vite la perd.",
         "granularity": "Granularité :",
         "month": "Mois",
         "quarter": "Trimestre",
