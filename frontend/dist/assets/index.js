@@ -16141,6 +16141,9 @@ const ru = {
     "month": "Месяц",
     "quarter": "Квартал",
     "metric": "Метрика:",
+    "viewMode": "Вид:",
+    "absolute": "Абсолют",
+    "retention": "% от M0",
     "revenue": "Доход",
     "realRevenue": "Реальный доход",
     "clicks": "Клики",
@@ -16159,6 +16162,7 @@ const ru = {
     "noDataTitle": "Нет данных",
     "noDataText": "Нет когортных данных за выбранный период. Попробуйте расширить диапазон дат.",
     "matrixTitle": "Матрица когорт",
+    "curveTitle": "Кривые удержания когорт",
     "summaryTitle": "Сводка по когортам",
     "totalClicks": "Всего кликов",
     "totalRevenue": "Всего доход",
@@ -18309,6 +18313,9 @@ const en = {
     "month": "Month",
     "quarter": "Quarter",
     "metric": "Metric:",
+    "viewMode": "View:",
+    "absolute": "Absolute",
+    "retention": "% of M0",
     "revenue": "Revenue",
     "realRevenue": "Real revenue",
     "clicks": "Clicks",
@@ -18327,6 +18334,7 @@ const en = {
     "noDataTitle": "No data",
     "noDataText": "No cohort data for the selected period. Try widening the date range.",
     "matrixTitle": "Cohort matrix",
+    "curveTitle": "Cohort retention curves",
     "summaryTitle": "Cohort summary",
     "totalClicks": "Total clicks",
     "totalRevenue": "Total revenue",
@@ -20477,6 +20485,9 @@ const uk = {
     "month": "Місяць",
     "quarter": "Квартал",
     "metric": "Метрика:",
+    "viewMode": "Вигляд:",
+    "absolute": "Абсолют",
+    "retention": "% від M0",
     "revenue": "Дохід",
     "realRevenue": "Реальний дохід",
     "clicks": "Кліки",
@@ -20495,6 +20506,7 @@ const uk = {
     "noDataTitle": "Немає даних",
     "noDataText": "Немає когортних даних за обраний період. Спробуйте розширити діапазон дат.",
     "matrixTitle": "Матриця когорт",
+    "curveTitle": "Криві утримання когорт",
     "summaryTitle": "Зведення за когортами",
     "totalClicks": "Усього кліків",
     "totalRevenue": "Усього дохід",
@@ -22645,6 +22657,9 @@ const es = {
     "month": "Mes",
     "quarter": "Trimestre",
     "metric": "Métrica:",
+    "viewMode": "Vista:",
+    "absolute": "Absoluto",
+    "retention": "% de M0",
     "revenue": "Ingresos",
     "realRevenue": "Ingresos reales",
     "clicks": "Clics",
@@ -22663,6 +22678,7 @@ const es = {
     "noDataTitle": "Sin datos",
     "noDataText": "No hay datos de cohorte para el periodo seleccionado. Prueba a ampliar el rango de fechas.",
     "matrixTitle": "Matriz de cohortes",
+    "curveTitle": "Curvas de retención de cohortes",
     "summaryTitle": "Resumen de cohortes",
     "totalClicks": "Clics totales",
     "totalRevenue": "Ingresos totales",
@@ -24813,6 +24829,9 @@ const zh = {
     "month": "月",
     "quarter": "季度",
     "metric": "指标：",
+    "viewMode": "视图：",
+    "absolute": "绝对值",
+    "retention": "% 占 M0",
     "revenue": "收入",
     "realRevenue": "真实收入",
     "clicks": "点击",
@@ -24831,6 +24850,7 @@ const zh = {
     "noDataTitle": "无数据",
     "noDataText": "所选周期暂无队列数据。请尝试扩大日期范围。",
     "matrixTitle": "队列矩阵",
+    "curveTitle": "队列留存曲线",
     "summaryTitle": "队列汇总",
     "totalClicks": "总点击",
     "totalRevenue": "总收入",
@@ -26981,6 +27001,9 @@ const fr = {
     "month": "Mois",
     "quarter": "Trimestre",
     "metric": "Métrique :",
+    "viewMode": "Vue :",
+    "absolute": "Absolu",
+    "retention": "% de M0",
     "revenue": "Revenus",
     "realRevenue": "Revenus réels",
     "clicks": "Clics",
@@ -26999,6 +27022,7 @@ const fr = {
     "noDataTitle": "Aucune donnée",
     "noDataText": "Aucune donnée de cohorte pour la période sélectionnée. Essayez d'élargir la plage de dates.",
     "matrixTitle": "Matrice des cohortes",
+    "curveTitle": "Courbes de rétention des cohortes",
     "summaryTitle": "Résumé des cohortes",
     "totalClicks": "Total des clics",
     "totalRevenue": "Total des revenus",
@@ -29151,6 +29175,9 @@ const de = {
     "month": "Monat",
     "quarter": "Quartal",
     "metric": "Metrik:",
+    "viewMode": "Ansicht:",
+    "absolute": "Absolut",
+    "retention": "% von M0",
     "revenue": "Umsatz",
     "realRevenue": "Realer Umsatz",
     "clicks": "Klicks",
@@ -29169,6 +29196,7 @@ const de = {
     "noDataTitle": "Keine Daten",
     "noDataText": "Keine Kohortendaten für den gewählten Zeitraum. Versuchen Sie, den Datumsbereich zu erweitern.",
     "matrixTitle": "Kohortenmatrix",
+    "curveTitle": "Kohorten-Retentionskurven",
     "summaryTitle": "Kohortenzusammenfassung",
     "totalClicks": "Klicks gesamt",
     "totalRevenue": "Umsatz gesamt",
@@ -59118,6 +59146,7 @@ const AdminPage = ({ page }) => {
     ] }) : config.content
   ] });
 };
+Chart$1.register(CategoryScale, LinearScale, PointElement, LineElement, plugin_title, plugin_tooltip, plugin_legend, index$2);
 const API_URL$3 = "/api.php";
 const PRIMARY_HEX = "#f05a3e";
 const hexToRgba = (hex2, alpha2) => {
@@ -59171,6 +59200,7 @@ const CohortView = () => {
   const { t, language } = useLanguage();
   const [granularity, setGranularity] = reactExports.useState("month");
   const [metric, setMetric] = reactExports.useState("revenue");
+  const [viewMode, setViewMode] = reactExports.useState("absolute");
   const [dateFrom, setDateFrom] = reactExports.useState(() => {
     const d = /* @__PURE__ */ new Date();
     d.setMonth(d.getMonth() - 6);
@@ -59236,13 +59266,31 @@ const CohortView = () => {
     const labels = Object.keys(m).sort();
     return { matrix: m, cohortLabels: labels, maxPeriod: Math.min(maxP, data.max_period ?? maxP) };
   }, [data]);
-  const rowMax = (cohortLabel) => {
-    const cohort = matrix[cohortLabel];
+  const cohortM0 = (label) => {
+    const cohort = matrix[label];
     if (!cohort) return 0;
+    for (let p = 0; p <= maxPeriod; p++) {
+      const cell = cohort[p];
+      if (cell && cell[metric] !== void 0) return Number(cell[metric]) || 0;
+    }
+    return 0;
+  };
+  const cellValue = (label, periodIndex) => {
+    const cohort = matrix[label];
+    const cell = cohort?.[periodIndex];
+    if (!cell) return null;
+    const raw = Number(cell[metric] ?? 0);
+    if (viewMode === "retention") {
+      const m0 = cohortM0(label);
+      return m0 !== 0 ? raw / m0 * 100 : null;
+    }
+    return raw;
+  };
+  const rowMax = (cohortLabel) => {
     let mx = 0;
     for (let p = 0; p <= maxPeriod; p++) {
-      const v = cohort[p]?.[metric];
-      if (typeof v === "number" && v > mx) mx = v;
+      const v = cellValue(cohortLabel, p);
+      if (v !== null && v > mx) mx = v;
     }
     return mx;
   };
@@ -59330,6 +59378,46 @@ const CohortView = () => {
   }, [cohortLabels, matrix, maxPeriod, data]);
   const hasData = data && data.rows && data.rows.length > 0;
   const launchedMap = data?.launched || {};
+  const retentionChart = reactExports.useMemo(() => {
+    if (!hasData || cohortLabels.length === 0) return null;
+    const palette = ["#f05a3e", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4", "#84cc16", "#6366f1", "#ef4444"];
+    const labels = Array.from({ length: maxPeriod + 1 }, (_, p) => "M" + p);
+    const datasets = cohortLabels.map((label, i) => {
+      const points = Array.from({ length: maxPeriod + 1 }, (_, p) => cellValue(label, p));
+      return {
+        label: formatCohortLabel(label, granularity, language),
+        data: points,
+        borderColor: palette[i % palette.length],
+        backgroundColor: palette[i % palette.length] + "20",
+        fill: false,
+        tension: 0.3,
+        spanGaps: false
+      };
+    });
+    return { labels, datasets };
+  }, [hasData, cohortLabels, maxPeriod, metric, granularity, language, viewMode, matrix]);
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: "top", labels: { boxWidth: 12, boxHeight: 12 } },
+      tooltip: {
+        mode: "index",
+        intersect: false,
+        callbacks: viewMode === "retention" ? {
+          label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y !== null ? ctx.parsed.y.toFixed(1) + "%" : "—"}`
+        } : {}
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: viewMode === "retention" ? { callback: (v) => v + "%" } : {}
+      },
+      x: { title: { display: true, text: t("cohort.period") } }
+    },
+    interaction: { mode: "nearest", axis: "x", intersect: false }
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_cohort", title: t("cohort.bannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("cohort.banner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
@@ -59392,7 +59480,45 @@ const CohortView = () => {
           },
           m.key
         ))
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", style: { marginTop: "12px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "form-label", style: { margin: 0 }, children: t("cohort.viewMode") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => setViewMode("absolute"),
+            className: `btn btn-sm ${viewMode === "absolute" ? "" : "btn-secondary"}`,
+            style: viewMode === "absolute" ? { backgroundColor: "var(--color-primary)", color: "white" } : {},
+            children: t("cohort.absolute")
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => setViewMode("retention"),
+            className: `btn btn-sm ${viewMode === "retention" ? "" : "btn-secondary"}`,
+            style: viewMode === "retention" ? { backgroundColor: "var(--color-primary)", color: "white" } : {},
+            children: t("cohort.retention")
+          }
+        )
       ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { padding: "16px 24px", marginBottom: 0 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "w-5 h-5", style: { color: "var(--color-text-muted)" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", children: t("cohort.curveTitle") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "14px", color: "var(--color-text-muted)" }, children: [
+          cohortLabels.length,
+          " ",
+          t("cohort.cohortLabel").toLowerCase()
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: "360px", padding: "16px" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", style: { padding: "48px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("cohort.loading") }) }) : !hasData ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", style: { padding: "48px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("cohort.noDataTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("cohort.noDataText") })
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Line, { data: retentionChart, options: chartOptions }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { padding: "16px 24px", marginBottom: 0 }, children: [
@@ -59424,7 +59550,7 @@ const CohortView = () => {
           ] }, p))
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: cohortLabels.map((label) => {
-          const cohort = matrix[label];
+          matrix[label];
           const mx = rowMax(label);
           return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: {
@@ -59436,8 +59562,8 @@ const CohortView = () => {
             }, children: formatCohortLabel(label, granularity, language) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", style: { color: "var(--color-text-muted)" }, children: launchedMap[label] ?? 0 }),
             Array.from({ length: maxPeriod + 1 }, (_, p) => {
-              const cell = cohort[p];
-              if (!cell) {
+              const v = cellValue(label, p);
+              if (v === null) {
                 return /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "td",
                   {
@@ -59451,11 +59577,11 @@ const CohortView = () => {
                   p
                 );
               }
-              const v = cell[metric];
-              const ratio = mx > 0 ? Math.max(0, Number(v || 0)) / mx : 0;
+              const ratio = mx > 0 ? Math.max(0, v) / mx : 0;
               const alpha2 = 0.12 + ratio * (0.92 - 0.12);
               const bg = hexToRgba(PRIMARY_HEX, alpha2);
               const textColor = ratio > 0.55 ? "#fff" : "var(--color-text-primary)";
+              const display = viewMode === "retention" ? `${v.toFixed(1)}%` : formatCellValue(metric, v, language);
               return /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "td",
                 {
@@ -59466,7 +59592,7 @@ const CohortView = () => {
                     color: textColor,
                     fontWeight: ratio > 0.55 ? 600 : 400
                   },
-                  children: formatCellValue(metric, v, language)
+                  children: display
                 },
                 p
               );

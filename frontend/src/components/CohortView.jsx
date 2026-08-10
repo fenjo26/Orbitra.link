@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Calendar, Download, Grid3x3, Table2, BarChart3 } from 'lucide-react';
+import { Calendar, Download, Grid3x3, Table2, BarChart3, TrendingUp } from 'lucide-react';
 import InfoBanner from './InfoBanner';
+import { Line } from 'react-chartjs-2';
+import {
+    Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
+    Title, Tooltip, Legend, Filler
+} from 'chart.js';
 import { useLanguage } from '../contexts/LanguageContext';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 const API_URL = '/api.php';
 
@@ -66,6 +73,7 @@ const CohortView = () => {
     const { t, language } = useLanguage();
     const [granularity, setGranularity] = useState('month');
     const [metric, setMetric] = useState('revenue');
+    const [viewMode, setViewMode] = useState('absolute'); // 'absolute' | 'retention'
     const [dateFrom, setDateFrom] = useState(() => {
         const d = new Date(); d.setMonth(d.getMonth() - 6);
         return d.toISOString().split('T')[0];
@@ -135,15 +143,41 @@ const CohortView = () => {
         return { matrix: m, cohortLabels: labels, maxPeriod: Math.min(maxP, data.max_period ?? maxP) };
     }, [data]);
 
-    // Per-row max of the selected metric (so heat intensity is relative to each cohort's peak,
-    // not the global peak — prevents one big cohort from washing out the others).
-    const rowMax = (cohortLabel) => {
-        const cohort = matrix[cohortLabel];
+    // M0 value of the selected metric for a cohort — the denominator for the
+    // retention-rate (% of M0) view mode. Falls back to the earliest available
+    // period if M0 has no data yet (e.g. a cohort whose first clicks arrived later).
+    const cohortM0 = (label) => {
+        const cohort = matrix[label];
         if (!cohort) return 0;
+        for (let p = 0; p <= maxPeriod; p++) {
+            const cell = cohort[p];
+            if (cell && cell[metric] !== undefined) return Number(cell[metric]) || 0;
+        }
+        return 0;
+    };
+
+    // Resolve the display value for a cell under the current view mode:
+    // absolute = raw metric value; retention = value / M0 * 100.
+    const cellValue = (label, periodIndex) => {
+        const cohort = matrix[label];
+        const cell = cohort?.[periodIndex];
+        if (!cell) return null;
+        const raw = Number(cell[metric] ?? 0);
+        if (viewMode === 'retention') {
+            const m0 = cohortM0(label);
+            return m0 !== 0 ? (raw / m0) * 100 : null;
+        }
+        return raw;
+    };
+
+    // Per-row peak under the current view mode (absolute or retention %),
+    // used for heat intensity. Computed via cellValue so the colour scale
+    // matches whatever the cells actually show.
+    const rowMax = (cohortLabel) => {
         let mx = 0;
         for (let p = 0; p <= maxPeriod; p++) {
-            const v = cohort[p]?.[metric];
-            if (typeof v === 'number' && v > mx) mx = v;
+            const v = cellValue(cohortLabel, p);
+            if (v !== null && v > mx) mx = v;
         }
         return mx;
     };
@@ -202,6 +236,51 @@ const CohortView = () => {
     const hasData = data && data.rows && data.rows.length > 0;
     const launchedMap = data?.launched || {};
 
+    // Retention curves: one dataset (line) per cohort, X = period index M0..Mmax,
+    // Y = selected metric value. Missing periods break the line (spanGaps false),
+    // so a cohort that stops producing shows a terminating curve — the canonical
+    // cohort-analysis visualization.
+    const retentionChart = useMemo(() => {
+        if (!hasData || cohortLabels.length === 0) return null;
+        // Distinct palette so cohorts are distinguishable without the primary brand color.
+        const palette = ['#f05a3e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#6366f1', '#ef4444'];
+        const labels = Array.from({ length: maxPeriod + 1 }, (_, p) => 'M' + p);
+        const datasets = cohortLabels.map((label, i) => {
+            const points = Array.from({ length: maxPeriod + 1 }, (_, p) => cellValue(label, p));
+            return {
+                label: formatCohortLabel(label, granularity, language),
+                data: points,
+                borderColor: palette[i % palette.length],
+                backgroundColor: palette[i % palette.length] + '20',
+                fill: false,
+                tension: 0.3,
+                spanGaps: false,
+            };
+        });
+        return { labels, datasets };
+    }, [hasData, cohortLabels, maxPeriod, metric, granularity, language, viewMode, matrix]);
+
+    const chartOptions = {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'top', labels: { boxWidth: 12, boxHeight: 12 } },
+            tooltip: {
+                mode: 'index', intersect: false,
+                callbacks: viewMode === 'retention' ? {
+                    label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y !== null ? ctx.parsed.y.toFixed(1) + '%' : '—'}`
+                } : {}
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: viewMode === 'retention' ? { callback: (v) => v + '%' } : {}
+            },
+            x: { title: { display: true, text: t('cohort.period') } }
+        },
+        interaction: { mode: 'nearest', axis: 'x', intersect: false }
+    };
+
     return (
         <div className="space-y-4">
             <InfoBanner storageKey="help_cohort" title={t('cohort.bannerTitle')}>
@@ -244,6 +323,53 @@ const CohortView = () => {
                             {m.label}
                         </button>
                     ))}
+                </div>
+                {/* View mode: absolute values or retention rate (% of M0).
+                    Retention mode normalises each cohort to its first period so
+                    cohorts of different sizes can be compared by decay shape. */}
+                <div className="flex flex-wrap items-center gap-2" style={{ marginTop: '12px' }}>
+                    <span className="form-label" style={{ margin: 0 }}>{t('cohort.viewMode')}</span>
+                    <button
+                        onClick={() => setViewMode('absolute')}
+                        className={`btn btn-sm ${viewMode === 'absolute' ? '' : 'btn-secondary'}`}
+                        style={viewMode === 'absolute' ? { backgroundColor: 'var(--color-primary)', color: 'white' } : {}}>
+                        {t('cohort.absolute')}
+                    </button>
+                    <button
+                        onClick={() => setViewMode('retention')}
+                        className={`btn btn-sm ${viewMode === 'retention' ? '' : 'btn-secondary'}`}
+                        style={viewMode === 'retention' ? { backgroundColor: 'var(--color-primary)', color: 'white' } : {}}>
+                        {t('cohort.retention')}
+                    </button>
+                </div>
+            </div>
+
+            {/* Retention curves — the canonical cohort chart: one line per cohort
+                decaying/growing across M0..Mmax. Shown above the matrix so the
+                "is this cohort aging well?" story reads top-down. */}
+            <div className="page-card" style={{ padding: 0 }}>
+                <div className="page-header" style={{ padding: '16px 24px', marginBottom: 0 }}>
+                    <div className="flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5" style={{ color: 'var(--color-text-muted)' }} />
+                        <h3 className="page-title">{t('cohort.curveTitle')}</h3>
+                    </div>
+                    <span style={{ fontSize: '14px', color: 'var(--color-text-muted)' }}>
+                        {cohortLabels.length} {t('cohort.cohortLabel').toLowerCase()}
+                    </span>
+                </div>
+                <div style={{ height: '360px', padding: '16px' }}>
+                    {loading ? (
+                        <div className="empty-state" style={{ padding: '48px' }}>
+                            <p style={{ color: 'var(--color-text-muted)' }}>{t('cohort.loading')}</p>
+                        </div>
+                    ) : !hasData ? (
+                        <div className="empty-state" style={{ padding: '48px' }}>
+                            <p className="empty-state-title">{t('cohort.noDataTitle')}</p>
+                            <p className="empty-state-text">{t('cohort.noDataText')}</p>
+                        </div>
+                    ) : (
+                        <Line data={retentionChart} options={chartOptions} />
+                    )}
                 </div>
             </div>
 
@@ -296,28 +422,30 @@ const CohortView = () => {
                                                 {launchedMap[label] ?? 0}
                                             </td>
                                             {Array.from({ length: maxPeriod + 1 }, (_, p) => {
-                                                const cell = cohort[p];
-                                                if (!cell) {
-                                                    // Future period (cohort not old enough yet).
+                                                const v = cellValue(label, p);
+                                                if (v === null) {
+                                                    // Future period (cohort not old enough yet) or M0 missing.
                                                     return (
                                                         <td key={p} className="text-right"
                                                             style={{ background: 'var(--color-bg-soft)',
                                                                 color: 'var(--color-text-muted)' }}>—</td>
                                                     );
                                                 }
-                                                const v = cell[metric];
                                                 // Heat intensity: ratio of this cell to the row's peak.
                                                 // Clamp alpha to [0.12, 0.92] so even the peak isn't unreadable.
-                                                const ratio = mx > 0 ? Math.max(0, Number(v || 0)) / mx : 0;
+                                                const ratio = mx > 0 ? Math.max(0, v) / mx : 0;
                                                 const alpha = 0.12 + ratio * (0.92 - 0.12);
                                                 const bg = hexToRgba(PRIMARY_HEX, alpha);
                                                 const textColor = ratio > 0.55 ? '#fff' : 'var(--color-text-primary)';
+                                                const display = viewMode === 'retention'
+                                                    ? `${v.toFixed(1)}%`
+                                                    : formatCellValue(metric, v, language);
                                                 return (
                                                     <td key={p} className="text-right"
                                                         title={formatCohortLabel(label, granularity, language) + ' · M' + p}
                                                         style={{ background: bg, color: textColor,
                                                             fontWeight: ratio > 0.55 ? 600 : 400 }}>
-                                                        {formatCellValue(metric, v, language)}
+                                                        {display}
                                                     </td>
                                                 );
                                             })}
