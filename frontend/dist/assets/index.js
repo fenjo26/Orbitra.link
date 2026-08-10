@@ -17105,6 +17105,10 @@ const ru = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "Сперва сохраните настройки лендинга, чтобы загрузить файлы архива.",
     "uploadZip": "Загрузить ZIP",
+    "viewCode": "Код",
+    "viewPreview": "Просмотр",
+    "openInTab": "Открыть в новой вкладке",
+    "previewNeedsSlug": "Просмотр доступен после того, как у лендинга появится папка — сохраните настройки.",
     "zipOnCreateHint": "Необязательно. Архив загрузится сразу после создания лендинга — окно останется открытым, файлы появятся справа.",
     "selectFile": "Выберите файл для редактирования",
     "cancel": "Отмена",
@@ -19188,6 +19192,10 @@ const en = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "First save the landing settings to upload archive files.",
     "uploadZip": "Upload ZIP",
+    "viewCode": "Code",
+    "viewPreview": "Preview",
+    "openInTab": "Open in a new tab",
+    "previewNeedsSlug": "Preview becomes available once the landing has a folder — save the settings first.",
     "zipOnCreateHint": "Optional. The archive is uploaded as soon as the landing is created — the window stays open and the files appear on the right.",
     "selectFile": "Select file to edit",
     "cancel": "Cancel",
@@ -21271,6 +21279,10 @@ const uk = {
     "actionPayloadPlaceholder": "window.location.replace('{пропозиція}');",
     "saveFirst": "Спочатку збережіть налаштування посадки для завантаження архівних файлів.",
     "uploadZip": "Завантажити ZIP",
+    "viewCode": "Код",
+    "viewPreview": "Перегляд",
+    "openInTab": "Відкрити в новій вкладці",
+    "previewNeedsSlug": "Перегляд стане доступним, коли в лендингу з'явиться папка — спочатку збережіть налаштування.",
     "zipOnCreateHint": "Необов'язково. Архів завантажиться одразу після створення лендингу — вікно залишиться відкритим, файли з'являться праворуч.",
     "selectFile": "Виберіть файл для редагування",
     "cancel": "Скасувати",
@@ -23354,6 +23366,10 @@ const es = {
     "actionPayloadPlaceholder": "ventana.ubicación.replace('{oferta}');",
     "saveFirst": "Primero guarde la configuración de aterrizaje para cargar archivos.",
     "uploadZip": "Subir ZIP",
+    "viewCode": "Código",
+    "viewPreview": "Vista previa",
+    "openInTab": "Abrir en una pestaña nueva",
+    "previewNeedsSlug": "La vista previa estará disponible cuando la landing tenga carpeta: guarde primero los ajustes.",
     "zipOnCreateHint": "Opcional. El archivo se sube en cuanto se crea la landing: la ventana permanece abierta y los archivos aparecen a la derecha.",
     "selectFile": "Seleccionar archivo para editar",
     "cancel": "Cancelar",
@@ -25437,6 +25453,10 @@ const zh = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "首先保存登陆设置上传存档文件。",
     "uploadZip": "上传ZIP",
+    "viewCode": "代码",
+    "viewPreview": "预览",
+    "openInTab": "在新标签页中打开",
+    "previewNeedsSlug": "着陆页有了文件夹后即可预览 —— 请先保存设置。",
     "zipOnCreateHint": "可选。着陆页创建后立即上传压缩包 —— 窗口保持打开，文件会出现在右侧。",
     "selectFile": "选择要编辑的文件",
     "cancel": "取消",
@@ -27520,6 +27540,10 @@ const fr = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "Enregistrez d'abord la destination paramètres pour télécharger les fichiers d'archive.",
     "uploadZip": "Télécharger le fichier ZIP",
+    "viewCode": "Code",
+    "viewPreview": "Aperçu",
+    "openInTab": "Ouvrir dans un nouvel onglet",
+    "previewNeedsSlug": "L'aperçu sera disponible une fois que la landing aura un dossier — enregistrez d'abord les réglages.",
     "zipOnCreateHint": "Facultatif. L'archive est envoyée dès la création de la landing — la fenêtre reste ouverte et les fichiers apparaissent à droite.",
     "selectFile": "Sélectionner le fichier à modifier",
     "cancel": "Annuler",
@@ -29605,6 +29629,10 @@ const de = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "Speichern Sie zuerst die Landung Einstellungen zum Hochladen von Archivdateien.",
     "uploadZip": "ZIP hochladen",
+    "viewCode": "Code",
+    "viewPreview": "Vorschau",
+    "openInTab": "In neuem Tab öffnen",
+    "previewNeedsSlug": "Die Vorschau ist verfügbar, sobald die Landingpage einen Ordner hat — bitte zuerst speichern.",
     "zipOnCreateHint": "Optional. Das Archiv wird hochgeladen, sobald die Landingpage angelegt ist — das Fenster bleibt offen, die Dateien erscheinen rechts.",
     "selectFile": "Datei zum Bearbeiten auswählen",
     "cancel": "Abbrechen",
@@ -45745,6 +45773,8 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   const [fileContent, setFileContent] = reactExports.useState("");
   const [savingFile, setSavingFile] = reactExports.useState(false);
   const [uploadingZip, setUploadingZip] = reactExports.useState(false);
+  const [viewMode, setViewMode] = reactExports.useState("code");
+  const [previewNonce, setPreviewNonce] = reactExports.useState(0);
   const fileInputRef = reactExports.useRef(null);
   const assetInputRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
@@ -46283,23 +46313,77 @@ ${file}`)) return;
               }
             )
           ] }),
-          selectedFile && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: saveFileContent,
-              disabled: savingFile,
-              className: "btn btn-primary btn-sm",
-              children: savingFile ? t("common.saving") : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "w-4 h-4 mr-1" }),
-                " ",
-                t("landingEditor.save"),
-                " ",
-                selectedFile
-              ] })
-            }
-          )
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex rounded-lg overflow-hidden", style: { border: "1px solid var(--color-border)" }, children: [
+              { value: "code", label: t("landingEditor.viewCode"), icon: Code },
+              { value: "preview", label: t("landingEditor.viewPreview"), icon: Eye }
+            ].map((opt, idx) => {
+              const active = viewMode === opt.value;
+              const Icon2 = opt.icon;
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => {
+                    if (opt.value === "preview") setPreviewNonce(Date.now());
+                    setViewMode(opt.value);
+                  },
+                  className: "px-3 py-1.5 text-xs font-medium transition flex items-center gap-1.5",
+                  style: {
+                    backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-card)",
+                    color: active ? "var(--color-primary)" : "var(--color-text-primary)",
+                    borderRight: idx === 0 ? "1px solid var(--color-border)" : "none"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "w-3.5 h-3.5" }),
+                    opt.label
+                  ]
+                },
+                opt.value
+              );
+            }) }),
+            viewMode === "preview" && landing.slug && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "a",
+              {
+                href: `/lander/${landing.slug}/`,
+                target: "_blank",
+                rel: "noopener noreferrer",
+                className: "btn btn-secondary btn-sm",
+                title: `/lander/${landing.slug}/`,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "w-4 h-4" }),
+                  t("landingEditor.openInTab")
+                ]
+              }
+            ),
+            viewMode === "code" && selectedFile && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: saveFileContent,
+                disabled: savingFile,
+                className: "btn btn-primary btn-sm",
+                children: savingFile ? t("common.saving") : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "w-4 h-4 mr-1" }),
+                  " ",
+                  t("landingEditor.save"),
+                  " ",
+                  selectedFile
+                ] })
+              }
+            )
+          ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-1 overflow-hidden", children: [
+        viewMode === "preview" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-hidden", style: { backgroundColor: "#fff" }, children: landing.slug ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "iframe",
+          {
+            src: `/lander/${landing.slug}/?_preview=${previewNonce}`,
+            title: t("landingEditor.viewPreview"),
+            className: "w-full h-full",
+            style: { border: "none", minHeight: "400px" },
+            sandbox: "allow-scripts allow-forms allow-same-origin allow-popups"
+          },
+          previewNonce
+        ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full items-center justify-center p-6 text-center", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.previewNeedsSlug") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-1 overflow-hidden", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-1/4 overflow-y-auto", style: { borderRight: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 px-2 py-2", style: { borderBottom: "1px solid var(--color-border)" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: createFile, className: "btn btn-ghost btn-sm", title: t("landingEditor.fileNew"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }) }),

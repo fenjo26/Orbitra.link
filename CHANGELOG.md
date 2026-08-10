@@ -9,6 +9,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [0.9.6.9] — 2026-08-10
 
+### Added
+- **A local landing is served at its own `/lander/<slug>/`, matching Keitaro.**
+  The Folder field advertised that URL from the day slugs landed, but nothing
+  answered it: a landing's files were reachable only during a real click,
+  resolved from the `orbitra_lp` cookie, so there was no way to look at a landing
+  without sending traffic through a campaign. Like Keitaro, the served HTML gets
+  a `<base>` tag injected so the page's relative paths (`img/a.png`) resolve
+  inside its folder — which is why Keitaro's own requirements say a landing must
+  not ship a `<base>` of its own. Assets go through the same extension whitelist
+  and path containment the click flow uses; `.php` is not served or executed
+  there, since a PHP landing needs the click context this route has none of.
+  Nothing is logged: this is a look at the landing, not a visit to a campaign.
+- **Code / Preview toggle in the landing editor.** Preview loads the landing from
+  `/lander/<slug>/` in an iframe, so it is the page as a visitor receives it —
+  images, video, CSS and scripts included — rather than a rendering of the HTML
+  on its own. Switching to it forces a reload, so it never shows the state from
+  before the last save or upload, and a button opens the same URL in a new tab.
+
 ### Changed
 - **The campaign stream no longer carries its own copy of the landing form.** It
   had one — 271 lines duplicating `LandingEditor` — which is why the two behaved

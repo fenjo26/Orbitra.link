@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Save, X, Upload, FileText, Code, Check, Plus } from 'lucide-react';
+import { Save, X, Upload, FileText, Code, Check, Plus, Eye, ExternalLink } from 'lucide-react';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translateLandingError, translateLandingRequestError } from '../utils/landingErrors';
@@ -91,6 +91,11 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     const [fileContent, setFileContent] = useState('');
     const [savingFile, setSavingFile] = useState(false);
     const [uploadingZip, setUploadingZip] = useState(false);
+    // Code or preview. The preview is an iframe on the landing's own
+    // /lander/<slug>/ address; the nonce forces a reload when switching to it, so
+    // it never shows the version from before the last save or upload.
+    const [viewMode, setViewMode] = useState('code');
+    const [previewNonce, setPreviewNonce] = useState(0);
     const fileInputRef = useRef(null);
     const assetInputRef = useRef(null);
 
@@ -707,17 +712,85 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                                         {uploadingZip ? t('common.loading') : t('landingEditor.uploadZip')}
                                     </button>
                                 </div>
-                                {selectedFile && (
-                                    <button
-                                        onClick={saveFileContent}
-                                        disabled={savingFile}
-                                        className="btn btn-primary btn-sm"
-                                    >
-                                        {savingFile ? t('common.saving') : <><Save className="w-4 h-4 mr-1" /> {t('landingEditor.save')} {selectedFile}</>}
-                                    </button>
-                                )}
+                                <div className="flex items-center gap-3">
+                                    {/* Code / Preview. The preview loads the landing
+                                        from its own /lander/<slug>/ address, so it is
+                                        the page as a visitor gets it — assets, scripts
+                                        and all — not an approximation of it. */}
+                                    <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+                                        {[
+                                            { value: 'code', label: t('landingEditor.viewCode'), icon: Code },
+                                            { value: 'preview', label: t('landingEditor.viewPreview'), icon: Eye },
+                                        ].map((opt, idx) => {
+                                            const active = viewMode === opt.value;
+                                            const Icon = opt.icon;
+                                            return (
+                                                <button
+                                                    key={opt.value}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        // A preview reads what is on disk, so anything
+                                                        // typed and not saved would silently not appear.
+                                                        if (opt.value === 'preview') setPreviewNonce(Date.now());
+                                                        setViewMode(opt.value);
+                                                    }}
+                                                    className="px-3 py-1.5 text-xs font-medium transition flex items-center gap-1.5"
+                                                    style={{
+                                                        backgroundColor: active ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
+                                                        color: active ? 'var(--color-primary)' : 'var(--color-text-primary)',
+                                                        borderRight: idx === 0 ? '1px solid var(--color-border)' : 'none'
+                                                    }}
+                                                >
+                                                    <Icon className="w-3.5 h-3.5" />
+                                                    {opt.label}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {viewMode === 'preview' && landing.slug && (
+                                        <a
+                                            href={`/lander/${landing.slug}/`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="btn btn-secondary btn-sm"
+                                            title={`/lander/${landing.slug}/`}
+                                        >
+                                            <ExternalLink className="w-4 h-4" />
+                                            {t('landingEditor.openInTab')}
+                                        </a>
+                                    )}
+
+                                    {viewMode === 'code' && selectedFile && (
+                                        <button
+                                            onClick={saveFileContent}
+                                            disabled={savingFile}
+                                            className="btn btn-primary btn-sm"
+                                        >
+                                            {savingFile ? t('common.saving') : <><Save className="w-4 h-4 mr-1" /> {t('landingEditor.save')} {selectedFile}</>}
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
+                            {viewMode === 'preview' ? (
+                                <div className="flex-1 overflow-hidden" style={{ backgroundColor: '#fff' }}>
+                                    {landing.slug ? (
+                                        <iframe
+                                            key={previewNonce}
+                                            src={`/lander/${landing.slug}/?_preview=${previewNonce}`}
+                                            title={t('landingEditor.viewPreview')}
+                                            className="w-full h-full"
+                                            style={{ border: 'none', minHeight: '400px' }}
+                                            sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full items-center justify-center p-6 text-center" style={{ color: 'var(--color-text-muted)' }}>
+                                            {t('landingEditor.previewNeedsSlug')}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
                             <div className="flex flex-1 overflow-hidden">
                                 {/* File Tree view */}
                                 <div className="w-1/4 overflow-y-auto" style={{ borderRight: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
@@ -781,6 +854,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                                     )}
                                 </div>
                             </div>
+                            )}
                         </div>
                     )}
                 </div>

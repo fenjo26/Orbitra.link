@@ -569,6 +569,96 @@ function serveLandingAsset($landingId, $uriPath)
 }
 
 /**
+ * Serve a local landing at /lander/<slug>/, the way Keitaro does.
+ *
+ * Keitaro publishes a local landing at /lander/<name>/ and injects a <base> tag
+ * into the served HTML so the page's own relative paths resolve inside that
+ * directory — which is exactly why its documentation requires the landing not to
+ * ship a <base> of its own. Orbitra's Folder field already advertised this URL,
+ * but nothing answered it: a landing's files were reachable only during a real
+ * click, through the orbitra_lp cookie. This is the route that makes the label
+ * true, and what the editor's preview loads.
+ *
+ * Not a click: nothing is logged, no cookie is set, and {offer} has no stream to
+ * resolve against, so it points at the campaign entry Keitaro uses for the same
+ * job. PHP landings are not executed here — they need the click context this
+ * route deliberately does not have.
+ */
+function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
+{
+    $notFound = function () {
+        http_response_code(404);
+        header('Content-Type: text/html; charset=utf-8');
+        echo "<!doctype html><html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>";
+        exit;
+    };
+
+    try {
+        $stmt = $pdo->prepare("SELECT id, type FROM landings WHERE slug = ? AND is_archived = 0 LIMIT 1");
+        $stmt->execute([$slug]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (\Throwable $e) {
+        $row = null;
+    }
+    if (!$row || ($row['type'] ?? '') !== 'local') {
+        $notFound();
+    }
+
+    $id = (int) $row['id'];
+    $rest = trim(rawurldecode($rest), '/');
+    if ($rest === '') {
+        $rest = 'index.html';
+    }
+
+    // Anything that is not a page goes through the same extension whitelist and
+    // path containment the click flow uses. serveLandingAsset() exits when it
+    // serves and simply returns when it will not.
+    if (!preg_match('/\.html?$/i', $rest)) {
+        serveLandingAsset($id, '/' . $rest);
+        $notFound();
+    }
+
+    $root = realpath(orbitraLandingDir($pdo, $id));
+    if ($root === false) {
+        $notFound();
+    }
+    $file = realpath($root . '/' . $rest);
+    if ($file === false || !is_file($file) || strpos($file, $root . DIRECTORY_SEPARATOR) !== 0) {
+        if ($rest === 'index.html' && is_file($root . '/index.php')) {
+            http_response_code(503);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'This landing is written in PHP. A PHP landing runs only inside a real click, '
+                . 'where the tracker can give it the click context, so it cannot be previewed here.';
+            exit;
+        }
+        $notFound();
+    }
+
+    $html = (string) file_get_contents($file);
+
+    // The <base> Keitaro adds. Relative paths in the page ("img/a.png") resolve
+    // under the landing's folder instead of the domain root, which is where they
+    // would otherwise be requested from — and 404.
+    $base = '<base href="/lander/' . htmlspecialchars($slug, ENT_QUOTES) . '/">';
+    if (preg_match('/<head[^>]*>/i', $html, $m, PREG_OFFSET_CAPTURE)) {
+        $at = $m[0][1] + strlen($m[0][0]);
+        $html = substr($html, 0, $at) . "\n" . $base . substr($html, $at);
+    } else {
+        $html = $base . "\n" . $html;
+    }
+
+    // No stream picked an offer for this view, so the macro resolves to the same
+    // entry point a hand-written Keitaro landing uses.
+    $html = str_replace('{offer}', '/?_lp=1', $html);
+
+    header('Content-Type: text/html; charset=utf-8');
+    header('X-Robots-Tag: noindex, nofollow');
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    echo $html;
+    exit;
+}
+
+/**
  * Sign a click id so a landing on another domain can prove which click it came from.
  *
  * The landing→offer link (/?_lp=1) resolves the visitor's click from the
@@ -1070,6 +1160,13 @@ if ($uriPath === '/click_api/v3' || $uriPath === '/click_api/v3/') {
     require_once __DIR__ . '/core/click_api.php';
     orbitraClickApiV3($pdo);
     exit;
+}
+
+// A local landing's own address, /lander/<slug>/, matching Keitaro. Must come
+// before the click handling below: this path is a look at the landing, not a
+// visit to a campaign, and nothing about it should be logged as traffic.
+if ($uriPath !== null && preg_match('#^/lander/([A-Za-z0-9][A-Za-z0-9_-]{0,63})(?:/(.*))?$#', $uriPath, $landerMatch)) {
+    orbitraServeLanderPath($pdo, strtolower($landerMatch[1]), $landerMatch[2] ?? '');
 }
 
 // Local landing asset passthrough (Keitaro-compatible).

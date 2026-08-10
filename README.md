@@ -388,6 +388,10 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New in v0.9.6.9
 
+### Added
+- 🌐 **A local landing is served at its own `/lander/<slug>/`, matching Keitaro.** The Folder field advertised that URL from the day slugs arrived, but nothing answered it — a landing's files were reachable only during a real click, resolved from the `orbitra_lp` cookie, so a landing could not be looked at without pushing traffic through a campaign. As Keitaro does, the served HTML gets a `<base>` tag injected so the page's relative paths (`img/a.png`) resolve inside its folder, which is exactly why Keitaro's requirements say the landing must not ship a `<base>` of its own. Assets go through the same extension whitelist and path containment the click flow uses; `.php` is neither served nor executed there, since a PHP landing needs the click context this route has none of. Nothing is logged — this is a look at the landing, not a visit to a campaign.
+- 👁 **Code / Preview toggle in the landing editor.** Preview loads the landing from `/lander/<slug>/` in an iframe, so it is the page as a visitor receives it — images, video, CSS and scripts included — not a rendering of the HTML on its own. Switching to it forces a reload, so it never shows the state from before the last save or upload, and a button opens the same URL in a new tab.
+
 ### Changed
 - 🧩 **The campaign stream no longer carries its own copy of the landing form.** `CampaignEditor` held a 271-line duplicate of `LandingEditor` — which is exactly why the two behaved differently: the stream's copy accepted a ZIP while creating a landing and the Landings page did not, and every fix had to be written twice. The stream now renders the same `LandingEditor` and receives the saved id through a new `onSaved` callback to wire it into the rotation. `CampaignEditor` sheds 309 lines along with the state that existed only to feed the copy (landing groups, the campaign list, the postback key, the offer-link hint) and three API calls it made on every open.
 
