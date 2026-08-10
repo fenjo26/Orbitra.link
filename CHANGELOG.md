@@ -7,6 +7,25 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.6.9] — 2026-08-10
+
+### Fixed
+- **The update button failed with `unable to unlink old
+  'frontend/dist/assets/index.js': Permission denied` on every install made by
+  `install.sh`.** The script chowned the tree to `www-data` and *then* built the
+  frontend as root. Vite empties and recreates `frontend/dist` on each build, so
+  the bundle and its directory came out root-owned — and replacing a file
+  requires write permission on its directory, not on the file, so `git pull`
+  running as the web user could never get past it. The same applied to `.git`
+  and `mcp/node_modules`. The chown now runs last, after the frontend build and
+  the MCP dependency install. Existing installs need one manual
+  `chown -R www-data:www-data /var/www/orbitra`; after that the button works.
+- **`run_update` passed git's raw permission error through.** It already
+  translates "dubious ownership" into an actionable message; a permission
+  failure now gets the same treatment — the cause and the `chown` command to fix
+  it, rather than git's wording. Anything stashed before the pull is restored
+  before the handler returns.
+
 ## [0.9.6.8] — 2026-08-10
 
 ### Fixed

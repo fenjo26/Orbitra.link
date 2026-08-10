@@ -1,6 +1,6 @@
 {
-    "version": "0.9.6.8",
-    "release_notes": "Fixed: creating a landing failed with \"network error\" on any server without the php-intl extension. Slug generation called transliterator_transliterate(), which only intl provides and install.sh never installed; on PHP 8 a call to a missing function raises an Error that @ does not suppress, so the request died as a 500 and the panel could only report it as a network failure. Slugs now transliterate through a built-in table when intl is absent, save_landing answers a real JSON error instead of a 500, the landing forms show the server's message rather than a blanket \"network error\", an auto-generated slug that collides is disambiguated instead of rejected, and php-intl is added to the installer for the wider transliteration it still provides.",
+    "version": "0.9.6.9",
+    "release_notes": "Fixed: the in-panel update button failed with \"unable to unlink old 'frontend/dist/assets/index.js': Permission denied\" on every install done by install.sh. The script chowned the tree to www-data and only afterwards built the frontend as root — and because Vite empties and recreates frontend/dist on each build, the bundle and its directory came out root-owned, which is exactly what git needs write access to in order to replace the file. The chown now runs last, after the frontend build and the MCP dependency install, so the whole tree (including .git) belongs to the web server. run_update also recognises a permission failure and answers with the chown command instead of passing git's wording through.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-08-10"
 }

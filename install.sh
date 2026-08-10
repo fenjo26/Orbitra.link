@@ -286,6 +286,23 @@ else
     echo "  > NOTE: mcp/ folder not found, skipping MCP setup."
 fi
 
+# Ownership, last — every step above ran as root, and two of them create files
+# the web server must be able to replace later. Vite empties and recreates
+# frontend/dist on each build, so the bundle and its directory come out
+# root-owned; the update button then runs `git pull` as www-data and fails with
+# "unable to unlink old 'frontend/dist/assets/index.js': Permission denied",
+# because unlinking a file needs write permission on its *directory*. The .git
+# directory matters for the same reason — root-owned, git refuses to work with
+# it at all ("dubious ownership"). Chowning here, after the last root-run step,
+# is what makes in-panel updates work at all.
+echo "  > Handing the installation over to www-data..."
+chown -R www-data:www-data /var/www/orbitra
+# Permissions are re-applied only where a root step created files. node_modules
+# is deliberately left alone: a blanket chmod 664 would strip the executable bit
+# from the binaries npm installed (esbuild among them) and break the next build.
+find /var/www/orbitra/frontend/dist -type d -exec chmod 775 {} \; 2>/dev/null || true
+find /var/www/orbitra/frontend/dist -type f -exec chmod 664 {} \; 2>/dev/null || true
+
 # Get public IP for output
 SERVER_IP=${SERVER_IP:-$(curl -s http://checkip.amazonaws.com || echo "your_server_ip")}
 

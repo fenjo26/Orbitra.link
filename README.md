@@ -1,4 +1,4 @@
-# Orbitra v0.9.6.8 Tracker
+# Orbitra v0.9.6.9 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -385,6 +385,12 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.6.9
+
+### Fixed
+- 🔐 **The update button in the panel could never replace the frontend bundle.** `install.sh` chowned the tree to `www-data` and only afterwards built the frontend as root — and since Vite empties and recreates `frontend/dist` on every build, the bundle and its directory ended up root-owned. Replacing a file needs write permission on its *directory*, so `git pull` running as the web user died with `unable to unlink old 'frontend/dist/assets/index.js': Permission denied`. The chown now runs last, after the frontend build and the MCP dependency install, so the whole tree — `.git` included — belongs to the web server. **Existing installs need one manual fix:** `sudo chown -R www-data:www-data /var/www/orbitra`.
+- 💬 **A permission failure during update showed git's raw wording.** It now reports the cause and the exact `chown` command, the way "dubious ownership" already did.
 
 ## 📝 What's New in v0.9.6.8
 

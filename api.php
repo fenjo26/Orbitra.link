@@ -6193,6 +6193,46 @@ try {
                         }
                     }
 
+                    // A root-owned working tree stops the pull at the first file it
+                    // has to replace. It is the same class of problem as "dubious
+                    // ownership" but reported differently, so it gets the same
+                    // treatment: name the cause and hand over the command that
+                    // fixes it, rather than passing git's wording to the operator.
+                    // The usual source is a root-run install: npm builds
+                    // frontend/dist as root, and unlinking a file there needs write
+                    // permission on the directory, not on the file.
+                    if ($returnCode !== 0) {
+                        $joinedPerm = strtolower(implode("\n", $output));
+                        if (
+                            strpos($joinedPerm, 'permission denied') !== false ||
+                            strpos($joinedPerm, 'unable to unlink') !== false ||
+                            strpos($joinedPerm, 'unable to create file') !== false
+                        ) {
+                            $webUser = function_exists('posix_getpwuid') && function_exists('posix_geteuid')
+                                ? (posix_getpwuid(posix_geteuid())['name'] ?? 'www-data')
+                                : 'www-data';
+                            // We are bailing out for good, so put back anything we
+                            // stashed before the pull — leaving it hidden in a stash
+                            // the operator never asked for is worse than a failed pop.
+                            if ($stashed) {
+                                $popPerm = [];
+                                $popPermCode = 0;
+                                exec($git . ' stash pop 2>&1', $popPerm, $popPermCode);
+                                $output = array_merge($output, $popPermCode === 0 ? ['[Stash restored]'] : ['[Stash restore failed]']);
+                            }
+                            echo json_encode([
+                                'status' => 'error',
+                                'message' => 'Обновление не может заменить файлы: часть каталога принадлежит другому пользователю, '
+                                    . 'а git выполняется от "' . $webUser . '". Чаще всего так выходит после установки от root — '
+                                    . 'сборка фронтенда создаёт frontend/dist от root, и заменить файл в этом каталоге веб-сервер уже не может. '
+                                    . 'Выполните на сервере: chown -R ' . $webUser . ':' . $webUser . ' ' . $repoDir
+                                    . ' — после этого кнопка обновления заработает.',
+                                'output' => implode("\n", $output),
+                            ]);
+                            break;
+                        }
+                    }
+
                     // Restore stashed changes after a successful pull (only if we
                     // actually stashed — avoids popping an unrelated old stash).
                     if ($stashed && $returnCode === 0) {
