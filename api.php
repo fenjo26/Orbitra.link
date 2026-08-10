@@ -2146,8 +2146,20 @@ try {
             break;
 
         case 'save_landing':
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Everything below runs inside a try: a Throwable escaping this
+            // handler becomes a bare 500, and the panel can only report that as
+            // "network error" — which hides the actual cause from the operator.
+            // A JSON error carries the reason to the form instead.
+            try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+
                 $data = json_decode(orbitraRequestBody(), true);
+                if (!is_array($data)) {
+                    $data = [];
+                }
                 if (!empty($data['name'])) {
                     $id = $data['id'] ?? null;
                     $groupId = !empty($data['group_id']) ? $data['group_id'] : null;
@@ -2191,12 +2203,31 @@ try {
                     // before writing — a duplicate or malformed slug would either
                     // merge two landings' files or break path resolution.
                     $slugRaw = trim((string) ($data['slug'] ?? ''));
+                    $slugWasTyped = $slugRaw !== '';
                     if ($slugRaw === '' && $type === 'local' && !$id) {
                         // No slug given on create: derive one from the name so the
                         // folder is human-readable rather than landings/<id>/.
                         $slugRaw = orbitraSlugify($data['name']);
                     }
                     $slugCheck = orbitraValidateLandingSlug($pdo, $slugRaw, $id ?: null);
+                    if (!$slugCheck['ok'] && !$slugWasTyped && $slugRaw !== '') {
+                        // The operator did not choose this slug, we derived it from
+                        // the name — so a collision with an existing landing or a
+                        // reserved word is ours to resolve, not theirs to fix.
+                        // Try 'name-2', 'name-3', … and if none is free fall back to
+                        // an empty slug, which resolves to landings/<id>/.
+                        $base = rtrim(substr($slugRaw, 0, 60), '-_');
+                        for ($n = 2; $n <= 50; $n++) {
+                            $candidate = orbitraValidateLandingSlug($pdo, $base . '-' . $n, $id ?: null);
+                            if ($candidate['ok']) {
+                                $slugCheck = $candidate;
+                                break;
+                            }
+                        }
+                        if (!$slugCheck['ok']) {
+                            $slugCheck = ['ok' => true, 'value' => '', 'error' => ''];
+                        }
+                    }
                     if (!$slugCheck['ok']) {
                         echo json_encode(['status' => 'error', 'message' => $slugCheck['error']]);
                         break;
@@ -2235,6 +2266,12 @@ try {
                 } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing name']);
                 }
+            } catch (\Throwable $e) {
+                error_log('save_landing failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Landing save failed: ' . $e->getMessage(),
+                ]);
             }
             break;
 
@@ -5755,6 +5792,9 @@ try {
                     'mbstring' => extension_loaded('mbstring'),
                     'json' => extension_loaded('json'),
                     'zip' => extension_loaded('zip'),
+                    // Optional: improves landing-slug transliteration for
+                    // alphabets the built-in fallback table does not cover.
+                    'intl' => extension_loaded('intl'),
                 ];
 
                 // SQLite info

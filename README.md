@@ -1,4 +1,4 @@
-# Orbitra v0.9.6.7 Tracker
+# Orbitra v0.9.6.8 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -385,6 +385,13 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.6.8
+
+### Fixed
+- 🧯 **"Network error" when creating a landing, on any server without `php-intl`.** A local landing with the *Folder* field left empty derives its slug from the name, and that derivation called `transliterator_transliterate()` — a function only the `intl` extension provides, which `install.sh` never installed. On PHP 8 a call to a missing function raises an `Error` that `@` does not suppress, so the save died as a 500 and the panel could only report it as a network failure. Slugs now transliterate through a built-in Cyrillic/Latin table when `intl` is absent, and `php-intl` has been added to the installer for the wider coverage it still gives.
+- 🔎 **Every failed landing save looked the same.** `save_landing` could let a fatal escape as a 500, and the forms alerted one fixed string for any thrown request — a PHP error, a rejected folder name and an unreachable server were indistinguishable. The endpoint now returns a real JSON error (and logs the fatal), the forms show the server's message, and slug problems are translated in all seven languages instead of showing raw codes like `landing_slug_taken`.
+- 🗂 **An auto-generated folder name that collided blocked the save.** A landing named after an existing one was refused for a folder the operator never chose. A derived slug now falls back to `name-2`, `name-3`, …, and to `landings/<id>/` if nothing is free; a folder typed by hand still reports the conflict.
 
 ## 📝 What's New in v0.9.6.6
 

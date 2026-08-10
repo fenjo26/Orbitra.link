@@ -19,26 +19,91 @@
 require_once __DIR__ . '/../core/admin_path.php';
 
 /**
+ * Cyrillic -> Latin, used when the intl extension is not installed.
+ *
+ * Deliberately covers only Russian and Ukrainian: those are the alphabets a
+ * landing name actually arrives in here, and a partial table is better than a
+ * fatal. Anything outside it still collapses to dashes, which is the same
+ * result the old code produced for unmapped characters.
+ */
+function orbitraTransliterationMap(): array
+{
+    static $map = null;
+    if ($map !== null) {
+        return $map;
+    }
+    $map = [
+        'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e',
+        'ё' => 'e', 'ж' => 'zh', 'з' => 'z', 'и' => 'i', 'й' => 'y', 'к' => 'k',
+        'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p', 'р' => 'r',
+        'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'h', 'ц' => 'ts',
+        'ч' => 'ch', 'ш' => 'sh', 'щ' => 'sch', 'ъ' => '', 'ы' => 'y', 'ь' => '',
+        'э' => 'e', 'ю' => 'yu', 'я' => 'ya',
+        // Ukrainian letters absent from the Russian alphabet.
+        'і' => 'i', 'ї' => 'yi', 'є' => 'ye', 'ґ' => 'g',
+        // Common Latin diacritics, so 'café' -> 'cafe' without intl.
+        'á' => 'a', 'à' => 'a', 'â' => 'a', 'ä' => 'a', 'ã' => 'a', 'å' => 'a',
+        'é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e',
+        'í' => 'i', 'ì' => 'i', 'î' => 'i', 'ï' => 'i',
+        'ó' => 'o', 'ò' => 'o', 'ô' => 'o', 'ö' => 'o', 'õ' => 'o', 'ø' => 'o',
+        'ú' => 'u', 'ù' => 'u', 'û' => 'u', 'ü' => 'u',
+        'ñ' => 'n', 'ç' => 'c', 'ý' => 'y', 'ÿ' => 'y', 'ß' => 'ss', 'æ' => 'ae',
+    ];
+    return $map;
+}
+
+/**
  * Turn a free-form name into a filesystem-safe slug.
  *
  * Lowercase, ASCII letters/digits/dashes/underscores only; everything else
  * collapses to a single dash. A name with no ASCII (e.g. all-Cyrillic) becomes
  * empty, which the caller turns into 'landing-<id>'.
+ *
+ * Transliteration is best-effort and must never be fatal. intl is not in the
+ * install script's package list, and on PHP 8 calling a function that does not
+ * exist raises an Error that @ does not suppress — which turned "create a
+ * landing with an auto-generated folder" into a 500 the panel reported as a
+ * network error. The intl path is therefore guarded and backed by a plain
+ * character map, so the same slug comes out either way for the alphabets that
+ * matter here.
  */
 function orbitraSlugify(string $name): string
 {
-    // Transliterate where possible so 'café' -> 'cafe' rather than 'caf'.
-    $translit = @transliterator_transliterate('Any-Latin; Latin-ASCII; Lower()', $name);
-    if ($translit !== false && $translit !== '') {
-        $name = $translit;
+    $name = function_exists('mb_strtolower') ? mb_strtolower($name, 'UTF-8') : strtolower($name);
+
+    // Preferred: intl, which handles every script rather than a fixed table.
+    if (function_exists('transliterator_transliterate')) {
+        $translit = @transliterator_transliterate('Any-Latin; Latin-ASCII; Lower()', $name);
+        if (is_string($translit) && $translit !== '') {
+            $name = $translit;
+        }
     } else {
-        $name = strtolower($name);
+        $name = strtr($name, orbitraTransliterationMap());
+        // Whatever the table missed (other scripts, stray accents) gets one more
+        // pass through iconv when it is available; failure here is fine, the
+        // regex below drops anything still non-ASCII.
+        if (function_exists('iconv')) {
+            $ascii = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $name);
+            if (is_string($ascii) && $ascii !== '') {
+                $name = $ascii;
+            }
+        }
     }
 
     $slug = preg_replace('/[^a-z0-9_-]+/', '-', strtolower($name));
-    $slug = trim($slug, '-_');
+    $slug = trim((string) $slug, '-_');
 
-    return $slug;
+    // Collapse runs left behind by dropped characters: 'a--b' is a valid slug,
+    // but 'a-b' is the one a human would have typed.
+    $slug = preg_replace('/-{2,}/', '-', $slug);
+
+    // The validator caps a slug at 64 characters; cut here so a long name still
+    // produces a usable folder instead of being rejected.
+    if (strlen($slug) > 64) {
+        $slug = rtrim(substr($slug, 0, 64), '-_');
+    }
+
+    return (string) $slug;
 }
 
 /**

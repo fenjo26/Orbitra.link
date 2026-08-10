@@ -7,6 +7,7 @@ import ConversionsLog from './ConversionsLog';
 import { useLanguage } from '../contexts/LanguageContext';
 import axios from 'axios';
 import { cachedGet, cachedPost } from '../utils/apiCache';
+import { translateLandingRequestError } from '../utils/landingErrors';
 
 // Generate random alias like Keitaro (8 chars: a-z0-9)
 const generateAlias = () => {
@@ -570,7 +571,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             }
             setQuickCreate(null);
         } catch (e) {
-            alert(`${t('editor.quickCreateError')}: ${e.message}`);
+            alert(`${t('editor.quickCreateError')}: ${translateLandingRequestError(t, e)}`);
         } finally {
             setQuickSaving(false);
         }

@@ -17059,6 +17059,11 @@ const ru = {
     "savedSuccess": "Данные сохранены успешно",
     "saveError": "Ошибка сохранения",
     "networkError": "Ошибка сети",
+    "serverError": "Сервер вернул ошибку. Подробности — в var/logs/php_errors.log",
+    "slugInvalid": "Недопустимая папка: только латиница, цифры, дефис и подчёркивание, до 64 символов",
+    "slugReserved": "Эта папка зарезервирована системой, выберите другую",
+    "slugTaken": "Такая папка уже занята другим лендингом",
+    "slugCheckFailed": "Не удалось проверить папку — попробуйте ещё раз",
     "archiveUploaded": "Архив успешно загружен и распакован.",
     "archiveError": "Ошибка загрузки ZIP",
     "fileUploadError": "Не удалось загрузить файл.",
@@ -19136,6 +19141,11 @@ const en = {
     "savedSuccess": "Data saved successfully",
     "saveError": "Save error",
     "networkError": "Network error",
+    "serverError": "The server returned an error. See var/logs/php_errors.log for details",
+    "slugInvalid": "Invalid folder: latin letters, digits, dash and underscore only, up to 64 characters",
+    "slugReserved": "That folder name is reserved by the system, pick another",
+    "slugTaken": "Another landing already uses that folder",
+    "slugCheckFailed": "The folder could not be checked — please try again",
     "archiveUploaded": "Archive successfully uploaded and extracted.",
     "archiveError": "ZIP upload error",
     "fileUploadError": "Could not upload file.",
@@ -21213,6 +21223,11 @@ const uk = {
     "savedSuccess": "Дані успішно збережено",
     "saveError": "Помилка збереження",
     "networkError": "Помилка мережі",
+    "serverError": "Сервер повернув помилку. Подробиці — у var/logs/php_errors.log",
+    "slugInvalid": "Недопустима папка: лише латиниця, цифри, дефіс і підкреслення, до 64 символів",
+    "slugReserved": "Цю папку зарезервовано системою, оберіть іншу",
+    "slugTaken": "Таку папку вже зайнято іншим лендингом",
+    "slugCheckFailed": "Не вдалося перевірити папку — спробуйте ще раз",
     "archiveUploaded": "Архів успішно завантажено та розпаковано.",
     "archiveError": "Помилка завантаження ZIP",
     "fileUploadError": "Не вдалося завантажити файл.",
@@ -23290,6 +23305,11 @@ const es = {
     "savedSuccess": "Datos guardados exitosamente",
     "saveError": "Error al guardar",
     "networkError": "error de red",
+    "serverError": "El servidor devolvió un error. Detalles en var/logs/php_errors.log",
+    "slugInvalid": "Carpeta no válida: solo letras latinas, dígitos, guion y guion bajo, hasta 64 caracteres",
+    "slugReserved": "Ese nombre de carpeta está reservado por el sistema, elija otro",
+    "slugTaken": "Otra landing ya usa esa carpeta",
+    "slugCheckFailed": "No se pudo comprobar la carpeta — inténtelo de nuevo",
     "archiveUploaded": "Archivo cargado y extraído correctamente.",
     "archiveError": "Error al subir el ZIP",
     "fileUploadError": "No se pudo cargar el archivo.",
@@ -25367,6 +25387,11 @@ const zh = {
     "savedSuccess": "数据保存成功",
     "saveError": "保存错误",
     "networkError": "网络错误",
+    "serverError": "服务器返回错误。详情见 var/logs/php_errors.log",
+    "slugInvalid": "文件夹无效：仅限拉丁字母、数字、连字符和下划线，最多 64 个字符",
+    "slugReserved": "该文件夹名称已被系统保留，请另选一个",
+    "slugTaken": "另一个着陆页已使用该文件夹",
+    "slugCheckFailed": "无法校验该文件夹 — 请重试",
     "archiveUploaded": "存档已成功上传并提取。",
     "archiveError": "ZIP 上传错误",
     "fileUploadError": "无法上传文件。",
@@ -27444,6 +27469,11 @@ const fr = {
     "savedSuccess": "Données enregistrées avec succès",
     "saveError": "Erreur d'enregistrement",
     "networkError": "Erreur réseau",
+    "serverError": "Le serveur a renvoyé une erreur. Détails dans var/logs/php_errors.log",
+    "slugInvalid": "Dossier invalide : uniquement lettres latines, chiffres, tiret et tiret bas, 64 caractères maximum",
+    "slugReserved": "Ce nom de dossier est réservé par le système, choisissez-en un autre",
+    "slugTaken": "Une autre landing utilise déjà ce dossier",
+    "slugCheckFailed": "Le dossier n'a pas pu être vérifié — veuillez réessayer",
     "archiveUploaded": "Archive téléchargée et extraite avec succès.",
     "archiveError": "Erreur de téléchargement ZIP",
     "fileUploadError": "Impossible de télécharger le fichier.",
@@ -29523,6 +29553,11 @@ const de = {
     "savedSuccess": "Daten erfolgreich gespeichert",
     "saveError": "Speicherfehler",
     "networkError": "Netzwerkfehler",
+    "serverError": "Der Server hat einen Fehler zurückgegeben. Details in var/logs/php_errors.log",
+    "slugInvalid": "Ungültiger Ordner: nur lateinische Buchstaben, Ziffern, Bindestrich und Unterstrich, maximal 64 Zeichen",
+    "slugReserved": "Dieser Ordnername ist vom System reserviert, bitte einen anderen wählen",
+    "slugTaken": "Eine andere Landingpage verwendet diesen Ordner bereits",
+    "slugCheckFailed": "Der Ordner konnte nicht geprüft werden — bitte erneut versuchen",
     "archiveUploaded": "Archiv erfolgreich hochgeladen und extrahiert.",
     "archiveError": "ZIP-Upload-Fehler",
     "fileUploadError": "Datei konnte nicht hochgeladen werden.",
@@ -45620,6 +45655,31 @@ const TrafficSimulation = () => {
     ] })
   ] });
 };
+const SLUG_ERROR_KEYS = {
+  landing_slug_invalid: "landingEditor.slugInvalid",
+  landing_slug_reserved: "landingEditor.slugReserved",
+  landing_slug_taken: "landingEditor.slugTaken",
+  landing_slug_check_failed: "landingEditor.slugCheckFailed"
+};
+function translateLandingError(t, message2) {
+  if (!message2) return "";
+  const key = SLUG_ERROR_KEYS[message2];
+  return key ? t(key) : String(message2);
+}
+function translateLandingRequestError(t, error) {
+  const body = error?.response?.data;
+  const serverMessage = body && typeof body === "object" ? body.message : null;
+  if (serverMessage) {
+    return translateLandingError(t, serverMessage);
+  }
+  if (error?.response?.status) {
+    return `${t("landingEditor.serverError")} (HTTP ${error.response.status})`;
+  }
+  if (error?.message && !error.isAxiosError) {
+    return translateLandingError(t, error.message);
+  }
+  return t("landingEditor.networkError");
+}
 const API_URL$v = "/api.php";
 const CopyableCode = ({ text, copied, onCopy, t, muted = false }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative mt-1", children: [
   /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -45747,10 +45807,10 @@ const LandingEditor = ({ landingId, onClose }) => {
           onClose(true);
         }
       } else {
-        alert(res.data.message || t("landingEditor.saveError"));
+        alert(translateLandingError(t, res.data.message) || t("landingEditor.saveError"));
       }
     } catch (error) {
-      alert(t("landingEditor.networkError"));
+      alert(translateLandingRequestError(t, error));
     }
   };
   const fileOp = async (payload, okMessage) => {
@@ -59071,7 +59131,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       }
       setQuickCreate(null);
     } catch (e) {
-      alert(`${t("editor.quickCreateError")}: ${e.message}`);
+      alert(`${t("editor.quickCreateError")}: ${translateLandingRequestError(t, e)}`);
     } finally {
       setQuickSaving(false);
     }

@@ -17,7 +17,10 @@ fi
 
 echo "[1/5] Updating system and installing packages (Nginx, PHP, SQLite)..."
 apt-get update -y
-apt-get install -y ca-certificates apt-transport-https software-properties-common curl git unzip nginx php-fpm php-sqlite3 php-curl php-mbstring php-xml php-zip
+# php-intl is optional at runtime — landing slugs fall back to a built-in
+# transliteration table without it — but with it installed every alphabet
+# transliterates, not just the ones the table covers.
+apt-get install -y ca-certificates apt-transport-https software-properties-common curl git unzip nginx php-fpm php-sqlite3 php-curl php-mbstring php-xml php-zip php-intl
 
 # Determine installed PHP-FPM version
 PHP_V=$(php -v | head -n 1 | cut -d " " -f 2 | cut -f1-2 -d".")

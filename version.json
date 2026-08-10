@@ -1,6 +1,6 @@
 {
-    "version": "0.9.6.7",
-    "release_notes": "Fixed: creating a local or action landing failed with a NOT NULL constraint violation on the url column when the caller did not send a URL — which both those landing types legitimately have none. The url field now defaults to an empty string instead of null, so the MCP tools, the old quick form and the new stream modal all save cleanly. Behind this, the stream's landing create/edit modal (v0.9.6.6) is unchanged.",
+    "version": "0.9.6.8",
+    "release_notes": "Fixed: creating a landing failed with \"network error\" on any server without the php-intl extension. Slug generation called transliterator_transliterate(), which only intl provides and install.sh never installed; on PHP 8 a call to a missing function raises an Error that @ does not suppress, so the request died as a 500 and the panel could only report it as a network failure. Slugs now transliterate through a built-in table when intl is absent, save_landing answers a real JSON error instead of a 500, the landing forms show the server's message rather than a blanket \"network error\", an auto-generated slug that collides is disambiguated instead of rejected, and php-intl is added to the installer for the wider transliteration it still provides.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-08-08"
+    "released_at": "2026-08-10"
 }

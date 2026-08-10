@@ -7,6 +7,39 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.6.8] — 2026-08-10
+
+### Fixed
+- **Creating a landing failed with "network error" on servers without the
+  `intl` extension.** A local landing left with an empty *Folder* field derives
+  its slug from the name, and that derivation called
+  `transliterator_transliterate()` — a function only `php-intl` provides, which
+  `install.sh` never installed. On PHP 8 calling a function that does not exist
+  raises an `Error`, and `@` does not suppress it, so `save_landing` died as a
+  bare 500. Slugs now transliterate through a built-in Cyrillic/Latin table
+  (with `iconv` as a second pass) whenever `intl` is missing, producing the same
+  slug it would have produced with `intl` for the alphabets that reach this code.
+- **A failed landing save reported "network error" regardless of the cause.**
+  `save_landing` could let a `Throwable` escape as a 500, and the landing forms
+  alerted a fixed string on any thrown request — so a PHP fatal, a rejected slug
+  and a genuinely unreachable server all read identically. The endpoint now
+  answers `{status: "error", message: …}` and logs the fatal, and both landing
+  forms show the server's own message, falling back to the HTTP status and only
+  then to "network error".
+- **Slug errors were shown as raw codes.** `landing_slug_taken` and friends are
+  stable codes so each locale can phrase them, but the forms alerted the code
+  itself. They are translated now, in all seven UI languages.
+- **An auto-generated slug that collided rejected the save.** A landing named
+  after an existing one — or named `lander` — was refused for a folder name the
+  operator never typed. A derived slug that is taken or reserved now falls back
+  to `name-2`, `name-3`, …, and to `landings/<id>/` if nothing is free. A slug
+  typed by hand still reports the conflict rather than being silently changed.
+
+### Changed
+- `install.sh` installs `php-intl`. It is optional — the fallback table covers
+  Russian, Ukrainian and Latin diacritics — but with it every alphabet
+  transliterates. System status reports whether it is loaded.
+
 ## [0.9.6.7] — 2026-08-08
 
 ### Fixed

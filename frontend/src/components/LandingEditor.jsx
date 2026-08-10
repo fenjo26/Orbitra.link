@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Save, X, Upload, FileText, Code, Check, Plus } from 'lucide-react';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
+import { translateLandingError, translateLandingRequestError } from '../utils/landingErrors';
 
 const API_URL = '/api.php';
 
@@ -146,10 +147,12 @@ const LandingEditor = ({ landingId, onClose }) => {
                     onClose(true);
                 }
             } else {
-                alert(res.data.message || t('landingEditor.saveError'));
+                alert(translateLandingError(t, res.data.message) || t('landingEditor.saveError'));
             }
         } catch (error) {
-            alert(t('landingEditor.networkError'));
+            // The server's own message is far more useful than "network error" —
+            // a rejected slug and an unreachable host used to read the same.
+            alert(translateLandingRequestError(t, error));
         }
     };
 
