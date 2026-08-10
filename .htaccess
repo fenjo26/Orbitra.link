@@ -4,6 +4,12 @@ RewriteRule ^r/(.*)$ index.php?campaign=$1 [L,QSA]
 # Keitaro-like Click API endpoint
 RewriteRule ^click_api/v3/?$ index.php [L,QSA]
 
+# A local landing's own address, /lander/<slug>/... — index.php resolves the slug
+# and serves the files. Nginx reaches this through its catch-all try_files, but
+# Apache has no such fallback here: without this rule the path matches nothing on
+# disk and Apache answers with its own 404 before PHP ever runs.
+RewriteRule ^lander/ index.php [L,QSA]
+
 # Security Headers
 Header set X-Content-Type-Options "nosniff"
 Header set X-Frame-Options "SAMEORIGIN"

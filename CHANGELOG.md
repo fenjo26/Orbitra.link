@@ -21,6 +21,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   and path containment the click flow uses; `.php` is not served or executed
   there, since a PHP landing needs the click context this route has none of.
   Nothing is logged: this is a look at the landing, not a visit to a campaign.
+  On Apache the route also needs a rewrite: `.htaccess` only forwarded `/r/` and
+  the Click API to `index.php`, with no catch-all, so `/lander/<slug>/` matched
+  nothing on disk and Apache answered its own 404 before PHP ran. Nginx installs
+  were unaffected — their `try_files` already falls through to `index.php`.
 - **Code / Preview toggle in the landing editor.** Preview loads the landing from
   `/lander/<slug>/` in an iframe, so it is the page as a visitor receives it —
   images, video, CSS and scripts included — rather than a rendering of the HTML

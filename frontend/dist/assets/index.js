@@ -46379,8 +46379,7 @@ ${file}`)) return;
             src: `/lander/${landing.slug}/?_preview=${previewNonce}`,
             title: t("landingEditor.viewPreview"),
             className: "w-full h-full",
-            style: { border: "none", minHeight: "400px" },
-            sandbox: "allow-scripts allow-forms allow-same-origin allow-popups"
+            style: { border: "none", minHeight: "400px" }
           },
           previewNonce
         ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full items-center justify-center p-6 text-center", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.previewNeedsSlug") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-1 overflow-hidden", children: [

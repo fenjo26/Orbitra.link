@@ -782,7 +782,6 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                                             title={t('landingEditor.viewPreview')}
                                             className="w-full h-full"
                                             style={{ border: 'none', minHeight: '400px' }}
-                                            sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
                                         />
                                     ) : (
                                         <div className="flex h-full items-center justify-center p-6 text-center" style={{ color: 'var(--color-text-muted)' }}>
