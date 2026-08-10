@@ -45885,7 +45885,7 @@ ${file}`)) return;
         alert(res.data.message || t("landingEditor.archiveError"));
       }
     } catch (error) {
-      alert(t("landingEditor.archiveError"));
+      alert(`${t("landingEditor.archiveError")}: ${translateLandingRequestError(t, error)}`);
     } finally {
       setUploadingZip(false);
       e.target.value = null;
@@ -45898,10 +45898,10 @@ ${file}`)) return;
         setSelectedFile(path);
         setFileContent(res.data.data);
       } else {
-        alert(t("landingEditor.fileUploadError"));
+        alert(res.data.message || t("landingEditor.fileUploadError"));
       }
     } catch (error) {
-      alert(t("landingEditor.fileReadError"));
+      alert(`${t("landingEditor.fileReadError")}: ${translateLandingRequestError(t, error)}`);
     }
   };
   const saveFileContent = async () => {
@@ -45915,10 +45915,10 @@ ${file}`)) return;
       });
       if (res.data.status === "success") {
       } else {
-        alert(t("landingEditor.fileSaveError"));
+        alert(res.data.message || t("landingEditor.fileSaveError"));
       }
     } catch (error) {
-      alert(t("landingEditor.fileSaveError2"));
+      alert(`${t("landingEditor.fileSaveError2")}: ${translateLandingRequestError(t, error)}`);
     } finally {
       setSavingFile(false);
     }

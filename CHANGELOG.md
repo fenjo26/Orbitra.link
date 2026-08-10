@@ -25,6 +25,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   failure now gets the same treatment — the cause and the `chown` command to fix
   it, rather than git's wording. Anything stashed before the pull is restored
   before the handler returns.
+- **"ZIP upload error" was the only thing a failed archive upload ever said.**
+  `handleZipUpload` alerted a fixed string from its `catch`, so every non-2xx
+  answer — a 500 from the handler, a 413 from nginx, a request that never
+  finished — arrived as the same four words. `upload_landing` now names each
+  failure: the body exceeding `post_max_size` (with the actual sizes), each
+  `UPLOAD_ERR_*` code in words, a missing `zip` or `fileinfo` extension with the
+  package to install, a `landings/` directory the web server cannot write to
+  (with the `chown` command), and the MIME type actually detected when the file
+  is not a ZIP. The whole handler is wrapped so a `Throwable` returns JSON
+  instead of a 500.
+- **A failed extraction was reported as a successful upload.** `mkdir()` and
+  `ZipArchive::extractTo()` both had their return values discarded, so when the
+  landing directory could not be created or written, the panel said the archive
+  was extracted and the landing quietly served nothing. Both are checked now.
+- **An archive PHP cannot decompress looked like a permissions problem.** The
+  "maximum compression" preset in 7-Zip and WinRAR writes LZMA, BZip2 or PPMd
+  entries; libzip is normally built with Store and Deflate only, so the archive
+  opens and lists correctly and only `extractTo()` fails. A failed extraction
+  now inspects each entry's compression method and, when it is one PHP cannot
+  read, names it and says to repack with Deflate.
+- **The landing editor swallowed the server's message on every file
+  operation.** Reading, saving and uploading a file inside a landing each
+  alerted a generic string. They all show what the server said, falling back to
+  the HTTP status and only then to "network error".
 
 ## [0.9.6.8] — 2026-08-10
 

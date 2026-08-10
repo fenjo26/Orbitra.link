@@ -2333,14 +2333,45 @@ try {
             break;
 
         case 'upload_landing':
+            // Same reasoning as save_landing: a Throwable escaping here is a 500,
+            // and the panel can only render that as "ZIP upload error" with no
+            // cause attached. Every failure below names itself instead.
+            try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $id = $_POST['id'] ?? null;
                 if (!$id) {
+                    // An empty $_POST on a POST request usually means the body was
+                    // larger than post_max_size — PHP discards it wholesale, so the
+                    // id we sent alongside the file disappears with it.
+                    $postMax = (string) ini_get('post_max_size');
+                    $contentLength = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
+                    if (empty($_POST) && empty($_FILES) && $contentLength > 0) {
+                        echo json_encode([
+                            'status' => 'error',
+                            'message' => 'Архив больше, чем разрешает PHP: запрос ' . round($contentLength / 1048576, 1)
+                                . ' МБ при post_max_size = ' . $postMax . '. Увеличьте post_max_size и upload_max_filesize '
+                                . 'в php.ini, затем перезапустите PHP-FPM.',
+                        ]);
+                        break;
+                    }
                     echo json_encode(['status' => 'error', 'message' => 'Missing Landing ID']);
                     break;
                 }
                 if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
-                    echo json_encode(['status' => 'error', 'message' => 'File upload error']);
+                    // The upload error code says far more than "File upload error":
+                    // a size limit, a missing tmp dir and an aborted transfer are
+                    // three different problems with three different fixes.
+                    $uploadErr = $_FILES['file']['error'] ?? UPLOAD_ERR_NO_FILE;
+                    $uploadErrText = [
+                        UPLOAD_ERR_INI_SIZE => 'файл больше upload_max_filesize (' . ini_get('upload_max_filesize') . ') в php.ini',
+                        UPLOAD_ERR_FORM_SIZE => 'файл больше лимита, заданного формой',
+                        UPLOAD_ERR_PARTIAL => 'файл передан не полностью — попробуйте загрузить ещё раз',
+                        UPLOAD_ERR_NO_FILE => 'файл не был передан',
+                        UPLOAD_ERR_NO_TMP_DIR => 'на сервере нет временного каталога для загрузок (upload_tmp_dir)',
+                        UPLOAD_ERR_CANT_WRITE => 'сервер не смог записать файл на диск — проверьте права',
+                        UPLOAD_ERR_EXTENSION => 'загрузку остановило расширение PHP',
+                    ][$uploadErr] ?? ('код ошибки ' . $uploadErr);
+                    echo json_encode(['status' => 'error', 'message' => 'Загрузка не удалась: ' . $uploadErrText]);
                     break;
                 }
 
@@ -2352,20 +2383,57 @@ try {
 
                 $zipFile = $_FILES['file']['tmp_name'];
 
-                // Security: Check MIME type
+                // Security: Check MIME type. fileinfo and zip are both optional PHP
+                // extensions; without them the calls below fatal, so say which one
+                // is missing rather than dying as a 500.
+                if (!function_exists('finfo_open')) {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'На сервере нет расширения PHP fileinfo — без него нельзя проверить тип архива. '
+                            . 'Установите его: apt install php-fileinfo, затем перезапустите PHP-FPM.',
+                    ]);
+                    break;
+                }
+                if (!class_exists('ZipArchive')) {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'На сервере нет расширения PHP zip — без него нельзя распаковать архив. '
+                            . 'Установите его: apt install php-zip, затем перезапустите PHP-FPM.',
+                    ]);
+                    break;
+                }
                 $allowedMimes = ['application/zip', 'application/x-zip-compressed'];
                 $finfo = finfo_open(FILEINFO_MIME_TYPE);
                 $mimeType = finfo_file($finfo, $zipFile);
                 // finfo_close() is deprecated since PHP 8.5 - resources are auto-freed
 
                 if (!in_array($mimeType, $allowedMimes)) {
-                    echo json_encode(['status' => 'error', 'message' => 'Invalid file type. Only ZIP allowed.']);
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Это не ZIP-архив: сервер определил тип как "' . $mimeType . '". Разрешён только ZIP.',
+                    ]);
                     break;
                 }
 
                 $uploadDir = orbitraLandingDir($pdo, $id) . '/';
-                if (!is_dir($uploadDir)) {
-                    mkdir($uploadDir, 0777, true);
+                if (!is_dir($uploadDir) && !@mkdir($uploadDir, 0775, true) && !is_dir($uploadDir)) {
+                    // Reported, not ignored: the old code let mkdir fail silently and
+                    // then answered "success" for an extraction that never happened,
+                    // leaving a landing that serves nothing.
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Не удалось создать каталог лендинга ' . $uploadDir . ' — у веб-сервера нет прав на запись в landings/. '
+                            . 'Выполните на сервере: chown -R www-data:www-data ' . __DIR__,
+                    ]);
+                    break;
+                }
+                if (!is_writable($uploadDir)) {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Каталог лендинга ' . $uploadDir . ' закрыт для записи веб-серверу. '
+                            . 'Выполните на сервере: chown -R www-data:www-data ' . __DIR__,
+                    ]);
+                    break;
                 }
 
                 $zip = new ZipArchive;
@@ -2395,7 +2463,51 @@ try {
                     }
 
                     if ($safeToExtract) {
-                        $zip->extractTo($uploadDir);
+                        // extractTo returns false on a write failure. The old code
+                        // discarded that and reported success regardless, so a
+                        // permissions problem looked like a working upload until
+                        // the landing turned out to be empty.
+                        if (!$zip->extractTo($uploadDir)) {
+                            // A ZIP can be readable and still be unextractable: the
+                            // "maximum compression" preset in 7-Zip and WinRAR writes
+                            // LZMA, BZip2 or PPMd entries, and libzip is normally
+                            // built with Store and Deflate only. The archive opens,
+                            // the file list reads fine, and extraction just fails —
+                            // so check the methods before blaming permissions.
+                            $badMethods = [];
+                            for ($i = 0; $i < $zip->numFiles; $i++) {
+                                $stat = $zip->statIndex($i);
+                                $method = $stat['comp_method'] ?? 8;
+                                if (!in_array((int) $method, [0, 8], true)) {
+                                    $badMethods[(int) $method] = true;
+                                }
+                            }
+                            $zip->close();
+                            if ($badMethods) {
+                                $methodNames = [
+                                    9 => 'Deflate64', 12 => 'BZip2', 14 => 'LZMA',
+                                    93 => 'Zstandard', 95 => 'XZ', 98 => 'PPMd',
+                                ];
+                                $named = [];
+                                foreach (array_keys($badMethods) as $m) {
+                                    $named[] = $methodNames[$m] ?? ('метод ' . $m);
+                                }
+                                echo json_encode([
+                                    'status' => 'error',
+                                    'message' => 'Архив собран методом сжатия ' . implode(', ', $named)
+                                        . ' — PHP (libzip) распаковывает только Store и Deflate. '
+                                        . 'Пересоберите ZIP обычным способом: в 7-Zip формат ZIP и метод Deflate '
+                                        . '(вместо «Ультра»/LZMA), либо стандартной упаковкой Windows или macOS.',
+                                ]);
+                                break;
+                            }
+                            echo json_encode([
+                                'status' => 'error',
+                                'message' => 'Архив открылся, но распаковать его в ' . $uploadDir . ' не вышло — '
+                                    . 'скорее всего у веб-сервера нет прав на запись или кончилось место на диске.',
+                            ]);
+                            break;
+                        }
 
                         // Names alone cannot tell whether the PHP inside is acceptable,
                         // so the check happens on the extracted source — and a failing
@@ -2429,8 +2541,17 @@ try {
                     }
                     $zip->close();
                 } else {
-                    echo json_encode(['status' => 'error', 'message' => 'Failed to open ZIP file']);
+                    echo json_encode(['status' => 'error', 'message' => 'Не удалось открыть ZIP-архив — файл повреждён или это не ZIP.']);
                 }
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+            }
+            } catch (\Throwable $e) {
+                error_log('upload_landing failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Не удалось загрузить архив: ' . $e->getMessage(),
+                ]);
             }
             break;
 

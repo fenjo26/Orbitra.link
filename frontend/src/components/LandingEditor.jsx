@@ -235,7 +235,10 @@ const LandingEditor = ({ landingId, onClose }) => {
                 alert(res.data.message || t('landingEditor.archiveError'));
             }
         } catch (error) {
-            alert(t('landingEditor.archiveError'));
+            // A 500 or a 413 from the upload used to arrive here and be reduced to
+            // "ZIP upload error", which says nothing about a size limit, a missing
+            // extension or a read-only directory.
+            alert(`${t('landingEditor.archiveError')}: ${translateLandingRequestError(t, error)}`);
         } finally {
             setUploadingZip(false);
             e.target.value = null;
@@ -249,10 +252,10 @@ const LandingEditor = ({ landingId, onClose }) => {
                 setSelectedFile(path);
                 setFileContent(res.data.data);
             } else {
-                alert(t('landingEditor.fileUploadError'));
+                alert(res.data.message || t('landingEditor.fileUploadError'));
             }
         } catch (error) {
-            alert(t('landingEditor.fileReadError'));
+            alert(`${t('landingEditor.fileReadError')}: ${translateLandingRequestError(t, error)}`);
         }
     };
 
@@ -268,10 +271,10 @@ const LandingEditor = ({ landingId, onClose }) => {
             if (res.data.status === 'success') {
                 // Success marker
             } else {
-                alert(t('landingEditor.fileSaveError'));
+                alert(res.data.message || t('landingEditor.fileSaveError'));
             }
         } catch (error) {
-            alert(t('landingEditor.fileSaveError2'));
+            alert(`${t('landingEditor.fileSaveError2')}: ${translateLandingRequestError(t, error)}`);
         } finally {
             setSavingFile(false);
         }
