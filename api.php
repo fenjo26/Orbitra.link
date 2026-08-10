@@ -8265,6 +8265,7 @@ try {
 
             foreach ($selectedMetrics as $m) {
                 $chartDatasets[] = [
+                    'metric' => $m,
                     'label' => $metricLabels[$m] ?? $m,
                     'data' => $metricData[$m],
                     'borderColor' => $metricColors[$m] ?? '#666666',

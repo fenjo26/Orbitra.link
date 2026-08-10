@@ -26,8 +26,16 @@ const hexToRgba = (hex, alpha) => {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
+// Map Orbitra UI language codes to BCP47 locale tags for date formatting.
+const LOCALE_TAGS = {
+    ru: 'ru-RU', en: 'en-US', uk: 'uk-UA', es: 'es-ES',
+    zh: 'zh-CN', fr: 'fr-FR', de: 'de-DE'
+};
+
 // Format a cohort label ("2026-01" or "2026-Q1") into a localized short label.
-const formatCohortLabel = (label, granularity, t) => {
+// Locale is derived from the active UI language so the month name follows the
+// interface language, not the browser locale.
+const formatCohortLabel = (label, granularity, lang) => {
     if (!label) return '';
     if (granularity === 'quarter') {
         // "2026-Q1" → "Q1 2026"
@@ -39,10 +47,11 @@ const formatCohortLabel = (label, granularity, t) => {
     const [year, month] = label.split('-');
     if (!year || !month) return label;
     const date = new Date(Number(year), Number(month) - 1, 1);
-    return date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+    const locale = LOCALE_TAGS[lang] || 'en-US';
+    return date.toLocaleDateString(locale, { month: 'short', year: 'numeric' });
 };
 
-const formatCellValue = (metric, value) => {
+const formatCellValue = (metric, value, lang) => {
     const n = Number(value || 0);
     if (['revenue', 'real_revenue', 'cost', 'profit'].includes(metric)) {
         return `$${n.toFixed(2)}`;
@@ -50,11 +59,11 @@ const formatCellValue = (metric, value) => {
     if (['roi', 'real_roi', 'cr'].includes(metric)) {
         return `${n.toFixed(2)}%`;
     }
-    return n.toLocaleString('ru-RU');
+    return n.toLocaleString(LOCALE_TAGS[lang] || 'en-US');
 };
 
 const CohortView = () => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [granularity, setGranularity] = useState('month');
     const [metric, setMetric] = useState('revenue');
     const [dateFrom, setDateFrom] = useState(() => {
@@ -281,7 +290,7 @@ const CohortView = () => {
                                         <tr key={label}>
                                             <td style={{ fontWeight: 500, position: 'sticky', left: 0, zIndex: 1,
                                                 background: 'var(--color-bg-card)' }}>
-                                                {formatCohortLabel(label, granularity, t)}
+                                                {formatCohortLabel(label, granularity, language)}
                                             </td>
                                             <td className="text-right" style={{ color: 'var(--color-text-muted)' }}>
                                                 {launchedMap[label] ?? 0}
@@ -305,10 +314,10 @@ const CohortView = () => {
                                                 const textColor = ratio > 0.55 ? '#fff' : 'var(--color-text-primary)';
                                                 return (
                                                     <td key={p} className="text-right"
-                                                        title={formatCohortLabel(label, granularity, t) + ' · M' + p}
+                                                        title={formatCohortLabel(label, granularity, language) + ' · M' + p}
                                                         style={{ background: bg, color: textColor,
                                                             fontWeight: ratio > 0.55 ? 600 : 400 }}>
-                                                        {formatCellValue(metric, v)}
+                                                        {formatCellValue(metric, v, language)}
                                                     </td>
                                                 );
                                             })}
@@ -350,13 +359,13 @@ const CohortView = () => {
                                 {summary.map(s => (
                                     <tr key={s.label}>
                                         <td style={{ fontWeight: 500 }}>
-                                            {formatCohortLabel(s.label, granularity, t)}
+                                            {formatCohortLabel(s.label, granularity, language)}
                                         </td>
                                         <td className="text-right" style={{ color: 'var(--color-text-muted)' }}>
                                             {s.launched}
                                         </td>
                                         <td className="text-right">{s.campaignsActive}</td>
-                                        <td className="text-right">{s.clicks.toLocaleString('ru-RU')}</td>
+                                        <td className="text-right">{s.clicks.toLocaleString(LOCALE_TAGS[language] || 'en-US')}</td>
                                         <td className="text-right">{s.conversions}</td>
                                         <td className="text-right">${s.revenue.toFixed(2)}</td>
                                         <td className="text-right"

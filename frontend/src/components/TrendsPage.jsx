@@ -77,7 +77,19 @@ const TrendsPage = () => {
             });
             const res = await fetch(`${API_URL}?${params}`);
             const data = await res.json();
-            if (data.status === 'success') { setChartData(data.data.chart); setTableData(data.data.table); }
+            if (data.status === 'success') {
+                const chart = data.data.chart;
+                // Override backend-supplied (hardcoded Russian) dataset labels
+                // with localized metric names so the tooltip follows the UI language.
+                if (chart && Array.isArray(chart.datasets)) {
+                    chart.datasets = chart.datasets.map(ds => {
+                        const meta = availableMetrics.find(m => m.key === ds.metric);
+                        return meta ? { ...ds, label: meta.label } : ds;
+                    });
+                }
+                setChartData(chart);
+                setTableData(data.data.table);
+            }
         } catch (e) { console.error('Error fetching trends:', e); }
         finally { setLoading(false); }
     };

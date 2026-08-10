@@ -59135,7 +59135,16 @@ const hexToRgba = (hex2, alpha2) => {
   }
   return `rgba(${r2}, ${g}, ${b}, ${alpha2})`;
 };
-const formatCohortLabel = (label, granularity, t) => {
+const LOCALE_TAGS = {
+  ru: "ru-RU",
+  en: "en-US",
+  uk: "uk-UA",
+  es: "es-ES",
+  zh: "zh-CN",
+  fr: "fr-FR",
+  de: "de-DE"
+};
+const formatCohortLabel = (label, granularity, lang) => {
   if (!label) return "";
   if (granularity === "quarter") {
     const [year2, q] = label.split("-Q");
@@ -59145,9 +59154,10 @@ const formatCohortLabel = (label, granularity, t) => {
   const [year, month] = label.split("-");
   if (!year || !month) return label;
   const date = new Date(Number(year), Number(month) - 1, 1);
-  return date.toLocaleDateString(void 0, { month: "short", year: "numeric" });
+  const locale = LOCALE_TAGS[lang] || "en-US";
+  return date.toLocaleDateString(locale, { month: "short", year: "numeric" });
 };
-const formatCellValue = (metric, value) => {
+const formatCellValue = (metric, value, lang) => {
   const n = Number(value || 0);
   if (["revenue", "real_revenue", "cost", "profit"].includes(metric)) {
     return `$${n.toFixed(2)}`;
@@ -59155,10 +59165,10 @@ const formatCellValue = (metric, value) => {
   if (["roi", "real_roi", "cr"].includes(metric)) {
     return `${n.toFixed(2)}%`;
   }
-  return n.toLocaleString("ru-RU");
+  return n.toLocaleString(LOCALE_TAGS[lang] || "en-US");
 };
 const CohortView = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [granularity, setGranularity] = reactExports.useState("month");
   const [metric, setMetric] = reactExports.useState("revenue");
   const [dateFrom, setDateFrom] = reactExports.useState(() => {
@@ -59423,7 +59433,7 @@ const CohortView = () => {
               left: 0,
               zIndex: 1,
               background: "var(--color-bg-card)"
-            }, children: formatCohortLabel(label, granularity) }),
+            }, children: formatCohortLabel(label, granularity, language) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", style: { color: "var(--color-text-muted)" }, children: launchedMap[label] ?? 0 }),
             Array.from({ length: maxPeriod + 1 }, (_, p) => {
               const cell = cohort[p];
@@ -59450,13 +59460,13 @@ const CohortView = () => {
                 "td",
                 {
                   className: "text-right",
-                  title: formatCohortLabel(label, granularity) + " · M" + p,
+                  title: formatCohortLabel(label, granularity, language) + " · M" + p,
                   style: {
                     background: bg,
                     color: textColor,
                     fontWeight: ratio > 0.55 ? 600 : 400
                   },
-                  children: formatCellValue(metric, v)
+                  children: formatCellValue(metric, v, language)
                 },
                 p
               );
@@ -59484,10 +59494,10 @@ const CohortView = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.lastSeen") })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: summary.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: formatCohortLabel(s.label, granularity) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: formatCohortLabel(s.label, granularity, language) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", style: { color: "var(--color-text-muted)" }, children: s.launched }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: s.campaignsActive }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: s.clicks.toLocaleString("ru-RU") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: s.clicks.toLocaleString(LOCALE_TAGS[language] || "en-US") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: s.conversions }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "text-right", children: [
             "$",
@@ -59596,7 +59606,14 @@ const TrendsPage = () => {
       const res = await fetch(`${API_URL$2}?${params}`);
       const data = await res.json();
       if (data.status === "success") {
-        setChartData(data.data.chart);
+        const chart = data.data.chart;
+        if (chart && Array.isArray(chart.datasets)) {
+          chart.datasets = chart.datasets.map((ds) => {
+            const meta = availableMetrics.find((m) => m.key === ds.metric);
+            return meta ? { ...ds, label: meta.label } : ds;
+          });
+        }
+        setChartData(chart);
         setTableData(data.data.table);
       }
     } catch (e) {
