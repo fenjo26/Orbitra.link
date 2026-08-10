@@ -21,6 +21,7 @@ if (!is_dir(__DIR__ . '/var/logs')) {
 // api.php - JSON API для React Dashboard
 require_once 'config.php';
 require_once 'version.php';
+require_once __DIR__ . '/core/shell.php';
 require_once __DIR__ . '/core/backorder.php';
 require_once __DIR__ . '/core/keitaro_import.php';
 
@@ -463,8 +464,11 @@ function orbitraBotListEndpoint($pdo, $table, $column, $payloadKey)
  * Check if a command exists on the system
  */
 function command_exists($cmd) {
-    $return = shell_exec("which $cmd 2>/dev/null");
-    return !empty($return);
+    // Goes through the shell helper: on a host where shell_exec has been removed
+    // this used to raise "Call to undefined function orbitraShell()", and since it
+    // is the first check most of these features make, that Error surfaced as a
+    // bare 500 instead of "this server cannot run external commands".
+    return orbitraCommandExists((string) $cmd);
 }
 
 /**
@@ -515,7 +519,7 @@ function installSslForDomain($domain) {
     $cmd = orbitraCertbotCertonlyCommand($domain);
 
     // Try synchronous first (user just enabled HTTPS-only, they're waiting)
-    $output = @shell_exec($cmd . ' 2>&1');
+    $output = orbitraShell($cmd . ' 2>&1');
 
     if (orbitraCertbotSucceeded($output, $domain)) {
         // The certificate exists now, so regenerating the config adds the HTTPS
@@ -524,14 +528,14 @@ function installSslForDomain($domain) {
         if (isset($pdo) && $pdo instanceof PDO) {
             updateNginxConfig($pdo);
         } else {
-            @shell_exec('sudo systemctl reload nginx 2>&1');
+            orbitraShell('sudo systemctl reload nginx 2>&1');
         }
         return true;
     }
 
     // If failed or no output, retry in the background via the SSL installer,
     // which also records the error so the Domains page can show it.
-    @shell_exec($cmd . ' > /dev/null 2>&1 &');
+    orbitraShell($cmd . ' > /dev/null 2>&1 &');
 
     return true;
 }
@@ -4046,11 +4050,11 @@ try {
             // Detect whether we can manage user crontab from PHP (no root required, but shell_exec must be allowed).
             $disableFunctions = (string) ini_get('disable_functions');
             $shellExecAllowed = function_exists('shell_exec') && (stripos($disableFunctions, 'shell_exec') === false);
-            $crontabPath = $shellExecAllowed ? trim((string) @shell_exec('command -v crontab 2>/dev/null')) : '';
+            $crontabPath = $shellExecAllowed ? trim((string) orbitraShell('command -v crontab 2>/dev/null')) : '';
             $crontabAvailable = $crontabPath !== '';
             $userCrontabInstalled = 0;
             if ($crontabAvailable) {
-                $existing = (string) @shell_exec('crontab -l 2>/dev/null');
+                $existing = (string) orbitraShell('crontab -l 2>/dev/null');
                 if ($existing !== '' && strpos($existing, 'ORBITRA_BACKORDER_BEGIN') !== false) {
                     $userCrontabInstalled = 1;
                 }
@@ -4151,7 +4155,7 @@ try {
                 break;
             }
 
-            $crontabPath = trim((string) @shell_exec('command -v crontab 2>/dev/null'));
+            $crontabPath = trim((string) orbitraShell('command -v crontab 2>/dev/null'));
             if ($crontabPath === '') {
                 echo json_encode(['status' => 'error', 'message' => 'crontab command not found']);
                 break;
@@ -4167,7 +4171,7 @@ try {
             }
             $logPath = $logDir . '/backorder_cron.log';
 
-            $phpPath = trim((string) @shell_exec('command -v php 2>/dev/null'));
+            $phpPath = trim((string) orbitraShell('command -v php 2>/dev/null'));
             if ($phpPath === '') {
                 $phpPath = 'php';
             }
@@ -4175,7 +4179,7 @@ try {
             $line = "*/3 * * * * $phpPath " . escapeshellarg($scriptPath) . " >> " . escapeshellarg($logPath) . " 2>&1";
             $block = "# ORBITRA_BACKORDER_BEGIN\n" . $line . "\n# ORBITRA_BACKORDER_END\n";
 
-            $existing = (string) @shell_exec('crontab -l 2>/dev/null');
+            $existing = (string) orbitraShell('crontab -l 2>/dev/null');
             // Remove existing block if present.
             $new = preg_replace("/\\n?# ORBITRA_BACKORDER_BEGIN[\\s\\S]*?# ORBITRA_BACKORDER_END\\n?/m", "\n", $existing);
             $new = trim((string) $new);
@@ -4190,7 +4194,7 @@ try {
                 break;
             }
             @file_put_contents($tmp, $new);
-            $out = (string) @shell_exec('crontab ' . escapeshellarg($tmp) . ' 2>&1');
+            $out = (string) orbitraShell('crontab ' . escapeshellarg($tmp) . ' 2>&1');
             @unlink($tmp);
 
             // If error, crontab usually prints it.
@@ -4218,13 +4222,13 @@ try {
                 break;
             }
 
-            $crontabPath = trim((string) @shell_exec('command -v crontab 2>/dev/null'));
+            $crontabPath = trim((string) orbitraShell('command -v crontab 2>/dev/null'));
             if ($crontabPath === '') {
                 echo json_encode(['status' => 'error', 'message' => 'crontab command not found']);
                 break;
             }
 
-            $existing = (string) @shell_exec('crontab -l 2>/dev/null');
+            $existing = (string) orbitraShell('crontab -l 2>/dev/null');
             $new = preg_replace("/\\n?# ORBITRA_BACKORDER_BEGIN[\\s\\S]*?# ORBITRA_BACKORDER_END\\n?/m", "\n", $existing);
             $new = trim((string) $new) . "\n";
 
@@ -4234,7 +4238,7 @@ try {
                 break;
             }
             @file_put_contents($tmp, $new);
-            $out = (string) @shell_exec('crontab ' . escapeshellarg($tmp) . ' 2>&1');
+            $out = (string) orbitraShell('crontab ' . escapeshellarg($tmp) . ' 2>&1');
             @unlink($tmp);
 
             if (stripos($out, 'error') !== false) {
@@ -4276,7 +4280,7 @@ try {
             $pqShellOk = function_exists('shell_exec') && stripos((string) ini_get('disable_functions'), 'shell_exec') === false;
             $pqCrontabInstalled = false;
             if ($pqShellOk) {
-                $pqCrontab = (string) @shell_exec('crontab -l 2>/dev/null');
+                $pqCrontab = (string) orbitraShell('crontab -l 2>/dev/null');
                 $pqCrontabInstalled = strpos($pqCrontab, 'ORBITRA_POSTBACK_QUEUE_BEGIN') !== false;
             }
 
@@ -4325,7 +4329,7 @@ try {
                 break;
             }
 
-            $crontabPath = trim((string) @shell_exec('command -v crontab 2>/dev/null'));
+            $crontabPath = trim((string) orbitraShell('command -v crontab 2>/dev/null'));
             if ($crontabPath === '') {
                 echo json_encode(['status' => 'error', 'message' => 'crontab command not found']);
                 break;
@@ -4341,7 +4345,7 @@ try {
             }
             $logPath = $logDir . '/postback_queue.log';
 
-            $phpPath = trim((string) @shell_exec('command -v php 2>/dev/null'));
+            $phpPath = trim((string) orbitraShell('command -v php 2>/dev/null'));
             if ($phpPath === '') {
                 $phpPath = 'php';
             }
@@ -4351,7 +4355,7 @@ try {
             $line = "* * * * * $phpPath " . escapeshellarg($scriptPath) . " >> " . escapeshellarg($logPath) . " 2>&1";
             $block = "# ORBITRA_POSTBACK_QUEUE_BEGIN\n" . $line . "\n# ORBITRA_POSTBACK_QUEUE_END\n";
 
-            $existing = (string) @shell_exec('crontab -l 2>/dev/null');
+            $existing = (string) orbitraShell('crontab -l 2>/dev/null');
             $new = preg_replace("/\\n?# ORBITRA_POSTBACK_QUEUE_BEGIN[\\s\\S]*?# ORBITRA_POSTBACK_QUEUE_END\\n?/m", "\n", $existing);
             $new = trim((string) $new);
             if ($new !== '') {
@@ -4365,7 +4369,7 @@ try {
                 break;
             }
             @file_put_contents($tmp, $new);
-            $out = (string) @shell_exec('crontab ' . escapeshellarg($tmp) . ' 2>&1');
+            $out = (string) orbitraShell('crontab ' . escapeshellarg($tmp) . ' 2>&1');
             @unlink($tmp);
 
             if (stripos($out, 'error') !== false) {
@@ -4396,13 +4400,13 @@ try {
                 break;
             }
 
-            $crontabPath = trim((string) @shell_exec('command -v crontab 2>/dev/null'));
+            $crontabPath = trim((string) orbitraShell('command -v crontab 2>/dev/null'));
             if ($crontabPath === '') {
                 echo json_encode(['status' => 'error', 'message' => 'crontab command not found']);
                 break;
             }
 
-            $existing = (string) @shell_exec('crontab -l 2>/dev/null');
+            $existing = (string) orbitraShell('crontab -l 2>/dev/null');
             $new = preg_replace("/\\n?# ORBITRA_POSTBACK_QUEUE_BEGIN[\\s\\S]*?# ORBITRA_POSTBACK_QUEUE_END\\n?/m", "\n", $existing);
             $new = trim((string) $new) . "\n";
 
@@ -4412,7 +4416,7 @@ try {
                 break;
             }
             @file_put_contents($tmp, $new);
-            $out = (string) @shell_exec('crontab ' . escapeshellarg($tmp) . ' 2>&1');
+            $out = (string) orbitraShell('crontab ' . escapeshellarg($tmp) . ' 2>&1');
             @unlink($tmp);
 
             if (stripos($out, 'error') !== false) {
@@ -4454,7 +4458,7 @@ try {
             }
             $logPath = $logDir . '/backorder_cron.log';
 
-            $phpPath = trim((string) @shell_exec('command -v php 2>/dev/null'));
+            $phpPath = trim((string) orbitraShell('command -v php 2>/dev/null'));
             if ($phpPath === '') {
                 $phpPath = '/usr/bin/php';
             }
@@ -4996,7 +5000,7 @@ try {
                         if (!empty($sslQueued)) {
                             $cliPath = __DIR__ . '/cli/ssl_installer.php';
                             if (file_exists($cliPath)) {
-                                @shell_exec("php " . escapeshellarg($cliPath) . " > /dev/null 2>&1 &");
+                                orbitraShell("php " . escapeshellarg($cliPath) . " > /dev/null 2>&1 &");
                             }
                         }
 
@@ -5061,7 +5065,7 @@ try {
                         if ($sslPending) {
                             $cliPath = __DIR__ . '/cli/ssl_installer.php';
                             if (file_exists($cliPath)) {
-                                @shell_exec("php " . escapeshellarg($cliPath) . " > /dev/null 2>&1 &");
+                                orbitraShell("php " . escapeshellarg($cliPath) . " > /dev/null 2>&1 &");
                             }
                         }
 
@@ -5127,12 +5131,12 @@ try {
                 // Certbot is the one dependency worth naming outright: without it
                 // every domain sits at "pending" forever and the reason is invisible.
                 $notes = [];
-                if (!command_exists('certbot')) {
+                if (orbitraShellAvailable() && !command_exists('certbot')) {
                     $notes[] = 'Certbot не установлен на сервере — сертификаты выпускать нечем. Установите: apt install certbot';
                 }
-                $disabledFns = array_filter(preg_split('/[\s,]+/', (string) ini_get('disable_functions')));
-                if (!function_exists('shell_exec') || in_array('shell_exec', $disabledFns, true)) {
-                    $notes[] = 'shell_exec отключён в php.ini — автоматический выпуск и планировщик работать не смогут.';
+                if (!orbitraShellAvailable()) {
+                    $notes[] = 'На этом сервере PHP не может запускать внешние команды (shell_exec отключён или удалён). '
+                        . 'Ни certbot, ни планировщик отсюда не запустить — сертификаты придётся выпускать на сервере вручную.';
                 }
                 if (!file_exists(ORBITRA_NGINX_CONFIG_PATH)) {
                     $notes[] = 'Конфиг nginx не найден по пути ' . ORBITRA_NGINX_CONFIG_PATH
@@ -5981,9 +5985,9 @@ try {
                     preg_match_all('/^processor/m', $cpuinfo, $matches);
                     $cpuCores = count($matches[0]) ?: 1;
                 } elseif (PHP_OS_FAMILY === 'Darwin') {
-                    $cpuCores = (int) shell_exec('sysctl -n hw.ncpu 2>/dev/null') ?: 1;
+                    $cpuCores = (int) orbitraShell('sysctl -n hw.ncpu 2>/dev/null') ?: 1;
                 } elseif (PHP_OS_FAMILY === 'Windows') {
-                    $cpuCores = (int) shell_exec('echo %NUMBER_OF_PROCESSORS%') ?: 1;
+                    $cpuCores = (int) orbitraShell('echo %NUMBER_OF_PROCESSORS%') ?: 1;
                 }
 
                 // System memory (Linux)
@@ -6297,7 +6301,7 @@ try {
                     break;
                 }
 
-                // Auto-update shells out to git, which needs exec()/shell_exec().
+                // Auto-update shells out to git, which needs exec()/orbitraShell().
                 // Many shared hosts list these in disable_functions, in which case
                 // the bare exec() below fatals with "Call to undefined function"
                 // and nginx answers 500 with no JSON. Detect it up front so the
@@ -6310,7 +6314,7 @@ try {
                 if (!$canExec) {
                     echo json_encode([
                         'status' => 'error',
-                        'message' => 'Автоматическое обновление недоступно: на сервере отключены exec()/shell_exec() '
+                        'message' => 'Автоматическое обновление недоступно: на сервере отключены exec()/orbitraShell() '
                             . '(смотрите disable_functions в php.ini). Обновитесь вручную через SSH: '
                             . 'cd ' . escapeshellarg(__DIR__) . ' && git pull origin main'
                     ]);
@@ -6786,7 +6790,9 @@ try {
                             }
                         }
                         // Cleanup temp directory
-                        system('rm -rf ' . escapeshellarg($extractDir));
+                        // Same trap as shell_exec: system() is removed on plenty of
+                        // hosts, and calling a function that is gone is fatal.
+                        orbitraRemoveDirectory($extractDir);
 
                         if ($extracted) {
                             $binSize = filesize($destPath) ?: 0;
@@ -6935,7 +6941,7 @@ try {
                         }
 
                         // Очистка временной папки
-                        system('rm -rf ' . escapeshellarg($tempDir));
+                        orbitraRemoveDirectory($tempDir);
 
                         logSystem($pdo, 'INFO', 'Sypex Geo DB Updated successfully');
                         echo json_encode(['status' => 'success', 'message' => 'База Sypex успешно обновлена']);

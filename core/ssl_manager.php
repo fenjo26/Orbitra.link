@@ -26,6 +26,7 @@
  */
 
 require_once __DIR__ . '/nginx_config.php';
+require_once __DIR__ . '/shell.php';
 
 /**
  * Make sure the certificate worker is scheduled, without needing a reinstall.
@@ -56,23 +57,16 @@ function orbitraEnsureSslCron(): bool
     $script = dirname(__DIR__) . '/cli/ssl_installer.php';
     $log = dirname(__DIR__) . '/var/logs/ssl_installer.log';
 
-    if (!is_file($script) || !function_exists('shell_exec')) {
-        return $done = false;
-    }
-    $disabled = array_filter(preg_split('/[\s,]+/', (string) ini_get('disable_functions')));
-    if (in_array('shell_exec', $disabled, true)) {
-        return $done = false;
-    }
-    if (trim((string) @shell_exec('command -v crontab 2>/dev/null')) === '') {
+    if (!is_file($script) || !orbitraShellAvailable() || !orbitraCommandExists('crontab')) {
         return $done = false;
     }
 
-    $current = (string) @shell_exec('crontab -l 2>/dev/null');
+    $current = (string) orbitraShell('crontab -l 2>/dev/null');
     if (strpos($current, $marker) !== false) {
         return $done = true;
     }
 
-    $php = trim((string) @shell_exec('command -v php 2>/dev/null')) ?: 'php';
+    $php = trim((string) orbitraShell('command -v php 2>/dev/null')) ?: 'php';
     $line = "17 * * * * $php " . escapeshellarg($script) . ' >> ' . escapeshellarg($log) . " 2>&1 $marker";
 
     $updated = rtrim($current, "\n");
@@ -82,10 +76,10 @@ function orbitraEnsureSslCron(): bool
     if (@file_put_contents($tmp, $updated) === false) {
         return $done = false;
     }
-    @shell_exec('crontab ' . escapeshellarg($tmp) . ' 2>&1');
+    orbitraShell('crontab ' . escapeshellarg($tmp) . ' 2>&1');
     @unlink($tmp);
 
-    return $done = strpos((string) @shell_exec('crontab -l 2>/dev/null'), $marker) !== false;
+    return $done = strpos((string) orbitraShell('crontab -l 2>/dev/null'), $marker) !== false;
 }
 
 /**
@@ -213,7 +207,7 @@ function orbitraDomainPointsHere(string $domain): array
  */
 function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
 {
-    $result = ['checked' => 0, 'issued' => 0, 'waiting' => 0, 'failed' => 0, 'synced' => false];
+    $result = ['checked' => 0, 'issued' => 0, 'waiting' => 0, 'failed' => 0, 'synced' => false, 'can_issue' => false];
 
     try {
         // Every parked domain, not only the HTTPS-only ones: parking a domain is
@@ -225,6 +219,10 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
     } catch (\Throwable $e) {
         return $result;
     }
+
+    // Without a shell there is no Certbot, so the whole loop below would only
+    // mark domains as failed for a reason that has nothing to do with them.
+    $canIssue = orbitraShellAvailable() && orbitraCommandExists('certbot');
 
     $needsSync = false;
     $processed = 0;
@@ -248,7 +246,7 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
             continue;
         }
 
-        if ($processed >= $limit) {
+        if ($processed >= $limit || !$canIssue) {
             continue;
         }
 
@@ -278,7 +276,7 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
         $processed++;
         $pdo->prepare("UPDATE domains SET ssl_status = 'installing' WHERE id = ?")->execute([$id]);
 
-        $output = (string) @shell_exec(orbitraCertbotCertonlyCommand($domain) . ' 2>&1');
+        $output = (string) orbitraShell(orbitraCertbotCertonlyCommand($domain) . ' 2>&1');
 
         if (orbitraCertbotSucceeded($output, $domain)) {
             $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?")
@@ -292,6 +290,8 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
             $result['failed']++;
         }
     }
+
+    $result['can_issue'] = $canIssue;
 
     if ($needsSync) {
         try {

@@ -32,6 +32,7 @@ if (PHP_SAPI !== 'cli') {
 chdir(dirname(__DIR__));
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../core/shell.php';
 require_once __DIR__ . '/../core/nginx_config.php';
 
 if (function_exists('posix_geteuid') && posix_geteuid() !== 0) {
@@ -77,9 +78,9 @@ if (!empty($migrated)) {
 }
 
 // ---- 3. Self-signed certificate for HTTPS on the bare IP -------------------
-$ip = trim((string) @shell_exec('curl -s --max-time 5 http://checkip.amazonaws.com 2>/dev/null'));
+$ip = trim((string) orbitraShell('curl -s --max-time 5 http://checkip.amazonaws.com 2>/dev/null'));
 if ($ip === '') {
-    $ip = trim((string) @shell_exec("hostname -I 2>/dev/null | awk '{print \$1}'"));
+    $ip = trim((string) orbitraShell("hostname -I 2>/dev/null | awk '{print \$1}'"));
 }
 
 if (!file_exists(ORBITRA_SELF_SIGNED_CERT) || !file_exists(ORBITRA_SELF_SIGNED_KEY)) {
@@ -93,10 +94,10 @@ if (!file_exists(ORBITRA_SELF_SIGNED_CERT) || !file_exists(ORBITRA_SELF_SIGNED_K
         . ' -out ' . escapeshellarg(ORBITRA_SELF_SIGNED_CERT)
         . ' -subj ' . $cn;
 
-    @shell_exec($base . $san . ' >/dev/null 2>&1');
+    orbitraShell($base . $san . ' >/dev/null 2>&1');
     if (!file_exists(ORBITRA_SELF_SIGNED_CERT)) {
         // Older OpenSSL has no -addext; a certificate without the SAN still works.
-        @shell_exec($base . ' >/dev/null 2>&1');
+        orbitraShell($base . ' >/dev/null 2>&1');
     }
     if (file_exists(ORBITRA_SELF_SIGNED_CERT)) {
         @chmod(ORBITRA_SELF_SIGNED_KEY, 0600);

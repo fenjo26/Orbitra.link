@@ -1,4 +1,6 @@
 <?php
+
+require_once __DIR__ . '/shell.php';
 /**
  * Orbitra Nginx configuration builder.
  *
@@ -260,13 +262,13 @@ function orbitraSyncNginx(PDO $pdo): array
             if (@file_put_contents($stage, $contents) === false) {
                 return false;
             }
-            @shell_exec("sudo cp $stage $path 2>&1");
+            orbitraShell("sudo cp $stage $path 2>&1");
             @unlink($stage);
             return (string) @file_get_contents($path) === $contents;
         };
 
         $test = static function (): string {
-            return (string) @shell_exec('sudo nginx -t 2>&1');
+            return (string) orbitraShell('sudo nginx -t 2>&1');
         };
 
         $config = orbitraBuildNginxConfig($domains, true);
@@ -289,7 +291,7 @@ function orbitraSyncNginx(PDO $pdo): array
             $retry = $test();
             if (strpos($retry, 'successful') === false) {
                 $write($previous);
-                @shell_exec('sudo systemctl reload nginx 2>&1');
+                orbitraShell('sudo systemctl reload nginx 2>&1');
                 return [
                     'status' => 'error',
                     'message' => 'Nginx config test failed, previous config restored: ' . trim($output),
@@ -297,7 +299,7 @@ function orbitraSyncNginx(PDO $pdo): array
             }
         }
 
-        $reload = @shell_exec('sudo systemctl reload nginx 2>&1');
+        $reload = orbitraShell('sudo systemctl reload nginx 2>&1');
         $reloaded = ($reload === null || stripos((string) $reload, 'fail') === false);
 
         $https = substr_count($config, 'listen 443 ssl;');
