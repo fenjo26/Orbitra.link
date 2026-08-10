@@ -8341,20 +8341,31 @@ try {
             // Money columns via schema-introspecting helpers (api.php:714-752).
             // Never hardcode 'amount'/'payout' — the column name varies by schema.
             $conversionsValueColumn = getConversionsValueColumn($pdo);
-            $cohortRevenueExpr = $conversionsValueColumn !== null
-                ? "(SELECT COALESCE(SUM($conversionsValueColumn), 0) FROM conversions WHERE click_id = cl.id)"
-                : "0";
             $revenueRecordsValueColumn = getRevenueRecordsValueColumn($pdo);
-            $cohortRealRevenueExpr = $revenueRecordsValueColumn !== null
-                ? "(SELECT COALESCE(SUM($revenueRecordsValueColumn), 0) FROM revenue_records WHERE click_id = cl.id)"
-                : "0";
+
+            // Period expressions per granularity. The event-period expression
+            // takes a date column alias as input so it can be reused for clicks,
+            // conversions and revenue_records — each attributed to its OWN event
+            // time, not lumped into the click's period (the prior implementation
+            // summed all per-click revenue into the click period, hiding exactly
+            // the delayed-revenue effect cohort analysis exists to surface).
+            $labelExpr    = fn($col) => $granularity === 'quarter'
+                ? "strftime('%Y', $col, '$dbTzOffset') || '-Q' || ((CAST(strftime('%m', $col, '$dbTzOffset') AS INTEGER) - 1) / 3 + 1)"
+                : "strftime('%Y-%m', $col, '$dbTzOffset')";
+            $periodExpr   = fn($col) => $granularity === 'quarter'
+                ? "(CAST(strftime('%Y', $col, '$dbTzOffset') AS INTEGER) * 4 + (CAST(strftime('%m', $col, '$dbTzOffset') AS INTEGER) - 1) / 3 + 1)"
+                : "(CAST(strftime('%Y', $col, '$dbTzOffset') AS INTEGER) * 12 + CAST(strftime('%m', $col, '$dbTzOffset') AS INTEGER))";
+            $cohortLabel  = $labelExpr('c.created_at');
+            $cohortPeriod = $periodExpr('c.created_at');
 
             // WHERE: click date range + optional group_id + whitelisted filters.
-            $innerWhere = ["cl.created_at >= ?", "cl.created_at <= ?"];
+            // Applied to the clicks source; conversion/revenue sources inherit
+            // the same range by joining clicks filtered identically.
+            $clickWhere = ["cl.created_at >= ?", "cl.created_at <= ?"];
             $params = [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'];
+            $groupClause = '';
             if ($groupId !== '') {
-                $innerWhere[] = "c.group_id = ?";
-                $params[] = (int)$groupId;
+                $groupClause = " AND c.group_id = " . (int)$groupId;
             }
             foreach ($filters as $f) {
                 $field    = $f['field'] ?? '';
@@ -8365,77 +8376,145 @@ try {
                 if (!in_array($operator, $allowedOperators, true)) { continue; }
                 $col = $allowedFilterFields[$field];
                 switch ($operator) {
-                    case 'contains':     $innerWhere[] = "$col LIKE ?";    $params[] = "%$value%"; break;
-                    case 'not_contains': $innerWhere[] = "$col NOT LIKE ?"; $params[] = "%$value%"; break;
-                    case 'equals':       $innerWhere[] = "$col = ?";        $params[] = $value;     break;
-                    case 'not_equals':   $innerWhere[] = "$col != ?";       $params[] = $value;     break;
-                    case 'starts_with':  $innerWhere[] = "$col LIKE ?";     $params[] = "$value%";  break;
-                    case 'ends_with':    $innerWhere[] = "$col LIKE ?";     $params[] = "%$value";  break;
+                    case 'contains':     $clickWhere[] = "$col LIKE ?";    $params[] = "%$value%"; break;
+                    case 'not_contains': $clickWhere[] = "$col NOT LIKE ?"; $params[] = "%$value%"; break;
+                    case 'equals':       $clickWhere[] = "$col = ?";        $params[] = $value;     break;
+                    case 'not_equals':   $clickWhere[] = "$col != ?";       $params[] = $value;     break;
+                    case 'starts_with':  $clickWhere[] = "$col LIKE ?";     $params[] = "$value%";  break;
+                    case 'ends_with':    $clickWhere[] = "$col LIKE ?";     $params[] = "%$value";  break;
                 }
             }
-            $whereSQL = implode(' AND ', $innerWhere);
+            $clickWhereSQL = implode(' AND ', $clickWhere);
 
-            // Two-layer query (campaign_report pattern): inner computes per-click
-            // cohort assignment + revenue subqueries; outer aggregates by
-            // (cohort_label, period_index). period_index gated to [0, maxPeriods].
-            $periodDiff = "(click_period - cohort_period)";
-            $sql = "SELECT cohort_label, $periodDiff AS period_index,
-                       COUNT(click_id) AS clicks,
-                       COUNT(DISTINCT click_ip) AS unique_clicks,
-                       SUM(is_conversion) AS conversions,
-                       COALESCE(SUM(click_revenue), 0) AS revenue,
-                       COALESCE(SUM(click_real_revenue), 0) AS real_revenue,
-                       COALESCE(SUM(cost), 0) AS cost,
-                       COUNT(DISTINCT campaign_id) AS campaigns_active
-                    FROM (
-                        SELECT
-                            $cohortLabelExpr AS cohort_label,
-                            $cohortPeriodExpr AS cohort_period,
-                            $clickPeriodExpr AS click_period,
-                            c.id AS campaign_id,
-                            cl.id AS click_id, cl.ip AS click_ip,
-                            cl.is_conversion, cl.cost,
-                            $cohortRevenueExpr AS click_revenue,
-                            $cohortRealRevenueExpr AS click_real_revenue
-                        FROM clicks cl
-                        JOIN campaigns c ON cl.campaign_id = c.id
-                        WHERE $whereSQL
-                    )
-                    WHERE $periodDiff >= 0 AND $periodDiff <= $maxPeriods
-                    GROUP BY cohort_label, $periodDiff
-                    ORDER BY cohort_label ASC, period_index ASC";
+            // --- Source 1: clicks (volume + cost), bucketed by CLICK period ---
+            $clickPeriodExpr = $periodExpr('cl.created_at');
+            $clickSql = "SELECT $cohortLabel AS cohort_label, $cohortPeriod AS cohort_period,
+                            $clickPeriodExpr AS event_period,
+                            COUNT(cl.id) AS clicks,
+                            COUNT(DISTINCT cl.ip) AS unique_clicks,
+                            COALESCE(SUM(cl.cost), 0) AS cost,
+                            COUNT(DISTINCT cl.campaign_id) AS campaigns_active
+                         FROM clicks cl JOIN campaigns c ON cl.campaign_id = c.id
+                         WHERE $clickWhereSQL$groupClause
+                         GROUP BY cohort_label, cohort_period, event_period";
+            $clickStmt = $pdo->prepare($clickSql);
+            $clickStmt->execute($params);
+            $clickRows = $clickStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute($params);
-            $rawRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            // Post-process derived metrics (campaign_report formulas, api.php:5769).
-            $rows = [];
-            foreach ($rawRows as $r) {
-                $clicks      = (int)$r['clicks'];
-                $conversions = (int)$r['conversions'];
-                $revenue     = (float)$r['revenue'];
-                $realRevenue = (float)$r['real_revenue'];
-                $cost        = (float)$r['cost'];
-                $profit      = $revenue - $cost;
-                $realProfit  = $realRevenue - $cost;
-                $rows[] = [
-                    'cohort_label'     => $r['cohort_label'],
-                    'period_index'     => (int)$r['period_index'],
-                    'clicks'           => $clicks,
-                    'unique_clicks'    => (int)$r['unique_clicks'],
-                    'conversions'      => $conversions,
-                    'revenue'          => round($revenue, 2),
-                    'real_revenue'     => round($realRevenue, 2),
-                    'cost'             => round($cost, 2),
-                    'profit'           => round($profit, 2),
-                    'real_profit'      => round($realProfit, 2),
-                    'cr'      => $clicks > 0 ? round(($conversions / $clicks) * 100, 2) : 0,
-                    'roi'     => $cost > 0 ? round(($profit / $cost) * 100, 2) : ($profit > 0 ? 100 : 0),
-                    'real_roi'=> $cost > 0 ? round(($realProfit / $cost) * 100, 2) : ($realProfit > 0 ? 100 : 0),
-                    'campaigns_active' => (int)$r['campaigns_active'],
-                ];
+            // --- Source 2: conversions (count + revenue), bucketed by CONVERSION period ---
+            // joins the filtered clicks set so cohort filters still apply, but
+            // attributes revenue to the period the conversion actually occurred.
+            $convRows = [];
+            if ($conversionsValueColumn !== null) {
+                $convPeriodExpr = $periodExpr('cv.created_at');
+                // Re-resolve the filtered clicks via a subquery on click_id, so
+                // a conversion outside the click date range still lands in its
+                // own period as long as its click is in the cohort.
+                $convSql = "SELECT $cohortLabel AS cohort_label, $cohortPeriod AS cohort_period,
+                                $convPeriodExpr AS event_period,
+                                COUNT(*) AS conversions,
+                                COALESCE(SUM(cv.$conversionsValueColumn), 0) AS revenue,
+                                COUNT(DISTINCT cl.campaign_id) AS campaigns_active
+                             FROM conversions cv
+                             JOIN clicks cl ON cv.click_id = cl.id
+                             JOIN campaigns c ON cl.campaign_id = c.id
+                             WHERE cl.id IN (SELECT cl2.id FROM clicks cl2 JOIN campaigns c2 ON cl2.campaign_id = c2.id WHERE $clickWhereSQL$groupClause)
+                             GROUP BY cohort_label, cohort_period, event_period";
+                $convStmt = $pdo->prepare($convSql);
+                $convStmt->execute($params);
+                $convRows = $convStmt->fetchAll(PDO::FETCH_ASSOC);
             }
+
+            // --- Source 3: revenue_records (real revenue), bucketed by EVENT date ---
+            $realRows = [];
+            if ($revenueRecordsValueColumn !== null) {
+                // event_date is a DATE; fall back to created_at when null.
+                $rrDateCol = "COALESCE(NULLIF(rr.event_date, ''), DATE(rr.created_at))";
+                $realPeriodExpr = "CASE WHEN $rrDateCol IS NULL OR $rrDateCol = '' THEN NULL ELSE $periodExpr('$rrDateCol') END";
+                $realSql = "SELECT $cohortLabel AS cohort_label, $cohortPeriod AS cohort_period,
+                                $realPeriodExpr AS event_period,
+                                COALESCE(SUM(rr.$revenueRecordsValueColumn), 0) AS real_revenue
+                             FROM revenue_records rr
+                             JOIN clicks cl ON rr.click_id = cl.id
+                             JOIN campaigns c ON cl.campaign_id = c.id
+                             WHERE cl.id IN (SELECT cl2.id FROM clicks cl2 JOIN campaigns c2 ON cl2.campaign_id = c2.id WHERE $clickWhereSQL$groupClause)
+                             GROUP BY cohort_label, cohort_period, event_period";
+                $realStmt = $pdo->prepare($realSql);
+                $realStmt->execute($params);
+                $realRows = $realStmt->fetchAll(PDO::FETCH_ASSOC);
+            }
+
+            // --- Merge sources by (cohort_label, period_index) ---
+            // period_index = event_period - cohort_period, gated to [0, maxPeriods].
+            // Each source contributes its own metrics; missing sources leave zeros.
+            $cells = []; // [label => [period => [metrics]]]
+            $mergeRows = function (array $sourceRows, callable $valueMap) use (&$cells, $maxPeriods) {
+                foreach ($sourceRows as $r) {
+                    $label = $r['cohort_label'];
+                    $cp = (int)$r['cohort_period'];
+                    $ep = isset($r['event_period']) ? (int)$r['event_period'] : null;
+                    if ($ep === null || $ep === 0) { continue; } // event_period null = undatable revenue
+                    $idx = $ep - $cp;
+                    if ($idx < 0 || $idx > $maxPeriods) { continue; }
+                    if (!isset($cells[$label])) { $cells[$label] = []; }
+                    if (!isset($cells[$label][$idx])) {
+                        $cells[$label][$idx] = [
+                            'clicks' => 0, 'unique_clicks' => 0, 'conversions' => 0,
+                            'revenue' => 0.0, 'real_revenue' => 0.0, 'cost' => 0.0,
+                            'campaigns_active' => 0,
+                        ];
+                    }
+                    foreach ($valueMap($r) as $k => $v) {
+                        $cells[$label][$idx][$k] += $v;
+                    }
+                }
+            };
+            $mergeRows($clickRows, fn($r) => [
+                'clicks' => (int)$r['clicks'],
+                'unique_clicks' => (int)$r['unique_clicks'],
+                'cost' => (float)$r['cost'],
+                'campaigns_active' => (int)$r['campaigns_active'],
+            ]);
+            $mergeRows($convRows, fn($r) => [
+                'conversions' => (int)$r['conversions'],
+                'revenue' => (float)$r['revenue'],
+                'campaigns_active' => (int)$r['campaigns_active'],
+            ]);
+            $mergeRows($realRows, fn($r) => [
+                'real_revenue' => (float)$r['real_revenue'],
+            ]);
+
+            // Flatten + derive metrics.
+            $rows = [];
+            foreach ($cells as $label => $periods) {
+                ksort($periods);
+                foreach ($periods as $idx => $m) {
+                    $clicks      = $m['clicks'];
+                    $conversions = $m['conversions'];
+                    $revenue     = $m['revenue'];
+                    $realRevenue = $m['real_revenue'];
+                    $cost        = $m['cost'];
+                    $profit      = $revenue - $cost;
+                    $realProfit  = $realRevenue - $cost;
+                    $rows[] = [
+                        'cohort_label'  => $label,
+                        'period_index'  => $idx,
+                        'clicks'        => $clicks,
+                        'unique_clicks' => $m['unique_clicks'],
+                        'conversions'   => $conversions,
+                        'revenue'       => round($revenue, 2),
+                        'real_revenue'  => round($realRevenue, 2),
+                        'cost'          => round($cost, 2),
+                        'profit'        => round($profit, 2),
+                        'real_profit'   => round($realProfit, 2),
+                        'cr'      => $clicks > 0 ? round(($conversions / $clicks) * 100, 2) : 0,
+                        'roi'     => $cost > 0 ? round(($profit / $cost) * 100, 2) : ($profit > 0 ? 100 : 0),
+                        'real_roi'=> $cost > 0 ? round(($realProfit / $cost) * 100, 2) : ($realProfit > 0 ? 100 : 0),
+                        'campaigns_active' => $m['campaigns_active'],
+                    ];
+                }
+            }
+            usort($rows, fn($a, $b) => strcmp($a['cohort_label'], $b['cohort_label']) ?: $a['period_index'] <=> $b['period_index']);
 
             // Cohort denominator: campaigns launched per cohort (independent of
             // the click date range, so a cohort with traffic only later still
