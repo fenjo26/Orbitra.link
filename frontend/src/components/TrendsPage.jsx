@@ -39,10 +39,10 @@ const TrendsPage = () => {
         { key: 'unique_clicks', label: t('trends.uniqueClicks'), color: '#10B981' },
         { key: 'conversions', label: t('trends.conversions'), color: '#F59E0B' },
         { key: 'revenue', label: t('trends.revenue'), color: '#8B5CF6' },
-        { key: 'real_revenue', label: 'Real Rev', color: '#4338CA' },
+        { key: 'real_revenue', label: t('trends.realRevenue'), color: '#4338CA' },
         { key: 'cost', label: t('trends.cost'), color: '#EF4444' },
         { key: 'profit', label: t('trends.profit'), color: '#06B6D4' },
-        { key: 'real_roi', label: 'Real ROI', color: '#6366F1' },
+        { key: 'real_roi', label: t('trends.realRoi'), color: '#6366F1' },
         { key: 'ctr', label: t('trends.ctr'), color: '#EC4899' },
         { key: 'cr', label: t('trends.cr'), color: '#84CC16' }
     ];
@@ -114,7 +114,11 @@ const TrendsPage = () => {
 
     const chartOptions = {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { position: 'top' }, tooltip: { mode: 'index', intersect: false } },
+        plugins: {
+            // Legend hidden — the metric toggle buttons above already show name + colour.
+            legend: { display: false },
+            tooltip: { mode: 'index', intersect: false }
+        },
         scales: { y: { beginAtZero: true } },
         interaction: { mode: 'nearest', axis: 'x', intersect: false }
     };
