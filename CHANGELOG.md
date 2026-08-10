@@ -31,6 +31,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   on its own. Switching to it forces a reload, so it never shows the state from
   before the last save or upload, and a button opens the same URL in a new tab.
 
+- **Nothing could start issuance from the panel.** The queue was worked only by
+  cron and by a process spawned in the background on save, both of which need
+  `shell_exec` — disabled on a great many hosts. Where it is, every domain sat at
+  "pending" with nothing to click and no indication why. The Domains page now has
+  an *Issue SSL* button that runs the worker inside the request and reports back
+  how many certificates were issued, how many are waiting on DNS and how many
+  failed — naming the blocking reason outright when Certbot is missing,
+  `shell_exec` is disabled, or the server is not running nginx.
 - **A certificate was attempted once and never again.** Issuance was a single
   background shot fired when a domain was saved with HTTPS-only ticked, and
   nothing was ever scheduled to run it a second time — `install.sh` installs no

@@ -20,6 +20,7 @@ const Domains = ({ campaigns }) => {
     });
     const [copiedIp, setCopiedIp] = useState(false);
     const [forceChecking, setForceChecking] = useState(false);
+    const [sslRunning, setSslRunning] = useState(false);
 
     // Edit Modal State
     const [showModal, setShowModal] = useState(false);
@@ -97,6 +98,40 @@ const Domains = ({ campaigns }) => {
             console.error(e);
         } finally {
             setForceChecking(false);
+        }
+    };
+
+    /**
+     * Issue certificates now, from the panel.
+     *
+     * Issuance normally runs from cron and from a process spawned in the
+     * background on save. Both need shell_exec, which plenty of hosts disable —
+     * and when they do, every domain sits at "pending" with nothing to click and
+     * no way to see why. This runs the same worker inside the request and reports
+     * back, including the reasons it could not work.
+     */
+    const runSslWorker = async () => {
+        setSslRunning(true);
+        try {
+            const { data } = await cachedPost('run_ssl_worker', {});
+            if (data.status === 'success') {
+                const r = data.data || {};
+                const lines = [
+                    `${t('domains.sslRunIssued')}: ${r.issued ?? 0}`,
+                    `${t('domains.sslRunWaitingDns')}: ${r.waiting ?? 0}`,
+                    `${t('domains.sslRunFailed')}: ${r.failed ?? 0}`,
+                ];
+                if (r.server_ip) lines.push(`${t('domains.serverIp')}: ${r.server_ip}`);
+                if (Array.isArray(r.notes) && r.notes.length) lines.push('', ...r.notes);
+                alert(lines.join('\n'));
+                fetchDomains();
+            } else {
+                alert(data.message || t('domains.sslRunError'));
+            }
+        } catch (e) {
+            alert(`${t('domains.sslRunError')}: ${e.response?.data?.message || e.message}`);
+        } finally {
+            setSslRunning(false);
         }
     };
 
@@ -221,6 +256,15 @@ const Domains = ({ campaigns }) => {
                     >
                         <RefreshCw size={16} className={forceChecking ? 'animate-spin' : ''} />
                         {forceChecking ? t('domains.checkingShort') : t('domains.checkDns')}
+                    </button>
+                    <button
+                        onClick={runSslWorker}
+                        disabled={sslRunning}
+                        className="btn btn-secondary flex items-center gap-2"
+                        title={t('domains.issueSslTitle')}
+                    >
+                        <ShieldAlert size={16} className={sslRunning ? 'animate-spin' : ''} />
+                        {sslRunning ? t('domains.checkingShort') : t('domains.issueSsl')}
                     </button>
                     <button
                         onClick={() => {

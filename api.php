@@ -5105,6 +5105,54 @@ try {
             }
             break;
 
+        case 'run_ssl_worker':
+            // Issue certificates now, in this request, and report what happened.
+            //
+            // The queue is normally worked by cron and by a background process
+            // spawned on save — both of which need shell_exec, and both of which
+            // are silently unavailable on plenty of hosts. Without this there was
+            // no way to start issuance, or to find out why it was not starting,
+            // without SSH access to the server.
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            try {
+                require_once __DIR__ . '/core/ssl_manager.php';
+
+                // Certbot is the one dependency worth naming outright: without it
+                // every domain sits at "pending" forever and the reason is invisible.
+                $notes = [];
+                if (!command_exists('certbot')) {
+                    $notes[] = 'Certbot не установлен на сервере — сертификаты выпускать нечем. Установите: apt install certbot';
+                }
+                $disabledFns = array_filter(preg_split('/[\s,]+/', (string) ini_get('disable_functions')));
+                if (!function_exists('shell_exec') || in_array('shell_exec', $disabledFns, true)) {
+                    $notes[] = 'shell_exec отключён в php.ini — автоматический выпуск и планировщик работать не смогут.';
+                }
+                if (!file_exists(ORBITRA_NGINX_CONFIG_PATH)) {
+                    $notes[] = 'Конфиг nginx не найден по пути ' . ORBITRA_NGINX_CONFIG_PATH
+                        . ' — похоже, сервер работает не на nginx, и вписать сертификат в конфиг автоматически не получится.';
+                }
+
+                $result = orbitraProcessSslQueue($pdo);
+                $result['cron_scheduled'] = orbitraEnsureSslCron();
+                $result['server_ip'] = orbitraServerIp();
+                if ($notes) {
+                    $result['notes'] = $notes;
+                }
+
+                echo json_encode(['status' => 'success', 'data' => $result]);
+            } catch (\Throwable $e) {
+                error_log('run_ssl_worker failed: ' . $e->getMessage());
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
         case 'check_ssl_status':
             // Check SSL installation status for all HTTPS-only domains.
             //

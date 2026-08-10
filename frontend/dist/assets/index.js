@@ -16539,6 +16539,12 @@ const ru = {
     "sslInstalled": "SSL установлен",
     "sslInstalling": "SSL устанавливается...",
     "sslPending": "Ожидает установки",
+    "issueSsl": "Выпустить SSL",
+    "issueSslTitle": "Запросить сертификаты для доменов, у которых их ещё нет",
+    "sslRunIssued": "Выпущено сертификатов",
+    "sslRunWaitingDns": "Ждут DNS",
+    "sslRunFailed": "Не удалось",
+    "sslRunError": "Не удалось запустить выпуск",
     "sslWaitingDns": "Ожидание DNS — домен пока не указывает на этот сервер. Сертификат выпустится автоматически, как только A-запись разойдётся.",
     "sslRetrying": "Последняя попытка выпуска не удалась. Трекер продолжит пытаться автоматически.",
     "sslNotWired": "Сертификат выпущен, но веб-сервер его ещё не отдаёт — конфиг пересобирается.",
@@ -18629,6 +18635,12 @@ const en = {
     "sslInstalled": "SSL installed",
     "sslInstalling": "SSL installing...",
     "sslPending": "Awaiting installation",
+    "issueSsl": "Issue SSL",
+    "issueSslTitle": "Request certificates for domains that do not have one yet",
+    "sslRunIssued": "Certificates issued",
+    "sslRunWaitingDns": "Waiting for DNS",
+    "sslRunFailed": "Failed",
+    "sslRunError": "Could not start issuance",
     "sslWaitingDns": "Waiting for DNS — the domain does not point at this server yet. The certificate will be issued as soon as the A record propagates.",
     "sslRetrying": "The last issuance attempt failed. The tracker keeps retrying automatically.",
     "sslNotWired": "The certificate exists but the web server is not serving it yet — the config is being rebuilt.",
@@ -20719,6 +20731,12 @@ const uk = {
     "sslInstalled": "SSL installed",
     "sslInstalling": "SSL installing...",
     "sslPending": "Awaiting installation",
+    "issueSsl": "Випустити SSL",
+    "issueSslTitle": "Запросити сертифікати для доменів, які їх ще не мають",
+    "sslRunIssued": "Випущено сертифікатів",
+    "sslRunWaitingDns": "Очікують DNS",
+    "sslRunFailed": "Не вдалося",
+    "sslRunError": "Не вдалося запустити випуск",
     "sslWaitingDns": "Очікування DNS — домен поки не вказує на цей сервер. Сертифікат випишеться автоматично, щойно A-запис розійдеться.",
     "sslRetrying": "Остання спроба випуску не вдалася. Трекер продовжить намагатися автоматично.",
     "sslNotWired": "Сертифікат випущено, але вебсервер його ще не віддає — конфіг перезбирається.",
@@ -22809,6 +22827,12 @@ const es = {
     "sslInstalled": "SSL installed",
     "sslInstalling": "SSL installing...",
     "sslPending": "Awaiting installation",
+    "issueSsl": "Emitir SSL",
+    "issueSslTitle": "Solicitar certificados para los dominios que aún no tienen",
+    "sslRunIssued": "Certificados emitidos",
+    "sslRunWaitingDns": "Esperando DNS",
+    "sslRunFailed": "Fallidos",
+    "sslRunError": "No se pudo iniciar la emisión",
     "sslWaitingDns": "Esperando DNS: el dominio aún no apunta a este servidor. El certificado se emitirá en cuanto se propague el registro A.",
     "sslRetrying": "El último intento de emisión falló. El tracker seguirá reintentando automáticamente.",
     "sslNotWired": "El certificado existe pero el servidor web todavía no lo sirve: se está regenerando la configuración.",
@@ -24899,6 +24923,12 @@ const zh = {
     "sslInstalled": "SSL installed",
     "sslInstalling": "SSL installing...",
     "sslPending": "Awaiting installation",
+    "issueSsl": "签发 SSL",
+    "issueSslTitle": "为尚无证书的域名申请证书",
+    "sslRunIssued": "已签发证书",
+    "sslRunWaitingDns": "等待 DNS",
+    "sslRunFailed": "失败",
+    "sslRunError": "无法启动签发",
     "sslWaitingDns": "等待 DNS —— 域名尚未指向此服务器。A 记录生效后将自动签发证书。",
     "sslRetrying": "上次签发尝试失败。追踪器会自动继续重试。",
     "sslNotWired": "证书已签发，但 Web 服务器尚未使用它 —— 正在重新生成配置。",
@@ -26989,6 +27019,12 @@ const fr = {
     "sslInstalled": "SSL installé",
     "sslInstalling": "Installation SSL...",
     "sslPending": "En attente d'installation",
+    "issueSsl": "Émettre SSL",
+    "issueSslTitle": "Demander des certificats pour les domaines qui n'en ont pas encore",
+    "sslRunIssued": "Certificats émis",
+    "sslRunWaitingDns": "En attente du DNS",
+    "sslRunFailed": "Échecs",
+    "sslRunError": "Impossible de lancer l'émission",
     "sslWaitingDns": "En attente du DNS — le domaine ne pointe pas encore vers ce serveur. Le certificat sera émis dès la propagation de l'enregistrement A.",
     "sslRetrying": "La dernière tentative d'émission a échoué. Le tracker continue automatiquement.",
     "sslNotWired": "Le certificat existe mais le serveur web ne le sert pas encore — la configuration est en cours de régénération.",
@@ -29081,6 +29117,12 @@ const de = {
     "sslInstalled": "SSL installiert",
     "sslInstalling": "SSL wird installiert...",
     "sslPending": "Warten auf Installation",
+    "issueSsl": "SSL ausstellen",
+    "issueSslTitle": "Zertifikate für Domains anfordern, die noch keines haben",
+    "sslRunIssued": "Ausgestellte Zertifikate",
+    "sslRunWaitingDns": "Warten auf DNS",
+    "sslRunFailed": "Fehlgeschlagen",
+    "sslRunError": "Ausstellung konnte nicht gestartet werden",
     "sslWaitingDns": "Warten auf DNS — die Domain zeigt noch nicht auf diesen Server. Das Zertifikat wird ausgestellt, sobald der A-Eintrag verteilt ist.",
     "sslRetrying": "Der letzte Ausstellungsversuch ist fehlgeschlagen. Der Tracker versucht es automatisch weiter.",
     "sslNotWired": "Das Zertifikat existiert, wird vom Webserver aber noch nicht ausgeliefert — die Konfiguration wird neu erzeugt.",
@@ -44056,6 +44098,7 @@ const Domains = ({ campaigns }) => {
   });
   const [copiedIp, setCopiedIp] = reactExports.useState(false);
   const [forceChecking, setForceChecking] = reactExports.useState(false);
+  const [sslRunning, setSslRunning] = reactExports.useState(false);
   const [showModal, setShowModal] = reactExports.useState(false);
   const [formData, setFormData] = reactExports.useState({
     id: null,
@@ -44126,6 +44169,30 @@ const Domains = ({ campaigns }) => {
       console.error(e);
     } finally {
       setForceChecking(false);
+    }
+  };
+  const runSslWorker = async () => {
+    setSslRunning(true);
+    try {
+      const { data } = await cachedPost("run_ssl_worker", {});
+      if (data.status === "success") {
+        const r2 = data.data || {};
+        const lines = [
+          `${t("domains.sslRunIssued")}: ${r2.issued ?? 0}`,
+          `${t("domains.sslRunWaitingDns")}: ${r2.waiting ?? 0}`,
+          `${t("domains.sslRunFailed")}: ${r2.failed ?? 0}`
+        ];
+        if (r2.server_ip) lines.push(`${t("domains.serverIp")}: ${r2.server_ip}`);
+        if (Array.isArray(r2.notes) && r2.notes.length) lines.push("", ...r2.notes);
+        alert(lines.join("\n"));
+        fetchDomains();
+      } else {
+        alert(data.message || t("domains.sslRunError"));
+      }
+    } catch (e) {
+      alert(`${t("domains.sslRunError")}: ${e.response?.data?.message || e.message}`);
+    } finally {
+      setSslRunning(false);
     }
   };
   const handleDelete = async (id) => {
@@ -44243,6 +44310,19 @@ const Domains = ({ campaigns }) => {
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: forceChecking ? "animate-spin" : "" }),
               forceChecking ? t("domains.checkingShort") : t("domains.checkDns")
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: runSslWorker,
+            disabled: sslRunning,
+            className: "btn btn-secondary flex items-center gap-2",
+            title: t("domains.issueSslTitle"),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { size: 16, className: sslRunning ? "animate-spin" : "" }),
+              sslRunning ? t("domains.checkingShort") : t("domains.issueSsl")
             ]
           }
         ),
