@@ -6,7 +6,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 const API_URL = '/api.php';
 
 const UsersPage = () => {
-    const { t, setLanguage: setContextLanguage } = useLanguage();
+    const { t, setLanguage: setContextLanguage, language: currentLanguage } = useLanguage();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -23,7 +23,7 @@ const UsersPage = () => {
         username: '',
         password: '',
         role: 'user',
-        language: 'ru',
+        language: currentLanguage,
         is_active: 1
     });
 
@@ -100,7 +100,7 @@ const UsersPage = () => {
             username: '',
             password: '',
             role: 'user',
-            language: 'ru',
+            language: currentLanguage,
             is_active: 1
         });
         setCredentialFieldReady({ username: false, password: false });
@@ -114,7 +114,7 @@ const UsersPage = () => {
             username: user.username,
             password: '',
             role: user.role,
-            language: user.language || 'ru',
+            language: user.language || 'en',
             is_active: user.is_active
         });
         setCredentialFieldReady({ username: true, password: false });

@@ -5,7 +5,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 const API_URL = '/api.php';
 
 const ProfileSettings = () => {
-    const { t, setLanguage: setContextLanguage } = useLanguage();
+    const { t, setLanguage: setContextLanguage, language: currentLanguage } = useLanguage();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
@@ -13,7 +13,7 @@ const ProfileSettings = () => {
     const currentUser = JSON.parse(localStorage.getItem('orbitra_user') || '{}');
 
     const [profile, setProfile] = useState({
-        language: 'ru',
+        language: currentLanguage,
         timezone: 'Europe/Moscow',
         first_day_of_week: 1,
         new_password: '',
@@ -28,7 +28,7 @@ const ProfileSettings = () => {
                 if (data.status === 'success' && data.data) {
                     setProfile({
                         ...profile,
-                        language: data.data.language || 'ru',
+                        language: data.data.language || currentLanguage,
                         timezone: data.data.timezone || 'Europe/Moscow',
                         first_day_of_week: data.data.first_day_of_week || 1,
                     });

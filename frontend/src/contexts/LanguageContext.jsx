@@ -8,10 +8,33 @@ import fr from '../locales/fr';
 import de from '../locales/de';
 
 const translations = { ru, en, uk, es, zh, fr, de };
+const SUPPORTED = Object.keys(translations);
 const LanguageContext = createContext();
 
+// Detect the best matching UI language from the browser preference.
+// 'en-US' → 'en', 'ru-RU' → 'ru', 'zh-CN' → 'zh'. Falls back to 'en' so a
+// first-time visitor to an international SaaS never lands on Russian just
+// because nothing else was configured.
+const detectBrowserLanguage = () => {
+    try {
+        const candidates = [];
+        if (navigator.languages && navigator.languages.length) {
+            candidates.push(...navigator.languages);
+        }
+        if (navigator.language) candidates.push(navigator.language);
+        for (const raw of candidates) {
+            if (!raw) continue;
+            const lower = raw.toLowerCase();
+            if (SUPPORTED.includes(lower)) return lower;
+            const primary = lower.split('-')[0];
+            if (SUPPORTED.includes(primary)) return primary;
+        }
+    } catch (e) { }
+    return 'en';
+};
+
 export const LanguageProvider = ({ children }) => {
-    // Try to get language from user session first, then localStorage, defaulting to 'ru'
+    // Precedence: user profile → manual choice → browser language → 'en'.
     const [language, setLanguageState] = useState(() => {
         try {
             const user = JSON.parse(localStorage.getItem('orbitra_user') || '{}');
@@ -23,7 +46,7 @@ export const LanguageProvider = ({ children }) => {
                 return saved;
             }
         } catch (e) { }
-        return 'ru';
+        return detectBrowserLanguage();
     });
 
     // Update language from user session if it changes (e.g. upon login)

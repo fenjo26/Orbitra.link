@@ -7032,7 +7032,7 @@ try {
                 $password = $data['password'] ?? '';
                 $email = $data['email'] ?? '';
                 $role = $data['role'] ?? 'user';
-                $language = $data['language'] ?? 'ru';
+                $language = $data['language'] ?? 'en';
                 $permissions = $data['permissions'] ?? [];
                 $isActive = !empty($data['is_active']) ? 1 : 1;
 
@@ -7196,7 +7196,7 @@ try {
                             'username' => $user['username'],
                             'email' => $user['email'],
                             'role' => $user['role'],
-                            'language' => $user['language'] ?? 'ru',
+                            'language' => $user['language'] ?? 'en',
                             'timezone' => $user['timezone'] ?? 'Europe/Kyiv',
                             'permissions' => !empty($user['permissions_json']) ? json_decode($user['permissions_json'], true) : [],
                             'csrf_token' => $_SESSION['csrf_token']
@@ -7233,7 +7233,7 @@ try {
                 $username = trim($data['username'] ?? '');
                 $password = $data['password'] ?? '';
                 $timezone = $data['timezone'] ?? 'Europe/Kyiv';
-                $language = $data['language'] ?? 'ru';
+                $language = $data['language'] ?? 'en';
 
                 // Validation
                 if (strlen($username) < 3) {
@@ -7272,7 +7272,7 @@ try {
             $stmt = $pdo->query("SELECT COUNT(*) FROM users");
             if ($stmt->fetchColumn() == 0) {
                 $hashedPassword = password_hash('admin', PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("INSERT INTO users (username, password, email, role, is_active, timezone, language) VALUES ('admin', ?, 'admin@localhost', 'admin', 1, 'Europe/Moscow', 'ru')");
+                $stmt = $pdo->prepare("INSERT INTO users (username, password, email, role, is_active, timezone, language) VALUES ('admin', ?, 'admin@localhost', 'admin', 1, 'Europe/Moscow', 'en')");
                 $stmt->execute([$hashedPassword]);
                 echo json_encode(['status' => 'success', 'message' => 'Admin user created']);
             } else {
@@ -7649,7 +7649,7 @@ try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
                 $userId = $data['user_id'] ?? 1; // Defaulting to 1 for MVP single-user setup
-                $lang = $data['language'] ?? 'ru';
+                $lang = $data['language'] ?? 'en';
                 $tz = $data['timezone'] ?? 'Europe/Moscow';
                 $firstDay = $data['first_day_of_week'] ?? 1;
 
@@ -8632,7 +8632,7 @@ try {
                     break;
                 }
 
-                $lang = $chat['language'] ?? 'ru';
+                $lang = $chat['language'] ?? 'en';
                 $testMsg = $lang === 'ru'
                     ? "✅ *Тестовое сообщение*\n\nOrbitra бот работает корректно!"
                     : "✅ *Test Message*\n\nOrbitra bot is working correctly!";

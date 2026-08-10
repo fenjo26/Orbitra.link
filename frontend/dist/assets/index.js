@@ -31125,7 +31125,26 @@ const de = {
   }
 };
 const translations = { ru, en, uk, es, zh, fr, de };
+const SUPPORTED = Object.keys(translations);
 const LanguageContext = reactExports.createContext();
+const detectBrowserLanguage = () => {
+  try {
+    const candidates = [];
+    if (navigator.languages && navigator.languages.length) {
+      candidates.push(...navigator.languages);
+    }
+    if (navigator.language) candidates.push(navigator.language);
+    for (const raw of candidates) {
+      if (!raw) continue;
+      const lower = raw.toLowerCase();
+      if (SUPPORTED.includes(lower)) return lower;
+      const primary = lower.split("-")[0];
+      if (SUPPORTED.includes(primary)) return primary;
+    }
+  } catch (e) {
+  }
+  return "en";
+};
 const LanguageProvider = ({ children }) => {
   const [language, setLanguageState] = reactExports.useState(() => {
     try {
@@ -31139,7 +31158,7 @@ const LanguageProvider = ({ children }) => {
       }
     } catch (e) {
     }
-    return "ru";
+    return detectBrowserLanguage();
   });
   reactExports.useEffect(() => {
     const checkUserLang = () => {
@@ -31762,7 +31781,7 @@ const SetupWizard = ({ onComplete }) => {
     password: "",
     confirmPassword: "",
     timezone: "Europe/Kyiv",
-    language: language || "ru"
+    language: language || "en"
   });
   const timezones = [
     { value: "UTC", label: "UTC" },
@@ -51068,7 +51087,7 @@ const AffiliateNetworks = () => {
 };
 const API_URL$l = "/api.php";
 const UsersPage = () => {
-  const { t, setLanguage: setContextLanguage } = useLanguage();
+  const { t, setLanguage: setContextLanguage, language: currentLanguage } = useLanguage();
   const [users, setUsers] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
   const [showModal, setShowModal] = reactExports.useState(false);
@@ -51084,7 +51103,7 @@ const UsersPage = () => {
     username: "",
     password: "",
     role: "user",
-    language: "ru",
+    language: currentLanguage,
     is_active: 1
   });
   const [permissions, setPermissions] = reactExports.useState({
@@ -51151,7 +51170,7 @@ const UsersPage = () => {
       username: "",
       password: "",
       role: "user",
-      language: "ru",
+      language: currentLanguage,
       is_active: 1
     });
     setCredentialFieldReady({ username: false, password: false });
@@ -51164,7 +51183,7 @@ const UsersPage = () => {
       username: user.username,
       password: "",
       role: user.role,
-      language: user.language || "ru",
+      language: user.language || "en",
       is_active: user.is_active
     });
     setCredentialFieldReady({ username: true, password: false });
@@ -52476,13 +52495,13 @@ const GeneralSettings = () => {
 };
 const API_URL$h = "/api.php";
 const ProfileSettings = () => {
-  const { t, setLanguage: setContextLanguage } = useLanguage();
+  const { t, setLanguage: setContextLanguage, language: currentLanguage } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
   const [saving, setSaving] = reactExports.useState(false);
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
   const currentUser = JSON.parse(localStorage.getItem("orbitra_user") || "{}");
   const [profile, setProfile] = reactExports.useState({
-    language: "ru",
+    language: currentLanguage,
     timezone: "Europe/Moscow",
     first_day_of_week: 1,
     new_password: "",
@@ -52494,7 +52513,7 @@ const ProfileSettings = () => {
       if (data.status === "success" && data.data) {
         setProfile({
           ...profile,
-          language: data.data.language || "ru",
+          language: data.data.language || currentLanguage,
           timezone: data.data.timezone || "Europe/Moscow",
           first_day_of_week: data.data.first_day_of_week || 1
         });

@@ -16,7 +16,7 @@ const SetupWizard = ({ onComplete }) => {
         password: '',
         confirmPassword: '',
         timezone: 'Europe/Kyiv',
-        language: language || 'ru'
+        language: language || 'en'
     });
 
     const timezones = [
