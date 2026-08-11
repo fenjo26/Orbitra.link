@@ -2253,7 +2253,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                         checked={trafficSimForm.webdriver}
                                         onChange={(e) => setTrafficSimForm({ ...trafficSimForm, webdriver: e.target.checked })}
                                     />
-                                    {t('editor.webdriverFlag')}
+                                    {t('simulation.webdriverFlag')}
                                 </label>
                             </div>
                         </div>

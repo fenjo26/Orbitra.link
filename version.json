@@ -1,6 +1,6 @@
 {
-    "version": "0.9.7.3",
-    "release_notes": "Fixed: Admin-panel updates now automatically recover from unfinished merges and the 'Pulling is not possible because you have unmerged files' state. A conflicting stash restore is cleaned up so later updates keep working, while the saved local changes remain in git stash. Important: an installation that is already stuck on 0.9.7.2 needs one SSH recovery before it can receive this fix: sudo -u www-data git -C /var/www/orbitra reset --hard HEAD && sudo -u www-data git -C /var/www/orbitra pull --ff-only origin main. Fixed: Cloaking no longer flags residential providers such as Comcast, CloudMTS and InterServer as hosting traffic. Added: Traffic Simulation now runs the real Cloak detector and shows ASN/ISP, passive detection reasons, JS execution and webdriver results.",
+    "version": "0.9.7.4",
+    "release_notes": "Fixed: The navigator.webdriver option in Traffic Simulation now uses the simulation i18n namespace and has a clear localized label in all seven supported interface languages.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-08-11"
 }

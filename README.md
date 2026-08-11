@@ -1,4 +1,4 @@
-# Orbitra v0.9.7.3 Tracker
+# Orbitra v0.9.7.4 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -385,6 +385,13 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.7.4
+
+### Fixed
+- 🌐 **Traffic Simulation translation:** the `navigator.webdriver` checkbox now
+  uses the simulation i18n namespace and displays a clear localized label in all
+  seven supported interface languages.
 
 ## 📝 What's New in v0.9.7.3
 

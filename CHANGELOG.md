@@ -7,6 +7,13 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.7.4] — 2026-08-11
+
+### Fixed
+- **Traffic Simulation i18n.** The `navigator.webdriver` checkbox now uses the
+  simulation translation namespace and has a clear localized label in all seven
+  supported interface languages.
+
 ## [0.9.7.3] — 2026-08-11
 
 ### Added
