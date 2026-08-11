@@ -17422,6 +17422,7 @@ const ru = {
     "recommendedFree": "✅ Рекомендованные (бесплатные):",
     "sypexDesc": "страна, регион, город. Обновляется ежемесячно.",
     "ip2locLiteDesc": "страна, регион, город + lat/lon, ZIP, timezone (DB11, требует регистрации).",
+    "maxmindLiteDesc": "бесплатные базы City и ASN (нужны аккаунт MaxMind и лицензионный ключ).",
     "paidDbs": "💎 Платные базы:",
     "ip2locDb4Desc": "страна, регион, город, ISP",
     "ip2locPx2Desc": "определение прокси/VPN",
@@ -17430,6 +17431,7 @@ const ru = {
     "asnTitle": "Фильтр по провайдеру (ISP) — база GeoLite2-ASN",
     "asnDesc": "Бесплатная база MaxMind GeoLite2-ASN определяет сеть/провайдера по IP. Без неё фильтр потоков «ISP» работать не сможет.",
     "asnDownload": "Скачайте",
+    "asnSetup": "Введите ниже MaxMind Account ID и License Key, сохраните их, затем нажмите «Обновить» у GeoLite2-ASN в таблице.",
     "asnNote": "Если базы нет — фильтр «ISP» просто пропускает весь трафик и ничего не блокирует. Скачивается тем же ключом MaxMind, что и City.",
     "downloadFrom": "Где скачать:",
     "sypexFree": "Sypex Geo (бесплатно)",
@@ -19611,6 +19613,7 @@ const en = {
     "recommendedFree": "✅ Recommended (free):",
     "sypexDesc": "country, region, city. Updated monthly.",
     "ip2locLiteDesc": "country, region, city + lat/lon, ZIP, timezone (DB11, requires registration).",
+    "maxmindLiteDesc": "free City and ASN databases (MaxMind account and license key required).",
     "paidDbs": "💎 Paid databases:",
     "ip2locDb4Desc": "country, region, city, ISP",
     "ip2locPx2Desc": "proxy/VPN detection",
@@ -19619,6 +19622,7 @@ const en = {
     "asnTitle": "ISP filter — GeoLite2-ASN database",
     "asnDesc": 'The free MaxMind GeoLite2-ASN database resolves the network/ISP from an IP. Without it the stream "ISP" filter cannot work.',
     "asnDownload": "Download",
+    "asnSetup": "Enter your MaxMind Account ID and License Key below, save them, then click Update for GeoLite2-ASN in the table.",
     "asnNote": 'If the database is missing, the "ISP" filter simply passes all traffic and blocks nothing. It uses the same MaxMind key as City.',
     "downloadFrom": "Where to download:",
     "sypexFree": "Sypex Geo (free)",
@@ -21800,6 +21804,7 @@ const uk = {
     "recommendedFree": "✅ Рекомендовано (безкоштовно):",
     "sypexDesc": "країна, регіон, місто. Оновлюється щомісяця.",
     "ip2locLiteDesc": "країна, регіон, місто + широта/довжина, ZIP, часовий пояс (DB11, потрібна реєстрація).",
+    "maxmindLiteDesc": "безкоштовні бази City та ASN (потрібні обліковий запис MaxMind і ліцензійний ключ).",
     "paidDbs": "💎 Платні бази даних:",
     "ip2locDb4Desc": "країна, регіон, місто, провайдер",
     "ip2locPx2Desc": "виявлення проксі/VPN",
@@ -21808,6 +21813,7 @@ const uk = {
     "asnTitle": "Фільтр ISP — база даних GeoLite2-ASN",
     "asnDesc": "Безкоштовна база даних MaxMind GeoLite2-ASN розпізнає мережу/провайдера з IP-адреси. Без нього фільтр потоку «ISP» працювати не може.",
     "asnDownload": "Завантажити",
+    "asnSetup": "Введіть нижче MaxMind Account ID і License Key, збережіть їх, потім натисніть «Оновити» для GeoLite2-ASN у таблиці.",
     "asnNote": "Якщо база даних відсутня, фільтр «ISP» просто пропускає весь трафік і нічого не блокує. Він використовує той самий ключ MaxMind, що й City.",
     "downloadFrom": "Де завантажити:",
     "sypexFree": "Sypex Geo (безкоштовно)",
@@ -23989,6 +23995,7 @@ const es = {
     "recommendedFree": "✅ Recomendado (gratis):",
     "sypexDesc": "país, región, ciudad. Actualizado mensualmente.",
     "ip2locLiteDesc": "país, región, ciudad + lat/lon, código postal, zona horaria (DB11, requiere registro).",
+    "maxmindLiteDesc": "bases de datos City y ASN gratuitas (se requiere una cuenta y una clave de licencia de MaxMind).",
     "paidDbs": "💎 Bases de datos pagas:",
     "ip2locDb4Desc": "país, región, ciudad, ISP",
     "ip2locPx2Desc": "detección de proxy/VPN",
@@ -23997,6 +24004,7 @@ const es = {
     "asnTitle": "Filtro ISP: base de datos GeoLite2-ASN",
     "asnDesc": 'La base de datos gratuita MaxMind GeoLite2-ASN resuelve la red/ISP desde una IP. Sin él, el filtro "ISP" de transmisión no puede funcionar.',
     "asnDownload": "Descargar",
+    "asnSetup": "Introduzca abajo su Account ID y License Key de MaxMind, guárdelos y luego pulse Actualizar para GeoLite2-ASN en la tabla.",
     "asnNote": 'Si falta la base de datos, el filtro "ISP" simplemente pasa todo el tráfico y no bloquea nada. Utiliza la misma clave MaxMind que City.',
     "downloadFrom": "Dónde descargar:",
     "sypexFree": "Sypex Geo (gratis)",
@@ -26178,6 +26186,7 @@ const zh = {
     "recommendedFree": "✅ 推荐（免费）：",
     "sypexDesc": "国家、地区、城市。每月更新。",
     "ip2locLiteDesc": "国家、地区、城市 + 纬度/经度、邮政编码、时区（DB11，需要注册）。",
+    "maxmindLiteDesc": "免费的 City 和 ASN 数据库（需要 MaxMind 账户和许可证密钥）。",
     "paidDbs": "💎 付费数据库：",
     "ip2locDb4Desc": "国家、地区、城市、ISP",
     "ip2locPx2Desc": "代理/VPN 检测",
@@ -26186,6 +26195,7 @@ const zh = {
     "asnTitle": "ISP 过滤器 — GeoLite2-ASN 数据库",
     "asnDesc": "免费的 MaxMind GeoLite2-ASN 数据库可从 IP 解析网络/ISP。没有它，流“ISP”过滤器就无法工作。",
     "asnDownload": "下载",
+    "asnSetup": "在下方输入 MaxMind Account ID 和 License Key 并保存，然后在表格中点击 GeoLite2-ASN 的更新按钮。",
     "asnNote": "如果数据库丢失，“ISP”过滤器只会通过所有流量并且不会阻止任何内容。它使用与 City 相同的 MaxMind 键。",
     "downloadFrom": "下载地址：",
     "sypexFree": "Sypex Geo（免费）",
@@ -28367,6 +28377,7 @@ const fr = {
     "recommendedFree": "✅ Recommandé (gratuit) :",
     "sypexDesc": "pays, région, ville. Mise à jour mensuelle.",
     "ip2locLiteDesc": "pays, région, ville + lat/lon, ZIP, fuseau horaire (DB11, nécessite une inscription).",
+    "maxmindLiteDesc": "bases City et ASN gratuites (compte MaxMind et clé de licence requis).",
     "paidDbs": "💎 Bases de données payantes :",
     "ip2locDb4Desc": "pays, région, ville, FAI",
     "ip2locPx2Desc": "détection proxy/VPN",
@@ -28375,6 +28386,7 @@ const fr = {
     "asnTitle": "Filtre FAI — Base de données GeoLite2-ASN",
     "asnDesc": "La base de données gratuite MaxMind GeoLite2-ASN résout le réseau/FAI à partir d'une IP. Sans cela, le filtre de flux « FAI » ne peut pas fonctionner.",
     "asnDownload": "Télécharger",
+    "asnSetup": "Saisissez ci-dessous votre Account ID et votre License Key MaxMind, enregistrez-les, puis cliquez sur Mettre à jour pour GeoLite2-ASN dans le tableau.",
     "asnNote": "Si la base de données est manquante, le filtre « FAI » laisse simplement passer tout le trafic et ne bloque rien. Il utilise la même clé MaxMind que City.",
     "downloadFrom": "Où télécharger :",
     "sypexFree": "Sypex Geo (gratuit)",
@@ -30558,6 +30570,7 @@ const de = {
     "recommendedFree": "✅ Empfohlen (kostenlos):",
     "sypexDesc": "Land, Region, Stadt. Monatlich aktualisiert.",
     "ip2locLiteDesc": "Land, Region, Stadt + Breiten- und Breitengrad, Postleitzahl, Zeitzone (DB11, erfordert Registrierung).",
+    "maxmindLiteDesc": "kostenlose City- und ASN-Datenbanken (MaxMind-Konto und Lizenzschlüssel erforderlich).",
     "paidDbs": "💎 Kostenpflichtige Datenbanken:",
     "ip2locDb4Desc": "Land, Region, Stadt, ISP",
     "ip2locPx2Desc": "Proxy-/VPN-Erkennung",
@@ -30566,6 +30579,7 @@ const de = {
     "asnTitle": "ISP-Filter – GeoLite2-ASN-Datenbank",
     "asnDesc": "Die kostenlose MaxMind GeoLite2-ASN-Datenbank löst das Netzwerk/ISP anhand einer IP auf. Ohne sie kann der Stream-Filter „ISP“ nicht funktionieren.",
     "asnDownload": "Herunterladen",
+    "asnSetup": "Geben Sie unten Ihre MaxMind Account ID und den License Key ein, speichern Sie beide und klicken Sie dann in der Tabelle bei GeoLite2-ASN auf Aktualisieren.",
     "asnNote": "Wenn die Datenbank fehlt, lässt der Filter „ISP“ einfach den gesamten Datenverkehr durch und blockiert nichts. Es verwendet den gleichen MaxMind-Schlüssel wie City.",
     "downloadFrom": "Wo zum Herunterladen:",
     "sypexFree": "Sypex Geo (kostenlos)",
@@ -56899,6 +56913,12 @@ const GeoDBPage = () => {
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "IP2Location LITE (DB11 IPv4+IPv6)" }),
             " — ",
             t("geoDb.ip2locLiteDesc")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+            "• ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "MaxMind GeoLite2 City + ASN" }),
+            " — ",
+            t("geoDb.maxmindLiteDesc")
           ] })
         ] })
       ] }),
@@ -56925,7 +56945,7 @@ const GeoDBPage = () => {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
             "• ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "MaxMind City" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "MaxMind GeoIP2 City" }),
             " — ",
             t("geoDb.maxmindFullDesc")
           ] })
@@ -56942,13 +56962,9 @@ const GeoDBPage = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontWeight: 600, color: "var(--color-primary)", marginBottom: "4px" }, children: t("geoDb.asnTitle") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { marginBottom: "6px" }, children: t("geoDb.asnDesc") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { marginBottom: "6px" }, children: [
-          t("geoDb.asnDownload"),
+          t("geoDb.asnSetup"),
           " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://www.maxmind.com/en/accounts/current/geoip/downloads", target: "_blank", rel: "noopener", style: { color: "var(--color-primary)" }, children: "MaxMind GeoLite2 ASN" }),
-          " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "GeoLite2-ASN.mmdb" }),
-          " → ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "/geo/" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://www.maxmind.com/en/accounts/current/geoip/downloads", target: "_blank", rel: "noopener", style: { color: "var(--color-primary)" }, children: "MaxMind GeoLite2 ASN" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontStyle: "italic", color: "var(--color-text-muted)" }, children: t("geoDb.asnNote") })
       ] }),
@@ -56978,6 +56994,7 @@ const GeoDBPage = () => {
           "input",
           {
             type: "text",
+            autoComplete: "off",
             value: maxmindAccountId,
             onChange: (e) => setMaxmindAccountId(e.target.value),
             placeholder: t("geoDb.maxmindAccountIdPlaceholder"),
@@ -56992,7 +57009,8 @@ const GeoDBPage = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "12px", alignItems: "flex-start" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
-            type: "text",
+            type: "password",
+            autoComplete: "new-password",
             value: maxmindKey,
             onChange: (e) => setMaxmindKey(e.target.value),
             placeholder: t("geoDb.maxmindPlaceholder"),
@@ -57004,30 +57022,30 @@ const GeoDBPage = () => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "IP2Location Download Token" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "12px", alignItems: "flex-start" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "text",
-              value: ip2locationToken,
-              onChange: (e) => setIp2locationToken(e.target.value),
-              placeholder: t("geoDb.ip2locationPlaceholder"),
-              className: "form-input",
-              style: { maxWidth: "400px" }
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: handleSaveKey,
-              disabled: savingKey,
-              className: "btn btn-secondary",
-              children: savingKey ? t("geoDb.savingKeys") : t("geoDb.saveKeys")
-            }
-          )
-        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "12px", alignItems: "flex-start" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "password",
+            autoComplete: "new-password",
+            value: ip2locationToken,
+            onChange: (e) => setIp2locationToken(e.target.value),
+            placeholder: t("geoDb.ip2locationPlaceholder"),
+            className: "form-input",
+            style: { maxWidth: "400px" }
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint", children: t("geoDb.ip2locationHint") })
-      ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          onClick: handleSaveKey,
+          disabled: savingKey,
+          className: "btn btn-secondary",
+          children: savingKey ? t("geoDb.savingKeys") : t("geoDb.saveKeys")
+        }
+      ) })
     ] }) }),
     message2 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
       padding: "12px 16px",

@@ -187,6 +187,7 @@ const GeoDBPage = () => {
                         <ul style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginLeft: '16px' }}>
                             <li>• <strong>Sypex Geo City Lite</strong> — {t('geoDb.sypexDesc')}</li>
                             <li>• <strong>IP2Location LITE (DB11 IPv4+IPv6)</strong> — {t('geoDb.ip2locLiteDesc')}</li>
+                            <li>• <strong>MaxMind GeoLite2 City + ASN</strong> — {t('geoDb.maxmindLiteDesc')}</li>
                         </ul>
                     </div>
 
@@ -196,7 +197,7 @@ const GeoDBPage = () => {
                             <li>• <strong>IP2Location DB4</strong> — {t('geoDb.ip2locDb4Desc')}</li>
                             <li>• <strong>IP2Location PX2</strong> — {t('geoDb.ip2locPx2Desc')}</li>
                             <li>• <strong>Sypex Geo City</strong> — {t('geoDb.sypexFullDesc')}</li>
-                            <li>• <strong>MaxMind City</strong> — {t('geoDb.maxmindFullDesc')}</li>
+                            <li>• <strong>MaxMind GeoIP2 City</strong> — {t('geoDb.maxmindFullDesc')}</li>
                         </ul>
                     </div>
 
@@ -211,9 +212,8 @@ const GeoDBPage = () => {
                         <p style={{ fontWeight: 600, color: 'var(--color-primary)', marginBottom: '4px' }}>{t('geoDb.asnTitle')}</p>
                         <p style={{ marginBottom: '6px' }}>{t('geoDb.asnDesc')}</p>
                         <p style={{ marginBottom: '6px' }}>
-                            {t('geoDb.asnDownload')}{' '}
+                            {t('geoDb.asnSetup')}{' '}
                             <a href="https://www.maxmind.com/en/accounts/current/geoip/downloads" target="_blank" rel="noopener" style={{ color: 'var(--color-primary)' }}>MaxMind GeoLite2 ASN</a>
-                            {' '}<code>GeoLite2-ASN.mmdb</code> → <code>/geo/</code>
                         </p>
                         <p style={{ fontStyle: 'italic', color: 'var(--color-text-muted)' }}>{t('geoDb.asnNote')}</p>
                     </div>
@@ -241,6 +241,7 @@ const GeoDBPage = () => {
                             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                                 <input
                                     type="text"
+                                    autoComplete="off"
                                     value={maxmindAccountId}
                                     onChange={(e) => setMaxmindAccountId(e.target.value)}
                                     placeholder={t('geoDb.maxmindAccountIdPlaceholder')}
@@ -255,7 +256,8 @@ const GeoDBPage = () => {
                             <label className="form-label">MaxMind License Key</label>
                             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                                 <input
-                                    type="text"
+                                    type="password"
+                                    autoComplete="new-password"
                                     value={maxmindKey}
                                     onChange={(e) => setMaxmindKey(e.target.value)}
                                     placeholder={t('geoDb.maxmindPlaceholder')}
@@ -270,22 +272,27 @@ const GeoDBPage = () => {
                             <label className="form-label">IP2Location Download Token</label>
                             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                                 <input
-                                    type="text"
+                                    type="password"
+                                    autoComplete="new-password"
                                     value={ip2locationToken}
                                     onChange={(e) => setIp2locationToken(e.target.value)}
                                     placeholder={t('geoDb.ip2locationPlaceholder')}
                                     className="form-input"
                                     style={{ maxWidth: '400px' }}
                                 />
-                                <button
-                                    onClick={handleSaveKey}
-                                    disabled={savingKey}
-                                    className="btn btn-secondary"
-                                >
-                                    {savingKey ? t('geoDb.savingKeys') : t('geoDb.saveKeys')}
-                                </button>
                             </div>
                             <p className="form-hint">{t('geoDb.ip2locationHint')}</p>
+                        </div>
+
+                        <div>
+                            <button
+                                type="button"
+                                onClick={handleSaveKey}
+                                disabled={savingKey}
+                                className="btn btn-secondary"
+                            >
+                                {savingKey ? t('geoDb.savingKeys') : t('geoDb.saveKeys')}
+                            </button>
                         </div>
                     </div>
                 </div>

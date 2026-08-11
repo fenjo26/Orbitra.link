@@ -6119,6 +6119,7 @@ try {
                 $geoDbs = [];
                 $sypexFile = __DIR__ . '/var/geoip/SxGeoCity/SxGeoCity.dat';
                 $maxmindFile = __DIR__ . '/geo/GeoLite2-City.mmdb';
+                $maxmindAsnFile = __DIR__ . '/geo/GeoLite2-ASN.mmdb';
                 $ip2locCandidates = [
                     __DIR__ . '/geo/IP2LOCATION-LITE-DB11.BIN',
                     __DIR__ . '/geo/IP2LOCATION-LITE.BIN',
@@ -6142,6 +6143,12 @@ try {
                     'status' => file_exists($maxmindFile) ? 'ok' : 'missing',
                     'size' => file_exists($maxmindFile) ? filesize($maxmindFile) : 0,
                     'updated' => file_exists($maxmindFile) ? date('Y-m-d H:i', filemtime($maxmindFile)) : null
+                ];
+                $geoDbs[] = [
+                    'name' => 'MaxMind GeoLite2-ASN',
+                    'status' => file_exists($maxmindAsnFile) ? 'ok' : 'missing',
+                    'size' => file_exists($maxmindAsnFile) ? filesize($maxmindAsnFile) : 0,
+                    'updated' => file_exists($maxmindAsnFile) ? date('Y-m-d H:i', filemtime($maxmindAsnFile)) : null
                 ];
                 $geoDbs[] = [
                     'name' => 'IP2Location LITE (DB11)',
@@ -6693,6 +6700,18 @@ try {
             ];
             $dbs[] = $maxMind;
 
+            // Uses the same free MaxMind Account ID + License Key as City.
+            // Cloak and ISP filters need this file to resolve ASN/organisation.
+            $maxMindAsnDb = __DIR__ . '/geo/GeoLite2-ASN.mmdb';
+            $dbs[] = [
+                'id' => 'maxmind_asn',
+                'name' => 'MaxMind GeoLite2-ASN (Free, Requires License Key)',
+                'type' => 'ASN-ISP',
+                'status' => file_exists($maxMindAsnDb) ? 'OK' : 'missing',
+                'updated_at' => file_exists($maxMindAsnDb) ? date('Y-m-d H:i:s', filemtime($maxMindAsnDb)) : null,
+                'size' => file_exists($maxMindAsnDb) ? filesize($maxMindAsnDb) : 0
+            ];
+
             echo json_encode(['status' => 'success', 'data' => $dbs]);
             break;
 
@@ -6809,7 +6828,7 @@ try {
             $input = json_decode(orbitraRequestBody(), true);
             $dbId = $_POST['id'] ?? $input['id'] ?? null;
 
-            if (!in_array($dbId, ['sypex_city_lite', 'maxmind_city', 'ip2location_lite_db11'])) {
+            if (!in_array($dbId, ['sypex_city_lite', 'maxmind_city', 'maxmind_asn', 'ip2location_lite_db11'], true)) {
                 echo json_encode(['status' => 'error', 'message' => 'Неизвестная база данных: ' . htmlspecialchars($dbId)]);
                 break;
             }
@@ -6919,7 +6938,7 @@ try {
                 break;
             }
 
-            if ($dbId === 'maxmind_city') {
+            if ($dbId === 'maxmind_city' || $dbId === 'maxmind_asn') {
                 $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'maxmind_license_key'");
                 $license_key = $stmt->fetchColumn();
 
@@ -6931,13 +6950,19 @@ try {
                     break;
                 }
 
-                // New MaxMind download URL format (2024+)
-                $url = "https://download.maxmind.com/geoip/databases/GeoLite2-City/download?suffix=tar.gz";
-                $tmpArchive = sys_get_temp_dir() . '/geolite2-city.tar.gz';
+                $editionId = $dbId === 'maxmind_asn' ? 'GeoLite2-ASN' : 'GeoLite2-City';
+                // MaxMind redirects this permalink to a short-lived Cloudflare R2
+                // URL. CURLOPT_FOLLOWLOCATION is required for downloads since 2024.
+                $url = "https://download.maxmind.com/geoip/databases/{$editionId}/download?suffix=tar.gz";
+                $tmpArchive = sys_get_temp_dir() . '/orbitra-' . strtolower($editionId) . '-' . bin2hex(random_bytes(6)) . '.tar.gz';
 
                 // Download with Basic Authentication
                 $ch = curl_init($url);
-                $fp = fopen($tmpArchive, 'wb');
+                $fp = @fopen($tmpArchive, 'wb');
+                if ($fp === false) {
+                    echo json_encode(['status' => 'error', 'message' => 'Не удалось создать временный файл для загрузки MaxMind.']);
+                    break;
+                }
                 curl_setopt($ch, CURLOPT_FILE, $fp);
                 curl_setopt($ch, CURLOPT_HEADER, 0);
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
@@ -6945,18 +6970,22 @@ try {
                 curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
                 curl_setopt($ch, CURLOPT_TIMEOUT, 300);
-                curl_exec($ch);
+                curl_setopt($ch, CURLOPT_USERAGENT, 'Orbitra/1.0');
+                $downloadOk = curl_exec($ch);
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $curlError = curl_error($ch);
                 // curl_close() deprecated in PHP 8.5 - resources are auto-freed
                 fclose($fp);
 
-                if ($httpCode !== 200) {
-                    echo json_encode(['status' => 'error', 'message' => "Failed to download database. HTTP Code: $httpCode. Check your Account ID and License Key."]);
+                if ($downloadOk === false || $httpCode !== 200 || !file_exists($tmpArchive) || filesize($tmpArchive) <= 1024) {
+                    @unlink($tmpArchive);
+                    $details = $curlError !== '' ? " cURL: {$curlError}" : '';
+                    echo json_encode(['status' => 'error', 'message' => "Failed to download {$editionId}. HTTP Code: {$httpCode}. Check your Account ID, License Key and outbound HTTPS access.{$details}"]);
                     break;
                 }
 
                 // Extract .mmdb
-                $dbFileName = 'GeoLite2-City.mmdb';
+                $dbFileName = $editionId . '.mmdb';
                 $destPath = __DIR__ . '/geo/' . $dbFileName;
                 if (!is_dir(__DIR__ . '/geo')) {
                     mkdir(__DIR__ . '/geo', 0755, true);
@@ -6968,17 +6997,23 @@ try {
 
                     $extracted = false;
                     foreach (new RecursiveIteratorIterator($p) as $file) {
-                        if (str_ends_with($file->getFilename(), '.mmdb')) {
-                            copy($file->getPathname(), $destPath);
-                            $extracted = true;
+                        if ($file->getFilename() === $dbFileName) {
+                            $tmpDestPath = $destPath . '.tmp-' . bin2hex(random_bytes(4));
+                            if (copy($file->getPathname(), $tmpDestPath) && filesize($tmpDestPath) > 1024) {
+                                chmod($tmpDestPath, 0644);
+                                $extracted = rename($tmpDestPath, $destPath);
+                            }
+                            if (file_exists($tmpDestPath)) {
+                                @unlink($tmpDestPath);
+                            }
                             break;
                         }
                     }
                     if ($extracted) {
-                        logSystem($pdo, 'INFO', 'MaxMind Geo DB Updated successfully');
-                        echo json_encode(['status' => 'success', 'message' => 'База MaxMind успешно обновлена']);
+                        logSystem($pdo, 'INFO', "MaxMind {$editionId} DB updated successfully");
+                        echo json_encode(['status' => 'success', 'message' => "База MaxMind {$editionId} успешно обновлена"]);
                     } else {
-                        echo json_encode(['status' => 'error', 'message' => 'Failed to find .mmdb in downloaded archive']);
+                        echo json_encode(['status' => 'error', 'message' => "Failed to find {$dbFileName} in downloaded archive"]);
                     }
                 } catch (Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => 'Extraction failed: ' . $e->getMessage()]);
