@@ -16,6 +16,7 @@ if (is_dir($orbitraLogDir) && is_writable($orbitraLogDir)) {
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
 }
+require_once __DIR__ . '/core/geo_databases.php';
 // Cloaking detector (datacenter/VPN ASN + UA heuristics + bot blocklists). Lazy: only
 // consulted when a stream with schema_type='cloak' is selected.
 require_once __DIR__ . '/core/CloakDetector.php';
@@ -61,10 +62,11 @@ function fillGeoData(array &$target, array $source)
         }
     }
 
-    foreach (['latitude', 'longitude'] as $key) {
-        if ($target[$key] === null && isset($source[$key]) && is_numeric($source[$key])) {
-            $target[$key] = (float) $source[$key];
-        }
+    if ($target['latitude'] === null && array_key_exists('latitude', $source)) {
+        $target['latitude'] = orbitraGeoCoordinate($source['latitude'], -90, 90);
+    }
+    if ($target['longitude'] === null && array_key_exists('longitude', $source)) {
+        $target['longitude'] = orbitraGeoCoordinate($source['longitude'], -180, 180);
     }
 }
 
@@ -80,13 +82,20 @@ function getGeoData($ip)
         'zipcode' => '',
         'timezone' => '',
         'isp' => '',
-        'asn' => ''
+        'asn' => '',
+        'is_proxy' => 0,
+        'proxy_type' => '',
+        'proxy_threat' => '',
+        'proxy_provider' => '',
+        'proxy_fraud_score' => null,
     ];
 
     if (in_array($ip, ['127.0.0.1', '::1'])) {
         $geo['country_code'] = 'Local';
         return $geo;
     }
+
+    orbitraGeoMigrateMisplacedProxy(__DIR__);
 
     // 1. IP2Location (DB11) - приоритет для расширенных полей
     $ip2locCandidates = [
@@ -101,7 +110,8 @@ function getGeoData($ip)
         }
     }
 
-    if ($ip2locDb && class_exists('\IP2Location\Database')) {
+    $ip2locHeader = $ip2locDb ? orbitraGeoBinHeader($ip2locDb) : null;
+    if ($ip2locDb && ($ip2locHeader['product_code'] ?? null) !== 2 && class_exists('\IP2Location\Database')) {
         try {
             $db = new \IP2Location\Database($ip2locDb, \IP2Location\Database::FILE_IO);
             $records = $db->lookup($ip, \IP2Location\Database::ALL);
@@ -152,7 +162,7 @@ function getGeoData($ip)
     // 2b. MaxMind GeoLite2-ASN (бесплатная) — определяет сеть/провайдера (ISP).
     // Опциональна: если файла нет, поля isp/asn останутся пустыми и фильтр ISP
     // просто пропускает трафик.
-    if ($geo['isp'] === '') {
+    if ($geo['isp'] === '' || $geo['asn'] === '') {
         $asnDb = __DIR__ . '/geo/GeoLite2-ASN.mmdb';
         if (file_exists($asnDb) && class_exists($readerClass)) {
             try {
@@ -163,14 +173,51 @@ function getGeoData($ip)
                 $org = normalizeGeoString($asnRecord->autonomousSystemOrganization ?? '', '');
                 // @phpstan-ignore-next-line
                 $asNumber = $asnRecord->autonomousSystemNumber ?? null;
-                if ($org !== '') {
+                if ($geo['isp'] === '' && $org !== '') {
                     $geo['isp'] = $org;
                 }
-                if ($asNumber !== null) {
+                if ($geo['asn'] === '' && $asNumber !== null) {
                     $geo['asn'] = 'AS' . $asNumber;
                 }
             } catch (\Exception $e) {
                 // IP не найден в ASN-базе — оставляем поля пустыми
+            }
+        }
+    }
+
+    // 2c. Optional IP2Location ASN LITE fallback. MaxMind remains first because
+    // existing installations already use it, while this provider can be added
+    // with the same IP2Location token or the universal upload control.
+    if ($geo['asn'] === '' || $geo['isp'] === '') {
+        $asnRecord = orbitraLookupIp2LocationAsn($ip, __DIR__);
+        $asnNumber = normalizeGeoString($asnRecord['asn'] ?? '', '');
+        $asName = normalizeGeoString($asnRecord['as'] ?? $asnRecord['asName'] ?? '', '');
+        if ($geo['asn'] === '' && $asnNumber !== '') {
+            $geo['asn'] = stripos($asnNumber, 'AS') === 0 ? $asnNumber : 'AS' . $asnNumber;
+        }
+        if ($geo['isp'] === '' && $asName !== '') {
+            $geo['isp'] = $asName;
+        }
+    }
+
+    // 2d. IP2Proxy is not a geolocation replacement. Its dedicated parser adds
+    // explicit VPN/proxy/datacenter signals for the cloak detector.
+    $proxyRecord = orbitraLookupIp2Proxy($ip, __DIR__);
+    if (!empty($proxyRecord)) {
+        $geo['is_proxy'] = (int) ($proxyRecord['isProxy'] ?? 0);
+        $geo['proxy_type'] = normalizeGeoString($proxyRecord['proxyType'] ?? '', '');
+        $geo['proxy_threat'] = normalizeGeoString($proxyRecord['threat'] ?? '', '');
+        $geo['proxy_provider'] = normalizeGeoString($proxyRecord['provider'] ?? '', '');
+        $fraudScore = $proxyRecord['fraudScore'] ?? null;
+        $geo['proxy_fraud_score'] = is_numeric($fraudScore) ? (int) $fraudScore : null;
+
+        if ($geo['isp'] === '') {
+            $geo['isp'] = normalizeGeoString($proxyRecord['isp'] ?? $proxyRecord['as'] ?? '', '');
+        }
+        if ($geo['asn'] === '') {
+            $proxyAsn = normalizeGeoString($proxyRecord['asn'] ?? '', '');
+            if ($proxyAsn !== '') {
+                $geo['asn'] = stripos($proxyAsn, 'AS') === 0 ? $proxyAsn : 'AS' . $proxyAsn;
             }
         }
     }
@@ -991,13 +1038,15 @@ function logCloakEvent($stage, $campaignId, $streamId, array $visitor, array $re
         return preg_replace('/[\r\n]+/', ' ', (string) $value);
     };
     error_log(sprintf(
-        'Orbitra cloak [campaign=%s stream=%s]: stage=%s ip=%s asn=%s isp=%s ua=%.80s reasons=[%s] sensitivity=%s',
+        'Orbitra cloak [campaign=%s stream=%s]: stage=%s ip=%s asn=%s isp=%s proxy=%s provider=%s ua=%.80s reasons=[%s] sensitivity=%s',
         $clean($campaignId),
         $clean($streamId),
         $clean($stage),
         $clean($visitor['ip'] ?? ''),
         $clean($visitor['asn'] ?? ''),
         $clean($visitor['isp'] ?? ''),
+        $clean($visitor['proxy_type'] ?? ''),
+        $clean($visitor['proxy_provider'] ?? ''),
         $clean($visitor['user_agent'] ?? ''),
         implode(', ', array_map($clean, $reasons)),
         $clean($sensitivity)
@@ -1843,6 +1892,11 @@ $visitor = [
     'timezone' => $timezone,
     'isp' => $geoData['isp'] ?? '',
     'asn' => $geoData['asn'] ?? '',
+    'isProxy' => $geoData['is_proxy'] ?? 0,
+    'proxyType' => $geoData['proxy_type'] ?? '',
+    'proxyThreat' => $geoData['proxy_threat'] ?? '',
+    'proxyProvider' => $geoData['proxy_provider'] ?? '',
+    'proxyFraudScore' => $geoData['proxy_fraud_score'] ?? null,
 ];
 
 // Пытаемся найти перехватывающий
@@ -1989,6 +2043,11 @@ if ($selectedStream) {
             'user_agent'      => $userAgent,
             'asn'             => $geoData['asn'] ?? '',
             'isp'             => $geoData['isp'] ?? '',
+            'is_proxy'        => $geoData['is_proxy'] ?? 0,
+            'proxy_type'      => $geoData['proxy_type'] ?? '',
+            'proxy_threat'    => $geoData['proxy_threat'] ?? '',
+            'proxy_provider'  => $geoData['proxy_provider'] ?? '',
+            'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
             'accept_language' => $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '',
         ];
         $verdict = CloakDetector::detect($cloakVisitorCtx, $cloakConfig);

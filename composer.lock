@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1c5e3ffec0ab46f2ae5a71f61a966de5",
+    "content-hash": "986e2457f49acca5c1851bbc4ac461e2",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -196,6 +196,62 @@
                 "source": "https://github.com/chrislim2888/IP2Location-PHP-Module/tree/9.8.1"
             },
             "time": "2025-12-21T22:28:29+00:00"
+        },
+        {
+            "name": "ip2location/ip2proxy-php",
+            "version": "4.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ip2location/ip2proxy-php.git",
+                "reference": "c792300773d7a233c14805f7f0ef1d4f66408b97"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ip2location/ip2proxy-php/zipball/c792300773d7a233c14805f7f0ef1d4f66408b97",
+                "reference": "c792300773d7a233c14805f7f0ef1d4f66408b97",
+                "shasum": ""
+            },
+            "require": {
+                "ext-bcmath": "*",
+                "ext-curl": "*",
+                "ext-json": "*",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=11"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "IP2Proxy\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "IP2Location",
+                    "email": "support@ip2location.com"
+                }
+            ],
+            "description": "PHP module to check if an IP address was being used as open proxy, web proxy, VPN anonymizer and TOR exits.",
+            "homepage": "https://www.ip2location.com/",
+            "keywords": [
+                "detect vpn",
+                "geolocation",
+                "ip to vpn",
+                "ip2proxy",
+                "open proxy",
+                "tor exits",
+                "web proxy"
+            ],
+            "support": {
+                "issues": "https://github.com/ip2location/ip2proxy-php/issues",
+                "source": "https://github.com/ip2location/ip2proxy-php/tree/4.3.0"
+            },
+            "time": "2026-04-27T07:18:16+00:00"
         },
         {
             "name": "maxmind-db/reader",

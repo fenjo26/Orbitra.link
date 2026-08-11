@@ -11,6 +11,7 @@ require_once 'config.php';
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
 }
+require_once __DIR__ . '/core/geo_databases.php';
 // Same prefetch guard as the main click path — a speculative request here would
 // otherwise be counted as a real click.
 require_once __DIR__ . '/core/prefetch.php';
@@ -107,15 +108,18 @@ function clickFillGeoData(array &$target, array $source)
         }
     }
 
-    foreach (['latitude', 'longitude'] as $key) {
-        if ($target[$key] === null && isset($source[$key]) && is_numeric($source[$key])) {
-            $target[$key] = (float) $source[$key];
-        }
+    if ($target['latitude'] === null && array_key_exists('latitude', $source)) {
+        $target['latitude'] = orbitraGeoCoordinate($source['latitude'], -90, 90);
+    }
+    if ($target['longitude'] === null && array_key_exists('longitude', $source)) {
+        $target['longitude'] = orbitraGeoCoordinate($source['longitude'], -180, 180);
     }
 }
 
 function clickGetGeoData($ip)
 {
+    orbitraGeoMigrateMisplacedProxy(__DIR__);
+
     $geo = [
         'country_code' => 'Unknown',
         'region' => '',
@@ -143,7 +147,8 @@ function clickGetGeoData($ip)
         }
     }
 
-    if ($ip2locDb !== null && class_exists('\IP2Location\Database')) {
+    $ip2locHeader = $ip2locDb ? orbitraGeoBinHeader($ip2locDb) : null;
+    if ($ip2locDb !== null && ($ip2locHeader['product_code'] ?? null) !== 2 && class_exists('\IP2Location\Database')) {
         try {
             $db = new \IP2Location\Database($ip2locDb, \IP2Location\Database::FILE_IO);
             $records = $db->lookup($ip, \IP2Location\Database::ALL);

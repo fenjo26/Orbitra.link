@@ -21,11 +21,15 @@ if (!is_dir(__DIR__ . '/var/logs')) {
 // api.php - JSON API для React Dashboard
 require_once 'config.php';
 require_once 'version.php';
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
 require_once __DIR__ . '/core/shell.php';
 require_once __DIR__ . '/core/git_update.php';
 require_once __DIR__ . '/core/backorder.php';
 require_once __DIR__ . '/core/keitaro_import.php';
 require_once __DIR__ . '/core/CloakDetector.php';
+require_once __DIR__ . '/core/geo_databases.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -5405,6 +5409,30 @@ try {
                 $acceptLanguageRaw = trim((string) ($data['accept_language'] ?? ($data['language'] ?? 'en')));
                 $asn = trim((string) ($data['asn'] ?? ''));
                 $isp = trim((string) ($data['isp'] ?? ''));
+                $proxyRecord = orbitraLookupIp2Proxy((string) $ip, __DIR__);
+                $isProxy = (int) ($proxyRecord['isProxy'] ?? 0);
+                $proxyType = trim((string) ($proxyRecord['proxyType'] ?? ''));
+                $proxyThreat = trim((string) ($proxyRecord['threat'] ?? ''));
+                $proxyProvider = trim((string) ($proxyRecord['provider'] ?? ''));
+                $proxyFraudScore = is_numeric($proxyRecord['fraudScore'] ?? null)
+                    ? (int) $proxyRecord['fraudScore']
+                    : null;
+
+                if ($asn === '' || $isp === '') {
+                    $asnRecord = orbitraLookupIp2LocationAsn((string) $ip, __DIR__);
+                    if ($asn === '') {
+                        $asnValue = trim((string) ($asnRecord['asn'] ?? $proxyRecord['asn'] ?? ''));
+                        if ($asnValue !== '' && $asnValue !== '-') {
+                            $asn = stripos($asnValue, 'AS') === 0 ? $asnValue : 'AS' . $asnValue;
+                        }
+                    }
+                    if ($isp === '') {
+                        $ispValue = trim((string) ($asnRecord['as'] ?? $proxyRecord['isp'] ?? $proxyRecord['as'] ?? ''));
+                        if ($ispValue !== '-') {
+                            $isp = $ispValue;
+                        }
+                    }
+                }
                 $jsExecuted = !array_key_exists('js_executed', $data)
                     || filter_var($data['js_executed'], FILTER_VALIDATE_BOOL);
                 $webdriver = array_key_exists('webdriver', $data)
@@ -5418,6 +5446,10 @@ try {
                 $trace[] = "Accept-Language raw: " . ($acceptLanguageRaw !== '' ? $acceptLanguageRaw : '-');
                 $trace[] = "Parsed browser languages: " . (!empty($languageCodes) ? implode(', ', $languageCodes) : 'none');
                 $trace[] = "Network -> ASN: " . ($asn !== '' ? $asn : '-') . ", ISP: " . ($isp !== '' ? $isp : '-');
+                $trace[] = "IP2Proxy -> is_proxy={$isProxy}, type=" . ($proxyType !== '' ? $proxyType : '-')
+                    . ", provider=" . ($proxyProvider !== '' ? $proxyProvider : '-')
+                    . ", threat=" . ($proxyThreat !== '' ? $proxyThreat : '-')
+                    . ", fraud_score=" . ($proxyFraudScore !== null ? $proxyFraudScore : '-');
 
                 if (!$campaignId) {
                     echo json_encode(['status' => 'error', 'message' => 'Missing campaign ID']);
@@ -5574,6 +5606,11 @@ try {
                             'user_agent' => $userAgent,
                             'asn' => $asn,
                             'isp' => $isp,
+                            'is_proxy' => $isProxy,
+                            'proxy_type' => $proxyType,
+                            'proxy_threat' => $proxyThreat,
+                            'proxy_provider' => $proxyProvider,
+                            'proxy_fraud_score' => $proxyFraudScore,
                             'accept_language' => $acceptLanguageRaw,
                             'pdo' => $pdo,
                         ], $cloakConfig);
@@ -6592,6 +6629,24 @@ try {
                         }
                     }
 
+                    // Composer packages are ignored by git. A source update that
+                    // adds a reader (for example IP2Proxy) must therefore install
+                    // the locked dependencies on existing VPS installations too.
+                    if ($returnCode === 0 && file_exists($repoDir . '/composer.phar') && file_exists($repoDir . '/composer.lock')) {
+                        $composerOutput = [];
+                        $composerCode = 0;
+                        $composerCommand = 'cd ' . escapeshellarg($repoDir)
+                            . ' && php ' . escapeshellarg($repoDir . '/composer.phar')
+                            . ' install --no-dev --prefer-dist --no-interaction --optimize-autoloader 2>&1';
+                        exec($composerCommand, $composerOutput, $composerCode);
+                        $output[] = '[Composer dependencies]';
+                        $output = array_merge($output, $composerOutput);
+                        if ($composerCode !== 0) {
+                            $returnCode = $composerCode;
+                            $output[] = '[Composer install failed — source was updated, but dependencies need attention]';
+                        }
+                    }
+
                     if ($returnCode === 0) {
                         echo json_encode(['status' => 'success', 'message' => 'Обновлено успешно. Вывод: ' . implode(" ", $output)]);
                     } else {
@@ -6651,6 +6706,10 @@ try {
 
         // === GEO DATABASES API ===
         case 'geo_dbs':
+            // Earlier builds could put a valid IP2Proxy PX file in the DB11
+            // slot. Move it to the correct slot before reporting statuses.
+            orbitraGeoMigrateMisplacedProxy(__DIR__);
+
             $geoDir = __DIR__ . '/var/geoip/SxGeoCity';
             $datFile = $geoDir . '/SxGeoCity.dat';
 
@@ -6660,7 +6719,7 @@ try {
                 'id' => 'sypex_city_lite',
                 'name' => 'Sypex Geo City Lite',
                 'type' => 'Country-Region-City',
-                'status' => file_exists($datFile) ? 'OK' : 'missing',
+                'status' => orbitraGeoFileStatus($datFile, 'sypex_city', 'SxGeoCity.dat'),
                 'updated_at' => file_exists($datFile) ? date('Y-m-d H:i:s', filemtime($datFile)) : null,
                 'size' => file_exists($datFile) ? filesize($datFile) : 0
             ];
@@ -6682,11 +6741,33 @@ try {
                 'id' => 'ip2location_lite_db11',
                 'name' => 'IP2Location LITE (DB11)',
                 'type' => 'Country-Region-City-Latitude-Longitude-ZIPCode-TimeZone (IPv4+IPv6)',
-                'status' => ($ip2locDb && file_exists($ip2locDb)) ? 'OK' : 'missing',
+                'status' => $ip2locDb
+                    ? orbitraGeoFileStatus($ip2locDb, 'ip2location_geo', basename($ip2locDb))
+                    : 'missing',
                 'updated_at' => ($ip2locDb && file_exists($ip2locDb)) ? date('Y-m-d H:i:s', filemtime($ip2locDb)) : null,
                 'size' => ($ip2locDb && file_exists($ip2locDb)) ? filesize($ip2locDb) : 0
             ];
             $dbs[] = $ip2loc;
+
+            $ip2locationAsnDb = __DIR__ . '/geo/IP2LOCATION-LITE-ASN.BIN';
+            $dbs[] = [
+                'id' => 'ip2location_lite_asn',
+                'name' => 'IP2Location ASN LITE',
+                'type' => 'ASN-Network Organization (IPv4+IPv6)',
+                'status' => orbitraGeoFileStatus($ip2locationAsnDb, 'ip2location_asn', 'IP2LOCATION-LITE-ASN.BIN'),
+                'updated_at' => file_exists($ip2locationAsnDb) ? date('Y-m-d H:i:s', filemtime($ip2locationAsnDb)) : null,
+                'size' => file_exists($ip2locationAsnDb) ? filesize($ip2locationAsnDb) : 0
+            ];
+
+            $ip2proxyDb = __DIR__ . '/geo/IP2PROXY-LITE-PX12.BIN';
+            $dbs[] = [
+                'id' => 'ip2proxy_lite_px12',
+                'name' => 'IP2Proxy LITE (PX12)',
+                'type' => 'Proxy-VPN-TOR-Datacenter-Residential-Threat-FraudScore (IPv4+IPv6)',
+                'status' => orbitraGeoFileStatus($ip2proxyDb, 'ip2proxy', 'IP2PROXY-LITE-PX12.BIN'),
+                'updated_at' => file_exists($ip2proxyDb) ? date('Y-m-d H:i:s', filemtime($ip2proxyDb)) : null,
+                'size' => file_exists($ip2proxyDb) ? filesize($ip2proxyDb) : 0
+            ];
 
             // MaxMind GeoLite2-City
             $maxMindDb = __DIR__ . '/geo/GeoLite2-City.mmdb';
@@ -6694,7 +6775,7 @@ try {
                 'id' => 'maxmind_city',
                 'name' => 'MaxMind GeoLite2-City (Requires License Key)',
                 'type' => 'Country-City',
-                'status' => file_exists($maxMindDb) ? 'OK' : 'missing',
+                'status' => orbitraGeoFileStatus($maxMindDb, 'maxmind_city', 'GeoLite2-City.mmdb'),
                 'updated_at' => file_exists($maxMindDb) ? date('Y-m-d H:i:s', filemtime($maxMindDb)) : null,
                 'size' => file_exists($maxMindDb) ? filesize($maxMindDb) : 0
             ];
@@ -6707,7 +6788,7 @@ try {
                 'id' => 'maxmind_asn',
                 'name' => 'MaxMind GeoLite2-ASN (Free, Requires License Key)',
                 'type' => 'ASN-ISP',
-                'status' => file_exists($maxMindAsnDb) ? 'OK' : 'missing',
+                'status' => orbitraGeoFileStatus($maxMindAsnDb, 'maxmind_asn', 'GeoLite2-ASN.mmdb'),
                 'updated_at' => file_exists($maxMindAsnDb) ? date('Y-m-d H:i:s', filemtime($maxMindAsnDb)) : null,
                 'size' => file_exists($maxMindAsnDb) ? filesize($maxMindAsnDb) : 0
             ];
@@ -6716,26 +6797,24 @@ try {
             break;
 
         case 'geo_db_upload':
-            // Manual upload of geo database file
+            // One upload control accepts all supported provider files, but every
+            // format is identified and stored in its own slot.
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $dbId = $_POST['db_id'] ?? 'sypex_city_lite';
-
                 if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
                     echo json_encode(['status' => 'error', 'message' => 'Ошибка загрузки файла']);
                     break;
                 }
 
                 $file = $_FILES['file'];
-                $fileName = strtolower($file['name']);
+                $fileName = (string) $file['name'];
                 $fileTmp = $file['tmp_name'];
                 $fileSize = $file['size'];
 
-                // Validate file
-                $allowedExts = ['dat', 'zip', 'bin'];
-                $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+                $allowedExts = ['dat', 'zip', 'bin', 'mmdb'];
+                $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-                if (!in_array($ext, $allowedExts)) {
-                    echo json_encode(['status' => 'error', 'message' => 'Разрешены только файлы .dat, .bin и .zip']);
+                if (!in_array($ext, $allowedExts, true)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Разрешены только файлы .dat, .bin, .mmdb и .zip']);
                     break;
                 }
 
@@ -6745,76 +6824,72 @@ try {
                 }
 
                 try {
-                    $geoDir = __DIR__ . '/var/geoip/SxGeoCity';
-                    if (!is_dir($geoDir)) {
-                        mkdir($geoDir, 0777, true);
-                    }
-
                     if ($ext === 'zip') {
-                        // Extract ZIP
                         $zip = new ZipArchive;
-                        if ($zip->open($fileTmp) === TRUE) {
-                            $zipDir = sys_get_temp_dir() . '/upload_' . uniqid();
-                            mkdir($zipDir);
-                            $zip->extractTo($zipDir);
-                            $zip->close();
+                        if ($zip->open($fileTmp) !== true) {
+                            throw new RuntimeException('Не удалось открыть ZIP архив');
+                        }
 
-                            $found = false;
-                            $iter = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($zipDir));
-                            foreach ($iter as $file) {
-                                if ($file->isFile()) {
-                                    $fExt = strtolower($file->getExtension());
-                                    if ($fExt === 'dat') {
-                                        copy($file->getPathname(), $geoDir . '/SxGeoCity.dat');
-                                        logSystem($pdo, 'INFO', 'Sypex Geo DB uploaded via ZIP');
-                                        $found = true;
-                                    } else if ($fExt === 'bin') {
-                                        if (!is_dir(__DIR__ . '/geo'))
-                                            mkdir(__DIR__ . '/geo', 0755, true);
-                                        copy($file->getPathname(), __DIR__ . '/geo/IP2LOCATION-LITE-DB11.BIN');
-                                        logSystem($pdo, 'INFO', 'IP2Location DB uploaded via ZIP');
-                                        $found = true;
-                                    } else if ($fExt === 'mmdb') {
-                                        if (!is_dir(__DIR__ . '/geo'))
-                                            mkdir(__DIR__ . '/geo', 0755, true);
-                                        copy($file->getPathname(), __DIR__ . '/geo/GeoLite2-City.mmdb');
-                                        logSystem($pdo, 'INFO', 'MaxMind DB uploaded via ZIP');
-                                        $found = true;
-                                    }
+                        $installed = [];
+                        for ($i = 0; $i < $zip->numFiles; $i++) {
+                            $entry = $zip->statIndex($i);
+                            $entryName = (string) ($entry['name'] ?? '');
+                            $entryExt = strtolower(pathinfo($entryName, PATHINFO_EXTENSION));
+                            if (!in_array($entryExt, ['dat', 'bin', 'mmdb'], true)) {
+                                continue;
+                            }
+                            if ((int) ($entry['size'] ?? 0) > 3 * 1024 * 1024 * 1024) {
+                                throw new RuntimeException('Файл внутри архива слишком большой.');
+                            }
+
+                            $input = $zip->getStream($entryName);
+                            if ($input === false) {
+                                throw new RuntimeException('Не удалось прочитать ' . basename($entryName) . ' из архива.');
+                            }
+                            $tempPath = tempnam(sys_get_temp_dir(), 'orbitra-geo-upload-');
+                            $output = $tempPath !== false ? fopen($tempPath, 'wb') : false;
+                            if ($output === false) {
+                                fclose($input);
+                                throw new RuntimeException('Не удалось создать временный файл базы.');
+                            }
+                            stream_copy_to_stream($input, $output);
+                            fclose($input);
+                            fclose($output);
+
+                            try {
+                                $result = orbitraGeoInstallFile($tempPath, basename($entryName), __DIR__, true);
+                                $installed[] = $result['label'];
+                                logSystem($pdo, 'INFO', 'Geo DB uploaded via ZIP', [
+                                    'kind' => $result['kind'],
+                                    'name' => basename($entryName),
+                                ]);
+                            } finally {
+                                if (is_file($tempPath)) {
+                                    @unlink($tempPath);
                                 }
                             }
-
-                            array_map('unlink', glob("$zipDir/*.*"));
-                            @rmdir($zipDir);
-
-                            if ($found) {
-                                echo json_encode(['status' => 'success', 'message' => 'Архив распакован, базы обновлены']);
-                            } else {
-                                echo json_encode(['status' => 'error', 'message' => 'В архиве не найдено подходящих файлов (.dat, .bin, .mmdb)']);
-                            }
-                        } else {
-                            echo json_encode(['status' => 'error', 'message' => 'Не удалось открыть ZIP архив']);
                         }
-                    } else if ($ext === 'bin') {
-                        if (!is_dir(__DIR__ . '/geo'))
-                            mkdir(__DIR__ . '/geo', 0755, true);
-                        if (move_uploaded_file($fileTmp, __DIR__ . '/geo/IP2LOCATION-LITE-DB11.BIN')) {
-                            logSystem($pdo, 'INFO', 'IP2Location DB uploaded directly');
-                            echo json_encode(['status' => 'success', 'message' => 'Файл IP2Location загружен успешно']);
-                        } else {
-                            echo json_encode(['status' => 'error', 'message' => 'Не удалось сохранить файл .bin']);
+                        $zip->close();
+
+                        if (empty($installed)) {
+                            throw new RuntimeException('В архиве не найдено поддерживаемых файлов (.dat, .bin, .mmdb)');
                         }
+                        echo json_encode([
+                            'status' => 'success',
+                            'message' => 'Установлено: ' . implode(', ', array_unique($installed)),
+                        ]);
                     } else {
-                        // Direct .dat file
-                        $destPath = $geoDir . '/SxGeoCity.dat';
-                        if (move_uploaded_file($fileTmp, $destPath)) {
-                            logSystem($pdo, 'INFO', 'Sypex Geo DB uploaded directly');
-                            echo json_encode(['status' => 'success', 'message' => 'Файл загружен успешно']);
-                        } else {
-                            echo json_encode(['status' => 'error', 'message' => 'Не удалось сохранить файл']);
-                        }
+                        $result = orbitraGeoInstallFile($fileTmp, $fileName, __DIR__);
+                        logSystem($pdo, 'INFO', 'Geo DB uploaded directly', [
+                            'kind' => $result['kind'],
+                            'name' => basename($fileName),
+                        ]);
+                        echo json_encode([
+                            'status' => 'success',
+                            'message' => 'Установлено: ' . $result['label'],
+                        ]);
                     }
-                } catch (\Exception $e) {
+                } catch (Throwable $e) {
                     logSystem($pdo, 'ERROR', 'Geo DB Upload Error: ' . $e->getMessage());
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
@@ -6828,7 +6903,14 @@ try {
             $input = json_decode(orbitraRequestBody(), true);
             $dbId = $_POST['id'] ?? $input['id'] ?? null;
 
-            if (!in_array($dbId, ['sypex_city_lite', 'maxmind_city', 'maxmind_asn', 'ip2location_lite_db11'], true)) {
+            if (!in_array($dbId, [
+                'sypex_city_lite',
+                'maxmind_city',
+                'maxmind_asn',
+                'ip2location_lite_db11',
+                'ip2location_lite_asn',
+                'ip2proxy_lite_px12',
+            ], true)) {
                 echo json_encode(['status' => 'error', 'message' => 'Неизвестная база данных: ' . htmlspecialchars($dbId)]);
                 break;
             }
@@ -6854,7 +6936,22 @@ try {
                 return $data;
             };
 
-            if ($dbId === 'ip2location_lite_db11') {
+            $ip2Packages = [
+                'ip2location_lite_db11' => [
+                    'variant' => 'DB11LITEBINIPV6',
+                    'kind' => 'ip2location_geo',
+                ],
+                'ip2location_lite_asn' => [
+                    'variant' => 'DBASNLITEBINIPV6',
+                    'kind' => 'ip2location_asn',
+                ],
+                'ip2proxy_lite_px12' => [
+                    'variant' => 'PX12LITEBIN',
+                    'kind' => 'ip2proxy',
+                ],
+            ];
+
+            if (isset($ip2Packages[$dbId])) {
                 $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'ip2location_token'");
                 $token = $stmt->fetchColumn();
                 if (!$token) {
@@ -6862,9 +6959,13 @@ try {
                     break;
                 }
 
-                $tmpArchive = sys_get_temp_dir() . '/ip2location.zip';
-                $variant = 'DB11LITEBINIPV6';
-                $url = "https://www.ip2location.com/download?token={$token}&file={$variant}";
+                $package = $ip2Packages[$dbId];
+                $variant = $package['variant'];
+                $tmpArchive = sys_get_temp_dir() . '/orbitra-ip2-' . bin2hex(random_bytes(6)) . '.zip';
+                $url = 'https://www.ip2location.com/download?' . http_build_query([
+                    'token' => $token,
+                    'file' => $variant,
+                ]);
                 $ch = curl_init($url);
                 $fp = @fopen($tmpArchive, 'wb');
                 if ($fp === false) {
@@ -6874,65 +6975,74 @@ try {
                 curl_setopt($ch, CURLOPT_FILE, $fp);
                 curl_setopt($ch, CURLOPT_HEADER, 0);
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-                curl_exec($ch);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 600);
+                curl_setopt($ch, CURLOPT_USERAGENT, 'Orbitra/1.0');
+                $downloadOk = curl_exec($ch);
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $curlError = curl_error($ch);
                 // curl_close() deprecated in PHP 8.5 - resources are auto-freed
                 fclose($fp);
 
-                if ($httpCode !== 200 || !file_exists($tmpArchive) || filesize($tmpArchive) <= 1024) {
-                    echo json_encode(['status' => 'error', 'message' => "Не удалось скачать {$variant}. Проверьте токен и квоту IP2Location."]);
+                if ($downloadOk === false || $httpCode !== 200 || !file_exists($tmpArchive) || filesize($tmpArchive) <= 1024) {
+                    @unlink($tmpArchive);
+                    $details = $curlError !== '' ? ' cURL: ' . $curlError : '';
+                    echo json_encode(['status' => 'error', 'message' => "Не удалось скачать {$variant}. Проверьте токен и квоту IP2Location.{$details}"]);
                     break;
-                }
-
-                // Extract .bin
-                $destPath = __DIR__ . '/geo/IP2LOCATION-LITE-DB11.BIN';
-                if (!is_dir(__DIR__ . '/geo')) {
-                    mkdir(__DIR__ . '/geo', 0755, true);
                 }
 
                 try {
                     $zip = new ZipArchive;
-                    if ($zip->open($tmpArchive) === TRUE) {
-                        // Extract to temp directory to avoid memory issues
-                        $extractDir = sys_get_temp_dir() . '/ip2loc_extract_' . time();
-                        mkdir($extractDir, 0755, true);
-                        $zip->extractTo($extractDir);
-                        $zip->close();
-
-                        // Find and move the BIN file
-                        $extracted = false;
-                        foreach (glob($extractDir . '/*.BIN') as $file) {
-                            if (filesize($file) > 10 * 1024 * 1024) {
-                                rename($file, $destPath);
-                                $extracted = true;
-                                break;
-                            }
-                        }
-                        // Cleanup temp directory
-                        // Same trap as shell_exec: system() is removed on plenty of
-                        // hosts, and calling a function that is gone is fatal.
-                        orbitraRemoveDirectory($extractDir);
-
-                        if ($extracted) {
-                            $binSize = filesize($destPath) ?: 0;
-                            // DB11 IPv4+IPv6 should be 30-50 MB, check for too small files
-                            if ($binSize < 10 * 1024 * 1024) {
-                                @unlink($destPath);
-                                echo json_encode(['status' => 'error', 'message' => "Скачан неполный IP2Location BIN ({$binSize} bytes). Ожидается DB11 IPv4+IPv6 (id=20)."]);
-                                @unlink($tmpArchive);
-                                break;
-                            }
-                            logSystem($pdo, 'INFO', 'IP2Location Geo DB Updated successfully', ['variant' => $variant]);
-                            echo json_encode(['status' => 'success', 'message' => "База IP2Location успешно обновлена ({$variant})"]);
-                        } else {
-                            echo json_encode(['status' => 'error', 'message' => 'Failed to find .BIN in downloaded archive']);
-                        }
-                    } else {
-                        // The file might be a PDF or HTML error page if the download limits were reached.
-                        echo json_encode(['status' => 'error', 'message' => 'Failed to open downloaded IP2Location ZIP archive. Token might be invalid or limit reached.']);
+                    if ($zip->open($tmpArchive) !== true) {
+                        throw new RuntimeException('Архив IP2Location не является корректным ZIP. Возможно, исчерпана квота скачиваний.');
                     }
-                } catch (Exception $e) {
-                    echo json_encode(['status' => 'error', 'message' => 'Extraction failed: ' . $e->getMessage()]);
+
+                    $installed = null;
+                    for ($i = 0; $i < $zip->numFiles; $i++) {
+                        $entryName = (string) $zip->getNameIndex($i);
+                        if (strtolower(pathinfo($entryName, PATHINFO_EXTENSION)) !== 'bin') {
+                            continue;
+                        }
+                        $input = $zip->getStream($entryName);
+                        $tempPath = tempnam(sys_get_temp_dir(), 'orbitra-ip2-bin-');
+                        $output = $tempPath !== false ? fopen($tempPath, 'wb') : false;
+                        if ($input === false || $output === false) {
+                            if (is_resource($input)) {
+                                fclose($input);
+                            }
+                            throw new RuntimeException('Не удалось распаковать BIN из архива.');
+                        }
+                        stream_copy_to_stream($input, $output);
+                        fclose($input);
+                        fclose($output);
+
+                        try {
+                            $classification = orbitraGeoClassifyFile($tempPath, basename($entryName));
+                            if ($classification['kind'] !== $package['kind']) {
+                                throw new RuntimeException('Полученный BIN имеет неожиданный тип: ' . $classification['kind']);
+                            }
+                            $candidate = orbitraGeoInstallFile($tempPath, basename($entryName), __DIR__, true);
+                            $installed = $candidate;
+                        } finally {
+                            if (is_file($tempPath)) {
+                                @unlink($tempPath);
+                            }
+                        }
+                        break;
+                    }
+                    $zip->close();
+
+                    if ($installed === null) {
+                        throw new RuntimeException('В скачанном архиве не найден BIN.');
+                    }
+
+                    logSystem($pdo, 'INFO', 'IP2 database updated successfully', [
+                        'variant' => $variant,
+                        'kind' => $installed['kind'],
+                    ]);
+                    echo json_encode(['status' => 'success', 'message' => "База {$installed['label']} успешно обновлена ({$variant})"]);
+                } catch (Throwable $e) {
+                    echo json_encode(['status' => 'error', 'message' => 'Ошибка установки: ' . $e->getMessage()]);
                 }
                 @unlink($tmpArchive);
                 break;

@@ -93,7 +93,6 @@ const GeoDBPage = () => {
 
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('db_id', 'sypex_city_lite');
 
         try {
             const res = await fetch(`${API_URL}?action=geo_db_upload`, {
@@ -187,6 +186,7 @@ const GeoDBPage = () => {
                         <ul style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginLeft: '16px' }}>
                             <li>• <strong>Sypex Geo City Lite</strong> — {t('geoDb.sypexDesc')}</li>
                             <li>• <strong>IP2Location LITE (DB11 IPv4+IPv6)</strong> — {t('geoDb.ip2locLiteDesc')}</li>
+                            <li>• <strong>IP2Location ASN LITE + IP2Proxy LITE PX12</strong> — {t('geoDb.ip2locPx2Desc')}</li>
                             <li>• <strong>MaxMind GeoLite2 City + ASN</strong> — {t('geoDb.maxmindLiteDesc')}</li>
                         </ul>
                     </div>
@@ -195,7 +195,7 @@ const GeoDBPage = () => {
                         <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-accent-turquoise)', marginBottom: '4px' }}>{t('geoDb.paidDbs')}</p>
                         <ul style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginLeft: '16px' }}>
                             <li>• <strong>IP2Location DB4</strong> — {t('geoDb.ip2locDb4Desc')}</li>
-                            <li>• <strong>IP2Location PX2</strong> — {t('geoDb.ip2locPx2Desc')}</li>
+                            <li>• <strong>IP2Proxy commercial PX12</strong> — {t('geoDb.ip2locPx2Desc')}</li>
                             <li>• <strong>Sypex Geo City</strong> — {t('geoDb.sypexFullDesc')}</li>
                             <li>• <strong>MaxMind GeoIP2 City</strong> — {t('geoDb.maxmindFullDesc')}</li>
                         </ul>
@@ -211,10 +211,7 @@ const GeoDBPage = () => {
                     }}>
                         <p style={{ fontWeight: 600, color: 'var(--color-primary)', marginBottom: '4px' }}>{t('geoDb.asnTitle')}</p>
                         <p style={{ marginBottom: '6px' }}>{t('geoDb.asnDesc')}</p>
-                        <p style={{ marginBottom: '6px' }}>
-                            {t('geoDb.asnSetup')}{' '}
-                            <a href="https://www.maxmind.com/en/accounts/current/geoip/downloads" target="_blank" rel="noopener" style={{ color: 'var(--color-primary)' }}>MaxMind GeoLite2 ASN</a>
-                        </p>
+                        <p style={{ marginBottom: '6px' }}>{t('geoDb.asnSetup')}</p>
                         <p style={{ fontStyle: 'italic', color: 'var(--color-text-muted)' }}>{t('geoDb.asnNote')}</p>
                     </div>
 
@@ -336,7 +333,7 @@ const GeoDBPage = () => {
                             type="file"
                             ref={fileInputRef}
                             onChange={handleFileUpload}
-                            accept=".dat,.zip,.bin"
+                            accept=".dat,.zip,.bin,.mmdb"
                             className="hidden"
                         />
                         <button
@@ -347,9 +344,6 @@ const GeoDBPage = () => {
                             <Upload className="w-4 h-4" />
                             {uploadLoading ? t('geoDb.uploading') : t('geoDb.uploadFile')}
                         </button>
-                        <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
-                            {t('geoDb.downloadAndUpload')} <a href="https://sypexgeo.net/files/SxGeoCity_utf8.zip" target="_blank" rel="noopener" style={{ color: 'var(--color-primary)' }}>SxGeoCity_utf8.zip</a> {t('geoDb.andUploadHere')}
-                        </span>
                     </div>
                 </div>
 

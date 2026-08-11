@@ -263,6 +263,13 @@ php /var/www/orbitra/cli/nginx_sync.php || {
 chown -R www-data:www-data /var/www/orbitra/orbitra_db.sqlite /var/www/orbitra/var 2>/dev/null || true
 
 
+# Install locked PHP readers (MaxMind, IP2Location and IP2Proxy). vendor/ is
+# intentionally not committed, so both fresh installs and admin updates must
+# materialise it from composer.lock.
+echo "  > Installing PHP dependencies..."
+cd /var/www/orbitra
+php composer.phar install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
 # Build frontend
 echo "  > Building frontend..."
 cd /var/www/orbitra/frontend

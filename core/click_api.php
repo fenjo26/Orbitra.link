@@ -10,6 +10,8 @@
 //
 // This intentionally does NOT attempt to fully implement Keitaro's uniqueness_cookie flow yet.
 
+require_once __DIR__ . '/geo_databases.php';
+
 function orbitraClickApiGetSettings(PDO $pdo): array
 {
     $settings = [];
@@ -150,15 +152,18 @@ function orbitraClickApiFillGeoData(array &$target, array $source): void
         }
     }
 
-    foreach (['latitude', 'longitude'] as $key) {
-        if ($target[$key] === null && isset($source[$key]) && is_numeric($source[$key])) {
-            $target[$key] = (float) $source[$key];
-        }
+    if ($target['latitude'] === null && array_key_exists('latitude', $source)) {
+        $target['latitude'] = orbitraGeoCoordinate($source['latitude'], -90, 90);
+    }
+    if ($target['longitude'] === null && array_key_exists('longitude', $source)) {
+        $target['longitude'] = orbitraGeoCoordinate($source['longitude'], -180, 180);
     }
 }
 
 function orbitraClickApiGetGeoData(string $ip): array
 {
+    orbitraGeoMigrateMisplacedProxy(dirname(__DIR__));
+
     // Copied from click.php/index.php style: prefer local DBs, fall back to ip-api.com.
     $geo = [
         'country_code' => 'Unknown',
@@ -187,7 +192,8 @@ function orbitraClickApiGetGeoData(string $ip): array
         }
     }
 
-    if ($ip2locDb !== null && class_exists('\\IP2Location\\Database')) {
+    $ip2locHeader = $ip2locDb ? orbitraGeoBinHeader($ip2locDb) : null;
+    if ($ip2locDb !== null && ($ip2locHeader['product_code'] ?? null) !== 2 && class_exists('\\IP2Location\\Database')) {
         try {
             $db = new \IP2Location\Database($ip2locDb, \IP2Location\Database::FILE_IO);
             $records = $db->lookup($ip, \IP2Location\Database::ALL);

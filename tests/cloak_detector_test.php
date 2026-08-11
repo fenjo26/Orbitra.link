@@ -35,6 +35,11 @@ $cases = [
     ['One soft signal blocks high', $visitor(['accept_language' => '']), $config('high'), true, ['missing_accept_language']],
     ['Two soft signals block medium', $visitor(['asn' => '', 'isp' => 'Hetzner Online', 'accept_language' => '']), $config('medium'), true, ['hosting_isp', 'missing_accept_language']],
     ['Datacenter ASN blocks low', $visitor(['asn' => 'AS14618', 'isp' => '']), $config('low'), true, ['datacenter_asn']],
+    ['PX12 VPN blocks low', $visitor(['asn' => '', 'isp' => '', 'is_proxy' => 1, 'proxy_type' => 'VPN']), $config('low'), true, ['ip2proxy_vpn_proxy']],
+    ['PX12 residential proxy blocks low', $visitor(['asn' => '', 'isp' => '', 'is_proxy' => 1, 'proxy_type' => 'RES']), $config('low'), true, ['ip2proxy_vpn_proxy']],
+    ['PX12 datacenter blocks low', $visitor(['asn' => '', 'isp' => '', 'is_proxy' => 2, 'proxy_type' => 'DCH']), $config('low'), true, ['ip2proxy_datacenter']],
+    ['PX12 crawler blocks low', $visitor(['asn' => '', 'isp' => '', 'is_proxy' => 2, 'proxy_type' => 'AIC']), $config('low'), true, ['ip2proxy_bot']],
+    ['PX12 normal address passes', $visitor(['asn' => '', 'isp' => '', 'is_proxy' => 0, 'proxy_type' => '-']), $config('high'), false, []],
     ['Crawler UA blocks low', $visitor(['user_agent' => 'Googlebot/2.1']), $config('low'), true, ['crawler_or_tool_ua']],
     ['No UA blocks low', $visitor(['user_agent' => '', 'accept_language' => '']), $config('low'), true, ['no_user_agent']],
     ['Disabled layers do not block', $visitor(['user_agent' => 'Googlebot/2.1', 'asn' => 'AS14618']), $config('high', [

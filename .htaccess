@@ -10,6 +10,12 @@ RewriteRule ^click_api/v3/?$ index.php [L,QSA]
 # disk and Apache answers with its own 404 before PHP ever runs.
 RewriteRule ^lander/ index.php [L,QSA]
 
+# Campaign short links: /campaign-alias and /campaign-alias/.
+# Keep real files/directories untouched; index.php validates the alias itself.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)/?$ index.php?campaign=$1 [L,QSA]
+
 # Security Headers
 Header set X-Content-Type-Options "nosniff"
 Header set X-Frame-Options "SAMEORIGIN"

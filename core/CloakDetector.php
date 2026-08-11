@@ -144,7 +144,8 @@ class CloakDetector
     /**
      * Evaluate a visitor against all enabled detection layers.
      *
-     * @param array $visitor  Visitor context: ip, user_agent, asn ('AS1234'), isp, accept_language.
+     * @param array $visitor  Visitor context: ip, user_agent, asn ('AS1234'), isp,
+     *                         accept_language and optional IP2Proxy fields.
      * @param array $config   Stream cloak config from schema_custom_json:
      *                          detect_datacenter (bool, default true)
      *                          detect_vpn        (bool, default true)
@@ -163,7 +164,38 @@ class CloakDetector
         $detectUa         = self::configBool($config, 'detect_ua', true);
         $sensitivity      = $config['sensitivity'] ?? 'medium';
 
-        // --- Layer 1: ASN datacenter / hosting ---
+        // --- Layer 1: explicit IP2Proxy result ---
+        // PX12 knows about VPN, Tor, hosting/datacenter, residential proxies,
+        // privacy networks, crawlers and current threat ranges directly. It is
+        // stronger evidence than trying to infer VPN usage from an ASN name.
+        $proxyType = strtoupper(trim((string) ($visitor['proxy_type'] ?? '')));
+        $isProxy = (int) ($visitor['is_proxy'] ?? 0);
+        $proxyThreat = strtoupper(trim((string) ($visitor['proxy_threat'] ?? '')));
+        $proxyFraudScore = $visitor['proxy_fraud_score'] ?? null;
+        $unsupported = [
+            '', '-', 'UNKNOWN', 'THIS PARAMETER IS UNAVAILABLE IN SELECTED .BIN DATA FILE. PLEASE UPGRADE DATA FILE.',
+        ];
+
+        if (!in_array($proxyType, $unsupported, true)) {
+            if ($proxyType === 'DCH' && $detectDatacenter) {
+                $reasons[] = 'ip2proxy_datacenter';
+            } elseif (in_array($proxyType, ['SES', 'AIC'], true) && $detectBots) {
+                $reasons[] = 'ip2proxy_bot';
+            } elseif ($detectVpn && in_array($proxyType, ['VPN', 'TOR', 'PUB', 'WEB', 'RES', 'CPN', 'EPN'], true)) {
+                $reasons[] = 'ip2proxy_vpn_proxy';
+            }
+        } elseif ($detectVpn && $isProxy === 1) {
+            $reasons[] = 'ip2proxy_vpn_proxy';
+        }
+
+        if ($detectBots && !in_array($proxyThreat, $unsupported, true)) {
+            $reasons[] = 'ip2proxy_threat';
+        }
+        if (($detectVpn || $detectBots) && is_numeric($proxyFraudScore) && (int) $proxyFraudScore >= 80) {
+            $reasons[] = 'ip2proxy_high_fraud';
+        }
+
+        // --- Layer 2: ASN datacenter / hosting ---
         if ($detectDatacenter || $detectVpn) {
             $asnInt = self::asnToInt((string) ($visitor['asn'] ?? ''));
             if ($asnInt !== null) {
@@ -199,12 +231,12 @@ class CloakDetector
             }
         }
 
-        // --- Layer 2: existing bot blocklists (bot_ips / bot_signatures) ---
+        // --- Layer 3: existing bot blocklists (bot_ips / bot_signatures) ---
         if ($detectBots && self::matchesBotBlocklist($visitor)) {
             $reasons[] = 'bot_blocklist';
         }
 
-        // --- Layer 3: User-Agent heuristics ---
+        // --- Layer 4: User-Agent heuristics ---
         if ($detectUa) {
             $uaReason = self::classifyUa((string) ($visitor['user_agent'] ?? ''));
             if ($uaReason !== null) {
@@ -234,6 +266,8 @@ class CloakDetector
         $hardSignals = [
             'bot_blocklist', 'datacenter_asn', 'vpn_proxy_asn',
             'no_user_agent', 'crawler_or_tool_ua',
+            'ip2proxy_datacenter', 'ip2proxy_bot', 'ip2proxy_vpn_proxy',
+            'ip2proxy_threat', 'ip2proxy_high_fraud',
         ];
         $hardHits = array_intersect($hardSignals, $reasons);
         $softHits = array_diff($reasons, $hardSignals);

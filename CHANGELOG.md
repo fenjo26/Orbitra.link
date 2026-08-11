@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [0.9.7.3] — 2026-08-11
 
 ### Added
+- **IP2Proxy LITE PX12 and IP2Location ASN LITE support.** Both databases have
+  separate status/update entries, use the existing IP2Location download token,
+  and feed explicit proxy/VPN/datacenter/threat signals into live cloaking and
+  Traffic Simulation through the official IP2Proxy PHP reader.
 - **Real Cloak verdicts in Traffic Simulation.** The simulator accepts ASN/ISP,
   JavaScript-executed and `navigator.webdriver` inputs, runs the same passive
   detector as live traffic, and explains why the result is the safe or money page.
@@ -17,6 +21,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   verifies automatic repair, and proves that the next pull succeeds normally.
 
 ### Fixed
+- **Universal Geo DB uploads no longer confuse provider formats.** Orbitra
+  identifies DB11, ASN, PX12, MMDB and Sypex files before installation, stores
+  each in its own slot, migrates PX12 files previously misplaced as DB11, and
+  rejects impossible latitude/longitude values.
+- **Apache campaign aliases now work at `/campaign-alias`.** The root short URL
+  is forwarded to the tracker just like `/r/campaign-alias`; real files and
+  directories remain untouched.
+- Removed the Sypex-only hint beside the universal database upload control.
 - **Admin updates stuck on `unmerged files`.** Before pulling, the updater now
   detects unmerged index entries directly, aborts unfinished Git operations and
   restores a clean `HEAD`. It no longer depends only on matching Git's error text.
