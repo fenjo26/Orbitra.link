@@ -16388,6 +16388,10 @@ const ru = {
     "country": "Страна",
     "deviceType": "Тип устройства",
     "language": "Язык",
+    "trafficAsn": "ASN (необязательно)",
+    "trafficIsp": "ISP / Организация (необязательно)",
+    "jsExecuted": "JavaScript выполнен",
+    "webdriverFlag": "navigator.webdriver включён",
     "general": "Общие",
     "finance": "Финансы",
     "params": "Параметры",
@@ -18573,6 +18577,10 @@ const en = {
     "country": "Country",
     "deviceType": "Device Type",
     "language": "Language",
+    "trafficAsn": "ASN (optional)",
+    "trafficIsp": "ISP / Organization (optional)",
+    "jsExecuted": "JavaScript executed",
+    "webdriverFlag": "navigator.webdriver enabled",
     "general": "General",
     "finance": "Finance",
     "params": "Parameters",
@@ -20758,6 +20766,10 @@ const uk = {
     "country": "Країна",
     "deviceType": "Тип пристрою",
     "language": "Мова",
+    "trafficAsn": "ASN (необов'язково)",
+    "trafficIsp": "ISP / Організація (необов'язково)",
+    "jsExecuted": "JavaScript виконано",
+    "webdriverFlag": "navigator.webdriver увімкнено",
     "general": "Загальний",
     "finance": "Фінанси",
     "params": "Параметри",
@@ -22943,6 +22955,10 @@ const es = {
     "country": "País",
     "deviceType": "Tipo de dispositivo",
     "language": "Idioma",
+    "trafficAsn": "ASN (opcional)",
+    "trafficIsp": "ISP / Organización (opcional)",
+    "jsExecuted": "JavaScript ejecutado",
+    "webdriverFlag": "navigator.webdriver activado",
     "general": "generales",
     "finance": "Finanzas",
     "params": "Parámetros",
@@ -25128,6 +25144,10 @@ const zh = {
     "country": "国家",
     "deviceType": "设备类型",
     "language": "语言",
+    "trafficAsn": "ASN（可选）",
+    "trafficIsp": "ISP / 组织（可选）",
+    "jsExecuted": "JavaScript 已执行",
+    "webdriverFlag": "navigator.webdriver 已启用",
     "general": "一般",
     "finance": "金融",
     "params": "参数",
@@ -27313,6 +27333,10 @@ const fr = {
     "country": "Pays",
     "deviceType": "Type d'appareil",
     "language": "Langue",
+    "trafficAsn": "ASN (facultatif)",
+    "trafficIsp": "FAI / Organisation (facultatif)",
+    "jsExecuted": "JavaScript exécuté",
+    "webdriverFlag": "navigator.webdriver activé",
     "general": "Général",
     "finance": "Finance",
     "params": "Paramètres",
@@ -29500,6 +29524,10 @@ const de = {
     "country": "Land",
     "deviceType": "Gerätetyp",
     "language": "Sprache",
+    "trafficAsn": "ASN (optional)",
+    "trafficIsp": "ISP / Organisation (optional)",
+    "jsExecuted": "JavaScript ausgeführt",
+    "webdriverFlag": "navigator.webdriver aktiviert",
     "general": "Allgemein",
     "finance": "Finanzen",
     "params": "Parameter",
@@ -60274,7 +60302,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
     country: "US",
     device_type: "desktop",
-    language: "en"
+    language: "en",
+    asn: "",
+    isp: "",
+    js_executed: true,
+    webdriver: false
   });
   const [pixels, setPixels] = reactExports.useState([]);
   const [editingPixel, setEditingPixel] = reactExports.useState(null);
@@ -62244,6 +62276,34 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.trafficAsn") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: trafficSimForm.asn,
+                onChange: (e) => setTrafficSimForm({ ...trafficSimForm, asn: e.target.value }),
+                className: "form-input",
+                placeholder: "AS7922"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.trafficIsp") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: trafficSimForm.isp,
+                onChange: (e) => setTrafficSimForm({ ...trafficSimForm, isp: e.target.value }),
+                className: "form-input",
+                placeholder: "Comcast Cable Communications"
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.country") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "select",
@@ -62302,6 +62362,30 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               ]
             }
           )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-checkbox-label", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: trafficSimForm.js_executed,
+                onChange: (e) => setTrafficSimForm({ ...trafficSimForm, js_executed: e.target.checked })
+              }
+            ),
+            t("editor.jsExecuted")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-checkbox-label", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: trafficSimForm.webdriver,
+                onChange: (e) => setTrafficSimForm({ ...trafficSimForm, webdriver: e.target.checked })
+              }
+            ),
+            t("editor.webdriverFlag")
+          ] })
         ] })
       ] }),
       trafficSimResult && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 p-4 rounded", style: {

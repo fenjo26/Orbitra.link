@@ -24,6 +24,7 @@ require_once 'version.php';
 require_once __DIR__ . '/core/shell.php';
 require_once __DIR__ . '/core/backorder.php';
 require_once __DIR__ . '/core/keitaro_import.php';
+require_once __DIR__ . '/core/CloakDetector.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -5401,6 +5402,12 @@ try {
                 $country = $data['country'] ?? 'US';
                 $deviceType = $data['device_type'] ?? 'desktop';
                 $acceptLanguageRaw = trim((string) ($data['accept_language'] ?? ($data['language'] ?? 'en')));
+                $asn = trim((string) ($data['asn'] ?? ''));
+                $isp = trim((string) ($data['isp'] ?? ''));
+                $jsExecuted = !array_key_exists('js_executed', $data)
+                    || filter_var($data['js_executed'], FILTER_VALIDATE_BOOL);
+                $webdriver = array_key_exists('webdriver', $data)
+                    && filter_var($data['webdriver'], FILTER_VALIDATE_BOOL);
                 $languageCodes = extractBrowserLanguageCodes($acceptLanguageRaw);
                 $language = $languageCodes[0] ?? 'unknown';
 
@@ -5409,6 +5416,7 @@ try {
                 $trace[] = "Context -> IP: $ip, UA: $userAgent, Country: $country, Device: $deviceType, Primary Language: $language";
                 $trace[] = "Accept-Language raw: " . ($acceptLanguageRaw !== '' ? $acceptLanguageRaw : '-');
                 $trace[] = "Parsed browser languages: " . (!empty($languageCodes) ? implode(', ', $languageCodes) : 'none');
+                $trace[] = "Network -> ASN: " . ($asn !== '' ? $asn : '-') . ", ISP: " . ($isp !== '' ? $isp : '-');
 
                 if (!$campaignId) {
                     echo json_encode(['status' => 'error', 'message' => 'Missing campaign ID']);
@@ -5548,6 +5556,49 @@ try {
                         $landingsCount = count($customSchema['landings'] ?? []);
                         $offersCount = count($customSchema['offers'] ?? []);
                         $trace[] = "Has $landingsCount landings and $offersCount offers mapped.";
+                    } else if (($selectedStream['schema_type'] ?? 'redirect') === 'cloak') {
+                        $customSchema = json_decode($selectedStream['schema_custom_json'] ?? '{}', true);
+                        if (!is_array($customSchema)) {
+                            $customSchema = [];
+                        }
+                        $cloakConfig = [
+                            'detect_datacenter' => $customSchema['detect_datacenter'] ?? true,
+                            'detect_vpn' => $customSchema['detect_vpn'] ?? true,
+                            'detect_bots' => $customSchema['detect_bots'] ?? true,
+                            'detect_ua' => $customSchema['detect_ua'] ?? true,
+                            'sensitivity' => $customSchema['sensitivity'] ?? 'medium',
+                        ];
+                        $verdict = CloakDetector::detect([
+                            'ip' => $ip,
+                            'user_agent' => $userAgent,
+                            'asn' => $asn,
+                            'isp' => $isp,
+                            'accept_language' => $acceptLanguageRaw,
+                            'pdo' => $pdo,
+                        ], $cloakConfig);
+
+                        $reasons = !empty($verdict['reasons'])
+                            ? implode(', ', $verdict['reasons'])
+                            : 'none';
+                        $trace[] = "Cloak passive detector -> sensitivity={$cloakConfig['sensitivity']}, reasons=[$reasons]";
+
+                        $jsChallengeEnabled = filter_var(
+                            $customSchema['js_challenge'] ?? false,
+                            FILTER_VALIDATE_BOOL
+                        );
+                        if (!empty($verdict['is_suspicious'])) {
+                            $trace[] = "Cloak result: SAFE page (passive detector).";
+                        } elseif ($jsChallengeEnabled && (!$jsExecuted || $webdriver)) {
+                            $why = !$jsExecuted ? 'JavaScript did not execute' : 'navigator.webdriver=true';
+                            $trace[] = "Cloak result: SAFE page (JS challenge: $why).";
+                        } else {
+                            if ($jsChallengeEnabled) {
+                                $trace[] = "JS challenge -> executed=yes, webdriver=no.";
+                            }
+                            $landingsCount = count($customSchema['landings'] ?? []);
+                            $offersCount = count($customSchema['offers'] ?? []);
+                            $trace[] = "Cloak result: MONEY page ($landingsCount landings, $offersCount offers mapped).";
+                        }
                     } else {
                         $trace[] = "Redirect to single Offer ID: " . ($selectedStream['offer_id'] ?? 0);
                     }

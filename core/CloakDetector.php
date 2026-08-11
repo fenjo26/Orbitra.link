@@ -19,6 +19,57 @@ class CloakDetector
      */
     private static $asnSets = null;
 
+    private static function configBool(array $config, string $key, bool $default): bool
+    {
+        if (!array_key_exists($key, $config)) {
+            return $default;
+        }
+        $parsed = filter_var($config[$key], FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
+        return $parsed ?? $default;
+    }
+
+    /**
+     * Check the shared bot blocklists without depending on index.php helpers.
+     *
+     * index.php historically supplied isBot(), which meant the same detector did
+     * nothing when called from the traffic simulator or another entry point. Keep
+     * that helper as the first choice for backwards compatibility, then query the
+     * tables directly when a PDO connection is available.
+     */
+    private static function matchesBotBlocklist(array $visitor): bool
+    {
+        $ip = (string) ($visitor['ip'] ?? '');
+        $ua = (string) ($visitor['user_agent'] ?? '');
+
+        if (function_exists('isBot')) {
+            global $pdo;
+            return isset($pdo) && isBot($pdo, $ip, $ua);
+        }
+
+        $pdo = $visitor['pdo'] ?? ($GLOBALS['pdo'] ?? null);
+        if (!($pdo instanceof PDO)) {
+            return false;
+        }
+
+        try {
+            $stmt = $pdo->prepare('SELECT id FROM bot_ips WHERE ip_or_cidr = ? LIMIT 1');
+            $stmt->execute([$ip]);
+            if ($stmt->fetchColumn()) {
+                return true;
+            }
+
+            if ($ua !== '') {
+                $stmt = $pdo->prepare("SELECT id FROM bot_signatures WHERE trim(signature) <> '' AND ? LIKE '%' || signature || '%' LIMIT 1");
+                $stmt->execute([$ua]);
+                return (bool) $stmt->fetchColumn();
+            }
+        } catch (Throwable $e) {
+            // A missing/old table must not route legitimate traffic to the safe page.
+        }
+
+        return false;
+    }
+
     /**
      * Load the ASN blocklist once per request.
      */
@@ -106,10 +157,10 @@ class CloakDetector
     {
         $reasons = [];
 
-        $detectDatacenter = $config['detect_datacenter'] ?? true;
-        $detectVpn        = $config['detect_vpn'] ?? true;
-        $detectBots       = $config['detect_bots'] ?? true;
-        $detectUa         = $config['detect_ua'] ?? true;
+        $detectDatacenter = self::configBool($config, 'detect_datacenter', true);
+        $detectVpn        = self::configBool($config, 'detect_vpn', true);
+        $detectBots       = self::configBool($config, 'detect_bots', true);
+        $detectUa         = self::configBool($config, 'detect_ua', true);
         $sensitivity      = $config['sensitivity'] ?? 'medium';
 
         // --- Layer 1: ASN datacenter / hosting ---
@@ -149,12 +200,8 @@ class CloakDetector
         }
 
         // --- Layer 2: existing bot blocklists (bot_ips / bot_signatures) ---
-        if ($detectBots && function_exists('isBot')) {
-            // isBot is defined in index.php and operates on the global $pdo.
-            global $pdo;
-            if (isset($pdo) && isBot($pdo, $visitor['ip'] ?? '', $visitor['user_agent'] ?? '')) {
-                $reasons[] = 'bot_blocklist';
-            }
+        if ($detectBots && self::matchesBotBlocklist($visitor)) {
+            $reasons[] = 'bot_blocklist';
         }
 
         // --- Layer 3: User-Agent heuristics ---

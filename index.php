@@ -2,6 +2,17 @@
 // index.php - Обработчик кликов
 require_once 'config.php';
 
+// Keep tracker diagnostics in one predictable application-owned file. Without
+// this, error_log() may land in an FPM/Apache journal whose path varies by host.
+$orbitraLogDir = __DIR__ . '/var/logs';
+if (!is_dir($orbitraLogDir)) {
+    @mkdir($orbitraLogDir, 0775, true);
+}
+if (is_dir($orbitraLogDir) && is_writable($orbitraLogDir)) {
+    ini_set('log_errors', '1');
+    ini_set('error_log', $orbitraLogDir . '/php_errors.log');
+}
+
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
 }
@@ -888,13 +899,13 @@ function validateChallengeToken($ct, $cs, $secret, $campaignId) {
     return true;
 }
 
-// --- Cloaking: JS fingerprint step ------------------------------------------
+// --- Cloaking: JS execution step --------------------------------------------
 //
 // The ASN/UA layers in CloakDetector are passive — they only see the request. A
 // moderator driving a real residential connection with a normal browser string
 // passes them. This step adds an active check: serve the SAFE page to everyone
-// first, run a few browser-authenticity probes in the background, and only send
-// visitors that pass on to the money page.
+// first, require JavaScript to execute, and only then send the visitor to the
+// money page. Explicit browser automation remains blocked through webdriver.
 //
 // Anything that does not execute JavaScript (curl, most crawlers, naive scrapers)
 // simply keeps looking at the white page. Opt-in — off unless js_challenge is set,
@@ -927,46 +938,70 @@ function validateCloakJsToken($token, $sig, $secret, $campaignId)
 
 /**
  * Render the safe page plus the silent probe. $safeHtml is shown as-is; the probe
- * navigates to $nextUrl only when the browser looks real.
+ * navigates to $nextUrl when JavaScript runs in a non-WebDriver browser.
  */
-function renderCloakJsChallenge($safeHtml, $nextUrl)
+function renderCloakJsChallenge($safeHtml, $nextUrl, $webdriverUrl)
 {
     header('Content-Type: text/html; charset=utf-8');
     header('Cache-Control: no-store, no-cache, must-revalidate');
-    $jsNext = json_encode($nextUrl);
-    echo $safeHtml;
+    $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
+    $jsNext = json_encode($nextUrl, $jsonFlags) ?: '""';
+    $jsWebdriver = json_encode($webdriverUrl, $jsonFlags) ?: '""';
+
+    ob_start();
     ?>
 <script>
 (function () {
     try {
-        // Headless/automation give themselves away on these.
-        if (navigator.webdriver === true) return;
-        if (window.callPhantom || window._phantom || window.__nightmare) return;
-        if (navigator.plugins && navigator.plugins.length === 0 && !/Mobi|Android/i.test(navigator.userAgent)) return;
-        if (!navigator.languages || navigator.languages.length === 0) return;
-        // A real viewport has non-zero dimensions.
-        if (!screen.width || !screen.height || window.innerWidth === 0) return;
-        // Canvas must actually rasterise.
-        var c = document.createElement('canvas');
-        var ctx = c.getContext && c.getContext('2d');
-        if (!ctx) return;
-        ctx.fillText('x', 2, 2);
-        if (c.toDataURL().length < 32) return;
+        // webdriver is an explicit automation signal. Privacy settings, empty
+        // plugin lists, canvas restrictions and background tabs are not: all of
+        // those occur in legitimate browsers and caused residential false positives.
+        if (navigator.webdriver === true) {
+            window.location.replace(<?php echo $jsWebdriver; ?>);
+            return;
+        }
 
-        // Require one real frame plus a genuine timer tick: headless shells that stub
-        // rAF tend to fire it synchronously or not at all.
-        var moved = false;
-        requestAnimationFrame(function () { moved = true; });
+        // A small timer proves that JavaScript ran without relying on rAF, which is
+        // commonly paused for background tabs and embedded/in-app browsers.
         setTimeout(function () {
-            if (!moved) return;
             window.location.replace(<?php echo $jsNext; ?>);
-        }, 120);
+        }, 60);
     } catch (e) {
         // Any exception: stay on the safe page.
     }
 })();
 </script>
 <?php
+    $probeScript = (string) ob_get_clean();
+    if (preg_match('/<\/body\s*>/i', (string) $safeHtml)) {
+        echo preg_replace_callback(
+            '/<\/body\s*>/i',
+            static fn($match) => $probeScript . $match[0],
+            (string) $safeHtml,
+            1
+        );
+        return;
+    }
+    echo (string) $safeHtml . $probeScript;
+}
+
+function logCloakEvent($stage, $campaignId, $streamId, array $visitor, array $reasons, $sensitivity)
+{
+    $clean = static function ($value) {
+        return preg_replace('/[\r\n]+/', ' ', (string) $value);
+    };
+    error_log(sprintf(
+        'Orbitra cloak [campaign=%s stream=%s]: stage=%s ip=%s asn=%s isp=%s ua=%.80s reasons=[%s] sensitivity=%s',
+        $clean($campaignId),
+        $clean($streamId),
+        $clean($stage),
+        $clean($visitor['ip'] ?? ''),
+        $clean($visitor['asn'] ?? ''),
+        $clean($visitor['isp'] ?? ''),
+        $clean($visitor['user_agent'] ?? ''),
+        implode(', ', array_map($clean, $reasons)),
+        $clean($sensitivity)
+    ));
 }
 
 function renderChallengePage($campaign, $settings, $ct, $cs, $queryString) {
@@ -1516,7 +1551,7 @@ function isBot($pdo, $ip, $userAgent)
         return true;
 
     if ($userAgent) {
-        $stmt = $pdo->prepare("SELECT id FROM bot_signatures WHERE ? LIKE '%' || signature || '%' LIMIT 1");
+        $stmt = $pdo->prepare("SELECT id FROM bot_signatures WHERE trim(signature) <> '' AND ? LIKE '%' || signature || '%' LIMIT 1");
         $stmt->execute([$userAgent]);
         if ($stmt->fetch())
             return true;
@@ -1959,26 +1994,38 @@ if ($selectedStream) {
         $verdict = CloakDetector::detect($cloakVisitorCtx, $cloakConfig);
         $cloakShowSafe = (bool) $verdict['is_suspicious'];
 
-        // Debug logging: always log when cloak marks a visitor as suspicious,
-        // so false positives can be diagnosed from the PHP error log.
-        if ($cloakShowSafe) {
-            error_log(sprintf(
-                'Orbitra cloak [campaign=%s stream=%s]: SUSPICIOUS ip=%s asn=%s isp=%s ua=%.80s reasons=[%s] sensitivity=%s',
+        $jsChallengeEnabled = filter_var(
+            $customSchema['js_challenge'] ?? false,
+            FILTER_VALIDATE_BOOL
+        );
+        $jsFailure = (string) ($_GET['_ocjf'] ?? '');
+        if (!$cloakShowSafe && $jsChallengeEnabled && $jsFailure === 'webdriver') {
+            $cloakShowSafe = true;
+            logCloakEvent(
+                'JS_SAFE',
                 $campaignId ?? '?',
                 $selectedStream['id'] ?? '?',
-                $ip,
-                $geoData['asn'] ?? '',
-                $geoData['isp'] ?? '',
-                $userAgent,
-                implode(', ', $verdict['reasons']),
+                $cloakVisitorCtx,
+                ['webdriver'],
                 $cloakConfig['sensitivity']
-            ));
+            );
+        }
+
+        if ($verdict['is_suspicious']) {
+            logCloakEvent(
+                'PASSIVE_SAFE',
+                $campaignId ?? '?',
+                $selectedStream['id'] ?? '?',
+                $cloakVisitorCtx,
+                $verdict['reasons'],
+                $cloakConfig['sensitivity']
+            );
         }
 
         // Optional active step: a visitor who passed the passive layers still has to
         // prove it runs a real browser before the money page is served. See
         // renderCloakJsChallenge(). Off by default — it adds a round trip.
-        if (!$cloakShowSafe && !empty($customSchema['js_challenge'])) {
+        if (!$cloakShowSafe && $jsChallengeEnabled) {
             $cloakSecret = $settings['postback_key'] ?? 'orbitra_secret';
             $jsToken = $_GET['_ocj'] ?? '';
             $jsSig   = $_GET['_ocs'] ?? '';
@@ -1986,10 +2033,14 @@ if ($selectedStream) {
             if (!validateCloakJsToken($jsToken, $jsSig, $cloakSecret, $campaignId)) {
                 // Not yet verified: show the safe page and probe in the background.
                 [$newToken, $newSig] = generateCloakJsToken($campaignId, $cloakSecret);
-                $nextParams = array_diff_key($_GET, array_flip(['_ocj', '_ocs']));
+                $nextParams = array_diff_key($_GET, array_flip(['_ocj', '_ocs', '_ocjf']));
                 $nextParams['_ocj'] = $newToken;
                 $nextParams['_ocs'] = $newSig;
                 $nextUrl = '?' . http_build_query($nextParams);
+
+                $webdriverParams = array_diff_key($nextParams, array_flip(['_ocj', '_ocs']));
+                $webdriverParams['_ocjf'] = 'webdriver';
+                $webdriverUrl = '?' . http_build_query($webdriverParams);
 
                 $safeHtml = '';
                 if (isset($customSchema['safe_html']) && $customSchema['safe_html'] !== '') {
@@ -1999,7 +2050,7 @@ if ($selectedStream) {
                         . '<title>Welcome</title></head><body><h1>Page</h1>'
                         . '<p>Content is loading.</p></body></html>';
                 }
-                renderCloakJsChallenge($safeHtml, $nextUrl);
+                renderCloakJsChallenge($safeHtml, $nextUrl, $webdriverUrl);
                 exit;
             }
         }

@@ -53,7 +53,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         country: 'US',
         device_type: 'desktop',
-        language: 'en'
+        language: 'en',
+        asn: '',
+        isp: '',
+        js_executed: true,
+        webdriver: false
     });
 
     // Pixel states
@@ -2165,6 +2169,28 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
+                                    <label className="form-label">{t('editor.trafficAsn')}</label>
+                                    <input
+                                        type="text"
+                                        value={trafficSimForm.asn}
+                                        onChange={(e) => setTrafficSimForm({ ...trafficSimForm, asn: e.target.value })}
+                                        className="form-input"
+                                        placeholder="AS7922"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="form-label">{t('editor.trafficIsp')}</label>
+                                    <input
+                                        type="text"
+                                        value={trafficSimForm.isp}
+                                        onChange={(e) => setTrafficSimForm({ ...trafficSimForm, isp: e.target.value })}
+                                        className="form-input"
+                                        placeholder="Comcast Cable Communications"
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
                                     <label className="form-label">{t('editor.country')}</label>
                                     <select
                                         value={trafficSimForm.country}
@@ -2211,6 +2237,24 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                     <option value="pt">pt</option>
                                     <option value="zh">zh</option>
                                 </select>
+                            </div>
+                            <div className="flex flex-wrap gap-4">
+                                <label className="form-checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={trafficSimForm.js_executed}
+                                        onChange={(e) => setTrafficSimForm({ ...trafficSimForm, js_executed: e.target.checked })}
+                                    />
+                                    {t('editor.jsExecuted')}
+                                </label>
+                                <label className="form-checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={trafficSimForm.webdriver}
+                                        onChange={(e) => setTrafficSimForm({ ...trafficSimForm, webdriver: e.target.checked })}
+                                    />
+                                    {t('editor.webdriverFlag')}
+                                </label>
                             </div>
                         </div>
 
