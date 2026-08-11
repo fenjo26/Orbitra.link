@@ -82,6 +82,8 @@ const MainChart = ({ chartData, activeMetrics = [], currency = 'USD' }) => {
     };
 
     const currencyMetrics = new Set(['cost', 'revenue', 'real_revenue', 'profit']);
+    const percentageMetrics = new Set(['roi', 'real_roi', 'ctr']);
+    const countMetrics = new Set(['clicks', 'unique_clicks', 'conversions']);
 
     const defaultDatasets = isValidData && chartData.datasets ? chartData.datasets : [];
     const activeRawDatasets = defaultDatasets.filter(ds => activeMetrics.includes(ds.label));
@@ -170,12 +172,19 @@ const MainChart = ({ chartData, activeMetrics = [], currency = 'USD' }) => {
                         if (label) {
                             label += ': ';
                         }
-                        if (context.parsed.y !== null) {
-                            const originalLabel = context.dataset.originalLabel || context.dataset.label;
-                            if (currencyMetrics.has(originalLabel)) {
-                                label += formatMoney(context.parsed.y, 2);
+
+                        const metricKey = context.dataset.metricKey || context.dataset.label;
+                        const rawValue = context.dataset.rawData?.[context.dataIndex] ?? context.raw;
+
+                        if (rawValue !== null && rawValue !== undefined) {
+                            if (currencyMetrics.has(metricKey)) {
+                                label += formatMoney(rawValue, 2);
+                            } else if (percentageMetrics.has(metricKey)) {
+                                label += `${formatNumber(rawValue, 2)}%`;
+                            } else if (countMetrics.has(metricKey)) {
+                                label += formatNumber(rawValue, 0);
                             } else {
-                                label += context.parsed.y + '%';
+                                label += formatNumber(rawValue, 2);
                             }
                         }
                         return label;
@@ -264,7 +273,8 @@ const MainChart = ({ chartData, activeMetrics = [], currency = 'USD' }) => {
 
             return {
                 label: translatedLabel,
-                originalLabel: ds.label, // keep for reference
+                metricKey: ds.label,
+                rawData: ds.data || [],
                 data: currencyMetrics.has(ds.label) ? (ds.data || []) : transformToPercentage(ds.data),
                 borderColor: color,
                 backgroundColor: (context) => {

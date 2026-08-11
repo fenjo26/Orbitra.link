@@ -29,6 +29,48 @@ import DashboardSettingsModal from './components/DashboardSettingsModal';
 // In production they are served from the same domain.
 const API_URL = '/api.php';
 
+const DEFAULT_ACTIVE_METRICS = [
+  'clicks',
+  'unique_clicks',
+  'conversions',
+  'cost',
+  'revenue',
+  'profit',
+  'roi'
+];
+
+const CHART_METRICS = new Set([
+  ...DEFAULT_ACTIVE_METRICS,
+  'real_revenue',
+  'real_roi',
+  'ctr'
+]);
+
+const getActiveMetricsStorageKey = (user) => {
+  const userKey = user?.id ?? user?.username;
+  return userKey ? `orbitra_dashboard_active_metrics_${userKey}` : null;
+};
+
+const loadActiveMetrics = (user) => {
+  const storageKey = getActiveMetricsStorageKey(user);
+  if (!storageKey) return [...DEFAULT_ACTIVE_METRICS];
+
+  try {
+    const saved = localStorage.getItem(storageKey);
+    if (saved === null) return [...DEFAULT_ACTIVE_METRICS];
+
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed)) return [...DEFAULT_ACTIVE_METRICS];
+
+    const validMetrics = [...new Set(parsed.filter(metric => CHART_METRICS.has(metric)))];
+    return parsed.length > 0 && validMetrics.length === 0
+      ? [...DEFAULT_ACTIVE_METRICS]
+      : validMetrics;
+  } catch {
+    return [...DEFAULT_ACTIVE_METRICS];
+  }
+};
+
 function App() {
   const { t } = useLanguage();
   const ACTIVE_TAB_STORAGE_KEY = 'orbitra_active_tab';
@@ -84,7 +126,7 @@ function App() {
   const [editingCampaignId, setEditingCampaignId] = useState(null);
 
   const [serverTime, setServerTime] = useState('');
-  const [activeMetrics, setActiveMetrics] = useState(['clicks']);
+  const [activeMetrics, setActiveMetrics] = useState(() => loadActiveMetrics(user));
   const [dashboardFilters, setDashboardFilters] = useState({
     campaign_id: '',
     date_range: 'today',
@@ -222,6 +264,19 @@ function App() {
     localStorage.setItem('ltt_dash_prefs', JSON.stringify(dashboardPreferences));
   }, [dashboardPreferences]);
 
+  // Chart selection is independent from card visibility settings and belongs to
+  // the signed-in user. An empty array is valid: the user may disable all series.
+  useEffect(() => {
+    const storageKey = getActiveMetricsStorageKey(user);
+    if (!storageKey) return;
+
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(activeMetrics));
+    } catch {
+      // Ignore storage issues (private mode, quota, etc.).
+    }
+  }, [activeMetrics, user]);
+
   const fetchData = async () => {
     try {
       // Build query string for dashboard filters
@@ -329,6 +384,7 @@ function App() {
 
   const handleLogin = (userData) => {
     localStorage.setItem('orbitra_user', JSON.stringify(userData));
+    setActiveMetrics(loadActiveMetrics(userData));
     setUser(userData);
   };
 

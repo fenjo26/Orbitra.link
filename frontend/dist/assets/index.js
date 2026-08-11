@@ -44031,6 +44031,8 @@ const MainChart = ({ chartData, activeMetrics = [], currency = "USD" }) => {
     return niceFrac * base;
   };
   const currencyMetrics = /* @__PURE__ */ new Set(["cost", "revenue", "real_revenue", "profit"]);
+  const percentageMetrics = /* @__PURE__ */ new Set(["roi", "real_roi", "ctr"]);
+  const countMetrics = /* @__PURE__ */ new Set(["clicks", "unique_clicks", "conversions"]);
   const defaultDatasets = isValidData && chartData.datasets ? chartData.datasets : [];
   const activeRawDatasets = defaultDatasets.filter((ds) => activeMetrics.includes(ds.label));
   const currencyMax = activeRawDatasets.filter((ds) => currencyMetrics.has(ds.label)).reduce((acc, ds) => {
@@ -44107,12 +44109,17 @@ const MainChart = ({ chartData, activeMetrics = [], currency = "USD" }) => {
             if (label) {
               label += ": ";
             }
-            if (context.parsed.y !== null) {
-              const originalLabel = context.dataset.originalLabel || context.dataset.label;
-              if (currencyMetrics.has(originalLabel)) {
-                label += formatMoney(context.parsed.y, 2);
+            const metricKey = context.dataset.metricKey || context.dataset.label;
+            const rawValue = context.dataset.rawData?.[context.dataIndex] ?? context.raw;
+            if (rawValue !== null && rawValue !== void 0) {
+              if (currencyMetrics.has(metricKey)) {
+                label += formatMoney(rawValue, 2);
+              } else if (percentageMetrics.has(metricKey)) {
+                label += `${formatNumber2(rawValue, 2)}%`;
+              } else if (countMetrics.has(metricKey)) {
+                label += formatNumber2(rawValue, 0);
               } else {
-                label += context.parsed.y + "%";
+                label += formatNumber2(rawValue, 2);
               }
             }
             return label;
@@ -44193,8 +44200,8 @@ const MainChart = ({ chartData, activeMetrics = [], currency = "USD" }) => {
     else if (ds.label === "ctr") translatedLabel = t("metrics.ctr") || "CTR";
     return {
       label: translatedLabel,
-      originalLabel: ds.label,
-      // keep for reference
+      metricKey: ds.label,
+      rawData: ds.data || [],
       data: currencyMetrics.has(ds.label) ? ds.data || [] : transformToPercentage(ds.data),
       borderColor: color2,
       backgroundColor: (context) => {
@@ -72967,6 +72974,39 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
   ] }) });
 };
 const API_URL = "/api.php";
+const DEFAULT_ACTIVE_METRICS = [
+  "clicks",
+  "unique_clicks",
+  "conversions",
+  "cost",
+  "revenue",
+  "profit",
+  "roi"
+];
+const CHART_METRICS = /* @__PURE__ */ new Set([
+  ...DEFAULT_ACTIVE_METRICS,
+  "real_revenue",
+  "real_roi",
+  "ctr"
+]);
+const getActiveMetricsStorageKey = (user) => {
+  const userKey = user?.id ?? user?.username;
+  return userKey ? `orbitra_dashboard_active_metrics_${userKey}` : null;
+};
+const loadActiveMetrics = (user) => {
+  const storageKey = getActiveMetricsStorageKey(user);
+  if (!storageKey) return [...DEFAULT_ACTIVE_METRICS];
+  try {
+    const saved = localStorage.getItem(storageKey);
+    if (saved === null) return [...DEFAULT_ACTIVE_METRICS];
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed)) return [...DEFAULT_ACTIVE_METRICS];
+    const validMetrics = [...new Set(parsed.filter((metric) => CHART_METRICS.has(metric)))];
+    return parsed.length > 0 && validMetrics.length === 0 ? [...DEFAULT_ACTIVE_METRICS] : validMetrics;
+  } catch (e) {
+    return [...DEFAULT_ACTIVE_METRICS];
+  }
+};
 function App() {
   const { t } = useLanguage();
   const ACTIVE_TAB_STORAGE_KEY = "orbitra_active_tab";
@@ -73014,7 +73054,7 @@ function App() {
   const [dismissUpdate, setDismissUpdate] = reactExports.useState(false);
   const [editingCampaignId, setEditingCampaignId] = reactExports.useState(null);
   const [serverTime, setServerTime] = reactExports.useState("");
-  const [activeMetrics, setActiveMetrics] = reactExports.useState(["clicks"]);
+  const [activeMetrics, setActiveMetrics] = reactExports.useState(() => loadActiveMetrics(user));
   const [dashboardFilters, setDashboardFilters] = reactExports.useState({
     campaign_id: "",
     date_range: "today",
@@ -73131,6 +73171,14 @@ function App() {
   reactExports.useEffect(() => {
     localStorage.setItem("ltt_dash_prefs", JSON.stringify(dashboardPreferences));
   }, [dashboardPreferences]);
+  reactExports.useEffect(() => {
+    const storageKey = getActiveMetricsStorageKey(user);
+    if (!storageKey) return;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(activeMetrics));
+    } catch (e) {
+    }
+  }, [activeMetrics, user]);
   const fetchData = async () => {
     try {
       const params = new URLSearchParams();
@@ -73224,6 +73272,7 @@ function App() {
   }, []);
   const handleLogin = (userData) => {
     localStorage.setItem("orbitra_user", JSON.stringify(userData));
+    setActiveMetrics(loadActiveMetrics(userData));
     setUser(userData);
   };
   const handleLogout = () => {
