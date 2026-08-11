@@ -1959,6 +1959,22 @@ if ($selectedStream) {
         $verdict = CloakDetector::detect($cloakVisitorCtx, $cloakConfig);
         $cloakShowSafe = (bool) $verdict['is_suspicious'];
 
+        // Debug logging: always log when cloak marks a visitor as suspicious,
+        // so false positives can be diagnosed from the PHP error log.
+        if ($cloakShowSafe) {
+            error_log(sprintf(
+                'Orbitra cloak [campaign=%s stream=%s]: SUSPICIOUS ip=%s asn=%s isp=%s ua=%.80s reasons=[%s] sensitivity=%s',
+                $campaignId ?? '?',
+                $selectedStream['id'] ?? '?',
+                $ip,
+                $geoData['asn'] ?? '',
+                $geoData['isp'] ?? '',
+                $userAgent,
+                implode(', ', $verdict['reasons']),
+                $cloakConfig['sensitivity']
+            ));
+        }
+
         // Optional active step: a visitor who passed the passive layers still has to
         // prove it runs a real browser before the money page is served. See
         // renderCloakJsChallenge(). Off by default — it adds a round trip.

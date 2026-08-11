@@ -1,8 +1,7 @@
 {
   "_comment": "Autonomous System Numbers (as integers, without the AS prefix) for known datacenter / hosting / cloud / VPN providers. Used by core/CloakDetector.php to flag suspicious visitors for cloaking. Editable: add or remove entries as your moderation landscape changes. Sources: public cloud provider ASN lists and well-known VPN/hosting ASNs.",
-  "_last_updated": "2026-08-06",
+  "_last_updated": "2026-08-11",
   "datacenter_hosting": [
-    7922,
     14618,
     16509,
     8075,
@@ -39,7 +38,6 @@
     37963,
     45090,
     45011,
-    37963,
     51167,
     49505,
     15895,
@@ -48,7 +46,6 @@
     46562,
     36473,
     395841,
-    396982,
     397423,
     397424,
     397425,
@@ -57,7 +54,6 @@
     397428,
     397429,
     397430,
-    16509,
     8987,
     16276,
     3559,

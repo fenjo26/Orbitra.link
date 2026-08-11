@@ -128,10 +128,15 @@ class CloakDetector
             // Hosting keywords in the ISP/organization string reinforce the ASN signal.
             $isp = strtolower((string) ($visitor['isp'] ?? ''));
             if ($isp !== '') {
-                $hostingKeywords = ['hosting', 'datacenter', 'data center', 'cloud',
-                    'server', 'ovh', 'hetzner', 'digitalocean', 'amazon', 'aws',
-                    'google cloud', 'microsoft azure', 'linode', 'vultr', 'contabo',
-                    'leaseweb', 'choopa', 'm247', 'datacamp', 'scaleway'];
+                // IMPORTANT: these are matched via strpos (substring), so avoid
+                // generic words like 'cloud', 'server', 'amazon' that appear in
+                // legitimate residential ISP names (CloudMTS, InterServer, etc.).
+                // Use precise provider names only.
+                $hostingKeywords = ['hosting', 'datacenter', 'data center',
+                    'ovh', 'hetzner', 'digitalocean', 'amazonaws', 'amazon web services',
+                    'aws', 'google cloud', 'microsoft azure', 'linode', 'vultr',
+                    'contabo', 'leaseweb', 'choopa', 'm247', 'datacamp', 'scaleway',
+                    'selectel', 'kamatera', 'upcloud', 'oracle cloud'];
                 foreach ($hostingKeywords as $kw) {
                     if (strpos($isp, $kw) !== false) {
                         if ($detectDatacenter && !in_array('datacenter_asn', $reasons, true)) {
