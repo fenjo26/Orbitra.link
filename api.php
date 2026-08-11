@@ -22,6 +22,7 @@ if (!is_dir(__DIR__ . '/var/logs')) {
 require_once 'config.php';
 require_once 'version.php';
 require_once __DIR__ . '/core/shell.php';
+require_once __DIR__ . '/core/git_update.php';
 require_once __DIR__ . '/core/backorder.php';
 require_once __DIR__ . '/core/keitaro_import.php';
 require_once __DIR__ . '/core/CloakDetector.php';
@@ -6443,6 +6444,23 @@ try {
                         break;
                     }
 
+                    // A failed merge or stash restore poisons every later pull. Repair
+                    // that state before trying to stash again; `git stash` itself
+                    // refuses to run while the index contains unmerged entries.
+                    $preflightOutput = [];
+                    if (orbitraGitHasUnmergedFiles($repoDir)) {
+                        $preflightOutput[] = '[Unmerged files found before update — repairing the git worktree]';
+                        if (!orbitraGitRepairConflictState($repoDir, $preflightOutput)) {
+                            echo json_encode([
+                                'status' => 'error',
+                                'message' => 'Не удалось автоматически очистить незавершённый git-конфликт. '
+                                    . 'Выполните на сервере: git -C ' . escapeshellarg($repoDir) . ' reset --hard HEAD',
+                                'output' => implode("\n", $preflightOutput),
+                            ]);
+                            break;
+                        }
+                    }
+
                     // Stash local changes if any, then pull
                     $statusLines = [];
                     $statusReturn = 0;
@@ -6457,13 +6475,14 @@ try {
                         $stashed = ($stashReturn === 0);
                     }
 
-                    $output = [];
+                    $pullOutput = [];
                     $returnCode = 0;
-                    exec($git . ' pull --ff-only origin ' . escapeshellarg($currentBranch) . ' 2>&1', $output, $returnCode);
+                    exec($git . ' pull --ff-only origin ' . escapeshellarg($currentBranch) . ' 2>&1', $pullOutput, $returnCode);
+                    $output = array_merge($preflightOutput, $pullOutput);
 
                     // If server has no SSH keys, pulling from git@github.com may fail; retry with HTTPS without changing origin.
                     if ($returnCode !== 0) {
-                        $joined = strtolower(implode("\n", $output));
+                        $joined = strtolower(implode("\n", $pullOutput));
                         if (strpos($joined, 'permission denied (publickey)') !== false || strpos($joined, 'could not read from remote repository') !== false) {
                             $originUrl = trim(exec($git . ' remote get-url origin 2>&1'));
                             $httpsUrl = '';
@@ -6479,6 +6498,7 @@ try {
                                 $retryCode = 0;
                                 exec($git . ' pull --ff-only ' . escapeshellarg($httpsUrl) . ' ' . escapeshellarg($currentBranch) . ' 2>&1', $retryOut, $retryCode);
                                 $output = array_merge($output, $retryOut);
+                                $pullOutput = $retryOut;
                                 $returnCode = $retryCode;
                             } else {
                                 $output[] = '[Hint] Configure origin as https://github.com/<user>/<repo>.git for web-based updates.';
@@ -6486,33 +6506,22 @@ try {
                         }
                     }
 
-                    // Fallback: if the pull was blocked by local modifications or a previous unmerged conflict,
-                    // abort the merge/conflict, discard tracked changes, and retry. User data is safe — the
-                    // database, uploaded landings and geo databases are gitignored, and config.php is explicitly preserved.
+                    // Fallback: if local framework edits blocked the pull, discard
+                    // the tracked working-tree changes and retry. User data is safe:
+                    // databases, uploaded landings, GeoIP data, caches and logs are ignored.
                     if ($returnCode !== 0) {
-                        $joinedConflict = strtolower(implode("\n", $output));
-                        if (
-                            strpos($joinedConflict, 'would be overwritten') !== false ||
-                            strpos($joinedConflict, 'local changes') !== false ||
-                            strpos($joinedConflict, 'overwritten by merge') !== false ||
-                            strpos($joinedConflict, 'commit your changes or stash') !== false ||
-                            strpos($joinedConflict, 'unmerged files') !== false ||
-                            strpos($joinedConflict, 'unresolved conflict') !== false ||
-                            strpos($joinedConflict, 'pulling is not possible') !== false
-                        ) {
-                            $output[] = '[Conflicts/local changes block update — clearing conflict state and resetting to origin/' . $currentBranch . ']';
-                            $coOut = [];
-                            $coCode = 0;
-                            exec($git . ' merge --abort 2>&1', $coOut, $coCode);
-                            exec($git . ' checkout -- . ":(exclude)config.php" 2>&1', $coOut, $coCode);
-                            exec($git . ' reset --hard origin/' . escapeshellarg($currentBranch) . ' 2>&1', $coOut, $coCode);
-                            $output = array_merge($output, $coOut);
-
-                            $retryLocal = [];
-                            $retryLocalCode = 0;
-                            exec($git . ' pull --ff-only origin ' . escapeshellarg($currentBranch) . ' 2>&1', $retryLocal, $retryLocalCode);
-                            $output = array_merge($output, $retryLocal);
-                            $returnCode = $retryLocalCode;
+                        if (orbitraGitOutputShowsConflict($pullOutput)) {
+                            $output[] = '[Conflicts/local changes block update — repairing the git worktree]';
+                            if (!orbitraGitRepairConflictState($repoDir, $output)) {
+                                $returnCode = 1;
+                            } else {
+                                $retryLocal = [];
+                                $retryLocalCode = 0;
+                                exec($git . ' pull --ff-only origin ' . escapeshellarg($currentBranch) . ' 2>&1', $retryLocal, $retryLocalCode);
+                                $output = array_merge($output, $retryLocal);
+                                $pullOutput = $retryLocal;
+                                $returnCode = $retryLocalCode;
+                            }
                         }
                     }
 
@@ -6565,7 +6574,14 @@ try {
                         if ($popReturn === 0) {
                             $output = array_merge($output, ['[Stash restored]']);
                         } else {
-                            $output = array_merge($output, ['[Stash restore failed]'], $popOutput ?? []);
+                            $output = array_merge($output, ['[Stash restore conflicted — local changes remain saved in git stash]'], $popOutput ?? []);
+                            // `stash pop` can apply half the patch and leave an
+                            // unmerged index. Keep the stash, but remove that partial
+                            // application so the next admin update is not blocked.
+                            if (!orbitraGitRepairConflictState($repoDir, $output)) {
+                                $returnCode = 1;
+                                $output[] = '[Could not clean the failed stash restore]';
+                            }
                         }
                     }
 

@@ -1,4 +1,4 @@
-# Orbitra v0.9.7.2 Tracker
+# Orbitra v0.9.7.3 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -385,6 +385,27 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.7.3
+
+### Added
+- 🕵️ **Traffic Simulation now runs the real Cloak detector** and reports the
+  safe/money-page decision with ASN, ISP, passive detection reasons, JavaScript
+  execution and `navigator.webdriver` inputs.
+
+### Fixed
+- 🔄 **Admin updates recover from unfinished Git conflicts automatically.** The
+  updater detects the exact `unmerged files` state before pulling, aborts stale
+  merge/rebase operations and restores a clean working tree. If restoring local
+  code changes from stash conflicts with the new release, those changes remain
+  safely stored in Git stash and the partial conflict is removed, so the next
+  update is not blocked again.
+  > An installation already stuck on `0.9.7.2` must receive the repair once over
+  > SSH: `sudo -u www-data git -C /var/www/orbitra reset --hard HEAD && sudo -u www-data git -C /var/www/orbitra pull --ff-only origin main`.
+  > After `0.9.7.3` is installed, future conflicts are repaired from the panel.
+- 🛡️ **Residential traffic is no longer mistaken for hosting traffic.** Precise
+  provider matching keeps Comcast, CloudMTS and InterServer on the money-page path
+  while known datacenter ASNs and cloud providers still resolve to the safe page.
 
 ## 📝 What's New in v0.9.7.2
 

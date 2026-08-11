@@ -7,6 +7,30 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.7.3] — 2026-08-11
+
+### Added
+- **Real Cloak verdicts in Traffic Simulation.** The simulator accepts ASN/ISP,
+  JavaScript-executed and `navigator.webdriver` inputs, runs the same passive
+  detector as live traffic, and explains why the result is the safe or money page.
+- A regression test reproduces an update followed by a conflicting `stash pop`,
+  verifies automatic repair, and proves that the next pull succeeds normally.
+
+### Fixed
+- **Admin updates stuck on `unmerged files`.** Before pulling, the updater now
+  detects unmerged index entries directly, aborts unfinished Git operations and
+  restores a clean `HEAD`. It no longer depends only on matching Git's error text.
+- **A failed stash restore poisoned every future update.** Local code changes stay
+  saved in the Git stash, while the half-applied conflict is reset immediately so
+  the repository never remains in an unresolved state.
+- Installations already stuck in an unresolved state on `0.9.7.2` need one SSH
+  recovery to receive this updater code:
+  `sudo -u www-data git -C /var/www/orbitra reset --hard HEAD && sudo -u www-data git -C /var/www/orbitra pull --ff-only origin main`.
+  Later conflicts are repaired by the admin panel automatically.
+- **Cloaking false positives on residential traffic.** Generic substring matches
+  no longer classify Comcast, CloudMTS or InterServer as hosting providers, while
+  known datacenter ASNs and precise cloud-provider names remain blocked.
+
 ## [0.9.7.2] — 2026-08-11
 
 ### Added
