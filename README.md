@@ -1,4 +1,4 @@
-# Orbitra v0.9.7.1 Tracker
+# Orbitra v0.9.7.2 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -385,6 +385,18 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.7.2
+
+### Added
+- 📊 **Landing-to-Offer transition metrics** (`LP Clicks` and `LP CTR`) added to Landings analytics API and UI table view.
+- 🛡️ **Cloudflare Turnstile** anti-bot verification support in bot challenges.
+- ✏️ **Direct stream filter editing**: click any filter item in Campaign Editor to modify values without deleting and re-creating.
+- 🌐 Full **100% key parity** across all 7 supported UI locales (`ru`, `en`, `de`, `es`, `fr`, `uk`, `zh`).
+
+### Fixed
+- 🩹 **Intercepting streams URL resolution**: fixed `$finalUrl` and redirect type calculation in `landing_offer` and `cloak` schemes so missing landing URLs fall back to the offer URL instead of raising `URL not found.`.
+- 🛡️ **Prefetch false positives**: removed broad `no-cors` check in `core/prefetch.php` that improperly blocked legitimate user navigations over VPNs and mobile browsers.
 
 ## 📝 What's New in v0.9.7.1
 

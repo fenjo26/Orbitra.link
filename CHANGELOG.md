@@ -7,6 +7,18 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.7.2] — 2026-08-11
+
+### Added
+- **Landing-to-Offer transition metrics** (`lp_clicks` & `lp_ctr`) in Landings analytics API and UI table view.
+- **Cloudflare Turnstile** anti-bot verification support in bot challenges.
+- **Direct stream filter editing**: click any filter item in Campaign Editor to modify values/countries without deleting and re-creating.
+- Full 100% key parity across all 7 supported UI locales (`ru`, `en`, `de`, `es`, `fr`, `uk`, `zh`).
+
+### Fixed
+- **Intercepting streams URL resolution**: fixed `$finalUrl` and redirect type calculation in `landing_offer` and `cloak` (safe page & money page) schemes so missing/invalid landing URLs fall back to the offer URL instead of raising `URL not found.`.
+- **Prefetch false positives**: removed broad `no-cors` check in `core/prefetch.php` that improperly blocked legitimate user navigations over VPNs and mobile browsers.
+
 ## [0.9.7.1] — 2026-08-10
 
 ### Added
