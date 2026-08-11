@@ -6435,23 +6435,26 @@ try {
                         }
                     }
 
-                    // Fallback: if the pull was blocked by local modifications to
-                    // tracked framework files (which users are not expected to edit),
-                    // discard those changes and retry. User data is safe — the
-                    // database, uploaded landings and geo databases are gitignored,
-                    // and config.php is explicitly preserved.
+                    // Fallback: if the pull was blocked by local modifications or a previous unmerged conflict,
+                    // abort the merge/conflict, discard tracked changes, and retry. User data is safe — the
+                    // database, uploaded landings and geo databases are gitignored, and config.php is explicitly preserved.
                     if ($returnCode !== 0) {
                         $joinedConflict = strtolower(implode("\n", $output));
                         if (
                             strpos($joinedConflict, 'would be overwritten') !== false ||
                             strpos($joinedConflict, 'local changes') !== false ||
                             strpos($joinedConflict, 'overwritten by merge') !== false ||
-                            strpos($joinedConflict, 'commit your changes or stash') !== false
+                            strpos($joinedConflict, 'commit your changes or stash') !== false ||
+                            strpos($joinedConflict, 'unmerged files') !== false ||
+                            strpos($joinedConflict, 'unresolved conflict') !== false ||
+                            strpos($joinedConflict, 'pulling is not possible') !== false
                         ) {
-                            $output[] = '[Local changes block update — discarding tracked changes (config.php preserved)]';
+                            $output[] = '[Conflicts/local changes block update — clearing conflict state and resetting to origin/' . $currentBranch . ']';
                             $coOut = [];
                             $coCode = 0;
+                            exec($git . ' merge --abort 2>&1', $coOut, $coCode);
                             exec($git . ' checkout -- . ":(exclude)config.php" 2>&1', $coOut, $coCode);
+                            exec($git . ' reset --hard origin/' . escapeshellarg($currentBranch) . ' 2>&1', $coOut, $coCode);
                             $output = array_merge($output, $coOut);
 
                             $retryLocal = [];
