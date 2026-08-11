@@ -534,6 +534,8 @@ export default {
         "device": "Устройство",
         "os": "Операционная система",
         "browser": "Браузер",
+        "bot": "Бот",
+        "botYes": "Да — подозрительный трафик",
         "language": "Язык браузера",
         "isp": "Провайдер (ISP)",
         "ispPlaceholder": "Ростелеком, MTS, Vodafone...",

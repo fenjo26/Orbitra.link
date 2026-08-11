@@ -11,6 +11,7 @@
 // This intentionally does NOT attempt to fully implement Keitaro's uniqueness_cookie flow yet.
 
 require_once __DIR__ . '/geo_databases.php';
+require_once __DIR__ . '/CloakDetector.php';
 
 function orbitraClickApiGetSettings(PDO $pdo): array
 {
@@ -173,6 +174,13 @@ function orbitraClickApiGetGeoData(string $ip): array
         'longitude' => null,
         'zipcode' => '',
         'timezone' => '',
+        'asn' => '',
+        'isp' => '',
+        'is_proxy' => 0,
+        'proxy_type' => '',
+        'proxy_threat' => '',
+        'proxy_provider' => '',
+        'proxy_fraud_score' => null,
     ];
 
     if (in_array($ip, ['127.0.0.1', '::1'], true)) {
@@ -248,6 +256,53 @@ function orbitraClickApiGetGeoData(string $ip): array
         }
     }
 
+    $maxMindAsnDb = __DIR__ . '/../geo/GeoLite2-ASN.mmdb';
+    if (file_exists($maxMindAsnDb) && class_exists('\\GeoIp2\\Database\\Reader')) {
+        try {
+            $reader = new \GeoIp2\Database\Reader($maxMindAsnDb);
+            $record = $reader->asn($ip);
+            if (!empty($record->autonomousSystemNumber)) {
+                $geo['asn'] = 'AS' . (int) $record->autonomousSystemNumber;
+            }
+            $geo['isp'] = orbitraClickApiNormalizeGeoString($record->autonomousSystemOrganization ?? '', '');
+        } catch (Throwable $e) {
+            // try the IP2Location ASN database below
+        }
+    }
+
+    if ($geo['asn'] === '' || $geo['isp'] === '') {
+        $asnRecord = orbitraLookupIp2LocationAsn($ip, dirname(__DIR__));
+        if ($geo['asn'] === '') {
+            $asnValue = orbitraClickApiNormalizeGeoString($asnRecord['asn'] ?? '', '');
+            if ($asnValue !== '') {
+                $geo['asn'] = stripos($asnValue, 'AS') === 0 ? $asnValue : 'AS' . $asnValue;
+            }
+        }
+        if ($geo['isp'] === '') {
+            $geo['isp'] = orbitraClickApiNormalizeGeoString($asnRecord['as'] ?? '', '');
+        }
+    }
+
+    $proxyRecord = orbitraLookupIp2Proxy($ip, dirname(__DIR__));
+    if (!empty($proxyRecord)) {
+        $geo['is_proxy'] = (int) ($proxyRecord['isProxy'] ?? 0);
+        $geo['proxy_type'] = orbitraClickApiNormalizeGeoString($proxyRecord['proxyType'] ?? '', '');
+        $geo['proxy_threat'] = orbitraClickApiNormalizeGeoString($proxyRecord['threat'] ?? '', '');
+        $geo['proxy_provider'] = orbitraClickApiNormalizeGeoString($proxyRecord['provider'] ?? '', '');
+        $geo['proxy_fraud_score'] = is_numeric($proxyRecord['fraudScore'] ?? null)
+            ? (int) $proxyRecord['fraudScore']
+            : null;
+        if ($geo['asn'] === '') {
+            $proxyAsn = orbitraClickApiNormalizeGeoString($proxyRecord['asn'] ?? '', '');
+            if ($proxyAsn !== '') {
+                $geo['asn'] = stripos($proxyAsn, 'AS') === 0 ? $proxyAsn : 'AS' . $proxyAsn;
+            }
+        }
+        if ($geo['isp'] === '') {
+            $geo['isp'] = orbitraClickApiNormalizeGeoString($proxyRecord['isp'] ?? ($proxyRecord['as'] ?? ''), '');
+        }
+    }
+
     if ($geo['country_code'] === 'Unknown' || $geo['region'] === '' || $geo['city'] === '') {
         try {
             $ch = curl_init("http://ip-api.com/json/{$ip}?fields=countryCode,regionName,city,lat,lon,zip,timezone");
@@ -304,7 +359,7 @@ function orbitraClickApiSelectWeightedItem(array $items): ?array
     return $items[0];
 }
 
-function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $country, string $deviceType, array $languageCodes, string $userAgent, PDO $pdo): bool
+function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $country, string $deviceType, array $languageCodes, string $userAgent, array $geoData, string $acceptLanguageRaw, PDO $pdo): bool
 {
     if (empty($stream['filters_json'])) {
         return true;
@@ -338,6 +393,22 @@ function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $
                     }
                 }
                 $matched = !empty(array_intersect($normalizedPayload, $languageCodes));
+                break;
+            case 'Bot':
+                $botVerdict = CloakDetector::detectBotFilter([
+                    'ip' => $ip,
+                    'user_agent' => $userAgent,
+                    'asn' => $geoData['asn'] ?? '',
+                    'isp' => $geoData['isp'] ?? '',
+                    'is_proxy' => $geoData['is_proxy'] ?? 0,
+                    'proxy_type' => $geoData['proxy_type'] ?? '',
+                    'proxy_threat' => $geoData['proxy_threat'] ?? '',
+                    'proxy_provider' => $geoData['proxy_provider'] ?? '',
+                    'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
+                    'accept_language' => $acceptLanguageRaw,
+                    'pdo' => $pdo,
+                ]);
+                $matched = (bool) ($botVerdict['is_suspicious'] ?? false);
                 break;
             default:
                 // Unknown filters: keep permissive to avoid blocking traffic.
@@ -453,7 +524,7 @@ function orbitraClickApiV3(PDO $pdo): void
     foreach ($allStreams as $stream) {
         if (($stream['type'] ?? 'regular') === 'intercepting') {
             if ($wantLog) $log[] = "Checking stream #{$stream['id']} (intercepting)";
-            if (orbitraClickApiStreamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $pdo)) {
+            if (orbitraClickApiStreamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo)) {
                 $selectedStream = $stream;
                 if ($wantLog) $log[] = "Accepted by filters (intercepting)";
                 break;
@@ -466,7 +537,7 @@ function orbitraClickApiV3(PDO $pdo): void
         foreach ($allStreams as $stream) {
             if (($stream['type'] ?? 'regular') !== 'regular') continue;
             if ($wantLog) $log[] = "Checking stream #{$stream['id']} (regular)";
-            if (orbitraClickApiStreamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $pdo)) {
+            if (orbitraClickApiStreamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo)) {
                 $eligible[] = $stream;
                 if ($wantLog) $log[] = "Accepted by filters (regular)";
             }
@@ -487,7 +558,7 @@ function orbitraClickApiV3(PDO $pdo): void
         foreach ($allStreams as $stream) {
             if (($stream['type'] ?? '') === 'fallback') {
                 if ($wantLog) $log[] = "Checking stream #{$stream['id']} (fallback)";
-                if (orbitraClickApiStreamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $pdo)) {
+                if (orbitraClickApiStreamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo)) {
                     $selectedStream = $stream;
                     if ($wantLog) $log[] = "Accepted by filters (fallback)";
                     break;

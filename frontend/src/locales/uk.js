@@ -534,6 +534,8 @@ export default {
         "device": "пристрій",
         "os": "Операційна система",
         "browser": "Браузер",
+        "bot": "Бот",
+        "botYes": "Так — підозрілий трафік",
         "language": "Мова браузера",
         "isp": "Інтернет-провайдер",
         "ispPlaceholder": "Comcast, Verizon, Vodafone...",

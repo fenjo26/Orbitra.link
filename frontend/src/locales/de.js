@@ -534,6 +534,8 @@ export default {
         "device": "Gerät",
         "os": "Betriebssystem",
         "browser": "Browser",
+        "bot": "Bot",
+        "botYes": "Ja — verdächtiger Datenverkehr",
         "language": "Browsersprache",
         "isp": "ISP-Anbieter",
         "ispPlaceholder": "Comcast, Verizon, Vodafone...",

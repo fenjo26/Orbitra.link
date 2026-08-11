@@ -1742,7 +1742,20 @@ function streamMatchesFilters($stream, $visitor, $pdo)
                 }
                 break;
             case 'Bot':
-                $matched = isBot($pdo, $ip, $userAgent);
+                $botVerdict = CloakDetector::detectBotFilter([
+                    'ip' => $ip,
+                    'user_agent' => $userAgent,
+                    'asn' => $visitor['asn'] ?? '',
+                    'isp' => $visitor['isp'] ?? '',
+                    'is_proxy' => $visitor['isProxy'] ?? 0,
+                    'proxy_type' => $visitor['proxyType'] ?? '',
+                    'proxy_threat' => $visitor['proxyThreat'] ?? '',
+                    'proxy_provider' => $visitor['proxyProvider'] ?? '',
+                    'proxy_fraud_score' => $visitor['proxyFraudScore'] ?? null,
+                    'accept_language' => $visitor['acceptLanguage'] ?? '',
+                    'pdo' => $pdo,
+                ]);
+                $matched = (bool) ($botVerdict['is_suspicious'] ?? false);
                 break;
             case 'Language':
                 $payloadLanguages = [];
@@ -1897,6 +1910,7 @@ $visitor = [
     'proxyThreat' => $geoData['proxy_threat'] ?? '',
     'proxyProvider' => $geoData['proxy_provider'] ?? '',
     'proxyFraudScore' => $geoData['proxy_fraud_score'] ?? null,
+    'acceptLanguage' => $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '',
 ];
 
 // Пытаемся найти перехватывающий

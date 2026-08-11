@@ -64,6 +64,24 @@ foreach ($cases as [$name, $caseVisitor, $caseConfig, $expectedSuspicious, $expe
     }
 }
 
+$botFilterCases = [
+    ['Bot filter passes residential traffic', $visitor(), false],
+    ['Bot filter catches hosting ISP', $visitor(['asn' => '', 'isp' => 'Leaseweb USA Inc.']), true],
+    ['Bot filter catches PX12 VPN', $visitor([
+        'asn' => '',
+        'isp' => '',
+        'is_proxy' => 1,
+        'proxy_type' => 'VPN',
+    ]), true],
+];
+foreach ($botFilterCases as [$name, $caseVisitor, $expectedSuspicious]) {
+    $result = CloakDetector::detectBotFilter($caseVisitor);
+    if ((bool) $result['is_suspicious'] !== $expectedSuspicious) {
+        $failures[] = "$name: expected suspicious=" . ($expectedSuspicious ? 'true' : 'false')
+            . ', got ' . ($result['is_suspicious'] ? 'true' : 'false');
+    }
+}
+
 // The detector must work outside index.php and ignore corrupted empty signatures.
 $pdo = new PDO('sqlite::memory:');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -91,4 +109,4 @@ if ($failures) {
     exit(1);
 }
 
-echo 'CloakDetector tests passed (' . (count($cases) + 2) . ' cases).' . PHP_EOL;
+echo 'CloakDetector tests passed (' . (count($cases) + count($botFilterCases) + 2) . ' cases).' . PHP_EOL;

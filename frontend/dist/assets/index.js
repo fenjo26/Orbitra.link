@@ -16482,6 +16482,8 @@ const ru = {
     "device": "Устройство",
     "os": "Операционная система",
     "browser": "Браузер",
+    "bot": "Бот",
+    "botYes": "Да — подозрительный трафик",
     "language": "Язык браузера",
     "isp": "Провайдер (ISP)",
     "ispPlaceholder": "Ростелеком, MTS, Vodafone...",
@@ -18673,6 +18675,8 @@ const en = {
     "device": "Device",
     "os": "Operating System",
     "browser": "Browser",
+    "bot": "Bot",
+    "botYes": "Yes — suspicious traffic",
     "language": "Browser Language",
     "isp": "ISP Provider",
     "ispPlaceholder": "Comcast, Verizon, Vodafone...",
@@ -20864,6 +20868,8 @@ const uk = {
     "device": "пристрій",
     "os": "Операційна система",
     "browser": "Браузер",
+    "bot": "Бот",
+    "botYes": "Так — підозрілий трафік",
     "language": "Мова браузера",
     "isp": "Інтернет-провайдер",
     "ispPlaceholder": "Comcast, Verizon, Vodafone...",
@@ -23055,6 +23061,8 @@ const es = {
     "device": "Dispositivo",
     "os": "Sistema operativo",
     "browser": "Navegador",
+    "bot": "Bot",
+    "botYes": "Sí — tráfico sospechoso",
     "language": "Idioma del navegador",
     "isp": "Proveedor ISP",
     "ispPlaceholder": "Comcast, Verizon, Vodafone...",
@@ -25246,6 +25254,8 @@ const zh = {
     "device": "设备",
     "os": "操作系统",
     "browser": "浏览器",
+    "bot": "机器人",
+    "botYes": "是 — 可疑流量",
     "language": "浏览器语言",
     "isp": "ISP 提供商",
     "ispPlaceholder": "康卡斯特、威瑞森、沃达丰……",
@@ -27437,6 +27447,8 @@ const fr = {
     "device": "Appareil",
     "os": "Système d'exploitation",
     "browser": "Navigateur",
+    "bot": "Robot",
+    "botYes": "Oui — trafic suspect",
     "language": "Langue du navigateur",
     "isp": "Fournisseur FAI",
     "ispPlaceholder": "Comcast, Verizon, Vodafone...",
@@ -29630,6 +29642,8 @@ const de = {
     "device": "Gerät",
     "os": "Betriebssystem",
     "browser": "Browser",
+    "bot": "Bot",
+    "botYes": "Ja — verdächtiger Datenverkehr",
     "language": "Browsersprache",
     "isp": "ISP-Anbieter",
     "ispPlaceholder": "Comcast, Verizon, Vodafone...",
@@ -60794,6 +60808,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     { name: "Device", label: t("filters.device"), placeholder: "mobile, desktop, tablet..." },
     { name: "OS", label: t("filters.os"), placeholder: "windows, macos, ios, android..." },
     { name: "Browser", label: t("filters.browser"), placeholder: "chrome, firefox, safari..." },
+    { name: "Bot", label: t("filters.bot"), placeholder: t("filters.botYes") },
     { name: "Language", label: t("filters.language"), placeholder: "ru, en, de (from browser header)" },
     { name: "ISP", label: t("filters.isp"), placeholder: t("filters.ispPlaceholder") },
     { name: "Connection", label: t("filters.connection"), placeholder: "mobile, wifi, cable..." },
@@ -62131,7 +62146,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             "select",
             {
               value: newFilter.name,
-              onChange: (e) => setNewFilter({ ...newFilter, name: e.target.value }),
+              onChange: (e) => setNewFilter({
+                ...newFilter,
+                name: e.target.value,
+                payload: e.target.value === "Bot" ? "yes" : ""
+              }),
               className: "form-select",
               children: availableFilters.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: f.name, children: f.label }, f.name))
             }
@@ -62174,6 +62193,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               value: newFilter.payload,
               onChange: (payload) => setNewFilter({ ...newFilter, payload }),
               placeholder: t("editor.geoPlaceholder")
+            }
+          ) : newFilter.name === "Bot" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "select",
+            {
+              value: "yes",
+              onChange: () => setNewFilter({ ...newFilter, payload: "yes" }),
+              className: "form-select",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "yes", children: t("filters.botYes") })
             }
           ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",

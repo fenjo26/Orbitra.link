@@ -5471,7 +5471,7 @@ try {
                 $trace[] = "Loaded " . count($allStreams) . " active streams";
 
                 if (!function_exists('streamMatchesFiltersSim')) {
-                    function streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $languageCodes, &$trace)
+                    function streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $languageCodes, $botContext, &$trace)
                     {
                         if (empty($stream['filters_json']))
                             return true;
@@ -5500,6 +5500,12 @@ try {
                                 }
                                 $matched = !empty(array_intersect($normalizedPayload, $languageCodes));
                             }
+                            else if ($f['name'] === 'Bot') {
+                                $botVerdict = CloakDetector::detectBotFilter($botContext);
+                                $matched = (bool) ($botVerdict['is_suspicious'] ?? false);
+                                $trace[] = "  [Bot Filter] suspicious=" . ($matched ? 'yes' : 'no')
+                                    . ", reasons=[" . implode(', ', $botVerdict['reasons'] ?? []) . "]";
+                            }
                             else
                                 $matched = true;
 
@@ -5517,10 +5523,23 @@ try {
                 }
 
                 $selectedStream = null;
+                $botFilterContext = [
+                    'ip' => $ip,
+                    'user_agent' => $userAgent,
+                    'asn' => $asn,
+                    'isp' => $isp,
+                    'is_proxy' => $isProxy,
+                    'proxy_type' => $proxyType,
+                    'proxy_threat' => $proxyThreat,
+                    'proxy_provider' => $proxyProvider,
+                    'proxy_fraud_score' => $proxyFraudScore,
+                    'accept_language' => $acceptLanguageRaw,
+                    'pdo' => $pdo,
+                ];
                 $trace[] = "Evaluating Intercepting streams...";
                 foreach ($allStreams as $stream) {
                     if (($stream['type'] ?? 'regular') === 'intercepting') {
-                        if (streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $languageCodes, $trace)) {
+                        if (streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $languageCodes, $botFilterContext, $trace)) {
                             $selectedStream = $stream;
                             $trace[] = "=> MATCHED Intercepting Stream: " . $stream['name'];
                             break;
@@ -5530,7 +5549,7 @@ try {
 
                 if (!$selectedStream) {
                     $trace[] = "Evaluating Regular streams...";
-                    $regular = array_filter($allStreams, fn($s) => ($s['type'] ?? 'regular') === 'regular' && streamMatchesFiltersSim($s, $ip, $country, $deviceType, $languageCodes, $trace));
+                    $regular = array_filter($allStreams, fn($s) => ($s['type'] ?? 'regular') === 'regular' && streamMatchesFiltersSim($s, $ip, $country, $deviceType, $languageCodes, $botFilterContext, $trace));
 
                     if (!empty($regular)) {
                         $trace[] = "Found " . count($regular) . " eligible regular streams";

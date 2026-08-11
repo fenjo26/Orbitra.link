@@ -393,6 +393,10 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
   PX12, IP2Location ASN LITE and MaxMind GeoLite2-ASN readers provide proxy,
   VPN, Tor, datacenter, threat, fraud-score, ASN and ISP signals to live traffic
   routing and Traffic Simulation.
+- 🤖 **The campaign editor now exposes a Keitaro-style `Bot: Yes` filter.** An
+  intercepting `Bot: Yes` + `Do nothing` stream consumes suspicious traffic,
+  while clean visitors continue to regular streams. The same verdict is used by
+  direct campaign URLs, Traffic Simulation and the Click API used by KClient.
 - 🔄 **Admin updates install Composer dependencies automatically**, so existing
   Git installations receive new database readers without an extra SSH step.
 

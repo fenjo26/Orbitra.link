@@ -609,6 +609,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         { name: 'Device', label: t('filters.device'), placeholder: 'mobile, desktop, tablet...' },
         { name: 'OS', label: t('filters.os'), placeholder: 'windows, macos, ios, android...' },
         { name: 'Browser', label: t('filters.browser'), placeholder: 'chrome, firefox, safari...' },
+        { name: 'Bot', label: t('filters.bot'), placeholder: t('filters.botYes') },
         { name: 'Language', label: t('filters.language'), placeholder: 'ru, en, de (from browser header)' },
         { name: 'ISP', label: t('filters.isp'), placeholder: t('filters.ispPlaceholder') },
         { name: 'Connection', label: t('filters.connection'), placeholder: 'mobile, wifi, cable...' },
@@ -1959,7 +1960,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                 <label className="form-label">{t('editor.filterType')}</label>
                                 <select
                                     value={newFilter.name}
-                                    onChange={e => setNewFilter({ ...newFilter, name: e.target.value })}
+                                    onChange={e => setNewFilter({
+                                        ...newFilter,
+                                        name: e.target.value,
+                                        payload: e.target.value === 'Bot' ? 'yes' : ''
+                                    })}
                                     className="form-select"
                                 >
                                     {availableFilters.map(f => (
@@ -1998,6 +2003,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                         onChange={payload => setNewFilter({ ...newFilter, payload })}
                                         placeholder={t('editor.geoPlaceholder')}
                                     />
+                                ) : newFilter.name === 'Bot' ? (
+                                    <select
+                                        value="yes"
+                                        onChange={() => setNewFilter({ ...newFilter, payload: 'yes' })}
+                                        className="form-select"
+                                    >
+                                        <option value="yes">{t('filters.botYes')}</option>
+                                    </select>
                                 ) : (
                                     <input
                                         type="text"

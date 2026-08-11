@@ -534,6 +534,8 @@ export default {
         "device": "Appareil",
         "os": "Système d'exploitation",
         "browser": "Navigateur",
+        "bot": "Robot",
+        "botYes": "Oui — trafic suspect",
         "language": "Langue du navigateur",
         "isp": "Fournisseur FAI",
         "ispPlaceholder": "Comcast, Verizon, Vodafone...",

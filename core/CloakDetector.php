@@ -29,6 +29,25 @@ class CloakDetector
     }
 
     /**
+     * Keitaro-style "Bot: Yes" stream filter.
+     *
+     * A bot intercepting stream is expected to catch every available suspicious
+     * signal before regular streams are evaluated. It therefore enables every
+     * detector layer and uses the aggressive threshold; users who need tunable
+     * sensitivity can use the dedicated Cloak schema instead.
+     */
+    public static function detectBotFilter(array $visitor): array
+    {
+        return self::detect($visitor, [
+            'detect_datacenter' => true,
+            'detect_vpn' => true,
+            'detect_bots' => true,
+            'detect_ua' => true,
+            'sensitivity' => 'high',
+        ]);
+    }
+
+    /**
      * Check the shared bot blocklists without depending on index.php helpers.
      *
      * index.php historically supplied isBot(), which meant the same detector did

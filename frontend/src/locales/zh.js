@@ -534,6 +534,8 @@ export default {
         "device": "设备",
         "os": "操作系统",
         "browser": "浏览器",
+        "bot": "机器人",
+        "botYes": "是 — 可疑流量",
         "language": "浏览器语言",
         "isp": "ISP 提供商",
         "ispPlaceholder": "康卡斯特、威瑞森、沃达丰……",

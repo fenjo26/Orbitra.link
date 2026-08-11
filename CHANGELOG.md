@@ -14,6 +14,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   separate status/update entries, use the existing IP2Location download token,
   and feed proxy/VPN/Tor/datacenter/threat/fraud-score and ASN/ISP signals into
   live cloaking and Traffic Simulation through the official provider readers.
+- **Keitaro-style `Bot: Yes` stream filter.** It is available in the campaign
+  editor and uses the same ASN, PX12, blocklist and browser detector in direct
+  campaign traffic, Traffic Simulation and the Keitaro-compatible Click API.
+  An intercepting `Bot: Yes` + `Do nothing` stream can therefore hide embedded
+  content while clean traffic continues to the regular streams.
 - Existing Git installations automatically install locked Composer dependencies
   after a successful update from the admin panel.
 
