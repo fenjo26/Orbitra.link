@@ -1867,7 +1867,7 @@ export default {
         "stepInstall": "Установка",
         "stepComplete": "Готово",
         "gitUpdate": "Обновление через Git",
-        "gitUpdateDesc": "Если вы установили трекер через git clone",
+        "gitUpdateDesc": "Ручной способ для Git-установки. Запускайте от системного пользователя, которому принадлежит каталог Orbitra.",
         "downloadArchive": "Скачать архив",
         "downloadArchiveDesc": "Скачать новую версию и заменить файлы вручную",
         "downloadLink": "(Ссылка на скачивание будет доступна после публикации)",

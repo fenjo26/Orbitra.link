@@ -17815,7 +17815,7 @@ const ru = {
     "stepInstall": "Установка",
     "stepComplete": "Готово",
     "gitUpdate": "Обновление через Git",
-    "gitUpdateDesc": "Если вы установили трекер через git clone",
+    "gitUpdateDesc": "Ручной способ для Git-установки. Запускайте от системного пользователя, которому принадлежит каталог Orbitra.",
     "downloadArchive": "Скачать архив",
     "downloadArchiveDesc": "Скачать новую версию и заменить файлы вручную",
     "downloadLink": "(Ссылка на скачивание будет доступна после публикации)",
@@ -20192,7 +20192,7 @@ const en = {
     "stepInstall": "Install",
     "stepComplete": "Done",
     "gitUpdate": "Update via Git",
-    "gitUpdateDesc": "If you installed the tracker via git clone",
+    "gitUpdateDesc": "Manual fallback for Git installations. Run as the system user that owns the Orbitra directory.",
     "downloadArchive": "Download Archive",
     "downloadArchiveDesc": "Download the new version and replace files manually",
     "downloadLink": "(Download link will be available after publication)",
@@ -22383,7 +22383,7 @@ const uk = {
     "stepInstall": "Install",
     "stepComplete": "Done",
     "gitUpdate": "Update via Git",
-    "gitUpdateDesc": "If you installed the tracker via git clone",
+    "gitUpdateDesc": "Ручний спосіб для Git-встановлення. Запускайте від системного користувача, якому належить каталог Orbitra.",
     "downloadArchive": "Download Archive",
     "downloadArchiveDesc": "Download the new version and replace files manually",
     "downloadLink": "(Download link will be available after publication)",
@@ -24574,7 +24574,7 @@ const es = {
     "stepInstall": "Install",
     "stepComplete": "Done",
     "gitUpdate": "Update via Git",
-    "gitUpdateDesc": "If you installed the tracker via git clone",
+    "gitUpdateDesc": "Alternativa manual para instalaciones Git. Ejecútela como el usuario del sistema propietario del directorio Orbitra.",
     "downloadArchive": "Download Archive",
     "downloadArchiveDesc": "Download the new version and replace files manually",
     "downloadLink": "(Download link will be available after publication)",
@@ -26765,7 +26765,7 @@ const zh = {
     "stepInstall": "Install",
     "stepComplete": "Done",
     "gitUpdate": "Update via Git",
-    "gitUpdateDesc": "If you installed the tracker via git clone",
+    "gitUpdateDesc": "Git 安装的手动备用更新方式。请使用拥有 Orbitra 目录的系统用户运行。",
     "downloadArchive": "Download Archive",
     "downloadArchiveDesc": "Download the new version and replace files manually",
     "downloadLink": "(Download link will be available after publication)",
@@ -28956,7 +28956,7 @@ const fr = {
     "stepInstall": "Installer",
     "stepComplete": "Terminé",
     "gitUpdate": "Mise à jour via Git",
-    "gitUpdateDesc": "Si vous avez installé le tracker via git clone",
+    "gitUpdateDesc": "Solution manuelle pour les installations Git. Exécutez-la avec l’utilisateur système propriétaire du dossier Orbitra.",
     "downloadArchive": "Télécharger l'archive",
     "downloadArchiveDesc": "Téléchargez la nouvelle version et remplacez les fichiers manuellement",
     "downloadLink": "(Le lien de téléchargement sera disponible après la publication)",
@@ -31149,7 +31149,7 @@ const de = {
     "stepInstall": "Installieren",
     "stepComplete": "Fertig",
     "gitUpdate": "Update über Git",
-    "gitUpdateDesc": "Wenn Sie den Tracker über Git-Klon installiert haben",
+    "gitUpdateDesc": "Manuelle Alternative für Git-Installationen. Als Systembenutzer ausführen, dem das Orbitra-Verzeichnis gehört.",
     "downloadArchive": "Archiv herunterladen",
     "downloadArchiveDesc": "Neue Version herunterladen und Dateien manuell ersetzen",
     "downloadLink": "(Download-Link wird nach Veröffentlichung verfügbar sein)",
@@ -57872,22 +57872,28 @@ const UpdatePage = () => {
   const [updateSuccess, setUpdateSuccess] = reactExports.useState(false);
   const [message2, setMessage] = reactExports.useState("");
   const [error, setError] = reactExports.useState("");
-  const checkUpdate = async () => {
+  const checkUpdate = reactExports.useCallback(async () => {
     setLoading(true);
     try {
       const res = await axios.get(`${API_URL$5}?action=check_update`);
       if (res.data.status === "success") {
         setUpdateInfo(res.data.data);
+        const dependencyState = res.data.data?.dependency_bootstrap;
+        if (dependencyState && dependencyState.success === false && dependencyState.message) {
+          setError(dependencyState.message);
+        } else {
+          setError("");
+        }
       }
-    } catch (e) {
+    } catch {
       setError(t("update.checkError"));
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
   reactExports.useEffect(() => {
     checkUpdate();
-  }, []);
+  }, [checkUpdate]);
   const handleUpdate = async () => {
     if (updateInfo && updateInfo.update_available === false) {
       const ok = window.confirm(t("update.forceConfirm"));
@@ -58130,11 +58136,15 @@ const UpdatePage = () => {
               padding: "12px",
               fontFamily: "monospace",
               fontSize: "13px",
-              color: "#a3e635"
+              color: "#a3e635",
+              overflowX: "auto",
+              whiteSpace: "nowrap"
             }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "cd /path/to/tracker" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "cd /path/to/orbitra" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "git pull origin main" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "git pull --ff-only origin main" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "php composer.phar install --no-dev --prefer-dist --no-interaction --optimize-autoloader" })
             ] })
           ] })
         ] }) }),
@@ -73003,7 +73013,7 @@ const loadActiveMetrics = (user) => {
     if (!Array.isArray(parsed)) return [...DEFAULT_ACTIVE_METRICS];
     const validMetrics = [...new Set(parsed.filter((metric) => CHART_METRICS.has(metric)))];
     return parsed.length > 0 && validMetrics.length === 0 ? [...DEFAULT_ACTIVE_METRICS] : validMetrics;
-  } catch (e) {
+  } catch {
     return [...DEFAULT_ACTIVE_METRICS];
   }
 };
@@ -73176,7 +73186,7 @@ function App() {
     if (!storageKey) return;
     try {
       localStorage.setItem(storageKey, JSON.stringify(activeMetrics));
-    } catch (e) {
+    } catch {
     }
   }, [activeMetrics, user]);
   const fetchData = async () => {

@@ -1,4 +1,4 @@
-# Orbitra v0.9.7.3 Tracker
+# Orbitra v0.9.7.4 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -385,6 +385,25 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.7.4
+
+### Added
+- 🛡️ **Cloaking now uses real network-security data.** Separate IP2Proxy LITE
+  PX12, IP2Location ASN LITE and MaxMind GeoLite2-ASN readers provide proxy,
+  VPN, Tor, datacenter, threat, fraud-score, ASN and ISP signals to live traffic
+  routing and Traffic Simulation.
+- 🔄 **Admin updates install Composer dependencies automatically**, so existing
+  Git installations receive new database readers without an extra SSH step.
+
+### Fixed
+- 🗄️ **Geo database files can no longer overwrite the wrong provider slot.**
+  DB11, ASN, PX12, MMDB and Sypex formats are classified and validated before
+  activation; an older PX12 file misplaced as DB11 is migrated automatically.
+- 🔗 **Short campaign links work directly at `/campaign-alias` on Apache.**
+- 📦 **The manual Git-update hint now shows the complete safe command:** a
+  fast-forward-only pull followed by the locked production Composer install.
+  The updated guidance is available in all seven interface languages.
 
 ## 📝 What's New in v0.9.7.3
 

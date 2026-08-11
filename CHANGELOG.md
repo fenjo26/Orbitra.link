@@ -7,18 +7,15 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [0.9.7.3] — 2026-08-11
+## [0.9.7.4] — 2026-08-11
 
 ### Added
 - **IP2Proxy LITE PX12 and IP2Location ASN LITE support.** Both databases have
   separate status/update entries, use the existing IP2Location download token,
-  and feed explicit proxy/VPN/datacenter/threat signals into live cloaking and
-  Traffic Simulation through the official IP2Proxy PHP reader.
-- **Real Cloak verdicts in Traffic Simulation.** The simulator accepts ASN/ISP,
-  JavaScript-executed and `navigator.webdriver` inputs, runs the same passive
-  detector as live traffic, and explains why the result is the safe or money page.
-- A regression test reproduces an update followed by a conflicting `stash pop`,
-  verifies automatic repair, and proves that the next pull succeeds normally.
+  and feed proxy/VPN/Tor/datacenter/threat/fraud-score and ASN/ISP signals into
+  live cloaking and Traffic Simulation through the official provider readers.
+- Existing Git installations automatically install locked Composer dependencies
+  after a successful update from the admin panel.
 
 ### Fixed
 - **Universal Geo DB uploads no longer confuse provider formats.** Orbitra
@@ -29,6 +26,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   is forwarded to the tracker just like `/r/campaign-alias`; real files and
   directories remain untouched.
 - Removed the Sypex-only hint beside the universal database upload control.
+
+### Changed
+- The manual Git-update card now shows the complete safe fallback: `git pull
+  --ff-only` followed by the locked production Composer install. All seven
+  interface locales contain the updated guidance.
+
+## [0.9.7.3] — 2026-08-11
+
+### Added
+- **Real Cloak verdicts in Traffic Simulation.** The simulator accepts ASN/ISP,
+  JavaScript-executed and `navigator.webdriver` inputs, runs the same passive
+  detector as live traffic, and explains why the result is the safe or money page.
+- A regression test reproduces an update followed by a conflicting `stash pop`,
+  verifies automatic repair, and proves that the next pull succeeds normally.
+
+### Fixed
 - **Admin updates stuck on `unmerged files`.** Before pulling, the updater now
   detects unmerged index entries directly, aborts unfinished Git operations and
   restores a clean `HEAD`. It no longer depends only on matching Git's error text.

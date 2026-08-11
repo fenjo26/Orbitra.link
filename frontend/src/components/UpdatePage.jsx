@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { RefreshCw, Download, AlertCircle, CheckCircle, Info, ExternalLink } from 'lucide-react';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -15,23 +15,29 @@ const UpdatePage = () => {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
-    const checkUpdate = async () => {
+    const checkUpdate = useCallback(async () => {
         setLoading(true);
         try {
             const res = await axios.get(`${API_URL}?action=check_update`);
             if (res.data.status === 'success') {
                 setUpdateInfo(res.data.data);
+                const dependencyState = res.data.data?.dependency_bootstrap;
+                if (dependencyState && dependencyState.success === false && dependencyState.message) {
+                    setError(dependencyState.message);
+                } else {
+                    setError('');
+                }
             }
-        } catch (e) {
+        } catch {
             setError(t('update.checkError'));
         } finally {
             setLoading(false);
         }
-    };
+    }, [t]);
 
     useEffect(() => {
         checkUpdate();
-    }, []);
+    }, [checkUpdate]);
 
     const handleUpdate = async () => {
         if (updateInfo && updateInfo.update_available === false) {
@@ -358,10 +364,13 @@ const UpdatePage = () => {
                                     padding: '12px',
                                     fontFamily: 'monospace',
                                     fontSize: '13px',
-                                    color: '#a3e635'
+                                    color: '#a3e635',
+                                    overflowX: 'auto',
+                                    whiteSpace: 'nowrap'
                                 }}>
-                                    <code>cd /path/to/tracker</code><br />
-                                    <code>git pull origin main</code>
+                                    <code>cd /path/to/orbitra</code><br />
+                                    <code>git pull --ff-only origin main</code><br />
+                                    <code>php composer.phar install --no-dev --prefer-dist --no-interaction --optimize-autoloader</code>
                                 </div>
                             </div>
                         </div>

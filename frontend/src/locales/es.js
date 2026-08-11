@@ -2053,7 +2053,7 @@ export default {
         "stepInstall": "Install",
         "stepComplete": "Done",
         "gitUpdate": "Update via Git",
-        "gitUpdateDesc": "If you installed the tracker via git clone",
+        "gitUpdateDesc": "Alternativa manual para instalaciones Git. Ejecútela como el usuario del sistema propietario del directorio Orbitra.",
         "downloadArchive": "Download Archive",
         "downloadArchiveDesc": "Download the new version and replace files manually",
         "downloadLink": "(Download link will be available after publication)",

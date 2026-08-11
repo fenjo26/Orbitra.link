@@ -6362,6 +6362,47 @@ try {
         case 'check_update':
             $currentVersion = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.9';
 
+            // Bootstrap dependencies for the 0.9.7.3 -> 0.9.7.4 transition.
+            // The update request itself is executed by the old api.php already in
+            // memory, so that old handler can pull the new source but cannot run the
+            // Composer step that only exists in the new source. UpdatePage always
+            // performs this check again after a successful pull; use that first new
+            // request to finish the locked dependency install. Later releases use
+            // run_update's normal post-pull Composer step and skip this branch.
+            $dependencyBootstrap = null;
+            if (
+                version_compare($currentVersion, '0.9.7.4', '>=')
+                && isset($_SESSION['role'])
+                && $_SESSION['role'] === 'admin'
+                && !class_exists('\\IP2Proxy\\Database')
+                && is_file(__DIR__ . '/composer.phar')
+                && is_file(__DIR__ . '/composer.lock')
+            ) {
+                $disabled = array_filter(preg_split('/[\s,]+/', (string) ini_get('disable_functions')));
+                if (function_exists('exec') && !in_array('exec', $disabled, true)) {
+                    $bootstrapOutput = [];
+                    $bootstrapCode = 0;
+                    $bootstrapCommand = 'cd ' . escapeshellarg(__DIR__)
+                        . ' && php ' . escapeshellarg(__DIR__ . '/composer.phar')
+                        . ' install --no-dev --prefer-dist --no-interaction --optimize-autoloader 2>&1';
+                    exec($bootstrapCommand, $bootstrapOutput, $bootstrapCode);
+                    $dependencyBootstrap = [
+                        'attempted' => true,
+                        'success' => $bootstrapCode === 0,
+                    ];
+                    if ($bootstrapCode !== 0) {
+                        $dependencyBootstrap['message'] = 'Не удалось установить Composer-зависимости: '
+                            . implode(' ', $bootstrapOutput);
+                    }
+                } else {
+                    $dependencyBootstrap = [
+                        'attempted' => false,
+                        'success' => false,
+                        'message' => 'Для установки новых Composer-зависимостей требуется exec() или ручной запуск composer install.',
+                    ];
+                }
+            }
+
             // URL to check for latest version (change to your server or GitHub raw file)
             // Example for GitHub: 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/version.json'
             $versionCheckUrl = 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/version.json';
@@ -6405,7 +6446,8 @@ try {
                 'update_available' => $updateAvailable,
                 'release_notes' => $releaseNotes,
                 'download_url' => $downloadUrl,
-                'released_at' => $releasedAt
+                'released_at' => $releasedAt,
+                'dependency_bootstrap' => $dependencyBootstrap,
             ];
 
             echo json_encode(['status' => 'success', 'data' => $updateInfo]);
@@ -6419,22 +6461,24 @@ try {
                     break;
                 }
 
-                // Auto-update shells out to git, which needs exec()/orbitraShell().
+                // Auto-update shells out to git and Composer, which needs exec().
                 // Many shared hosts list these in disable_functions, in which case
                 // the bare exec() below fatals with "Call to undefined function"
                 // and nginx answers 500 with no JSON. Detect it up front so the
                 // panel gets an actionable message instead of a network error.
                 $disabled = array_filter(preg_split('/[\s,]+/', (string) ini_get('disable_functions')));
                 $canExec = function_exists('exec')
-                    && function_exists('shell_exec')
-                    && !in_array('exec', $disabled, true)
-                    && !in_array('shell_exec', $disabled, true);
+                    && !in_array('exec', $disabled, true);
                 if (!$canExec) {
+                    $manualCommand = 'cd ' . escapeshellarg(__DIR__)
+                        . ' && git pull --ff-only origin main'
+                        . ' && php composer.phar install --no-dev --prefer-dist --no-interaction --optimize-autoloader';
                     echo json_encode([
                         'status' => 'error',
-                        'message' => 'Автоматическое обновление недоступно: на сервере отключены exec()/orbitraShell() '
-                            . '(смотрите disable_functions в php.ini). Обновитесь вручную через SSH: '
-                            . 'cd ' . escapeshellarg(__DIR__) . ' && git pull origin main'
+                        'message' => 'Автоматическое обновление недоступно: на сервере отключена функция exec() '
+                            . '(смотрите disable_functions в php.ini). Обновитесь вручную через SSH '
+                            . 'от системного пользователя, которому принадлежит каталог Orbitra: '
+                            . $manualCommand
                     ]);
                     break;
                 }
