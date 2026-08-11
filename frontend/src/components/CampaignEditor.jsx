@@ -615,22 +615,39 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         { name: 'Time', label: t('filters.time'), placeholder: '9-18, 10:00-20:00...' },
     ];
 
-    const openFilterModal = (streamIdx) => {
-        setFilterModal({ open: true, streamIdx });
+    const openFilterModal = (streamIdx, filterIdx = null) => {
+        if (filterIdx !== null && filterIdx >= 0) {
+            const f = formData.streams[streamIdx]?.filters?.[filterIdx];
+            if (f) {
+                setFilterModal({ open: true, streamIdx, filterIdx });
+                setNewFilter({
+                    name: f.name || 'Country',
+                    mode: f.mode || 'include',
+                    payload: Array.isArray(f.payload) ? f.payload.join(', ') : (f.payload || '')
+                });
+                return;
+            }
+        }
+        setFilterModal({ open: true, streamIdx, filterIdx: null });
         setNewFilter({ name: 'Country', mode: 'include', payload: '' });
     };
 
-    const addFilter = () => {
-        if (!newFilter.payload.trim()) return;
+    const saveFilter = () => {
+        if (!newFilter.payload?.trim()) return;
         const s = [...formData.streams];
         if (!s[filterModal.streamIdx].filters) s[filterModal.streamIdx].filters = [];
-        s[filterModal.streamIdx].filters.push({
+        const filterObj = {
             name: newFilter.name,
             mode: newFilter.mode,
             payload: newFilter.payload.split(',').map(p => p.trim()).filter(p => p)
-        });
+        };
+        if (filterModal.filterIdx !== null && filterModal.filterIdx >= 0) {
+            s[filterModal.streamIdx].filters[filterModal.filterIdx] = filterObj;
+        } else {
+            s[filterModal.streamIdx].filters.push(filterObj);
+        }
         setFormData({ ...formData, streams: s });
-        setFilterModal({ open: false, streamIdx: null });
+        setFilterModal({ open: false, streamIdx: null, filterIdx: null });
     };
 
     const removeFilter = (streamIdx, filterIdx) => {
@@ -977,6 +994,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                     </label>
                                                     {[
                                                         { value: 'none', label: t('challenge.typeNone'), desc: t('challenge.typeNoneDesc') },
+                                                        { value: 'turnstile', label: t('challenge.typeTurnstile'), desc: t('challenge.typeTurnstileDesc') },
                                                         { value: 'recaptcha_v2', label: t('challenge.typeV2'), desc: t('challenge.typeV2Desc') },
                                                         { value: 'recaptcha_v3', label: t('challenge.typeV3'), desc: t('challenge.typeV3Desc') },
                                                         { value: 'custom', label: t('challenge.typeCustom'), desc: t('challenge.typeCustomDesc') },
@@ -997,6 +1015,38 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         </label>
                                                     ))}
                                                 </div>
+
+                                                {/* Cloudflare Turnstile setup guide */}
+                                                {formData.challenge_type === 'turnstile' && (
+                                                    <div style={{ background: 'var(--color-warning-bg, #fffbeb)', border: '1px solid var(--color-warning-border, #fcd34d)', borderRadius: '10px', padding: '14px 16px', marginBottom: '4px' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                                                            <span style={{ fontSize: '15px' }}>⚡</span>
+                                                            <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-warning-text, #92400e)' }}>
+                                                                {t('challenge.setupGuideTitle')}
+                                                            </span>
+                                                        </div>
+                                                        <ol style={{ margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                            <li style={{ fontSize: '12px', color: 'var(--color-warning-text, #92400e)', lineHeight: '1.5' }}>
+                                                                {t('challenge.setupStep1')}{' '}
+                                                                <a
+                                                                    href="https://dash.cloudflare.com/?to=/:account/turnstile"
+                                                                    target="_blank"
+                                                                    rel="noreferrer"
+                                                                    style={{ color: 'var(--color-primary)', fontWeight: '600', textDecoration: 'underline' }}
+                                                                >
+                                                                    Cloudflare Turnstile ↗
+                                                                </a>
+                                                            </li>
+                                                            <li style={{ fontSize: '12px', color: 'var(--color-warning-text, #92400e)', lineHeight: '1.5' }}>
+                                                                {t('challenge.setupStep3')}{' '}
+                                                                <strong>{t('challenge.setupStep3Path')}</strong>
+                                                            </li>
+                                                            <li style={{ fontSize: '12px', color: 'var(--color-warning-text, #92400e)', lineHeight: '1.5' }}>
+                                                                {t('challenge.setupStep4')}
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                )}
 
                                                 {/* reCAPTCHA setup guide */}
                                                 {(formData.challenge_type === 'recaptcha_v2' || formData.challenge_type === 'recaptcha_v3') && (
@@ -1837,14 +1887,35 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         {stream.filters && stream.filters.length > 0 ? (
                                                             <div className="space-y-1">
                                                                 {stream.filters.map((f, fIdx) => (
-                                                                    <div key={fIdx} className="flex rounded-lg text-sm overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+                                                                    <div key={fIdx} className="flex rounded-lg text-sm overflow-hidden items-center" style={{ border: '1px solid var(--color-border)' }}>
                                                                         <div className="px-2 py-1 font-semibold" style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-primary)' }}>{f.name}</div>
                                                                         <div className="px-2 py-1 font-bold" style={{ color: f.mode === 'include' ? 'var(--color-success)' : 'var(--color-danger)' }}>
                                                                             {f.mode === 'include' ? '✓' : '✗'}
                                                                         </div>
-                                                                        <div className="flex-1 px-2 py-1 truncate" style={{ color: 'var(--color-text-secondary)' }}>{f.payload.join(', ')}</div>
-                                                                        <button onClick={() => removeFilter(idx, fIdx)} className="px-2" style={{ color: 'var(--color-danger)' }}>
-                                                                            <X className="w-3 h-3" />
+                                                                        <div
+                                                                            className="flex-1 px-2 py-1 truncate cursor-pointer hover:underline"
+                                                                            style={{ color: 'var(--color-text-secondary)' }}
+                                                                            onClick={() => openFilterModal(idx, fIdx)}
+                                                                            title={t('editor.editFilter')}
+                                                                        >
+                                                                            {Array.isArray(f.payload) ? f.payload.join(', ') : (f.payload || '')}
+                                                                        </div>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => openFilterModal(idx, fIdx)}
+                                                                            className="px-1.5 py-1 text-blue-500 hover:text-blue-700"
+                                                                            title={t('editor.editFilter')}
+                                                                        >
+                                                                            <Edit3 className="w-3.5 h-3.5" />
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => removeFilter(idx, fIdx)}
+                                                                            className="px-2 py-1"
+                                                                            style={{ color: 'var(--color-danger)' }}
+                                                                            title={t('common.delete')}
+                                                                        >
+                                                                            <X className="w-3.5 h-3.5" />
                                                                         </button>
                                                                     </div>
                                                                 ))}
@@ -1871,8 +1942,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 <div className="modal-overlay">
                     <div className="modal-content" style={{ maxWidth: '600px' }}>
                         <div className="modal-header">
-                            <h3 className="modal-title">{t('editor.addFilter')}</h3>
-                            <button onClick={() => setFilterModal({ open: false, streamIdx: null })} className="action-btn">
+                            <h3 className="modal-title">
+                                {filterModal.filterIdx !== null ? t('editor.editFilter') : t('editor.addFilter')}
+                            </h3>
+                            <button onClick={() => setFilterModal({ open: false, streamIdx: null, filterIdx: null })} className="action-btn">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
@@ -1934,8 +2007,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         </div>
 
                         <div className="modal-footer">
-                            <button onClick={() => setFilterModal({ open: false, streamIdx: null })} className="btn btn-secondary">{t('common.cancel')}</button>
-                            <button onClick={addFilter} disabled={!newFilter.payload?.trim()} className="btn btn-primary">{t('common.add')}</button>
+                            <button onClick={() => setFilterModal({ open: false, streamIdx: null, filterIdx: null })} className="btn btn-secondary">{t('common.cancel')}</button>
+                            <button onClick={saveFilter} disabled={!newFilter.payload?.trim()} className="btn btn-primary">
+                                {filterModal.filterIdx !== null ? t('common.save') : t('common.add')}
+                            </button>
                         </div>
                     </div>
                 </div>

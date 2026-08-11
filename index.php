@@ -974,6 +974,7 @@ function renderChallengePage($campaign, $settings, $ct, $cs, $queryString) {
     $campaignAlias = htmlspecialchars($campaign['alias'] ?? '');
     $siteKeyV2 = htmlspecialchars($settings['recaptcha_v2_site_key'] ?? '');
     $siteKeyV3 = htmlspecialchars($settings['recaptcha_v3_site_key'] ?? '');
+    $siteKeyTurnstile = htmlspecialchars($settings['turnstile_site_key'] ?? '');
     $thresholdV3 = (float)($settings['recaptcha_v3_threshold'] ?? 0.5);
     $customCode = $campaign['challenge_custom_code'] ?? '';
     $ctEnc = htmlspecialchars($ct);
@@ -1017,6 +1018,11 @@ p{color:#6b7280;font-size:14px;line-height:1.5;margin-bottom:24px}
     <?php elseif ($challengeType === 'recaptcha_v3' && $siteKeyV3): ?>
     <button type="submit" class="btn" id="submit-btn">Continue &rarr;</button>
     <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
+    <?php elseif ($challengeType === 'turnstile' && $siteKeyTurnstile): ?>
+    <div class="recaptcha-wrap">
+      <div class="cf-turnstile" data-sitekey="<?php echo $siteKeyTurnstile; ?>" data-callback="onTurnstileSuccess"></div>
+    </div>
+    <button type="submit" class="btn" id="submit-btn" style="display:none">Continue &rarr;</button>
     <?php elseif ($challengeType === 'custom' && $customCode): ?>
     <?php echo $customCode; ?>
     <?php else: ?>
@@ -1038,6 +1044,17 @@ grecaptcha.ready(function(){
     });
   });
 });
+</script>
+<?php elseif ($challengeType === 'turnstile' && $siteKeyTurnstile): ?>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script>
+function onTurnstileSuccess(token) {
+  document.getElementById('challenge-form').submit();
+}
+setTimeout(function(){
+  var btn = document.getElementById('submit-btn');
+  if(btn) btn.style.display = 'inline-block';
+}, 2500);
 </script>
 <?php endif; ?>
 </body>
@@ -1074,6 +1091,23 @@ function verifyChallengeResponse($challengeType, $settings, $postData) {
         if (!$result) return false;
         $data = json_decode($result, true);
         return !empty($data['success']) && ($data['score'] ?? 0) >= $threshold;
+    } elseif ($challengeType === 'turnstile') {
+        $secretKey = $settings['turnstile_secret_key'] ?? '';
+        $response = $postData['cf-turnstile-response'] ?? '';
+        if (empty($secretKey) || empty($response)) return false;
+        $ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+            'secret' => $secretKey,
+            'response' => $response,
+            'remoteip' => $_SERVER['REMOTE_ADDR'] ?? ''
+        ]));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        $result = curl_exec($ch);
+        if (!$result) return false;
+        $data = json_decode($result, true);
+        return !empty($data['success']);
     } elseif ($challengeType === 'custom') {
         // Custom challenge: trust a hidden field _challenge_ok=1 submitted by user's own code
         return !empty($postData['_challenge_ok']);
@@ -1894,10 +1928,14 @@ if ($selectedStream) {
             if ($off) {
                 $offerUrl = $off['url'];
                 $offerRedirectType = $off['redirect_type'] ?? 'redirect';
-                if (!$landingIdToLog) {
-                    $finalUrl = $offerUrl;
-                }
             }
+        }
+
+        if ($landingType === 'redirect' && !empty($landingUrl)) {
+            $finalUrl = $landingUrl;
+            $offerRedirectType = $landingRedirectType;
+        } else if (!empty($offerUrl) && ($landingType === null || $landingType === 'redirect')) {
+            $finalUrl = $offerUrl;
         }
     } else if ($schemaType === 'cloak') {
         // Cloaking: route suspicious visitors (bots / moderators / datacenter traffic)
@@ -1957,7 +1995,7 @@ if ($selectedStream) {
             // misconfigured cloak stream never leaks the money page.
             $safeLandingId = (int) ($customSchema['safe_landing_id'] ?? 0);
             if ($safeLandingId > 0) {
-                $stmt = $pdo->prepare("SELECT type, url, action_payload, action_type FROM landings WHERE id = ?");
+                $stmt = $pdo->prepare("SELECT type, url, action_payload, action_type, redirect_type FROM landings WHERE id = ?");
                 $stmt->execute([$safeLandingId]);
                 $safeLand = $stmt->fetch();
                 if ($safeLand) {
@@ -1966,6 +2004,11 @@ if ($selectedStream) {
                     $landingUrl = $safeLand['url'];
                     $landingAction = $safeLand['action_payload'];
                     $landingActionType = $safeLand['action_type'] ?? '';
+                    $landingRedirectType = $safeLand['redirect_type'] ?? 'redirect';
+                    if ($landingType === 'redirect' && !empty($landingUrl)) {
+                        $finalUrl = $landingUrl;
+                        $offerRedirectType = $landingRedirectType;
+                    }
                 }
             } elseif (!empty($customSchema['safe_url'])) {
                 $finalUrl = (string) $customSchema['safe_url'];
@@ -1990,7 +2033,7 @@ if ($selectedStream) {
             }
 
             if ($landingIdToLog) {
-                $stmt = $pdo->prepare("SELECT type, url, action_payload, action_type FROM landings WHERE id = ?");
+                $stmt = $pdo->prepare("SELECT type, url, action_payload, action_type, redirect_type FROM landings WHERE id = ?");
                 $stmt->execute([$landingIdToLog]);
                 $land = $stmt->fetch();
                 if ($land) {
@@ -1998,6 +2041,7 @@ if ($selectedStream) {
                     $landingUrl = $land['url'];
                     $landingAction = $land['action_payload'];
                     $landingActionType = $land['action_type'] ?? '';
+                    $landingRedirectType = $land['redirect_type'] ?? 'redirect';
                 }
             }
             if ($offerIdToLog) {
@@ -2007,10 +2051,14 @@ if ($selectedStream) {
                 if ($off) {
                     $offerUrl = $off['url'];
                     $offerRedirectType = $off['redirect_type'] ?? 'redirect';
-                    if (!$landingIdToLog) {
-                        $finalUrl = $offerUrl;
-                    }
                 }
+            }
+
+            if ($landingType === 'redirect' && !empty($landingUrl)) {
+                $finalUrl = $landingUrl;
+                $offerRedirectType = $landingRedirectType;
+            } else if (!empty($offerUrl) && ($landingType === null || $landingType === 'redirect')) {
+                $finalUrl = $offerUrl;
             }
         }
     } else { // redirect

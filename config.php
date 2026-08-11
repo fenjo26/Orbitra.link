@@ -767,7 +767,9 @@ try {
         ['recaptcha_v2_secret_key', ''],
         ['recaptcha_v3_site_key', ''],
         ['recaptcha_v3_secret_key', ''],
-        ['recaptcha_v3_threshold', '0.5']
+        ['recaptcha_v3_threshold', '0.5'],
+        ['turnstile_site_key', ''],
+        ['turnstile_secret_key', '']
     ];
     $stmt = $pdo->prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)");
     foreach ($defaultSettings as $s) {

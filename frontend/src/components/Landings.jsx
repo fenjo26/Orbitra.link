@@ -107,6 +107,8 @@ const Landings = ({ landings, refreshData }) => {
             { key: 'state', label: 'state' },
             { key: 'clicks', label: 'clicks' },
             { key: 'unique_clicks', label: 'unique_clicks' },
+            { key: 'lp_clicks', label: 'lp_clicks' },
+            { key: 'lp_ctr', label: 'lp_ctr' },
             { key: 'url', label: 'url' },
         ];
 
@@ -258,13 +260,15 @@ const Landings = ({ landings, refreshData }) => {
                             <th>{t('components.status')}</th>
                             <th>{t('components.clicks')}</th>
                             <th>{t('components.uniques')}</th>
+                            <th>{t('components.lpClicks') || 'LP Clicks'}</th>
+                            <th>{t('components.lpCtr') || 'LP CTR'}</th>
                             <th className="text-right">{t('common.actions')}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {visibleLandings.length === 0 ? (
                             <tr>
-                                <td colSpan="9" className="text-center py-12">
+                                <td colSpan="11" className="text-center py-12">
                                     <div className="empty-state">
                                         <p className="empty-state-title">{t('landings.noLandings')}</p>
                                         <p className="empty-state-text">{t('landings.noLandingsDesc')}</p>
@@ -313,6 +317,8 @@ const Landings = ({ landings, refreshData }) => {
                                     </td>
                                     <td>{landing.clicks || 0}</td>
                                     <td>{landing.unique_clicks || 0}</td>
+                                    <td>{landing.lp_clicks || 0}</td>
+                                    <td>{landing.lp_ctr !== undefined ? `${landing.lp_ctr}%` : '0%'}</td>
                                     <td>
                                         <div className="action-buttons">
                                             <button onClick={() => handleEdit(landing.id)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>

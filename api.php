@@ -2116,11 +2116,12 @@ try {
             $orderBy = isset($_GET['limit']) ? "ORDER BY clicks DESC, l.id DESC" : "ORDER BY l.id DESC";
             $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
 
-            // Expanded to include metrics similarly to offers/campaigns
+            // Expanded to include metrics similarly to offers/campaigns (including LP->Offer clicks and LP CTR)
             $stmt = $pdo->prepare("
                 SELECT l.id, l.name, l.type, l.url, l.state, lg.name as group_name,
                        COUNT(cl.id) as clicks, 
                        COUNT(DISTINCT cl.ip) as unique_clicks,
+                       COALESCE(SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END), 0) as lp_clicks,
                        COALESCE(SUM(cl.is_conversion), 0) as conversions
                 FROM landings l
                 LEFT JOIN landing_groups lg ON l.group_id = lg.id
@@ -2132,7 +2133,15 @@ try {
                 $limitClause
             ");
             $stmt->execute($paramsCl);
-            echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+            $landingsData = $stmt->fetchAll();
+            foreach ($landingsData as &$lRow) {
+                $c = (int) ($lRow['clicks'] ?? 0);
+                $lpc = (int) ($lRow['lp_clicks'] ?? 0);
+                $lRow['lp_clicks'] = $lpc;
+                $lRow['lp_ctr'] = $c > 0 ? round(($lpc / $c) * 100, 2) : 0.0;
+            }
+            unset($lRow);
+            echo json_encode(['status' => 'success', 'data' => $landingsData]);
             break;
 
         // Simple landings list for dropdowns (no heavy joins with clicks table)

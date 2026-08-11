@@ -16448,6 +16448,7 @@ const ru = {
     "weight": "Вес (доля трафика)",
     "filters": "Фильтры",
     "addFilter": "+ Добавить фильтр",
+    "editFilter": "Редактировать фильтр",
     "noFilters": "Без фильтров — весь трафик проходит",
     "filterType": "Тип",
     "filterMode": "Режим",
@@ -16557,6 +16558,8 @@ const ru = {
     "status": "Статус",
     "clicks": "Клики",
     "uniques": "Уники",
+    "lpClicks": "Переходы LP",
+    "lpCtr": "LP CTR",
     "active": "Активен",
     "archive": "Архив",
     "edit": "Редактировать",
@@ -18008,6 +18011,8 @@ const ru = {
     "typeLabel": "Тип верификации",
     "typeNone": "Отключено",
     "typeNoneDesc": "Без верификации — прямой редирект (по умолчанию)",
+    "typeTurnstile": "Cloudflare Turnstile",
+    "typeTurnstileDesc": "Умная невидимая проверка ботов от Cloudflare. Не требует кликов от 99%+ реальных людей.",
     "typeV2": "reCAPTCHA v2",
     "typeV2Desc": 'Классический чекбокс "Я не робот". Требует ключей reCAPTCHA v2 в Интеграциях.',
     "typeV3": "reCAPTCHA v3 (невидимая)",
@@ -18040,6 +18045,8 @@ const ru = {
     "secretKeyPlaceholder": "6Lc...",
     "v3Threshold": "Минимальный порог оценки",
     "v3ThresholdDesc": "Клики с оценкой ниже этого значения получают challenge-страницу. Рекомендовано: 0.5",
+    "turnstileTitle": "Ключи Cloudflare Turnstile",
+    "turnstileDesc": "Умная невидимая проверка ботов без картинок и чекбоксов. Получите Site Key и Secret Key в панели Cloudflare Dashboard.",
     "adminConsoleLink": "Открыть reCAPTCHA Admin Console",
     "saved": "Настройки reCAPTCHA сохранены",
     "saveError": "Не удалось сохранить настройки reCAPTCHA",
@@ -18626,6 +18633,7 @@ const en = {
     "weight": "Weight (traffic share)",
     "filters": "Filters",
     "addFilter": "+ Add filter",
+    "editFilter": "Edit filter",
     "noFilters": "No filters — all traffic passes",
     "filterType": "Type",
     "filterMode": "Mode",
@@ -18735,6 +18743,8 @@ const en = {
     "status": "Status",
     "clicks": "Clicks",
     "uniques": "Uniques",
+    "lpClicks": "LP Clicks",
+    "lpCtr": "LP CTR",
     "active": "Active",
     "archive": "Archive",
     "edit": "Edit",
@@ -20186,6 +20196,8 @@ const en = {
     "typeLabel": "Verification type",
     "typeNone": "Disabled",
     "typeNoneDesc": "No verification — direct redirect (default)",
+    "typeTurnstile": "Cloudflare Turnstile",
+    "typeTurnstileDesc": "Smart, privacy-friendly invisible bot check. Non-interactive for 99%+ of human visitors.",
     "typeV2": "reCAPTCHA v2",
     "typeV2Desc": `Classic "I'm not a robot" checkbox. Requires reCAPTCHA v2 keys in Integrations.`,
     "typeV3": "reCAPTCHA v3 (invisible)",
@@ -20218,6 +20230,8 @@ const en = {
     "secretKeyPlaceholder": "6Lc...",
     "v3Threshold": "Minimum score threshold",
     "v3ThresholdDesc": "Clicks with score below this value are shown the challenge page. Recommended: 0.5",
+    "turnstileTitle": "Cloudflare Turnstile keys",
+    "turnstileDesc": "Smart, privacy-friendly invisible bot check. Non-interactive for 99%+ of human visitors.",
     "adminConsoleLink": "Open reCAPTCHA Admin Console",
     "saved": "reCAPTCHA settings saved",
     "saveError": "Failed to save reCAPTCHA settings",
@@ -20804,6 +20818,7 @@ const uk = {
     "weight": "Вага (частка трафіку)",
     "filters": "Фільтри",
     "addFilter": "+ Додати фільтр",
+    "editFilter": "Редагувати фільтр",
     "noFilters": "Без фільтрів — весь трафік пропускається",
     "filterType": "Тип",
     "filterMode": "Режим",
@@ -20911,8 +20926,10 @@ const uk = {
     "group": "Група",
     "type": "Тип",
     "status": "Статус",
-    "clicks": "кліки",
+    "clicks": "Кліки",
     "uniques": "Унікальні",
+    "lpClicks": "Переходи LP",
+    "lpCtr": "LP CTR",
     "active": "Активний",
     "archive": "Архів",
     "edit": "Редагувати",
@@ -22364,6 +22381,8 @@ const uk = {
     "typeLabel": "Verification type",
     "typeNone": "Disabled",
     "typeNoneDesc": "No verification — direct redirect (default)",
+    "typeTurnstile": "Cloudflare Turnstile",
+    "typeTurnstileDesc": "Розумна невидима перевірка ботів від Cloudflare. Не вимагає кліків від 99%+ реальних людей.",
     "typeV2": "reCAPTCHA v2",
     "typeV2Desc": `Classic "I'm not a robot" checkbox. Requires reCAPTCHA v2 keys in Integrations.`,
     "typeV3": "reCAPTCHA v3 (invisible)",
@@ -22396,6 +22415,8 @@ const uk = {
     "secretKeyPlaceholder": "6Lc...",
     "v3Threshold": "Мінімальний поріг балів",
     "v3ThresholdDesc": "Клацання з оцінкою нижче цього значення показують сторінку завдання. Рекомендовано: 0,5",
+    "turnstileTitle": "Ключі Cloudflare Turnstile",
+    "turnstileDesc": "Розумна невидима перевірка ботів без картинок та прапорців. Отримайте Site Key та Secret Key у панелі Cloudflare Dashboard.",
     "adminConsoleLink": "Відкрийте консоль адміністратора reCAPTCHA",
     "saved": "Налаштування reCAPTCHA збережено",
     "saveError": "Не вдалося зберегти налаштування reCAPTCHA",
@@ -22981,7 +23002,8 @@ const es = {
     "add": "+ Agregar",
     "weight": "Peso (participación de tráfico)",
     "filters": "Filtros",
-    "addFilter": "+ Agregar filtro",
+    "addFilter": "+ Añadir filtro",
+    "editFilter": "Editar filtro",
     "noFilters": "Sin filtros: todo el tráfico pasa",
     "filterType": "Tipo",
     "filterMode": "Modo",
@@ -23091,6 +23113,8 @@ const es = {
     "status": "Estado",
     "clicks": "Clics",
     "uniques": "Únicos",
+    "lpClicks": "Clics LP",
+    "lpCtr": "LP CTR",
     "active": "Activo",
     "archive": "Archivo",
     "edit": "Editar",
@@ -24542,6 +24566,8 @@ const es = {
     "typeLabel": "Verification type",
     "typeNone": "Disabled",
     "typeNoneDesc": "No verification — direct redirect (default)",
+    "typeTurnstile": "Cloudflare Turnstile",
+    "typeTurnstileDesc": "Verificación inteligente e invisible de bots por Cloudflare. Sin interacción para el 99%+ de visitantes.",
     "typeV2": "reCAPTCHA v2",
     "typeV2Desc": `Classic "I'm not a robot" checkbox. Requires reCAPTCHA v2 keys in Integrations.`,
     "typeV3": "reCAPTCHA v3 (invisible)",
@@ -24574,6 +24600,8 @@ const es = {
     "secretKeyPlaceholder": "6L...",
     "v3Threshold": "Umbral de puntuación mínima",
     "v3ThresholdDesc": "Los clics con una puntuación inferior a este valor se muestran en la página del desafío. Recomendado: 0,5",
+    "turnstileTitle": "Claves de Cloudflare Turnstile",
+    "turnstileDesc": "Verificación invisible moderna contra bots. Requiere Site Key y Secret Key de Cloudflare Turnstile.",
     "adminConsoleLink": "Abra la consola de administración de reCAPTCHA",
     "saved": "Configuración de reCAPTCHA guardada",
     "saveError": "No se pudo guardar la configuración de reCAPTCHA",
@@ -25160,6 +25188,7 @@ const zh = {
     "weight": "权重（流量份额）",
     "filters": "过滤器",
     "addFilter": "+ 添加过滤器",
+    "editFilter": "编辑过滤器",
     "noFilters": "没有过滤器——所有流量都通过",
     "filterType": "类型",
     "filterMode": "模式",
@@ -25267,8 +25296,10 @@ const zh = {
     "group": "集团",
     "type": "类型",
     "status": "状态",
-    "clicks": "点击次数",
+    "clicks": "点击数",
     "uniques": "独特之处",
+    "lpClicks": "LP 点击数",
+    "lpCtr": "LP 点击率",
     "active": "活跃",
     "archive": "存档",
     "edit": "编辑",
@@ -26720,6 +26751,8 @@ const zh = {
     "typeLabel": "Verification type",
     "typeNone": "Disabled",
     "typeNoneDesc": "No verification — direct redirect (default)",
+    "typeTurnstile": "Cloudflare Turnstile",
+    "typeTurnstileDesc": "来自 Cloudflare 的智能无感 Bot 验证。99%+ 的真实用户无需任何交互即可通过。",
     "typeV2": "reCAPTCHA v2",
     "typeV2Desc": `Classic "I'm not a robot" checkbox. Requires reCAPTCHA v2 keys in Integrations.`,
     "typeV3": "reCAPTCHA v3 (invisible)",
@@ -26752,6 +26785,8 @@ const zh = {
     "secretKeyPlaceholder": "6Lc...",
     "v3Threshold": "Minimum score threshold",
     "v3ThresholdDesc": "Clicks with score below this value are shown the challenge page. Recommended: 0.5",
+    "turnstileTitle": "Cloudflare Turnstile 密钥",
+    "turnstileDesc": "现代无感 Bot 验证。需要 Cloudflare Turnstile 站点密钥 (Site Key) 与密钥 (Secret Key)。",
     "adminConsoleLink": "Open reCAPTCHA Admin Console",
     "saved": "reCAPTCHA settings saved",
     "saveError": "Failed to save reCAPTCHA settings",
@@ -27338,6 +27373,7 @@ const fr = {
     "weight": "Poids (trafic partager)",
     "filters": "Filtres",
     "addFilter": "+ Ajouter un filtre",
+    "editFilter": "Modifier le filtre",
     "noFilters": "Aucun filtre — tout le trafic passe",
     "filterType": "Type",
     "filterMode": "Mode",
@@ -27447,6 +27483,8 @@ const fr = {
     "status": "Statut",
     "clicks": "Clics",
     "uniques": "Uniques",
+    "lpClicks": "Clics LP",
+    "lpCtr": "CTR LP",
     "active": "Actif",
     "archive": "Archive",
     "edit": "Modifier",
@@ -28898,6 +28936,8 @@ const fr = {
     "typeLabel": "Type de vérification",
     "typeNone": "Désactivé",
     "typeNoneDesc": "Aucune vérification – redirection directe (par défaut)",
+    "typeTurnstile": "Cloudflare Turnstile",
+    "typeTurnstileDesc": "Vérification invisible et intelligente des bots par Cloudflare. Sans interaction pour 99%+ des visiteurs.",
     "typeV2": "reCAPTCHA v2",
     "typeV2Desc": 'case à cocher classique "Je ne suis pas un robot". Nécessite les clés reCAPTCHA v2 dans les intégrations.',
     "typeV3": "reCAPTCHA v3 (invisible)",
@@ -28932,6 +28972,8 @@ const fr = {
     "secretKeyPlaceholder": "6Lc...",
     "v3Threshold": "Seuil de score minimum",
     "v3ThresholdDesc": "Les clics avec un score inférieur à cette valeur voient le défi affiché page. Recommandé : 0,5",
+    "turnstileTitle": "Clés Cloudflare Turnstile",
+    "turnstileDesc": "Vérification invisible moderne des bots. Nécessite les clés Site Key et Secret Key de Cloudflare Turnstile.",
     "adminConsoleLink": "Ouvrir la console d'administration reCAPTCHA",
     "saved": "Paramètres reCAPTCHA enregistrés",
     "saveError": "Échec de l'enregistrement des paramètres reCAPTCHA",
@@ -29518,6 +29560,7 @@ const de = {
     "weight": "Gewichtung (Verkehrsanteil)",
     "filters": "Filter",
     "addFilter": "+ Filter hinzufügen",
+    "editFilter": "Filter bearbeiten",
     "noFilters": "Keine Filter – der gesamte Datenverkehr wird weitergeleitet",
     "filterType": "Typ",
     "filterMode": "Modus",
@@ -29627,6 +29670,8 @@ const de = {
     "status": "Status",
     "clicks": "Klicks",
     "uniques": "Eindeutige",
+    "lpClicks": "LP-Klicks",
+    "lpCtr": "LP-CTR",
     "active": "Aktiv",
     "archive": "Archiv",
     "edit": "Bearbeiten",
@@ -31078,6 +31123,8 @@ const de = {
     "typeLabel": "Verifizierungstyp",
     "typeNone": "Deaktiviert",
     "typeNoneDesc": "Keine Überprüfung – direkte Weiterleitung (Standard)",
+    "typeTurnstile": "Cloudflare Turnstile",
+    "typeTurnstileDesc": "Intelligente, datenschutzfreundliche unsichtbare Bot-Prüfung. Für 99%+ der Besucher ohne Interaktion.",
     "typeV2": "reCAPTCHA v2",
     "typeV2Desc": "Klassisches Kontrollkästchen „Ich bin kein Roboter“. Erfordert reCAPTCHA v2-Schlüssel in Integrationen.",
     "typeV3": "reCAPTCHA v3 (unsichtbar)",
@@ -31110,6 +31157,8 @@ const de = {
     "secretKeyPlaceholder": "6Lc...",
     "v3Threshold": "Mindestpunktzahlschwelle",
     "v3ThresholdDesc": "Klicks mit einer Punktzahl unter diesem Wert werden auf der Herausforderungsseite angezeigt. Empfohlen: 0,5",
+    "turnstileTitle": "Cloudflare Turnstile-Schlüssel",
+    "turnstileDesc": "Intelligente, datenschutzfreundliche unsichtbare Bot-Prüfung. Erfordert Cloudflare Turnstile Site Key und Secret Key.",
     "adminConsoleLink": "ReCAPTCHA-Administratorkonsole öffnen",
     "saved": "reCAPTCHA-Einstellungen gespeichert",
     "saveError": "ReCAPTCHA-Einstellungen konnten nicht gespeichert werden",
@@ -47317,6 +47366,8 @@ const Landings = ({ landings, refreshData }) => {
       { key: "state", label: "state" },
       { key: "clicks", label: "clicks" },
       { key: "unique_clicks", label: "unique_clicks" },
+      { key: "lp_clicks", label: "lp_clicks" },
+      { key: "lp_ctr", label: "lp_ctr" },
       { key: "url", label: "url" }
     ];
     const escape = (v) => {
@@ -47467,9 +47518,11 @@ const Landings = ({ landings, refreshData }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.status") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.clicks") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.uniques") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.lpClicks") || "LP Clicks" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.lpCtr") || "LP CTR" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleLandings.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "9", className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleLandings.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "11", className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("landings.noLandings") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("landings.noLandingsDesc") })
       ] }) }) }) : visibleLandings.map((landing) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -47502,6 +47555,8 @@ const Landings = ({ landings, refreshData }) => {
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing.clicks || 0 }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing.unique_clicks || 0 }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing.lp_clicks || 0 }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing.lp_ctr !== void 0 ? `${landing.lp_ctr}%` : "0%" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(landing.id), className: "action-btn text-blue", title: t("common.edit") || t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(landing.id), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
@@ -54517,7 +54572,9 @@ const IntegrationsPage = () => {
     recaptcha_v2_secret_key: "",
     recaptcha_v3_site_key: "",
     recaptcha_v3_secret_key: "",
-    recaptcha_v3_threshold: "0.5"
+    recaptcha_v3_threshold: "0.5",
+    turnstile_site_key: "",
+    turnstile_secret_key: ""
   });
   const copyToClipboard = (text, id) => {
     navigator.clipboard.writeText(text);
@@ -54550,7 +54607,9 @@ const IntegrationsPage = () => {
           recaptcha_v2_secret_key: s.recaptcha_v2_secret_key || "",
           recaptcha_v3_site_key: s.recaptcha_v3_site_key || "",
           recaptcha_v3_secret_key: s.recaptcha_v3_secret_key || "",
-          recaptcha_v3_threshold: s.recaptcha_v3_threshold || "0.5"
+          recaptcha_v3_threshold: s.recaptcha_v3_threshold || "0.5",
+          turnstile_site_key: s.turnstile_site_key || "",
+          turnstile_secret_key: s.turnstile_secret_key || ""
         });
       }
     } catch (err) {
@@ -56127,6 +56186,40 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
                   }
                 ),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px" }, children: t("recaptcha.v3ThresholdDesc") })
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "16px", fontWeight: "600", color: "var(--color-text-primary)", marginBottom: "4px" }, children: t("recaptcha.turnstileTitle") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13px", color: "var(--color-text-muted)" }, children: t("recaptcha.turnstileDesc") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.siteKey") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    value: rcSettings.turnstile_site_key,
+                    onChange: (e) => setRcSettings((s) => ({ ...s, turnstile_site_key: e.target.value })),
+                    placeholder: "0x4AAAAAAA...",
+                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.secretKey") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "password",
+                    value: rcSettings.turnstile_secret_key,
+                    onChange: (e) => setRcSettings((s) => ({ ...s, turnstile_secret_key: e.target.value })),
+                    placeholder: "0x4AAAAAAA...",
+                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
+                  }
+                )
               ] })
             ] })
           ] }),
@@ -60649,21 +60742,38 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     { name: "Weekday", label: t("filters.weekday"), placeholder: "monday, tuesday..." },
     { name: "Time", label: t("filters.time"), placeholder: "9-18, 10:00-20:00..." }
   ];
-  const openFilterModal = (streamIdx) => {
-    setFilterModal({ open: true, streamIdx });
+  const openFilterModal = (streamIdx, filterIdx = null) => {
+    if (filterIdx !== null && filterIdx >= 0) {
+      const f = formData.streams[streamIdx]?.filters?.[filterIdx];
+      if (f) {
+        setFilterModal({ open: true, streamIdx, filterIdx });
+        setNewFilter({
+          name: f.name || "Country",
+          mode: f.mode || "include",
+          payload: Array.isArray(f.payload) ? f.payload.join(", ") : f.payload || ""
+        });
+        return;
+      }
+    }
+    setFilterModal({ open: true, streamIdx, filterIdx: null });
     setNewFilter({ name: "Country", mode: "include", payload: "" });
   };
-  const addFilter = () => {
-    if (!newFilter.payload.trim()) return;
+  const saveFilter = () => {
+    if (!newFilter.payload?.trim()) return;
     const s = [...formData.streams];
     if (!s[filterModal.streamIdx].filters) s[filterModal.streamIdx].filters = [];
-    s[filterModal.streamIdx].filters.push({
+    const filterObj = {
       name: newFilter.name,
       mode: newFilter.mode,
       payload: newFilter.payload.split(",").map((p) => p.trim()).filter((p) => p)
-    });
+    };
+    if (filterModal.filterIdx !== null && filterModal.filterIdx >= 0) {
+      s[filterModal.streamIdx].filters[filterModal.filterIdx] = filterObj;
+    } else {
+      s[filterModal.streamIdx].filters.push(filterObj);
+    }
     setFormData({ ...formData, streams: s });
-    setFilterModal({ open: false, streamIdx: null });
+    setFilterModal({ open: false, streamIdx: null, filterIdx: null });
   };
   const removeFilter = (streamIdx, filterIdx) => {
     const s = [...formData.streams];
@@ -61042,6 +61152,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", marginBottom: "4px", display: "block" }, children: t("challenge.typeLabel") }),
                   [
                     { value: "none", label: t("challenge.typeNone"), desc: t("challenge.typeNoneDesc") },
+                    { value: "turnstile", label: t("challenge.typeTurnstile"), desc: t("challenge.typeTurnstileDesc") },
                     { value: "recaptcha_v2", label: t("challenge.typeV2"), desc: t("challenge.typeV2Desc") },
                     { value: "recaptcha_v3", label: t("challenge.typeV3"), desc: t("challenge.typeV3Desc") },
                     { value: "custom", label: t("challenge.typeCustom"), desc: t("challenge.typeCustomDesc") }
@@ -61062,6 +61173,34 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "2px" }, children: opt.desc })
                     ] })
                   ] }, opt.value))
+                ] }),
+                formData.challenge_type === "turnstile" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-warning-bg, #fffbeb)", border: "1px solid var(--color-warning-border, #fcd34d)", borderRadius: "10px", padding: "14px 16px", marginBottom: "4px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "15px" }, children: "⚡" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "13px", fontWeight: "700", color: "var(--color-warning-text, #92400e)" }, children: t("challenge.setupGuideTitle") })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("ol", { style: { margin: 0, paddingLeft: "18px", display: "flex", flexDirection: "column", gap: "6px" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { style: { fontSize: "12px", color: "var(--color-warning-text, #92400e)", lineHeight: "1.5" }, children: [
+                      t("challenge.setupStep1"),
+                      " ",
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "a",
+                        {
+                          href: "https://dash.cloudflare.com/?to=/:account/turnstile",
+                          target: "_blank",
+                          rel: "noreferrer",
+                          style: { color: "var(--color-primary)", fontWeight: "600", textDecoration: "underline" },
+                          children: "Cloudflare Turnstile ↗"
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { style: { fontSize: "12px", color: "var(--color-warning-text, #92400e)", lineHeight: "1.5" }, children: [
+                      t("challenge.setupStep3"),
+                      " ",
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("challenge.setupStep3Path") })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { fontSize: "12px", color: "var(--color-warning-text, #92400e)", lineHeight: "1.5" }, children: t("challenge.setupStep4") })
+                  ] })
                 ] }),
                 (formData.challenge_type === "recaptcha_v2" || formData.challenge_type === "recaptcha_v3") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-warning-bg, #fffbeb)", border: "1px solid var(--color-warning-border, #fcd34d)", borderRadius: "10px", padding: "14px 16px", marginBottom: "4px" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }, children: [
@@ -61878,11 +62017,40 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: t("editor.filters") }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => openFilterModal(idx), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.addFilter") })
                 ] }),
-                stream.filters && stream.filters.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: stream.filters.map((f, fIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex rounded-lg text-sm overflow-hidden", style: { border: "1px solid var(--color-border)" }, children: [
+                stream.filters && stream.filters.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: stream.filters.map((f, fIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex rounded-lg text-sm overflow-hidden items-center", style: { border: "1px solid var(--color-border)" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-2 py-1 font-semibold", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-primary)" }, children: f.name }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-2 py-1 font-bold", style: { color: f.mode === "include" ? "var(--color-success)" : "var(--color-danger)" }, children: f.mode === "include" ? "✓" : "✗" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 px-2 py-1 truncate", style: { color: "var(--color-text-secondary)" }, children: f.payload.join(", ") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeFilter(idx, fIdx), className: "px-2", style: { color: "var(--color-danger)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3 h-3" }) })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "div",
+                    {
+                      className: "flex-1 px-2 py-1 truncate cursor-pointer hover:underline",
+                      style: { color: "var(--color-text-secondary)" },
+                      onClick: () => openFilterModal(idx, fIdx),
+                      title: t("editor.editFilter"),
+                      children: Array.isArray(f.payload) ? f.payload.join(", ") : f.payload || ""
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => openFilterModal(idx, fIdx),
+                      className: "px-1.5 py-1 text-blue-500 hover:text-blue-700",
+                      title: t("editor.editFilter"),
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" })
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => removeFilter(idx, fIdx),
+                      className: "px-2 py-1",
+                      style: { color: "var(--color-danger)" },
+                      title: t("common.delete"),
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" })
+                    }
+                  )
                 ] }, fIdx)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs rounded-lg p-3 text-center border-2 border-dashed", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: t("editor.noFilters") })
               ] })
             ] })
@@ -61892,8 +62060,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     ] }),
     filterModal.open && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "600px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.addFilter") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setFilterModal({ open: false, streamIdx: null }), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: filterModal.filterIdx !== null ? t("editor.editFilter") : t("editor.addFilter") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setFilterModal({ open: false, streamIdx: null, filterIdx: null }), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -61959,8 +62127,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setFilterModal({ open: false, streamIdx: null }), className: "btn btn-secondary", children: t("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: addFilter, disabled: !newFilter.payload?.trim(), className: "btn btn-primary", children: t("common.add") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setFilterModal({ open: false, streamIdx: null, filterIdx: null }), className: "btn btn-secondary", children: t("common.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: saveFilter, disabled: !newFilter.payload?.trim(), className: "btn btn-primary", children: filterModal.filterIdx !== null ? t("common.save") : t("common.add") })
       ] })
     ] }) }),
     showLogModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "800px" }, children: [

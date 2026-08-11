@@ -38,7 +38,9 @@ const IntegrationsPage = () => {
         recaptcha_v2_secret_key: '',
         recaptcha_v3_site_key: '',
         recaptcha_v3_secret_key: '',
-        recaptcha_v3_threshold: '0.5'
+        recaptcha_v3_threshold: '0.5',
+        turnstile_site_key: '',
+        turnstile_secret_key: ''
     });
 
     const copyToClipboard = (text, id) => {
@@ -75,7 +77,9 @@ const IntegrationsPage = () => {
                     recaptcha_v2_secret_key: s.recaptcha_v2_secret_key || '',
                     recaptcha_v3_site_key: s.recaptcha_v3_site_key || '',
                     recaptcha_v3_secret_key: s.recaptcha_v3_secret_key || '',
-                    recaptcha_v3_threshold: s.recaptcha_v3_threshold || '0.5'
+                    recaptcha_v3_threshold: s.recaptcha_v3_threshold || '0.5',
+                    turnstile_site_key: s.turnstile_site_key || '',
+                    turnstile_secret_key: s.turnstile_secret_key || ''
                 });
             }
         } catch (err) {
@@ -1486,6 +1490,42 @@ global \$wpdb;
                                                     style={{ width: '160px', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px' }}
                                                 />
                                                 <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '6px' }}>{t('recaptcha.v3ThresholdDesc')}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Cloudflare Turnstile section */}
+                                    <div style={{ background: 'var(--color-bg-card)', borderRadius: '12px', padding: '24px', border: '1px solid var(--color-border)' }}>
+                                        <div style={{ marginBottom: '16px' }}>
+                                            <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--color-text-primary)', marginBottom: '4px' }}>
+                                                {t('recaptcha.turnstileTitle')}
+                                            </h3>
+                                            <p style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>{t('recaptcha.turnstileDesc')}</p>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            <div>
+                                                <label style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                    {t('recaptcha.siteKey')}
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={rcSettings.turnstile_site_key}
+                                                    onChange={e => setRcSettings(s => ({ ...s, turnstile_site_key: e.target.value }))}
+                                                    placeholder="0x4AAAAAAA..."
+                                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px', fontFamily: 'monospace' }}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                    {t('recaptcha.secretKey')}
+                                                </label>
+                                                <input
+                                                    type="password"
+                                                    value={rcSettings.turnstile_secret_key}
+                                                    onChange={e => setRcSettings(s => ({ ...s, turnstile_secret_key: e.target.value }))}
+                                                    placeholder="0x4AAAAAAA..."
+                                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px', fontFamily: 'monospace' }}
+                                                />
                                             </div>
                                         </div>
                                     </div>

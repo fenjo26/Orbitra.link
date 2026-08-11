@@ -42,16 +42,6 @@ function orbitraIsPrefetch(array $server): bool
         return true;
     }
 
-    // Sec-Fetch-Mode: no-cors on a document load is the signature of a
-    // speculative `<link rel=preload>` fetch rather than a navigation.
-    $secMode = $server['HTTP_SEC_FETCH_MODE'] ?? '';
-    if (is_string($secMode) && strcasecmp($secMode, 'no-cors') === 0) {
-        $secDest = $server['HTTP_SEC_FETCH_DEST'] ?? '';
-        if (is_string($secDest) && in_array(strtolower($secDest), ['document', 'empty'], true)) {
-            return true;
-        }
-    }
-
     // Google's Web Light / AMP prefetch and some prefetch rels announce themselves.
     $purpose = $server['HTTP_PURPOSE'] ?? '';
     if (is_string($purpose) && strcasecmp($purpose, 'prefetch') === 0) {
