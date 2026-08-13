@@ -614,6 +614,10 @@
     z-index: 10;
   }
 
+  .z-30 {
+    z-index: 30;
+  }
+
   .z-50 {
     z-index: 50;
   }
@@ -2672,6 +2676,10 @@
       background-color: var(--color-bg-hover);
     }
 
+    .hover\:bg-\[var\(--color-bg-soft\)\]:hover {
+      background-color: var(--color-bg-soft);
+    }
+
     .hover\:bg-\[var\(--color-border\)\]:hover {
       background-color: var(--color-border);
     }
@@ -3160,6 +3168,11 @@ h2 {
 .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 15px 40px #0000000f;
+}
+
+.card--flat:hover {
+  box-shadow: var(--shadow-main);
+  transform: none;
 }
 
 .btn, button.btn {

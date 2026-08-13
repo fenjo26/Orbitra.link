@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, Filter, Settings, ChevronDown, Check } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import DatePicker from 'react-datepicker';
@@ -8,6 +8,27 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
     const { t } = useLanguage();
     const [showRangeMenu, setShowRangeMenu] = useState(false);
     const [showCustomRange, setShowCustomRange] = useState(false);
+    const rangeRef = useRef(null);
+
+    // The menu used to stay open until the same button was clicked again, so
+    // clicking anywhere else on the dashboard left it hanging over the content.
+    useEffect(() => {
+        if (!showRangeMenu) return undefined;
+        const closeOnOutside = (e) => {
+            if (rangeRef.current && !rangeRef.current.contains(e.target)) {
+                setShowRangeMenu(false);
+            }
+        };
+        const closeOnEscape = (e) => {
+            if (e.key === 'Escape') setShowRangeMenu(false);
+        };
+        document.addEventListener('mousedown', closeOnOutside);
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('mousedown', closeOnOutside);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
+    }, [showRangeMenu]);
 
     const ranges = [
         { id: 'today', label: t('dashboard.today') },
@@ -46,7 +67,11 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
     };
 
     return (
-        <div className="card shadow-sm p-5 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between bg-white w-full rounded-[24px]">
+        // relative + z-30 keeps the whole bar, and therefore the date menu,
+        // above the stat cards below it: an active stat card carries z-10.
+        // card--flat suppresses the hover lift, whose transform would otherwise
+        // trap the menu inside this card. See .card--flat in index.css.
+        <div className="card card--flat shadow-sm p-5 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between w-full rounded-[24px] relative z-30">
             <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
                 {/* Campaign Select */}
                 <div className="relative w-full sm:w-[300px]">
@@ -70,7 +95,7 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
                 </div>
 
                 {/* Date Range Dropdown */}
-                <div className="relative w-full sm:w-[300px]">
+                <div className="relative w-full sm:w-[300px]" ref={rangeRef}>
                     <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-[var(--color-text-muted)]">
                         <Calendar size={16} />
                     </div>
@@ -86,15 +111,26 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
                     </div>
 
                     {showRangeMenu && (
-                        <div className="absolute top-full left-0 mt-1 w-full sm:w-64 card shadow-lg z-50 py-1" style={{ backgroundColor: 'var(--color-bg-card)', color: 'var(--color-text-primary)' }}>
+                        <div
+                            className="absolute top-full left-0 mt-1 w-full sm:w-64 card card--flat shadow-lg z-50 py-1 overflow-hidden"
+                            style={{
+                                backgroundColor: 'var(--color-bg-card)',
+                                color: 'var(--color-text-primary)',
+                                padding: '4px 0',
+                                border: '1px solid var(--color-border)'
+                            }}
+                        >
+                            {/* The items used to be text-gray-700 on hover:bg-gray-50 —
+                                light-theme colours that came out dark grey on the dark
+                                card, which is why the menu read as unclickable. */}
                             {ranges.map(range => (
                                 <button
                                     key={range.id}
                                     onClick={() => handleRangeSelect(range.id)}
-                                    className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700 flex items-center justify-between"
+                                    className="w-full text-left px-4 py-2 text-sm flex items-center justify-between transition-colors text-[var(--color-text-primary)] hover:bg-[var(--color-bg-soft)]"
                                 >
                                     {range.label}
-                                    {filters.date_range === range.id && <Check size={14} className="text-blue-500" />}
+                                    {(filters.date_range || 'today') === range.id && <Check size={14} className="text-blue-500" />}
                                 </button>
                             ))}
                         </div>

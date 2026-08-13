@@ -210,6 +210,18 @@ h2 {
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
 }
 
+/* A card that holds an open dropdown must not lift on hover.
+   `transform` creates a stacking context, which traps every absolutely
+   positioned child inside the card no matter how high its z-index is — the
+   dashboard filter bar's date menu was landing *underneath* the stat cards
+   for exactly that reason, because the pointer is by definition hovering the
+   bar while its menu is open. The lift is also plain wrong for a filter bar:
+   it made the whole row jump whenever the pointer crossed it. */
+.card--flat:hover {
+  transform: none;
+  box-shadow: var(--shadow-main);
+}
+
 
 /* Default Button Styles */
 .btn,
