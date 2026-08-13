@@ -73,6 +73,54 @@ function orbitraRequestBody()
     return (string) file_get_contents('php://input');
 }
 
+/**
+ * Runs `composer install` for the tracker and reports what happened.
+ *
+ * ip2location/ip2location-php and ip2location/ip2proxy-php both declare
+ * "ext-bcmath" as a hard requirement. On a server where that extension was never
+ * installed, Composer rejects the whole lock file — "Your lock file does not
+ * contain a compatible set of packages" — and the update fails at the dependency
+ * step even though the source pulled cleanly. The web server cannot apt-install
+ * the extension itself, so retry while ignoring that one platform requirement:
+ * every other package (geoip2 among them) then installs and the panel keeps
+ * working, with a message telling the admin the one command that fixes it fully.
+ *
+ * @param string $repoDir  Tracker root (the directory holding composer.phar).
+ * @param array  $output   Receives the Composer output lines.
+ * @return array{ok:bool,degraded:bool,hint:string}
+ */
+function orbitraComposerInstall(string $repoDir, array &$output): array
+{
+    $base = 'cd ' . escapeshellarg($repoDir)
+        . ' && php ' . escapeshellarg($repoDir . '/composer.phar')
+        . ' install --no-dev --prefer-dist --no-interaction --optimize-autoloader';
+
+    $code = 0;
+    $lines = [];
+    exec($base . ' 2>&1', $lines, $code);
+    $output = array_merge($output, $lines);
+    if ($code === 0) {
+        return ['ok' => true, 'degraded' => false, 'hint' => ''];
+    }
+
+    $missingBcmath = !extension_loaded('bcmath')
+        || stripos(implode(' ', $lines), 'ext-bcmath') !== false;
+    if (!$missingBcmath) {
+        return ['ok' => false, 'degraded' => false, 'hint' => ''];
+    }
+
+    $retryLines = [];
+    $retryCode = 0;
+    exec($base . ' --ignore-platform-req=ext-bcmath 2>&1', $retryLines, $retryCode);
+    $output = array_merge($output, ['[Retrying without the bcmath platform check]'], $retryLines);
+
+    $hint = 'На сервере не установлено расширение PHP bcmath — оно нужно readers '
+        . 'IP2Location/IP2Proxy для IPv6. Установите его командой: '
+        . 'sudo apt-get install -y php-bcmath && sudo systemctl restart php$(php -r "echo PHP_MAJOR_VERSION.\'.\'.PHP_MINOR_VERSION;")-fpm';
+
+    return ['ok' => $retryCode === 0, 'degraded' => $retryCode === 0, 'hint' => $hint];
+}
+
 function checkRateLimit($key, $maxRequests = 5, $window = 300)
 {
     // Попробовать Redis, если расширение установлено
@@ -6400,18 +6448,16 @@ try {
                 $disabled = array_filter(preg_split('/[\s,]+/', (string) ini_get('disable_functions')));
                 if (function_exists('exec') && !in_array('exec', $disabled, true)) {
                     $bootstrapOutput = [];
-                    $bootstrapCode = 0;
-                    $bootstrapCommand = 'cd ' . escapeshellarg(__DIR__)
-                        . ' && php ' . escapeshellarg(__DIR__ . '/composer.phar')
-                        . ' install --no-dev --prefer-dist --no-interaction --optimize-autoloader 2>&1';
-                    exec($bootstrapCommand, $bootstrapOutput, $bootstrapCode);
+                    $bootstrapResult = orbitraComposerInstall(__DIR__, $bootstrapOutput);
                     $dependencyBootstrap = [
                         'attempted' => true,
-                        'success' => $bootstrapCode === 0,
+                        'success' => $bootstrapResult['ok'],
                     ];
-                    if ($bootstrapCode !== 0) {
+                    if (!$bootstrapResult['ok']) {
                         $dependencyBootstrap['message'] = 'Не удалось установить Composer-зависимости: '
                             . implode(' ', $bootstrapOutput);
+                    } elseif ($bootstrapResult['degraded']) {
+                        $dependencyBootstrap['message'] = $bootstrapResult['hint'];
                     }
                 } else {
                     $dependencyBootstrap = [
@@ -6489,7 +6535,8 @@ try {
                 $canExec = function_exists('exec')
                     && !in_array('exec', $disabled, true);
                 if (!$canExec) {
-                    $manualCommand = 'cd ' . escapeshellarg(__DIR__)
+                    $manualCommand = 'sudo apt-get install -y php-bcmath'
+                        . ' && cd ' . escapeshellarg(__DIR__)
                         . ' && git pull --ff-only origin main'
                         . ' && php composer.phar install --no-dev --prefer-dist --no-interaction --optimize-autoloader';
                     echo json_encode([
@@ -6695,23 +6742,22 @@ try {
                     // Composer packages are ignored by git. A source update that
                     // adds a reader (for example IP2Proxy) must therefore install
                     // the locked dependencies on existing VPS installations too.
+                    $composerNotice = '';
                     if ($returnCode === 0 && file_exists($repoDir . '/composer.phar') && file_exists($repoDir . '/composer.lock')) {
                         $composerOutput = [];
-                        $composerCode = 0;
-                        $composerCommand = 'cd ' . escapeshellarg($repoDir)
-                            . ' && php ' . escapeshellarg($repoDir . '/composer.phar')
-                            . ' install --no-dev --prefer-dist --no-interaction --optimize-autoloader 2>&1';
-                        exec($composerCommand, $composerOutput, $composerCode);
+                        $composerResult = orbitraComposerInstall($repoDir, $composerOutput);
                         $output[] = '[Composer dependencies]';
                         $output = array_merge($output, $composerOutput);
-                        if ($composerCode !== 0) {
-                            $returnCode = $composerCode;
+                        if (!$composerResult['ok']) {
+                            $returnCode = 1;
                             $output[] = '[Composer install failed — source was updated, but dependencies need attention]';
+                        } elseif ($composerResult['degraded']) {
+                            $composerNotice = ' ВНИМАНИЕ: ' . $composerResult['hint'];
                         }
                     }
 
                     if ($returnCode === 0) {
-                        echo json_encode(['status' => 'success', 'message' => 'Обновлено успешно. Вывод: ' . implode(" ", $output)]);
+                        echo json_encode(['status' => 'success', 'message' => 'Обновлено успешно.' . $composerNotice . ' Вывод: ' . implode(" ", $output)]);
                     } else {
                         echo json_encode(['status' => 'error', 'message' => 'Ошибка git pull: ' . implode(" ", $output)]);
                     }

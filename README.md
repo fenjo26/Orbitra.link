@@ -1,4 +1,4 @@
-# Orbitra v0.9.7.4 Tracker
+# Orbitra v0.9.7.5 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -385,6 +385,23 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.7.5
+
+### Fixed
+- 📦 **Fresh installs no longer break on a missing `bcmath` extension.** The
+  IP2Location and IP2Proxy readers require `ext-bcmath`; without it Composer
+  refused the lock file outright, so `install.sh` now installs the extension and
+  falls back to the version-pinned package when the PHP CLI is not the
+  distribution default.
+- 🔐 **A failed step can no longer leave the directory root-owned.** The Composer
+  failure above aborted the installer under `set -e`, skipping the closing
+  ownership handover — which is why the update button then reported that part of
+  the directory belongs to another user. The `chown` now runs from an `EXIT` trap,
+  and the Composer and frontend build steps are non-fatal.
+- 🔄 **Admin updates report the fix instead of the failure.** A dependency install
+  blocked by `bcmath` is retried without that platform check, and the panel shows
+  the one command that installs the extension.
 
 ## 📝 What's New in v0.9.7.4
 

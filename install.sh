@@ -1,5 +1,5 @@
 #!/bin/bash
-# Orbitra v0.9.5.0 Tracker Auto-Installer
+# Orbitra v0.9.7.5 Tracker Auto-Installer
 # Supported OS: Ubuntu 20.04, 22.04, 24.04 / Debian 11, 12
 # Root privileges required (sudo)
 
@@ -20,11 +20,24 @@ apt-get update -y
 # php-intl is optional at runtime — landing slugs fall back to a built-in
 # transliteration table without it — but with it installed every alphabet
 # transliterates, not just the ones the table covers.
-apt-get install -y ca-certificates apt-transport-https software-properties-common curl git unzip nginx php-fpm php-sqlite3 php-curl php-mbstring php-xml php-zip php-intl
+# php-bcmath is NOT optional: ip2location/ip2location-php and ip2location/ip2proxy-php
+# both declare "ext-bcmath" as a hard requirement, so without it `composer install`
+# refuses the lock file entirely ("Your lock file does not contain a compatible set
+# of packages") and every install and in-panel update dies at the dependency step.
+apt-get install -y ca-certificates apt-transport-https software-properties-common curl git unzip nginx php-fpm php-cli php-sqlite3 php-curl php-mbstring php-xml php-zip php-intl php-bcmath
 
 # Determine installed PHP-FPM version
 PHP_V=$(php -v | head -n 1 | cut -d " " -f 2 | cut -f1-2 -d".")
 PHP_FPM_SOCK="/var/run/php/php${PHP_V}-fpm.sock"
+
+# The generic "php-bcmath" above resolves to the distribution's default PHP, which
+# is not necessarily the version the CLI actually runs (a server with the ondrej
+# PPA can have several). Composer checks the CLI's extensions, so verify there and
+# install the version-pinned package if the generic one landed somewhere else.
+if ! php -m 2>/dev/null | grep -qix 'bcmath'; then
+    echo "  > Enabling PHP bcmath for PHP ${PHP_V} (required by the IP2Location readers)..."
+    apt-get install -y "php${PHP_V}-bcmath" || apt-get install -y php-bcmath || true
+fi
 
 # Install Node.js 20.x (required for frontend build)
 echo "[2/5] Installing Node.js 20.x for frontend build..."
@@ -69,8 +82,18 @@ chmod 0440 $SUDOERS_FILE
 
 echo "[3/5] Downloading Orbitra source code to /var/www/orbitra..."
 TMP_SRC_DIR="$(mktemp -d /tmp/orbitra_src.XXXXXX)"
+# Runs on EVERY exit, including a failure under `set -e`. The ownership handover at
+# the end of the script is what makes the in-panel update button work: every step
+# here runs as root, and `git pull` later runs as www-data, which cannot replace a
+# root-owned file. When an intermediate step aborted the script (a failed Composer
+# install, for instance) the handover never happened, and the panel reported
+# "часть каталога принадлежит другому пользователю" for the rest of that install's
+# life. Doing it from the trap means a half-finished install is still updatable.
 cleanup_tmp() {
     rm -rf "$TMP_SRC_DIR"
+    if [ -d /var/www/orbitra ]; then
+        chown -R www-data:www-data /var/www/orbitra 2>/dev/null || true
+    fi
 }
 trap cleanup_tmp EXIT
 
@@ -266,19 +289,45 @@ chown -R www-data:www-data /var/www/orbitra/orbitra_db.sqlite /var/www/orbitra/v
 # Install locked PHP readers (MaxMind, IP2Location and IP2Proxy). vendor/ is
 # intentionally not committed, so both fresh installs and admin updates must
 # materialise it from composer.lock.
+#
+# Never fatal. This step used to run bare under `set -e`, so a single missing PHP
+# extension aborted the whole installer here — before the frontend build, before
+# the cron job, and before the ownership handover — which is what turned a
+# recoverable dependency problem into a permanently un-updatable installation.
 echo "  > Installing PHP dependencies..."
 cd /var/www/orbitra
-php composer.phar install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+# Composer refuses to load plugins when it detects it is running as root, and the
+# warning it prints looks like an error in the installer log. We genuinely are root
+# here and the packages are locked, so say so explicitly.
+export COMPOSER_ALLOW_SUPERUSER=1
+if php composer.phar install --no-dev --prefer-dist --no-interaction --optimize-autoloader; then
+    echo "  > PHP dependencies installed."
+else
+    echo "  > NOTE: Composer refused the lock file. Retrying without the bcmath platform check..."
+    if php composer.phar install --no-dev --prefer-dist --no-interaction --optimize-autoloader --ignore-platform-req=ext-bcmath; then
+        echo "  > NOTE: dependencies installed, but PHP's bcmath extension is missing."
+        echo "  >       IPv6 lookups in the IP2Location/IP2Proxy databases need it. Install it with:"
+        echo "  >         sudo apt-get install -y php${PHP_V}-bcmath && sudo systemctl restart php${PHP_V}-fpm"
+    else
+        echo "  > WARNING: Composer dependencies could not be installed."
+        echo "  >          The tracker still starts; the IP2Location/IP2Proxy geo readers stay unavailable."
+        echo "  >          Retry later with:"
+        echo "  >            cd /var/www/orbitra && sudo -u www-data php composer.phar install --no-dev --prefer-dist --no-interaction --optimize-autoloader"
+    fi
+fi
 
-# Build frontend
+# Build frontend. Also non-fatal for the same reason as the Composer step above:
+# a broken build must not cost the installation its ownership handover.
 echo "  > Building frontend..."
 cd /var/www/orbitra/frontend
 if [ -f "package.json" ]; then
     echo "  > Installing npm dependencies..."
-    npm install --silent
-    echo "  > Building production bundle..."
-    npm run build
-    echo "  > Frontend built successfully!"
+    if npm install --silent && npm run build; then
+        echo "  > Frontend built successfully!"
+    else
+        echo "  > WARNING: frontend build failed. Rebuild later with:"
+        echo "  >            cd /var/www/orbitra/frontend && npm install && npm run build"
+    fi
 else
     echo "  > WARNING: package.json not found, skipping frontend build"
 fi

@@ -7,6 +7,32 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.7.5] — 2026-08-13
+
+### Fixed
+- **`install.sh` installs PHP's `bcmath` extension.** `ip2location/ip2location-php`
+  and `ip2location/ip2proxy-php` both declare `ext-bcmath` as a hard requirement,
+  so on a server without it Composer rejected the entire lock file with "Your lock
+  file does not contain a compatible set of packages" and no dependency was
+  installed. A version-pinned fallback covers servers whose PHP CLI is not the
+  distribution default.
+- **A failing step no longer leaves the installation permanently un-updatable.**
+  The script runs under `set -e`, so the Composer failure above aborted it before
+  the closing `chown -R www-data:www-data` — the tree stayed root-owned and the
+  update button reported that part of the directory belongs to another user. The
+  ownership handover now runs from an `EXIT` trap and therefore happens on every
+  exit path, and the Composer and frontend build steps are no longer fatal.
+- **Admin-panel updates survive a missing `bcmath`.** All three Composer call
+  sites go through one helper that retries with `--ignore-platform-req=ext-bcmath`
+  and reports the single command that installs the extension, instead of failing
+  the update and printing every `php.ini` path on the server.
+
+### Changed
+- The installer exports `COMPOSER_ALLOW_SUPERUSER=1`, so the root warning no
+  longer looks like an installation error in the log.
+- The manual fallback command shown when `exec()` is disabled now begins with
+  `sudo apt-get install -y php-bcmath`.
+
 ## [0.9.7.4] — 2026-08-11
 
 ### Added

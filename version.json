@@ -1,6 +1,6 @@
 {
-    "version": "0.9.7.4",
-    "release_notes": "Cloaking now uses separate IP2Proxy LITE PX12, IP2Location ASN LITE and MaxMind GeoLite2-ASN data for proxy, VPN, Tor, datacenter, threat, fraud-score and network detection. The campaign editor now exposes a Keitaro-style Bot: Yes filter; an intercepting Bot: Yes + Do nothing stream catches suspicious traffic while clean traffic continues to regular streams, including KClient Click API integrations. Geo database uploads validate each provider format and no longer confuse PX12 with DB11. Apache campaign aliases work directly at /campaign-alias. Existing Git installations can update from the admin panel; Composer dependencies are installed automatically, unfinished Git conflicts are repaired, and the manual fallback instructions now include the complete safe update command.",
+    "version": "0.9.7.5",
+    "release_notes": "The installer now installs PHP's bcmath extension, which the IP2Location and IP2Proxy readers require. Without it Composer rejected the whole lock file and, because install.sh ran under set -e, the script aborted before handing the directory over to www-data - leaving a root-owned tree and blocking every later update from the admin panel. The ownership handover now runs from an EXIT trap so it happens even when an earlier step fails, and the Composer and frontend build steps are no longer fatal. Admin-panel updates retry the dependency install without the bcmath platform check and report the exact command that installs the extension instead of failing with a wall of php.ini paths.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-08-11"
+    "released_at": "2026-08-13"
 }
