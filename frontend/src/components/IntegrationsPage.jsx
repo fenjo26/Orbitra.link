@@ -1012,19 +1012,19 @@ const IntegrationsPage = () => {
             title: 'KClient PHP',
             icon: <Terminal className="w-5 h-5" />,
             description: t('integrations.kclientPhpDesc'),
-            code: `<?php\n// ${t('integrations.codeToInsert')}\nrequire_once 'kclient.php';\n$client = new KClient('${trackerUrl}');\n$client->sendAllParams(); \n$client->execute();\n?>`
+            code: `<?php\n// ${t('integrations.codeToInsert')}\n// kclient.php: ${trackerUrl}/kclient.php?download=1\nrequire_once dirname(__FILE__) . '/kclient.php';\n$client = new KClickClient('${trackerUrl}', 'CAMPAIGN_TOKEN');\n$client->sendAllParams();\n$client->execute(); \n?>`
         },
         kclient_js: {
             title: 'KClient JS',
             icon: <Globe className="w-5 h-5" />,
             description: t('integrations.kclientJsDesc'),
-            code: `<script type="application/javascript">\n  var orbitra_db_url = '${trackerUrl}';\n  (function(d, s, id) {\n    var js, fjs = d.getElementsByTagName(s)[0];\n    if (d.getElementById(id)) return;\n    js = d.createElement(s); js.id = id;\n    js.src = orbitra_db_url + '/kclient.js';\n    fjs.parentNode.insertBefore(js, fjs);\n  }(document, 'script', 'ltt-tracking-js'));\n</script>\n<noscript><img src="${trackerUrl}/pixel.gif?js=0" alt="" /></noscript>`
+            code: `<script type="application/javascript">\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = 'CAMPAIGN_TOKEN';\n</script>\n<script src="${trackerUrl}/kclient.js"></script>\n<noscript><img src="${trackerUrl}/pixel.gif?token=CAMPAIGN_TOKEN" alt="" /></noscript>`
         },
         js_banner: {
             title: t('integrations.jsBannerTitle'),
             icon: <Code className="w-5 h-5" />,
             description: t('integrations.jsBannerDesc'),
-            code: `<div id="ltt-banner-container"></div>\n<script src="${trackerUrl}/banner.js?campaign_id=YOUR_ID" async></script>`
+            code: `<div id="orbitra-banner" style="width:300px;height:250px;overflow:hidden"></div>\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = 'CAMPAIGN_TOKEN';\n</script>\n<script src="${trackerUrl}/banner.js" async></script>`
         },
         tracking_pixel: {
             title: 'Tracking Pixel',
@@ -1995,43 +1995,81 @@ global \$wpdb;
                         background: 'var(--color-bg-soft)',
                         borderRadius: '24px 0 0 24px'
                     }}>
-                        <nav style={{ padding: '8px' }}>
-                            {Object.entries(scripts).map(([id, script]) => (
-                                <button
-                                    key={id}
-                                    onClick={() => setActiveTab(id)}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        width: '100%',
-                                        padding: '12px 16px',
-                                        textAlign: 'left',
-                                        border: 'none',
-                                        background: activeTab === id ? 'var(--color-bg-card)' : 'transparent',
-                                        color: activeTab === id ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                                        fontWeight: activeTab === id ? 500 : 400,
-                                        borderRadius: '12px',
-                                        cursor: 'pointer',
-                                        marginBottom: '4px',
-                                        transition: 'all 0.2s ease',
-                                        boxShadow: activeTab === id ? 'var(--shadow-soft)' : 'none'
-                                    }}
-                                >
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <span style={{ color: activeTab === id ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>
-                                            {script.icon}
-                                        </span>
-                                        <span style={{ fontSize: '14px' }}>{script.title}</span>
-                                    </div>
-                                    {id === 'telegram' && tgSettings?.token_set && (
+                        <nav style={{ padding: '8px', overflowY: 'auto' }}>
+                            {(() => {
+                                // The page grew one flat list at a time; grouping it the
+                                // way Keitaro does (ad networks / sites / tools) makes the
+                                // entry a user looks for findable again. Anything not
+                                // listed falls into a trailing group so a new entry can
+                                // never silently disappear from the menu.
+                                const groups = [
+                                    { label: t('integrations.groupAds', 'Ad networks'), ids: ['facebook_costs', 'facebook_conversions', 'dolphin_fbtool'] },
+                                    { label: t('integrations.groupSites', 'Sites & landings'), ids: ['kclient_php', 'kclient_js', 'tracking_pixel', 'js_banner', 'wordpress', 'wordpress_plugin', 'static_site', 'geo_redirect', 'device_redirect'] },
+                                    { label: t('integrations.groupTools', 'Tools'), ids: ['countdown_timer', 'back_button_trap', 'exit_popup', 'app_config', 'recaptcha', 'telegram'] },
+                                ];
+                                const grouped = new Set(groups.flatMap(g => g.ids));
+                                const rest = Object.keys(scripts).filter(id => !grouped.has(id));
+                                if (rest.length) {
+                                    groups.push({ label: t('integrations.groupOther', 'Other'), ids: rest });
+                                }
+
+                                const renderBtn = (id) => {
+                                    const script = scripts[id];
+                                    if (!script) return null;
+                                    return (
+                                        <button
+                                            key={id}
+                                            onClick={() => setActiveTab(id)}
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                width: '100%',
+                                                padding: '10px 16px',
+                                                textAlign: 'left',
+                                                border: 'none',
+                                                background: activeTab === id ? 'var(--color-bg-card)' : 'transparent',
+                                                color: activeTab === id ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                                                fontWeight: activeTab === id ? 500 : 400,
+                                                borderRadius: '12px',
+                                                cursor: 'pointer',
+                                                marginBottom: '2px',
+                                                transition: 'all 0.2s ease',
+                                                boxShadow: activeTab === id ? 'var(--shadow-soft)' : 'none'
+                                            }}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <span style={{ color: activeTab === id ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>
+                                                    {script.icon}
+                                                </span>
+                                                <span style={{ fontSize: '13.5px' }}>{script.title}</span>
+                                            </div>
+                                            {id === 'telegram' && tgSettings?.token_set && (
+                                                <div style={{
+                                                    width: '8px', height: '8px', borderRadius: '50%',
+                                                    background: tgSettings.webhook_set ? '#22c55e' : '#ef4444'
+                                                }} />
+                                            )}
+                                        </button>
+                                    );
+                                };
+
+                                return groups.map((group, gi) => (
+                                    <div key={group.label} style={gi > 0 ? { marginTop: '10px' } : undefined}>
                                         <div style={{
-                                            width: '8px', height: '8px', borderRadius: '50%',
-                                            background: tgSettings.webhook_set ? '#22c55e' : '#ef4444'
-                                        }} />
-                                    )}
-                                </button>
-                            ))}
+                                            fontSize: '11px',
+                                            fontWeight: 600,
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.08em',
+                                            color: 'var(--color-text-muted)',
+                                            padding: '6px 16px 4px'
+                                        }}>
+                                            {group.label}
+                                        </div>
+                                        {group.ids.map(renderBtn)}
+                                    </div>
+                                ));
+                            })()}
                         </nav>
                     </div>
 

@@ -416,6 +416,7 @@ export default {
         "copyErrors": "Ошибок"
     },
     "editor": {
+        "tracking": "Tracking",
         "integrationCode": "Код интеграции",
         "intCode_link": "Ссылка",
         "intCode_iframe": "Iframe",
@@ -1298,6 +1299,12 @@ export default {
         "saveChanges": "Сохранить изменения"
     },
     "offerEditor": {
+        "localArchive": "Файлы локального оффера",
+        "uploadZip": "Загрузить ZIP",
+        "zipError": "Ошибка загрузки ZIP",
+        "zipOnCreateHint": "Архив загрузится сразу после создания оффера (загрузке нужен id оффера). index.html станет страницей оффера.",
+        "filesLabel": "файлов",
+        "noFiles": "Файлов пока нет",
         "fillName": "Заполните название оффера",
         "fillUrl": "Укажите URL оффера или выберите тип 'Локальный оффер'",
         "savedSuccess": "Оффер успешно сохранен.",
@@ -2212,6 +2219,36 @@ export default {
         "step2": "2. Скопируйте в Dolphin (Настройки → Экспорт расходов → Keitaro) или Fbtool (Расходы → Keitaro):",
         "step3": "3. Endpoint, который вызывают сервисы (совместим с Keitaro Admin API v1):",
         "hint": "Фильтры матчатся по параметрам клика: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолты шаблона Facebook), либо любое имя параметра напрямую (ad_id, adset_id, campaign_id...). Расход делится поровну между совпавшими кликами за период; повторная отправка перезаписывает, а не суммирует."
+    },
+    "tracking": {
+        "saveFirst": "Сначала сохраните кампанию — код подключения встраивает токен кампании.",
+        "method": "Способ подключения",
+        "groupSite": "Сайты",
+        "groupBanners": "Баннеры",
+        "groupAds": "Рекламные сети",
+        "groupMisc": "Инструменты",
+        "trackingScript": "Скрипт отслеживания",
+        "bannerScript": "Блок баннеров (script)",
+        "bannerIframe": "Блок баннеров (iframe)",
+        "base64": "Base64 (скрыть от блокировщиков)",
+        "hours": "Длительность, часов",
+        "offerUrl": "URL оффера",
+        "trapUrl": "URL ловушки",
+        "heading": "Заголовок",
+        "downloadKclient": "Скачать kclient.php"
+    },
+    "costSync": {
+        "title": "Синк расходов",
+        "noClicks": "Кликов за последние 7 дней нет — расходы пока не к чему привязывать.",
+        "matchOk": "Последние 7 дней",
+        "matchWarn": "У кликов за 7 дней нет параметров ad_id / adset_id / campaign_id — импортированные расходы не привяжутся. Выберите источник трафика (например Facebook) в настройках кампании, чтобы параметры URL дошли до трекера.",
+        "source": "Источник",
+        "noConnections": "Подключений расходов пока нет — создайте на странице Интеграции (Facebook Costs / TikTok Ads) или в Агрегаторах.",
+        "paused": "пауза",
+        "lastSync": "синк",
+        "syncNow": "Синк сейчас",
+        "synced": "Синхронизировано",
+        "pushHint": "URL пуша расходов для этой кампании (API-ключ: страница Пользователи, права write)"
     },
     "costImport": {
         "facebookAds": "Facebook Ads",

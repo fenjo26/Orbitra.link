@@ -44,6 +44,10 @@ const OfferEditor = ({ offerId, onClose }) => {
     // Local offer files
     const [files, setFiles] = useState([]);
     const [uploadingZip, setUploadingZip] = useState(false);
+    const [pendingZip, setPendingZip] = useState(null);
+    const [offerFiles, setOfferFiles] = useState([]);
+    const [savedLocalId, setSavedLocalId] = useState(null);
+    const offerZipInputRef = useRef(null);
     const fileInputRef = useRef(null);
 
     // Show/hide advanced sections
@@ -80,6 +84,14 @@ const OfferEditor = ({ offerId, onClose }) => {
             }
         } catch (err) { console.error(err); }
     };
+
+    useEffect(() => {
+        const id = offerId || savedLocalId;
+        if (formData.is_local && id) {
+            fetchOfferFiles(id);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [formData.is_local, offerId, savedLocalId]);
 
     useEffect(() => {
         const fetchDeps = async () => {
@@ -147,6 +159,18 @@ const OfferEditor = ({ offerId, onClose }) => {
 
             const res = await axios.post(`${API_URL}?action=save_offer`, payload);
             if (res.data.status === 'success') {
+                // A local offer picked its archive before the offer existed —
+                // upload needs an id, so send it as soon as one exists. Keep the
+                // editor open afterwards, same as local landings do, because the
+                // file panel is only useful on a saved offer.
+                const newId = res.data.data?.id || offerId;
+                if (formData.is_local && pendingZip && newId) {
+                    const zip = pendingZip;
+                    setPendingZip(null);
+                    await uploadOfferZip(newId, zip);
+                    if (!offerId) setSavedLocalId(newId);
+                    return;
+                }
                 onClose(true);
             } else {
                 alert(t('offerEditor.saveError') + " " + res.data.message);
@@ -155,6 +179,46 @@ const OfferEditor = ({ offerId, onClose }) => {
             alert(t('offerEditor.networkError'));
         } finally {
             setLoading(false);
+        }
+    };
+
+    // === Local offer archive: upload + file list (mirrors local landings) ===
+    const uploadOfferZip = async (id, file) => {
+        if (!id || !file) return;
+        setUploadingZip(true);
+        try {
+            const fd = new FormData();
+            fd.append('id', id);
+            fd.append('file', file);
+            const res = await axios.post(`${API_URL}?action=upload_offer`, fd, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (res.data.status !== 'success') {
+                alert(`${t('offerEditor.zipError', 'ZIP upload error')}: ${res.data.message || ''} ${res.data.detail ? JSON.stringify(res.data.detail) : ''}`.trim());
+            } else {
+                fetchOfferFiles(id);
+            }
+        } catch (err) {
+            alert(`${t('offerEditor.zipError', 'ZIP upload error')}: ${err.response?.data?.message || err.message}`);
+        } finally {
+            setUploadingZip(false);
+        }
+    };
+
+    const fetchOfferFiles = async (id) => {
+        try {
+            const res = await axios.get(`${API_URL}?action=offer_files`, { params: { id } });
+            if (res.data.status === 'success') setOfferFiles(res.data.data || []);
+        } catch (err) { console.error(err); }
+    };
+
+    const deleteOfferFile = async (path) => {
+        if (!window.confirm(`${t('common.delete')} ${path}?`)) return;
+        try {
+            await axios.post(`${API_URL}?action=offer_file_op`, { id: offerId || savedLocalId, path, op: 'delete' });
+            fetchOfferFiles(offerId || savedLocalId);
+        } catch (err) {
+            alert(t('common.deleteError'));
         }
     };
 
@@ -369,6 +433,76 @@ const OfferEditor = ({ offerId, onClose }) => {
                                     ) : null;
                                 })()}
                             </div>
+
+                            {/* Local offer: archive upload + files (mirrors local landings) */}
+                            {formData.is_local && (
+                                <div className="p-4 rounded-2xl" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
+                                    <div className="font-semibold mb-2 text-sm" style={{ color: 'var(--color-text-primary)' }}>
+                                        {t('offerEditor.localArchive', 'Local offer files')}
+                                    </div>
+
+                                    {!(offerId || savedLocalId) ? (
+                                        <>
+                                            <input
+                                                type="file"
+                                                accept=".zip"
+                                                className="form-input"
+                                                onChange={e => setPendingZip(e.target.files[0] || null)}
+                                            />
+                                            <p className="mt-1 text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                                {t('offerEditor.zipOnCreateHint', 'The archive uploads right after the offer is created (an upload needs the offer id). index.html becomes the offer page.')}
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <input
+                                                type="file"
+                                                accept=".zip"
+                                                ref={offerZipInputRef}
+                                                className="hidden"
+                                                onChange={e => {
+                                                    const f = e.target.files[0];
+                                                    if (f) uploadOfferZip(offerId || savedLocalId, f);
+                                                    e.target.value = null;
+                                                }}
+                                            />
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-secondary"
+                                                    disabled={uploadingZip}
+                                                    onClick={() => offerZipInputRef.current?.click()}
+                                                >
+                                                    <Upload className="w-4 h-4" />
+                                                    {uploadingZip ? t('common.loading') : t('offerEditor.uploadZip', 'Upload ZIP')}
+                                                </button>
+                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                                    {offerFiles.length > 0
+                                                        ? `${t('offerEditor.filesLabel', 'files')}: ${offerFiles.length}`
+                                                        : t('offerEditor.noFiles', 'No files yet')}
+                                                </span>
+                                            </div>
+                                            {offerFiles.length > 0 && (
+                                                <ul className="space-y-1 max-h-40 overflow-y-auto">
+                                                    {offerFiles.map(f => (
+                                                        <li key={f} className="flex items-center justify-between gap-2 text-xs px-2 py-1 rounded" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                                                            <span className="truncate font-mono" style={{ color: 'var(--color-text-secondary)' }}>{f}</span>
+                                                            <button
+                                                                type="button"
+                                                                className="action-btn"
+                                                                onClick={() => deleteOfferFile(f)}
+                                                                title={t('common.delete')}
+                                                            >
+                                                                <Trash2 className="w-3.5 h-3.5" />
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            )}
 
                             {!formData.is_local && (
                                 <div>

@@ -416,6 +416,7 @@ export default {
         "copyErrors": "错误"
     },
     "editor": {
+        "tracking": "Tracking",
         "integrationCode": "集成代码",
         "intCode_link": "链接",
         "intCode_iframe": "Iframe",
@@ -1298,6 +1299,12 @@ export default {
         "saveChanges": "保存更改"
     },
     "offerEditor": {
+        "localArchive": "本地 offer 文件",
+        "uploadZip": "上传 ZIP",
+        "zipError": "ZIP 上传错误",
+        "zipOnCreateHint": "压缩包会在创建 offer 后立即上传（上传需要 offer id）。index.html 将成为 offer 页面。",
+        "filesLabel": "个文件",
+        "noFiles": "暂无文件",
         "fillName": "填写报价名称",
         "fillUrl": "指定优惠 URL 或选择“本地优惠”类型",
         "savedSuccess": "报价已成功保存。",
@@ -2212,6 +2219,36 @@ export default {
         "step2": "2. 粘贴到 Dolphin（设置 → 花费导出 → Keitaro）或 Fbtool（花费 → Keitaro）：",
         "step3": "3. 服务调用的端点（兼容 Keitaro Admin API v1）：",
         "hint": "过滤器按点击参数匹配：sub_id_4 = ad_id、sub_id_3 = adset_id（Facebook 模板默认值），也可直接使用任意参数名（ad_id、adset_id、campaign_id...）。花费在周期内匹配的点击之间平均分配；重复发送会覆盖而不是累加。"
+    },
+    "tracking": {
+        "saveFirst": "请先保存活动 — 跟踪代码中嵌入了活动令牌。",
+        "method": "接入方式",
+        "groupSite": "网站",
+        "groupBanners": "横幅块",
+        "groupAds": "广告网络",
+        "groupMisc": "工具",
+        "trackingScript": "跟踪脚本",
+        "bannerScript": "横幅块（script）",
+        "bannerIframe": "横幅块（iframe）",
+        "base64": "Base64（对广告拦截器隐藏）",
+        "hours": "时长（小时）",
+        "offerUrl": "Offer URL",
+        "trapUrl": "陷阱 URL",
+        "heading": "标题",
+        "downloadKclient": "下载 kclient.php"
+    },
+    "costSync": {
+        "title": "花费同步",
+        "noClicks": "过去 7 天没有点击 — 花费暂时无处附加。",
+        "matchOk": "过去 7 天",
+        "matchWarn": "过去 7 天的点击不带 ad_id / adset_id / campaign_id — 导入的花费无法附加。请在活动设置中选择流量源（如 Facebook），让 URL 参数到达跟踪器。",
+        "source": "来源",
+        "noConnections": "还没有花费连接 — 请在“集成”（Facebook Costs / TikTok Ads）或“聚合器”页面创建。",
+        "paused": "已暂停",
+        "lastSync": "上次同步",
+        "syncNow": "立即同步",
+        "synced": "已同步",
+        "pushHint": "此活动的花费推送 URL（API 密钥：用户页面，write 权限）"
     },
     "costImport": {
         "facebookAds": "Facebook Ads",

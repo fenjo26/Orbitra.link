@@ -16364,6 +16364,7 @@ const ru = {
     "copyErrors": "Ошибок"
   },
   "editor": {
+    "tracking": "Tracking",
     "integrationCode": "Код интеграции",
     "intCode_link": "Ссылка",
     "intCode_iframe": "Iframe",
@@ -17246,6 +17247,12 @@ const ru = {
     "saveChanges": "Сохранить изменения"
   },
   "offerEditor": {
+    "localArchive": "Файлы локального оффера",
+    "uploadZip": "Загрузить ZIP",
+    "zipError": "Ошибка загрузки ZIP",
+    "zipOnCreateHint": "Архив загрузится сразу после создания оффера (загрузке нужен id оффера). index.html станет страницей оффера.",
+    "filesLabel": "файлов",
+    "noFiles": "Файлов пока нет",
     "fillName": "Заполните название оффера",
     "fillUrl": "Укажите URL оффера или выберите тип 'Локальный оффер'",
     "savedSuccess": "Оффер успешно сохранен.",
@@ -18161,6 +18168,36 @@ const ru = {
     "step3": "3. Endpoint, который вызывают сервисы (совместим с Keitaro Admin API v1):",
     "hint": "Фильтры матчатся по параметрам клика: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолты шаблона Facebook), либо любое имя параметра напрямую (ad_id, adset_id, campaign_id...). Расход делится поровну между совпавшими кликами за период; повторная отправка перезаписывает, а не суммирует."
   },
+  "tracking": {
+    "saveFirst": "Сначала сохраните кампанию — код подключения встраивает токен кампании.",
+    "method": "Способ подключения",
+    "groupSite": "Сайты",
+    "groupBanners": "Баннеры",
+    "groupAds": "Рекламные сети",
+    "groupMisc": "Инструменты",
+    "trackingScript": "Скрипт отслеживания",
+    "bannerScript": "Блок баннеров (script)",
+    "bannerIframe": "Блок баннеров (iframe)",
+    "base64": "Base64 (скрыть от блокировщиков)",
+    "hours": "Длительность, часов",
+    "offerUrl": "URL оффера",
+    "trapUrl": "URL ловушки",
+    "heading": "Заголовок",
+    "downloadKclient": "Скачать kclient.php"
+  },
+  "costSync": {
+    "title": "Синк расходов",
+    "noClicks": "Кликов за последние 7 дней нет — расходы пока не к чему привязывать.",
+    "matchOk": "Последние 7 дней",
+    "matchWarn": "У кликов за 7 дней нет параметров ad_id / adset_id / campaign_id — импортированные расходы не привяжутся. Выберите источник трафика (например Facebook) в настройках кампании, чтобы параметры URL дошли до трекера.",
+    "source": "Источник",
+    "noConnections": "Подключений расходов пока нет — создайте на странице Интеграции (Facebook Costs / TikTok Ads) или в Агрегаторах.",
+    "paused": "пауза",
+    "lastSync": "синк",
+    "syncNow": "Синк сейчас",
+    "synced": "Синхронизировано",
+    "pushHint": "URL пуша расходов для этой кампании (API-ключ: страница Пользователи, права write)"
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
@@ -18663,6 +18700,7 @@ const en = {
     "copyErrors": "Errors"
   },
   "editor": {
+    "tracking": "Tracking",
     "integrationCode": "Integration code",
     "intCode_link": "Link",
     "intCode_iframe": "Iframe",
@@ -19545,6 +19583,12 @@ const en = {
     "saveChanges": "Save Changes"
   },
   "offerEditor": {
+    "localArchive": "Local offer files",
+    "uploadZip": "Upload ZIP",
+    "zipError": "ZIP upload error",
+    "zipOnCreateHint": "The archive uploads right after the offer is created (an upload needs the offer id). index.html becomes the offer page.",
+    "filesLabel": "files",
+    "noFiles": "No files yet",
     "fillName": "Fill in the offer name",
     "fillUrl": "Specify the offer URL or select 'Local offer' type",
     "savedSuccess": "Offer saved successfully.",
@@ -20460,6 +20504,36 @@ const en = {
     "step3": "3. The endpoint the services call (Keitaro Admin API v1 compatible):",
     "hint": "Filters match click parameters: sub_id_4 = ad_id, sub_id_3 = adset_id (Facebook template defaults), or any parameter name directly (ad_id, adset_id, campaign_id...). Spend is split evenly across matched clicks for the period; re-sending overwrites instead of accumulating."
   },
+  "tracking": {
+    "saveFirst": "Save the campaign first — the tracking code embeds the campaign token.",
+    "method": "Connection method",
+    "groupSite": "Sites",
+    "groupBanners": "Banner blocks",
+    "groupAds": "Ad networks",
+    "groupMisc": "Tools",
+    "trackingScript": "Tracking Script",
+    "bannerScript": "Banner block (script)",
+    "bannerIframe": "Banner block (iframe)",
+    "base64": "Base64 (hide from ad blockers)",
+    "hours": "Duration, hours",
+    "offerUrl": "Offer URL",
+    "trapUrl": "Trap URL",
+    "heading": "Heading",
+    "downloadKclient": "Download kclient.php"
+  },
+  "costSync": {
+    "title": "Cost Sync",
+    "noClicks": "No clicks in the last 7 days — nothing to attach spend to yet.",
+    "matchOk": "Last 7 days",
+    "matchWarn": "Clicks of the last 7 days carry no ad_id / adset_id / campaign_id — imported spend will not attach. Pick a traffic source (e.g. Facebook) in the campaign settings so the URL parameters reach the tracker.",
+    "source": "Source",
+    "noConnections": "No cost connections yet — create one under Integrations (Facebook Costs / TikTok Ads) or Aggregators.",
+    "paused": "paused",
+    "lastSync": "last sync",
+    "syncNow": "Sync now",
+    "synced": "Synced",
+    "pushHint": "cost push URL for this campaign (API key: Users page, write permissions)"
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
@@ -20962,6 +21036,7 @@ const uk = {
     "copyErrors": "Помилки"
   },
   "editor": {
+    "tracking": "Tracking",
     "integrationCode": "Код інтеграції",
     "intCode_link": "Посилання",
     "intCode_iframe": "Iframe",
@@ -21844,6 +21919,12 @@ const uk = {
     "saveChanges": "Зберегти зміни"
   },
   "offerEditor": {
+    "localArchive": "Файли локального оффера",
+    "uploadZip": "Завантажити ZIP",
+    "zipError": "Помилка завантаження ZIP",
+    "zipOnCreateHint": "Архів завантажиться одразу після створення оффера (завантаженню потрібен id оффера). index.html стане сторінкою оффера.",
+    "filesLabel": "файлів",
+    "noFiles": "Файлів поки немає",
     "fillName": "Введіть назву пропозиції",
     "fillUrl": "Укажіть URL-адресу пропозиції або виберіть тип «Місцева пропозиція».",
     "savedSuccess": "Пропозицію успішно збережено.",
@@ -22759,6 +22840,36 @@ const uk = {
     "step3": "3. Endpoint, який викликають сервіси (сумісний із Keitaro Admin API v1):",
     "hint": "Фільтри матчаться за параметрами кліку: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолти шаблону Facebook), або будь-яке ім’я параметра напряму (ad_id, adset_id, campaign_id...). Витрата ділиться порівну між кліками, що збіглися, за період; повторне надсилання перезаписує, а не сумує."
   },
+  "tracking": {
+    "saveFirst": "Спочатку збережіть кампанію — код підключення вбудовує токен кампанії.",
+    "method": "Спосіб підключення",
+    "groupSite": "Сайти",
+    "groupBanners": "Банери",
+    "groupAds": "Рекламні мережі",
+    "groupMisc": "Інструменти",
+    "trackingScript": "Скрипт відстеження",
+    "bannerScript": "Блок банерів (script)",
+    "bannerIframe": "Блок банерів (iframe)",
+    "base64": "Base64 (сховати від блокувальників)",
+    "hours": "Тривалість, годин",
+    "offerUrl": "URL оффера",
+    "trapUrl": "URL пастки",
+    "heading": "Заголовок",
+    "downloadKclient": "Завантажити kclient.php"
+  },
+  "costSync": {
+    "title": "Синк витрат",
+    "noClicks": "Кліків за останні 7 днів немає — витрати поки не до чого привʼязувати.",
+    "matchOk": "Останні 7 днів",
+    "matchWarn": "У кліків за 7 днів немає параметрів ad_id / adset_id / campaign_id — імпортовані витрати не привʼяжуться. Виберіть джерело трафіку (наприклад Facebook) у налаштуваннях кампанії, щоб параметри URL дійшли до трекера.",
+    "source": "Джерело",
+    "noConnections": "Підключень витрат ще немає — створіть на сторінці Інтеграції (Facebook Costs / TikTok Ads) або в Агрегаторах.",
+    "paused": "пауза",
+    "lastSync": "синк",
+    "syncNow": "Синк зараз",
+    "synced": "Синхронізовано",
+    "pushHint": "URL пушу витрат для цієї кампанії (API-ключ: сторінка Користувачі, права write)"
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
@@ -23261,6 +23372,7 @@ const es = {
     "copyErrors": "Errores"
   },
   "editor": {
+    "tracking": "Tracking",
     "integrationCode": "Código de integración",
     "intCode_link": "Enlace",
     "intCode_iframe": "Iframe",
@@ -24143,6 +24255,12 @@ const es = {
     "saveChanges": "Guardar cambios"
   },
   "offerEditor": {
+    "localArchive": "Archivos del offer local",
+    "uploadZip": "Subir ZIP",
+    "zipError": "Error al subir el ZIP",
+    "zipOnCreateHint": "El archivo se sube justo después de crear el offer (la subida necesita el id). index.html pasa a ser la página del offer.",
+    "filesLabel": "archivos",
+    "noFiles": "Aún no hay archivos",
     "fillName": "Complete el nombre de la oferta",
     "fillUrl": "Especifique la URL de la oferta o seleccione el tipo 'Oferta local'",
     "savedSuccess": "Oferta guardada correctamente.",
@@ -25058,6 +25176,36 @@ const es = {
     "step3": "3. El endpoint al que llaman los servicios (compatible con Keitaro Admin API v1):",
     "hint": "Los filtros coinciden con parámetros del clic: sub_id_4 = ad_id, sub_id_3 = adset_id (valores por defecto de la plantilla de Facebook), o cualquier nombre de parámetro directamente (ad_id, adset_id, campaign_id...). El gasto se reparte a partes iguales entre los clics coincidentes del periodo; reenviar sobrescribe en vez de acumular."
   },
+  "tracking": {
+    "saveFirst": "Guarda primero la campaña: el código de tracking incluye el token de la campaña.",
+    "method": "Método de conexión",
+    "groupSite": "Sitios",
+    "groupBanners": "Bloques de banner",
+    "groupAds": "Redes de anuncios",
+    "groupMisc": "Herramientas",
+    "trackingScript": "Script de tracking",
+    "bannerScript": "Bloque de banner (script)",
+    "bannerIframe": "Bloque de banner (iframe)",
+    "base64": "Base64 (ocultar de bloqueadores)",
+    "hours": "Duración, horas",
+    "offerUrl": "URL de la oferta",
+    "trapUrl": "URL de la trampa",
+    "heading": "Título",
+    "downloadKclient": "Descargar kclient.php"
+  },
+  "costSync": {
+    "title": "Sincronización de costos",
+    "noClicks": "Sin clics en los últimos 7 días: aún no hay a qué adjuntar el gasto.",
+    "matchOk": "Últimos 7 días",
+    "matchWarn": "Los clics de los últimos 7 días no llevan ad_id / adset_id / campaign_id: el gasto importado no se adjuntará. Elige una fuente de tráfico (p. ej. Facebook) en los ajustes de la campaña para que los parámetros de URL lleguen al tracker.",
+    "source": "Fuente",
+    "noConnections": "Aún no hay conexiones de costos: créalas en Integraciones (Facebook Costs / TikTok Ads) o en Agregadores.",
+    "paused": "en pausa",
+    "lastSync": "última sinc.",
+    "syncNow": "Sincronizar",
+    "synced": "Sincronizado",
+    "pushHint": "URL de envío de costos para esta campaña (clave API: página Usuarios, permisos write)"
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
@@ -25560,6 +25708,7 @@ const zh = {
     "copyErrors": "错误"
   },
   "editor": {
+    "tracking": "Tracking",
     "integrationCode": "集成代码",
     "intCode_link": "链接",
     "intCode_iframe": "Iframe",
@@ -26442,6 +26591,12 @@ const zh = {
     "saveChanges": "保存更改"
   },
   "offerEditor": {
+    "localArchive": "本地 offer 文件",
+    "uploadZip": "上传 ZIP",
+    "zipError": "ZIP 上传错误",
+    "zipOnCreateHint": "压缩包会在创建 offer 后立即上传（上传需要 offer id）。index.html 将成为 offer 页面。",
+    "filesLabel": "个文件",
+    "noFiles": "暂无文件",
     "fillName": "填写报价名称",
     "fillUrl": "指定优惠 URL 或选择“本地优惠”类型",
     "savedSuccess": "报价已成功保存。",
@@ -27357,6 +27512,36 @@ const zh = {
     "step3": "3. 服务调用的端点（兼容 Keitaro Admin API v1）：",
     "hint": "过滤器按点击参数匹配：sub_id_4 = ad_id、sub_id_3 = adset_id（Facebook 模板默认值），也可直接使用任意参数名（ad_id、adset_id、campaign_id...）。花费在周期内匹配的点击之间平均分配；重复发送会覆盖而不是累加。"
   },
+  "tracking": {
+    "saveFirst": "请先保存活动 — 跟踪代码中嵌入了活动令牌。",
+    "method": "接入方式",
+    "groupSite": "网站",
+    "groupBanners": "横幅块",
+    "groupAds": "广告网络",
+    "groupMisc": "工具",
+    "trackingScript": "跟踪脚本",
+    "bannerScript": "横幅块（script）",
+    "bannerIframe": "横幅块（iframe）",
+    "base64": "Base64（对广告拦截器隐藏）",
+    "hours": "时长（小时）",
+    "offerUrl": "Offer URL",
+    "trapUrl": "陷阱 URL",
+    "heading": "标题",
+    "downloadKclient": "下载 kclient.php"
+  },
+  "costSync": {
+    "title": "花费同步",
+    "noClicks": "过去 7 天没有点击 — 花费暂时无处附加。",
+    "matchOk": "过去 7 天",
+    "matchWarn": "过去 7 天的点击不带 ad_id / adset_id / campaign_id — 导入的花费无法附加。请在活动设置中选择流量源（如 Facebook），让 URL 参数到达跟踪器。",
+    "source": "来源",
+    "noConnections": "还没有花费连接 — 请在“集成”（Facebook Costs / TikTok Ads）或“聚合器”页面创建。",
+    "paused": "已暂停",
+    "lastSync": "上次同步",
+    "syncNow": "立即同步",
+    "synced": "已同步",
+    "pushHint": "此活动的花费推送 URL（API 密钥：用户页面，write 权限）"
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
@@ -27859,6 +28044,7 @@ const fr = {
     "copyErrors": "Erreurs"
   },
   "editor": {
+    "tracking": "Tracking",
     "integrationCode": "Code d’intégration",
     "intCode_link": "Lien",
     "intCode_iframe": "Iframe",
@@ -28741,6 +28927,12 @@ const fr = {
     "saveChanges": "Enregistrer les modifications"
   },
   "offerEditor": {
+    "localArchive": "Fichiers de l’offre locale",
+    "uploadZip": "Téléverser le ZIP",
+    "zipError": "Erreur de téléversement du ZIP",
+    "zipOnCreateHint": "L’archive est téléversée dès la création de l’offre (le téléversement exige l’id). index.html devient la page de l’offre.",
+    "filesLabel": "fichiers",
+    "noFiles": "Aucun fichier pour l’instant",
     "fillName": "Renseignez le nom de l'offre",
     "fillUrl": "Spécifiez l'URL de l'offre ou sélectionnez le type « Offre locale »",
     "savedSuccess": "Offre enregistrée avec succès.",
@@ -29658,6 +29850,36 @@ const fr = {
     "step3": "3. L’endpoint appelé par les services (compatible Keitaro Admin API v1) :",
     "hint": "Les filtres correspondent aux paramètres du clic : sub_id_4 = ad_id, sub_id_3 = adset_id (valeurs par défaut du template Facebook), ou tout nom de paramètre directement (ad_id, adset_id, campaign_id...). La dépense est répartie également entre les clics correspondants de la période ; un renvoi remplace au lieu de s’additionner."
   },
+  "tracking": {
+    "saveFirst": "Enregistrez d’abord la campagne — le code de tracking intègre le token de la campagne.",
+    "method": "Méthode de connexion",
+    "groupSite": "Sites",
+    "groupBanners": "Blocs bannière",
+    "groupAds": "Réseaux publicitaires",
+    "groupMisc": "Outils",
+    "trackingScript": "Script de tracking",
+    "bannerScript": "Bloc bannière (script)",
+    "bannerIframe": "Bloc bannière (iframe)",
+    "base64": "Base64 (cacher aux bloqueurs)",
+    "hours": "Durée, heures",
+    "offerUrl": "URL de l’offre",
+    "trapUrl": "URL du piège",
+    "heading": "Titre",
+    "downloadKclient": "Télécharger kclient.php"
+  },
+  "costSync": {
+    "title": "Synchro des coûts",
+    "noClicks": "Aucun clic ces 7 derniers jours — rien à quoi rattacher les dépenses.",
+    "matchOk": "7 derniers jours",
+    "matchWarn": "Les clics des 7 derniers jours ne portent pas ad_id / adset_id / campaign_id — les dépenses importées ne s’attacheront pas. Choisissez une source de trafic (ex. Facebook) dans les réglages de la campagne pour que les paramètres d’URL arrivent au tracker.",
+    "source": "Source",
+    "noConnections": "Pas encore de connexions de coûts — créez-en une dans Intégrations (Facebook Costs / TikTok Ads) ou Agrégateurs.",
+    "paused": "en pause",
+    "lastSync": "dernière synchro",
+    "syncNow": "Synchroniser",
+    "synced": "Synchronisé",
+    "pushHint": "URL de push des coûts pour cette campagne (clé API : page Utilisateurs, droits write)"
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
@@ -30160,6 +30382,7 @@ const de = {
     "copyErrors": "Fehler"
   },
   "editor": {
+    "tracking": "Tracking",
     "integrationCode": "Integrationscode",
     "intCode_link": "Link",
     "intCode_iframe": "Iframe",
@@ -31042,6 +31265,12 @@ const de = {
     "saveChanges": "Änderungen speichern"
   },
   "offerEditor": {
+    "localArchive": "Dateien des lokalen Offers",
+    "uploadZip": "ZIP hochladen",
+    "zipError": "ZIP-Upload-Fehler",
+    "zipOnCreateHint": "Das Archiv wird direkt nach dem Anlegen des Offers hochgeladen (der Upload braucht die Offer-ID). index.html wird die Offer-Seite.",
+    "filesLabel": "Dateien",
+    "noFiles": "Noch keine Dateien",
     "fillName": "Geben Sie den Angebotsnamen ein.",
     "fillUrl": "Geben Sie die Angebots-URL an oder wählen Sie den Typ „Lokales Angebot“ aus.",
     "savedSuccess": "Angebot erfolgreich gespeichert.",
@@ -31956,6 +32185,36 @@ const de = {
     "step2": "2. In Dolphin (Einstellungen → Kostenexport → Keitaro) oder Fbtool (Kosten → Keitaro) eintragen:",
     "step3": "3. Endpunkt, den die Dienste aufrufen (kompatibel mit Keitaro Admin API v1):",
     "hint": "Filter matchen Klick-Parameter: sub_id_4 = ad_id, sub_id_3 = adset_id (Facebook-Template-Defaults) oder jeder Parametername direkt (ad_id, adset_id, campaign_id...). Ausgaben werden gleichmäßig auf die passenden Klicks des Zeitraums verteilt; erneutes Senden überschreibt statt zu addieren."
+  },
+  "tracking": {
+    "saveFirst": "Speichere die Kampagne zuerst — der Tracking-Code enthält das Kampagnen-Token.",
+    "method": "Verbindungsmethode",
+    "groupSite": "Websites",
+    "groupBanners": "Bannerblöcke",
+    "groupAds": "Werbenetzwerke",
+    "groupMisc": "Tools",
+    "trackingScript": "Tracking-Script",
+    "bannerScript": "Bannerblock (script)",
+    "bannerIframe": "Bannerblock (iframe)",
+    "base64": "Base64 (vor Adblockern verbergen)",
+    "hours": "Dauer, Stunden",
+    "offerUrl": "Offer-URL",
+    "trapUrl": "Trap-URL",
+    "heading": "Überschrift",
+    "downloadKclient": "kclient.php herunterladen"
+  },
+  "costSync": {
+    "title": "Kosten-Sync",
+    "noClicks": "Keine Klicks in den letzten 7 Tagen — Ausgaben haben noch nichts zum Anhängen.",
+    "matchOk": "Letzte 7 Tage",
+    "matchWarn": "Die Klicks der letzten 7 Tage tragen keine ad_id / adset_id / campaign_id — importierte Ausgaben hängen sich nicht an. Wähle in den Kampagneneinstellungen eine Traffic-Quelle (z. B. Facebook), damit die URL-Parameter den Tracker erreichen.",
+    "source": "Quelle",
+    "noConnections": "Noch keine Kosten-Verbindungen — unter Integrationen (Facebook Costs / TikTok Ads) oder Aggregatoren anlegen.",
+    "paused": "pausiert",
+    "lastSync": "letzter Sync",
+    "syncNow": "Jetzt syncen",
+    "synced": "Synchronisiert",
+    "pushHint": "Kosten-Push-URL für diese Kampagne (API-Schlüssel: Seite Benutzer, Schreibrechte)"
   },
   "costImport": {
     "facebookAds": "Facebook Ads",
@@ -49061,6 +49320,10 @@ const OfferEditor = ({ offerId, onClose }) => {
   });
   const [files, setFiles] = reactExports.useState([]);
   const [uploadingZip, setUploadingZip] = reactExports.useState(false);
+  const [pendingZip, setPendingZip] = reactExports.useState(null);
+  const [offerFiles, setOfferFiles] = reactExports.useState([]);
+  const [savedLocalId, setSavedLocalId] = reactExports.useState(null);
+  const offerZipInputRef = reactExports.useRef(null);
   reactExports.useRef(null);
   const [showCapping, setShowCapping] = reactExports.useState(false);
   const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
@@ -49094,6 +49357,12 @@ const OfferEditor = ({ offerId, onClose }) => {
       console.error(err);
     }
   };
+  reactExports.useEffect(() => {
+    const id = offerId || savedLocalId;
+    if (formData.is_local && id) {
+      fetchOfferFiles(id);
+    }
+  }, [formData.is_local, offerId, savedLocalId]);
   reactExports.useEffect(() => {
     const fetchDeps = async () => {
       try {
@@ -49154,6 +49423,14 @@ const OfferEditor = ({ offerId, onClose }) => {
       if (offerId) payload.id = offerId;
       const res = await axios.post(`${API_URL$s}?action=save_offer`, payload);
       if (res.data.status === "success") {
+        const newId = res.data.data?.id || offerId;
+        if (formData.is_local && pendingZip && newId) {
+          const zip = pendingZip;
+          setPendingZip(null);
+          await uploadOfferZip(newId, zip);
+          if (!offerId) setSavedLocalId(newId);
+          return;
+        }
         onClose(true);
       } else {
         alert(t("offerEditor.saveError") + " " + res.data.message);
@@ -49162,6 +49439,44 @@ const OfferEditor = ({ offerId, onClose }) => {
       alert(t("offerEditor.networkError"));
     } finally {
       setLoading(false);
+    }
+  };
+  const uploadOfferZip = async (id, file) => {
+    if (!id || !file) return;
+    setUploadingZip(true);
+    try {
+      const fd = new FormData();
+      fd.append("id", id);
+      fd.append("file", file);
+      const res = await axios.post(`${API_URL$s}?action=upload_offer`, fd, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      if (res.data.status !== "success") {
+        alert(`${t("offerEditor.zipError", "ZIP upload error")}: ${res.data.message || ""} ${res.data.detail ? JSON.stringify(res.data.detail) : ""}`.trim());
+      } else {
+        fetchOfferFiles(id);
+      }
+    } catch (err) {
+      alert(`${t("offerEditor.zipError", "ZIP upload error")}: ${err.response?.data?.message || err.message}`);
+    } finally {
+      setUploadingZip(false);
+    }
+  };
+  const fetchOfferFiles = async (id) => {
+    try {
+      const res = await axios.get(`${API_URL$s}?action=offer_files`, { params: { id } });
+      if (res.data.status === "success") setOfferFiles(res.data.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const deleteOfferFile = async (path) => {
+    if (!window.confirm(`${t("common.delete")} ${path}?`)) return;
+    try {
+      await axios.post(`${API_URL$s}?action=offer_file_op`, { id: offerId || savedLocalId, path, op: "delete" });
+      fetchOfferFiles(offerId || savedLocalId);
+    } catch (err) {
+      alert(t("common.deleteError"));
     }
   };
   const addValue = () => {
@@ -49374,6 +49689,65 @@ const OfferEditor = ({ offerId, onClose }) => {
               }[formData.redirect_type];
               return descKey ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t(descKey) }) : null;
             })()
+          ] }),
+          formData.is_local && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-2xl", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-2 text-sm", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.localArchive", "Local offer files") }),
+            !(offerId || savedLocalId) ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "file",
+                  accept: ".zip",
+                  className: "form-input",
+                  onChange: (e) => setPendingZip(e.target.files[0] || null)
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-xs", style: { color: "var(--color-text-muted)" }, children: t("offerEditor.zipOnCreateHint", "The archive uploads right after the offer is created (an upload needs the offer id). index.html becomes the offer page.") })
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "file",
+                  accept: ".zip",
+                  ref: offerZipInputRef,
+                  className: "hidden",
+                  onChange: (e) => {
+                    const f = e.target.files[0];
+                    if (f) uploadOfferZip(offerId || savedLocalId, f);
+                    e.target.value = null;
+                  }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    className: "btn btn-secondary",
+                    disabled: uploadingZip,
+                    onClick: () => offerZipInputRef.current?.click(),
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "w-4 h-4" }),
+                      uploadingZip ? t("common.loading") : t("offerEditor.uploadZip", "Upload ZIP")
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: offerFiles.length > 0 ? `${t("offerEditor.filesLabel", "files")}: ${offerFiles.length}` : t("offerEditor.noFiles", "No files yet") })
+              ] }),
+              offerFiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-1 max-h-40 overflow-y-auto", children: offerFiles.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center justify-between gap-2 text-xs px-2 py-1 rounded", style: { background: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate font-mono", style: { color: "var(--color-text-secondary)" }, children: f }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    className: "action-btn",
+                    onClick: () => deleteOfferFile(f),
+                    title: t("common.delete"),
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3.5 h-3.5" })
+                  }
+                )
+              ] }, f)) })
+            ] })
           ] }),
           !formData.is_local && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
@@ -56576,10 +56950,11 @@ const IntegrationsPage = () => {
       description: t("integrations.kclientPhpDesc"),
       code: `<?php
 // ${t("integrations.codeToInsert")}
-require_once 'kclient.php';
-$client = new KClient('${trackerUrl}');
-$client->sendAllParams(); 
-$client->execute();
+// kclient.php: ${trackerUrl}/kclient.php?download=1
+require_once dirname(__FILE__) . '/kclient.php';
+$client = new KClickClient('${trackerUrl}', 'CAMPAIGN_TOKEN');
+$client->sendAllParams();
+$client->execute(); 
 ?>`
     },
     kclient_js: {
@@ -56588,22 +56963,21 @@ $client->execute();
       description: t("integrations.kclientJsDesc"),
       code: `<script type="application/javascript">
   var orbitra_db_url = '${trackerUrl}';
-  (function(d, s, id) {
-    var js, fjs = d.getElementsByTagName(s)[0];
-    if (d.getElementById(id)) return;
-    js = d.createElement(s); js.id = id;
-    js.src = orbitra_db_url + '/kclient.js';
-    fjs.parentNode.insertBefore(js, fjs);
-  }(document, 'script', 'ltt-tracking-js'));
+  var orbitra_campaign_token = 'CAMPAIGN_TOKEN';
 <\/script>
-<noscript><img src="${trackerUrl}/pixel.gif?js=0" alt="" /></noscript>`
+<script src="${trackerUrl}/kclient.js"><\/script>
+<noscript><img src="${trackerUrl}/pixel.gif?token=CAMPAIGN_TOKEN" alt="" /></noscript>`
     },
     js_banner: {
       title: t("integrations.jsBannerTitle"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-5 h-5" }),
       description: t("integrations.jsBannerDesc"),
-      code: `<div id="ltt-banner-container"></div>
-<script src="${trackerUrl}/banner.js?campaign_id=YOUR_ID" async><\/script>`
+      code: `<div id="orbitra-banner" style="width:300px;height:250px;overflow:hidden"></div>
+<script>
+  var orbitra_db_url = '${trackerUrl}';
+  var orbitra_campaign_token = 'CAMPAIGN_TOKEN';
+<\/script>
+<script src="${trackerUrl}/banner.js" async><\/script>`
     },
     tracking_pixel: {
       title: "Tracking Pixel",
@@ -57757,42 +58131,69 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
         borderRight: "1px solid var(--color-border)",
         background: "var(--color-bg-soft)",
         borderRadius: "24px 0 0 24px"
-      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("nav", { style: { padding: "8px" }, children: Object.entries(scripts).map(([id, script]) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "button",
-        {
-          onClick: () => setActiveTab(id),
-          style: {
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            padding: "12px 16px",
-            textAlign: "left",
-            border: "none",
-            background: activeTab === id ? "var(--color-bg-card)" : "transparent",
-            color: activeTab === id ? "var(--color-primary)" : "var(--color-text-secondary)",
-            fontWeight: activeTab === id ? 500 : 400,
-            borderRadius: "12px",
-            cursor: "pointer",
-            marginBottom: "4px",
-            transition: "all 0.2s ease",
-            boxShadow: activeTab === id ? "var(--shadow-soft)" : "none"
-          },
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: activeTab === id ? "var(--color-primary)" : "var(--color-text-muted)" }, children: script.icon }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px" }, children: script.title })
-            ] }),
-            id === "telegram" && tgSettings?.token_set && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-              width: "8px",
-              height: "8px",
-              borderRadius: "50%",
-              background: tgSettings.webhook_set ? "#22c55e" : "#ef4444"
-            } })
-          ]
-        },
-        id
-      )) }) }),
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("nav", { style: { padding: "8px", overflowY: "auto" }, children: (() => {
+        const groups = [
+          { label: t("integrations.groupAds", "Ad networks"), ids: ["facebook_costs", "facebook_conversions", "dolphin_fbtool"] },
+          { label: t("integrations.groupSites", "Sites & landings"), ids: ["kclient_php", "kclient_js", "tracking_pixel", "js_banner", "wordpress", "wordpress_plugin", "static_site", "geo_redirect", "device_redirect"] },
+          { label: t("integrations.groupTools", "Tools"), ids: ["countdown_timer", "back_button_trap", "exit_popup", "app_config", "recaptcha", "telegram"] }
+        ];
+        const grouped = new Set(groups.flatMap((g) => g.ids));
+        const rest = Object.keys(scripts).filter((id) => !grouped.has(id));
+        if (rest.length) {
+          groups.push({ label: t("integrations.groupOther", "Other"), ids: rest });
+        }
+        const renderBtn = (id) => {
+          const script = scripts[id];
+          if (!script) return null;
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: () => setActiveTab(id),
+              style: {
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+                padding: "10px 16px",
+                textAlign: "left",
+                border: "none",
+                background: activeTab === id ? "var(--color-bg-card)" : "transparent",
+                color: activeTab === id ? "var(--color-primary)" : "var(--color-text-secondary)",
+                fontWeight: activeTab === id ? 500 : 400,
+                borderRadius: "12px",
+                cursor: "pointer",
+                marginBottom: "2px",
+                transition: "all 0.2s ease",
+                boxShadow: activeTab === id ? "var(--shadow-soft)" : "none"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: activeTab === id ? "var(--color-primary)" : "var(--color-text-muted)" }, children: script.icon }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "13.5px" }, children: script.title })
+                ] }),
+                id === "telegram" && tgSettings?.token_set && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  background: tgSettings.webhook_set ? "#22c55e" : "#ef4444"
+                } })
+              ]
+            },
+            id
+          );
+        };
+        return groups.map((group, gi) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: gi > 0 ? { marginTop: "10px" } : void 0, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            fontSize: "11px",
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            color: "var(--color-text-muted)",
+            padding: "6px 16px 4px"
+          }, children: group.label }),
+          group.ids.map(renderBtn)
+        ] }, group.label));
+      })() }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, display: "flex", flexDirection: "column" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
           padding: "20px 24px",
@@ -61962,6 +62363,264 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     ] }) }) })
   ] }) });
 };
+const cid = () => window.crypto && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36);
+const pagePassthrough = () => `' + encodeURIComponent(document.referrer) + '&default_keyword=' + encodeURIComponent(document.title) + '&'+window.location.search.replace('?', '&')`;
+function buildSnippet(methodId, ctx, opts = {}) {
+  switch (methodId) {
+    case "kclient_js":
+      return kclientJs(ctx, opts);
+    case "kclient_php":
+      return kclientPhp(ctx);
+    case "tracking_script":
+      return trackingScript(ctx);
+    case "banner_script":
+      return bannerScript(ctx, opts);
+    case "banner_iframe":
+      return bannerIframe(ctx, opts);
+    case "campaign_url":
+      return ctx.campaign.url || "";
+    case "link":
+      return linkSnippet(ctx);
+    case "iframe":
+      return iframeSnippet(ctx);
+    case "script":
+      return scriptSnippet(ctx);
+    case "pixel":
+      return pixelSnippet(ctx);
+    case "countdown":
+      return countdownSnippet(ctx, opts);
+    case "back_button":
+      return backButtonSnippet(ctx, opts);
+    case "exit_intent":
+      return exitIntentSnippet(ctx, opts);
+    case "wordpress":
+      return wordpressSnippet(ctx);
+    default:
+      return "";
+  }
+}
+function obfuscateBase64(code) {
+  try {
+    return `<script type="application/javascript">eval(atob('${window.btoa(code)}'));<\/script>`;
+  } catch (e) {
+    return code;
+  }
+}
+function kclientJs({ trackerUrl, campaign }, opts = {}) {
+  let code = `<!-- Orbitra KClient JS — в <head> сайта на стороннем хосте -->
+<script>
+  var orbitra_db_url = '${trackerUrl}';
+  var orbitra_campaign_token = '${campaign.token}';
+<\/script>
+<script src="${trackerUrl}/kclient.js"><\/script>
+<noscript><img src="${trackerUrl}/pixel.gif?token=${campaign.token}" alt="" /></noscript>`;
+  if (opts.base64) {
+    code = obfuscateBase64(code.replace(/<!--.*?-->\n?/gs, ""));
+  }
+  return code;
+}
+function kclientPhp({ trackerUrl, campaign }) {
+  return `<?php
+// Первые строки index.php сайта, до DOCTYPE.
+// Файл kclient.php скачайте кнопкой выше и положите рядом с index.php.
+require_once dirname(__FILE__) . '/kclient.php';
+
+$client = new KClickClient('${trackerUrl}', '${campaign.token}');
+$client->sendAllParams();
+$client->execute();
+// $client->executeAndBreak(); — останавливать страницу при редиректе
+// echo $client->getContent();   — HTML из потока («Показать как HTML»)
+// echo $client->getOffer();     — ссылка на оффер для своей кнопки
+`;
+}
+function trackingScript({ trackerUrl, campaign }) {
+  return `<!-- Скрипт отслеживания — в <head> каждой страницы сайта -->
+<script>
+  var orbitra_db_url = '${trackerUrl}';
+  var orbitra_campaign_token = '${campaign.token}';
+<\/script>
+<script src="${trackerUrl}/tracking.js"><\/script>
+
+<!-- Страница «Спасибо» / отправка конверсии: -->
+<script>
+  var revenue = 0;
+  var status = 'lead';
+  var tid = Math.floor(Math.random() * 1000000000);
+  KTracking.reportConversion(revenue, status, { tid: tid });
+<\/script>
+
+<!-- Кнопка на оффер (ссылку подставит скрипт): -->
+<!-- <a href="{offer}" data-orbitra-offer>BUY NOW</a> -->`;
+}
+function bannerScript({ trackerUrl, campaign }, opts = {}) {
+  const w = opts.width || 300;
+  const h = opts.height || 250;
+  return `<!-- Блок баннеров (script): контент потока «Показать как HTML» -->
+<div id="orbitra-banner" style="width:${w}px;height:${h}px;overflow:hidden"></div>
+<script>
+  var orbitra_db_url = '${trackerUrl}';
+  var orbitra_campaign_token = '${campaign.token}';
+<\/script>
+<script src="${trackerUrl}/banner.js"><\/script>`;
+}
+function bannerIframe({ trackerUrl, campaign }, opts = {}) {
+  const w = opts.width || 300;
+  const h = opts.height || 250;
+  return `<!-- Блок баннеров (iframe): кампания во фрейме, совместим с RTB-кодами -->
+<iframe src="${trackerUrl}/${campaign.alias}" width="${w}" height="${h}" frameborder="0" scrolling="no" marginwidth="0" marginheight="0"></iframe>`;
+}
+function linkSnippet({ campaign }) {
+  const id = cid();
+  return `<span id="${id}"></span>
+<script type="application/javascript">
+document.getElementById('${id}').innerHTML = '<a href="${campaign.url}?se_referrer=${pagePassthrough()}">Link</a>';
+<\/script>`;
+}
+function iframeSnippet({ campaign }) {
+  const id = cid();
+  return `<div id="${id}"></div>
+<script type="application/javascript">
+document.getElementById('${id}').innerHTML = '<iframe sandbox="allow-top-navigation allow-scripts allow-popups allow-forms" frameborder="0" width="100%" height="100%" src="${campaign.url}?se_referrer=${pagePassthrough()}&frm=frame"></iframe>';
+<\/script>`;
+}
+function scriptSnippet({ campaign }) {
+  const id = cid();
+  return `<span id="${id}"></span><script type="application/javascript">
+var d=document;var s=d.createElement('script');
+s.src='${campaign.url}?se_referrer=${pagePassthrough()}&frm=script&_cid=${id}';
+if (document.currentScript) { document.currentScript.parentNode.insertBefore(s, document.currentScript); } else { d.getElementsByTagName('head')[0].appendChild(s); }
+<\/script>`;
+}
+function pixelSnippet({ trackerUrl, campaign }) {
+  return `<!-- Пиксель (клики, email-рассылки): -->
+<img src="${trackerUrl}/pixel.gif?campaign_id=${campaign.id}" width="1" height="1" border="0" alt="" />
+
+<!-- Конверсия на странице «Спасибо» (subid со страницы/формы): -->
+<img src="${trackerUrl}/pixel.gif?action=conversion&subid={subid}&status=lead" width="1" height="1" border="0" alt="" />`;
+}
+function countdownSnippet({ trackerUrl, campaign }, opts = {}) {
+  const hours = opts.hours || 2;
+  const offerUrl = opts.offerUrl || "https://your-offer.com";
+  return `<div id="ltt-countdown" style="font-family:sans-serif;text-align:center;padding:20px;
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border-radius:12px;max-width:400px;
+    margin:0 auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+    <div style="font-size:14px;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">
+        OFFER EXPIRES IN
+    </div>
+    <div id="ltt-timer" style="font-size:48px;font-weight:bold;">
+        <span id="ltt-hours">00</span>:<span id="ltt-minutes">00</span>:<span id="ltt-seconds">00</span>
+    </div>
+    <a id="ltt-cta" href="#" style="display:inline-block;margin-top:20px;padding:14px 40px;
+        background:#22c55e;color:white;text-decoration:none;border-radius:8px;font-weight:600;
+        font-size:16px;transition:transform 0.2s;">
+        GET OFFER NOW
+    </a>
+</div>
+
+<script>
+(function() {
+    var trackerUrl = '${trackerUrl}';
+    var campaignId = '${campaign.id}';
+    var redirectUrl = '${offerUrl}';
+    var hoursFromNow = ${hours};
+
+    var endTime = new Date().getTime() + (hoursFromNow * 60 * 60 * 1000);
+
+    document.getElementById('ltt-cta').href = trackerUrl + '/click.php?campaign_id=' + campaignId + '&url=' + encodeURIComponent(redirectUrl);
+
+    function updateTimer() {
+        var distance = endTime - new Date().getTime();
+        if (distance < 0) {
+            document.getElementById('ltt-countdown').innerHTML = '<h2>OFFER EXPIRED</h2>';
+            return;
+        }
+        document.getElementById('ltt-hours').textContent = String(Math.floor(distance / 3600000)).padStart(2, '0');
+        document.getElementById('ltt-minutes').textContent = String(Math.floor((distance % 3600000) / 60000)).padStart(2, '0');
+        document.getElementById('ltt-seconds').textContent = String(Math.floor((distance % 60000) / 1000)).padStart(2, '0');
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+})();
+<\/script>`;
+}
+function backButtonSnippet({ trackerUrl, campaign }, opts = {}) {
+  const trapUrl = opts.trapUrl || "https://your-special-offer.com";
+  return `<script>
+// Back Button Trap — перехват кнопки «назад» браузера
+(function() {
+    var trackerUrl = '${trackerUrl}';
+    var campaignId = '${campaign.id}';
+    var trapUrl = '${trapUrl}';
+
+    history.pushState({ trap: true }, '', location.href);
+
+    window.addEventListener('popstate', function(e) {
+        if (e.state && e.state.trap) {
+            var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + '&sub1=back_button&redirect=0';
+            fetch(clickUrl).finally(function() {
+                window.location.href = trapUrl;
+            });
+        }
+    });
+})();
+<\/script>`;
+}
+function exitIntentSnippet({ trackerUrl, campaign }, opts = {}) {
+  const offerUrl = opts.offerUrl || "https://your-offer.com";
+  const heading = opts.heading || "Wait! Special Offer!";
+  const text = opts.text || "Don't miss this exclusive deal just for you!";
+  return `<style>
+.ltt-exit-popup { display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.7); z-index:99999; justify-content:center; align-items:center; }
+.ltt-exit-popup.show { display:flex; }
+.ltt-exit-content { background:white; padding:40px; border-radius:16px; max-width:500px;
+    text-align:center; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+.ltt-exit-close { position:absolute; top:15px; right:20px; font-size:24px; cursor:pointer;
+    color:#999; border:none; background:none; }
+.ltt-exit-btn { display:inline-block; margin-top:20px; padding:16px 40px; background:#22c55e;
+    color:white; text-decoration:none; border-radius:8px; font-weight:600; font-size:18px; }
+</style>
+
+<div id="ltt-exit-popup" class="ltt-exit-popup">
+    <div class="ltt-exit-content">
+        <button class="ltt-exit-close" onclick="document.getElementById('ltt-exit-popup').classList.remove('show')">&times;</button>
+        <h2 style="margin:0 0 15px;font-size:28px;">${heading}</h2>
+        <p style="font-size:16px;color:#666;margin-bottom:10px;">${text}</p>
+        <a id="ltt-exit-cta" href="#" class="ltt-exit-btn">CLAIM OFFER</a>
+    </div>
+</div>
+
+<script>
+(function() {
+    var trackerUrl = '${trackerUrl}';
+    var campaignId = '${campaign.id}';
+    var offerUrl = '${offerUrl}';
+    var shown = false;
+
+    document.getElementById('ltt-exit-cta').href = trackerUrl + '/click.php?campaign_id=' + campaignId + '&url=' + encodeURIComponent(offerUrl);
+
+    document.addEventListener('mouseout', function(e) {
+        if (shown) return;
+        if (e.clientY < 10 && e.relatedTarget === null) {
+            shown = true;
+            document.getElementById('ltt-exit-popup').classList.add('show');
+            fetch(trackerUrl + '/click.php?campaign_id=' + campaignId + '&sub1=exit_popup&redirect=0');
+        }
+    });
+})();
+<\/script>`;
+}
+function wordpressSnippet({ campaign }) {
+  return `<!-- WordPress: шорткод трекера (плагин Orbitra) -->
+[orbitra_link campaign_id="${campaign.id}" text="Click Here"]
+
+<!-- Несколько офферов / гео-редирект: -->
+[orbitra_link campaign_id="${campaign.id}" text="Buy" text_ru="Купить" geo_redirect="RU:https://offer1.com,DE:https://offer2.com"]
+
+<!-- Конверсия со страницы «Спасибо» (Contact Form 7 и т.п.): -->
+[send_postback]`;
+}
 const generateAlias = () => {
   const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
@@ -61992,7 +62651,21 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [showConversionsLog, setShowConversionsLog] = reactExports.useState(false);
   const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
   const [showSourceEditor, setShowSourceEditor] = reactExports.useState(false);
-  const [integrationSnippet, setIntegrationSnippet] = reactExports.useState("link");
+  const [trackingMethod, setTrackingMethod] = reactExports.useState("kclient_js");
+  const [trackOpts, setTrackOpts] = reactExports.useState({
+    hours: 2,
+    offerUrl: "",
+    trapUrl: "",
+    heading: "",
+    text: "",
+    width: 300,
+    height: 250,
+    base64: false
+  });
+  const [costConns, setCostConns] = reactExports.useState([]);
+  const [costMatch, setCostMatch] = reactExports.useState(null);
+  const [syncingConnId, setSyncingConnId] = reactExports.useState(null);
+  const [syncResult, setSyncResult] = reactExports.useState(null);
   const [showTrafficSimModal, setShowTrafficSimModal] = reactExports.useState(false);
   const [trafficSimResult, setTrafficSimResult] = reactExports.useState(null);
   const [trafficSimLoading, setTrafficSimLoading] = reactExports.useState(false);
@@ -62127,26 +62800,16 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       console.error(err);
     }
   };
-  const buildIntegrationSnippets = () => {
-    const url = getCampaignUrl();
-    const cid = window.crypto && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36);
-    const pass = `' + encodeURIComponent(document.referrer) + '&default_keyword=' + encodeURIComponent(document.title) + '&'+window.location.search.replace('?', '&')`;
-    return {
-      link: `<span id="${cid}"></span>
-<script type="application/javascript">
-document.getElementById('${cid}').innerHTML = '<a href="${url}?se_referrer=${pass}">Link</a>';
-<\/script>`,
-      iframe: `<div id="${cid}"></div>
-<script type="application/javascript">
-document.getElementById('${cid}').innerHTML = '<iframe sandbox="allow-top-navigation allow-scripts allow-popups allow-forms" frameborder="0" width="100%" height="100%" src="${url}?se_referrer=${pass}&frm=frame"></iframe>';
-<\/script>`,
-      script: `<span id="${cid}"></span><script type="application/javascript">
-var d=document;var s=d.createElement('script');
-s.src='${url}?se_referrer=${pass}&frm=script&_cid=${cid}';
-if (document.currentScript) { document.currentScript.parentNode.insertBefore(s, document.currentScript); } else { d.getElementsByTagName('head')[0].appendChild(s); }
-<\/script>`
-    };
-  };
+  const trackerUrl = window.location.origin;
+  const snippetCtx = () => ({
+    trackerUrl,
+    campaign: {
+      id: formData.id || campaignId || "",
+      alias: formData.alias || "",
+      token: formData.token || "",
+      url: getCampaignUrl()
+    }
+  });
   const copyIntegrationSnippet = async (text) => {
     let copied = false;
     if (navigator.clipboard && window.isSecureContext) {
@@ -62295,6 +62958,43 @@ if (document.currentScript) { document.currentScript.parentNode.insertBefore(s, 
     if (Object.keys(prefilled).length === 0) return;
     setFormData((prev) => ({ ...prev, parameters: prefilled }));
   }, [sources, formData.source_id]);
+  reactExports.useEffect(() => {
+    if (!campaignId) return;
+    axios.get("/api.php?action=aggregator_connections").then((res) => {
+      if (res.data.status === "success") {
+        setCostConns((res.data.data || []).filter((c) => ["facebook", "google_ads", "tiktok"].includes(c.engine)));
+      }
+    }).catch(() => {
+    });
+    cachedGet("campaign_cost_match", { campaign_id: campaignId }, 6e4).then(({ data }) => {
+      if (data.status === "success") setCostMatch(data.data);
+    }).catch(() => {
+    });
+  }, [campaignId]);
+  const syncCostConnection = async (connId) => {
+    setSyncingConnId(connId);
+    setSyncResult(null);
+    try {
+      const dateFrom = new Date(Date.now() - 6 * 864e5).toISOString().slice(0, 10);
+      const dateTo = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+      const res = await axios.post("/api.php?action=aggregator_sync", { connection_id: connId, date_from: dateFrom, date_to: dateTo });
+      if (res.data.status === "success") {
+        const d = res.data.data || {};
+        setSyncResult(`✓ ${t("costSync.synced", "Synced")}: fetched ${d.fetched ?? 0}, matched ${d.matched ?? 0}, new ${d.new ?? 0}`);
+        invalidateCache("campaign_cost_match");
+        cachedGet("campaign_cost_match", { campaign_id: campaignId }, 6e4).then(({ data }) => {
+          if (data.status === "success") setCostMatch(data.data);
+        }).catch(() => {
+        });
+      } else {
+        setSyncResult(`⚠ ${res.data.message || t("common.error")}`);
+      }
+    } catch (err) {
+      setSyncResult(`⚠ ${t("common.networkError")}`);
+    } finally {
+      setSyncingConnId(null);
+    }
+  };
   const fetchPixels = async () => {
     if (!campaignId) return;
     try {
@@ -62798,6 +63498,7 @@ if (document.currentScript) { document.currentScript.parentNode.insertBefore(s, 
             { key: "finance", label: t("editor.finance") },
             { key: "params", label: t("editor.params") },
             { key: "integrations", label: t("editor.integrations") },
+            { key: "tracking", label: t("editor.tracking", "Tracking") },
             { key: "postbacks", label: "S2S Postbacks" },
             { key: "notes", label: t("editor.notes") }
           ].map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -63219,50 +63920,80 @@ if (document.currentScript) { document.currentScript.parentNode.insertBefore(s, 
                 padding: "14px 16px",
                 background: "var(--color-bg-card)"
               }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px", flexWrap: "wrap", gap: "8px" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600, fontSize: "14px", color: "var(--color-text-primary)" }, children: t("editor.integrationCode") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-                    ["link", "iframe", "script"].map((kind) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "button",
-                      {
-                        type: "button",
-                        onClick: () => setIntegrationSnippet(kind),
-                        className: `btn ${integrationSnippet === kind ? "btn-primary" : "btn-secondary"}`,
-                        style: { padding: "4px 10px", fontSize: "12px" },
-                        children: t("editor.intCode_" + kind, kind)
-                      },
-                      kind
-                    )),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600, fontSize: "14px", color: "var(--color-text-primary)", marginBottom: "10px" }, children: t("costSync.title", "Cost Sync") }),
+                costMatch && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+                  padding: "10px 12px",
+                  borderRadius: "8px",
+                  marginBottom: "12px",
+                  fontSize: "13px",
+                  border: "1px solid var(--color-border)",
+                  background: costMatch.clicks7d > 0 && (costMatch.with_ad_id > 0 || costMatch.with_adset_id > 0 || costMatch.with_campaign_id > 0) ? "color-mix(in srgb, var(--color-success) 12%, transparent)" : "var(--color-bg-soft)",
+                  color: "var(--color-text-primary)"
+                }, children: [
+                  costMatch.clicks7d === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("costSync.noClicks", "No clicks in the last 7 days — nothing to attach spend to yet.") }),
+                  costMatch.clicks7d > 0 && (costMatch.with_ad_id > 0 || costMatch.with_adset_id > 0 || costMatch.with_campaign_id > 0) ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                    t("costSync.matchOk", "Last 7 days"),
+                    ": ",
+                    costMatch.clicks7d,
+                    " clicks · ad_id ×",
+                    costMatch.with_ad_id,
+                    " · adset_id ×",
+                    costMatch.with_adset_id,
+                    " · campaign_id ×",
+                    costMatch.with_campaign_id
+                  ] }) : costMatch.clicks7d > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("costSync.matchWarn", "Clicks of the last 7 days carry no ad_id / adset_id / campaign_id — imported spend will not attach. Pick a traffic source (e.g. Facebook) in the campaign settings so the URL parameters reach the tracker.") }) : null,
+                  costMatch.source_name && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+                    " · ",
+                    t("costSync.source", "Source"),
+                    ": ",
+                    costMatch.source_name
+                  ] })
+                ] }),
+                costConns.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: t("costSync.noConnections", "No cost connections yet — create one under Integrations (Facebook Costs / TikTok Ads) or Aggregators.") }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                  costConns.map((conn) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", style: { fontSize: "13px" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-secondary", children: conn.engine }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: conn.name }),
+                      !Number.isInteger(Number(conn.is_active)) || Number(conn.is_active) === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+                        "(",
+                        t("costSync.paused", "paused"),
+                        ")"
+                      ] }) : null,
+                      conn.last_sync_at && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+                        "· ",
+                        t("costSync.lastSync"),
+                        ": ",
+                        String(conn.last_sync_at).slice(0, 16).replace("T", " "),
+                        conn.last_sync_status === "error" ? " ⚠" : ""
+                      ] })
+                    ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "button",
                       {
                         type: "button",
-                        onClick: () => copyIntegrationSnippet(buildIntegrationSnippets()[integrationSnippet]),
-                        className: "btn btn-secondary btn-icon",
-                        title: t("common.copy"),
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
+                        className: "btn btn-secondary",
+                        style: { padding: "4px 10px", fontSize: "12px" },
+                        disabled: syncingConnId === conn.id,
+                        onClick: () => syncCostConnection(conn.id),
+                        children: syncingConnId === conn.id ? t("common.saving") : t("costSync.syncNow", "Sync now")
                       }
                     )
-                  ] })
+                  ] }, conn.id)),
+                  syncResult && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: syncResult })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "pre",
-                  {
-                    className: "text-xs overflow-x-auto",
-                    style: {
-                      fontFamily: "monospace",
-                      color: "var(--color-text-secondary)",
-                      background: "var(--color-bg-soft)",
-                      border: "1px solid var(--color-border)",
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      margin: 0,
-                      whiteSpace: "pre-wrap",
-                      wordBreak: "break-all"
-                    },
-                    children: buildIntegrationSnippets()[integrationSnippet]
-                  }
-                )
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "12px", paddingTop: "10px", borderTop: "1px solid var(--color-border)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-primary)", marginBottom: "4px" }, children: [
+                    "Dolphin / Fbtool — ",
+                    t("costSync.pushHint", "cost push URL for this campaign (API key: Users page, write permissions)")
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { className: "text-xs", style: { color: "var(--color-text-secondary)", wordBreak: "break-all" }, children: [
+                    "POST ",
+                    trackerUrl,
+                    "/admin_api/v1/campaigns/",
+                    formData.id || campaignId,
+                    "/update_costs"
+                  ] })
+                ] })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mb-2", style: { color: "var(--color-text-secondary)" }, children: t("pixels.selectPlatform") }),
               pixels.map((px) => {
@@ -63482,6 +64213,140 @@ if (document.currentScript) { document.currentScript.parentNode.insertBefore(s, 
                 platform2.id
               )) }),
               pixels.length === 0 && !editingPixel && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", padding: "20px 0" }, children: t("pixels.noPixelsDesc") })
+            ] }),
+            activeTab === "tracking" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+              !(formData.token || "").trim() && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("tracking.saveFirst", "Save the campaign first — the tracking code embeds the campaign token.") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.method", "Connection method") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "select",
+                    {
+                      className: "form-select",
+                      value: trackingMethod,
+                      onChange: (e) => setTrackingMethod(e.target.value),
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("optgroup", { label: t("tracking.groupSite", "Sites"), children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "kclient_js", children: "KClient JS" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "kclient_php", children: "KClient PHP" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tracking_script", children: t("tracking.trackingScript", "Tracking Script") })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("optgroup", { label: t("tracking.groupBanners", "Banner blocks"), children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "banner_script", children: t("tracking.bannerScript", "Banner block (script)") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "banner_iframe", children: t("tracking.bannerIframe", "Banner block (iframe)") })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("optgroup", { label: t("tracking.groupAds", "Ad networks"), children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "campaign_url", children: "Campaign URL" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "link", children: t("editor.intCode_link", "Link") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "iframe", children: "Iframe" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "script", children: "Script" })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("optgroup", { label: t("tracking.groupMisc", "Tools"), children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "pixel", children: "Tracking Pixel" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "countdown", children: "Countdown Timer" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "back_button", children: "Back Button Trap" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "exit_intent", children: "Exit Intent Popup" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "wordpress", children: "WordPress" })
+                        ] })
+                      ]
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                  trackingMethod === "kclient_js" && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs", style: { color: "var(--color-text-secondary)", alignSelf: "end", paddingTop: "22px" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "checkbox",
+                        checked: trackOpts.base64,
+                        onChange: (e) => setTrackOpts({ ...trackOpts, base64: e.target.checked })
+                      }
+                    ),
+                    t("tracking.base64", "Base64 (hide from ad blockers)")
+                  ] }),
+                  (trackingMethod === "banner_script" || trackingMethod === "banner_iframe") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "W" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", className: "form-input", value: trackOpts.width, onChange: (e) => setTrackOpts({ ...trackOpts, width: parseInt(e.target.value) || 300 }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "H" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", className: "form-input", value: trackOpts.height, onChange: (e) => setTrackOpts({ ...trackOpts, height: parseInt(e.target.value) || 250 }) })
+                    ] })
+                  ] }),
+                  trackingMethod === "countdown" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.hours", "Duration, hours") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", min: "1", className: "form-input", value: trackOpts.hours, onChange: (e) => setTrackOpts({ ...trackOpts, hours: parseInt(e.target.value) || 1 }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.offerUrl", "Offer URL") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", placeholder: "https://your-offer.com", value: trackOpts.offerUrl, onChange: (e) => setTrackOpts({ ...trackOpts, offerUrl: e.target.value }) })
+                    ] })
+                  ] }),
+                  trackingMethod === "back_button" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.trapUrl", "Trap URL") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", placeholder: "https://your-special-offer.com", value: trackOpts.trapUrl, onChange: (e) => setTrackOpts({ ...trackOpts, trapUrl: e.target.value }) })
+                  ] }),
+                  trackingMethod === "exit_intent" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.heading", "Heading") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", value: trackOpts.heading, placeholder: "Wait! Special Offer!", onChange: (e) => setTrackOpts({ ...trackOpts, heading: e.target.value }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.offerUrl", "Offer URL") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", placeholder: "https://your-offer.com", value: trackOpts.offerUrl, onChange: (e) => setTrackOpts({ ...trackOpts, offerUrl: e.target.value }) })
+                    ] })
+                  ] })
+                ] })
+              ] }),
+              trackingMethod === "kclient_php" && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "a",
+                {
+                  href: `${trackerUrl}/kclient.php?download=1`,
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                  className: "btn btn-secondary",
+                  style: { display: "inline-flex", alignItems: "center", gap: "6px" },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-4 h-4" }),
+                    t("tracking.downloadKclient", "Download kclient.php")
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => copyIntegrationSnippet(buildSnippet(trackingMethod, snippetCtx(), trackOpts)),
+                    className: "btn btn-secondary btn-icon",
+                    style: { position: "absolute", top: "8px", right: "8px", zIndex: 1 },
+                    title: t("common.copy"),
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "pre",
+                  {
+                    className: "text-xs",
+                    style: {
+                      fontFamily: "monospace",
+                      color: "var(--color-text-secondary)",
+                      background: "var(--color-bg-soft)",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: "8px",
+                      padding: "12px 48px 12px 12px",
+                      margin: 0,
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-all",
+                      maxHeight: "420px",
+                      overflowY: "auto"
+                    },
+                    children: buildSnippet(trackingMethod, snippetCtx(), trackOpts)
+                  }
+                )
+              ] })
             ] }),
             activeTab === "postbacks" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(

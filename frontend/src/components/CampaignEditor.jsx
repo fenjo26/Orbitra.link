@@ -7,8 +7,10 @@ import ConversionsLog from './ConversionsLog';
 import LandingEditor from './LandingEditor';
 import GroupsModal from './GroupsModal';
 import TrafficSourceEditor from './TrafficSourceEditor';
+import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
+import { buildSnippet } from '../utils/integrationSnippets';
 import { translateLandingRequestError } from '../utils/landingErrors';
 
 // Generate random alias like Keitaro (8 chars: a-z0-9)
@@ -47,7 +49,25 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [showConversionsLog, setShowConversionsLog] = useState(false);
     const [showGroupsModal, setShowGroupsModal] = useState(false);
     const [showSourceEditor, setShowSourceEditor] = useState(false);
-    const [integrationSnippet, setIntegrationSnippet] = useState('link');
+
+    // Tracking tab: chosen method + per-method options the snippets are built from
+    const [trackingMethod, setTrackingMethod] = useState('kclient_js');
+    const [trackOpts, setTrackOpts] = useState({
+        hours: 2,
+        offerUrl: '',
+        trapUrl: '',
+        heading: '',
+        text: '',
+        width: 300,
+        height: 250,
+        base64: false,
+    });
+
+    // Cost Sync (campaign's Integrations tab): connections + match diagnostics
+    const [costConns, setCostConns] = useState([]);
+    const [costMatch, setCostMatch] = useState(null);
+    const [syncingConnId, setSyncingConnId] = useState(null);
+    const [syncResult, setSyncResult] = useState(null);
     const [showTrafficSimModal, setShowTrafficSimModal] = useState(false);
     const [trafficSimResult, setTrafficSimResult] = useState(null);
     const [trafficSimLoading, setTrafficSimLoading] = useState(false);
@@ -221,21 +241,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         }
     };
 
-    // Keitaro-style integration snippets built from the campaign URL: the ad
-    // network gets the plain URL, site builders get link/iframe/script tags
-    // that pass the page's referrer, title and query string through.
-    const buildIntegrationSnippets = () => {
-        const url = getCampaignUrl();
-        const cid = (window.crypto && crypto.randomUUID)
-            ? crypto.randomUUID()
-            : Math.random().toString(36).slice(2) + Date.now().toString(36);
-        const pass = `' + encodeURIComponent(document.referrer) + '&default_keyword=' + encodeURIComponent(document.title) + '&'+window.location.search.replace('?', '&')`;
-        return {
-            link: `<span id="${cid}"></span>\n<script type="application/javascript">\ndocument.getElementById('${cid}').innerHTML = '<a href="${url}?se_referrer=${pass}">Link</a>';\n</script>`,
-            iframe: `<div id="${cid}"></div>\n<script type="application/javascript">\ndocument.getElementById('${cid}').innerHTML = '<iframe sandbox="allow-top-navigation allow-scripts allow-popups allow-forms" frameborder="0" width="100%" height="100%" src="${url}?se_referrer=${pass}&frm=frame"></iframe>';\n</script>`,
-            script: `<span id="${cid}"></span><script type="application/javascript">\nvar d=document;var s=d.createElement('script');\ns.src='${url}?se_referrer=${pass}&frm=script&_cid=${cid}';\nif (document.currentScript) { document.currentScript.parentNode.insertBefore(s, document.currentScript); } else { d.getElementsByTagName('head')[0].appendChild(s); }\n</script>`
-        };
-    };
+    // The campaign context every integration snippet is built from — the
+    // Tracking tab's single source of truth is utils/integrationSnippets.js.
+    const trackerUrl = window.location.origin;
+    const snippetCtx = () => ({
+        trackerUrl,
+        campaign: {
+            id: formData.id || campaignId || '',
+            alias: formData.alias || '',
+            token: formData.token || '',
+            url: getCampaignUrl(),
+        }
+    });
 
     const copyIntegrationSnippet = async (text) => {
         let copied = false;
@@ -393,6 +410,48 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         if (Object.keys(prefilled).length === 0) return;
         setFormData(prev => ({ ...prev, parameters: prefilled }));
     }, [sources, formData.source_id]);
+
+    // Cost Sync (campaign's Integrations tab): the spend connections that can
+    // feed this campaign + whether its clicks carry the IDs they match on.
+    useEffect(() => {
+        if (!campaignId) return;
+        axios.get('/api.php?action=aggregator_connections')
+            .then(res => {
+                if (res.data.status === 'success') {
+                    setCostConns((res.data.data || []).filter(c => ['facebook', 'google_ads', 'tiktok'].includes(c.engine)));
+                }
+            })
+            .catch(() => {});
+        cachedGet('campaign_cost_match', { campaign_id: campaignId }, 60000)
+            .then(({ data }) => { if (data.status === 'success') setCostMatch(data.data); })
+            .catch(() => {});
+    }, [campaignId]);
+
+    // Manual 7-day spend pull for one connection — the same action the
+    // Integrations page's "Update spend" button runs.
+    const syncCostConnection = async (connId) => {
+        setSyncingConnId(connId);
+        setSyncResult(null);
+        try {
+            const dateFrom = new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10);
+            const dateTo = new Date().toISOString().slice(0, 10);
+            const res = await axios.post('/api.php?action=aggregator_sync', { connection_id: connId, date_from: dateFrom, date_to: dateTo });
+            if (res.data.status === 'success') {
+                const d = res.data.data || {};
+                setSyncResult(`✓ ${t('costSync.synced', 'Synced')}: fetched ${d.fetched ?? 0}, matched ${d.matched ?? 0}, new ${d.new ?? 0}`);
+                invalidateCache('campaign_cost_match');
+                cachedGet('campaign_cost_match', { campaign_id: campaignId }, 60000)
+                    .then(({ data }) => { if (data.status === 'success') setCostMatch(data.data); })
+                    .catch(() => {});
+            } else {
+                setSyncResult(`⚠ ${res.data.message || t('common.error')}`);
+            }
+        } catch (err) {
+            setSyncResult(`⚠ ${t('common.networkError')}`);
+        } finally {
+            setSyncingConnId(null);
+        }
+    };
 
     const fetchPixels = async () => {
         if (!campaignId) return;
@@ -942,6 +1001,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                 { key: 'finance', label: t('editor.finance') },
                                 { key: 'params', label: t('editor.params') },
                                 { key: 'integrations', label: t('editor.integrations') },
+                                { key: 'tracking', label: t('editor.tracking', 'Tracking') },
                                 { key: 'postbacks', label: 'S2S Postbacks' },
                                 { key: 'notes', label: t('editor.notes') }
                             ].map(tab => (
@@ -1349,53 +1409,96 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                     {/* Integrations Tab */}
                                     {activeTab === 'integrations' && (
                                         <div className="space-y-4">
-                                            {/* Integration code snippets (Keitaro-style) */}
+                                            {/* Cost Sync: spend sources + match diagnostics for THIS campaign */}
                                             <div style={{
                                                 border: '1px solid var(--color-border)',
                                                 borderRadius: '16px',
                                                 padding: '14px 16px',
                                                 background: 'var(--color-bg-card)'
                                             }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
-                                                    <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-text-primary)' }}>{t('editor.integrationCode')}</span>
-                                                    <div className="flex gap-2">
-                                                        {['link', 'iframe', 'script'].map(kind => (
-                                                            <button
-                                                                key={kind}
-                                                                type="button"
-                                                                onClick={() => setIntegrationSnippet(kind)}
-                                                                className={`btn ${integrationSnippet === kind ? 'btn-primary' : 'btn-secondary'}`}
-                                                                style={{ padding: '4px 10px', fontSize: '12px' }}
-                                                            >
-                                                                {t('editor.intCode_' + kind, kind)}
-                                                            </button>
-                                                        ))}
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => copyIntegrationSnippet(buildIntegrationSnippets()[integrationSnippet])}
-                                                            className="btn btn-secondary btn-icon"
-                                                            title={t('common.copy')}
-                                                        >
-                                                            <Copy className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
+                                                <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-text-primary)', marginBottom: '10px' }}>
+                                                    {t('costSync.title', 'Cost Sync')}
                                                 </div>
-                                                <pre
-                                                    className="text-xs overflow-x-auto"
-                                                    style={{
-                                                        fontFamily: 'monospace',
-                                                        color: 'var(--color-text-secondary)',
-                                                        background: 'var(--color-bg-soft)',
-                                                        border: '1px solid var(--color-border)',
-                                                        borderRadius: '8px',
+
+                                                {/* Match diagnostics: do the clicks carry the ad IDs? */}
+                                                {costMatch && (
+                                                    <div style={{
                                                         padding: '10px 12px',
-                                                        margin: 0,
-                                                        whiteSpace: 'pre-wrap',
-                                                        wordBreak: 'break-all'
-                                                    }}
-                                                >
-                                                    {buildIntegrationSnippets()[integrationSnippet]}
-                                                </pre>
+                                                        borderRadius: '8px',
+                                                        marginBottom: '12px',
+                                                        fontSize: '13px',
+                                                        border: '1px solid var(--color-border)',
+                                                        background: (costMatch.clicks7d > 0 && (costMatch.with_ad_id > 0 || costMatch.with_adset_id > 0 || costMatch.with_campaign_id > 0))
+                                                            ? 'color-mix(in srgb, var(--color-success) 12%, transparent)'
+                                                            : 'var(--color-bg-soft)',
+                                                        color: 'var(--color-text-primary)'
+                                                    }}>
+                                                        {costMatch.clicks7d === 0 && (
+                                                            <span>{t('costSync.noClicks', 'No clicks in the last 7 days — nothing to attach spend to yet.')}</span>
+                                                        )}
+                                                        {costMatch.clicks7d > 0 && (costMatch.with_ad_id > 0 || costMatch.with_adset_id > 0 || costMatch.with_campaign_id > 0) ? (
+                                                            <span>
+                                                                {t('costSync.matchOk', 'Last 7 days')}: {costMatch.clicks7d} clicks · ad_id ×{costMatch.with_ad_id} · adset_id ×{costMatch.with_adset_id} · campaign_id ×{costMatch.with_campaign_id}
+                                                            </span>
+                                                        ) : costMatch.clicks7d > 0 ? (
+                                                            <span>
+                                                                {t('costSync.matchWarn', 'Clicks of the last 7 days carry no ad_id / adset_id / campaign_id — imported spend will not attach. Pick a traffic source (e.g. Facebook) in the campaign settings so the URL parameters reach the tracker.')}
+                                                            </span>
+                                                        ) : null}
+                                                        {costMatch.source_name && (
+                                                            <span style={{ color: 'var(--color-text-muted)' }}> · {t('costSync.source', 'Source')}: {costMatch.source_name}</span>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                {/* Pull connections (Facebook / Google Ads / TikTok) */}
+                                                {costConns.length === 0 ? (
+                                                    <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                                                        {t('costSync.noConnections', 'No cost connections yet — create one under Integrations (Facebook Costs / TikTok Ads) or Aggregators.')}
+                                                    </p>
+                                                ) : (
+                                                    <div className="space-y-2">
+                                                        {costConns.map(conn => (
+                                                            <div key={conn.id} className="flex items-center justify-between gap-2" style={{ fontSize: '13px' }}>
+                                                                <div className="flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                                                    <span className="badge badge-secondary">{conn.engine}</span>
+                                                                    <span>{conn.name}</span>
+                                                                    {!Number.isInteger(Number(conn.is_active)) || Number(conn.is_active) === 0 ? (
+                                                                        <span style={{ color: 'var(--color-text-muted)' }}>({t('costSync.paused', 'paused')})</span>
+                                                                    ) : null}
+                                                                    {conn.last_sync_at && (
+                                                                        <span style={{ color: 'var(--color-text-muted)' }}>
+                                                                            · {t('costSync.lastSync')}: {String(conn.last_sync_at).slice(0, 16).replace('T', ' ')}
+                                                                            {conn.last_sync_status === 'error' ? ' ⚠' : ''}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-secondary"
+                                                                    style={{ padding: '4px 10px', fontSize: '12px' }}
+                                                                    disabled={syncingConnId === conn.id}
+                                                                    onClick={() => syncCostConnection(conn.id)}
+                                                                >
+                                                                    {syncingConnId === conn.id ? t('common.saving') : t('costSync.syncNow', 'Sync now')}
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                        {syncResult && (
+                                                            <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{syncResult}</p>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                {/* Push endpoint (Dolphin / Fbtool) — ready for THIS campaign */}
+                                                <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid var(--color-border)' }}>
+                                                    <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '4px' }}>
+                                                        Dolphin / Fbtool — {t('costSync.pushHint', 'cost push URL for this campaign (API key: Users page, write permissions)')}
+                                                    </div>
+                                                    <code className="text-xs" style={{ color: 'var(--color-text-secondary)', wordBreak: 'break-all' }}>
+                                                        POST {trackerUrl}/admin_api/v1/campaigns/{formData.id || campaignId}/update_costs
+                                                    </code>
+                                                </div>
                                             </div>
 
                                             <p className="text-xs mb-2" style={{ color: 'var(--color-text-secondary)' }}>{t('pixels.selectPlatform')}</p>
@@ -1605,6 +1708,151 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                     {t('pixels.noPixelsDesc')}
                                                 </p>
                                             )}
+                                        </div>
+                                    )}
+
+                                    {/* Tracking Tab — connection methods with the campaign baked in */}
+                                    {activeTab === 'tracking' && (
+                                        <div className="space-y-4">
+                                            {!(formData.token || '').trim() && (
+                                                <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                                    {t('tracking.saveFirst', 'Save the campaign first — the tracking code embeds the campaign token.')}
+                                                </p>
+                                            )}
+
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                                <div>
+                                                    <label className="form-label">{t('tracking.method', 'Connection method')}</label>
+                                                    <select
+                                                        className="form-select"
+                                                        value={trackingMethod}
+                                                        onChange={e => setTrackingMethod(e.target.value)}
+                                                    >
+                                                        <optgroup label={t('tracking.groupSite', 'Sites')}>
+                                                            <option value="kclient_js">KClient JS</option>
+                                                            <option value="kclient_php">KClient PHP</option>
+                                                            <option value="tracking_script">{t('tracking.trackingScript', 'Tracking Script')}</option>
+                                                        </optgroup>
+                                                        <optgroup label={t('tracking.groupBanners', 'Banner blocks')}>
+                                                            <option value="banner_script">{t('tracking.bannerScript', 'Banner block (script)')}</option>
+                                                            <option value="banner_iframe">{t('tracking.bannerIframe', 'Banner block (iframe)')}</option>
+                                                        </optgroup>
+                                                        <optgroup label={t('tracking.groupAds', 'Ad networks')}>
+                                                            <option value="campaign_url">Campaign URL</option>
+                                                            <option value="link">{t('editor.intCode_link', 'Link')}</option>
+                                                            <option value="iframe">Iframe</option>
+                                                            <option value="script">Script</option>
+                                                        </optgroup>
+                                                        <optgroup label={t('tracking.groupMisc', 'Tools')}>
+                                                            <option value="pixel">Tracking Pixel</option>
+                                                            <option value="countdown">Countdown Timer</option>
+                                                            <option value="back_button">Back Button Trap</option>
+                                                            <option value="exit_intent">Exit Intent Popup</option>
+                                                            <option value="wordpress">WordPress</option>
+                                                        </optgroup>
+                                                    </select>
+                                                </div>
+
+                                                {/* Per-method options */}
+                                                <div className="space-y-2">
+                                                    {trackingMethod === 'kclient_js' && (
+                                                        <label className="flex items-center gap-2 text-xs" style={{ color: 'var(--color-text-secondary)', alignSelf: 'end', paddingTop: '22px' }}>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={trackOpts.base64}
+                                                                onChange={e => setTrackOpts({ ...trackOpts, base64: e.target.checked })}
+                                                            />
+                                                            {t('tracking.base64', 'Base64 (hide from ad blockers)')}
+                                                        </label>
+                                                    )}
+                                                    {(trackingMethod === 'banner_script' || trackingMethod === 'banner_iframe') && (
+                                                        <div className="flex gap-2">
+                                                            <div>
+                                                                <label className="form-label">W</label>
+                                                                <input type="number" className="form-input" value={trackOpts.width} onChange={e => setTrackOpts({ ...trackOpts, width: parseInt(e.target.value) || 300 })} />
+                                                            </div>
+                                                            <div>
+                                                                <label className="form-label">H</label>
+                                                                <input type="number" className="form-input" value={trackOpts.height} onChange={e => setTrackOpts({ ...trackOpts, height: parseInt(e.target.value) || 250 })} />
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    {trackingMethod === 'countdown' && (
+                                                        <div className="space-y-2">
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.hours', 'Duration, hours')}</label>
+                                                                <input type="number" min="1" className="form-input" value={trackOpts.hours} onChange={e => setTrackOpts({ ...trackOpts, hours: parseInt(e.target.value) || 1 })} />
+                                                            </div>
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.offerUrl', 'Offer URL')}</label>
+                                                                <input type="text" className="form-input" placeholder="https://your-offer.com" value={trackOpts.offerUrl} onChange={e => setTrackOpts({ ...trackOpts, offerUrl: e.target.value })} />
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    {trackingMethod === 'back_button' && (
+                                                        <div>
+                                                            <label className="form-label">{t('tracking.trapUrl', 'Trap URL')}</label>
+                                                            <input type="text" className="form-input" placeholder="https://your-special-offer.com" value={trackOpts.trapUrl} onChange={e => setTrackOpts({ ...trackOpts, trapUrl: e.target.value })} />
+                                                        </div>
+                                                    )}
+                                                    {trackingMethod === 'exit_intent' && (
+                                                        <div className="space-y-2">
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.heading', 'Heading')}</label>
+                                                                <input type="text" className="form-input" value={trackOpts.heading} placeholder="Wait! Special Offer!" onChange={e => setTrackOpts({ ...trackOpts, heading: e.target.value })} />
+                                                            </div>
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.offerUrl', 'Offer URL')}</label>
+                                                                <input type="text" className="form-input" placeholder="https://your-offer.com" value={trackOpts.offerUrl} onChange={e => setTrackOpts({ ...trackOpts, offerUrl: e.target.value })} />
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* kclient.php is downloaded, not copy-pasted */}
+                                            {trackingMethod === 'kclient_php' && (
+                                                <a
+                                                    href={`${trackerUrl}/kclient.php?download=1`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="btn btn-secondary"
+                                                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                                                >
+                                                    <FileText className="w-4 h-4" />
+                                                    {t('tracking.downloadKclient', 'Download kclient.php')}
+                                                </a>
+                                            )}
+
+                                            <div style={{ position: 'relative' }}>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => copyIntegrationSnippet(buildSnippet(trackingMethod, snippetCtx(), trackOpts))}
+                                                    className="btn btn-secondary btn-icon"
+                                                    style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1 }}
+                                                    title={t('common.copy')}
+                                                >
+                                                    <Copy className="w-4 h-4" />
+                                                </button>
+                                                <pre
+                                                    className="text-xs"
+                                                    style={{
+                                                        fontFamily: 'monospace',
+                                                        color: 'var(--color-text-secondary)',
+                                                        background: 'var(--color-bg-soft)',
+                                                        border: '1px solid var(--color-border)',
+                                                        borderRadius: '8px',
+                                                        padding: '12px 48px 12px 12px',
+                                                        margin: 0,
+                                                        whiteSpace: 'pre-wrap',
+                                                        wordBreak: 'break-all',
+                                                        maxHeight: '420px',
+                                                        overflowY: 'auto'
+                                                    }}
+                                                >
+                                                    {buildSnippet(trackingMethod, snippetCtx(), trackOpts)}
+                                                </pre>
+                                            </div>
                                         </div>
                                     )}
 

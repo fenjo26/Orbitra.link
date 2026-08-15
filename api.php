@@ -1301,6 +1301,46 @@ try {
             echo json_encode(['status' => 'success', 'data' => $campaign]);
             break;
 
+        case 'campaign_cost_match':
+            // Cost-sync diagnostics for one campaign: does its recent traffic
+            // carry the ad-network IDs cost import matches on? This is the
+            // "why don't my costs attach" answer, computed instead of guessed.
+            $cmId = (int) ($_GET['campaign_id'] ?? 0);
+            if ($cmId <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing campaign_id']);
+                break;
+            }
+            try {
+                $stmtCm = $pdo->prepare("
+                    SELECT
+                        COUNT(*) AS clicks7d,
+                        COALESCE(SUM(CASE WHEN json_extract(parameters_json, '\$.ad_id') IS NOT NULL THEN 1 ELSE 0 END), 0) AS with_ad_id,
+                        COALESCE(SUM(CASE WHEN json_extract(parameters_json, '\$.adset_id') IS NOT NULL THEN 1 ELSE 0 END), 0) AS with_adset_id,
+                        COALESCE(SUM(CASE WHEN json_extract(parameters_json, '\$.campaign_id') IS NOT NULL THEN 1 ELSE 0 END), 0) AS with_campaign_id
+                    FROM clicks
+                    WHERE campaign_id = ? AND created_at >= datetime('now', '-7 days')
+                ");
+                $stmtCm->execute([$cmId]);
+                $rowCm = $stmtCm->fetch(PDO::FETCH_ASSOC) ?: [];
+                $stmtSrc = $pdo->prepare("
+                    SELECT ts.name, ts.parameters_json
+                    FROM campaigns c LEFT JOIN traffic_sources ts ON ts.id = c.source_id
+                    WHERE c.id = ? LIMIT 1
+                ");
+                $stmtSrc->execute([$cmId]);
+                $srcCm = $stmtSrc->fetch(PDO::FETCH_ASSOC) ?: null;
+                echo json_encode(['status' => 'success', 'data' => [
+                    'clicks7d' => (int) ($rowCm['clicks7d'] ?? 0),
+                    'with_ad_id' => (int) ($rowCm['with_ad_id'] ?? 0),
+                    'with_adset_id' => (int) ($rowCm['with_adset_id'] ?? 0),
+                    'with_campaign_id' => (int) ($rowCm['with_campaign_id'] ?? 0),
+                    'source_name' => $srcCm['name'] ?? null,
+                ]]);
+            } catch (\Exception $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
         case 'save_campaign':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
@@ -2682,6 +2722,266 @@ try {
                     'message' => 'upload_failed',
                     'detail' => ['error' => $e->getMessage()],
                 ]);
+            }
+            break;
+
+        // === Local offers: the same archive stack landings have ===
+        // A local offer's files live in offers/<id>/ and are served by index.php
+        // at the moment the tracker would redirect to the offer.
+        case 'upload_offer':
+            try {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $id = (int) ($_POST['id'] ?? 0);
+                if ($id <= 0) {
+                    $postMax = (string) ini_get('post_max_size');
+                    $contentLength = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
+                    if (empty($_POST) && empty($_FILES) && $contentLength > 0) {
+                        echo json_encode([
+                            'status' => 'error',
+                            'message' => 'upload_exceeds_post_max',
+                            'detail' => ['size_mb' => round($contentLength / 1048576, 1), 'limit' => $postMax],
+                        ]);
+                        break;
+                    }
+                    echo json_encode(['status' => 'error', 'message' => 'Missing Offer ID']);
+                    break;
+                }
+
+                // The offer must exist and actually be local — otherwise the
+                // archive would sit in a directory nothing ever serves.
+                $stmtOwn = $pdo->prepare("SELECT id, is_local FROM offers WHERE id = ? LIMIT 1");
+                $stmtOwn->execute([$id]);
+                $offerRow = $stmtOwn->fetch(PDO::FETCH_ASSOC);
+                if (!$offerRow) {
+                    echo json_encode(['status' => 'error', 'message' => 'Offer not found']);
+                    break;
+                }
+                if (!(int) ($offerRow['is_local'] ?? 0)) {
+                    echo json_encode(['status' => 'error', 'message' => 'offer_not_local', 'detail' => ['hint' => 'Switch the offer type to Local first']]);
+                    break;
+                }
+
+                if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+                    $uploadErr = $_FILES['file']['error'] ?? UPLOAD_ERR_NO_FILE;
+                    $uploadErrCode = [
+                        UPLOAD_ERR_INI_SIZE => 'upload_err_ini_size',
+                        UPLOAD_ERR_FORM_SIZE => 'upload_err_form_size',
+                        UPLOAD_ERR_PARTIAL => 'upload_err_partial',
+                        UPLOAD_ERR_NO_FILE => 'upload_err_no_file',
+                        UPLOAD_ERR_NO_TMP_DIR => 'upload_err_no_tmp_dir',
+                        UPLOAD_ERR_CANT_WRITE => 'upload_err_cant_write',
+                        UPLOAD_ERR_EXTENSION => 'upload_err_extension',
+                    ][$uploadErr] ?? 'upload_err_unknown';
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => $uploadErrCode,
+                        'detail' => ['limit' => ini_get('upload_max_filesize'), 'code' => $uploadErr],
+                    ]);
+                    break;
+                }
+                if ($_FILES['file']['size'] > 50 * 1024 * 1024) {
+                    echo json_encode(['status' => 'error', 'message' => 'File too large (max 50MB)']);
+                    break;
+                }
+
+                $zipFile = $_FILES['file']['tmp_name'];
+                if (!function_exists('finfo_open')) {
+                    echo json_encode(['status' => 'error', 'message' => 'missing_ext_fileinfo']);
+                    break;
+                }
+                if (!class_exists('ZipArchive')) {
+                    echo json_encode(['status' => 'error', 'message' => 'missing_ext_zip']);
+                    break;
+                }
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mimeType = finfo_file($finfo, $zipFile);
+                if (!in_array($mimeType, ['application/zip', 'application/x-zip-compressed'], true)) {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'not_a_zip',
+                        'detail' => ['mime' => $mimeType],
+                    ]);
+                    break;
+                }
+
+                $uploadDir = __DIR__ . '/offers/' . $id;
+                if (!is_dir($uploadDir) && !@mkdir($uploadDir, 0775, true) && !is_dir($uploadDir)) {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'offer_dir_not_created',
+                        'detail' => ['path' => $uploadDir, 'root' => __DIR__],
+                    ]);
+                    break;
+                }
+                if (!is_writable($uploadDir)) {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'offer_dir_not_writable',
+                        'detail' => ['path' => $uploadDir, 'root' => __DIR__],
+                    ]);
+                    break;
+                }
+
+                $zip = new ZipArchive;
+                if ($zip->open($zipFile) === TRUE) {
+                    $safeToExtract = true;
+                    $errorMsg = '';
+                    for ($i = 0; $i < $zip->numFiles; $i++) {
+                        $filename = $zip->getNameIndex($i);
+                        if (preg_match('/\.(php|phtml|php5|php7|phar)$/i', $filename)) {
+                            require_once __DIR__ . '/core/PhpLanding.php';
+                            if (!PhpLanding::enabled($pdo)) {
+                                $safeToExtract = false;
+                                $errorMsg = 'This archive contains PHP files. Turn on "Allow PHP landings" '
+                                    . 'in Settings -> General if you trust this offer\'s code.';
+                                break;
+                            }
+                        }
+                        if (strpos($filename, '..') !== false || strpos($filename, '/') === 0) {
+                            $safeToExtract = false;
+                            $errorMsg = 'Invalid filename in archive';
+                            break;
+                        }
+                    }
+
+                    if ($safeToExtract) {
+                        if (!$zip->extractTo($uploadDir)) {
+                            $badMethods = [];
+                            for ($i = 0; $i < $zip->numFiles; $i++) {
+                                $stat = $zip->statIndex($i);
+                                $method = $stat['comp_method'] ?? 8;
+                                if (!in_array((int) $method, [0, 8], true)) {
+                                    $badMethods[(int) $method] = true;
+                                }
+                            }
+                            $zip->close();
+                            if ($badMethods) {
+                                $methodNames = [9 => 'Deflate64', 12 => 'BZip2', 14 => 'LZMA', 93 => 'Zstandard', 95 => 'XZ', 98 => 'PPMd'];
+                                $named = [];
+                                foreach (array_keys($badMethods) as $m) {
+                                    $named[] = $methodNames[$m] ?? ('метод ' . $m);
+                                }
+                                echo json_encode([
+                                    'status' => 'error',
+                                    'message' => 'zip_unsupported_compression',
+                                    'detail' => ['methods' => $named],
+                                ]);
+                                break;
+                            }
+                            echo json_encode([
+                                'status' => 'error',
+                                'message' => 'zip_extract_failed',
+                                'detail' => ['path' => $uploadDir],
+                            ]);
+                            break;
+                        }
+
+                        require_once __DIR__ . '/core/PhpLanding.php';
+                        $phpProblems = PhpLanding::scanDirectory($uploadDir);
+                        if ($phpProblems) {
+                            $lines = [];
+                            foreach ($phpProblems as $file => $names) {
+                                $lines[] = $file . ': ' . implode(', ', $names);
+                            }
+                            $it = new RecursiveIteratorIterator(
+                                new RecursiveDirectoryIterator($uploadDir, RecursiveDirectoryIterator::SKIP_DOTS),
+                                RecursiveIteratorIterator::CHILD_FIRST
+                            );
+                            foreach ($it as $entry) {
+                                $entry->isDir() ? @rmdir($entry->getPathname()) : @unlink($entry->getPathname());
+                            }
+                            echo json_encode([
+                                'status' => 'error',
+                                'message' => 'This offer uses calls that are not allowed in a PHP offer — '
+                                    . implode(' | ', $lines)
+                            ]);
+                            $zip->close();
+                            break;
+                        }
+
+                        echo json_encode(['status' => 'success', 'message' => 'Files extracted successfully']);
+                    } else {
+                        echo json_encode(['status' => 'error', 'message' => $errorMsg]);
+                    }
+                    $zip->close();
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'zip_open_failed']);
+                }
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+            }
+            } catch (\Throwable $e) {
+                error_log('upload_offer failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'upload_failed',
+                    'detail' => ['error' => $e->getMessage()],
+                ]);
+            }
+            break;
+
+        case 'offer_files':
+            $id = (int) ($_GET['id'] ?? 0);
+            if ($id > 0) {
+                $dir = __DIR__ . '/offers/' . $id;
+                if (!is_dir($dir)) {
+                    echo json_encode(['status' => 'success', 'data' => []]);
+                    break;
+                }
+                $iterator = new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+                    RecursiveIteratorIterator::SELF_FIRST
+                );
+                $files = [];
+                foreach ($iterator as $file) {
+                    if ($file->isFile()) {
+                        $relativePath = str_replace($dir . '/', '', $file->getPathname());
+                        $ext = strtolower(pathinfo($relativePath, PATHINFO_EXTENSION));
+                        if (in_array($ext, ['html', 'php', 'css', 'js', 'json', 'txt', 'md'])) {
+                            $files[] = $relativePath;
+                        }
+                    }
+                }
+                echo json_encode(['status' => 'success', 'data' => $files]);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
+            }
+            break;
+
+        // Delete one file inside a local offer's folder. Containment via realpath
+        // against offers/<id>/ — the same guarantee landing file ops give.
+        case 'offer_file_op':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(orbitraRequestBody(), true);
+                $id = (int) ($data['id'] ?? 0);
+                $path = (string) ($data['path'] ?? '');
+                $op = (string) ($data['op'] ?? 'delete');
+                if ($id <= 0 || $path === '' || $op !== 'delete') {
+                    echo json_encode(['status' => 'error', 'message' => 'Missing ID, path or unsupported op']);
+                    break;
+                }
+                $root = realpath(__DIR__ . '/offers/' . $id);
+                if ($root === false) {
+                    echo json_encode(['status' => 'error', 'message' => 'Offer folder not found']);
+                    break;
+                }
+                $file = realpath($root . '/' . ltrim($path, '/'));
+                if ($file === false || !is_file($file) || strpos($file, $root . DIRECTORY_SEPARATOR) !== 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'Access denied']);
+                    break;
+                }
+                $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                if (!in_array($ext, ['html', 'css', 'js', 'json', 'txt', 'md', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'ico', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'mp4', 'webm', 'mp3', 'pdf'], true)) {
+                    echo json_encode(['status' => 'error', 'message' => 'File type not allowed']);
+                    break;
+                }
+                if (@unlink($file)) {
+                    echo json_encode(['status' => 'success']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Delete failed']);
+                }
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
             }
             break;
 

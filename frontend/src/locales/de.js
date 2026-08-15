@@ -416,6 +416,7 @@ export default {
         "copyErrors": "Fehler"
     },
     "editor": {
+        "tracking": "Tracking",
         "integrationCode": "Integrationscode",
         "intCode_link": "Link",
         "intCode_iframe": "Iframe",
@@ -1298,6 +1299,12 @@ export default {
         "saveChanges": "Änderungen speichern"
     },
     "offerEditor": {
+        "localArchive": "Dateien des lokalen Offers",
+        "uploadZip": "ZIP hochladen",
+        "zipError": "ZIP-Upload-Fehler",
+        "zipOnCreateHint": "Das Archiv wird direkt nach dem Anlegen des Offers hochgeladen (der Upload braucht die Offer-ID). index.html wird die Offer-Seite.",
+        "filesLabel": "Dateien",
+        "noFiles": "Noch keine Dateien",
         "fillName": "Geben Sie den Angebotsnamen ein.",
         "fillUrl": "Geben Sie die Angebots-URL an oder wählen Sie den Typ „Lokales Angebot“ aus.",
         "savedSuccess": "Angebot erfolgreich gespeichert.",
@@ -2212,6 +2219,36 @@ export default {
         "step2": "2. In Dolphin (Einstellungen → Kostenexport → Keitaro) oder Fbtool (Kosten → Keitaro) eintragen:",
         "step3": "3. Endpunkt, den die Dienste aufrufen (kompatibel mit Keitaro Admin API v1):",
         "hint": "Filter matchen Klick-Parameter: sub_id_4 = ad_id, sub_id_3 = adset_id (Facebook-Template-Defaults) oder jeder Parametername direkt (ad_id, adset_id, campaign_id...). Ausgaben werden gleichmäßig auf die passenden Klicks des Zeitraums verteilt; erneutes Senden überschreibt statt zu addieren."
+    },
+    "tracking": {
+        "saveFirst": "Speichere die Kampagne zuerst — der Tracking-Code enthält das Kampagnen-Token.",
+        "method": "Verbindungsmethode",
+        "groupSite": "Websites",
+        "groupBanners": "Bannerblöcke",
+        "groupAds": "Werbenetzwerke",
+        "groupMisc": "Tools",
+        "trackingScript": "Tracking-Script",
+        "bannerScript": "Bannerblock (script)",
+        "bannerIframe": "Bannerblock (iframe)",
+        "base64": "Base64 (vor Adblockern verbergen)",
+        "hours": "Dauer, Stunden",
+        "offerUrl": "Offer-URL",
+        "trapUrl": "Trap-URL",
+        "heading": "Überschrift",
+        "downloadKclient": "kclient.php herunterladen"
+    },
+    "costSync": {
+        "title": "Kosten-Sync",
+        "noClicks": "Keine Klicks in den letzten 7 Tagen — Ausgaben haben noch nichts zum Anhängen.",
+        "matchOk": "Letzte 7 Tage",
+        "matchWarn": "Die Klicks der letzten 7 Tage tragen keine ad_id / adset_id / campaign_id — importierte Ausgaben hängen sich nicht an. Wähle in den Kampagneneinstellungen eine Traffic-Quelle (z. B. Facebook), damit die URL-Parameter den Tracker erreichen.",
+        "source": "Quelle",
+        "noConnections": "Noch keine Kosten-Verbindungen — unter Integrationen (Facebook Costs / TikTok Ads) oder Aggregatoren anlegen.",
+        "paused": "pausiert",
+        "lastSync": "letzter Sync",
+        "syncNow": "Jetzt syncen",
+        "synced": "Synchronisiert",
+        "pushHint": "Kosten-Push-URL für diese Kampagne (API-Schlüssel: Seite Benutzer, Schreibrechte)"
     },
     "costImport": {
         "facebookAds": "Facebook Ads",

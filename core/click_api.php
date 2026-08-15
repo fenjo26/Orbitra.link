@@ -31,6 +31,25 @@ function orbitraClickApiGetSettings(PDO $pdo): array
     return $settings;
 }
 
+// index.php defines issueLpToken() before routing here, but router.php does not —
+// and the {offer} macro in an action landing's body needs a signed transition
+// token for the click this API just logged. Same implementation, guarded.
+if (!function_exists('issueLpToken')) {
+    function issueLpToken($clickId, $secret, $ttl = 86400)
+    {
+        $payload = base64_encode(json_encode(['c' => $clickId, 'e' => time() + (int) $ttl]));
+        $payload = rtrim(strtr($payload, '+/', '-_'), '=');
+        $sig = substr(hash_hmac('sha256', $payload, $secret), 0, 32);
+        return $payload . '.' . $sig;
+    }
+}
+
+// Shared click-parameter capture: the same whitelist + source aliases the
+// redirect path uses. Capturing only the legacy Keitaro keys here used to drop
+// ad_id/adset_id/campaign_id — the very keys cost import matches on — for every
+// click arriving through this API (KClient PHP/JS, Tracking Script, banners).
+require_once __DIR__ . '/ClickParams.php';
+
 function orbitraClickApiGenerateUuid(): string
 {
     try {
@@ -495,21 +514,10 @@ function orbitraClickApiV3(PDO $pdo): void
     $geoData = orbitraClickApiGetGeoData($ip);
     $country = (string) ($geoData['country_code'] ?? 'Unknown');
 
-    // Extract Keitaro-standard params for macro replacement.
+    // Shared capture: standard keys, sub_id_N, ad-network IDs, click ids and
+    // the campaign source's declared aliases — identical to redirect visits.
     $incomingParams = array_merge($_GET, $_POST);
-    $clickParams = [];
-    $standardKeys = ['keyword', 'cost', 'currency', 'external_id', 'creative_id', 'ad_campaign_id', 'source', 'subid'];
-    for ($i = 1; $i <= 30; $i++) {
-        $standardKeys[] = 'sub_id_' . $i;
-    }
-    foreach ($standardKeys as $key) {
-        if (isset($incomingParams[$key])) {
-            $clickParams[$key] = $incomingParams[$key];
-        }
-    }
-    if (isset($clickParams['subid']) && !isset($clickParams['sub_id_1'])) {
-        $clickParams['sub_id_1'] = $clickParams['subid'];
-    }
+    $clickParams = orbitraCollectClickParams($pdo, $incomingParams, [], $campaign['source_id'] ?? null);
     $parametersJson = json_encode($clickParams, JSON_UNESCAPED_UNICODE);
 
     $clickId = orbitraClickApiGenerateUuid();
@@ -603,6 +611,11 @@ function orbitraClickApiV3(PDO $pdo): void
     $landingAction = null;
     $offerUrl = null;
     $finalUrl = null;
+    // Action landing (Keitaro «Показать как HTML/текст»): the stream's content —
+    // a banner, a text block — is delivered as the response body for the client
+    // (banner.js / KClient JS/PHP) to inject into the site, instead of a redirect.
+    $actionBody = null;
+    $actionContentType = 'text/html; charset=utf-8';
 
     if ($schemaType === 'landing_offer') {
         $pickedLanding = orbitraClickApiSelectWeightedItem($customSchema['landings'] ?? []);
@@ -611,13 +624,14 @@ function orbitraClickApiV3(PDO $pdo): void
         if ($pickedOffer) $offerIdToLog = (int) ($pickedOffer['id'] ?? 0);
 
         if ($landingIdToLog) {
-            $stmtL = $pdo->prepare("SELECT type, url, action_payload FROM landings WHERE id = ?");
+            $stmtL = $pdo->prepare("SELECT type, url, action_payload, action_type FROM landings WHERE id = ?");
             $stmtL->execute([$landingIdToLog]);
             $land = $stmtL->fetch(PDO::FETCH_ASSOC);
             if ($land) {
                 $landingType = $land['type'] ?? null;
                 $landingUrl = $land['url'] ?? null;
                 $landingAction = $land['action_payload'] ?? null;
+                $landingActionType = (string) ($land['action_type'] ?? '');
             }
         }
         if ($offerIdToLog) {
@@ -629,10 +643,20 @@ function orbitraClickApiV3(PDO $pdo): void
             }
         }
 
-        // Default click API behavior: redirect to landing if it is a redirect landing.
-        // If force_redirect_offer=1, always provide offer URL if available.
         if ($forceRedirectOffer && $offerUrl) {
             $finalUrl = $offerUrl;
+        } else if ($landingType === 'action') {
+            // Show the stream's content on the page the client is already on. The
+            // click stays put; {offer} inside the payload is resolved below to a
+            // signed transition link, so the banner click continues THIS click.
+            if ($landingActionType === 'show_html' || $landingActionType === 'show_text') {
+                $actionBody = (string) $landingAction;
+                $actionContentType = $landingActionType === 'show_text'
+                    ? 'text/plain; charset=utf-8'
+                    : 'text/html; charset=utf-8';
+            }
+            // do_nothing / not_found / to_campaign: nothing to render — matches
+            // Keitaro, where a "Do nothing" stream leaves the site untouched.
         } else if ($landingType === 'redirect' && $landingUrl) {
             $finalUrl = $landingUrl;
         } else if ($offerUrl) {
@@ -707,6 +731,24 @@ function orbitraClickApiV3(PDO $pdo): void
     }
 
     $headers = [];
+    // A signed landing→offer transition for the click just logged: the {offer}
+    // macro inside an action landing's body and the clients' getOffer() both use
+    // it, so the follow-up click continues THIS click instead of creating a new one.
+    $offerTransitionLink = null;
+    if ($offerUrl && $offerIdToLog) {
+        $lpScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $lpHost = (string) ($_SERVER['HTTP_HOST'] ?? '');
+        if ($lpHost !== '') {
+            $lpSecret = $settings['postback_key'] ?? '';
+            if ($lpSecret === '') {
+                $lpSecret = 'orbitra_secret';
+            }
+            $offerTransitionLink = $lpScheme . '://' . $lpHost . '/?_lp=1'
+                . '&_token=' . urlencode(issueLpToken($clickId, $lpSecret))
+                . '&offer_id=' . (int) $offerIdToLog;
+        }
+    }
+
     if ($finalUrl) {
         // Macro replacement (similar to index.php).
         $offerUrlMacros = str_replace('{clickid}', $clickId, (string) ($offerUrl ?? ''));
@@ -728,13 +770,27 @@ function orbitraClickApiV3(PDO $pdo): void
         if ($wantLog) {
             $log[] = "Send headers: Location: {$resolved}";
         }
+    } else if ($actionBody !== null) {
+        // The action landing's content carries the banner. {offer} was already
+        // resolved into the signed transition link above.
+        $actionBody = str_replace('{clickid}', $clickId, $actionBody);
+        foreach ($clickParams as $key => $val) {
+            $actionBody = str_replace('{' . $key . '}', urlencode((string) $val), $actionBody);
+        }
+        if ($offerTransitionLink !== null) {
+            $actionBody = str_replace('{offer}', $offerTransitionLink, $actionBody);
+            $actionBody = str_replace('{offer_id}', (string) $offerIdToLog, $actionBody);
+        }
+        if ($wantLog) {
+            $log[] = "Action landing body: " . strlen($actionBody) . " bytes";
+        }
     } else if ($wantLog) {
         $log[] = "No Location header (action/local landing or URL not found)";
     }
 
     $resp = [
-        'body' => null,
-        'contentType' => 'text/html; charset=utf-8',
+        'body' => $actionBody,
+        'contentType' => $actionContentType,
         'headers' => $headers,
         'status' => '200',
         'cookies_ttl' => (int) ($campaign['uniqueness_hours'] ?? 24),
@@ -746,9 +802,12 @@ function orbitraClickApiV3(PDO $pdo): void
             'campaign_id' => $campaignId,
             'stream_id' => $streamId ?: null,
             'sub_id' => $clickId,
-            'type' => $headers ? 'location' : 'none',
+            'type' => $headers ? 'location' : ($actionBody !== null ? ($actionContentType === 'text/plain; charset=utf-8' ? 'text' : 'html') : 'none'),
             // Mirror Keitaro-ish semantics: `url` is the (unresolved) destination template.
             'url' => $finalUrl,
+            // The signed, ready-to-use offer link (what {offer} in a body resolves
+            // to); getOffer()-style clients should prefer it over `url`.
+            'offer_link' => $offerTransitionLink,
             'landing_id' => $landingIdToLog,
             'offer_id' => $offerIdToLog ?: null,
         ];

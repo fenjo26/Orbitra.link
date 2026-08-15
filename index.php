@@ -494,7 +494,7 @@ function renderRedirectResponse($type, $url)
  * Range requests are honoured because Safari refuses to play a <video> whose
  * source cannot answer with 206, and landing pages routinely embed mp4.
  */
-function serveLandingAsset($landingId, $uriPath)
+function serveLandingAsset($landingId, $uriPath, $baseDir = null)
 {
     static $mimeTypes = [
         'ico' => 'image/x-icon',
@@ -542,8 +542,11 @@ function serveLandingAsset($landingId, $uriPath)
 
     // $pdo is global here (index.php bootstraps config.php which builds it);
     // orbitraLandingDir resolves the landing's slug→dir, falling back to id.
+    // $baseDir overrides the resolution — local offers pass offers/<id>.
     $assetPdo = $GLOBALS['pdo'] ?? null;
-    if ($assetPdo instanceof PDO) {
+    if (is_string($baseDir)) {
+        $resolved = rtrim($baseDir, '/');
+    } elseif ($assetPdo instanceof PDO) {
         $resolved = orbitraLandingDir($assetPdo, $landingId);
     } else {
         $resolved = __DIR__ . '/landings/' . (int) $landingId;
@@ -841,9 +844,103 @@ function performTrackerAction($type, $payload = '')
  * {...} in the page, or a landing using JS template literals, Vue or Angular
  * would be mangled. Anything not recognised is left exactly as it was.
  */
-function applyLandingMacros($html, $clickId, $offerId, $offerUrl, array $clickParams = [], $lpToken = '')
+// === Local offers ===
+// A local offer's uploaded archive lives in offers/<id>/ and is served inline
+// at the moment the tracker would redirect to the offer — the same machinery
+// local landings use (macros, PhpLanding, asset passthrough), one directory root.
+
+/** Directory of a local offer's uploaded archive. */
+function orbitraOfferDir($offerId)
 {
-    if (!is_string($html) || $html === '' || strpos($html, '{') === false) {
+    return __DIR__ . '/offers/' . (int) $offerId;
+}
+
+function orbitraOfferIsLocal(PDO $pdo, $offerId): bool
+{
+    static $cache = [];
+    $offerId = (int) $offerId;
+    if ($offerId <= 0) {
+        return false;
+    }
+    if (!isset($cache[$offerId])) {
+        try {
+            $stmt = $pdo->prepare("SELECT is_local FROM offers WHERE id = ? LIMIT 1");
+            $stmt->execute([$offerId]);
+            $cache[$offerId] = ((int) ($stmt->fetchColumn() ?? 0)) === 1;
+        } catch (\Throwable $e) {
+            $cache[$offerId] = false;
+        }
+    }
+    return $cache[$offerId];
+}
+
+/** Serve a local offer's index page; false when the caller should keep redirecting. */
+function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams, array $settings): bool
+{
+    $offerId = (int) $offerId;
+    if ($offerId <= 0 || !orbitraOfferIsLocal($pdo, $offerId)) {
+        return false;
+    }
+    $dir = orbitraOfferDir($offerId);
+    if (!is_dir($dir)) {
+        return false;
+    }
+
+    // Assets of this page resolve against the offer's directory; the landing
+    // cookie must go, or the landing the visitor came from would answer instead.
+    if (!headers_sent()) {
+        $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['SERVER_PORT'] ?? '') == 443);
+        $opts = ['expires' => time() + 86400, 'path' => '/', 'secure' => $secure, 'httponly' => false, 'samesite' => 'Lax'];
+        setcookie('orbitra_lo', (string) $offerId, $opts);
+        setcookie('orbitra_lp', '', ['expires' => time() - 3600, 'path' => '/']);
+    }
+
+    if (file_exists($dir . '/index.php')) {
+        require_once __DIR__ . '/core/PhpLanding.php';
+        if (!PhpLanding::enabled($pdo)) {
+            http_response_code(503);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'This offer is written in PHP, which is disabled on this tracker. '
+                . 'Enable it in Settings -> General -> "Allow PHP landings" if you trust its code.';
+            exit;
+        }
+        @set_time_limit(PhpLanding::timeout($pdo));
+        $rawClick = new OrbitraRawClick(array_merge(
+            $clickParams,
+            [
+                'click_id' => $clickId,
+                'subid' => $clickId,
+                'offer_id' => $offerId,
+            ]
+        ));
+        require $dir . '/index.php';
+        exit;
+    }
+
+    if (file_exists($dir . '/index.html')) {
+        echo applyLandingMacros(
+            file_get_contents($dir . '/index.html'),
+            $clickId,
+            $offerId,
+            '',
+            $clickParams,
+            issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
+        );
+        exit;
+    }
+
+    // An archive without an index is not servable — let the caller decide.
+    return false;
+}
+
+/** Asset passthrough for a local offer's directory (mirror of serveLandingAsset). */
+function serveOfferAsset($offerId, $uriPath)
+{
+    serveLandingAsset((int) $offerId, $uriPath, orbitraOfferDir($offerId));
+}
+
+function applyLandingMacros($html, $clickId, $offerId, $offerUrl, array $clickParams = [], $lpToken = '')
+{    if (!is_string($html) || $html === '' || strpos($html, '{') === false) {
         return $html;
     }
 
@@ -1280,6 +1377,159 @@ if ($uriPath === '/click_api/v3' || $uriPath === '/click_api/v3/') {
     exit;
 }
 
+// === Tracking pixel: /pixel.gif (Keitaro-compatible) ===
+// One invisible image, two jobs:
+//   /pixel.gif?campaign_id=42[&click params]  — email/impression pixel: logs a
+//                                               click for the campaign, no redirect
+//   /pixel.gif?action=conversion&subid=S&status=lead[&payout=&currency=&tid=]
+//                                             — registers a conversion on click S
+// Must sit BEFORE the Sec-Fetch-Dest image guard below, which exists precisely
+// to 404 stray image probes — this one is a legitimate image.
+if ($uriPath === '/pixel.gif') {
+    $orbitraPixelGif = base64_decode('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+    $orbitraPixelHeaders = function () {
+        if (headers_sent()) {
+            return;
+        }
+        header('Content-Type: image/gif');
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+    };
+
+    if (($_GET['action'] ?? '') === 'conversion') {
+        // Full postback semantics (status mapping, tid upsert, outbound S2S)
+        // live in postback.php; it die()s on bad input, so the shutdown function
+        // guarantees the browser still gets its pixel either way.
+        $pxBaseObLevel = ob_get_level();
+        register_shutdown_function(function () use ($orbitraPixelGif, $orbitraPixelHeaders, $pxBaseObLevel) {
+            while (ob_get_level() > $pxBaseObLevel) { @ob_end_clean(); }
+            $orbitraPixelHeaders();
+            echo $orbitraPixelGif;
+        });
+        ob_start();
+        require __DIR__ . '/postback.php';
+        while (ob_get_level() > $pxBaseObLevel) { @ob_end_clean(); }
+        exit;
+    }
+
+    if (($_GET['action'] ?? '') === 'update') {
+        // KTracking.update({sub_id_N: …}) — merge parameters onto an existing
+        // click. No new click, no conversion: the pixel just answers with the GIF.
+        $pxSubid = trim((string) ($_GET['subid'] ?? ''));
+        if ($pxSubid !== '') {
+            try {
+                $stmtPxSel = $pdo->prepare("SELECT parameters_json FROM clicks WHERE id = ? LIMIT 1");
+                $stmtPxSel->execute([$pxSubid]);
+                $pxRow = $stmtPxSel->fetch(PDO::FETCH_ASSOC);
+                if ($pxRow) {
+                    $pxExisting = json_decode((string) ($pxRow['parameters_json'] ?? ''), true);
+                    if (!is_array($pxExisting)) {
+                        $pxExisting = [];
+                    }
+                    $pxAllowed = ['keyword', 'cost', 'currency', 'external_id', 'creative_id', 'ad_campaign_id', 'source'];
+                    for ($pxI = 1; $pxI <= 30; $pxI++) {
+                        $pxAllowed[] = 'sub_id_' . $pxI;
+                    }
+                    $pxDirty = false;
+                    foreach ($pxAllowed as $pxKey) {
+                        if (isset($_GET[$pxKey]) && $_GET[$pxKey] !== '') {
+                            $pxExisting[$pxKey] = substr((string) $_GET[$pxKey], 0, 512);
+                            $pxDirty = true;
+                        }
+                    }
+                    if ($pxDirty) {
+                        $stmtPxUpd = $pdo->prepare("UPDATE clicks SET parameters_json = ? WHERE id = ?");
+                        $stmtPxUpd->execute([json_encode($pxExisting, JSON_UNESCAPED_UNICODE), $pxSubid]);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // The pixel must answer with the image no matter what.
+            }
+        }
+        $orbitraPixelHeaders();
+        echo $orbitraPixelGif;
+        exit;
+    }
+
+    // Impression click. The campaign comes by numeric id (the snippets Orbitra
+    // generates), by alias (hand-made links) or by campaign token (JS clients,
+    // which only ever hold the token). A pixel must answer with the image even
+    // when the campaign is missing, so failures fall through to the GIF.
+    $orbitraPixelCampaign = null;
+    try {
+        if ((int) ($_GET['campaign_id'] ?? 0) > 0) {
+            $stmtPx = $pdo->prepare("SELECT * FROM campaigns WHERE is_archived = 0 AND id = ? LIMIT 1");
+            $stmtPx->execute([(int) $_GET['campaign_id']]);
+            $orbitraPixelCampaign = $stmtPx->fetch(PDO::FETCH_ASSOC) ?: null;
+        } elseif (!empty($_GET['token'])) {
+            $stmtPx = $pdo->prepare("SELECT * FROM campaigns WHERE is_archived = 0 AND token = ? LIMIT 1");
+            $stmtPx->execute([trim((string) $_GET['token'])]);
+            $orbitraPixelCampaign = $stmtPx->fetch(PDO::FETCH_ASSOC) ?: null;
+        } elseif (!empty($_GET['campaign'])) {
+            $stmtPx = $pdo->prepare("SELECT * FROM campaigns WHERE is_archived = 0 AND alias = ? LIMIT 1");
+            $stmtPx->execute([trim((string) $_GET['campaign'])]);
+            $orbitraPixelCampaign = $stmtPx->fetch(PDO::FETCH_ASSOC) ?: null;
+        }
+    } catch (\Throwable $e) {
+        $orbitraPixelCampaign = null;
+    }
+
+    if ($orbitraPixelCampaign) {
+        require_once __DIR__ . '/core/click_api.php';
+        require_once __DIR__ . '/core/ClickParams.php';
+
+        $pxIp = orbitraClickApiGetClientIp();
+        $pxUa = orbitraClickApiGetUserAgent();
+        $pxAcceptLanguage = orbitraClickApiDetectAcceptLanguageRaw();
+        $pxGeo = orbitraClickApiGetGeoData($pxIp);
+        $pxClickId = orbitraClickApiGenerateUuid();
+        // The same capture whitelist the campaign router uses: standard keys plus
+        // whatever the campaign's traffic source declares (ad_id & co for costs).
+        // The pixel's own routing params are stripped first — campaign_id/token are
+        // how THIS request found the campaign, not attributes of the click.
+        $pxIncoming = array_merge($_GET, $_POST);
+        unset($pxIncoming['campaign_id'], $pxIncoming['campaign'], $pxIncoming['token'], $pxIncoming['action'], $pxIncoming['js'], $pxIncoming['subid'], $pxIncoming['status'], $pxIncoming['payout'], $pxIncoming['tid']);
+        $pxParams = orbitraCollectClickParams($pdo, $pxIncoming, $_COOKIE, $orbitraPixelCampaign['source_id'] ?? null);
+        $pxParamsJson = json_encode($pxParams, JSON_UNESCAPED_UNICODE);
+
+        try {
+            $stmtPxIns = $pdo->prepare("
+                INSERT INTO clicks
+                (id, campaign_id, offer_id, stream_id, source_id, ip, user_agent, referer,
+                 country, country_code, region, city, latitude, longitude, zipcode, timezone,
+                 device_type, os, browser, language, accept_language_raw, parameters_json)
+                VALUES (?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Unknown', 'Unknown', ?, ?, ?)
+            ");
+            $stmtPxIns->execute([
+                $pxClickId,
+                (int) $orbitraPixelCampaign['id'],
+                $orbitraPixelCampaign['source_id'] ?? null,
+                $pxIp,
+                $pxUa,
+                (string) ($_SERVER['HTTP_REFERER'] ?? ''),
+                (string) ($pxGeo['country_code'] ?? 'Unknown'),
+                (string) ($pxGeo['country_code'] ?? 'Unknown'),
+                $pxGeo['region'] ?? '',
+                $pxGeo['city'] ?? '',
+                $pxGeo['latitude'] ?? null,
+                $pxGeo['longitude'] ?? null,
+                $pxGeo['zipcode'] ?? '',
+                $pxGeo['timezone'] ?? '',
+                orbitraClickApiGetDeviceType($pxUa),
+                ($pxLangCodes = orbitraClickApiExtractLanguageCodes($pxAcceptLanguage)) ? $pxLangCodes[0] : 'Unknown',
+                $pxAcceptLanguage,
+                $pxParamsJson,
+            ]);
+        } catch (\Throwable $e) {
+            // A duplicate/DB hiccup must not break the pixel — the image goes out.
+        }
+    }
+
+    $orbitraPixelHeaders();
+    echo $orbitraPixelGif;
+    exit;
+}
+
 // A local landing's own address, /lander/<slug>/, matching Keitaro. Must come
 // before the click handling below: this path is a look at the landing, not a
 // visit to a campaign, and nothing about it should be logged as traffic.
@@ -1294,6 +1544,12 @@ if ($uriPath !== null && preg_match('#^/lander/([A-Za-z0-9][A-Za-z0-9_-]{0,63})(
 // why every image, font and video used to 404. Resolve such requests against the
 // landing the visitor was actually shown, remembered in the orbitra_lp cookie.
 // This keeps uploaded landings working untouched, exactly as they do in Keitaro.
+// The offer cookie wins when both are set: a visitor who clicked from a local
+// landing to a local offer is now on the offer's page, so its assets resolve
+// against offers/<id>, not against the landing they came from.
+if (!empty($_COOKIE['orbitra_lo']) && $uriPath !== null && $uriPath !== '/') {
+    serveOfferAsset((int) $_COOKIE['orbitra_lo'], $uriPath);
+}
 if (!empty($_COOKIE['orbitra_lp']) && $uriPath !== null && $uriPath !== '/') {
     serveLandingAsset((int) $_COOKIE['orbitra_lp'], $uriPath);
 }
@@ -1411,10 +1667,10 @@ if (isset($_GET['_lp'])) {
     }
 
     $lpOffer = null;
-    $stmt = $pdo->prepare("SELECT url, redirect_type FROM offers WHERE id = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT url, redirect_type, is_local FROM offers WHERE id = ? LIMIT 1");
     $stmt->execute([$lpOfferId]);
     $lpOffer = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
-    if (!$lpOffer || empty($lpOffer['url'])) {
+    if (!$lpOffer || (empty($lpOffer['url']) && empty($lpOffer['is_local']))) {
         http_response_code(404);
         die('Landing transition failed: offer not found.');
     }
@@ -1442,6 +1698,13 @@ if (isset($_GET['_lp'])) {
     }
 
     $lpUrl = applyOfferMacros($lpOffer['url'], $lpClickId, $lpOfferId, $lpParams);
+
+    // A local offer is served from the tracker instead of the redirect — the
+    // landing→offer click then lands on the offer's own uploaded page.
+    if (!empty($lpOffer['is_local'])) {
+        orbitraServeLocalOffer($pdo, $lpOfferId, $lpClickId, $lpParams, ['postback_key' => $lpSecret]);
+    }
+
     renderRedirectResponse($lpOffer['redirect_type'] ?? 'redirect', $lpUrl);
     exit;
 }
@@ -2302,6 +2565,9 @@ if ($actionToPerfrom) {
         // paths, which the browser will request from the domain root.
         if (($landingType ?? '') === 'local') {
             setcookie('orbitra_lp', (string) $landingIdToLog, $lpCookieOpts);
+            // The landing is the page in play now — a leftover offer cookie from
+            // an earlier visit would steal its asset requests.
+            setcookie('orbitra_lo', '', ['expires' => time() - 3600, 'path' => '/']);
         }
     }
 
@@ -2436,6 +2702,13 @@ if ($actionToPerfrom) {
 
     // Default behavior is redirect. Use redirect=0 for debug/integration checks.
     $shouldRedirect = ($_GET['redirect'] ?? '1') !== '0';
+
+    // A local offer replaces the redirect: the visitor stays on the tracker and
+    // gets the offer's uploaded page inline (same machinery as local landings).
+    if ($shouldRedirect && !empty($offerIdToLog) && orbitraOfferIsLocal($pdo, $offerIdToLog)) {
+        orbitraServeLocalOffer($pdo, $offerIdToLog, $clickId, $clickParams ?? [], $settings);
+    }
+
     if ($shouldRedirect) {
         renderRedirectResponse($offerRedirectType, $finalUrl);
     } else {
