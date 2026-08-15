@@ -469,8 +469,8 @@ function requireReact_production() {
   react_production.useDeferredValue = function(value, initialValue) {
     return ReactSharedInternals.H.useDeferredValue(value, initialValue);
   };
-  react_production.useEffect = function(create2, deps) {
-    return ReactSharedInternals.H.useEffect(create2, deps);
+  react_production.useEffect = function(create, deps) {
+    return ReactSharedInternals.H.useEffect(create, deps);
   };
   react_production.useEffectEvent = function(callback2) {
     return ReactSharedInternals.H.useEffectEvent(callback2);
@@ -478,17 +478,17 @@ function requireReact_production() {
   react_production.useId = function() {
     return ReactSharedInternals.H.useId();
   };
-  react_production.useImperativeHandle = function(ref, create2, deps) {
-    return ReactSharedInternals.H.useImperativeHandle(ref, create2, deps);
+  react_production.useImperativeHandle = function(ref, create, deps) {
+    return ReactSharedInternals.H.useImperativeHandle(ref, create, deps);
   };
-  react_production.useInsertionEffect = function(create2, deps) {
-    return ReactSharedInternals.H.useInsertionEffect(create2, deps);
+  react_production.useInsertionEffect = function(create, deps) {
+    return ReactSharedInternals.H.useInsertionEffect(create, deps);
   };
-  react_production.useLayoutEffect = function(create2, deps) {
-    return ReactSharedInternals.H.useLayoutEffect(create2, deps);
+  react_production.useLayoutEffect = function(create, deps) {
+    return ReactSharedInternals.H.useLayoutEffect(create, deps);
   };
-  react_production.useMemo = function(create2, deps) {
-    return ReactSharedInternals.H.useMemo(create2, deps);
+  react_production.useMemo = function(create, deps) {
+    return ReactSharedInternals.H.useMemo(create, deps);
   };
   react_production.useOptimistic = function(passthrough, reducer) {
     return ReactSharedInternals.H.useOptimistic(passthrough, reducer);
@@ -4584,43 +4584,43 @@ function requireReactDomClient_production() {
     currentStateHook.memoizedState = action;
     return [stateHook, dispatch, false];
   }
-  function pushSimpleEffect(tag, inst, create2, deps) {
-    tag = { tag, create: create2, deps, inst, next: null };
+  function pushSimpleEffect(tag, inst, create, deps) {
+    tag = { tag, create, deps, inst, next: null };
     inst = currentlyRenderingFiber.updateQueue;
     null === inst && (inst = createFunctionComponentUpdateQueue(), currentlyRenderingFiber.updateQueue = inst);
-    create2 = inst.lastEffect;
-    null === create2 ? inst.lastEffect = tag.next = tag : (deps = create2.next, create2.next = tag, tag.next = deps, inst.lastEffect = tag);
+    create = inst.lastEffect;
+    null === create ? inst.lastEffect = tag.next = tag : (deps = create.next, create.next = tag, tag.next = deps, inst.lastEffect = tag);
     return tag;
   }
   function updateRef() {
     return updateWorkInProgressHook().memoizedState;
   }
-  function mountEffectImpl(fiberFlags, hookFlags, create2, deps) {
+  function mountEffectImpl(fiberFlags, hookFlags, create, deps) {
     var hook = mountWorkInProgressHook();
     currentlyRenderingFiber.flags |= fiberFlags;
     hook.memoizedState = pushSimpleEffect(
       1 | hookFlags,
       { destroy: void 0 },
-      create2,
+      create,
       void 0 === deps ? null : deps
     );
   }
-  function updateEffectImpl(fiberFlags, hookFlags, create2, deps) {
+  function updateEffectImpl(fiberFlags, hookFlags, create, deps) {
     var hook = updateWorkInProgressHook();
     deps = void 0 === deps ? null : deps;
     var inst = hook.memoizedState.inst;
-    null !== currentHook && null !== deps && areHookInputsEqual(deps, currentHook.memoizedState.deps) ? hook.memoizedState = pushSimpleEffect(hookFlags, inst, create2, deps) : (currentlyRenderingFiber.flags |= fiberFlags, hook.memoizedState = pushSimpleEffect(
+    null !== currentHook && null !== deps && areHookInputsEqual(deps, currentHook.memoizedState.deps) ? hook.memoizedState = pushSimpleEffect(hookFlags, inst, create, deps) : (currentlyRenderingFiber.flags |= fiberFlags, hook.memoizedState = pushSimpleEffect(
       1 | hookFlags,
       inst,
-      create2,
+      create,
       deps
     ));
   }
-  function mountEffect(create2, deps) {
-    mountEffectImpl(8390656, 8, create2, deps);
+  function mountEffect(create, deps) {
+    mountEffectImpl(8390656, 8, create, deps);
   }
-  function updateEffect(create2, deps) {
-    updateEffectImpl(2048, 8, create2, deps);
+  function updateEffect(create, deps) {
+    updateEffectImpl(2048, 8, create, deps);
   }
   function useEffectEventImpl(payload) {
     currentlyRenderingFiber.flags |= 4;
@@ -4640,28 +4640,28 @@ function requireReactDomClient_production() {
       return ref.impl.apply(void 0, arguments);
     };
   }
-  function updateInsertionEffect(create2, deps) {
-    return updateEffectImpl(4, 2, create2, deps);
+  function updateInsertionEffect(create, deps) {
+    return updateEffectImpl(4, 2, create, deps);
   }
-  function updateLayoutEffect(create2, deps) {
-    return updateEffectImpl(4, 4, create2, deps);
+  function updateLayoutEffect(create, deps) {
+    return updateEffectImpl(4, 4, create, deps);
   }
-  function imperativeHandleEffect(create2, ref) {
+  function imperativeHandleEffect(create, ref) {
     if ("function" === typeof ref) {
-      create2 = create2();
-      var refCleanup = ref(create2);
+      create = create();
+      var refCleanup = ref(create);
       return function() {
         "function" === typeof refCleanup ? refCleanup() : ref(null);
       };
     }
     if (null !== ref && void 0 !== ref)
-      return create2 = create2(), ref.current = create2, function() {
+      return create = create(), ref.current = create, function() {
         ref.current = null;
       };
   }
-  function updateImperativeHandle(ref, create2, deps) {
+  function updateImperativeHandle(ref, create, deps) {
     deps = null !== deps && void 0 !== deps ? deps.concat([ref]) : null;
-    updateEffectImpl(4, 4, imperativeHandleEffect.bind(null, create2, ref), deps);
+    updateEffectImpl(4, 4, imperativeHandleEffect.bind(null, create, ref), deps);
   }
   function mountDebugValue() {
   }
@@ -4960,20 +4960,20 @@ function requireReactDomClient_production() {
     },
     useContext: readContext,
     useEffect: mountEffect,
-    useImperativeHandle: function(ref, create2, deps) {
+    useImperativeHandle: function(ref, create, deps) {
       deps = null !== deps && void 0 !== deps ? deps.concat([ref]) : null;
       mountEffectImpl(
         4194308,
         4,
-        imperativeHandleEffect.bind(null, create2, ref),
+        imperativeHandleEffect.bind(null, create, ref),
         deps
       );
     },
-    useLayoutEffect: function(create2, deps) {
-      return mountEffectImpl(4194308, 4, create2, deps);
+    useLayoutEffect: function(create, deps) {
+      return mountEffectImpl(4194308, 4, create, deps);
     },
-    useInsertionEffect: function(create2, deps) {
-      mountEffectImpl(4, 2, create2, deps);
+    useInsertionEffect: function(create, deps) {
+      mountEffectImpl(4, 2, create, deps);
     },
     useMemo: function(nextCreate, deps) {
       var hook = mountWorkInProgressHook();
@@ -6999,8 +6999,8 @@ function requireReactDomClient_production() {
         do {
           if ((updateQueue.tag & flags) === flags) {
             lastEffect = void 0;
-            var create2 = updateQueue.create, inst = updateQueue.inst;
-            lastEffect = create2();
+            var create = updateQueue.create, inst = updateQueue.inst;
+            lastEffect = create();
             inst.destroy = lastEffect;
           }
           updateQueue = updateQueue.next;
@@ -12513,23 +12513,6 @@ function bind(fn, thisArg) {
 const { toString } = Object.prototype;
 const { getPrototypeOf } = Object;
 const { iterator, toStringTag } = Symbol;
-const hasOwnProperty = (({ hasOwnProperty: hasOwnProperty2 }) => (obj, prop) => hasOwnProperty2.call(obj, prop))(Object.prototype);
-const hasOwnInPrototypeChain = (thing, prop) => {
-  let obj = thing;
-  const seen = [];
-  while (obj != null && obj !== Object.prototype) {
-    if (seen.indexOf(obj) !== -1) {
-      return false;
-    }
-    seen.push(obj);
-    if (hasOwnProperty(obj, prop)) {
-      return true;
-    }
-    obj = getPrototypeOf(obj);
-  }
-  return false;
-};
-const getSafeProp = (obj, prop) => obj != null && hasOwnInPrototypeChain(obj, prop) ? obj[prop] : void 0;
 const kindOf = /* @__PURE__ */ ((cache2) => (thing) => {
   const str = toString.call(thing);
   return cache2[str] || (cache2[str] = str.slice(8, -1).toLowerCase());
@@ -12560,14 +12543,11 @@ const isNumber$1 = typeOfTest("number");
 const isObject$1 = (thing) => thing !== null && typeof thing === "object";
 const isBoolean = (thing) => thing === true || thing === false;
 const isPlainObject = (val) => {
-  if (!isObject$1(val)) {
+  if (kindOf(val) !== "object") {
     return false;
   }
   const prototype2 = getPrototypeOf(val);
-  return (prototype2 === null || prototype2 === Object.prototype || getPrototypeOf(prototype2) === null) && // Treat any genuine (non-Object.prototype-polluted) Symbol.toStringTag or
-  // Symbol.iterator as evidence the value is a tagged/iterable type rather
-  // than a plain object, while ignoring keys injected onto Object.prototype.
-  !hasOwnInPrototypeChain(val, toStringTag) && !hasOwnInPrototypeChain(val, iterator);
+  return (prototype2 === null || prototype2 === Object.prototype || Object.getPrototypeOf(prototype2) === null) && !(toStringTag in val) && !(iterator in val);
 };
 const isEmptyObject = (val) => {
   if (!isObject$1(val) || isBuffer(val)) {
@@ -12581,32 +12561,13 @@ const isEmptyObject = (val) => {
 };
 const isDate$1 = kindOfTest("Date");
 const isFile = kindOfTest("File");
-const isReactNativeBlob = (value) => {
-  return !!(value && typeof value.uri !== "undefined");
-};
-const isReactNative = (formData) => formData && typeof formData.getParts !== "undefined";
 const isBlob = kindOfTest("Blob");
 const isFileList = kindOfTest("FileList");
-const isSet = kindOfTest("Set");
 const isStream = (val) => isObject$1(val) && isFunction$2(val.pipe);
-function getGlobal() {
-  if (typeof globalThis !== "undefined") return globalThis;
-  if (typeof self !== "undefined") return self;
-  if (typeof window !== "undefined") return window;
-  if (typeof global !== "undefined") return global;
-  return {};
-}
-const G = getGlobal();
-const FormDataCtor = typeof G.FormData !== "undefined" ? G.FormData : void 0;
 const isFormData = (thing) => {
-  if (!thing) return false;
-  if (FormDataCtor && thing instanceof FormDataCtor) return true;
-  const proto = getPrototypeOf(thing);
-  if (!proto || proto === Object.prototype) return false;
-  if (!isFunction$2(thing.append)) return false;
-  const kind = kindOf(thing);
-  return kind === "formdata" || // detect form-data instance
-  kind === "object" && isFunction$2(thing.toString) && thing.toString() === "[object FormData]";
+  let kind;
+  return thing && (typeof FormData === "function" && thing instanceof FormData || isFunction$2(thing.append) && ((kind = kindOf(thing)) === "formdata" || // detect form-data instance
+  kind === "object" && isFunction$2(thing.toString) && thing.toString() === "[object FormData]"));
 };
 const isURLSearchParams = kindOfTest("URLSearchParams");
 const [isReadableStream, isRequest, isResponse, isHeaders] = [
@@ -12615,9 +12576,7 @@ const [isReadableStream, isRequest, isResponse, isHeaders] = [
   "Response",
   "Headers"
 ].map(kindOfTest);
-const trim = (str) => {
-  return str.trim ? str.trim() : str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, "");
-};
+const trim = (str) => str.trim ? str.trim() : str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, "");
 function forEach(obj, fn, { allOwnKeys = false } = {}) {
   if (obj === null || typeof obj === "undefined") {
     return;
@@ -12665,17 +12624,16 @@ const _global = (() => {
   return typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : global;
 })();
 const isContextDefined = (context) => !isUndefined(context) && context !== _global;
-function merge$1(...objs) {
+function merge$1() {
   const { caseless, skipUndefined } = isContextDefined(this) && this || {};
   const result = {};
   const assignValue = (val, key) => {
     if (key === "__proto__" || key === "constructor" || key === "prototype") {
       return;
     }
-    const targetKey = caseless && typeof key === "string" && findKey$1(result, key) || key;
-    const existing = hasOwnProperty(result, targetKey) ? result[targetKey] : void 0;
-    if (isPlainObject(existing) && isPlainObject(val)) {
-      result[targetKey] = merge$1(existing, val);
+    const targetKey = caseless && findKey$1(result, key) || key;
+    if (isPlainObject(result[targetKey]) && isPlainObject(val)) {
+      result[targetKey] = merge$1(result[targetKey], val);
     } else if (isPlainObject(val)) {
       result[targetKey] = merge$1({}, val);
     } else if (isArray$1(val)) {
@@ -12684,22 +12642,8 @@ function merge$1(...objs) {
       result[targetKey] = val;
     }
   };
-  for (let i = 0, l = objs.length; i < l; i++) {
-    const source = objs[i];
-    if (!source || isBuffer(source)) {
-      continue;
-    }
-    forEach(source, assignValue);
-    if (typeof source !== "object" || isArray$1(source)) {
-      continue;
-    }
-    const symbols = Object.getOwnPropertySymbols(source);
-    for (let j = 0; j < symbols.length; j++) {
-      const symbol = symbols[j];
-      if (propertyIsEnumerable.call(source, symbol)) {
-        assignValue(source[symbol], symbol);
-      }
-    }
+  for (let i = 0, l = arguments.length; i < l; i++) {
+    arguments[i] && forEach(arguments[i], assignValue);
   }
   return result;
 }
@@ -12709,9 +12653,6 @@ const extend = (a, b, thisArg, { allOwnKeys } = {}) => {
     (val, key) => {
       if (thisArg && isFunction$2(val)) {
         Object.defineProperty(a, key, {
-          // Null-proto descriptor so a polluted Object.prototype.get cannot
-          // hijack defineProperty's accessor-vs-data resolution.
-          __proto__: null,
           value: bind(val, thisArg),
           writable: true,
           enumerable: true,
@@ -12719,7 +12660,6 @@ const extend = (a, b, thisArg, { allOwnKeys } = {}) => {
         });
       } else {
         Object.defineProperty(a, key, {
-          __proto__: null,
           value: val,
           writable: true,
           enumerable: true,
@@ -12738,16 +12678,17 @@ const stripBOM = (content) => {
   return content;
 };
 const inherits = (constructor, superConstructor, props, descriptors2) => {
-  constructor.prototype = Object.create(superConstructor.prototype, descriptors2);
+  constructor.prototype = Object.create(
+    superConstructor.prototype,
+    descriptors2
+  );
   Object.defineProperty(constructor.prototype, "constructor", {
-    __proto__: null,
     value: constructor,
     writable: true,
     enumerable: false,
     configurable: true
   });
   Object.defineProperty(constructor, "super", {
-    __proto__: null,
     value: superConstructor.prototype
   });
   props && Object.assign(constructor.prototype, props);
@@ -12821,7 +12762,7 @@ const toCamelCase$1 = (str) => {
     return p1.toUpperCase() + p2;
   });
 };
-const { propertyIsEnumerable } = Object.prototype;
+const hasOwnProperty = (({ hasOwnProperty: hasOwnProperty2 }) => (obj, prop) => hasOwnProperty2.call(obj, prop))(Object.prototype);
 const isRegExp = kindOfTest("RegExp");
 const reduceDescriptors = (obj, reducer) => {
   const descriptors2 = Object.getOwnPropertyDescriptors(obj);
@@ -12836,7 +12777,7 @@ const reduceDescriptors = (obj, reducer) => {
 };
 const freezeMethods = (obj) => {
   reduceDescriptors(obj, (descriptor, name) => {
-    if (isFunction$2(obj) && ["arguments", "caller", "callee"].includes(name)) {
+    if (isFunction$2(obj) && ["arguments", "caller", "callee"].indexOf(name) !== -1) {
       return false;
     }
     const value = obj[name];
@@ -12872,38 +12813,29 @@ function isSpecCompliantForm(thing) {
   return !!(thing && isFunction$2(thing.append) && thing[toStringTag] === "FormData" && thing[iterator]);
 }
 const toJSONObject = (obj) => {
-  const visited = /* @__PURE__ */ new WeakSet();
-  const visit = (source) => {
+  const stack = new Array(10);
+  const visit = (source, i) => {
     if (isObject$1(source)) {
-      if (visited.has(source)) {
+      if (stack.indexOf(source) >= 0) {
         return;
       }
       if (isBuffer(source)) {
         return source;
       }
       if (!("toJSON" in source)) {
-        visited.add(source);
-        let target;
-        if (isSet(source)) {
-          target = [];
-          for (const value of source) {
-            const reducedValue = visit(value);
-            !isUndefined(reducedValue) && target.push(reducedValue);
-          }
-        } else {
-          target = isArray$1(source) ? [] : {};
-          forEach(source, (value, key) => {
-            const reducedValue = visit(value);
-            !isUndefined(reducedValue) && (target[key] = reducedValue);
-          });
-        }
-        visited.delete(source);
+        stack[i] = source;
+        const target = isArray$1(source) ? [] : {};
+        forEach(source, (value, key) => {
+          const reducedValue = visit(value, i + 1);
+          !isUndefined(reducedValue) && (target[key] = reducedValue);
+        });
+        stack[i] = void 0;
         return target;
       }
     }
     return source;
   };
-  return visit(obj);
+  return visit(obj, 0);
 };
 const isAsyncFn = kindOfTest("AsyncFunction");
 const isThenable = (thing) => thing && (isObject$1(thing) || isFunction$2(thing)) && isFunction$2(thing.then) && isFunction$2(thing.catch);
@@ -12929,7 +12861,6 @@ const _setImmediate = ((setImmediateSupported, postMessageSupported) => {
 })(typeof setImmediate === "function", isFunction$2(_global.postMessage));
 const asap = typeof queueMicrotask !== "undefined" ? queueMicrotask.bind(_global) : typeof process !== "undefined" && process.nextTick || _setImmediate;
 const isIterable = (thing) => thing != null && isFunction$2(thing[iterator]);
-const isSafeIterable = (thing) => thing != null && hasOwnInPrototypeChain(thing, iterator) && isIterable(thing);
 const utils$1 = {
   isArray: isArray$1,
   isArrayBuffer,
@@ -12949,8 +12880,6 @@ const utils$1 = {
   isUndefined,
   isDate: isDate$1,
   isFile,
-  isReactNativeBlob,
-  isReactNative,
   isBlob,
   isRegExp,
   isFunction: isFunction$2,
@@ -12975,8 +12904,6 @@ const utils$1 = {
   hasOwnProperty,
   hasOwnProp: hasOwnProperty,
   // an alias to avoid ESLint no-prototype-builtins detection
-  hasOwnInPrototypeChain,
-  getSafeProp,
   reduceDescriptors,
   freezeMethods,
   toObjectSet,
@@ -12992,9 +12919,509 @@ const utils$1 = {
   isThenable,
   setImmediate: _setImmediate,
   asap,
-  isIterable,
-  isSafeIterable
+  isIterable
 };
+let AxiosError$1 = class AxiosError extends Error {
+  static from(error, code, config, request, response, customProps) {
+    const axiosError = new AxiosError(error.message, code || error.code, config, request, response);
+    axiosError.cause = error;
+    axiosError.name = error.name;
+    customProps && Object.assign(axiosError, customProps);
+    return axiosError;
+  }
+  /**
+   * Create an Error with the specified message, config, error code, request and response.
+   *
+   * @param {string} message The error message.
+   * @param {string} [code] The error code (for example, 'ECONNABORTED').
+   * @param {Object} [config] The config.
+   * @param {Object} [request] The request.
+   * @param {Object} [response] The response.
+   *
+   * @returns {Error} The created error.
+   */
+  constructor(message2, code, config, request, response) {
+    super(message2);
+    this.name = "AxiosError";
+    this.isAxiosError = true;
+    code && (this.code = code);
+    config && (this.config = config);
+    request && (this.request = request);
+    if (response) {
+      this.response = response;
+      this.status = response.status;
+    }
+  }
+  toJSON() {
+    return {
+      // Standard
+      message: this.message,
+      name: this.name,
+      // Microsoft
+      description: this.description,
+      number: this.number,
+      // Mozilla
+      fileName: this.fileName,
+      lineNumber: this.lineNumber,
+      columnNumber: this.columnNumber,
+      stack: this.stack,
+      // Axios
+      config: utils$1.toJSONObject(this.config),
+      code: this.code,
+      status: this.status
+    };
+  }
+};
+AxiosError$1.ERR_BAD_OPTION_VALUE = "ERR_BAD_OPTION_VALUE";
+AxiosError$1.ERR_BAD_OPTION = "ERR_BAD_OPTION";
+AxiosError$1.ECONNABORTED = "ECONNABORTED";
+AxiosError$1.ETIMEDOUT = "ETIMEDOUT";
+AxiosError$1.ERR_NETWORK = "ERR_NETWORK";
+AxiosError$1.ERR_FR_TOO_MANY_REDIRECTS = "ERR_FR_TOO_MANY_REDIRECTS";
+AxiosError$1.ERR_DEPRECATED = "ERR_DEPRECATED";
+AxiosError$1.ERR_BAD_RESPONSE = "ERR_BAD_RESPONSE";
+AxiosError$1.ERR_BAD_REQUEST = "ERR_BAD_REQUEST";
+AxiosError$1.ERR_CANCELED = "ERR_CANCELED";
+AxiosError$1.ERR_NOT_SUPPORT = "ERR_NOT_SUPPORT";
+AxiosError$1.ERR_INVALID_URL = "ERR_INVALID_URL";
+const httpAdapter = null;
+function isVisitable(thing) {
+  return utils$1.isPlainObject(thing) || utils$1.isArray(thing);
+}
+function removeBrackets(key) {
+  return utils$1.endsWith(key, "[]") ? key.slice(0, -2) : key;
+}
+function renderKey(path, key, dots) {
+  if (!path) return key;
+  return path.concat(key).map(function each2(token, i) {
+    token = removeBrackets(token);
+    return !dots && i ? "[" + token + "]" : token;
+  }).join(dots ? "." : "");
+}
+function isFlatArray(arr) {
+  return utils$1.isArray(arr) && !arr.some(isVisitable);
+}
+const predicates = utils$1.toFlatObject(utils$1, {}, null, function filter(prop) {
+  return /^is[A-Z]/.test(prop);
+});
+function toFormData$1(obj, formData, options) {
+  if (!utils$1.isObject(obj)) {
+    throw new TypeError("target must be an object");
+  }
+  formData = formData || new FormData();
+  options = utils$1.toFlatObject(options, {
+    metaTokens: true,
+    dots: false,
+    indexes: false
+  }, false, function defined2(option, source) {
+    return !utils$1.isUndefined(source[option]);
+  });
+  const metaTokens = options.metaTokens;
+  const visitor = options.visitor || defaultVisitor;
+  const dots = options.dots;
+  const indexes = options.indexes;
+  const _Blob = options.Blob || typeof Blob !== "undefined" && Blob;
+  const useBlob = _Blob && utils$1.isSpecCompliantForm(formData);
+  if (!utils$1.isFunction(visitor)) {
+    throw new TypeError("visitor must be a function");
+  }
+  function convertValue(value) {
+    if (value === null) return "";
+    if (utils$1.isDate(value)) {
+      return value.toISOString();
+    }
+    if (utils$1.isBoolean(value)) {
+      return value.toString();
+    }
+    if (!useBlob && utils$1.isBlob(value)) {
+      throw new AxiosError$1("Blob is not supported. Use a Buffer instead.");
+    }
+    if (utils$1.isArrayBuffer(value) || utils$1.isTypedArray(value)) {
+      return useBlob && typeof Blob === "function" ? new Blob([value]) : Buffer.from(value);
+    }
+    return value;
+  }
+  function defaultVisitor(value, key, path) {
+    let arr = value;
+    if (value && !path && typeof value === "object") {
+      if (utils$1.endsWith(key, "{}")) {
+        key = metaTokens ? key : key.slice(0, -2);
+        value = JSON.stringify(value);
+      } else if (utils$1.isArray(value) && isFlatArray(value) || (utils$1.isFileList(value) || utils$1.endsWith(key, "[]")) && (arr = utils$1.toArray(value))) {
+        key = removeBrackets(key);
+        arr.forEach(function each2(el, index2) {
+          !(utils$1.isUndefined(el) || el === null) && formData.append(
+            // eslint-disable-next-line no-nested-ternary
+            indexes === true ? renderKey([key], index2, dots) : indexes === null ? key : key + "[]",
+            convertValue(el)
+          );
+        });
+        return false;
+      }
+    }
+    if (isVisitable(value)) {
+      return true;
+    }
+    formData.append(renderKey(path, key, dots), convertValue(value));
+    return false;
+  }
+  const stack = [];
+  const exposedHelpers = Object.assign(predicates, {
+    defaultVisitor,
+    convertValue,
+    isVisitable
+  });
+  function build(value, path) {
+    if (utils$1.isUndefined(value)) return;
+    if (stack.indexOf(value) !== -1) {
+      throw Error("Circular reference detected in " + path.join("."));
+    }
+    stack.push(value);
+    utils$1.forEach(value, function each2(el, key) {
+      const result = !(utils$1.isUndefined(el) || el === null) && visitor.call(
+        formData,
+        el,
+        utils$1.isString(key) ? key.trim() : key,
+        path,
+        exposedHelpers
+      );
+      if (result === true) {
+        build(el, path ? path.concat(key) : [key]);
+      }
+    });
+    stack.pop();
+  }
+  if (!utils$1.isObject(obj)) {
+    throw new TypeError("data must be an object");
+  }
+  build(obj);
+  return formData;
+}
+function encode$1(str) {
+  const charMap = {
+    "!": "%21",
+    "'": "%27",
+    "(": "%28",
+    ")": "%29",
+    "~": "%7E",
+    "%20": "+",
+    "%00": "\0"
+  };
+  return encodeURIComponent(str).replace(/[!'()~]|%20|%00/g, function replacer(match2) {
+    return charMap[match2];
+  });
+}
+function AxiosURLSearchParams(params, options) {
+  this._pairs = [];
+  params && toFormData$1(params, this, options);
+}
+const prototype = AxiosURLSearchParams.prototype;
+prototype.append = function append(name, value) {
+  this._pairs.push([name, value]);
+};
+prototype.toString = function toString2(encoder) {
+  const _encode = encoder ? function(value) {
+    return encoder.call(this, value, encode$1);
+  } : encode$1;
+  return this._pairs.map(function each2(pair) {
+    return _encode(pair[0]) + "=" + _encode(pair[1]);
+  }, "").join("&");
+};
+function encode(val) {
+  return encodeURIComponent(val).replace(/%3A/gi, ":").replace(/%24/g, "$").replace(/%2C/gi, ",").replace(/%20/g, "+");
+}
+function buildURL(url, params, options) {
+  if (!params) {
+    return url;
+  }
+  const _encode = options && options.encode || encode;
+  const _options = utils$1.isFunction(options) ? {
+    serialize: options
+  } : options;
+  const serializeFn = _options && _options.serialize;
+  let serializedParams;
+  if (serializeFn) {
+    serializedParams = serializeFn(params, _options);
+  } else {
+    serializedParams = utils$1.isURLSearchParams(params) ? params.toString() : new AxiosURLSearchParams(params, _options).toString(_encode);
+  }
+  if (serializedParams) {
+    const hashmarkIndex = url.indexOf("#");
+    if (hashmarkIndex !== -1) {
+      url = url.slice(0, hashmarkIndex);
+    }
+    url += (url.indexOf("?") === -1 ? "?" : "&") + serializedParams;
+  }
+  return url;
+}
+class InterceptorManager {
+  constructor() {
+    this.handlers = [];
+  }
+  /**
+   * Add a new interceptor to the stack
+   *
+   * @param {Function} fulfilled The function to handle `then` for a `Promise`
+   * @param {Function} rejected The function to handle `reject` for a `Promise`
+   * @param {Object} options The options for the interceptor, synchronous and runWhen
+   *
+   * @return {Number} An ID used to remove interceptor later
+   */
+  use(fulfilled, rejected, options) {
+    this.handlers.push({
+      fulfilled,
+      rejected,
+      synchronous: options ? options.synchronous : false,
+      runWhen: options ? options.runWhen : null
+    });
+    return this.handlers.length - 1;
+  }
+  /**
+   * Remove an interceptor from the stack
+   *
+   * @param {Number} id The ID that was returned by `use`
+   *
+   * @returns {void}
+   */
+  eject(id) {
+    if (this.handlers[id]) {
+      this.handlers[id] = null;
+    }
+  }
+  /**
+   * Clear all interceptors from the stack
+   *
+   * @returns {void}
+   */
+  clear() {
+    if (this.handlers) {
+      this.handlers = [];
+    }
+  }
+  /**
+   * Iterate over all the registered interceptors
+   *
+   * This method is particularly useful for skipping over any
+   * interceptors that may have become `null` calling `eject`.
+   *
+   * @param {Function} fn The function to call for each interceptor
+   *
+   * @returns {void}
+   */
+  forEach(fn) {
+    utils$1.forEach(this.handlers, function forEachHandler(h) {
+      if (h !== null) {
+        fn(h);
+      }
+    });
+  }
+}
+const transitionalDefaults = {
+  silentJSONParsing: true,
+  forcedJSONParsing: true,
+  clarifyTimeoutError: false,
+  legacyInterceptorReqResOrdering: true
+};
+const URLSearchParams$1 = typeof URLSearchParams !== "undefined" ? URLSearchParams : AxiosURLSearchParams;
+const FormData$1 = typeof FormData !== "undefined" ? FormData : null;
+const Blob$1 = typeof Blob !== "undefined" ? Blob : null;
+const platform$2 = {
+  isBrowser: true,
+  classes: {
+    URLSearchParams: URLSearchParams$1,
+    FormData: FormData$1,
+    Blob: Blob$1
+  },
+  protocols: ["http", "https", "file", "blob", "url", "data"]
+};
+const hasBrowserEnv = typeof window !== "undefined" && typeof document !== "undefined";
+const _navigator = typeof navigator === "object" && navigator || void 0;
+const hasStandardBrowserEnv = hasBrowserEnv && (!_navigator || ["ReactNative", "NativeScript", "NS"].indexOf(_navigator.product) < 0);
+const hasStandardBrowserWebWorkerEnv = (() => {
+  return typeof WorkerGlobalScope !== "undefined" && // eslint-disable-next-line no-undef
+  self instanceof WorkerGlobalScope && typeof self.importScripts === "function";
+})();
+const origin = hasBrowserEnv && window.location.href || "http://localhost";
+const utils = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  hasBrowserEnv,
+  hasStandardBrowserEnv,
+  hasStandardBrowserWebWorkerEnv,
+  navigator: _navigator,
+  origin
+}, Symbol.toStringTag, { value: "Module" }));
+const platform$1 = {
+  ...utils,
+  ...platform$2
+};
+function toURLEncodedForm(data, options) {
+  return toFormData$1(data, new platform$1.classes.URLSearchParams(), {
+    visitor: function(value, key, path, helpers) {
+      if (platform$1.isNode && utils$1.isBuffer(value)) {
+        this.append(key, value.toString("base64"));
+        return false;
+      }
+      return helpers.defaultVisitor.apply(this, arguments);
+    },
+    ...options
+  });
+}
+function parsePropPath(name) {
+  return utils$1.matchAll(/\w+|\[(\w*)]/g, name).map((match2) => {
+    return match2[0] === "[]" ? "" : match2[1] || match2[0];
+  });
+}
+function arrayToObject(arr) {
+  const obj = {};
+  const keys = Object.keys(arr);
+  let i;
+  const len = keys.length;
+  let key;
+  for (i = 0; i < len; i++) {
+    key = keys[i];
+    obj[key] = arr[key];
+  }
+  return obj;
+}
+function formDataToJSON(formData) {
+  function buildPath(path, value, target, index2) {
+    let name = path[index2++];
+    if (name === "__proto__") return true;
+    const isNumericKey = Number.isFinite(+name);
+    const isLast = index2 >= path.length;
+    name = !name && utils$1.isArray(target) ? target.length : name;
+    if (isLast) {
+      if (utils$1.hasOwnProp(target, name)) {
+        target[name] = [target[name], value];
+      } else {
+        target[name] = value;
+      }
+      return !isNumericKey;
+    }
+    if (!target[name] || !utils$1.isObject(target[name])) {
+      target[name] = [];
+    }
+    const result = buildPath(path, value, target[name], index2);
+    if (result && utils$1.isArray(target[name])) {
+      target[name] = arrayToObject(target[name]);
+    }
+    return !isNumericKey;
+  }
+  if (utils$1.isFormData(formData) && utils$1.isFunction(formData.entries)) {
+    const obj = {};
+    utils$1.forEachEntry(formData, (name, value) => {
+      buildPath(parsePropPath(name), value, obj, 0);
+    });
+    return obj;
+  }
+  return null;
+}
+function stringifySafely(rawValue, parser, encoder) {
+  if (utils$1.isString(rawValue)) {
+    try {
+      (parser || JSON.parse)(rawValue);
+      return utils$1.trim(rawValue);
+    } catch (e) {
+      if (e.name !== "SyntaxError") {
+        throw e;
+      }
+    }
+  }
+  return (encoder || JSON.stringify)(rawValue);
+}
+const defaults$1 = {
+  transitional: transitionalDefaults,
+  adapter: ["xhr", "http", "fetch"],
+  transformRequest: [function transformRequest(data, headers) {
+    const contentType = headers.getContentType() || "";
+    const hasJSONContentType = contentType.indexOf("application/json") > -1;
+    const isObjectPayload = utils$1.isObject(data);
+    if (isObjectPayload && utils$1.isHTMLForm(data)) {
+      data = new FormData(data);
+    }
+    const isFormData2 = utils$1.isFormData(data);
+    if (isFormData2) {
+      return hasJSONContentType ? JSON.stringify(formDataToJSON(data)) : data;
+    }
+    if (utils$1.isArrayBuffer(data) || utils$1.isBuffer(data) || utils$1.isStream(data) || utils$1.isFile(data) || utils$1.isBlob(data) || utils$1.isReadableStream(data)) {
+      return data;
+    }
+    if (utils$1.isArrayBufferView(data)) {
+      return data.buffer;
+    }
+    if (utils$1.isURLSearchParams(data)) {
+      headers.setContentType("application/x-www-form-urlencoded;charset=utf-8", false);
+      return data.toString();
+    }
+    let isFileList2;
+    if (isObjectPayload) {
+      if (contentType.indexOf("application/x-www-form-urlencoded") > -1) {
+        return toURLEncodedForm(data, this.formSerializer).toString();
+      }
+      if ((isFileList2 = utils$1.isFileList(data)) || contentType.indexOf("multipart/form-data") > -1) {
+        const _FormData = this.env && this.env.FormData;
+        return toFormData$1(
+          isFileList2 ? { "files[]": data } : data,
+          _FormData && new _FormData(),
+          this.formSerializer
+        );
+      }
+    }
+    if (isObjectPayload || hasJSONContentType) {
+      headers.setContentType("application/json", false);
+      return stringifySafely(data);
+    }
+    return data;
+  }],
+  transformResponse: [function transformResponse(data) {
+    const transitional2 = this.transitional || defaults$1.transitional;
+    const forcedJSONParsing = transitional2 && transitional2.forcedJSONParsing;
+    const JSONRequested = this.responseType === "json";
+    if (utils$1.isResponse(data) || utils$1.isReadableStream(data)) {
+      return data;
+    }
+    if (data && utils$1.isString(data) && (forcedJSONParsing && !this.responseType || JSONRequested)) {
+      const silentJSONParsing = transitional2 && transitional2.silentJSONParsing;
+      const strictJSONParsing = !silentJSONParsing && JSONRequested;
+      try {
+        return JSON.parse(data, this.parseReviver);
+      } catch (e) {
+        if (strictJSONParsing) {
+          if (e.name === "SyntaxError") {
+            throw AxiosError$1.from(e, AxiosError$1.ERR_BAD_RESPONSE, this, null, this.response);
+          }
+          throw e;
+        }
+      }
+    }
+    return data;
+  }],
+  /**
+   * A timeout in milliseconds to abort a request. If set to 0 (default) a
+   * timeout is not created.
+   */
+  timeout: 0,
+  xsrfCookieName: "XSRF-TOKEN",
+  xsrfHeaderName: "X-XSRF-TOKEN",
+  maxContentLength: -1,
+  maxBodyLength: -1,
+  env: {
+    FormData: platform$1.classes.FormData,
+    Blob: platform$1.classes.Blob
+  },
+  validateStatus: function validateStatus(status) {
+    return status >= 200 && status < 300;
+  },
+  headers: {
+    common: {
+      "Accept": "application/json, text/plain, */*",
+      "Content-Type": void 0
+    }
+  }
+};
+utils$1.forEach(["delete", "get", "head", "post", "put", "patch"], (method) => {
+  defaults$1.headers[method] = {};
+});
 const ignoreDuplicateOf = utils$1.toObjectSet([
   "age",
   "authorization",
@@ -13023,58 +13450,21 @@ const parseHeaders = (rawHeaders) => {
     i = line.indexOf(":");
     key = line.substring(0, i).trim().toLowerCase();
     val = line.substring(i + 1).trim();
-    const hasKey = utils$1.hasOwnProp(parsed, key);
-    if (!key || hasKey && utils$1.hasOwnProp(ignoreDuplicateOf, key)) {
+    if (!key || parsed[key] && ignoreDuplicateOf[key]) {
       return;
     }
     if (key === "set-cookie") {
-      if (hasKey) {
+      if (parsed[key]) {
         parsed[key].push(val);
       } else {
         parsed[key] = [val];
       }
     } else {
-      parsed[key] = hasKey ? parsed[key] + ", " + val : val;
+      parsed[key] = parsed[key] ? parsed[key] + ", " + val : val;
     }
   });
   return parsed;
 };
-function trimSPorHTAB(str) {
-  let start = 0;
-  let end = str.length;
-  while (start < end) {
-    const code = str.charCodeAt(start);
-    if (code !== 9 && code !== 32) {
-      break;
-    }
-    start += 1;
-  }
-  while (end > start) {
-    const code = str.charCodeAt(end - 1);
-    if (code !== 9 && code !== 32) {
-      break;
-    }
-    end -= 1;
-  }
-  return start === 0 && end === str.length ? str : str.slice(start, end);
-}
-const INVALID_UNICODE_HEADER_VALUE_CHARS = new RegExp("[\\u0000-\\u0008\\u000a-\\u001f\\u007f]+", "g");
-const INVALID_BYTE_STRING_HEADER_VALUE_CHARS = new RegExp("[^\\u0009\\u0020-\\u007e\\u0080-\\u00ff]+", "g");
-function sanitizeValue(value, invalidChars) {
-  if (utils$1.isArray(value)) {
-    return value.map((item) => sanitizeValue(item, invalidChars));
-  }
-  return trimSPorHTAB(String(value).replace(invalidChars, ""));
-}
-const sanitizeHeaderValue = (value) => sanitizeValue(value, INVALID_UNICODE_HEADER_VALUE_CHARS);
-const sanitizeByteStringHeaderValue = (value) => sanitizeValue(value, INVALID_BYTE_STRING_HEADER_VALUE_CHARS);
-function toByteStringHeaderObject(headers) {
-  const byteStringHeaders = /* @__PURE__ */ Object.create(null);
-  utils$1.forEach(headers.toJSON(), (value, header) => {
-    byteStringHeaders[header] = sanitizeByteStringHeaderValue(value);
-  });
-  return byteStringHeaders;
-}
 const $internals = /* @__PURE__ */ Symbol("internals");
 function normalizeHeader(header) {
   return header && String(header).trim().toLowerCase();
@@ -13083,7 +13473,7 @@ function normalizeValue(value) {
   if (value === false || value == null) {
     return value;
   }
-  return utils$1.isArray(value) ? value.map(normalizeValue) : sanitizeHeaderValue(String(value));
+  return utils$1.isArray(value) ? value.map(normalizeValue) : String(value);
 }
 function parseTokens(str) {
   const tokens = /* @__PURE__ */ Object.create(null);
@@ -13093,90 +13483,6 @@ function parseTokens(str) {
     tokens[match2[1]] = match2[2];
   }
   return tokens;
-}
-const parameterNameRE = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
-function trimOWS(value) {
-  let start = 0;
-  let end = value.length;
-  while (start < end) {
-    const code = value.charCodeAt(start);
-    if (code !== 9 && code !== 32) {
-      break;
-    }
-    start += 1;
-  }
-  while (end > start) {
-    const code = value.charCodeAt(end - 1);
-    if (code !== 9 && code !== 32) {
-      break;
-    }
-    end -= 1;
-  }
-  return start === 0 && end === value.length ? value : value.slice(start, end);
-}
-function decodeQuotedString(value) {
-  const last = value.length - 1;
-  if (last < 1 || value.charCodeAt(0) !== 34 || value.charCodeAt(last) !== 34) {
-    return value;
-  }
-  let decoded = "";
-  for (let i = 1; i < last; i++) {
-    const code = value.charCodeAt(i);
-    if (code === 34) {
-      return value;
-    }
-    if (code === 92) {
-      i += 1;
-      if (i >= last) {
-        return value;
-      }
-    }
-    decoded += value[i];
-  }
-  return decoded;
-}
-function parseParameters(value) {
-  const parameters = /* @__PURE__ */ Object.create(null);
-  const str = String(value);
-  let start = 0;
-  let quoted = false;
-  let escaped = false;
-  function parseParameter(end) {
-    const part = trimOWS(str.slice(start, end));
-    const equals = part.indexOf("=");
-    if (equals < 1) {
-      return;
-    }
-    const name = trimOWS(part.slice(0, equals));
-    if (!parameterNameRE.test(name)) {
-      return;
-    }
-    const normalizedName = name.toLowerCase();
-    if (normalizedName === "__proto__" || normalizedName === "constructor" || normalizedName === "prototype") {
-      return;
-    }
-    const parameterValue = trimOWS(part.slice(equals + 1));
-    parameters[normalizedName] = decodeQuotedString(parameterValue);
-  }
-  for (let i = 0; i < str.length; i++) {
-    const code = str.charCodeAt(i);
-    if (quoted) {
-      if (escaped) {
-        escaped = false;
-      } else if (code === 92) {
-        escaped = true;
-      } else if (code === 34) {
-        quoted = false;
-      }
-    } else if (code === 34) {
-      quoted = true;
-    } else if (code === 44 || code === 59) {
-      parseParameter(i);
-      start = i + 1;
-    }
-  }
-  parseParameter(str.length);
-  return parameters;
 }
 const isValidHeaderName = (str) => /^[-_a-zA-Z0-9^`|~,!#$%&'*+.]+$/.test(str.trim());
 function matchHeaderValue(context, value, header, filter2, isHeaderNameFilter) {
@@ -13203,9 +13509,6 @@ function buildAccessors(obj, header) {
   const accessorName = utils$1.toCamelCase(" " + header);
   ["get", "set", "has"].forEach((methodName) => {
     Object.defineProperty(obj, methodName + accessorName, {
-      // Null-proto descriptor so a polluted Object.prototype.get cannot turn
-      // this data descriptor into an accessor descriptor on the way in.
-      __proto__: null,
       value: function(arg1, arg2, arg3) {
         return this[methodName].call(this, header, arg1, arg2, arg3);
       },
@@ -13222,7 +13525,7 @@ let AxiosHeaders$1 = class AxiosHeaders {
     function setHeader(_value, _header, _rewrite) {
       const lHeader = normalizeHeader(_header);
       if (!lHeader) {
-        return;
+        throw new Error("header name must be a non-empty string");
       }
       const key = utils$1.findKey(self2, lHeader);
       if (!key || self2[key] === void 0 || _rewrite === true || _rewrite === void 0 && self2[key] !== false) {
@@ -13234,19 +13537,13 @@ let AxiosHeaders$1 = class AxiosHeaders {
       setHeaders(header, valueOrRewrite);
     } else if (utils$1.isString(header) && (header = header.trim()) && !isValidHeaderName(header)) {
       setHeaders(parseHeaders(header), valueOrRewrite);
-    } else if (utils$1.isObject(header) && utils$1.isSafeIterable(header)) {
-      let obj = /* @__PURE__ */ Object.create(null), dest, key;
+    } else if (utils$1.isObject(header) && utils$1.isIterable(header)) {
+      let obj = {}, dest, key;
       for (const entry of header) {
         if (!utils$1.isArray(entry)) {
-          throw new TypeError("Object iterator must return a key-value pair");
+          throw TypeError("Object iterator must return a key-value pair");
         }
-        key = entry[0];
-        if (utils$1.hasOwnProp(obj, key)) {
-          dest = obj[key];
-          obj[key] = utils$1.isArray(dest) ? [...dest, entry[1]] : [dest, entry[1]];
-        } else {
-          obj[key] = entry[1];
-        }
+        obj[key = entry[0]] = (dest = obj[key]) ? utils$1.isArray(dest) ? [...dest, entry[1]] : [dest, entry[1]] : entry[1];
       }
       setHeaders(obj, valueOrRewrite);
     } else {
@@ -13353,17 +13650,13 @@ let AxiosHeaders$1 = class AxiosHeaders {
     return Object.entries(this.toJSON()).map(([header, value]) => header + ": " + value).join("\n");
   }
   getSetCookie() {
-    const value = this.get("set-cookie");
-    return utils$1.isArray(value) ? value : value == null || value === false ? [] : [value];
+    return this.get("set-cookie") || [];
   }
   get [Symbol.toStringTag]() {
     return "AxiosHeaders";
   }
   static from(thing) {
     return thing instanceof this ? thing : new this(thing);
-  }
-  static parseParameters(value) {
-    return parseParameters(value);
   }
   static concat(first, ...targets) {
     const computed = new this(first);
@@ -13387,14 +13680,7 @@ let AxiosHeaders$1 = class AxiosHeaders {
     return this;
   }
 };
-AxiosHeaders$1.accessor([
-  "Content-Type",
-  "Content-Length",
-  "Accept",
-  "Accept-Encoding",
-  "User-Agent",
-  "Authorization"
-]);
+AxiosHeaders$1.accessor(["Content-Type", "Content-Length", "Accept", "Accept-Encoding", "User-Agent", "Authorization"]);
 utils$1.reduceDescriptors(AxiosHeaders$1.prototype, ({ value }, key) => {
   let mapped = key[0].toUpperCase() + key.slice(1);
   return {
@@ -13405,660 +13691,6 @@ utils$1.reduceDescriptors(AxiosHeaders$1.prototype, ({ value }, key) => {
   };
 });
 utils$1.freezeMethods(AxiosHeaders$1);
-const REDACTED = "[REDACTED ****]";
-function hasOwnOrPrototypeToJSON(source) {
-  if (utils$1.hasOwnProp(source, "toJSON")) {
-    return true;
-  }
-  let prototype2 = Object.getPrototypeOf(source);
-  while (prototype2 && prototype2 !== Object.prototype) {
-    if (utils$1.hasOwnProp(prototype2, "toJSON")) {
-      return true;
-    }
-    prototype2 = Object.getPrototypeOf(prototype2);
-  }
-  return false;
-}
-function redactConfig(config, redactKeys) {
-  const lowerKeys = new Set(redactKeys.map((k) => String(k).toLowerCase()));
-  const seen = [];
-  const visit = (source) => {
-    if (source === null || typeof source !== "object") return source;
-    if (utils$1.isBuffer(source)) return source;
-    if (seen.indexOf(source) !== -1) return void 0;
-    if (source instanceof AxiosHeaders$1) {
-      source = source.toJSON();
-    }
-    seen.push(source);
-    let result;
-    if (utils$1.isArray(source)) {
-      result = [];
-      source.forEach((v, i) => {
-        const reducedValue = visit(v);
-        if (!utils$1.isUndefined(reducedValue)) {
-          result[i] = reducedValue;
-        }
-      });
-    } else {
-      if (!utils$1.isPlainObject(source) && hasOwnOrPrototypeToJSON(source)) {
-        seen.pop();
-        return source;
-      }
-      result = /* @__PURE__ */ Object.create(null);
-      for (const [key, value] of Object.entries(source)) {
-        const reducedValue = lowerKeys.has(key.toLowerCase()) ? REDACTED : visit(value);
-        if (!utils$1.isUndefined(reducedValue)) {
-          result[key] = reducedValue;
-        }
-      }
-    }
-    seen.pop();
-    return result;
-  };
-  return visit(config);
-}
-function stringifySafely$1(value) {
-  try {
-    return String(value);
-  } catch (err) {
-    return "";
-  }
-}
-function aggregateErrorMessage(error) {
-  const message2 = error.errors.map((entry) => {
-    try {
-      return entry && entry.message ? stringifySafely$1(entry.message) : stringifySafely$1(entry);
-    } catch (err) {
-      return "";
-    }
-  }).filter(Boolean).join("; ");
-  return message2 || error.name || "AggregateError";
-}
-let AxiosError$1 = class AxiosError extends Error {
-  static from(error, code, config, request, response, customProps) {
-    let message2 = error.message;
-    if (!message2 && utils$1.isArray(error.errors) && error.errors.length) {
-      message2 = aggregateErrorMessage(error);
-    }
-    const axiosError = new AxiosError(message2, code || error.code, config, request, response);
-    Object.defineProperty(axiosError, "cause", {
-      __proto__: null,
-      value: error,
-      writable: true,
-      enumerable: false,
-      configurable: true
-    });
-    axiosError.name = error.name;
-    if (error.status != null && axiosError.status == null) {
-      axiosError.status = error.status;
-    }
-    customProps && Object.assign(axiosError, customProps);
-    return axiosError;
-  }
-  /**
-   * Create an Error with the specified message, config, error code, request and response.
-   *
-   * @param {string} message The error message.
-   * @param {string} [code] The error code (for example, 'ECONNABORTED').
-   * @param {Object} [config] The config.
-   * @param {Object} [request] The request.
-   * @param {Object} [response] The response.
-   *
-   * @returns {Error} The created error.
-   */
-  constructor(message2, code, config, request, response) {
-    super(message2);
-    Object.defineProperty(this, "message", {
-      // Null-proto descriptor so a polluted Object.prototype.get cannot turn
-      // this data descriptor into an accessor descriptor on the way in.
-      __proto__: null,
-      value: message2,
-      enumerable: true,
-      writable: true,
-      configurable: true
-    });
-    this.name = "AxiosError";
-    this.isAxiosError = true;
-    code && (this.code = code);
-    config && (this.config = config);
-    request && (this.request = request);
-    if (response) {
-      this.response = response;
-      this.status = response.status;
-    }
-  }
-  toJSON() {
-    const config = this.config;
-    const redactKeys = config && utils$1.hasOwnProp(config, "redact") ? config.redact : void 0;
-    const serializedConfig = utils$1.isArray(redactKeys) && redactKeys.length > 0 ? redactConfig(config, redactKeys) : utils$1.toJSONObject(config);
-    return {
-      // Standard
-      message: this.message,
-      name: this.name,
-      // Microsoft
-      description: this.description,
-      number: this.number,
-      // Mozilla
-      fileName: this.fileName,
-      lineNumber: this.lineNumber,
-      columnNumber: this.columnNumber,
-      stack: this.stack,
-      // Axios
-      config: serializedConfig,
-      code: this.code,
-      status: this.status
-    };
-  }
-};
-AxiosError$1.ERR_BAD_OPTION_VALUE = "ERR_BAD_OPTION_VALUE";
-AxiosError$1.ERR_BAD_OPTION = "ERR_BAD_OPTION";
-AxiosError$1.ECONNABORTED = "ECONNABORTED";
-AxiosError$1.ETIMEDOUT = "ETIMEDOUT";
-AxiosError$1.ECONNREFUSED = "ECONNREFUSED";
-AxiosError$1.ERR_NETWORK = "ERR_NETWORK";
-AxiosError$1.ERR_FR_TOO_MANY_REDIRECTS = "ERR_FR_TOO_MANY_REDIRECTS";
-AxiosError$1.ERR_DEPRECATED = "ERR_DEPRECATED";
-AxiosError$1.ERR_BAD_RESPONSE = "ERR_BAD_RESPONSE";
-AxiosError$1.ERR_BAD_REQUEST = "ERR_BAD_REQUEST";
-AxiosError$1.ERR_CANCELED = "ERR_CANCELED";
-AxiosError$1.ERR_NOT_SUPPORT = "ERR_NOT_SUPPORT";
-AxiosError$1.ERR_INVALID_URL = "ERR_INVALID_URL";
-AxiosError$1.ERR_FORM_DATA_DEPTH_EXCEEDED = "ERR_FORM_DATA_DEPTH_EXCEEDED";
-const httpAdapter = null;
-const DEFAULT_FORM_DATA_MAX_DEPTH = 100;
-function isVisitable(thing) {
-  return utils$1.isPlainObject(thing) || utils$1.isArray(thing);
-}
-function removeBrackets(key) {
-  return utils$1.endsWith(key, "[]") ? key.slice(0, -2) : key;
-}
-function renderKey(path, key, dots) {
-  if (!path) return key;
-  return path.concat(key).map(function each2(token, i) {
-    token = removeBrackets(token);
-    return !dots && i ? "[" + token + "]" : token;
-  }).join(dots ? "." : "");
-}
-function isFlatArray(arr) {
-  return utils$1.isArray(arr) && !arr.some(isVisitable);
-}
-const predicates = utils$1.toFlatObject(utils$1, {}, null, function filter(prop) {
-  return /^is[A-Z]/.test(prop);
-});
-function toFormData$1(obj, formData, options) {
-  if (!utils$1.isObject(obj)) {
-    throw new TypeError("target must be an object");
-  }
-  formData = formData || new FormData();
-  options = utils$1.toFlatObject(
-    options,
-    {
-      metaTokens: true,
-      dots: false,
-      indexes: false
-    },
-    false,
-    function defined2(option, source) {
-      return !utils$1.isUndefined(source[option]);
-    }
-  );
-  const metaTokens = options.metaTokens;
-  const visitor = options.visitor || defaultVisitor;
-  const dots = options.dots;
-  const indexes = options.indexes;
-  const _Blob = options.Blob || typeof Blob !== "undefined" && Blob;
-  const maxDepth = options.maxDepth === void 0 ? DEFAULT_FORM_DATA_MAX_DEPTH : options.maxDepth;
-  const useBlob = _Blob && utils$1.isSpecCompliantForm(formData);
-  const stack = [];
-  if (!utils$1.isFunction(visitor)) {
-    throw new TypeError("visitor must be a function");
-  }
-  function convertValue(value) {
-    if (value === null) return "";
-    if (utils$1.isDate(value)) {
-      return value.toISOString();
-    }
-    if (utils$1.isBoolean(value)) {
-      return value.toString();
-    }
-    if (!useBlob && utils$1.isBlob(value)) {
-      throw new AxiosError$1("Blob is not supported. Use a Buffer instead.");
-    }
-    if (utils$1.isArrayBuffer(value) || utils$1.isTypedArray(value)) {
-      if (useBlob && typeof _Blob === "function") {
-        return new _Blob([value]);
-      }
-      throw new AxiosError$1("Blob is not supported. Use a Buffer instead.", AxiosError$1.ERR_NOT_SUPPORT);
-    }
-    return value;
-  }
-  function throwIfMaxDepthExceeded(depth) {
-    if (depth > maxDepth) {
-      throw new AxiosError$1(
-        "Object is too deeply nested (" + depth + " levels). Max depth: " + maxDepth,
-        AxiosError$1.ERR_FORM_DATA_DEPTH_EXCEEDED
-      );
-    }
-  }
-  function stringifyWithDepthLimit(value, depth) {
-    if (maxDepth === Infinity) {
-      return JSON.stringify(value);
-    }
-    const ancestors = [];
-    return JSON.stringify(value, function limitDepth(_key, currentValue) {
-      if (!utils$1.isObject(currentValue)) {
-        return currentValue;
-      }
-      while (ancestors.length && ancestors[ancestors.length - 1] !== this) {
-        ancestors.pop();
-      }
-      ancestors.push(currentValue);
-      throwIfMaxDepthExceeded(depth + ancestors.length - 1);
-      return currentValue;
-    });
-  }
-  function defaultVisitor(value, key, path) {
-    let arr = value;
-    if (utils$1.isReactNative(formData) && utils$1.isReactNativeBlob(value)) {
-      formData.append(renderKey(path, key, dots), convertValue(value));
-      return false;
-    }
-    if (value && !path && typeof value === "object") {
-      if (utils$1.endsWith(key, "{}")) {
-        key = metaTokens ? key : key.slice(0, -2);
-        value = stringifyWithDepthLimit(value, 1);
-      } else if (utils$1.isArray(value) && isFlatArray(value) || (utils$1.isFileList(value) || utils$1.endsWith(key, "[]")) && (arr = utils$1.toArray(value))) {
-        key = removeBrackets(key);
-        arr.forEach(function each2(el, index2) {
-          !(utils$1.isUndefined(el) || el === null) && formData.append(
-            // eslint-disable-next-line no-nested-ternary
-            indexes === true ? renderKey([key], index2, dots) : indexes === null ? key : key + "[]",
-            convertValue(el)
-          );
-        });
-        return false;
-      }
-    }
-    if (isVisitable(value)) {
-      return true;
-    }
-    formData.append(renderKey(path, key, dots), convertValue(value));
-    return false;
-  }
-  const exposedHelpers = Object.assign(predicates, {
-    defaultVisitor,
-    convertValue,
-    isVisitable
-  });
-  function build(value, path, depth = 0) {
-    if (utils$1.isUndefined(value)) return;
-    throwIfMaxDepthExceeded(depth);
-    if (stack.indexOf(value) !== -1) {
-      throw new Error("Circular reference detected in " + path.join("."));
-    }
-    stack.push(value);
-    utils$1.forEach(value, function each2(el, key) {
-      const result = !(utils$1.isUndefined(el) || el === null) && visitor.call(formData, el, utils$1.isString(key) ? key.trim() : key, path, exposedHelpers);
-      if (result === true) {
-        build(el, path ? path.concat(key) : [key], depth + 1);
-      }
-    });
-    stack.pop();
-  }
-  if (!utils$1.isObject(obj)) {
-    throw new TypeError("data must be an object");
-  }
-  build(obj);
-  return formData;
-}
-function encode$1(str) {
-  const charMap = {
-    "!": "%21",
-    "'": "%27",
-    "(": "%28",
-    ")": "%29",
-    "~": "%7E",
-    "%20": "+"
-  };
-  return encodeURIComponent(str).replace(/[!'()~]|%20/g, function replacer(match2) {
-    return charMap[match2];
-  });
-}
-function AxiosURLSearchParams(params, options) {
-  this._pairs = [];
-  params && toFormData$1(params, this, options);
-}
-const prototype = AxiosURLSearchParams.prototype;
-prototype.append = function append(name, value) {
-  this._pairs.push([name, value]);
-};
-prototype.toString = function toString2(encoder) {
-  const _encode = encoder ? (value) => encoder.call(this, value, encode$1) : encode$1;
-  return this._pairs.map(function each2(pair) {
-    return _encode(pair[0]) + "=" + _encode(pair[1]);
-  }, "").join("&");
-};
-function encode(val) {
-  return encodeURIComponent(val).replace(/%3A/gi, ":").replace(/%24/g, "$").replace(/%2C/gi, ",").replace(/%20/g, "+");
-}
-function buildURL(url, params, options) {
-  if (!params) {
-    return url;
-  }
-  url = url || "";
-  const _options = utils$1.isFunction(options) ? {
-    serialize: options
-  } : options;
-  const _encode = utils$1.getSafeProp(_options, "encode") || encode;
-  const serializeFn = utils$1.getSafeProp(_options, "serialize");
-  let serializedParams;
-  if (serializeFn) {
-    serializedParams = serializeFn(params, _options);
-  } else {
-    serializedParams = utils$1.isURLSearchParams(params) ? params.toString() : new AxiosURLSearchParams(params, _options).toString(_encode);
-  }
-  if (serializedParams) {
-    const hashmarkIndex = url.indexOf("#");
-    if (hashmarkIndex !== -1) {
-      url = url.slice(0, hashmarkIndex);
-    }
-    url += (url.indexOf("?") === -1 ? "?" : "&") + serializedParams;
-  }
-  return url;
-}
-class InterceptorManager {
-  constructor() {
-    this.handlers = [];
-  }
-  /**
-   * Add a new interceptor to the stack
-   *
-   * @param {Function} fulfilled The function to handle `then` for a `Promise`
-   * @param {Function} rejected The function to handle `reject` for a `Promise`
-   * @param {Object} options The options for the interceptor, synchronous and runWhen
-   *
-   * @return {Number} An ID used to remove interceptor later
-   */
-  use(fulfilled, rejected, options) {
-    this.handlers.push({
-      fulfilled,
-      rejected,
-      synchronous: options ? options.synchronous : false,
-      runWhen: options ? options.runWhen : null
-    });
-    return this.handlers.length - 1;
-  }
-  /**
-   * Remove an interceptor from the stack
-   *
-   * @param {Number} id The ID that was returned by `use`
-   *
-   * @returns {void}
-   */
-  eject(id) {
-    if (this.handlers[id]) {
-      this.handlers[id] = null;
-    }
-  }
-  /**
-   * Clear all interceptors from the stack
-   *
-   * @returns {void}
-   */
-  clear() {
-    if (this.handlers) {
-      this.handlers = [];
-    }
-  }
-  /**
-   * Iterate over all the registered interceptors
-   *
-   * This method is particularly useful for skipping over any
-   * interceptors that may have become `null` calling `eject`.
-   *
-   * @param {Function} fn The function to call for each interceptor
-   *
-   * @returns {void}
-   */
-  forEach(fn) {
-    utils$1.forEach(this.handlers, function forEachHandler(h) {
-      if (h !== null) {
-        fn(h);
-      }
-    });
-  }
-}
-const transitionalDefaults = {
-  silentJSONParsing: true,
-  forcedJSONParsing: true,
-  clarifyTimeoutError: false,
-  legacyInterceptorReqResOrdering: true,
-  advertiseZstdAcceptEncoding: false,
-  validateStatusUndefinedResolves: true
-};
-const URLSearchParams$1 = typeof URLSearchParams !== "undefined" ? URLSearchParams : AxiosURLSearchParams;
-const FormData$1 = typeof FormData !== "undefined" ? FormData : null;
-const Blob$1 = typeof Blob !== "undefined" ? Blob : null;
-const platform$2 = {
-  isBrowser: true,
-  classes: {
-    URLSearchParams: URLSearchParams$1,
-    FormData: FormData$1,
-    Blob: Blob$1
-  },
-  protocols: ["http", "https", "file", "blob", "url", "data"]
-};
-const hasBrowserEnv = typeof window !== "undefined" && typeof document !== "undefined";
-const _navigator = typeof navigator === "object" && navigator || void 0;
-const hasStandardBrowserEnv = hasBrowserEnv && (!_navigator || ["ReactNative", "NativeScript", "NS"].indexOf(_navigator.product) < 0);
-const hasStandardBrowserWebWorkerEnv = (() => {
-  return typeof WorkerGlobalScope !== "undefined" && // eslint-disable-next-line no-undef
-  self instanceof WorkerGlobalScope && typeof self.importScripts === "function";
-})();
-const origin = hasBrowserEnv && window.location.href || "http://localhost";
-const utils = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  hasBrowserEnv,
-  hasStandardBrowserEnv,
-  hasStandardBrowserWebWorkerEnv,
-  navigator: _navigator,
-  origin
-}, Symbol.toStringTag, { value: "Module" }));
-const platform$1 = {
-  ...utils,
-  ...platform$2
-};
-function toURLEncodedForm(data, options) {
-  return toFormData$1(data, new platform$1.classes.URLSearchParams(), {
-    visitor: function(value, key, path, helpers) {
-      if (platform$1.isNode && utils$1.isBuffer(value)) {
-        this.append(key, value.toString("base64"));
-        return false;
-      }
-      return helpers.defaultVisitor.apply(this, arguments);
-    },
-    ...options
-  });
-}
-const MAX_DEPTH = DEFAULT_FORM_DATA_MAX_DEPTH;
-function throwIfDepthExceeded(index2) {
-  if (index2 > MAX_DEPTH) {
-    throw new AxiosError$1(
-      "FormData field is too deeply nested (" + index2 + " levels). Max depth: " + MAX_DEPTH,
-      AxiosError$1.ERR_FORM_DATA_DEPTH_EXCEEDED
-    );
-  }
-}
-function parsePropPath(name) {
-  const path = [];
-  const pattern = /[^.[\]]+|\[([^.[\]]*)]/g;
-  let match2;
-  while ((match2 = pattern.exec(name)) !== null) {
-    throwIfDepthExceeded(path.length);
-    path.push(match2[0] === "[]" ? "" : match2[1] || match2[0]);
-  }
-  return path;
-}
-function arrayToObject(arr) {
-  const obj = {};
-  const keys = Object.keys(arr);
-  let i;
-  const len = keys.length;
-  let key;
-  for (i = 0; i < len; i++) {
-    key = keys[i];
-    obj[key] = arr[key];
-  }
-  return obj;
-}
-function formDataToJSON(formData) {
-  function buildPath(path, value, target, index2) {
-    throwIfDepthExceeded(index2);
-    let name = path[index2++];
-    if (name === "__proto__") return true;
-    const isNumericKey = Number.isFinite(+name);
-    const isLast = index2 >= path.length;
-    name = !name && utils$1.isArray(target) ? target.length : name;
-    if (isLast) {
-      if (utils$1.hasOwnProp(target, name)) {
-        target[name] = utils$1.isArray(target[name]) ? target[name].concat(value) : [target[name], value];
-      } else {
-        target[name] = value;
-      }
-      return !isNumericKey;
-    }
-    if (!utils$1.hasOwnProp(target, name) || !utils$1.isObject(target[name])) {
-      target[name] = [];
-    }
-    const result = buildPath(path, value, target[name], index2);
-    if (result && utils$1.isArray(target[name])) {
-      target[name] = arrayToObject(target[name]);
-    }
-    return !isNumericKey;
-  }
-  if (utils$1.isFormData(formData) && utils$1.isFunction(formData.entries)) {
-    const obj = {};
-    utils$1.forEachEntry(formData, (name, value) => {
-      buildPath(parsePropPath(name), value, obj, 0);
-    });
-    return obj;
-  }
-  return null;
-}
-const own = (obj, key) => obj != null && utils$1.hasOwnProp(obj, key) ? obj[key] : void 0;
-function stringifySafely(rawValue, parser, encoder) {
-  if (utils$1.isString(rawValue)) {
-    try {
-      (parser || JSON.parse)(rawValue);
-      return utils$1.trim(rawValue);
-    } catch (e) {
-      if (e.name !== "SyntaxError") {
-        throw e;
-      }
-    }
-  }
-  return (encoder || JSON.stringify)(rawValue);
-}
-const defaults$1 = {
-  transitional: transitionalDefaults,
-  adapter: ["xhr", "http", "fetch"],
-  transformRequest: [
-    function transformRequest(data, headers) {
-      const contentType = headers.getContentType() || "";
-      const hasJSONContentType = contentType.indexOf("application/json") > -1;
-      const isObjectPayload = utils$1.isObject(data);
-      if (isObjectPayload && utils$1.isHTMLForm(data)) {
-        data = new FormData(data);
-      }
-      const isFormData2 = utils$1.isFormData(data);
-      if (isFormData2) {
-        return hasJSONContentType ? JSON.stringify(formDataToJSON(data)) : data;
-      }
-      if (utils$1.isArrayBuffer(data) || utils$1.isBuffer(data) || utils$1.isStream(data) || utils$1.isFile(data) || utils$1.isBlob(data) || utils$1.isReadableStream(data)) {
-        return data;
-      }
-      if (utils$1.isArrayBufferView(data)) {
-        return data.buffer;
-      }
-      if (utils$1.isURLSearchParams(data)) {
-        headers.setContentType("application/x-www-form-urlencoded;charset=utf-8", false);
-        return data.toString();
-      }
-      let isFileList2;
-      if (isObjectPayload) {
-        const formSerializer = own(this, "formSerializer");
-        if (contentType.indexOf("application/x-www-form-urlencoded") > -1) {
-          return toURLEncodedForm(data, formSerializer).toString();
-        }
-        if ((isFileList2 = utils$1.isFileList(data)) || contentType.indexOf("multipart/form-data") > -1) {
-          const env = own(this, "env");
-          const _FormData = env && env.FormData;
-          return toFormData$1(
-            isFileList2 ? { "files[]": data } : data,
-            _FormData && new _FormData(),
-            formSerializer
-          );
-        }
-      }
-      if (isObjectPayload || hasJSONContentType) {
-        headers.setContentType("application/json", false);
-        return stringifySafely(data);
-      }
-      return data;
-    }
-  ],
-  transformResponse: [
-    function transformResponse(data) {
-      const transitional2 = own(this, "transitional") || defaults$1.transitional;
-      const forcedJSONParsing = transitional2 && transitional2.forcedJSONParsing;
-      const responseType = own(this, "responseType");
-      const JSONRequested = responseType === "json";
-      if (utils$1.isResponse(data) || utils$1.isReadableStream(data)) {
-        return data;
-      }
-      if (data && utils$1.isString(data) && (forcedJSONParsing && !responseType || JSONRequested)) {
-        const silentJSONParsing = transitional2 && transitional2.silentJSONParsing;
-        const strictJSONParsing = !silentJSONParsing && JSONRequested;
-        try {
-          return JSON.parse(data, own(this, "parseReviver"));
-        } catch (e) {
-          if (strictJSONParsing) {
-            if (e.name === "SyntaxError") {
-              throw AxiosError$1.from(e, AxiosError$1.ERR_BAD_RESPONSE, this, null, own(this, "response"));
-            }
-            throw e;
-          }
-        }
-      }
-      return data;
-    }
-  ],
-  /**
-   * A timeout in milliseconds to abort a request. If set to 0 (default) a
-   * timeout is not created.
-   */
-  timeout: 0,
-  xsrfCookieName: "XSRF-TOKEN",
-  xsrfHeaderName: "X-XSRF-TOKEN",
-  maxContentLength: -1,
-  maxBodyLength: -1,
-  env: {
-    FormData: platform$1.classes.FormData,
-    Blob: platform$1.classes.Blob
-  },
-  validateStatus: function validateStatus(status) {
-    return status >= 200 && status < 300;
-  },
-  headers: {
-    common: {
-      Accept: "application/json, text/plain, */*",
-      "Content-Type": void 0
-    }
-  }
-};
-utils$1.forEach(["delete", "get", "head", "post", "put", "patch", "query"], (method) => {
-  defaults$1.headers[method] = {};
-});
 function transformData(fns, response) {
   const config = this || defaults$1;
   const context = response || config;
@@ -14096,7 +13728,7 @@ function settle(resolve2, reject, response) {
   } else {
     reject(new AxiosError$1(
       "Request failed with status code " + response.status,
-      response.status >= 400 && response.status < 500 ? AxiosError$1.ERR_BAD_REQUEST : AxiosError$1.ERR_BAD_RESPONSE,
+      [AxiosError$1.ERR_BAD_REQUEST, AxiosError$1.ERR_BAD_RESPONSE][Math.floor(response.status / 100) - 4],
       response.config,
       response.request,
       response
@@ -14104,7 +13736,7 @@ function settle(resolve2, reject, response) {
   }
 }
 function parseProtocol(url) {
-  const match2 = /^([-+\w]{1,25}):(?:\/\/)?/.exec(url);
+  const match2 = /^([-+\w]{1,25})(:?\/\/|:)/.exec(url);
   return match2 && match2[1] || "";
 }
 function speedometer(samplesCount, min2) {
@@ -14176,22 +13808,19 @@ const progressEventReducer = (listener, isDownloadStream, freq = 3) => {
   let bytesNotified = 0;
   const _speedometer = speedometer(50, 250);
   return throttle((e) => {
-    if (!e || typeof e.loaded !== "number") {
-      return;
-    }
-    const rawLoaded = e.loaded;
+    const loaded = e.loaded;
     const total = e.lengthComputable ? e.total : void 0;
-    const loaded = Math.max(0, total != null ? Math.min(rawLoaded, total) : rawLoaded);
-    const progressBytes = Math.max(0, loaded - bytesNotified);
+    const progressBytes = loaded - bytesNotified;
     const rate = _speedometer(progressBytes);
-    bytesNotified = Math.max(bytesNotified, loaded);
+    const inRange = loaded <= total;
+    bytesNotified = loaded;
     const data = {
       loaded,
       total,
       progress: total ? loaded / total : void 0,
       bytes: progressBytes,
       rate: rate ? rate : void 0,
-      estimated: rate && total ? (total - loaded) / rate : void 0,
+      estimated: rate && total && inRange ? (total - loaded) / rate : void 0,
       event: e,
       lengthComputable: total != null,
       [isDownloadStream ? "download" : "upload"]: true
@@ -14201,16 +13830,13 @@ const progressEventReducer = (listener, isDownloadStream, freq = 3) => {
 };
 const progressEventDecorator = (total, throttled2) => {
   const lengthComputable = total != null;
-  return [
-    (loaded) => throttled2[0]({
-      lengthComputable,
-      total,
-      loaded
-    }),
-    throttled2[1]
-  ];
+  return [(loaded) => throttled2[0]({
+    lengthComputable,
+    total,
+    loaded
+  }), throttled2[1]];
 };
-const asyncDecorator = (fn, scheduler2 = utils$1.asap) => (...args) => scheduler2(() => fn(...args));
+const asyncDecorator = (fn) => (...args) => utils$1.asap(() => fn(...args));
 const isURLSameOrigin = platform$1.hasStandardBrowserEnv ? /* @__PURE__ */ ((origin2, isMSIE) => (url) => {
   url = new URL(url, platform$1.origin);
   return origin2.protocol === url.protocol && origin2.host === url.host && (isMSIE || origin2.port === url.port);
@@ -14243,19 +13869,8 @@ const cookies = platform$1.hasStandardBrowserEnv ? (
     },
     read(name) {
       if (typeof document === "undefined") return null;
-      const cookies2 = document.cookie.split(";");
-      for (let i = 0; i < cookies2.length; i++) {
-        const cookie = cookies2[i].replace(/^\s+/, "");
-        const eq2 = cookie.indexOf("=");
-        if (eq2 !== -1 && cookie.slice(0, eq2) === name) {
-          try {
-            return decodeURIComponent(cookie.slice(eq2 + 1));
-          } catch (e) {
-            return cookie.slice(eq2 + 1);
-          }
-        }
-      }
-      return null;
+      const match2 = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+      return match2 ? decodeURIComponent(match2[1]) : null;
     },
     remove(name) {
       this.write(name, "", Date.now() - 864e5, "/");
@@ -14280,93 +13895,19 @@ function isAbsoluteURL(url) {
   return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
 }
 function combineURLs(baseURL, relativeURL) {
-  if (!relativeURL) {
-    return baseURL;
-  }
-  let end = baseURL.length;
-  while (end > 0 && baseURL.charCodeAt(end - 1) === 47) {
-    end--;
-  }
-  return baseURL.slice(0, end) + "/" + relativeURL.replace(/^\/+/, "");
+  return relativeURL ? baseURL.replace(/\/?\/$/, "") + "/" + relativeURL.replace(/^\/+/, "") : baseURL;
 }
-const malformedHttpProtocol = /^https?:(?!\/\/)/i;
-const httpProtocolControlCharacters = /[\t\n\r]/g;
-function stripLeadingC0ControlOrSpace(url) {
-  let i = 0;
-  while (i < url.length && url.charCodeAt(i) <= 32) {
-    i++;
-  }
-  return url.slice(i);
-}
-function normalizeURLForProtocolCheck(url) {
-  return stripLeadingC0ControlOrSpace(url).replace(httpProtocolControlCharacters, "");
-}
-function redactFragment(fragment) {
-  if (!fragment) {
-    return fragment;
-  }
-  return fragment.replace(/(^|&)([^=&]*=)?[^&]+/g, (match2, separator, parameterName = "") => {
-    return `${separator}${parameterName}${REDACTED}`;
-  });
-}
-function redactSensitiveURLParts(url) {
-  const redactedURL = url.replace(/^(https?:\/{0,2})[^/?#]*@/i, `$1${REDACTED}@`);
-  const fragmentIndex = redactedURL.indexOf("#");
-  const urlWithoutFragment = fragmentIndex === -1 ? redactedURL : redactedURL.slice(0, fragmentIndex);
-  const redactedURLWithoutFragment = urlWithoutFragment.replace(
-    /([?&][^=&#]*=)[^&#]*/g,
-    `$1${REDACTED}`
-  );
-  if (fragmentIndex === -1) {
-    return redactedURLWithoutFragment;
-  }
-  return `${redactedURLWithoutFragment}#${redactFragment(redactedURL.slice(fragmentIndex + 1))}`;
-}
-function assertValidHttpProtocolURL(url, config) {
-  if (typeof url === "string") {
-    const normalizedURL = normalizeURLForProtocolCheck(url);
-    if (malformedHttpProtocol.test(normalizedURL)) {
-      throw new AxiosError$1(
-        `Invalid URL ${JSON.stringify(redactSensitiveURLParts(normalizedURL))}: missing "//" after protocol`,
-        AxiosError$1.ERR_INVALID_URL,
-        config
-      );
-    }
-  }
-}
-function buildFullPath(baseURL, requestedURL, allowAbsoluteUrls, config) {
-  assertValidHttpProtocolURL(requestedURL, config);
+function buildFullPath(baseURL, requestedURL, allowAbsoluteUrls) {
   let isRelativeUrl = !isAbsoluteURL(requestedURL);
-  if (baseURL && (isRelativeUrl || allowAbsoluteUrls === false)) {
-    assertValidHttpProtocolURL(baseURL, config);
+  if (baseURL && (isRelativeUrl || allowAbsoluteUrls == false)) {
     return combineURLs(baseURL, requestedURL);
   }
   return requestedURL;
 }
 const headersToObject = (thing) => thing instanceof AxiosHeaders$1 ? { ...thing } : thing;
-const ownEnumerableKeys = (thing) => {
-  if (Object.getOwnPropertySymbols && Object.getOwnPropertyDescriptor) {
-    return Object.keys(thing).concat(
-      Object.getOwnPropertySymbols(thing).filter(
-        (symbol) => Object.getOwnPropertyDescriptor(thing, symbol).enumerable
-      )
-    );
-  }
-  return Object.keys(thing);
-};
 function mergeConfig$1(config1, config2) {
-  config1 = config1 || {};
   config2 = config2 || {};
-  const config = /* @__PURE__ */ Object.create(null);
-  Object.defineProperty(config, "hasOwnProperty", {
-    // Null-proto descriptor so a polluted Object.prototype.get cannot turn
-    // this data descriptor into an accessor descriptor on the way in.
-    __proto__: null,
-    value: Object.prototype.hasOwnProperty,
-    enumerable: false,
-    writable: true,
-    configurable: true
-  });
+  const config = {};
   function getMergedValue(target, source, prop, caseless) {
     if (utils$1.isPlainObject(target) && utils$1.isPlainObject(source)) {
       return utils$1.merge.call({ caseless }, target, source);
@@ -14396,27 +13937,10 @@ function mergeConfig$1(config1, config2) {
       return getMergedValue(void 0, a);
     }
   }
-  function getMergedTransitionalOption(prop) {
-    const transitional2 = utils$1.hasOwnProp(config2, "transitional") ? config2.transitional : void 0;
-    if (!utils$1.isUndefined(transitional2)) {
-      if (utils$1.isPlainObject(transitional2)) {
-        if (utils$1.hasOwnProp(transitional2, prop)) {
-          return transitional2[prop];
-        }
-      } else {
-        return void 0;
-      }
-    }
-    const transitional1 = utils$1.hasOwnProp(config1, "transitional") ? config1.transitional : void 0;
-    if (utils$1.isPlainObject(transitional1) && utils$1.hasOwnProp(transitional1, prop)) {
-      return transitional1[prop];
-    }
-    return void 0;
-  }
   function mergeDirectKeys(a, b, prop) {
-    if (utils$1.hasOwnProp(config2, prop)) {
+    if (prop in config2) {
       return getMergedValue(a, b);
-    } else if (utils$1.hasOwnProp(config1, prop)) {
+    } else if (prop in config1) {
       return getMergedValue(void 0, a);
     }
   }
@@ -14447,87 +13971,49 @@ function mergeConfig$1(config1, config2) {
     httpsAgent: defaultToConfig2,
     cancelToken: defaultToConfig2,
     socketPath: defaultToConfig2,
-    allowedSocketPaths: defaultToConfig2,
     responseEncoding: defaultToConfig2,
     validateStatus: mergeDirectKeys,
     headers: (a, b, prop) => mergeDeepProperties(headersToObject(a), headersToObject(b), prop, true)
   };
-  utils$1.forEach(ownEnumerableKeys({ ...config1, ...config2 }), function computeConfigValue(prop) {
-    if (prop === "__proto__" || prop === "constructor" || prop === "prototype") return;
-    const merge2 = utils$1.hasOwnProp(mergeMap, prop) ? mergeMap[prop] : mergeDeepProperties;
-    const a = utils$1.hasOwnProp(config1, prop) ? config1[prop] : void 0;
-    const b = utils$1.hasOwnProp(config2, prop) ? config2[prop] : void 0;
-    const configValue = merge2(a, b, prop);
-    utils$1.isUndefined(configValue) && merge2 !== mergeDirectKeys || (config[prop] = configValue);
-  });
-  if (utils$1.hasOwnProp(config2, "validateStatus") && utils$1.isUndefined(config2.validateStatus) && getMergedTransitionalOption("validateStatusUndefinedResolves") === false) {
-    if (utils$1.hasOwnProp(config1, "validateStatus")) {
-      config.validateStatus = getMergedValue(void 0, config1.validateStatus);
-    } else {
-      delete config.validateStatus;
+  utils$1.forEach(
+    Object.keys({ ...config1, ...config2 }),
+    function computeConfigValue(prop) {
+      if (prop === "__proto__" || prop === "constructor" || prop === "prototype")
+        return;
+      const merge2 = utils$1.hasOwnProp(mergeMap, prop) ? mergeMap[prop] : mergeDeepProperties;
+      const configValue = merge2(config1[prop], config2[prop], prop);
+      utils$1.isUndefined(configValue) && merge2 !== mergeDirectKeys || (config[prop] = configValue);
     }
-  }
+  );
   return config;
 }
-const FORM_DATA_CONTENT_HEADERS = ["content-type", "content-length"];
-function setFormDataHeaders(headers, formHeaders, policy) {
-  if (policy !== "content-only") {
-    headers.set(formHeaders);
-    return;
-  }
-  Object.entries(formHeaders || {}).forEach(([key, val]) => {
-    if (FORM_DATA_CONTENT_HEADERS.includes(key.toLowerCase())) {
-      headers.set(key, val);
-    }
-  });
-}
-const encodeUTF8$1 = (str) => encodeURIComponent(str).replace(
-  /%([0-9A-F]{2})/gi,
-  (_, hex2) => String.fromCharCode(parseInt(hex2, 16))
-);
-function resolveConfig(config) {
+const resolveConfig = (config) => {
   const newConfig = mergeConfig$1({}, config);
-  const own2 = (key) => utils$1.hasOwnProp(newConfig, key) ? newConfig[key] : void 0;
-  const data = own2("data");
-  let withXSRFToken = own2("withXSRFToken");
-  const xsrfHeaderName = own2("xsrfHeaderName");
-  const xsrfCookieName = own2("xsrfCookieName");
-  let headers = own2("headers");
-  const auth = own2("auth");
-  const baseURL = own2("baseURL");
-  const allowAbsoluteUrls = own2("allowAbsoluteUrls");
-  const url = own2("url");
+  let { data, withXSRFToken, xsrfHeaderName, xsrfCookieName, headers, auth } = newConfig;
   newConfig.headers = headers = AxiosHeaders$1.from(headers);
-  newConfig.url = buildURL(
-    buildFullPath(baseURL, url, allowAbsoluteUrls, newConfig),
-    own2("params"),
-    own2("paramsSerializer")
-  );
+  newConfig.url = buildURL(buildFullPath(newConfig.baseURL, newConfig.url, newConfig.allowAbsoluteUrls), config.params, config.paramsSerializer);
   if (auth) {
-    const username = utils$1.getSafeProp(auth, "username") || "";
-    const password = utils$1.getSafeProp(auth, "password") || "";
-    try {
-      headers.set(
-        "Authorization",
-        "Basic " + btoa(username + ":" + (password ? encodeUTF8$1(password) : ""))
-      );
-    } catch (e) {
-      throw AxiosError$1.from(e, AxiosError$1.ERR_BAD_OPTION_VALUE, config);
-    }
+    headers.set(
+      "Authorization",
+      "Basic " + btoa((auth.username || "") + ":" + (auth.password ? unescape(encodeURIComponent(auth.password)) : ""))
+    );
   }
   if (utils$1.isFormData(data)) {
-    if (platform$1.hasStandardBrowserEnv || platform$1.hasStandardBrowserWebWorkerEnv || utils$1.isReactNative(data)) {
+    if (platform$1.hasStandardBrowserEnv || platform$1.hasStandardBrowserWebWorkerEnv) {
       headers.setContentType(void 0);
     } else if (utils$1.isFunction(data.getHeaders)) {
-      setFormDataHeaders(headers, data.getHeaders(), own2("formDataHeaderPolicy"));
+      const formHeaders = data.getHeaders();
+      const allowedHeaders = ["content-type", "content-length"];
+      Object.entries(formHeaders).forEach(([key, val]) => {
+        if (allowedHeaders.includes(key.toLowerCase())) {
+          headers.set(key, val);
+        }
+      });
     }
   }
   if (platform$1.hasStandardBrowserEnv) {
-    if (utils$1.isFunction(withXSRFToken)) {
-      withXSRFToken = withXSRFToken(newConfig);
-    }
-    const shouldSendXSRF = withXSRFToken === true || withXSRFToken == null && isURLSameOrigin(newConfig.url);
-    if (shouldSendXSRF) {
+    withXSRFToken && utils$1.isFunction(withXSRFToken) && (withXSRFToken = withXSRFToken(newConfig));
+    if (withXSRFToken || withXSRFToken !== false && isURLSameOrigin(newConfig.url)) {
       const xsrfValue = xsrfHeaderName && xsrfCookieName && cookies.read(xsrfCookieName);
       if (xsrfValue) {
         headers.set(xsrfHeaderName, xsrfValue);
@@ -14535,7 +14021,7 @@ function resolveConfig(config) {
     }
   }
   return newConfig;
-}
+};
 const isXHRAdapterSupported = typeof XMLHttpRequest !== "undefined";
 const xhrAdapter = isXHRAdapterSupported && function(config) {
   return new Promise(function dispatchXhrRequest(resolve2, reject) {
@@ -14571,17 +14057,13 @@ const xhrAdapter = isXHRAdapterSupported && function(config) {
         config,
         request
       };
-      settle(
-        function _resolve2(value) {
-          resolve2(value);
-          done();
-        },
-        function _reject(err) {
-          reject(err);
-          done();
-        },
-        response
-      );
+      settle(function _resolve2(value) {
+        resolve2(value);
+        done();
+      }, function _reject(err) {
+        reject(err);
+        done();
+      }, response);
       request = null;
     }
     if ("onloadend" in request) {
@@ -14591,7 +14073,7 @@ const xhrAdapter = isXHRAdapterSupported && function(config) {
         if (!request || request.readyState !== 4) {
           return;
         }
-        if (request.status === 0 && !(request.responseURL && request.responseURL.startsWith("file:"))) {
+        if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf("file:") === 0)) {
           return;
         }
         setTimeout(onloadend);
@@ -14602,7 +14084,6 @@ const xhrAdapter = isXHRAdapterSupported && function(config) {
         return;
       }
       reject(new AxiosError$1("Request aborted", AxiosError$1.ECONNABORTED, config, request));
-      done();
       request = null;
     };
     request.onerror = function handleError(event) {
@@ -14610,7 +14091,6 @@ const xhrAdapter = isXHRAdapterSupported && function(config) {
       const err = new AxiosError$1(msg, AxiosError$1.ERR_NETWORK, config, request);
       err.event = event || null;
       reject(err);
-      done();
       request = null;
     };
     request.ontimeout = function handleTimeout() {
@@ -14619,20 +14099,17 @@ const xhrAdapter = isXHRAdapterSupported && function(config) {
       if (_config.timeoutErrorMessage) {
         timeoutErrorMessage = _config.timeoutErrorMessage;
       }
-      reject(
-        new AxiosError$1(
-          timeoutErrorMessage,
-          transitional2.clarifyTimeoutError ? AxiosError$1.ETIMEDOUT : AxiosError$1.ECONNABORTED,
-          config,
-          request
-        )
-      );
-      done();
+      reject(new AxiosError$1(
+        timeoutErrorMessage,
+        transitional2.clarifyTimeoutError ? AxiosError$1.ETIMEDOUT : AxiosError$1.ECONNABORTED,
+        config,
+        request
+      ));
       request = null;
     };
     requestData === void 0 && requestHeaders.setContentType(null);
     if ("setRequestHeader" in request) {
-      utils$1.forEach(toByteStringHeaderObject(requestHeaders), function setRequestHeader(val, key) {
+      utils$1.forEach(requestHeaders.toJSON(), function setRequestHeader(val, key) {
         request.setRequestHeader(key, val);
       });
     }
@@ -14658,7 +14135,6 @@ const xhrAdapter = isXHRAdapterSupported && function(config) {
         }
         reject(!cancel || cancel.type ? new CanceledError$1(null, config, request) : cancel);
         request.abort();
-        done();
         request = null;
       };
       _config.cancelToken && _config.cancelToken.subscribe(onCanceled);
@@ -14667,65 +14143,45 @@ const xhrAdapter = isXHRAdapterSupported && function(config) {
       }
     }
     const protocol = parseProtocol(_config.url);
-    if (protocol && !platform$1.protocols.includes(protocol)) {
-      reject(
-        new AxiosError$1(
-          "Unsupported protocol " + protocol + ":",
-          AxiosError$1.ERR_BAD_REQUEST,
-          config
-        )
-      );
-      done();
+    if (protocol && platform$1.protocols.indexOf(protocol) === -1) {
+      reject(new AxiosError$1("Unsupported protocol " + protocol + ":", AxiosError$1.ERR_BAD_REQUEST, config));
       return;
     }
     request.send(requestData || null);
   });
 };
 const composeSignals = (signals, timeout) => {
-  signals = signals ? signals.filter(Boolean) : [];
-  if (!timeout && !signals.length) {
-    return;
+  const { length } = signals = signals ? signals.filter(Boolean) : [];
+  if (timeout || length) {
+    let controller = new AbortController();
+    let aborted;
+    const onabort = function(reason) {
+      if (!aborted) {
+        aborted = true;
+        unsubscribe();
+        const err = reason instanceof Error ? reason : this.reason;
+        controller.abort(err instanceof AxiosError$1 ? err : new CanceledError$1(err instanceof Error ? err.message : err));
+      }
+    };
+    let timer = timeout && setTimeout(() => {
+      timer = null;
+      onabort(new AxiosError$1(`timeout of ${timeout}ms exceeded`, AxiosError$1.ETIMEDOUT));
+    }, timeout);
+    const unsubscribe = () => {
+      if (signals) {
+        timer && clearTimeout(timer);
+        timer = null;
+        signals.forEach((signal2) => {
+          signal2.unsubscribe ? signal2.unsubscribe(onabort) : signal2.removeEventListener("abort", onabort);
+        });
+        signals = null;
+      }
+    };
+    signals.forEach((signal2) => signal2.addEventListener("abort", onabort));
+    const { signal } = controller;
+    signal.unsubscribe = () => utils$1.asap(unsubscribe);
+    return signal;
   }
-  const controller = new AbortController();
-  let aborted = false;
-  const onabort = function(reason) {
-    if (!aborted) {
-      aborted = true;
-      unsubscribe();
-      const err = reason instanceof Error ? reason : this.reason;
-      controller.abort(
-        err instanceof AxiosError$1 ? err : new CanceledError$1(err instanceof Error ? err.message : err)
-      );
-    }
-  };
-  let timer = timeout && setTimeout(() => {
-    timer = null;
-    onabort(new AxiosError$1(`timeout of ${timeout}ms exceeded`, AxiosError$1.ETIMEDOUT));
-  }, timeout);
-  const unsubscribe = () => {
-    if (!signals) {
-      return;
-    }
-    timer && clearTimeout(timer);
-    timer = null;
-    signals.forEach((signal2) => {
-      signal2.unsubscribe ? signal2.unsubscribe(onabort) : signal2.removeEventListener("abort", onabort);
-    });
-    signals = null;
-  };
-  signals.forEach((signal2) => {
-    if (aborted) {
-      return;
-    }
-    if (signal2.aborted) {
-      onabort.call(signal2);
-      return;
-    }
-    signal2.addEventListener("abort", onabort, { once: true });
-  });
-  const { signal } = controller;
-  signal.unsubscribe = () => utils$1.asap(unsubscribe);
-  return signal;
 };
 const streamChunk = function* (chunk, chunkSize) {
   let len = chunk.byteLength;
@@ -14774,152 +14230,44 @@ const trackStream = (stream, chunkSize, onProgress, onFinish) => {
       onFinish && onFinish(e);
     }
   };
-  return new ReadableStream(
-    {
-      async pull(controller) {
-        try {
-          const { done: done2, value } = await iterator2.next();
-          if (done2) {
-            _onFinish();
-            controller.close();
-            return;
-          }
-          let len = value.byteLength;
-          if (onProgress) {
-            let loadedBytes = bytes += len;
-            onProgress(loadedBytes);
-          }
-          controller.enqueue(new Uint8Array(value));
-        } catch (err) {
-          _onFinish(err);
-          throw err;
+  return new ReadableStream({
+    async pull(controller) {
+      try {
+        const { done: done2, value } = await iterator2.next();
+        if (done2) {
+          _onFinish();
+          controller.close();
+          return;
         }
-      },
-      cancel(reason) {
-        _onFinish(reason);
-        return iterator2.return();
+        let len = value.byteLength;
+        if (onProgress) {
+          let loadedBytes = bytes += len;
+          onProgress(loadedBytes);
+        }
+        controller.enqueue(new Uint8Array(value));
+      } catch (err) {
+        _onFinish(err);
+        throw err;
       }
     },
-    {
-      highWaterMark: 2
+    cancel(reason) {
+      _onFinish(reason);
+      return iterator2.return();
     }
-  );
+  }, {
+    highWaterMark: 2
+  });
 };
-const isHexDigit = (charCode) => charCode >= 48 && charCode <= 57 || charCode >= 65 && charCode <= 70 || charCode >= 97 && charCode <= 102;
-const isPercentEncodedByte = (str, i, len) => i + 2 < len && isHexDigit(str.charCodeAt(i + 1)) && isHexDigit(str.charCodeAt(i + 2));
-const hexValue = (charCode) => charCode <= 57 ? charCode - 48 : (charCode & 223) - 55;
-const isBase64Char = (charCode) => charCode >= 65 && charCode <= 90 || // A-Z
-charCode >= 97 && charCode <= 122 || // a-z
-charCode >= 48 && charCode <= 57 || // 0-9
-charCode === 43 || // +
-charCode === 47 || // /
-charCode === 45 || // - (base64url)
-charCode === 95;
-const isBase64Whitespace = (charCode) => charCode === 9 || charCode === 10 || charCode === 12 || charCode === 13 || charCode === 32;
-const base64Bytes = (significant) => {
-  const groups = Math.floor(significant / 4);
-  const remainder = significant % 4;
-  return groups * 3 + (remainder === 2 ? 1 : remainder === 3 ? 2 : 0);
-};
-const estimateBase64BufferAllocation = (body) => {
-  const len = body.length;
-  let padding = 0;
-  if (len > 0 && body.charCodeAt(len - 1) === 61) {
-    padding++;
-    if (len > 1 && body.charCodeAt(len - 2) === 61) {
-      padding++;
-    }
-  }
-  return Math.floor((len - padding) * 3 / 4);
-};
-const estimatePercentDecodedBase64Bytes = (body) => {
-  const len = body.length;
-  let significant = 0;
-  let padding = 0;
-  let invalid = false;
-  for (let i = 0; i < len; i++) {
-    let code = body.charCodeAt(i);
-    if (code === 37 && isPercentEncodedByte(body, i, len)) {
-      code = hexValue(body.charCodeAt(i + 1)) * 16 + hexValue(body.charCodeAt(i + 2));
-      i += 2;
-    }
-    if (isBase64Whitespace(code)) {
-      continue;
-    }
-    if (code === 61) {
-      padding++;
-      continue;
-    }
-    if (!isBase64Char(code) || padding > 0) {
-      invalid = true;
-      continue;
-    }
-    significant++;
-  }
-  if (invalid || padding > 2 || padding > 0 && (significant + padding) % 4 !== 0 || significant % 4 === 1) {
-    return estimateBase64BufferAllocation(body);
-  }
-  return base64Bytes(significant);
-};
-const estimateDataURLBytes = (url, estimateBase64) => {
-  if (!url || typeof url !== "string") return 0;
-  if (!url.startsWith("data:")) return 0;
-  const comma = url.indexOf(",");
-  if (comma < 0) return 0;
-  const meta = url.slice(5, comma);
-  const body = url.slice(comma + 1);
-  const isBase64 = /;base64/i.test(meta);
-  if (isBase64) {
-    return estimateBase64(body);
-  }
-  let bytes = 0;
-  for (let i = 0, len = body.length; i < len; i++) {
-    const c = body.charCodeAt(i);
-    if (c === 37 && isPercentEncodedByte(body, i, len)) {
-      bytes += 1;
-      i += 2;
-    } else if (c < 128) {
-      bytes += 1;
-    } else if (c < 2048) {
-      bytes += 2;
-    } else if (c >= 55296 && c <= 56319 && i + 1 < len) {
-      const next = body.charCodeAt(i + 1);
-      if (next >= 56320 && next <= 57343) {
-        bytes += 4;
-        i++;
-      } else {
-        bytes += 3;
-      }
-    } else {
-      bytes += 3;
-    }
-  }
-  return bytes;
-};
-function estimateDataURLDecodedBytes(url) {
-  const fragmentIndex = typeof url === "string" ? url.indexOf("#") : -1;
-  return estimateDataURLBytes(
-    fragmentIndex === -1 ? url : url.slice(0, fragmentIndex),
-    estimatePercentDecodedBase64Bytes
-  );
-}
-const VERSION$1 = "1.19.0";
 const DEFAULT_CHUNK_SIZE = 64 * 1024;
 const { isFunction: isFunction$1 } = utils$1;
-const encodeUTF8 = (str) => encodeURIComponent(str).replace(
-  /%([0-9A-F]{2})/gi,
-  (_, hex2) => String.fromCharCode(parseInt(hex2, 16))
-);
-const decodeURIComponentSafe = (value) => {
-  if (!utils$1.isString(value)) {
-    return value;
-  }
-  try {
-    return decodeURIComponent(value);
-  } catch (error) {
-    return value;
-  }
-};
+const globalFetchAPI = (({ Request: Request2, Response }) => ({
+  Request: Request2,
+  Response
+}))(utils$1.global);
+const {
+  ReadableStream: ReadableStream$1,
+  TextEncoder
+} = utils$1.global;
 const test = (fn, ...args) => {
   try {
     return !!fn(...args);
@@ -14927,27 +14275,10 @@ const test = (fn, ...args) => {
     return false;
   }
 };
-const maybeWithAuthCredentials = (url) => {
-  const protocolIndex = url.indexOf("://");
-  let urlToCheck = url;
-  if (protocolIndex !== -1) {
-    urlToCheck = urlToCheck.slice(protocolIndex + 3);
-  }
-  return urlToCheck.includes("@") || urlToCheck.includes(":");
-};
 const factory = (env) => {
-  const globalObject = utils$1.global !== void 0 && utils$1.global !== null ? utils$1.global : globalThis;
-  const { ReadableStream: ReadableStream2, TextEncoder } = globalObject;
-  env = utils$1.merge.call(
-    {
-      skipUndefined: true
-    },
-    {
-      Request: globalObject.Request,
-      Response: globalObject.Response
-    },
-    env
-  );
+  env = utils$1.merge.call({
+    skipUndefined: true
+  }, globalFetchAPI, env);
   const { fetch: envFetch, Request: Request2, Response } = env;
   const isFetchSupported = envFetch ? isFunction$1(envFetch) : typeof fetch === "function";
   const isRequestSupported = isFunction$1(Request2);
@@ -14955,22 +14286,18 @@ const factory = (env) => {
   if (!isFetchSupported) {
     return false;
   }
-  const isReadableStreamSupported = isFetchSupported && isFunction$1(ReadableStream2);
+  const isReadableStreamSupported = isFetchSupported && isFunction$1(ReadableStream$1);
   const encodeText = isFetchSupported && (typeof TextEncoder === "function" ? /* @__PURE__ */ ((encoder) => (str) => encoder.encode(str))(new TextEncoder()) : async (str) => new Uint8Array(await new Request2(str).arrayBuffer()));
   const supportsRequestStream = isRequestSupported && isReadableStreamSupported && test(() => {
     let duplexAccessed = false;
-    const request = new Request2(platform$1.origin, {
-      body: new ReadableStream2(),
+    const hasContentType = new Request2(platform$1.origin, {
+      body: new ReadableStream$1(),
       method: "POST",
       get duplex() {
         duplexAccessed = true;
         return "half";
       }
-    });
-    const hasContentType = request.headers.has("Content-Type");
-    if (request.body != null) {
-      request.body.cancel();
-    }
+    }).headers.has("Content-Type");
     return duplexAccessed && !hasContentType;
   });
   const supportsResponseStream = isResponseSupported && isReadableStreamSupported && test(() => utils$1.isReadableStream(new Response("").body));
@@ -14984,11 +14311,7 @@ const factory = (env) => {
         if (method) {
           return method.call(res);
         }
-        throw new AxiosError$1(
-          `Response type '${type}' is not supported`,
-          AxiosError$1.ERR_NOT_SUPPORT,
-          config
-        );
+        throw new AxiosError$1(`Response type '${type}' is not supported`, AxiosError$1.ERR_NOT_SUPPORT, config);
       });
     });
   })();
@@ -15033,189 +14356,63 @@ const factory = (env) => {
       responseType,
       headers,
       withCredentials = "same-origin",
-      fetchOptions,
-      maxContentLength,
-      maxBodyLength
+      fetchOptions
     } = resolveConfig(config);
-    const hasMaxContentLength = utils$1.isNumber(maxContentLength) && maxContentLength > -1;
-    const hasMaxBodyLength = utils$1.isNumber(maxBodyLength) && maxBodyLength > -1;
-    const own2 = (key) => utils$1.hasOwnProp(config, key) ? config[key] : void 0;
     let _fetch = envFetch || fetch;
     responseType = responseType ? (responseType + "").toLowerCase() : "text";
-    let composedSignal = composeSignals(
-      [signal, cancelToken && cancelToken.toAbortSignal()],
-      timeout
-    );
+    let composedSignal = composeSignals([signal, cancelToken && cancelToken.toAbortSignal()], timeout);
     let request = null;
     const unsubscribe = composedSignal && composedSignal.unsubscribe && (() => {
       composedSignal.unsubscribe();
     });
     let requestContentLength;
-    let pendingBodyError = null;
-    const maxBodyLengthError = () => new AxiosError$1(
-      "Request body larger than maxBodyLength limit",
-      AxiosError$1.ERR_BAD_REQUEST,
-      config,
-      request
-    );
     try {
-      let auth = void 0;
-      const configAuth = own2("auth");
-      if (configAuth) {
-        const username = utils$1.getSafeProp(configAuth, "username") || "";
-        const password = utils$1.getSafeProp(configAuth, "password") || "";
-        auth = {
-          username,
-          password
-        };
-      }
-      if (maybeWithAuthCredentials(url)) {
-        const parsedURL = new URL(url, platform$1.origin);
-        if (!auth && (parsedURL.username || parsedURL.password)) {
-          const urlUsername = decodeURIComponentSafe(parsedURL.username);
-          const urlPassword = decodeURIComponentSafe(parsedURL.password);
-          auth = {
-            username: urlUsername,
-            password: urlPassword
-          };
+      if (onUploadProgress && supportsRequestStream && method !== "get" && method !== "head" && (requestContentLength = await resolveBodyLength(headers, data)) !== 0) {
+        let _request = new Request2(url, {
+          method: "POST",
+          body: data,
+          duplex: "half"
+        });
+        let contentTypeHeader;
+        if (utils$1.isFormData(data) && (contentTypeHeader = _request.headers.get("content-type"))) {
+          headers.setContentType(contentTypeHeader);
         }
-        if (parsedURL.username || parsedURL.password) {
-          parsedURL.username = "";
-          parsedURL.password = "";
-          url = parsedURL.href;
-        }
-      }
-      if (auth) {
-        headers.delete("authorization");
-        headers.set(
-          "Authorization",
-          "Basic " + btoa(encodeUTF8((auth.username || "") + ":" + (auth.password || "")))
-        );
-      }
-      if (hasMaxContentLength && typeof url === "string" && url.startsWith("data:")) {
-        const estimated = estimateDataURLDecodedBytes(url);
-        if (estimated > maxContentLength) {
-          throw new AxiosError$1(
-            "maxContentLength size of " + maxContentLength + " exceeded",
-            AxiosError$1.ERR_BAD_RESPONSE,
-            config,
-            request
+        if (_request.body) {
+          const [onProgress, flush] = progressEventDecorator(
+            requestContentLength,
+            progressEventReducer(asyncDecorator(onUploadProgress))
           );
+          data = trackStream(_request.body, DEFAULT_CHUNK_SIZE, onProgress, flush);
         }
-      }
-      if (hasMaxBodyLength && method !== "get" && method !== "head") {
-        const outboundLength = await getBodyLength(data);
-        if (typeof outboundLength === "number" && isFinite(outboundLength)) {
-          requestContentLength = outboundLength;
-          if (outboundLength > maxBodyLength) {
-            throw maxBodyLengthError();
-          }
-        }
-      }
-      const mustEnforceStreamBody = hasMaxBodyLength && (utils$1.isReadableStream(data) || utils$1.isStream(data));
-      const trackRequestStream = (stream, onProgress, flush) => trackStream(
-        stream,
-        DEFAULT_CHUNK_SIZE,
-        (loadedBytes) => {
-          if (hasMaxBodyLength && loadedBytes > maxBodyLength) {
-            throw pendingBodyError = maxBodyLengthError();
-          }
-          onProgress && onProgress(loadedBytes);
-        },
-        flush
-      );
-      if (supportsRequestStream && method !== "get" && method !== "head" && (onUploadProgress || mustEnforceStreamBody)) {
-        requestContentLength = requestContentLength == null ? await resolveBodyLength(headers, data) : requestContentLength;
-        if (requestContentLength !== 0 || mustEnforceStreamBody) {
-          let _request = new Request2(url, {
-            method: "POST",
-            body: data,
-            duplex: "half"
-          });
-          let contentTypeHeader;
-          if (utils$1.isFormData(data) && (contentTypeHeader = _request.headers.get("content-type"))) {
-            headers.setContentType(contentTypeHeader);
-          }
-          if (_request.body) {
-            const [onProgress, flush] = onUploadProgress && progressEventDecorator(
-              requestContentLength,
-              progressEventReducer(asyncDecorator(onUploadProgress))
-            ) || [];
-            data = trackRequestStream(_request.body, onProgress, flush);
-          }
-        }
-      } else if (mustEnforceStreamBody && !isRequestSupported && isReadableStreamSupported && method !== "get" && method !== "head") {
-        data = trackRequestStream(data);
-      } else if (mustEnforceStreamBody && isRequestSupported && !supportsRequestStream && method !== "get" && method !== "head") {
-        throw new AxiosError$1(
-          "Stream request bodies are not supported by the current fetch implementation",
-          AxiosError$1.ERR_NOT_SUPPORT,
-          config,
-          request
-        );
       }
       if (!utils$1.isString(withCredentials)) {
         withCredentials = withCredentials ? "include" : "omit";
       }
       const isCredentialsSupported = isRequestSupported && "credentials" in Request2.prototype;
-      if (utils$1.isFormData(data)) {
-        const contentType = headers.getContentType();
-        if (contentType && /^multipart\/form-data/i.test(contentType) && !/boundary=/i.test(contentType)) {
-          headers.delete("content-type");
-        }
-      }
-      headers.set("User-Agent", "axios/" + VERSION$1, false);
       const resolvedOptions = {
         ...fetchOptions,
         signal: composedSignal,
         method: method.toUpperCase(),
-        headers: toByteStringHeaderObject(headers.normalize()),
+        headers: headers.normalize().toJSON(),
         body: data,
         duplex: "half",
         credentials: isCredentialsSupported ? withCredentials : void 0
       };
       request = isRequestSupported && new Request2(url, resolvedOptions);
       let response = await (isRequestSupported ? _fetch(request, fetchOptions) : _fetch(url, resolvedOptions));
-      const responseHeaders = AxiosHeaders$1.from(response.headers);
-      if (hasMaxContentLength) {
-        const declaredLength = utils$1.toFiniteNumber(responseHeaders.getContentLength());
-        if (declaredLength != null && declaredLength > maxContentLength) {
-          throw new AxiosError$1(
-            "maxContentLength size of " + maxContentLength + " exceeded",
-            AxiosError$1.ERR_BAD_RESPONSE,
-            config,
-            request
-          );
-        }
-      }
       const isStreamResponse = supportsResponseStream && (responseType === "stream" || responseType === "response");
-      if (supportsResponseStream && response.body && (onDownloadProgress || hasMaxContentLength || isStreamResponse && unsubscribe)) {
+      if (supportsResponseStream && (onDownloadProgress || isStreamResponse && unsubscribe)) {
         const options = {};
         ["status", "statusText", "headers"].forEach((prop) => {
           options[prop] = response[prop];
         });
-        const responseContentLength = utils$1.toFiniteNumber(responseHeaders.getContentLength());
+        const responseContentLength = utils$1.toFiniteNumber(response.headers.get("content-length"));
         const [onProgress, flush] = onDownloadProgress && progressEventDecorator(
           responseContentLength,
           progressEventReducer(asyncDecorator(onDownloadProgress), true)
         ) || [];
-        let bytesRead = 0;
-        const onChunkProgress = (loadedBytes) => {
-          if (hasMaxContentLength) {
-            bytesRead = loadedBytes;
-            if (bytesRead > maxContentLength) {
-              throw new AxiosError$1(
-                "maxContentLength size of " + maxContentLength + " exceeded",
-                AxiosError$1.ERR_BAD_RESPONSE,
-                config,
-                request
-              );
-            }
-          }
-          onProgress && onProgress(loadedBytes);
-        };
         response = new Response(
-          trackStream(response.body, DEFAULT_CHUNK_SIZE, onChunkProgress, () => {
+          trackStream(response.body, DEFAULT_CHUNK_SIZE, onProgress, () => {
             flush && flush();
             unsubscribe && unsubscribe();
           }),
@@ -15223,30 +14420,7 @@ const factory = (env) => {
         );
       }
       responseType = responseType || "text";
-      let responseData = await resolvers[utils$1.findKey(resolvers, responseType) || "text"](
-        response,
-        config
-      );
-      if (hasMaxContentLength && !supportsResponseStream && !isStreamResponse) {
-        let materializedSize;
-        if (responseData != null) {
-          if (typeof responseData.byteLength === "number") {
-            materializedSize = responseData.byteLength;
-          } else if (typeof responseData.size === "number") {
-            materializedSize = responseData.size;
-          } else if (typeof responseData === "string") {
-            materializedSize = typeof TextEncoder === "function" ? new TextEncoder().encode(responseData).byteLength : responseData.length;
-          }
-        }
-        if (typeof materializedSize === "number" && materializedSize > maxContentLength) {
-          throw new AxiosError$1(
-            "maxContentLength size of " + maxContentLength + " exceeded",
-            AxiosError$1.ERR_BAD_RESPONSE,
-            config,
-            request
-          );
-        }
-      }
+      let responseData = await resolvers[utils$1.findKey(resolvers, responseType) || "text"](response, config);
       !isStreamResponse && unsubscribe && unsubscribe();
       return await new Promise((resolve2, reject) => {
         settle(resolve2, reject, {
@@ -15260,45 +14434,13 @@ const factory = (env) => {
       });
     } catch (err) {
       unsubscribe && unsubscribe();
-      if (composedSignal && composedSignal.aborted && composedSignal.reason instanceof AxiosError$1) {
-        const canceledError = composedSignal.reason;
-        canceledError.config = config;
-        request && (canceledError.request = request);
-        if (err !== canceledError) {
-          Object.defineProperty(canceledError, "cause", {
-            __proto__: null,
-            value: err,
-            writable: true,
-            enumerable: false,
-            configurable: true
-          });
-        }
-        throw canceledError;
-      }
-      if (pendingBodyError) {
-        request && !pendingBodyError.request && (pendingBodyError.request = request);
-        throw pendingBodyError;
-      }
-      if (err instanceof AxiosError$1) {
-        request && !err.request && (err.request = request);
-        throw err;
-      }
       if (err && err.name === "TypeError" && /Load failed|fetch/i.test(err.message)) {
-        const networkError = new AxiosError$1(
-          "Network Error",
-          AxiosError$1.ERR_NETWORK,
-          config,
-          request,
-          err && err.response
+        throw Object.assign(
+          new AxiosError$1("Network Error", AxiosError$1.ERR_NETWORK, config, request, err && err.response),
+          {
+            cause: err.cause || err
+          }
         );
-        Object.defineProperty(networkError, "cause", {
-          __proto__: null,
-          value: err.cause || err,
-          writable: true,
-          enumerable: false,
-          configurable: true
-        });
-        throw networkError;
       }
       throw AxiosError$1.from(err, err && err.code, config, request, err && err.response);
     }
@@ -15308,7 +14450,11 @@ const seedCache = /* @__PURE__ */ new Map();
 const getFetch = (config) => {
   let env = config && config.env || {};
   const { fetch: fetch2, Request: Request2, Response } = env;
-  const seeds = [Request2, Response, fetch2];
+  const seeds = [
+    Request2,
+    Response,
+    fetch2
+  ];
   let len = seeds.length, i = len, seed, target, map2 = seedCache;
   while (i--) {
     seed = seeds[i];
@@ -15329,10 +14475,10 @@ const knownAdapters = {
 utils$1.forEach(knownAdapters, (fn, value) => {
   if (fn) {
     try {
-      Object.defineProperty(fn, "name", { __proto__: null, value });
+      Object.defineProperty(fn, "name", { value });
     } catch (e) {
     }
-    Object.defineProperty(fn, "adapterName", { __proto__: null, value });
+    Object.defineProperty(fn, "adapterName", { value });
   }
 });
 const renderReason = (reason) => `- ${reason}`;
@@ -15365,7 +14511,7 @@ function getAdapter$1(adapters2, config) {
     let s = length ? reasons.length > 1 ? "since :\n" + reasons.map(renderReason).join("\n") : " " + renderReason(reasons[0]) : "as no adapter specified";
     throw new AxiosError$1(
       `There is no suitable adapter to dispatch the request ` + s,
-      AxiosError$1.ERR_NOT_SUPPORT
+      "ERR_NOT_SUPPORT"
     );
   }
   return adapter;
@@ -15393,44 +14539,39 @@ function throwIfCancellationRequested(config) {
 function dispatchRequest(config) {
   throwIfCancellationRequested(config);
   config.headers = AxiosHeaders$1.from(config.headers);
-  config.data = transformData.call(config, config.transformRequest);
+  config.data = transformData.call(
+    config,
+    config.transformRequest
+  );
   if (["post", "put", "patch"].indexOf(config.method) !== -1) {
     config.headers.setContentType("application/x-www-form-urlencoded", false);
   }
   const adapter = adapters$1.getAdapter(config.adapter || defaults$1.adapter, config);
-  return adapter(config).then(
-    function onAdapterResolution(response) {
+  return adapter(config).then(function onAdapterResolution(response) {
+    throwIfCancellationRequested(config);
+    response.data = transformData.call(
+      config,
+      config.transformResponse,
+      response
+    );
+    response.headers = AxiosHeaders$1.from(response.headers);
+    return response;
+  }, function onAdapterRejection(reason) {
+    if (!isCancel$1(reason)) {
       throwIfCancellationRequested(config);
-      config.response = response;
-      try {
-        response.data = transformData.call(config, config.transformResponse, response);
-      } finally {
-        delete config.response;
+      if (reason && reason.response) {
+        reason.response.data = transformData.call(
+          config,
+          config.transformResponse,
+          reason.response
+        );
+        reason.response.headers = AxiosHeaders$1.from(reason.response.headers);
       }
-      response.headers = AxiosHeaders$1.from(response.headers);
-      return response;
-    },
-    function onAdapterRejection(reason) {
-      if (!isCancel$1(reason)) {
-        throwIfCancellationRequested(config);
-        if (reason && reason.response) {
-          config.response = reason.response;
-          try {
-            reason.response.data = transformData.call(
-              config,
-              config.transformResponse,
-              reason.response
-            );
-          } finally {
-            delete config.response;
-          }
-          reason.response.headers = AxiosHeaders$1.from(reason.response.headers);
-        }
-      }
-      return Promise.reject(reason);
     }
-  );
+    return Promise.reject(reason);
+  });
 }
+const VERSION$1 = "1.13.5";
 const validators$1 = {};
 ["object", "boolean", "number", "function", "string", "symbol"].forEach((type, i) => {
   validators$1[type] = function validator2(thing) {
@@ -15468,22 +14609,19 @@ validators$1.spelling = function spelling(correctSpelling) {
   };
 };
 function assertOptions(options, schema, allowUnknown) {
-  if (typeof options !== "object" || options === null) {
+  if (typeof options !== "object") {
     throw new AxiosError$1("options must be an object", AxiosError$1.ERR_BAD_OPTION_VALUE);
   }
   const keys = Object.keys(options);
   let i = keys.length;
   while (i-- > 0) {
     const opt = keys[i];
-    const validator2 = Object.prototype.hasOwnProperty.call(schema, opt) ? schema[opt] : void 0;
+    const validator2 = schema[opt];
     if (validator2) {
       const value = options[opt];
       const result = value === void 0 || validator2(value, opt, options);
       if (result !== true) {
-        throw new AxiosError$1(
-          "option " + opt + " must be " + result,
-          AxiosError$1.ERR_BAD_OPTION_VALUE
-        );
+        throw new AxiosError$1("option " + opt + " must be " + result, AxiosError$1.ERR_BAD_OPTION_VALUE);
       }
       continue;
     }
@@ -15520,23 +14658,12 @@ let Axios$1 = class Axios {
       if (err instanceof Error) {
         let dummy = {};
         Error.captureStackTrace ? Error.captureStackTrace(dummy) : dummy = new Error();
-        const stack = (() => {
-          if (!dummy.stack) {
-            return "";
-          }
-          const firstNewlineIndex = dummy.stack.indexOf("\n");
-          return firstNewlineIndex === -1 ? "" : dummy.stack.slice(firstNewlineIndex + 1);
-        })();
+        const stack = dummy.stack ? dummy.stack.replace(/^.+\n/, "") : "";
         try {
           if (!err.stack) {
             err.stack = stack;
-          } else if (stack) {
-            const firstNewlineIndex = stack.indexOf("\n");
-            const secondNewlineIndex = firstNewlineIndex === -1 ? -1 : stack.indexOf("\n", firstNewlineIndex + 1);
-            const stackWithoutTwoTopLines = secondNewlineIndex === -1 ? "" : stack.slice(secondNewlineIndex + 1);
-            if (!String(err.stack).endsWith(stackWithoutTwoTopLines)) {
-              err.stack += "\n" + stack;
-            }
+          } else if (stack && !String(err.stack).endsWith(stack.replace(/^.+\n.+\n/, ""))) {
+            err.stack += "\n" + stack;
           }
         } catch (e) {
         }
@@ -15554,18 +14681,12 @@ let Axios$1 = class Axios {
     config = mergeConfig$1(this.defaults, config);
     const { transitional: transitional2, paramsSerializer, headers } = config;
     if (transitional2 !== void 0) {
-      validator.assertOptions(
-        transitional2,
-        {
-          silentJSONParsing: validators.transitional(validators.boolean),
-          forcedJSONParsing: validators.transitional(validators.boolean),
-          clarifyTimeoutError: validators.transitional(validators.boolean),
-          legacyInterceptorReqResOrdering: validators.transitional(validators.boolean),
-          advertiseZstdAcceptEncoding: validators.transitional(validators.boolean),
-          validateStatusUndefinedResolves: validators.transitional(validators.boolean)
-        },
-        false
-      );
+      validator.assertOptions(transitional2, {
+        silentJSONParsing: validators.transitional(validators.boolean),
+        forcedJSONParsing: validators.transitional(validators.boolean),
+        clarifyTimeoutError: validators.transitional(validators.boolean),
+        legacyInterceptorReqResOrdering: validators.transitional(validators.boolean)
+      }, false);
     }
     if (paramsSerializer != null) {
       if (utils$1.isFunction(paramsSerializer)) {
@@ -15573,14 +14694,10 @@ let Axios$1 = class Axios {
           serialize: paramsSerializer
         };
       } else {
-        validator.assertOptions(
-          paramsSerializer,
-          {
-            encode: validators.function,
-            serialize: validators.function
-          },
-          true
-        );
+        validator.assertOptions(paramsSerializer, {
+          encode: validators.function,
+          serialize: validators.function
+        }, true);
       }
     }
     if (config.allowAbsoluteUrls !== void 0) ;
@@ -15589,19 +14706,21 @@ let Axios$1 = class Axios {
     } else {
       config.allowAbsoluteUrls = true;
     }
-    validator.assertOptions(
-      config,
-      {
-        baseUrl: validators.spelling("baseURL"),
-        withXsrfToken: validators.spelling("withXSRFToken")
-      },
-      true
-    );
+    validator.assertOptions(config, {
+      baseUrl: validators.spelling("baseURL"),
+      withXsrfToken: validators.spelling("withXSRFToken")
+    }, true);
     config.method = (config.method || this.defaults.method || "get").toLowerCase();
-    let contextHeaders = headers && utils$1.merge(headers.common, headers[config.method]);
-    headers && utils$1.forEach(["delete", "get", "head", "post", "put", "patch", "query", "common"], (method) => {
-      delete headers[method];
-    });
+    let contextHeaders = headers && utils$1.merge(
+      headers.common,
+      headers[config.method]
+    );
+    headers && utils$1.forEach(
+      ["delete", "get", "head", "post", "put", "patch", "common"],
+      (method) => {
+        delete headers[method];
+      }
+    );
     config.headers = AxiosHeaders$1.concat(contextHeaders, headers);
     const requestInterceptorChain = [];
     let synchronousRequestInterceptors = true;
@@ -15642,31 +14761,16 @@ let Axios$1 = class Axios {
       const onFulfilled = requestInterceptorChain[i++];
       const onRejected = requestInterceptorChain[i++];
       try {
-        newConfig = onFulfilled ? onFulfilled(newConfig) : newConfig;
+        newConfig = onFulfilled(newConfig);
       } catch (error) {
-        if (!onRejected) {
-          promise = Promise.reject(error);
-          break;
-        }
-        try {
-          const rejectedResult = onRejected.call(this, error);
-          if (utils$1.isThenable(rejectedResult)) {
-            promise = Promise.resolve(rejectedResult).then(
-              () => dispatchRequest.call(this, newConfig)
-            );
-          }
-        } catch (rejectedError) {
-          promise = Promise.reject(rejectedError);
-        }
+        onRejected.call(this, error);
         break;
       }
     }
-    if (!promise) {
-      try {
-        promise = dispatchRequest.call(this, newConfig);
-      } catch (error) {
-        promise = Promise.reject(error);
-      }
+    try {
+      promise = dispatchRequest.call(this, newConfig);
+    } catch (error) {
+      return Promise.reject(error);
     }
     i = 0;
     len = responseInterceptorChain.length;
@@ -15677,40 +14781,34 @@ let Axios$1 = class Axios {
   }
   getUri(config) {
     config = mergeConfig$1(this.defaults, config);
-    const fullPath = buildFullPath(config.baseURL, config.url, config.allowAbsoluteUrls, config);
+    const fullPath = buildFullPath(config.baseURL, config.url, config.allowAbsoluteUrls);
     return buildURL(fullPath, config.params, config.paramsSerializer);
   }
 };
 utils$1.forEach(["delete", "get", "head", "options"], function forEachMethodNoData(method) {
   Axios$1.prototype[method] = function(url, config) {
-    return this.request(
-      mergeConfig$1(config || {}, {
-        method,
-        url,
-        data: config && utils$1.hasOwnProp(config, "data") ? config.data : void 0
-      })
-    );
+    return this.request(mergeConfig$1(config || {}, {
+      method,
+      url,
+      data: (config || {}).data
+    }));
   };
 });
-utils$1.forEach(["post", "put", "patch", "query"], function forEachMethodWithData(method) {
+utils$1.forEach(["post", "put", "patch"], function forEachMethodWithData(method) {
   function generateHTTPMethod(isForm) {
     return function httpMethod(url, data, config) {
-      return this.request(
-        mergeConfig$1(config || {}, {
-          method,
-          headers: isForm ? {
-            "Content-Type": "multipart/form-data"
-          } : {},
-          url,
-          data
-        })
-      );
+      return this.request(mergeConfig$1(config || {}, {
+        method,
+        headers: isForm ? {
+          "Content-Type": "multipart/form-data"
+        } : {},
+        url,
+        data
+      }));
     };
   }
   Axios$1.prototype[method] = generateHTTPMethod();
-  if (method !== "query") {
-    Axios$1.prototype[method + "Form"] = generateHTTPMethod(true);
-  }
+  Axios$1.prototype[method + "Form"] = generateHTTPMethod(true);
 });
 let CancelToken$1 = class CancelToken {
   constructor(executor) {
@@ -15879,7 +14977,6 @@ const HttpStatusCode$1 = {
   LoopDetected: 508,
   NotExtended: 510,
   NetworkAuthenticationRequired: 511,
-  WebServerReturnsAnUnknownError: 520,
   WebServerIsDown: 521,
   ConnectionTimedOut: 522,
   OriginIsUnreachable: 523,
@@ -15895,7 +14992,7 @@ function createInstance(defaultConfig) {
   const instance = bind(Axios$1.prototype.request, context);
   utils$1.extend(instance, Axios$1.prototype, context, { allOwnKeys: true });
   utils$1.extend(instance, context, null, { allOwnKeys: true });
-  instance.create = function create2(instanceConfig) {
+  instance.create = function create(instanceConfig) {
     return createInstance(mergeConfig$1(defaultConfig, instanceConfig));
   };
   return instance;
@@ -15936,8 +15033,7 @@ const {
   HttpStatusCode,
   formToJSON,
   getAdapter,
-  mergeConfig,
-  create
+  mergeConfig
 } = axios;
 const mergeClasses = (...classes) => classes.filter((className, index2, array) => {
   return Boolean(className) && className.trim() !== "" && array.indexOf(className) === index2;
@@ -18870,7 +17966,16 @@ const ru = {
     "saved": "Пиксель сохранён",
     "deleted": "Пиксель удалён",
     "confirmDelete": "Удалить этот пиксель?",
-    "selectPlatform": "Выберите платформу для добавления пикселя"
+    "selectPlatform": "Выберите платформу для добавления пикселя",
+    "capiTitle": "Conversions API (server-side)",
+    "capiHint": "Если указан токен Conversions API, Orbitra отправляет каждую конверсию в Meta с сервера — такие события не теряются на блокировщиках и ограничениях iOS, которые режут браузерный пиксель.",
+    "mapping": "Статус → событие Meta",
+    "doNotSend": "Не отправлять",
+    "testEventCode": "Test event code",
+    "proxy": "Прокси (опционально)",
+    "sendTestEvent": "Отправить тестовое событие",
+    "sending": "Отправка…",
+    "syntheticClick": "(свежего клика с fbclid нет — использован синтетический)"
   },
   "appConfig": {
     "title": "App Config",
@@ -19040,7 +18145,82 @@ const ru = {
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
-    "description": "Импортирует дневной рекламный расход и атрибутирует его к кликам по рекламным ID, которые уже ловят шаблоны источников трафика."
+    "description": "Импортирует дневной рекламный расход и атрибутирует его к кликам по рекламным ID, которые уже ловят шаблоны источников трафика.",
+    "fields": {
+      "fbToken": "Access Token (long-lived / system user)",
+      "fbAdAccount": "ID рекламного кабинета",
+      "fbApiVersion": "Версия Facebook API",
+      "fbAppId": "App ID (опционально, для некоторых токенов)",
+      "fbAppSecret": "App Secret (опционально)",
+      "proxy": "Прокси (опционально) — scheme://user:pass@host:port"
+    }
+  },
+  "fbCosts": {
+    "title": "Facebook Costs",
+    "description": "Импортирует расход из рекламного кабинета Meta и привязывает его к кликам по ad, adset и campaign ID.",
+    "addAccount": "Добавить аккаунт",
+    "editAccount": "Редактировать аккаунт",
+    "findAccount": "Найти аккаунт",
+    "name": "Название",
+    "interval": "Обновлять расходы каждые",
+    "advanced": "Дополнительно: маппинг параметров",
+    "advancedHint": "Нужно, только если трафик идёт через приложение, которое перепаковывает макросы Facebook в sub ID. Оставьте пустым, чтобы использовать стандартные ad_id / adset_id / campaign_id.",
+    "ad_id_param": "Ad ID приходит в параметре",
+    "adset_id_param": "Adset ID приходит в параметре",
+    "campaign_id_param": "Campaign ID приходит в параметре",
+    "defaultVersion": "По умолчанию (самая новая)",
+    "testConnection": "Проверить подключение",
+    "testing": "Проверяем…",
+    "saved": "Аккаунт сохранён",
+    "cloned": "Аккаунт склонирован — копия на паузе, пока вы её не включите",
+    "deleted": "Аккаунт удалён",
+    "confirmDelete": "Удалить этот аккаунт? Импортированный расход останется в отчётах.",
+    "syncNow": "Обновить расходы",
+    "syncedOk": "Синхронизировано: получено записей — {n}, привязано к кликам — {m}.",
+    "syncedNoMatch": "Получено записей: {n}, но привязать не удалось ни одной — проверьте, что ссылка кампании передаёт ad_id / adset_id / campaign_id.",
+    "syncFailed": "Синхронизация не удалась",
+    "nextUpdate": "Следующее обновление",
+    "lastSync": "Последняя синхронизация",
+    "paused": "Остановлено",
+    "pause": "Остановить",
+    "resume": "Возобновить",
+    "clone": "Клонировать",
+    "onNextCron": "При следующем запуске cron",
+    "due": "Пора обновлять",
+    "error": "Ошибка",
+    "ok": "Работает",
+    "neverSynced": "Ещё не синхронизировано",
+    "noAccounts": "Рекламные кабинеты не подключены. Добавьте аккаунт, чтобы импортировать расход из Facebook."
+  },
+  "fbConv": {
+    "title": "Facebook Conversions",
+    "description": "Отправляет конверсии в Meta через Conversions API с сервера — события, заблокированные в браузере, всё равно доходят до оптимизатора.",
+    "addAccount": "Добавить аккаунт",
+    "editAccount": "Редактировать аккаунт",
+    "findAccount": "Поиск по кампании или пикселю",
+    "campaign": "Кампания",
+    "pixelId": "Pixel ID",
+    "token": "Токен конверсий",
+    "tokenHint": "Без токена пиксель остаётся только браузерным. Events Manager → ваш пиксель → Settings → Сгенерировать маркер доступа.",
+    "mapping": "Статус → событие Meta",
+    "doNotSend": "Не отправлять",
+    "testEventCode": "Test event code",
+    "proxy": "Прокси (опционально)",
+    "sendTestEvent": "Отправить тестовое событие",
+    "sending": "Отправка…",
+    "syntheticClick": "(свежего клика с fbclid нет — использован синтетический)",
+    "saved": "Интеграция сохранена",
+    "deleted": "Интеграция удалена",
+    "confirmDelete": "Удалить эту интеграцию?",
+    "paused": "Остановлено",
+    "pause": "Остановить",
+    "resume": "Возобновить",
+    "clone": "Клонировать",
+    "editMapping": "Mapping",
+    "serverSideOn": "Server-side включён",
+    "browserOnly": "Только браузерный пиксель",
+    "defaultMapping": "по умолчанию",
+    "noAccounts": "Ни одна кампания пока не отправляет конверсии в Meta."
   }
 };
 const en = {
@@ -20863,7 +20043,16 @@ const en = {
     "saved": "Pixel saved",
     "deleted": "Pixel deleted",
     "confirmDelete": "Delete this pixel?",
-    "selectPlatform": "Select platform to add pixel"
+    "selectPlatform": "Select platform to add pixel",
+    "capiTitle": "Conversions API (server-side)",
+    "capiHint": "With a Conversions API token set, Orbitra sends each conversion to Meta from the server — these events survive ad blockers and iOS restrictions that stop the browser pixel.",
+    "mapping": "Status → Meta event",
+    "doNotSend": "Do not send",
+    "testEventCode": "Test event code",
+    "proxy": "Proxy (optional)",
+    "sendTestEvent": "Send test event",
+    "sending": "Sending…",
+    "syntheticClick": "(no recent click with fbclid — a synthetic one was used)"
   },
   "appConfig": {
     "title": "App Config",
@@ -21233,7 +20422,82 @@ const en = {
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
-    "description": "Import daily ad spend and attribute it to clicks by the ad IDs your traffic-source templates already capture."
+    "description": "Import daily ad spend and attribute it to clicks by the ad IDs your traffic-source templates already capture.",
+    "fields": {
+      "fbToken": "Access Token (long-lived / system user)",
+      "fbAdAccount": "Ad Account ID",
+      "fbApiVersion": "Facebook API version",
+      "fbAppId": "App ID (optional, for some tokens)",
+      "fbAppSecret": "App Secret (optional)",
+      "proxy": "Proxy (optional) — scheme://user:pass@host:port"
+    }
+  },
+  "fbCosts": {
+    "title": "Facebook Costs",
+    "description": "Imports ad spend from a Meta ad account and attributes it to clicks by ad, adset and campaign ID.",
+    "addAccount": "Add account",
+    "editAccount": "Edit account",
+    "findAccount": "Find account",
+    "name": "Name",
+    "interval": "Update spend every",
+    "advanced": "Advanced: parameter mapping",
+    "advancedHint": "Only needed when traffic passes through an app that repacks the Facebook macros into sub IDs. Leave empty to use the standard ad_id / adset_id / campaign_id.",
+    "ad_id_param": "Ad ID arrives in parameter",
+    "adset_id_param": "Adset ID arrives in parameter",
+    "campaign_id_param": "Campaign ID arrives in parameter",
+    "defaultVersion": "Default (newest supported)",
+    "testConnection": "Test connection",
+    "testing": "Testing…",
+    "saved": "Account saved",
+    "cloned": "Account cloned — the copy is paused until you enable it",
+    "deleted": "Account deleted",
+    "confirmDelete": "Delete this account? Imported spend stays in reports.",
+    "syncNow": "Update spend",
+    "syncedOk": "Synced: {n} record(s) fetched, {m} attributed to clicks.",
+    "syncedNoMatch": "Fetched {n} record(s) but matched 0 clicks — check that the campaign URL passes ad_id / adset_id / campaign_id.",
+    "syncFailed": "Sync failed",
+    "nextUpdate": "Next update",
+    "lastSync": "Last sync",
+    "paused": "Paused",
+    "pause": "Pause",
+    "resume": "Resume",
+    "clone": "Clone",
+    "onNextCron": "On the next cron run",
+    "due": "Due now",
+    "error": "Error",
+    "ok": "OK",
+    "neverSynced": "Never synced",
+    "noAccounts": "No ad accounts connected yet. Add one to import spend from Facebook."
+  },
+  "fbConv": {
+    "title": "Facebook Conversions",
+    "description": "Sends conversions to Meta through the Conversions API, server-side, so events blocked in the browser still reach the optimiser.",
+    "addAccount": "Add account",
+    "editAccount": "Edit account",
+    "findAccount": "Find by campaign or pixel",
+    "campaign": "Campaign",
+    "pixelId": "Pixel ID",
+    "token": "Conversions API token",
+    "tokenHint": "Without a token the pixel stays browser-only. Events Manager → your pixel → Settings → Generate access token.",
+    "mapping": "Status → Meta event",
+    "doNotSend": "Do not send",
+    "testEventCode": "Test event code",
+    "proxy": "Proxy (optional)",
+    "sendTestEvent": "Send test event",
+    "sending": "Sending…",
+    "syntheticClick": "(no recent click with fbclid — a synthetic one was used)",
+    "saved": "Integration saved",
+    "deleted": "Integration deleted",
+    "confirmDelete": "Delete this integration?",
+    "paused": "Paused",
+    "pause": "Pause",
+    "resume": "Resume",
+    "clone": "Clone",
+    "editMapping": "Mapping",
+    "serverSideOn": "Server-side on",
+    "browserOnly": "Browser pixel only",
+    "defaultMapping": "default",
+    "noAccounts": "No campaigns are sending conversions to Meta yet."
   }
 };
 const uk = {
@@ -23056,7 +22320,16 @@ const uk = {
     "saved": "Піксель збережено",
     "deleted": "Піксель видалено",
     "confirmDelete": "Видалити цей піксель?",
-    "selectPlatform": "Виберіть платформу, щоб додати піксель"
+    "selectPlatform": "Виберіть платформу, щоб додати піксель",
+    "capiTitle": "Conversions API (server-side)",
+    "capiHint": "Якщо вказано токен Conversions API, Orbitra надсилає кожну конверсію в Meta з сервера — такі події не губляться на блокувальниках і обмеженнях iOS, які ріжуть браузерний піксель.",
+    "mapping": "Статус → подія Meta",
+    "doNotSend": "Не надсилати",
+    "testEventCode": "Test event code",
+    "proxy": "Проксі (опційно)",
+    "sendTestEvent": "Надіслати тестову подію",
+    "sending": "Надсилання…",
+    "syntheticClick": "(свіжого кліку з fbclid немає — використано синтетичний)"
   },
   "appConfig": {
     "title": "Конфігурація програми",
@@ -23426,7 +22699,82 @@ const uk = {
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
-    "description": "Імпортує денну рекламну витрату і атрибутує її до кліків за рекламними ID, які вже ловлять шаблони джерел трафіку."
+    "description": "Імпортує денну рекламну витрату і атрибутує її до кліків за рекламними ID, які вже ловлять шаблони джерел трафіку.",
+    "fields": {
+      "fbToken": "Access Token (long-lived / system user)",
+      "fbAdAccount": "ID рекламного кабінету",
+      "fbApiVersion": "Версія Facebook API",
+      "fbAppId": "App ID (опційно, для деяких токенів)",
+      "fbAppSecret": "App Secret (опційно)",
+      "proxy": "Проксі (опційно) — scheme://user:pass@host:port"
+    }
+  },
+  "fbCosts": {
+    "title": "Facebook Costs",
+    "description": "Імпортує витрати з рекламного кабінету Meta та прив’язує їх до кліків за ad, adset і campaign ID.",
+    "addAccount": "Додати акаунт",
+    "editAccount": "Редагувати акаунт",
+    "findAccount": "Знайти акаунт",
+    "name": "Назва",
+    "interval": "Оновлювати витрати кожні",
+    "advanced": "Додатково: мапінг параметрів",
+    "advancedHint": "Потрібно лише якщо трафік іде через застосунок, який перепаковує макроси Facebook у sub ID. Залиште порожнім, щоб використовувати стандартні ad_id / adset_id / campaign_id.",
+    "ad_id_param": "Ad ID надходить у параметрі",
+    "adset_id_param": "Adset ID надходить у параметрі",
+    "campaign_id_param": "Campaign ID надходить у параметрі",
+    "defaultVersion": "За замовчуванням (найновіша)",
+    "testConnection": "Перевірити підключення",
+    "testing": "Перевіряємо…",
+    "saved": "Акаунт збережено",
+    "cloned": "Акаунт склоновано — копія на паузі, доки ви її не увімкнете",
+    "deleted": "Акаунт видалено",
+    "confirmDelete": "Видалити цей акаунт? Імпортовані витрати залишаться у звітах.",
+    "syncNow": "Оновити витрати",
+    "syncedOk": "Синхронізовано: отримано записів — {n}, прив’язано до кліків — {m}.",
+    "syncedNoMatch": "Отримано записів: {n}, але прив’язати не вдалося жодного — перевірте, що посилання кампанії передає ad_id / adset_id / campaign_id.",
+    "syncFailed": "Синхронізація не вдалася",
+    "nextUpdate": "Наступне оновлення",
+    "lastSync": "Остання синхронізація",
+    "paused": "Зупинено",
+    "pause": "Зупинити",
+    "resume": "Відновити",
+    "clone": "Клонувати",
+    "onNextCron": "На наступному запуску cron",
+    "due": "Час оновити",
+    "error": "Помилка",
+    "ok": "Працює",
+    "neverSynced": "Ще не синхронізовано",
+    "noAccounts": "Рекламні кабінети не підключені. Додайте акаунт, щоб імпортувати витрати з Facebook."
+  },
+  "fbConv": {
+    "title": "Facebook Conversions",
+    "description": "Надсилає конверсії в Meta через Conversions API з сервера — події, заблоковані в браузері, все одно доходять до оптимізатора.",
+    "addAccount": "Додати акаунт",
+    "editAccount": "Редагувати акаунт",
+    "findAccount": "Пошук за кампанією або пікселем",
+    "campaign": "Кампанія",
+    "pixelId": "Pixel ID",
+    "token": "Токен конверсій",
+    "tokenHint": "Без токена піксель залишається лише браузерним. Events Manager → ваш піксель → Settings → Згенерувати маркер доступу.",
+    "mapping": "Статус → подія Meta",
+    "doNotSend": "Не надсилати",
+    "testEventCode": "Test event code",
+    "proxy": "Проксі (опційно)",
+    "sendTestEvent": "Надіслати тестову подію",
+    "sending": "Надсилання…",
+    "syntheticClick": "(свіжого кліку з fbclid немає — використано синтетичний)",
+    "saved": "Інтеграцію збережено",
+    "deleted": "Інтеграцію видалено",
+    "confirmDelete": "Видалити цю інтеграцію?",
+    "paused": "Зупинено",
+    "pause": "Зупинити",
+    "resume": "Відновити",
+    "clone": "Клонувати",
+    "editMapping": "Mapping",
+    "serverSideOn": "Server-side увімкнено",
+    "browserOnly": "Лише браузерний піксель",
+    "defaultMapping": "за замовчуванням",
+    "noAccounts": "Жодна кампанія поки не надсилає конверсії в Meta."
   }
 };
 const es = {
@@ -25249,7 +24597,16 @@ const es = {
     "saved": "Píxel guardado",
     "deleted": "Píxel eliminado",
     "confirmDelete": "¿Eliminar este píxel?",
-    "selectPlatform": "Seleccione la plataforma para agregar píxeles"
+    "selectPlatform": "Seleccione la plataforma para agregar píxeles",
+    "capiTitle": "Conversions API (lado del servidor)",
+    "capiHint": "Con un token de Conversions API configurado, Orbitra envía cada conversión a Meta desde el servidor — estos eventos sobreviven a los bloqueadores de anuncios y a las restricciones de iOS que detienen el píxel del navegador.",
+    "mapping": "Estado → evento de Meta",
+    "doNotSend": "No enviar",
+    "testEventCode": "Código de evento de prueba",
+    "proxy": "Proxy (opcional)",
+    "sendTestEvent": "Enviar evento de prueba",
+    "sending": "Enviando…",
+    "syntheticClick": "(no hay clic reciente con fbclid — se usó uno sintético)"
   },
   "appConfig": {
     "title": "Configuración de la aplicación",
@@ -25619,7 +24976,82 @@ const es = {
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
-    "description": "Importa el gasto publicitario diario y lo atribuye a los clics por los IDs de anuncio que tus plantillas de fuente de tráfico ya capturan."
+    "description": "Importa el gasto publicitario diario y lo atribuye a los clics por los IDs de anuncio que tus plantillas de fuente de tráfico ya capturan.",
+    "fields": {
+      "fbToken": "Access Token (de larga duración / usuario de sistema)",
+      "fbAdAccount": "ID de la cuenta publicitaria",
+      "fbApiVersion": "Versión de la API de Facebook",
+      "fbAppId": "App ID (opcional, para algunos tokens)",
+      "fbAppSecret": "App Secret (opcional)",
+      "proxy": "Proxy (opcional) — scheme://user:pass@host:port"
+    }
+  },
+  "fbCosts": {
+    "title": "Facebook Costs",
+    "description": "Importa el gasto publicitario de una cuenta de Meta y lo atribuye a los clics por ad, adset y campaign ID.",
+    "addAccount": "Añadir cuenta",
+    "editAccount": "Editar cuenta",
+    "findAccount": "Buscar cuenta",
+    "name": "Nombre",
+    "interval": "Actualizar gasto cada",
+    "advanced": "Avanzado: mapeo de parámetros",
+    "advancedHint": "Solo necesario cuando el tráfico pasa por una app que reempaqueta las macros de Facebook en sub IDs. Déjalo vacío para usar ad_id / adset_id / campaign_id estándar.",
+    "ad_id_param": "El Ad ID llega en el parámetro",
+    "adset_id_param": "El Adset ID llega en el parámetro",
+    "campaign_id_param": "El Campaign ID llega en el parámetro",
+    "defaultVersion": "Por defecto (la más reciente)",
+    "testConnection": "Probar conexión",
+    "testing": "Probando…",
+    "saved": "Cuenta guardada",
+    "cloned": "Cuenta clonada — la copia está pausada hasta que la actives",
+    "deleted": "Cuenta eliminada",
+    "confirmDelete": "¿Eliminar esta cuenta? El gasto importado permanece en los informes.",
+    "syncNow": "Actualizar gasto",
+    "syncedOk": "Sincronizado: {n} registro(s) obtenidos, {m} atribuidos a clics.",
+    "syncedNoMatch": "Se obtuvieron {n} registro(s) pero no se emparejó ningún clic — comprueba que la URL de la campaña pasa ad_id / adset_id / campaign_id.",
+    "syncFailed": "Fallo en la sincronización",
+    "nextUpdate": "Próxima actualización",
+    "lastSync": "Última sincronización",
+    "paused": "Pausado",
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "clone": "Clonar",
+    "onNextCron": "En la próxima ejecución de cron",
+    "due": "Pendiente ahora",
+    "error": "Error",
+    "ok": "Correcto",
+    "neverSynced": "Nunca sincronizado",
+    "noAccounts": "No hay cuentas publicitarias conectadas. Añade una para importar el gasto de Facebook."
+  },
+  "fbConv": {
+    "title": "Facebook Conversions",
+    "description": "Envía conversiones a Meta mediante la Conversions API desde el servidor, para que los eventos bloqueados en el navegador lleguen al optimizador.",
+    "addAccount": "Añadir cuenta",
+    "editAccount": "Editar cuenta",
+    "findAccount": "Buscar por campaña o píxel",
+    "campaign": "Campaña",
+    "pixelId": "Pixel ID",
+    "token": "Token de Conversions API",
+    "tokenHint": "Sin token el píxel se queda solo en el navegador. Events Manager → tu píxel → Settings → Generar token de acceso.",
+    "mapping": "Estado → evento de Meta",
+    "doNotSend": "No enviar",
+    "testEventCode": "Código de evento de prueba",
+    "proxy": "Proxy (opcional)",
+    "sendTestEvent": "Enviar evento de prueba",
+    "sending": "Enviando…",
+    "syntheticClick": "(no hay clic reciente con fbclid — se usó uno sintético)",
+    "saved": "Integración guardada",
+    "deleted": "Integración eliminada",
+    "confirmDelete": "¿Eliminar esta integración?",
+    "paused": "Pausado",
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "clone": "Clonar",
+    "editMapping": "Mapeo",
+    "serverSideOn": "Lado del servidor activo",
+    "browserOnly": "Solo píxel de navegador",
+    "defaultMapping": "por defecto",
+    "noAccounts": "Ninguna campaña envía todavía conversiones a Meta."
   }
 };
 const zh = {
@@ -27442,7 +26874,16 @@ const zh = {
     "saved": "已保存像素",
     "deleted": "像素已删除",
     "confirmDelete": "删除这个像素？",
-    "selectPlatform": "选择添加像素的平台"
+    "selectPlatform": "选择添加像素的平台",
+    "capiTitle": "Conversions API（服务器端）",
+    "capiHint": "设置 Conversions API 令牌后，Orbitra 会从服务器将每次转化发送给 Meta — 这些事件不会被广告拦截器和 iOS 限制拦截，而浏览器像素会被拦截。",
+    "mapping": "状态 → Meta 事件",
+    "doNotSend": "不发送",
+    "testEventCode": "测试事件代码",
+    "proxy": "代理（可选）",
+    "sendTestEvent": "发送测试事件",
+    "sending": "发送中…",
+    "syntheticClick": "（没有带 fbclid 的近期点击 — 已使用合成点击）"
   },
   "appConfig": {
     "title": "应用程序配置",
@@ -27812,7 +27253,82 @@ const zh = {
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
-    "description": "导入每日广告支出，并通过流量来源模板已捕获的广告 ID 将其归因到点击。"
+    "description": "导入每日广告支出，并通过流量来源模板已捕获的广告 ID 将其归因到点击。",
+    "fields": {
+      "fbToken": "访问令牌（长期 / 系统用户）",
+      "fbAdAccount": "广告账户 ID",
+      "fbApiVersion": "Facebook API 版本",
+      "fbAppId": "App ID（可选，部分令牌需要）",
+      "fbAppSecret": "App Secret（可选）",
+      "proxy": "代理（可选）— scheme://user:pass@host:port"
+    }
+  },
+  "fbCosts": {
+    "title": "Facebook Costs",
+    "description": "从 Meta 广告账户导入广告支出，并按广告、广告组和广告系列 ID 归因到点击。",
+    "addAccount": "添加账户",
+    "editAccount": "编辑账户",
+    "findAccount": "查找账户",
+    "name": "名称",
+    "interval": "支出更新频率",
+    "advanced": "高级：参数映射",
+    "advancedHint": "仅当流量经过将 Facebook 宏重新打包为 sub ID 的应用时才需要。留空则使用标准的 ad_id / adset_id / campaign_id。",
+    "ad_id_param": "广告 ID 所在参数",
+    "adset_id_param": "广告组 ID 所在参数",
+    "campaign_id_param": "广告系列 ID 所在参数",
+    "defaultVersion": "默认（最新版本）",
+    "testConnection": "测试连接",
+    "testing": "测试中…",
+    "saved": "账户已保存",
+    "cloned": "账户已克隆 — 副本处于暂停状态，直到你启用它",
+    "deleted": "账户已删除",
+    "confirmDelete": "删除此账户？已导入的支出仍保留在报表中。",
+    "syncNow": "更新支出",
+    "syncedOk": "已同步：获取 {n} 条记录，{m} 条归因到点击。",
+    "syncedNoMatch": "获取了 {n} 条记录，但没有匹配到任何点击 — 请检查广告系列链接是否传递了 ad_id / adset_id / campaign_id。",
+    "syncFailed": "同步失败",
+    "nextUpdate": "下次更新",
+    "lastSync": "上次同步",
+    "paused": "已暂停",
+    "pause": "暂停",
+    "resume": "恢复",
+    "clone": "克隆",
+    "onNextCron": "在下次 cron 运行时",
+    "due": "现在到期",
+    "error": "错误",
+    "ok": "正常",
+    "neverSynced": "从未同步",
+    "noAccounts": "尚未连接广告账户。添加一个以从 Facebook 导入支出。"
+  },
+  "fbConv": {
+    "title": "Facebook Conversions",
+    "description": "通过 Conversions API 从服务器端将转化发送给 Meta，让浏览器中被拦截的事件仍能到达优化器。",
+    "addAccount": "添加账户",
+    "editAccount": "编辑账户",
+    "findAccount": "按广告系列或像素搜索",
+    "campaign": "广告系列",
+    "pixelId": "像素 ID",
+    "token": "Conversions API 令牌",
+    "tokenHint": "没有令牌，像素只在浏览器端工作。Events Manager → 你的像素 → Settings → 生成访问令牌。",
+    "mapping": "状态 → Meta 事件",
+    "doNotSend": "不发送",
+    "testEventCode": "测试事件代码",
+    "proxy": "代理（可选）",
+    "sendTestEvent": "发送测试事件",
+    "sending": "发送中…",
+    "syntheticClick": "（没有带 fbclid 的近期点击 — 已使用合成点击）",
+    "saved": "集成已保存",
+    "deleted": "集成已删除",
+    "confirmDelete": "删除此集成？",
+    "paused": "已暂停",
+    "pause": "暂停",
+    "resume": "恢复",
+    "clone": "克隆",
+    "editMapping": "映射",
+    "serverSideOn": "服务器端已开启",
+    "browserOnly": "仅浏览器像素",
+    "defaultMapping": "默认",
+    "noAccounts": "还没有广告系列向 Meta 发送转化。"
   }
 };
 const fr = {
@@ -29635,7 +29151,16 @@ const fr = {
     "saved": "Pixel enregistré",
     "deleted": "Pixel supprimé",
     "confirmDelete": "Supprimer ce pixel ?",
-    "selectPlatform": "Sélectionner la plate-forme pour ajouter un pixel"
+    "selectPlatform": "Sélectionner la plate-forme pour ajouter un pixel",
+    "capiTitle": "Conversions API (côté serveur)",
+    "capiHint": "Avec un jeton Conversions API renseigné, Orbitra envoie chaque conversion à Meta depuis le serveur — ces événements survivent aux bloqueurs de publicité et aux restrictions iOS qui bloquent le pixel navigateur.",
+    "mapping": "Statut → événement Meta",
+    "doNotSend": "Ne pas envoyer",
+    "testEventCode": "Code d'événement de test",
+    "proxy": "Proxy (optionnel)",
+    "sendTestEvent": "Envoyer un événement de test",
+    "sending": "Envoi…",
+    "syntheticClick": "(aucun clic récent avec fbclid — un clic synthétique a été utilisé)"
   },
   "appConfig": {
     "title": "Configuration de l'application",
@@ -30007,7 +29532,82 @@ const fr = {
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
-    "description": "Importe les dépenses publicitaires quotidiennes et les attribue aux clics via les IDs d'annonce que vos modèles de source de trafic capturent déjà."
+    "description": "Importe les dépenses publicitaires quotidiennes et les attribue aux clics via les IDs d'annonce que vos modèles de source de trafic capturent déjà.",
+    "fields": {
+      "fbToken": "Access Token (longue durée / utilisateur système)",
+      "fbAdAccount": "ID du compte publicitaire",
+      "fbApiVersion": "Version de l'API Facebook",
+      "fbAppId": "App ID (optionnel, pour certains jetons)",
+      "fbAppSecret": "App Secret (optionnel)",
+      "proxy": "Proxy (optionnel) — scheme://user:pass@host:port"
+    }
+  },
+  "fbCosts": {
+    "title": "Facebook Costs",
+    "description": "Importe les dépenses publicitaires d’un compte Meta et les attribue aux clics via les ID d’annonce, d’adset et de campagne.",
+    "addAccount": "Ajouter un compte",
+    "editAccount": "Modifier le compte",
+    "findAccount": "Rechercher un compte",
+    "name": "Nom",
+    "interval": "Actualiser les dépenses toutes les",
+    "advanced": "Avancé : mappage des paramètres",
+    "advancedHint": "Nécessaire uniquement si le trafic passe par une application qui réencapsule les macros Facebook dans des sub ID. Laissez vide pour utiliser ad_id / adset_id / campaign_id.",
+    "ad_id_param": "L’Ad ID arrive dans le paramètre",
+    "adset_id_param": "L’Adset ID arrive dans le paramètre",
+    "campaign_id_param": "Le Campaign ID arrive dans le paramètre",
+    "defaultVersion": "Par défaut (la plus récente)",
+    "testConnection": "Tester la connexion",
+    "testing": "Test en cours…",
+    "saved": "Compte enregistré",
+    "cloned": "Compte cloné — la copie est en pause jusqu’à ce que vous l’activiez",
+    "deleted": "Compte supprimé",
+    "confirmDelete": "Supprimer ce compte ? Les dépenses importées restent dans les rapports.",
+    "syncNow": "Actualiser les dépenses",
+    "syncedOk": "Synchronisé : {n} enregistrement(s) récupéré(s), {m} attribué(s) à des clics.",
+    "syncedNoMatch": "{n} enregistrement(s) récupéré(s) mais aucun clic associé — vérifiez que l’URL de la campagne transmet ad_id / adset_id / campaign_id.",
+    "syncFailed": "Échec de la synchronisation",
+    "nextUpdate": "Prochaine mise à jour",
+    "lastSync": "Dernière synchronisation",
+    "paused": "En pause",
+    "pause": "Mettre en pause",
+    "resume": "Reprendre",
+    "clone": "Cloner",
+    "onNextCron": "Au prochain passage du cron",
+    "due": "À faire maintenant",
+    "error": "Erreur",
+    "ok": "OK",
+    "neverSynced": "Jamais synchronisé",
+    "noAccounts": "Aucun compte publicitaire connecté. Ajoutez-en un pour importer les dépenses depuis Facebook."
+  },
+  "fbConv": {
+    "title": "Facebook Conversions",
+    "description": "Envoie les conversions à Meta via la Conversions API côté serveur, pour que les événements bloqués dans le navigateur atteignent quand même l’optimiseur.",
+    "addAccount": "Ajouter un compte",
+    "editAccount": "Modifier le compte",
+    "findAccount": "Rechercher par campagne ou pixel",
+    "campaign": "Campagne",
+    "pixelId": "Pixel ID",
+    "token": "Jeton Conversions API",
+    "tokenHint": "Sans jeton, le pixel reste uniquement navigateur. Events Manager → votre pixel → Settings → Générer un jeton d’accès.",
+    "mapping": "Statut → événement Meta",
+    "doNotSend": "Ne pas envoyer",
+    "testEventCode": "Code d’événement de test",
+    "proxy": "Proxy (optionnel)",
+    "sendTestEvent": "Envoyer un événement de test",
+    "sending": "Envoi…",
+    "syntheticClick": "(aucun clic récent avec fbclid — un clic synthétique a été utilisé)",
+    "saved": "Intégration enregistrée",
+    "deleted": "Intégration supprimée",
+    "confirmDelete": "Supprimer cette intégration ?",
+    "paused": "En pause",
+    "pause": "Mettre en pause",
+    "resume": "Reprendre",
+    "clone": "Cloner",
+    "editMapping": "Mappage",
+    "serverSideOn": "Côté serveur actif",
+    "browserOnly": "Pixel navigateur uniquement",
+    "defaultMapping": "par défaut",
+    "noAccounts": "Aucune campagne n’envoie encore de conversions à Meta."
   }
 };
 const de = {
@@ -31830,7 +31430,16 @@ const de = {
     "saved": "Pixel gespeichert",
     "deleted": "Pixel gelöscht",
     "confirmDelete": "Dieses Pixel löschen?",
-    "selectPlatform": "Plattform zum Hinzufügen des Pixels auswählen"
+    "selectPlatform": "Plattform zum Hinzufügen des Pixels auswählen",
+    "capiTitle": "Conversions API (serverseitig)",
+    "capiHint": "Mit einem Conversions-API-Token sendet Orbitra jede Conversion serverseitig an Meta — diese Ereignisse überstehen Adblocker und iOS-Einschränkungen, die das Browser-Pixel blockieren.",
+    "mapping": "Status → Meta-Ereignis",
+    "doNotSend": "Nicht senden",
+    "testEventCode": "Test-Event-Code",
+    "proxy": "Proxy (optional)",
+    "sendTestEvent": "Testereignis senden",
+    "sending": "Wird gesendet…",
+    "syntheticClick": "(kein aktueller Klick mit fbclid — ein synthetischer wurde verwendet)"
   },
   "appConfig": {
     "title": "App-Konfiguration",
@@ -32200,7 +31809,82 @@ const de = {
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
-    "description": "Importiert tägliche Werbeausgaben und ordnet sie Klicks über die Anzeigen-IDs zu, die Ihre Traffic-Quell-Vorlagen bereits erfassen."
+    "description": "Importiert tägliche Werbeausgaben und ordnet sie Klicks über die Anzeigen-IDs zu, die Ihre Traffic-Quell-Vorlagen bereits erfassen.",
+    "fields": {
+      "fbToken": "Access Token (langlebig / System-User)",
+      "fbAdAccount": "Werbekonto-ID",
+      "fbApiVersion": "Facebook-API-Version",
+      "fbAppId": "App-ID (optional, für manche Token)",
+      "fbAppSecret": "App Secret (optional)",
+      "proxy": "Proxy (optional) — scheme://user:pass@host:port"
+    }
+  },
+  "fbCosts": {
+    "title": "Facebook Costs",
+    "description": "Importiert Werbeausgaben aus einem Meta-Werbekonto und ordnet sie Klicks über Ad-, Adset- und Campaign-ID zu.",
+    "addAccount": "Konto hinzufügen",
+    "editAccount": "Konto bearbeiten",
+    "findAccount": "Konto suchen",
+    "name": "Name",
+    "interval": "Ausgaben aktualisieren alle",
+    "advanced": "Erweitert: Parameter-Mapping",
+    "advancedHint": "Nur nötig, wenn der Traffic über eine App läuft, die die Facebook-Makros in Sub-IDs umpackt. Leer lassen für die Standardwerte ad_id / adset_id / campaign_id.",
+    "ad_id_param": "Ad-ID kommt im Parameter",
+    "adset_id_param": "Adset-ID kommt im Parameter",
+    "campaign_id_param": "Campaign-ID kommt im Parameter",
+    "defaultVersion": "Standard (neueste)",
+    "testConnection": "Verbindung testen",
+    "testing": "Wird getestet…",
+    "saved": "Konto gespeichert",
+    "cloned": "Konto geklont — die Kopie ist pausiert, bis Sie sie aktivieren",
+    "deleted": "Konto gelöscht",
+    "confirmDelete": "Dieses Konto löschen? Importierte Ausgaben bleiben in den Berichten.",
+    "syncNow": "Ausgaben aktualisieren",
+    "syncedOk": "Synchronisiert: {n} Datensätze abgerufen, {m} Klicks zugeordnet.",
+    "syncedNoMatch": "{n} Datensätze abgerufen, aber kein Klick zugeordnet — prüfen Sie, ob die Kampagnen-URL ad_id / adset_id / campaign_id übergibt.",
+    "syncFailed": "Synchronisierung fehlgeschlagen",
+    "nextUpdate": "Nächste Aktualisierung",
+    "lastSync": "Letzte Synchronisierung",
+    "paused": "Pausiert",
+    "pause": "Pausieren",
+    "resume": "Fortsetzen",
+    "clone": "Klonen",
+    "onNextCron": "Beim nächsten Cron-Lauf",
+    "due": "Jetzt fällig",
+    "error": "Fehler",
+    "ok": "OK",
+    "neverSynced": "Nie synchronisiert",
+    "noAccounts": "Keine Werbekonten verbunden. Fügen Sie eines hinzu, um Ausgaben aus Facebook zu importieren."
+  },
+  "fbConv": {
+    "title": "Facebook Conversions",
+    "description": "Sendet Conversions serverseitig über die Conversions API an Meta, sodass im Browser blockierte Ereignisse den Optimierer trotzdem erreichen.",
+    "addAccount": "Konto hinzufügen",
+    "editAccount": "Konto bearbeiten",
+    "findAccount": "Nach Kampagne oder Pixel suchen",
+    "campaign": "Kampagne",
+    "pixelId": "Pixel-ID",
+    "token": "Conversions-API-Token",
+    "tokenHint": "Ohne Token bleibt das Pixel rein browserseitig. Events Manager → Ihr Pixel → Settings → Zugriffstoken generieren.",
+    "mapping": "Status → Meta-Ereignis",
+    "doNotSend": "Nicht senden",
+    "testEventCode": "Test-Event-Code",
+    "proxy": "Proxy (optional)",
+    "sendTestEvent": "Testereignis senden",
+    "sending": "Wird gesendet…",
+    "syntheticClick": "(kein aktueller Klick mit fbclid — ein synthetischer wurde verwendet)",
+    "saved": "Integration gespeichert",
+    "deleted": "Integration gelöscht",
+    "confirmDelete": "Diese Integration löschen?",
+    "paused": "Pausiert",
+    "pause": "Pausieren",
+    "resume": "Fortsetzen",
+    "clone": "Klonen",
+    "editMapping": "Mapping",
+    "serverSideOn": "Serverseitig aktiv",
+    "browserOnly": "Nur Browser-Pixel",
+    "defaultMapping": "Standard",
+    "noAccounts": "Noch sendet keine Kampagne Conversions an Meta."
   }
 };
 const translations = { ru, en, uk, es, zh, fr, de };
@@ -55532,6 +55216,43 @@ const IntegrationsPage = () => {
   const [configForm, setConfigForm] = reactExports.useState({ name: "", campaign_id: "", config_json: "", is_active: 1 });
   const [campaigns, setCampaigns] = reactExports.useState([]);
   const [configMessage, setConfigMessage] = reactExports.useState(null);
+  const emptyFbForm = {
+    name: "",
+    sync_interval_hours: 2,
+    is_active: 1,
+    credentials: { token: "", ad_account_id: "", api_version: "", proxy_url: "" },
+    field_mapping: { ad_id_param: "", adset_id_param: "", campaign_id_param: "" }
+  };
+  const [fbConnections, setFbConnections] = reactExports.useState([]);
+  const [fbLoading, setFbLoading] = reactExports.useState(false);
+  const [fbSearch, setFbSearch] = reactExports.useState("");
+  const [fbEditing, setFbEditing] = reactExports.useState(null);
+  const [fbForm, setFbForm] = reactExports.useState(emptyFbForm);
+  const [fbFields, setFbFields] = reactExports.useState([]);
+  const [fbTest, setFbTest] = reactExports.useState(null);
+  const [fbTesting, setFbTesting] = reactExports.useState(false);
+  const [fbBusyId, setFbBusyId] = reactExports.useState(null);
+  const [fbMessage, setFbMessage] = reactExports.useState(null);
+  const [fbShowAdvanced, setFbShowAdvanced] = reactExports.useState(false);
+  const emptyCapiForm = {
+    campaign_id: "",
+    pixel_id: "",
+    token: "",
+    events: "PageView,Lead",
+    mapping: {},
+    test_event_code: "",
+    proxy_url: "",
+    is_active: 1
+  };
+  const [capiPixels, setCapiPixels] = reactExports.useState([]);
+  const [capiLoading, setCapiLoading] = reactExports.useState(false);
+  const [capiSearch, setCapiSearch] = reactExports.useState("");
+  const [capiEditing, setCapiEditing] = reactExports.useState(null);
+  const [capiForm, setCapiForm] = reactExports.useState(emptyCapiForm);
+  const [capiMeta, setCapiMeta] = reactExports.useState({ default_mapping: {}, available_events: [] });
+  const [capiTest, setCapiTest] = reactExports.useState(null);
+  const [capiTesting, setCapiTesting] = reactExports.useState(false);
+  const [capiMessage, setCapiMessage] = reactExports.useState(null);
   const [rcSaving, setRcSaving] = reactExports.useState(false);
   const [rcMessage, setRcMessage] = reactExports.useState(null);
   const [rcSettings, setRcSettings] = reactExports.useState({
@@ -55857,6 +55578,729 @@ const IntegrationsPage = () => {
     ] }, cfg.id)),
     configs.length === 0 && !editingConfig && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", padding: "30px 0" }, children: t("appConfig.noConfigsDesc") })
   ] }) });
+  const fetchFbConnections = reactExports.useCallback(async () => {
+    setFbLoading(true);
+    try {
+      const res = await axios.get(`${API_URL$a}?action=aggregator_connections`);
+      if (res.data.status === "success") {
+        setFbConnections((res.data.data || []).filter((c) => c.engine === "facebook"));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setFbLoading(false);
+    }
+  }, []);
+  const fetchFbFields = reactExports.useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_URL$a}?action=aggregator_engine_fields&engine=facebook`);
+      if (res.data.status === "success") setFbFields(res.data.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+  const fetchCapiPixels = reactExports.useCallback(async () => {
+    setCapiLoading(true);
+    try {
+      const res = await axios.get(`${API_URL$a}?action=facebook_capi_list`);
+      if (res.data.status === "success") setCapiPixels(res.data.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCapiLoading(false);
+    }
+  }, []);
+  const fetchCapiMeta = reactExports.useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_URL$a}?action=facebook_capi_meta`);
+      if (res.data.status === "success") setCapiMeta(res.data.data);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+  reactExports.useEffect(() => {
+    if (activeTab === "facebook_costs") {
+      fetchFbConnections();
+      fetchFbFields();
+    }
+    if (activeTab === "facebook_conversions") {
+      fetchCapiPixels();
+      fetchCapiMeta();
+      fetchCampaigns();
+    }
+  }, [activeTab, fetchFbConnections, fetchFbFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns]);
+  const loadFbConnection = async (id) => {
+    try {
+      const res = await axios.get(`${API_URL$a}?action=aggregator_connection_detail&id=${id}`);
+      if (res.data.status !== "success" || !res.data.data) return null;
+      const conn = res.data.data;
+      return {
+        name: conn.name || "",
+        sync_interval_hours: conn.sync_interval_hours || 2,
+        is_active: conn.is_active ? 1 : 0,
+        credentials: { ...emptyFbForm.credentials, ...conn.credentials || {} },
+        field_mapping: { ...emptyFbForm.field_mapping, ...conn.field_mapping || {} }
+      };
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  };
+  const saveFbConnection = async (form, id) => {
+    const payload = {
+      ...form,
+      engine: "facebook",
+      auth_type: "token",
+      deal_type: "cpa",
+      click_id_param: "sub_id"
+    };
+    if (id && id !== "new") payload.id = id;
+    const res = await axios.post(`${API_URL$a}?action=aggregator_connections`, payload);
+    return res.data.status === "success";
+  };
+  const handleFbSave = async () => {
+    if (!fbForm.name || !fbForm.credentials.ad_account_id || !fbForm.credentials.token) return;
+    try {
+      const ok = await saveFbConnection(fbForm, fbEditing);
+      if (ok) {
+        setFbMessage({ type: "success", text: t("fbCosts.saved") });
+        setFbEditing(null);
+        setFbTest(null);
+        fetchFbConnections();
+      }
+    } catch (err) {
+      setFbMessage({ type: "error", text: err.message });
+    }
+  };
+  const handleFbTest = async () => {
+    setFbTesting(true);
+    setFbTest(null);
+    try {
+      const res = await axios.post(`${API_URL$a}?action=aggregator_test_connection`, {
+        engine: "facebook",
+        credentials: fbForm.credentials
+      });
+      setFbTest(res.data.data || { success: false, message: "No response" });
+    } catch (err) {
+      setFbTest({ success: false, message: err.message });
+    } finally {
+      setFbTesting(false);
+    }
+  };
+  const handleFbSyncNow = async (conn) => {
+    setFbBusyId(conn.id);
+    setFbMessage(null);
+    try {
+      const res = await axios.post(`${API_URL$a}?action=aggregator_sync`, {
+        connection_id: conn.id,
+        date_from: new Date(Date.now() - (conn.last_sync_at ? 5 : 30) * 864e5).toISOString().slice(0, 10),
+        date_to: (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)
+      });
+      const d = res.data;
+      if (d.status === "success") {
+        const matched = d.matched ?? d.data?.matched ?? 0;
+        const fetched = d.fetched ?? d.data?.fetched ?? 0;
+        setFbMessage({
+          type: matched === 0 && fetched > 0 ? "error" : "success",
+          text: matched === 0 && fetched > 0 ? t("fbCosts.syncedNoMatch").replace("{n}", fetched) : t("fbCosts.syncedOk").replace("{n}", fetched).replace("{m}", matched)
+        });
+      } else {
+        setFbMessage({ type: "error", text: d.message || t("fbCosts.syncFailed") });
+      }
+      fetchFbConnections();
+    } catch (err) {
+      setFbMessage({ type: "error", text: err.message });
+    } finally {
+      setFbBusyId(null);
+    }
+  };
+  const handleFbToggle = async (conn) => {
+    const full = await loadFbConnection(conn.id);
+    if (!full) return;
+    await saveFbConnection({ ...full, is_active: conn.is_active ? 0 : 1 }, conn.id);
+    fetchFbConnections();
+  };
+  const handleFbClone = async (conn) => {
+    const full = await loadFbConnection(conn.id);
+    if (!full) return;
+    await saveFbConnection({ ...full, name: `${full.name} copy`, is_active: 0 }, "new");
+    setFbMessage({ type: "success", text: t("fbCosts.cloned") });
+    fetchFbConnections();
+  };
+  const handleFbDelete = async (conn) => {
+    if (!confirm(t("fbCosts.confirmDelete"))) return;
+    await axios.post(`${API_URL$a}?action=aggregator_connections`, { action: "delete", id: conn.id });
+    setFbMessage({ type: "success", text: t("fbCosts.deleted") });
+    fetchFbConnections();
+  };
+  const fbNextUpdate = (conn) => {
+    if (!conn.is_active) return t("fbCosts.paused");
+    if (!conn.last_sync_at) return t("fbCosts.onNextCron");
+    const last = (/* @__PURE__ */ new Date(conn.last_sync_at.replace(" ", "T") + "Z")).getTime();
+    const next = last + (conn.sync_interval_hours || 2) * 36e5;
+    const diff = next - Date.now();
+    if (diff <= 0) return t("fbCosts.due");
+    const mins = Math.round(diff / 6e4);
+    return mins >= 60 ? `${Math.floor(mins / 60)} h ${mins % 60} min` : `${mins} min`;
+  };
+  const fbStatusBadge = (conn) => {
+    if (!conn.is_active) return { label: t("fbCosts.paused"), bg: "#e5e7eb", fg: "#374151" };
+    if (conn.last_sync_status === "error") return { label: t("fbCosts.error"), bg: "#fee2e2", fg: "#991b1b" };
+    if (!conn.last_sync_at) return { label: t("fbCosts.neverSynced"), bg: "#fef3c7", fg: "#92400e" };
+    return { label: t("fbCosts.ok"), bg: "#dcfce7", fg: "#166534" };
+  };
+  const renderFacebookCostsPanel = () => {
+    const visible = fbConnections.filter((c) => !fbSearch || (c.name || "").toLowerCase().includes(fbSearch.toLowerCase()));
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: [
+      fbMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        padding: "10px 14px",
+        borderRadius: "10px",
+        fontSize: "13px",
+        marginBottom: "16px",
+        background: fbMessage.type === "success" ? "#dcfce7" : "#fee2e2",
+        color: fbMessage.type === "success" ? "#166534" : "#991b1b",
+        border: `1px solid ${fbMessage.type === "success" ? "#86efac" : "#fca5a5"}`
+      }, children: fbMessage.text }),
+      fbEditing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px solid var(--color-primary)", borderRadius: "16px", padding: "20px", background: "var(--color-bg-card)", maxWidth: "760px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px" }, children: fbEditing === "new" ? t("fbCosts.addAccount") : t("fbCosts.editAccount") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbCosts.name") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                className: "form-input",
+                value: fbForm.name,
+                onChange: (e) => setFbForm({ ...fbForm, name: e.target.value }),
+                placeholder: "Main ad account"
+              }
+            )
+          ] }),
+          fbFields.map((field) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+              field.label_key ? t(field.label_key, field.label) : field.label,
+              field.required && " *"
+            ] }),
+            field.type === "select" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                className: "form-select",
+                value: fbForm.credentials[field.key] || "",
+                onChange: (e) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } }),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("fbCosts.defaultVersion") }),
+                  (field.options || []).map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o, children: o }, o))
+                ]
+              }
+            ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                className: "form-input",
+                type: field.type === "password" ? "password" : "text",
+                value: fbForm.credentials[field.key] || "",
+                placeholder: field.placeholder || "",
+                onChange: (e) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } })
+              }
+            )
+          ] }, field.key)),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbCosts.interval") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "select",
+              {
+                className: "form-select",
+                value: fbForm.sync_interval_hours,
+                onChange: (e) => setFbForm({ ...fbForm, sync_interval_hours: parseInt(e.target.value, 10) }),
+                children: [1, 2, 4, 6, 12, 24].map((h) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: h, children: [
+                  h,
+                  " h"
+                ] }, h))
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => setFbShowAdvanced(!fbShowAdvanced),
+              className: "btn btn-secondary btn-sm",
+              style: { fontSize: "11px" },
+              children: [
+                fbShowAdvanced ? "−" : "+",
+                " ",
+                t("fbCosts.advanced")
+              ]
+            }
+          ),
+          fbShowAdvanced && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px dashed var(--color-border)", borderRadius: "12px", padding: "14px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginBottom: "10px" }, children: t("fbCosts.advancedHint") }),
+            ["ad_id_param", "adset_id_param", "campaign_id_param"].map((key) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "8px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", style: { fontSize: "12px" }, children: t(`fbCosts.${key}`) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  className: "form-input",
+                  type: "text",
+                  value: fbForm.field_mapping[key] || "",
+                  placeholder: key === "adset_id_param" ? "sub_id_3" : "",
+                  onChange: (e) => setFbForm({ ...fbForm, field_mapping: { ...fbForm.field_mapping, [key]: e.target.value } })
+                }
+              )
+            ] }, key))
+          ] }),
+          fbTest && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            padding: "10px 14px",
+            borderRadius: "10px",
+            fontSize: "13px",
+            background: fbTest.success ? "#dcfce7" : "#fee2e2",
+            color: fbTest.success ? "#166534" : "#991b1b",
+            border: `1px solid ${fbTest.success ? "#86efac" : "#fca5a5"}`
+          }, children: fbTest.message }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", justifyContent: "space-between" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: handleFbTest,
+                className: "btn btn-secondary btn-sm",
+                disabled: fbTesting || !fbForm.credentials.token || !fbForm.credentials.ad_account_id,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }),
+                  " ",
+                  fbTesting ? t("fbCosts.testing") : t("fbCosts.testConnection")
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                setFbEditing(null);
+                setFbTest(null);
+              }, className: "btn btn-secondary btn-sm", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
+                " ",
+                t("common.cancel")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: handleFbSave,
+                  className: "btn btn-primary btn-sm",
+                  disabled: !fbForm.name || !fbForm.credentials.token || !fbForm.credentials.ad_account_id,
+                  children: t("common.save")
+                }
+              )
+            ] })
+          ] })
+        ] })
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center", marginBottom: "16px", flexWrap: "wrap" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+          setFbForm(emptyFbForm);
+          setFbTest(null);
+          setFbEditing("new");
+        }, className: "btn btn-primary", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+          " ",
+          t("fbCosts.addAccount")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            className: "form-input",
+            style: { maxWidth: "240px" },
+            placeholder: t("fbCosts.findAccount"),
+            value: fbSearch,
+            onChange: (e) => setFbSearch(e.target.value)
+          }
+        )
+      ] }),
+      fbLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", style: { marginTop: fbEditing ? "20px" : 0 }, children: [
+        visible.map((conn) => {
+          const badge = fbStatusBadge(conn);
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            border: "1px solid var(--color-border)",
+            borderRadius: "16px",
+            padding: "16px",
+            background: conn.is_active ? "var(--color-bg-card)" : "var(--color-bg-soft)",
+            opacity: conn.is_active ? 1 : 0.7
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px", gap: "12px", flexWrap: "wrap" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600, fontSize: "14px" }, children: conn.name }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "12px", color: "var(--color-text-muted)" }, children: [
+                  t("fbCosts.nextUpdate"),
+                  ": ",
+                  fbNextUpdate(conn),
+                  conn.last_sync_at && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    " · ",
+                    t("fbCosts.lastSync"),
+                    ": ",
+                    conn.last_sync_at
+                  ] })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px", padding: "2px 8px", borderRadius: "6px", background: badge.bg, color: badge.fg, whiteSpace: "nowrap" }, children: badge.label })
+            ] }),
+            conn.last_sync_status === "error" && conn.last_sync_error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "#ef4444", marginBottom: "10px", wordBreak: "break-word" }, children: conn.last_sync_error }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "6px", flexWrap: "wrap" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleFbSyncNow(conn), className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, disabled: fbBusyId === conn.id, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 12, className: fbBusyId === conn.id ? "animate-spin" : "" }),
+                " ",
+                t("fbCosts.syncNow")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: async () => {
+                const full = await loadFbConnection(conn.id);
+                if (full) {
+                  setFbForm(full);
+                  setFbTest(null);
+                  setFbEditing(conn.id);
+                }
+              }, className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 12 }),
+                " ",
+                t("common.edit")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleFbToggle(conn), className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Power, { size: 12 }),
+                " ",
+                conn.is_active ? t("fbCosts.pause") : t("fbCosts.resume")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleFbClone(conn), className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 }),
+                " ",
+                t("fbCosts.clone")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleFbDelete(conn), className: "btn btn-secondary btn-sm", style: { fontSize: "11px", color: "#ef4444" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 12 }) })
+            ] })
+          ] }, conn.id);
+        }),
+        visible.length === 0 && !fbEditing && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", padding: "30px 0" }, children: t("fbCosts.noAccounts") })
+      ] })
+    ] });
+  };
+  const handleCapiSave = async () => {
+    if (!capiForm.campaign_id || !capiForm.pixel_id) return;
+    try {
+      const payload = {
+        ...capiForm,
+        type: "facebook",
+        mapping_json: JSON.stringify(capiForm.mapping || {})
+      };
+      if (capiEditing && capiEditing !== "new") payload.id = capiEditing;
+      const res = await axios.post(`${API_URL$a}?action=save_campaign_pixel`, payload);
+      if (res.data.status === "success") {
+        setCapiMessage({ type: "success", text: t("fbConv.saved") });
+        setCapiEditing(null);
+        setCapiTest(null);
+        fetchCapiPixels();
+      } else {
+        setCapiMessage({ type: "error", text: res.data.message });
+      }
+    } catch (err) {
+      setCapiMessage({ type: "error", text: err.message });
+    }
+  };
+  const capiRowToForm = (px) => {
+    let mapping = {};
+    if (px.mapping_json) {
+      try {
+        mapping = JSON.parse(px.mapping_json) || {};
+      } catch {
+        mapping = {};
+      }
+    }
+    return {
+      campaign_id: px.campaign_id || "",
+      pixel_id: px.pixel_id || "",
+      token: px.token || "",
+      events: px.events || "PageView,Lead",
+      mapping,
+      test_event_code: px.test_event_code || "",
+      proxy_url: px.proxy_url || "",
+      is_active: px.is_active ? 1 : 0
+    };
+  };
+  const handleCapiToggle = async (px) => {
+    await axios.post(`${API_URL$a}?action=save_campaign_pixel`, {
+      ...capiRowToForm(px),
+      id: px.id,
+      type: "facebook",
+      mapping_json: px.mapping_json || "{}",
+      is_active: px.is_active ? 0 : 1
+    });
+    fetchCapiPixels();
+  };
+  const handleCapiDelete = async (px) => {
+    if (!confirm(t("fbConv.confirmDelete"))) return;
+    await axios.post(`${API_URL$a}?action=delete_campaign_pixel`, { id: px.id });
+    setCapiMessage({ type: "success", text: t("fbConv.deleted") });
+    fetchCapiPixels();
+  };
+  const handleCapiTest = async () => {
+    setCapiTesting(true);
+    setCapiTest(null);
+    try {
+      const res = await axios.post(`${API_URL$a}?action=facebook_capi_test`, {
+        id: capiEditing && capiEditing !== "new" ? capiEditing : void 0,
+        campaign_id: capiForm.campaign_id,
+        pixel_id: capiForm.pixel_id,
+        token: capiForm.token,
+        test_event_code: capiForm.test_event_code,
+        proxy_url: capiForm.proxy_url,
+        event_name: "Lead"
+      });
+      setCapiTest({
+        ok: res.data.status === "success",
+        message: res.data.message,
+        usedRealClick: res.data.data?.used_real_click
+      });
+    } catch (err) {
+      setCapiTest({ ok: false, message: err.message });
+    } finally {
+      setCapiTesting(false);
+    }
+  };
+  const renderFacebookConversionsPanel = () => {
+    const visible = capiPixels.filter((p) => !capiSearch || (p.campaign_name || "").toLowerCase().includes(capiSearch.toLowerCase()) || (p.pixel_id || "").includes(capiSearch));
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: [
+      capiMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        padding: "10px 14px",
+        borderRadius: "10px",
+        fontSize: "13px",
+        marginBottom: "16px",
+        background: capiMessage.type === "success" ? "#dcfce7" : "#fee2e2",
+        color: capiMessage.type === "success" ? "#166534" : "#991b1b",
+        border: `1px solid ${capiMessage.type === "success" ? "#86efac" : "#fca5a5"}`
+      }, children: capiMessage.text }),
+      capiEditing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px solid var(--color-primary)", borderRadius: "16px", padding: "20px", background: "var(--color-bg-card)", maxWidth: "760px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px" }, children: capiEditing === "new" ? t("fbConv.addAccount") : t("fbConv.editAccount") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+              t("fbConv.campaign"),
+              " *"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                className: "form-select",
+                value: capiForm.campaign_id,
+                onChange: (e) => setCapiForm({ ...capiForm, campaign_id: e.target.value }),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "—" }),
+                  campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: c.id, children: c.name }, c.id))
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+              t("fbConv.pixelId"),
+              " *"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                className: "form-input font-mono",
+                value: capiForm.pixel_id,
+                placeholder: "123456789012345",
+                onChange: (e) => setCapiForm({ ...capiForm, pixel_id: e.target.value })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbConv.token") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "password",
+                className: "form-input font-mono",
+                value: capiForm.token,
+                placeholder: "EAAxxxx...",
+                onChange: (e) => setCapiForm({ ...capiForm, token: e.target.value })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px" }, children: t("fbConv.tokenHint") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbConv.mapping") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gap: "6px" }, children: Object.keys(capiMeta.default_mapping || {}).map((status) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", alignItems: "center" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "12px", color: "var(--color-text-secondary)" }, children: t("conversions." + status, status) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
+                {
+                  className: "form-select",
+                  value: capiForm.mapping?.[status] ?? capiMeta.default_mapping[status] ?? "",
+                  onChange: (e) => setCapiForm({ ...capiForm, mapping: { ...capiForm.mapping, [status]: e.target.value } }),
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("fbConv.doNotSend") }),
+                    (capiMeta.available_events || []).map((ev) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: ev, children: ev }, ev))
+                  ]
+                }
+              )
+            ] }, status)) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbConv.testEventCode") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  className: "form-input font-mono",
+                  value: capiForm.test_event_code,
+                  placeholder: "TEST12345",
+                  onChange: (e) => setCapiForm({ ...capiForm, test_event_code: e.target.value })
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbConv.proxy") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  className: "form-input font-mono",
+                  value: capiForm.proxy_url,
+                  placeholder: "http://user:pass@1.2.3.4:8080",
+                  onChange: (e) => setCapiForm({ ...capiForm, proxy_url: e.target.value })
+                }
+              )
+            ] })
+          ] }),
+          capiTest && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            padding: "10px 14px",
+            borderRadius: "10px",
+            fontSize: "13px",
+            background: capiTest.ok ? "#dcfce7" : "#fee2e2",
+            color: capiTest.ok ? "#166534" : "#991b1b",
+            border: `1px solid ${capiTest.ok ? "#86efac" : "#fca5a5"}`
+          }, children: [
+            capiTest.message,
+            capiTest.ok && !capiTest.usedRealClick ? " " + t("fbConv.syntheticClick") : ""
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", justifyContent: "space-between" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: handleCapiTest,
+                className: "btn btn-secondary btn-sm",
+                disabled: capiTesting || !capiForm.pixel_id || !capiForm.token,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }),
+                  " ",
+                  capiTesting ? t("fbConv.sending") : t("fbConv.sendTestEvent")
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                setCapiEditing(null);
+                setCapiTest(null);
+              }, className: "btn btn-secondary btn-sm", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
+                " ",
+                t("common.cancel")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: handleCapiSave,
+                  className: "btn btn-primary btn-sm",
+                  disabled: !capiForm.campaign_id || !capiForm.pixel_id,
+                  children: t("common.save")
+                }
+              )
+            ] })
+          ] })
+        ] })
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center", marginBottom: "16px", flexWrap: "wrap" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+          setCapiForm(emptyCapiForm);
+          setCapiTest(null);
+          setCapiEditing("new");
+        }, className: "btn btn-primary", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+          " ",
+          t("fbConv.addAccount")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            className: "form-input",
+            style: { maxWidth: "240px" },
+            placeholder: t("fbConv.findAccount"),
+            value: capiSearch,
+            onChange: (e) => setCapiSearch(e.target.value)
+          }
+        )
+      ] }),
+      capiLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", style: { marginTop: capiEditing ? "20px" : 0 }, children: [
+        visible.map((px) => {
+          const serverSide = !!px.has_token;
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            border: "1px solid var(--color-border)",
+            borderRadius: "16px",
+            padding: "16px",
+            background: px.is_active ? "var(--color-bg-card)" : "var(--color-bg-soft)",
+            opacity: px.is_active ? 1 : 0.7
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px", gap: "12px", flexWrap: "wrap" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600, fontSize: "14px" }, children: px.campaign_name || `#${px.campaign_id}` }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", fontFamily: "monospace" }, children: [
+                  "Pixel ",
+                  px.pixel_id
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+                fontSize: "11px",
+                padding: "2px 8px",
+                borderRadius: "6px",
+                whiteSpace: "nowrap",
+                background: !px.is_active ? "#e5e7eb" : serverSide ? "#dcfce7" : "#fef3c7",
+                color: !px.is_active ? "#374151" : serverSide ? "#166534" : "#92400e"
+              }, children: !px.is_active ? t("fbConv.paused") : serverSide ? t("fbConv.serverSideOn") : t("fbConv.browserOnly") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "10px" }, children: [
+              t("fbConv.mapping"),
+              ": ",
+              px.mapping_summary || t("fbConv.defaultMapping")
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "6px", flexWrap: "wrap" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                setCapiForm(capiRowToForm(px));
+                setCapiTest(null);
+                setCapiEditing(px.id);
+              }, className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 12 }),
+                " ",
+                t("fbConv.editMapping")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleCapiToggle(px), className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Power, { size: 12 }),
+                " ",
+                px.is_active ? t("fbConv.pause") : t("fbConv.resume")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                setCapiForm({ ...capiRowToForm(px), campaign_id: "" });
+                setCapiTest(null);
+                setCapiEditing("new");
+              }, className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 }),
+                " ",
+                t("fbConv.clone")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleCapiDelete(px), className: "btn btn-secondary btn-sm", style: { fontSize: "11px", color: "#ef4444" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 12 }) })
+            ] })
+          ] }, px.id);
+        }),
+        visible.length === 0 && !capiEditing && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", padding: "30px 0" }, children: t("fbConv.noAccounts") })
+      ] })
+    ] });
+  };
   const scripts = {
     kclient_php: {
       title: "KClient PHP",
@@ -55902,6 +56346,18 @@ $client->execute();
 
 <!-- Tracking conversions (place on Thank You page) -->
 <img src="${trackerUrl}/pixel.gif?action=conversion&subid={subid}&status=lead" width="1" height="1" border="0" alt="" />`
+    },
+    facebook_costs: {
+      title: t("fbCosts.title"),
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-5 h-5" }),
+      description: t("fbCosts.description"),
+      isFacebookCosts: true
+    },
+    facebook_conversions: {
+      title: t("fbConv.title"),
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { className: "w-5 h-5" }),
+      description: t("fbConv.description"),
+      isFacebookConversions: true
     },
     recaptcha: {
       title: t("recaptcha.tabTitle"),
@@ -57227,7 +57683,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
               children: rcMessage.text
             }
           )
-        ] }) }) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 24px", flex: 1, display: "flex", flexDirection: "column" }, children: [
+        ] }) }) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 24px", flex: 1, display: "flex", flexDirection: "column" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: t("integrations.codeToInsert") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -59584,7 +60040,7 @@ function AggregatorPage() {
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", style: { fontWeight: 700, fontSize: "0.95rem" }, children: t("aggregator.credentials") }),
           engineFields.map((field) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 12 }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", style: { fontSize: "0.8rem" }, children: [
-              field.label,
+              field.label_key ? t(field.label_key, field.label) : field.label,
               field.required && " *"
             ] }),
             field.type === "textarea" ? /* @__PURE__ */ jsxRuntimeExports.jsx("textarea", { className: "input", rows: 3, value: form.credentials[field.key] || "", onChange: (e) => updateCredential(field.key, e.target.value), placeholder: field.placeholder }) : field.type === "select" ? /* @__PURE__ */ jsxRuntimeExports.jsx("select", { className: "input", value: form.credentials[field.key] || field.options?.[0], onChange: (e) => updateCredential(field.key, e.target.value), children: field.options?.map((opt) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: opt, children: opt }, opt)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("input", { className: "input", type: field.type === "password" ? "password" : "text", value: form.credentials[field.key] || "", onChange: (e) => updateCredential(field.key, e.target.value), placeholder: field.placeholder })
@@ -61257,7 +61713,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   });
   const [pixels, setPixels] = reactExports.useState([]);
   const [editingPixel, setEditingPixel] = reactExports.useState(null);
-  const [pixelForm, setPixelForm] = reactExports.useState({ type: "", pixel_id: "", token: "", events: "PageView,Lead", is_active: 1 });
+  const [pixelForm, setPixelForm] = reactExports.useState({ type: "", pixel_id: "", token: "", events: "PageView,Lead", is_active: 1, mapping: {}, test_event_code: "", proxy_url: "" });
+  const [capiMeta, setCapiMeta] = reactExports.useState({ default_mapping: {}, available_events: [] });
+  const [capiTest, setCapiTest] = reactExports.useState(null);
+  const [capiTesting, setCapiTesting] = reactExports.useState(false);
+  const emptyPixelForm = { type: "", pixel_id: "", token: "", events: "PageView,Lead", is_active: 1, mapping: {}, test_event_code: "", proxy_url: "" };
   const [clickLogs, setClickLogs] = reactExports.useState([]);
   const [groups, setGroups] = reactExports.useState([]);
   const [sources, setSources] = reactExports.useState([]);
@@ -61442,6 +61902,55 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   reactExports.useEffect(() => {
     if (campaignId) fetchPixels();
   }, [campaignId]);
+  reactExports.useEffect(() => {
+    cachedGet("facebook_capi_meta").then(({ data }) => {
+      if (data.status === "success") setCapiMeta(data.data);
+    }).catch(() => {
+    });
+  }, []);
+  const openPixelForEdit = (px) => {
+    let mapping = {};
+    if (px.mapping_json) {
+      try {
+        mapping = JSON.parse(px.mapping_json) || {};
+      } catch {
+        mapping = {};
+      }
+    }
+    setPixelForm({
+      id: px.id,
+      type: px.type,
+      pixel_id: px.pixel_id || "",
+      token: px.token || "",
+      events: px.events || "PageView,Lead",
+      is_active: px.is_active ? 1 : 0,
+      mapping,
+      test_event_code: px.test_event_code || "",
+      proxy_url: px.proxy_url || ""
+    });
+    setCapiTest(null);
+    setEditingPixel(px.id);
+  };
+  const sendCapiTest = async () => {
+    setCapiTesting(true);
+    setCapiTest(null);
+    try {
+      const { data } = await cachedPost("facebook_capi_test", {
+        id: pixelForm.id,
+        campaign_id: campaignId,
+        pixel_id: pixelForm.pixel_id,
+        token: pixelForm.token,
+        test_event_code: pixelForm.test_event_code,
+        proxy_url: pixelForm.proxy_url,
+        event_name: "Lead"
+      });
+      setCapiTest({ ok: data.status === "success", message: data.message, usedRealClick: data.data?.used_real_click });
+    } catch (err) {
+      setCapiTest({ ok: false, message: String(err?.message || err) });
+    } finally {
+      setCapiTesting(false);
+    }
+  };
   const handleSave = async () => {
     if (!formData.name || !formData.alias) {
       alert(t("editor.fillNameAndAlias"));
@@ -62309,6 +62818,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         } }),
                         t("pixels.active")
                       ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => openPixelForEdit(px), className: "action-btn", style: { padding: "4px" }, title: t("common.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { size: 14 }) }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => {
                         if (confirm(t("pixels.confirmDelete"))) {
                           cachedPost("delete_campaign_pixel", { id: px.id }).then(() => fetchPixels());
@@ -62372,8 +62882,78 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     ),
                     /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px" }, children: t("pixels.eventsHint") })
                   ] }),
+                  pixelForm.type === "facebook" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { borderTop: "1px dashed var(--color-border)", paddingTop: "12px" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600, fontSize: "13px", marginBottom: "4px" }, children: t("pixels.capiTitle") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginBottom: "10px" }, children: t("pixels.capiHint") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("pixels.mapping") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gap: "6px", marginBottom: "10px" }, children: Object.keys(capiMeta.default_mapping || {}).map((status) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", alignItems: "center" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "12px", color: "var(--color-text-secondary)" }, children: t("conversions." + status, status) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "select",
+                        {
+                          className: "form-input text-sm",
+                          value: pixelForm.mapping?.[status] ?? capiMeta.default_mapping[status] ?? "",
+                          onChange: (e) => setPixelForm({ ...pixelForm, mapping: { ...pixelForm.mapping, [status]: e.target.value } }),
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("pixels.doNotSend") }),
+                            (capiMeta.available_events || []).map((ev) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: ev, children: ev }, ev))
+                          ]
+                        }
+                      )
+                    ] }, status)) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("pixels.testEventCode") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "input",
+                          {
+                            type: "text",
+                            value: pixelForm.test_event_code,
+                            onChange: (e) => setPixelForm({ ...pixelForm, test_event_code: e.target.value }),
+                            placeholder: "TEST12345",
+                            className: "form-input font-mono text-sm"
+                          }
+                        )
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("pixels.proxy") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "input",
+                          {
+                            type: "text",
+                            value: pixelForm.proxy_url,
+                            onChange: (e) => setPixelForm({ ...pixelForm, proxy_url: e.target.value }),
+                            placeholder: "http://user:pass@1.2.3.4:8080",
+                            className: "form-input font-mono text-sm"
+                          }
+                        )
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "10px" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "button",
+                        {
+                          onClick: sendCapiTest,
+                          className: "btn btn-secondary btn-sm",
+                          disabled: !pixelForm.pixel_id || !pixelForm.token || capiTesting,
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { size: 14 }),
+                            " ",
+                            capiTesting ? t("pixels.sending") : t("pixels.sendTestEvent")
+                          ]
+                        }
+                      ),
+                      capiTest && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { fontSize: "11px", marginTop: "6px", color: capiTest.ok ? "var(--color-success, #10b981)" : "var(--color-danger, #ef4444)" }, children: [
+                        capiTest.message,
+                        capiTest.ok && !capiTest.usedRealClick ? " " + t("pixels.syntheticClick") : ""
+                      ] })
+                    ] })
+                  ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", justifyContent: "flex-end" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setEditingPixel(null), className: "btn btn-secondary btn-sm", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                      setEditingPixel(null);
+                      setCapiTest(null);
+                    }, className: "btn btn-secondary btn-sm", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
                       " ",
                       t("common.cancel")
@@ -62386,10 +62966,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           try {
                             await cachedPost("save_campaign_pixel", {
                               campaign_id: campaignId,
-                              ...pixelForm
+                              ...pixelForm,
+                              mapping_json: JSON.stringify(pixelForm.mapping || {})
                             });
                             setEditingPixel(null);
-                            setPixelForm({ type: "", pixel_id: "", token: "", events: "PageView,Lead", is_active: 1 });
+                            setCapiTest(null);
+                            setPixelForm(emptyPixelForm);
                             fetchPixels();
                           } catch (err) {
                             console.error(err);
@@ -62410,7 +62992,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 "button",
                 {
                   onClick: () => {
-                    setPixelForm({ type: platform2.id, pixel_id: "", token: "", events: "PageView,Lead", is_active: 1 });
+                    setPixelForm({ ...emptyPixelForm, type: platform2.id });
+                    setCapiTest(null);
                     setEditingPixel("new");
                   },
                   className: "w-full flex items-center gap-3 p-3 rounded-2xl text-left transition",

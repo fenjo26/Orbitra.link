@@ -2208,7 +2208,7 @@ export default {
         }
     },
     "fbCosts": {
-        "title": "Coûts Facebook",
+        "title": "Facebook Costs",
         "description": "Importe les dépenses publicitaires d’un compte Meta et les attribue aux clics via les ID d’annonce, d’adset et de campagne.",
         "addAccount": "Ajouter un compte",
         "editAccount": "Modifier le compte",
@@ -2245,7 +2245,7 @@ export default {
         "noAccounts": "Aucun compte publicitaire connecté. Ajoutez-en un pour importer les dépenses depuis Facebook."
     },
     "fbConv": {
-        "title": "Conversions Facebook",
+        "title": "Facebook Conversions",
         "description": "Envoie les conversions à Meta via la Conversions API côté serveur, pour que les événements bloqués dans le navigateur atteignent quand même l’optimiseur.",
         "addAccount": "Ajouter un compte",
         "editAccount": "Modifier le compte",

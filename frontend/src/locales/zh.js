@@ -2208,7 +2208,7 @@ export default {
         }
     },
     "fbCosts": {
-        "title": "Facebook 支出",
+        "title": "Facebook Costs",
         "description": "从 Meta 广告账户导入广告支出，并按广告、广告组和广告系列 ID 归因到点击。",
         "addAccount": "添加账户",
         "editAccount": "编辑账户",
@@ -2245,7 +2245,7 @@ export default {
         "noAccounts": "尚未连接广告账户。添加一个以从 Facebook 导入支出。"
     },
     "fbConv": {
-        "title": "Facebook 转化",
+        "title": "Facebook Conversions",
         "description": "通过 Conversions API 从服务器端将转化发送给 Meta，让浏览器中被拦截的事件仍能到达优化器。",
         "addAccount": "添加账户",
         "editAccount": "编辑账户",

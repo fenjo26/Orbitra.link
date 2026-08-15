@@ -2208,7 +2208,7 @@ export default {
         }
     },
     "fbCosts": {
-        "title": "Витрати Facebook",
+        "title": "Facebook Costs",
         "description": "Імпортує витрати з рекламного кабінету Meta та прив’язує їх до кліків за ad, adset і campaign ID.",
         "addAccount": "Додати акаунт",
         "editAccount": "Редагувати акаунт",
@@ -2245,7 +2245,7 @@ export default {
         "noAccounts": "Рекламні кабінети не підключені. Додайте акаунт, щоб імпортувати витрати з Facebook."
     },
     "fbConv": {
-        "title": "Конверсії Facebook",
+        "title": "Facebook Conversions",
         "description": "Надсилає конверсії в Meta через Conversions API з сервера — події, заблоковані в браузері, все одно доходять до оптимізатора.",
         "addAccount": "Додати акаунт",
         "editAccount": "Редагувати акаунт",

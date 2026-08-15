@@ -2208,7 +2208,7 @@ export default {
         }
     },
     "fbCosts": {
-        "title": "Facebook-Kosten",
+        "title": "Facebook Costs",
         "description": "Importiert Werbeausgaben aus einem Meta-Werbekonto und ordnet sie Klicks über Ad-, Adset- und Campaign-ID zu.",
         "addAccount": "Konto hinzufügen",
         "editAccount": "Konto bearbeiten",
@@ -2245,7 +2245,7 @@ export default {
         "noAccounts": "Keine Werbekonten verbunden. Fügen Sie eines hinzu, um Ausgaben aus Facebook zu importieren."
     },
     "fbConv": {
-        "title": "Facebook-Conversions",
+        "title": "Facebook Conversions",
         "description": "Sendet Conversions serverseitig über die Conversions API an Meta, sodass im Browser blockierte Ereignisse den Optimierer trotzdem erreichen.",
         "addAccount": "Konto hinzufügen",
         "editAccount": "Konto bearbeiten",
