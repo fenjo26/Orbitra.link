@@ -2274,6 +2274,15 @@ export default {
         "zonesAvailable": "zonas en la cuenta",
         "managedDomains": "Dominios gestionados por Cloudflare"
     },
+    "ipranges": {
+        "title": "Rangos IP de datacenters (cloaking)",
+        "description": "Las listas de nubes y crawlers (AWS, Google, Meta, OpenAI…) se actualizan a diario; el cloaker marca a los visitantes de estas IP como datacenter.",
+        "fresh": "Listas actualizadas",
+        "stale": "Las listas tienen más de un día — se actualizan en segundo plano con la primera visita de cloaking o con el botón",
+        "notDownloaded": "Listas aún no descargadas — la primera visita de cloaking las descarga en segundo plano, o usa el botón",
+        "updateNow": "Actualizar ahora",
+        "updated": "Rangos IP actualizados"
+    },
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",

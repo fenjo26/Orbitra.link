@@ -27,6 +27,44 @@ const AutomationSettings = () => {
     const [intervalMin, setIntervalMin] = useState(15);
     const [pqInfo, setPqInfo] = useState(null);
 
+    // Cloaking feed (datacenter/crawler IP ranges) status + manual refresh.
+    const [iprInfo, setIprInfo] = useState(null);
+    const [iprError, setIprError] = useState('');
+
+    const fetchIpRangesInfo = async () => {
+        try {
+            const res = await fetch(`${API_URL}?action=ipranges_update`);
+            const data = await res.json();
+            if (data.status === 'success') {
+                setIprInfo(data.data || null);
+            }
+        } catch (e) {
+            // Non-fatal: the card simply shows "not downloaded".
+        }
+    };
+
+    const updateIpRangesNow = async () => {
+        setCronBusy(true);
+        setIprError('');
+        try {
+            const res = await fetch(`${API_URL}?action=ipranges_update`, { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'success') {
+                setMessage({ text: t('ipranges.updated', 'Диапазоны обновлены'), type: 'success' });
+            } else {
+                setIprError(data.message || t('common.error'));
+            }
+            await fetchIpRangesInfo();
+        } catch (e) {
+            setIprError(t('automation.networkError'));
+        } finally {
+            setCronBusy(false);
+        }
+    };
+
+    const iprAvailable = Boolean(iprInfo?.available);
+    const iprFresh = iprAvailable && Boolean(iprInfo?.fresh);
+
     const fetchPostbackQueueInfo = async () => {
         try {
             const res = await fetch(`${API_URL}?action=postback_queue_info`);
@@ -59,6 +97,7 @@ const AutomationSettings = () => {
             setLoading(false);
         }
         await fetchPostbackQueueInfo();
+        await fetchIpRangesInfo();
     };
 
     useEffect(() => {
@@ -643,6 +682,52 @@ const AutomationSettings = () => {
                         </div>
                         <p className="form-hint mt-2">{t('postbackQueue.cronHint')}</p>
                     </div>
+                </div>
+
+                {/* Cloaking feed: datacenter/crawler IP ranges (lord-alfred/ipranges).
+                    Refreshes daily by cron; the first cloak visit heals an install
+                    without the cron by downloading in the background. */}
+                <div className="form-section mt-6">
+                    <div className="mb-3">
+                        <div className="text-sm font-semibold text-gray-800">{t('ipranges.title', 'IP-диапазоны датацентров (клокинг)')}</div>
+                        <div className="text-sm text-[var(--color-text-muted)] mt-1">{t('ipranges.description', 'Списки облаков и краулеров (AWS, Google, Meta, OpenAI…) обновляются ежедневно; клокер помечает посетителей с этих IP как датацентровых.')}</div>
+                    </div>
+
+                    <div className={`alert ${iprFresh ? 'alert-success' : 'alert-warning'} mb-3`}>
+                        <div className="flex items-center gap-2">
+                            {iprFresh ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                            <span>
+                                {iprAvailable
+                                    ? (iprFresh
+                                        ? t('ipranges.fresh', 'Списки актуальны')
+                                        : t('ipranges.stale', 'Спискам больше суток — обновятся фоном при первом клок-клике или кнопкой'))
+                                    : t('ipranges.notDownloaded', 'Списки ещё не скачаны — скачаются фоном при первом клок-клике или кнопкой')}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">IPv4</div>
+                            <div className="text-lg font-semibold text-gray-800 mt-1">{iprInfo?.v4_ranges ?? '—'}</div>
+                        </div>
+                        <div className="bg-gray-50 border border-gray-100 rounded p-3">
+                            <div className="text-xs text-gray-500">IPv6</div>
+                            <div className="text-lg font-semibold text-gray-800 mt-1">{iprInfo?.v6_ranges ?? '—'}</div>
+                        </div>
+                    </div>
+
+                    <div className="mt-3 flex gap-2 flex-wrap">
+                        <button
+                            className="btn btn-primary"
+                            disabled={cronBusy}
+                            onClick={updateIpRangesNow}
+                        >
+                            <RefreshCw size={16} />
+                            {cronBusy ? t('common.saving') : t('ipranges.updateNow', 'Обновить сейчас')}
+                        </button>
+                    </div>
+                    {iprError && <div className="text-xs text-red-500 mt-2">{iprError}</div>}
                 </div>
             </div>
 

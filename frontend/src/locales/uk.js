@@ -2274,6 +2274,15 @@ export default {
         "zonesAvailable": "зон в акаунті",
         "managedDomains": "Доменів під керуванням Cloudflare"
     },
+    "ipranges": {
+        "title": "IP-діапазони датацентрів (клокінг)",
+        "description": "Списки хмар і краулерів (AWS, Google, Meta, OpenAI…) оновлюються щодня; клокер позначає відвідувачів із цих IP як датацентрових.",
+        "fresh": "Списки актуальні",
+        "stale": "Спискам більше доби — оновляться фоном при першому клок-кліку або кнопкою",
+        "notDownloaded": "Списки ще не завантажені — завантажаться фоном при першому клок-кліку або кнопкою",
+        "updateNow": "Оновити зараз",
+        "updated": "Діапазони оновлено"
+    },
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",

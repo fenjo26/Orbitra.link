@@ -61,6 +61,50 @@ class IpRanges
     }
 
     /**
+     * Ленивое авто-обновление для существующих установок, где cron ещё не
+     * прописан: первый клок-клик по устаревшим/отсутствующим спискам планирует
+     * докачку В ПОСЛЕДНИЙ момент запроса — ответ посетителю уже отправлен,
+     * задержки клику нет. Замок в var/locks защищает от параллельной стаи
+     * скачиваний; в CLI метод нейтрален (кроны обновляются сами).
+     */
+    public static function ensureFreshBackground(): void
+    {
+        if (self::isFresh()) {
+            return;
+        }
+        if (PHP_SAPI === 'cli') {
+            return;
+        }
+        $lock = __DIR__ . '/../var/locks/ipranges.lock';
+        $lockDir = dirname($lock);
+        if (!is_dir($lockDir)) {
+            @mkdir($lockDir, 0775, true);
+        }
+        if (file_exists($lock) && time() - (int) filemtime($lock) < 600) {
+            return;
+        }
+        @touch($lock);
+        register_shutdown_function(function () use ($lock) {
+            try {
+                self::update();
+            } finally {
+                @unlink($lock);
+            }
+        });
+    }
+
+    /** Число диапазонов в локальном файле (для статуса в панели). */
+    public static function countV4(): int
+    {
+        return file_exists(self::fileV4()) ? max(0, substr_count((string) @file_get_contents(self::fileV4()), '/')) : 0;
+    }
+
+    public static function countV6(): int
+    {
+        return file_exists(self::fileV6()) ? max(0, substr_count((string) @file_get_contents(self::fileV6()), '/')) : 0;
+    }
+
+    /**
      * Скачать оба списка (атомарно: во временный файл, потом rename).
      * @return array{ok:bool,ipv4:int,ipv6:int,errors:string[]}
      */

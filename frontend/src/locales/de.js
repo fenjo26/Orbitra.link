@@ -2274,6 +2274,15 @@ export default {
         "zonesAvailable": "Zonen im Konto",
         "managedDomains": "Von Cloudflare verwaltete Domains"
     },
+    "ipranges": {
+        "title": "Rechenzentrum-IP-Bereiche (Cloaking)",
+        "description": "Cloud- und Crawler-Listen (AWS, Google, Meta, OpenAI…) werden täglich aktualisiert; der Cloaker markiert Besucher von diesen IPs als Rechenzentrum.",
+        "fresh": "Listen sind aktuell",
+        "stale": "Listen sind älter als ein Tag — sie werden beim ersten Cloak-Besuch im Hintergrund aktualisiert, oder mit der Schaltfläche",
+        "notDownloaded": "Listen noch nicht geladen — der erste Cloak-Besuch lädt sie im Hintergrund, oder mit der Schaltfläche",
+        "updateNow": "Jetzt aktualisieren",
+        "updated": "IP-Bereiche aktualisiert"
+    },
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",

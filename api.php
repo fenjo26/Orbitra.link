@@ -5818,6 +5818,10 @@ try {
                 }
             } else {
                 require_once __DIR__ . '/core/IpRanges.php';
+                // A status probe from the panel schedules the same lazy background
+                // refresh the cloak detector uses — visiting the settings page is
+                // enough to heal an install whose cron is not registered.
+                IpRanges::ensureFreshBackground();
                 $v4 = IpRanges::available() && file_exists(IpRanges::fileV4()) ? (int) @filemtime(IpRanges::fileV4()) : null;
                 $v6 = IpRanges::available() && file_exists(IpRanges::fileV6()) ? (int) @filemtime(IpRanges::fileV6()) : null;
                 echo json_encode(['status' => 'success', 'data' => [
@@ -5825,6 +5829,8 @@ try {
                     'fresh' => IpRanges::isFresh(),
                     'v4_mtime' => $v4,
                     'v6_mtime' => $v6,
+                    'v4_ranges' => IpRanges::countV4(),
+                    'v6_ranges' => IpRanges::countV6(),
                 ]]);
             }
             break;

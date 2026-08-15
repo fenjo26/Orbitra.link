@@ -246,6 +246,10 @@ class CloakDetector
             // ISP name sounds like hosting". Inactive until the lists exist.
             if ($detectDatacenter && !empty($visitor['ip'])) {
                 require_once __DIR__ . '/IpRanges.php';
+                // Existing installs may not have the cron registered yet — the
+                // first cloak visit with stale/missing lists schedules a
+                // background download (after the response is sent, zero latency).
+                IpRanges::ensureFreshBackground();
                 if (IpRanges::available() && IpRanges::match((string) $visitor['ip'])) {
                     $reasons[] = 'iprange_datacenter';
                 }

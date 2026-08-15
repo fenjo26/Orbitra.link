@@ -2274,6 +2274,15 @@ export default {
         "zonesAvailable": "账号中的区域",
         "managedDomains": "由 Cloudflare 管理的域名"
     },
+    "ipranges": {
+        "title": "数据中心 IP 段（隐匿分流）",
+        "description": "云与爬虫列表（AWS、Google、Meta、OpenAI…）每日更新；隐匿分流会把来自这些 IP 的访客标记为数据中心。",
+        "fresh": "列表为最新",
+        "stale": "列表超过一天 — 首次隐匿分流访问时后台更新，或点击按钮",
+        "notDownloaded": "列表尚未下载 — 首次隐匿分流访问时后台下载，或点击按钮",
+        "updateNow": "立即更新",
+        "updated": "IP 段已更新"
+    },
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",

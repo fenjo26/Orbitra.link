@@ -18226,6 +18226,15 @@ const ru = {
     "zonesAvailable": "зон в аккаунте",
     "managedDomains": "Доменов под управлением Cloudflare"
   },
+  "ipranges": {
+    "title": "IP-диапазоны датацентров (клокинг)",
+    "description": "Списки облаков и краулеров (AWS, Google, Meta, OpenAI…) обновляются ежедневно; клокер помечает посетителей с этих IP как датацентровых.",
+    "fresh": "Списки актуальны",
+    "stale": "Спискам больше суток — обновятся фоном при первом клок-клике или кнопкой",
+    "notDownloaded": "Списки ещё не скачаны — скачаются фоном при первом клок-клике или кнопкой",
+    "updateNow": "Обновить сейчас",
+    "updated": "Диапазоны обновлены"
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
@@ -20585,6 +20594,15 @@ const en = {
     "syncedCount": "re-pointed",
     "zonesAvailable": "zones in account",
     "managedDomains": "Domains managed by Cloudflare"
+  },
+  "ipranges": {
+    "title": "Datacenter IP ranges (cloaking)",
+    "description": "Cloud & crawler lists (AWS, Google, Meta, OpenAI…) refresh daily; the cloaker flags visitors from these IPs as datacenter.",
+    "fresh": "Lists are fresh",
+    "stale": "Lists are older than a day — they refresh in the background on the first cloak visit, or use the button",
+    "notDownloaded": "Lists not downloaded yet — the first cloak visit downloads them in the background, or use the button",
+    "updateNow": "Update now",
+    "updated": "IP ranges updated"
   },
   "costImport": {
     "facebookAds": "Facebook Ads",
@@ -22946,6 +22964,15 @@ const uk = {
     "zonesAvailable": "зон в акаунті",
     "managedDomains": "Доменів під керуванням Cloudflare"
   },
+  "ipranges": {
+    "title": "IP-діапазони датацентрів (клокінг)",
+    "description": "Списки хмар і краулерів (AWS, Google, Meta, OpenAI…) оновлюються щодня; клокер позначає відвідувачів із цих IP як датацентрових.",
+    "fresh": "Списки актуальні",
+    "stale": "Спискам більше доби — оновляться фоном при першому клок-кліку або кнопкою",
+    "notDownloaded": "Списки ще не завантажені — завантажаться фоном при першому клок-кліку або кнопкою",
+    "updateNow": "Оновити зараз",
+    "updated": "Діапазони оновлено"
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
@@ -25306,6 +25333,15 @@ const es = {
     "zonesAvailable": "zonas en la cuenta",
     "managedDomains": "Dominios gestionados por Cloudflare"
   },
+  "ipranges": {
+    "title": "Rangos IP de datacenters (cloaking)",
+    "description": "Las listas de nubes y crawlers (AWS, Google, Meta, OpenAI…) se actualizan a diario; el cloaker marca a los visitantes de estas IP como datacenter.",
+    "fresh": "Listas actualizadas",
+    "stale": "Las listas tienen más de un día — se actualizan en segundo plano con la primera visita de cloaking o con el botón",
+    "notDownloaded": "Listas aún no descargadas — la primera visita de cloaking las descarga en segundo plano, o usa el botón",
+    "updateNow": "Actualizar ahora",
+    "updated": "Rangos IP actualizados"
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
@@ -27665,6 +27701,15 @@ const zh = {
     "syncedCount": "已重新指向",
     "zonesAvailable": "账号中的区域",
     "managedDomains": "由 Cloudflare 管理的域名"
+  },
+  "ipranges": {
+    "title": "数据中心 IP 段（隐匿分流）",
+    "description": "云与爬虫列表（AWS、Google、Meta、OpenAI…）每日更新；隐匿分流会把来自这些 IP 的访客标记为数据中心。",
+    "fresh": "列表为最新",
+    "stale": "列表超过一天 — 首次隐匿分流访问时后台更新，或点击按钮",
+    "notDownloaded": "列表尚未下载 — 首次隐匿分流访问时后台下载，或点击按钮",
+    "updateNow": "立即更新",
+    "updated": "IP 段已更新"
   },
   "costImport": {
     "facebookAds": "Facebook Ads",
@@ -30028,6 +30073,15 @@ const fr = {
     "zonesAvailable": "zones dans le compte",
     "managedDomains": "Domaines gérés par Cloudflare"
   },
+  "ipranges": {
+    "title": "Plages IP des datacenters (cloaking)",
+    "description": "Les listes de clouds et crawlers (AWS, Google, Meta, OpenAI…) sont actualisées chaque jour ; le cloaker marque les visiteurs de ces IP comme datacenter.",
+    "fresh": "Listes à jour",
+    "stale": "Listes vieilles de plus d’un jour — actualisation en arrière-plan à la première visite de cloaking, ou via le bouton",
+    "notDownloaded": "Listes non téléchargées — la première visite de cloaking les télécharge en arrière-plan, ou via le bouton",
+    "updateNow": "Mettre à jour",
+    "updated": "Plages IP mises à jour"
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
@@ -32387,6 +32441,15 @@ const de = {
     "syncedCount": "umgezogen",
     "zonesAvailable": "Zonen im Konto",
     "managedDomains": "Von Cloudflare verwaltete Domains"
+  },
+  "ipranges": {
+    "title": "Rechenzentrum-IP-Bereiche (Cloaking)",
+    "description": "Cloud- und Crawler-Listen (AWS, Google, Meta, OpenAI…) werden täglich aktualisiert; der Cloaker markiert Besucher von diesen IPs als Rechenzentrum.",
+    "fresh": "Listen sind aktuell",
+    "stale": "Listen sind älter als ein Tag — sie werden beim ersten Cloak-Besuch im Hintergrund aktualisiert, oder mit der Schaltfläche",
+    "notDownloaded": "Listen noch nicht geladen — der erste Cloak-Besuch lädt sie im Hintergrund, oder mit der Schaltfläche",
+    "updateNow": "Jetzt aktualisieren",
+    "updated": "IP-Bereiche aktualisiert"
   },
   "costImport": {
     "facebookAds": "Facebook Ads",
@@ -55011,6 +55074,38 @@ const AutomationSettings = () => {
   const [enabled, setEnabled] = reactExports.useState(true);
   const [intervalMin, setIntervalMin] = reactExports.useState(15);
   const [pqInfo, setPqInfo] = reactExports.useState(null);
+  const [iprInfo, setIprInfo] = reactExports.useState(null);
+  const [iprError, setIprError] = reactExports.useState("");
+  const fetchIpRangesInfo = async () => {
+    try {
+      const res = await fetch(`${API_URL$d}?action=ipranges_update`);
+      const data = await res.json();
+      if (data.status === "success") {
+        setIprInfo(data.data || null);
+      }
+    } catch (e) {
+    }
+  };
+  const updateIpRangesNow = async () => {
+    setCronBusy(true);
+    setIprError("");
+    try {
+      const res = await fetch(`${API_URL$d}?action=ipranges_update`, { method: "POST" });
+      const data = await res.json();
+      if (data.status === "success") {
+        setMessage({ text: t("ipranges.updated", "Диапазоны обновлены"), type: "success" });
+      } else {
+        setIprError(data.message || t("common.error"));
+      }
+      await fetchIpRangesInfo();
+    } catch (e) {
+      setIprError(t("automation.networkError"));
+    } finally {
+      setCronBusy(false);
+    }
+  };
+  const iprAvailable = Boolean(iprInfo?.available);
+  const iprFresh = iprAvailable && Boolean(iprInfo?.fresh);
   const fetchPostbackQueueInfo = async () => {
     try {
       const res = await fetch(`${API_URL$d}?action=postback_queue_info`);
@@ -55041,6 +55136,7 @@ const AutomationSettings = () => {
       setLoading(false);
     }
     await fetchPostbackQueueInfo();
+    await fetchIpRangesInfo();
   };
   reactExports.useEffect(() => {
     fetchInfo();
@@ -55560,6 +55656,39 @@ const AutomationSettings = () => {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-hint mt-2", children: t("postbackQueue.cronHint") })
         ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-section mt-6", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold text-gray-800", children: t("ipranges.title", "IP-диапазоны датацентров (клокинг)") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm text-[var(--color-text-muted)] mt-1", children: t("ipranges.description", "Списки облаков и краулеров (AWS, Google, Meta, OpenAI…) обновляются ежедневно; клокер помечает посетителей с этих IP как датацентровых.") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `alert ${iprFresh ? "alert-success" : "alert-warning"} mb-3`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+          iprFresh ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 16 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: iprAvailable ? iprFresh ? t("ipranges.fresh", "Списки актуальны") : t("ipranges.stale", "Спискам больше суток — обновятся фоном при первом клок-клике или кнопкой") : t("ipranges.notDownloaded", "Списки ещё не скачаны — скачаются фоном при первом клок-клике или кнопкой") })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: "IPv4" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-800 mt-1", children: iprInfo?.v4_ranges ?? "—" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 border border-gray-100 rounded p-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: "IPv6" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-800 mt-1", children: iprInfo?.v6_ranges ?? "—" })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 flex gap-2 flex-wrap", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            className: "btn btn-primary",
+            disabled: cronBusy,
+            onClick: updateIpRangesNow,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16 }),
+              cronBusy ? t("common.saving") : t("ipranges.updateNow", "Обновить сейчас")
+            ]
+          }
+        ) }),
+        iprError && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-red-500 mt-2", children: iprError })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-6 flex justify-end gap-2", children: [
