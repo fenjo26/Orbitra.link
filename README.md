@@ -1,4 +1,4 @@
-# Orbitra v0.9.7.7 Tracker
+# Orbitra v0.9.7.8 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -387,6 +387,42 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.7.8
+
+### Added
+- 🎯 **Tracking tab in the campaign editor.** KClient JS (base64 option), KClient
+  PHP (download button), Tracking Script, banner blocks, Campaign URL,
+  link/iframe/script, pixel, countdown, back-button trap, exit intent and
+  WordPress — all generated with the campaign's token baked in. And the clients
+  are real now: `kclient.php`, `kclient.js`, `tracking.js`, `banner.js` and
+  `/pixel.gif` ship with the tracker (the old snippets pointed at files that
+  404'd). Click API v3 serves Show-as-HTML stream bodies with `{offer}` resolved
+  and captures `ad_id`/`adset_id`/`campaign_id`, so cost matching works for
+  KClient traffic.
+- 💰 **Cost Sync on the campaign's Integrations tab** — spend connections with
+  *Sync now*, a diagnostic that tells you whether this campaign's clicks carry
+  the IDs cost import matches on, and the Dolphin/Fbtool push URL for the
+  campaign.
+- 🏷 **Local offers**: ZIP upload (same security pipeline as landings) and
+  serving in place of the redirect, including through `/?_lp=1`.
+- ☁️ **Cloudflare integration**: parked domains get their A records managed
+  automatically, proxied domains take SSL from the CF edge instead of certbot,
+  and one click re-points everything when the tracker moves.
+- 🛡 **Cloaking**: 50+ new bot UA signatures and daily-updated datacenter/crawler
+  IP ranges (~20k CIDRs) that catch a perfect browser UA on a cloud IP — with a
+  self-healing background download, so existing installs need no cron. Stream
+  actions add *Send to campaign* and *Show text* (empty = blank page).
+- 📊 **Layered reports**: up to three stacked group-by layers (Country →
+  Campaign → adset ID) with subtotals, new dimensions (offer, landing, OS,
+  browser, day, Sub ID 1–10), a global across-campaigns report and aligned
+  tabular columns with a sticky total row.
+
+### Fixed
+- 💸 Report cost was hardcoded to zero — profit/ROI were wrong whenever spend
+  was imported; cost is now the real `SUM(clicks.cost)`.
+- 🗂 `install.sh` deleted uploaded local offers on a re-run over an existing
+  installation; `offers/` is backed up and restored like `landings/`.
 
 ## 📝 What's New in v0.9.7.7
 

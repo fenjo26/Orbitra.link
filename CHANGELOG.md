@@ -7,6 +7,65 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.7.8] — 2026-08-15
+
+### Added
+- 🎯 **Tracking tab in the campaign editor (Keitaro parity).** Every connection
+  method is generated with the campaign's id, alias and token baked in: KClient JS
+  (with a base64 anti-adblock option), KClient PHP (download button included),
+  Tracking Script (`KTracking.reportConversion` / `update` / `{offer}`), banner
+  blocks (script + iframe, sized), Campaign URL, link/iframe/script, Tracking
+  Pixel, Countdown Timer, Back Button Trap, Exit Intent and WordPress — with
+  per-method options that update the code live.
+- 📦 **The integration endpoints exist now.** `kclient.php` (KClickClient-
+  compatible class over Click API v3, served for download via `?download=1`),
+  `kclient.js`, `tracking.js` and `banner.js` ship with the tracker;
+  `/pixel.gif` logs impression clicks, registers conversions by subid and merges
+  click-parameter updates. The global Integrations page snippets pointed at
+  files that did not exist — they 404'd.
+- 🔌 **Click API v3: stream content.** Action landings ("Show as HTML/text")
+  return their body with `{offer}` resolved to a signed landing→offer transition
+  (`info.offer_link`), and clicks capture the full parameter whitelist via the
+  shared `ClickParams` — `ad_id`/`adset_id`/`campaign_id` used to be dropped for
+  API traffic, silently breaking cost matching.
+- 💰 **Cost Sync on the campaign's Integrations tab.** Spend connections
+  (Facebook / Google Ads / TikTok) with a *Sync now* button, a per-campaign
+  match diagnostic — do the last 7 days of clicks carry the IDs cost import
+  matches on? — and the ready-made Dolphin/Fbtool push URL for this campaign.
+- 🏷 **Local offers.** ZIP upload with the same security pipeline as landings
+  (mime/method checks, PHP gating, scan, cleanup), serving in place of the
+  redirect — including the `/?_lp=1` transition — with macros, PHP offers via
+  PhpLanding and asset passthrough (`orbitra_lo` cookie).
+- ☁️ **Cloudflare integration.** One API token; parked domains whose zone is in
+  the account get their A record written automatically (extra A/AAAA records
+  cleaned up), proxied domains take SSL from the CF edge and leave the certbot
+  queue, and *Re-point all domains* moves every A record when the tracker
+  changes servers. New "Domains & SSL" group on the Integrations page;
+  `docs/cloudflare.md`.
+- 🛡 **Stronger cloaking.** 50+ field-supplied bot UA signatures; daily-updated
+  datacenter/crawler IP ranges from lord-alfred/ipranges (~20k CIDRs, IPv4+IPv6
+  binary search) that flag a perfect browser UA sitting on a cloud IP;
+  self-healing download — the first cloak visit (or a status probe) fetches the
+  lists in the background after the response is sent, so existing installs need
+  no cron. Automation page gains a status card with an *Update now* button.
+- 🔀 **Stream actions: "Send to campaign"** (the backend supported it, the
+  editor never offered it) and **"Show text"** with a payload (empty = blank
+  white page); `show_html` finally has a field for the HTML itself. Stored as
+  `type:payload`, backward compatible.
+- 📊 **Layered reports.** Up to three stacked group-by dimensions — Country →
+  Campaign → adset_id drill-down with per-level subtotals — plus a global
+  across-campaigns report from the Campaigns page. New dimensions: campaign,
+  adset/ad/ad-campaign id, offer, landing, OS, browser, day, Sub ID 1–10 (ids
+  resolved to names in batch). Columns right-aligned with tabular numerals,
+  sticky header and a grand-total row; CSV export carries the layers.
+
+### Fixed
+- 💸 **Report cost was hardcoded to 0.00** — profit and ROI were fiction
+  whenever spend was imported. Cost is now `SUM(clicks.cost)` and every
+  derived metric is recomputed per row, subtotal and total.
+- 🗂 **install.sh deleted uploaded local offers** on a re-run over an existing
+  installation: `offers/` is backed up and restored exactly like `landings/`.
+
 ## [0.9.7.7] — 2026-08-15
 
 ### Added
