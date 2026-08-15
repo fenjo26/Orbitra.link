@@ -243,6 +243,66 @@ try {
     // Игнорируем ошибки отправки S2S, чтобы не ломать ответ
     }
 
+    // Facebook Conversions API — отправка события в Meta по этой конверсии.
+    // Ставим в ту же очередь, что и S2S: Meta иногда отвечает медленно, а партнёрка,
+    // не дождавшаяся ответа на постбек, пришлёт его повторно и удвоит конверсию.
+    try {
+        $capiStmt = $pdo->prepare("SELECT * FROM campaign_pixels WHERE campaign_id = ? AND type = 'facebook' AND is_active = 1");
+        $capiStmt->execute([$campaignId]);
+        $capiPixels = $capiStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!empty($capiPixels)) {
+            require_once __DIR__ . '/core/FacebookConversions.php';
+
+            $clickStmt = $pdo->prepare("
+                SELECT id, ip, user_agent, referer, country_code, region, city, zipcode,
+                       parameters_json, created_at
+                FROM clicks WHERE id = ? LIMIT 1
+            ");
+            $clickStmt->execute([$clickId]);
+            $clickRow = $clickStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($clickRow) {
+                $clickParamsForCapi = json_decode($clickRow['parameters_json'] ?? '{}', true);
+                if (!is_array($clickParamsForCapi)) {
+                    $clickParamsForCapi = [];
+                }
+
+                // conversion_id определяем так же, как для S2S — по нему в логах
+                // очереди видно, какая конверсия породила событие.
+                if ($tid) {
+                    $capiConvStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid = ? ORDER BY id DESC LIMIT 1");
+                    $capiConvStmt->execute([$clickId, $tid]);
+                } else {
+                    $capiConvStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid IS NULL ORDER BY id DESC LIMIT 1");
+                    $capiConvStmt->execute([$clickId]);
+                }
+                $capiConversionId = (int) ($capiConvStmt->fetchColumn() ?: 0) ?: null;
+
+                foreach ($capiPixels as $pixel) {
+                    try {
+                        FacebookConversions::enqueue($pdo, $pixel, $clickRow, [
+                            'status'       => $internalStatus,
+                            'payout'       => (float) $payout,
+                            'currency'     => $currency,
+                            'event_time'   => time(),
+                            // Дедупликация с браузерным пикселем: одинаковый event_id
+                            // для одного и того же события с обеих сторон.
+                            'event_id'     => $clickId . '_' . $internalStatus . ($tid ? '_' . $tid : ''),
+                            'click_params' => $clickParamsForCapi,
+                            'extra'        => $_GET,
+                        ], $capiConversionId);
+                    } catch (\Throwable $pixelErr) {
+                        // Один сломанный пиксель не должен ронять остальные.
+                    }
+                }
+            }
+        }
+    }
+    catch (\Throwable $e) {
+    // CAPI — best effort: ответ на входящий постбек важнее.
+    }
+
     if ($returnMsg) {
         echo htmlspecialchars($returnMsg);
     }

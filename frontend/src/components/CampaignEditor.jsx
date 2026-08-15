@@ -63,7 +63,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // Pixel states
     const [pixels, setPixels] = useState([]);
     const [editingPixel, setEditingPixel] = useState(null);
-    const [pixelForm, setPixelForm] = useState({ type: '', pixel_id: '', token: '', events: 'PageView,Lead', is_active: 1 });
+    const [pixelForm, setPixelForm] = useState({ type: '', pixel_id: '', token: '', events: 'PageView,Lead', is_active: 1, mapping: {}, test_event_code: '', proxy_url: '' });
+    const [capiMeta, setCapiMeta] = useState({ default_mapping: {}, available_events: [] });
+    const [capiTest, setCapiTest] = useState(null);
+    const [capiTesting, setCapiTesting] = useState(false);
+
+    const emptyPixelForm = { type: '', pixel_id: '', token: '', events: 'PageView,Lead', is_active: 1, mapping: {}, test_event_code: '', proxy_url: '' };
 
     // Log data
     const [clickLogs, setClickLogs] = useState([]);
@@ -277,6 +282,55 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     };
 
     useEffect(() => { if (campaignId) fetchPixels(); }, [campaignId]);
+
+    // Status→event map and the Meta event list come from the backend so the two
+    // cannot drift: FacebookConversions.php is the single source of truth.
+    useEffect(() => {
+        cachedGet('facebook_capi_meta')
+            .then(({ data }) => { if (data.status === 'success') setCapiMeta(data.data); })
+            .catch(() => { /* mapping UI falls back to the defaults below */ });
+    }, []);
+
+    const openPixelForEdit = (px) => {
+        let mapping = {};
+        if (px.mapping_json) {
+            try { mapping = JSON.parse(px.mapping_json) || {}; } catch { mapping = {}; }
+        }
+        setPixelForm({
+            id: px.id,
+            type: px.type,
+            pixel_id: px.pixel_id || '',
+            token: px.token || '',
+            events: px.events || 'PageView,Lead',
+            is_active: px.is_active ? 1 : 0,
+            mapping,
+            test_event_code: px.test_event_code || '',
+            proxy_url: px.proxy_url || '',
+        });
+        setCapiTest(null);
+        setEditingPixel(px.id);
+    };
+
+    const sendCapiTest = async () => {
+        setCapiTesting(true);
+        setCapiTest(null);
+        try {
+            const { data } = await cachedPost('facebook_capi_test', {
+                id: pixelForm.id,
+                campaign_id: campaignId,
+                pixel_id: pixelForm.pixel_id,
+                token: pixelForm.token,
+                test_event_code: pixelForm.test_event_code,
+                proxy_url: pixelForm.proxy_url,
+                event_name: 'Lead',
+            });
+            setCapiTest({ ok: data.status === 'success', message: data.message, usedRealClick: data.data?.used_real_click });
+        } catch (err) {
+            setCapiTest({ ok: false, message: String(err?.message || err) });
+        } finally {
+            setCapiTesting(false);
+        }
+    };
 
     const handleSave = async () => {
         if (!formData.name || !formData.alias) {
@@ -1193,6 +1247,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     }} />
                                                                     {t('pixels.active')}
                                                                 </label>
+                                                                <button onClick={() => openPixelForEdit(px)} className="action-btn" style={{ padding: '4px' }} title={t('common.edit')}>
+                                                                    <Edit3 size={14} />
+                                                                </button>
                                                                 <button onClick={() => {
                                                                     if (confirm(t('pixels.confirmDelete'))) {
                                                                         cachedPost('delete_campaign_pixel', { id: px.id }).then(() => fetchPixels());
@@ -1248,8 +1305,74 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             />
                                                             <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '4px' }}>{t('pixels.eventsHint')}</p>
                                                         </div>
+
+                                                        {/* Conversions API — server-side delivery. Only meaningful for Meta,
+                                                            and only once a Conversions API token is present. */}
+                                                        {pixelForm.type === 'facebook' && (
+                                                            <div style={{ borderTop: '1px dashed var(--color-border)', paddingTop: '12px' }}>
+                                                                <div style={{ fontWeight: 600, fontSize: '13px', marginBottom: '4px' }}>{t('pixels.capiTitle')}</div>
+                                                                <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginBottom: '10px' }}>{t('pixels.capiHint')}</p>
+
+                                                                <label className="form-label">{t('pixels.mapping')}</label>
+                                                                <div style={{ display: 'grid', gap: '6px', marginBottom: '10px' }}>
+                                                                    {Object.keys(capiMeta.default_mapping || {}).map(status => (
+                                                                        <div key={status} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', alignItems: 'center' }}>
+                                                                            <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{t('conversions.' + status, status)}</span>
+                                                                            <select
+                                                                                className="form-input text-sm"
+                                                                                value={pixelForm.mapping?.[status] ?? capiMeta.default_mapping[status] ?? ''}
+                                                                                onChange={e => setPixelForm({ ...pixelForm, mapping: { ...pixelForm.mapping, [status]: e.target.value } })}
+                                                                            >
+                                                                                <option value="">{t('pixels.doNotSend')}</option>
+                                                                                {(capiMeta.available_events || []).map(ev => <option key={ev} value={ev}>{ev}</option>)}
+                                                                            </select>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+
+                                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                                                    <div>
+                                                                        <label className="form-label">{t('pixels.testEventCode')}</label>
+                                                                        <input
+                                                                            type="text"
+                                                                            value={pixelForm.test_event_code}
+                                                                            onChange={e => setPixelForm({ ...pixelForm, test_event_code: e.target.value })}
+                                                                            placeholder="TEST12345"
+                                                                            className="form-input font-mono text-sm"
+                                                                        />
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="form-label">{t('pixels.proxy')}</label>
+                                                                        <input
+                                                                            type="text"
+                                                                            value={pixelForm.proxy_url}
+                                                                            onChange={e => setPixelForm({ ...pixelForm, proxy_url: e.target.value })}
+                                                                            placeholder="http://user:pass@1.2.3.4:8080"
+                                                                            className="form-input font-mono text-sm"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+
+                                                                <div style={{ marginTop: '10px' }}>
+                                                                    <button
+                                                                        onClick={sendCapiTest}
+                                                                        className="btn btn-secondary btn-sm"
+                                                                        disabled={!pixelForm.pixel_id || !pixelForm.token || capiTesting}
+                                                                    >
+                                                                        <Play size={14} /> {capiTesting ? t('pixels.sending') : t('pixels.sendTestEvent')}
+                                                                    </button>
+                                                                    {capiTest && (
+                                                                        <p style={{ fontSize: '11px', marginTop: '6px', color: capiTest.ok ? 'var(--color-success, #10b981)' : 'var(--color-danger, #ef4444)' }}>
+                                                                            {capiTest.message}
+                                                                            {capiTest.ok && !capiTest.usedRealClick ? ' ' + t('pixels.syntheticClick') : ''}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+
                                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                                            <button onClick={() => setEditingPixel(null)} className="btn btn-secondary btn-sm">
+                                                            <button onClick={() => { setEditingPixel(null); setCapiTest(null); }} className="btn btn-secondary btn-sm">
                                                                 <X size={14} /> {t('common.cancel')}
                                                             </button>
                                                             <button
@@ -1258,10 +1381,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     try {
                                                                         await cachedPost('save_campaign_pixel', {
                                                                             campaign_id: campaignId,
-                                                                            ...pixelForm
+                                                                            ...pixelForm,
+                                                                            mapping_json: JSON.stringify(pixelForm.mapping || {}),
                                                                         });
                                                                         setEditingPixel(null);
-                                                                        setPixelForm({ type: '', pixel_id: '', token: '', events: 'PageView,Lead', is_active: 1 });
+                                                                        setCapiTest(null);
+                                                                        setPixelForm(emptyPixelForm);
                                                                         fetchPixels();
                                                                     } catch (err) { console.error(err); }
                                                                 }}
@@ -1279,7 +1404,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         <button
                                                             key={platform.id}
                                                             onClick={() => {
-                                                                setPixelForm({ type: platform.id, pixel_id: '', token: '', events: 'PageView,Lead', is_active: 1 });
+                                                                setPixelForm({ ...emptyPixelForm, type: platform.id });
+                                                                setCapiTest(null);
                                                                 setEditingPixel('new');
                                                             }}
                                                             className="w-full flex items-center gap-3 p-3 rounded-2xl text-left transition"

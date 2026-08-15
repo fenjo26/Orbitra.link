@@ -1818,7 +1818,16 @@ export default {
         "saved": "Pixel gespeichert",
         "deleted": "Pixel gelöscht",
         "confirmDelete": "Dieses Pixel löschen?",
-        "selectPlatform": "Plattform zum Hinzufügen des Pixels auswählen"
+        "selectPlatform": "Plattform zum Hinzufügen des Pixels auswählen",
+        "capiTitle": "Conversions API (serverseitig)",
+        "capiHint": "Mit einem Conversions-API-Token sendet Orbitra jede Conversion serverseitig an Meta — diese Ereignisse überstehen Adblocker und iOS-Einschränkungen, die das Browser-Pixel blockieren.",
+        "mapping": "Status → Meta-Ereignis",
+        "doNotSend": "Nicht senden",
+        "testEventCode": "Test-Event-Code",
+        "proxy": "Proxy (optional)",
+        "sendTestEvent": "Testereignis senden",
+        "sending": "Wird gesendet…",
+        "syntheticClick": "(kein aktueller Klick mit fbclid — ein synthetischer wurde verwendet)"
     },
     "appConfig": {
         "title": "App-Konfiguration",
@@ -2188,6 +2197,14 @@ export default {
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",
-        "description": "Importiert tägliche Werbeausgaben und ordnet sie Klicks über die Anzeigen-IDs zu, die Ihre Traffic-Quell-Vorlagen bereits erfassen."
+        "description": "Importiert tägliche Werbeausgaben und ordnet sie Klicks über die Anzeigen-IDs zu, die Ihre Traffic-Quell-Vorlagen bereits erfassen.",
+        "fields": {
+            "fbToken": "Access Token (langlebig / System-User)",
+            "fbAdAccount": "Werbekonto-ID",
+            "fbApiVersion": "Facebook-API-Version",
+            "fbAppId": "App-ID (optional, für manche Token)",
+            "fbAppSecret": "App Secret (optional)",
+            "proxy": "Proxy (optional) — scheme://user:pass@host:port"
+        }
     }
 };

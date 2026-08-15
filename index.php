@@ -1500,23 +1500,13 @@ $clickId = generateUuid();
 
 
 
-// Extra tracking parameters extraction (Keitaro standards)
+// Extra tracking parameters extraction (Keitaro standards).
+// The full list — including the ad-network IDs cost import matches on and the
+// Meta click identifiers CAPI needs — lives in core/ClickParams.php, shared with
+// click.php so the two entry points cannot capture different things.
+require_once __DIR__ . '/core/ClickParams.php';
 $incomingParams = array_merge($_GET, $_POST);
-$clickParams = [];
-$standardKeys = ['keyword', 'cost', 'currency', 'external_id', 'creative_id', 'ad_campaign_id', 'source', 'subid'];
-for ($i = 1; $i <= 30; $i++) {
-    $standardKeys[] = 'sub_id_' . $i;
-}
-
-foreach ($standardKeys as $key) {
-    if (isset($incomingParams[$key])) {
-        $clickParams[$key] = $incomingParams[$key];
-    }
-}
-// Map traditional 'subid' to 'sub_id_1' if needed
-if (isset($clickParams['subid']) && !isset($clickParams['sub_id_1'])) {
-    $clickParams['sub_id_1'] = $clickParams['subid'];
-}
+$clickParams = orbitraCollectClickParams($pdo, $incomingParams, $_COOKIE, $campaign['source_id'] ?? null);
 
 $parametersJson = json_encode($clickParams, JSON_UNESCAPED_UNICODE);
 

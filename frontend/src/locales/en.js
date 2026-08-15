@@ -1818,7 +1818,16 @@ export default {
         "saved": "Pixel saved",
         "deleted": "Pixel deleted",
         "confirmDelete": "Delete this pixel?",
-        "selectPlatform": "Select platform to add pixel"
+        "selectPlatform": "Select platform to add pixel",
+        "capiTitle": "Conversions API (server-side)",
+        "capiHint": "With a Conversions API token set, Orbitra sends each conversion to Meta from the server — these events survive ad blockers and iOS restrictions that stop the browser pixel.",
+        "mapping": "Status → Meta event",
+        "doNotSend": "Do not send",
+        "testEventCode": "Test event code",
+        "proxy": "Proxy (optional)",
+        "sendTestEvent": "Send test event",
+        "sending": "Sending…",
+        "syntheticClick": "(no recent click with fbclid — a synthetic one was used)"
     },
     "appConfig": {
         "title": "App Config",
@@ -2188,6 +2197,14 @@ export default {
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",
-        "description": "Import daily ad spend and attribute it to clicks by the ad IDs your traffic-source templates already capture."
+        "description": "Import daily ad spend and attribute it to clicks by the ad IDs your traffic-source templates already capture.",
+        "fields": {
+            "fbToken": "Access Token (long-lived / system user)",
+            "fbAdAccount": "Ad Account ID",
+            "fbApiVersion": "Facebook API version",
+            "fbAppId": "App ID (optional, for some tokens)",
+            "fbAppSecret": "App Secret (optional)",
+            "proxy": "Proxy (optional) — scheme://user:pass@host:port"
+        }
     }
 };

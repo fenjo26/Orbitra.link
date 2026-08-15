@@ -2018,7 +2018,16 @@ export default {
         "saved": "Пиксель сохранён",
         "deleted": "Пиксель удалён",
         "confirmDelete": "Удалить этот пиксель?",
-        "selectPlatform": "Выберите платформу для добавления пикселя"
+        "selectPlatform": "Выберите платформу для добавления пикселя",
+        "capiTitle": "Conversions API (server-side)",
+        "capiHint": "Если указан токен Conversions API, Orbitra отправляет каждую конверсию в Meta с сервера — такие события не теряются на блокировщиках и ограничениях iOS, которые режут браузерный пиксель.",
+        "mapping": "Статус → событие Meta",
+        "doNotSend": "Не отправлять",
+        "testEventCode": "Test event code",
+        "proxy": "Прокси (опционально)",
+        "sendTestEvent": "Отправить тестовое событие",
+        "sending": "Отправка…",
+        "syntheticClick": "(свежего клика с fbclid нет — использован синтетический)"
     },
     "appConfig": {
         "title": "App Config",
@@ -2188,6 +2197,14 @@ export default {
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",
-        "description": "Импортирует дневной рекламный расход и атрибутирует его к кликам по рекламным ID, которые уже ловят шаблоны источников трафика."
+        "description": "Импортирует дневной рекламный расход и атрибутирует его к кликам по рекламным ID, которые уже ловят шаблоны источников трафика.",
+        "fields": {
+            "fbToken": "Access Token (long-lived / system user)",
+            "fbAdAccount": "ID рекламного кабинета",
+            "fbApiVersion": "Версия Facebook API",
+            "fbAppId": "App ID (опционально, для некоторых токенов)",
+            "fbAppSecret": "App Secret (опционально)",
+            "proxy": "Прокси (опционально) — scheme://user:pass@host:port"
+        }
     }
 };

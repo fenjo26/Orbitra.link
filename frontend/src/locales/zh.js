@@ -1818,7 +1818,16 @@ export default {
         "saved": "已保存像素",
         "deleted": "像素已删除",
         "confirmDelete": "删除这个像素？",
-        "selectPlatform": "选择添加像素的平台"
+        "selectPlatform": "选择添加像素的平台",
+        "capiTitle": "Conversions API（服务器端）",
+        "capiHint": "设置 Conversions API 令牌后，Orbitra 会从服务器将每次转化发送给 Meta — 这些事件不会被广告拦截器和 iOS 限制拦截，而浏览器像素会被拦截。",
+        "mapping": "状态 → Meta 事件",
+        "doNotSend": "不发送",
+        "testEventCode": "测试事件代码",
+        "proxy": "代理（可选）",
+        "sendTestEvent": "发送测试事件",
+        "sending": "发送中…",
+        "syntheticClick": "（没有带 fbclid 的近期点击 — 已使用合成点击）"
     },
     "appConfig": {
         "title": "应用程序配置",
@@ -2188,6 +2197,14 @@ export default {
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",
-        "description": "导入每日广告支出，并通过流量来源模板已捕获的广告 ID 将其归因到点击。"
+        "description": "导入每日广告支出，并通过流量来源模板已捕获的广告 ID 将其归因到点击。",
+        "fields": {
+            "fbToken": "访问令牌（长期 / 系统用户）",
+            "fbAdAccount": "广告账户 ID",
+            "fbApiVersion": "Facebook API 版本",
+            "fbAppId": "App ID（可选，部分令牌需要）",
+            "fbAppSecret": "App Secret（可选）",
+            "proxy": "代理（可选）— scheme://user:pass@host:port"
+        }
     }
 };

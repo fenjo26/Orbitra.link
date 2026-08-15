@@ -1818,7 +1818,16 @@ export default {
         "saved": "Піксель збережено",
         "deleted": "Піксель видалено",
         "confirmDelete": "Видалити цей піксель?",
-        "selectPlatform": "Виберіть платформу, щоб додати піксель"
+        "selectPlatform": "Виберіть платформу, щоб додати піксель",
+        "capiTitle": "Conversions API (server-side)",
+        "capiHint": "Якщо вказано токен Conversions API, Orbitra надсилає кожну конверсію в Meta з сервера — такі події не губляться на блокувальниках і обмеженнях iOS, які ріжуть браузерний піксель.",
+        "mapping": "Статус → подія Meta",
+        "doNotSend": "Не надсилати",
+        "testEventCode": "Test event code",
+        "proxy": "Проксі (опційно)",
+        "sendTestEvent": "Надіслати тестову подію",
+        "sending": "Надсилання…",
+        "syntheticClick": "(свіжого кліку з fbclid немає — використано синтетичний)"
     },
     "appConfig": {
         "title": "Конфігурація програми",
@@ -2188,6 +2197,14 @@ export default {
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",
-        "description": "Імпортує денну рекламну витрату і атрибутує її до кліків за рекламними ID, які вже ловлять шаблони джерел трафіку."
+        "description": "Імпортує денну рекламну витрату і атрибутує її до кліків за рекламними ID, які вже ловлять шаблони джерел трафіку.",
+        "fields": {
+            "fbToken": "Access Token (long-lived / system user)",
+            "fbAdAccount": "ID рекламного кабінету",
+            "fbApiVersion": "Версія Facebook API",
+            "fbAppId": "App ID (опційно, для деяких токенів)",
+            "fbAppSecret": "App Secret (опційно)",
+            "proxy": "Проксі (опційно) — scheme://user:pass@host:port"
+        }
     }
 };

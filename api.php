@@ -9154,17 +9154,134 @@ try {
                 $events = $data['events'] ?? 'PageView,Lead';
                 $is_active = isset($data['is_active']) ? (int) $data['is_active'] : 1;
 
+                // Server-side half (Facebook Conversions API). mapping_json holds
+                // {tracker status => Meta event}; an empty event means "never send
+                // this status", which is how rejected/trash are suppressed.
+                $mapping_json = null;
+                if (isset($data['mapping_json'])) {
+                    $mapping_json = is_array($data['mapping_json'])
+                        ? json_encode($data['mapping_json'], JSON_UNESCAPED_UNICODE)
+                        : (string) $data['mapping_json'];
+                } elseif (isset($data['mapping']) && is_array($data['mapping'])) {
+                    $mapping_json = json_encode($data['mapping'], JSON_UNESCAPED_UNICODE);
+                }
+                $test_event_code = trim((string) ($data['test_event_code'] ?? ''));
+                $proxy_url = trim((string) ($data['proxy_url'] ?? ''));
+                $api_version = trim((string) ($data['api_version'] ?? ''));
+
                 if ($id) {
-                    $stmt = $pdo->prepare("UPDATE campaign_pixels SET type=?, pixel_id=?, token=?, events=?, is_active=? WHERE id=? AND campaign_id=?");
-                    $stmt->execute([$type, $pixel_id, $token, $events, $is_active, $id, $campaign_id]);
+                    $stmt = $pdo->prepare("UPDATE campaign_pixels SET type=?, pixel_id=?, token=?, events=?, is_active=?, mapping_json=?, test_event_code=?, proxy_url=?, api_version=? WHERE id=? AND campaign_id=?");
+                    $stmt->execute([$type, $pixel_id, $token, $events, $is_active, $mapping_json, $test_event_code, $proxy_url, $api_version, $id, $campaign_id]);
                 } else {
-                    $stmt = $pdo->prepare("INSERT INTO campaign_pixels (campaign_id, type, pixel_id, token, events, is_active) VALUES (?, ?, ?, ?, ?, ?)");
-                    $stmt->execute([$campaign_id, $type, $pixel_id, $token, $events, $is_active]);
+                    $stmt = $pdo->prepare("INSERT INTO campaign_pixels (campaign_id, type, pixel_id, token, events, is_active, mapping_json, test_event_code, proxy_url, api_version) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([$campaign_id, $type, $pixel_id, $token, $events, $is_active, $mapping_json, $test_event_code, $proxy_url, $api_version]);
                     $id = $pdo->lastInsertId();
                 }
 
                 echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
             }
+            break;
+
+        // Default status→event map + the Meta events offered in the mapping UI.
+        case 'facebook_capi_meta':
+            require_once __DIR__ . '/core/FacebookConversions.php';
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'default_mapping'  => FacebookConversions::defaultMapping(),
+                    'available_events' => FacebookConversions::availableEvents(),
+                ],
+            ]);
+            break;
+
+        // Send one event straight to Meta so an operator can confirm the pixel ID and
+        // token before waiting on real traffic. Bypasses the queue deliberately: the
+        // person pressing "test" wants the answer now, not on the next cron tick.
+        case 'facebook_capi_test':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+
+            require_once __DIR__ . '/core/FacebookConversions.php';
+            $data = json_decode(orbitraRequestBody(), true);
+
+            $pixel = null;
+            if (!empty($data['id'])) {
+                $stmt = $pdo->prepare("SELECT * FROM campaign_pixels WHERE id = ? LIMIT 1");
+                $stmt->execute([$data['id']]);
+                $pixel = $stmt->fetch(PDO::FETCH_ASSOC);
+            }
+            // Unsaved form: accept the credentials inline so "test" works before save.
+            if (!$pixel) {
+                $pixel = [
+                    'pixel_id'        => $data['pixel_id'] ?? '',
+                    'token'           => $data['token'] ?? '',
+                    'mapping_json'    => $data['mapping_json'] ?? null,
+                    'test_event_code' => $data['test_event_code'] ?? '',
+                    'proxy_url'       => $data['proxy_url'] ?? '',
+                    'api_version'     => $data['api_version'] ?? '',
+                ];
+            }
+
+            if (empty($pixel['pixel_id']) || empty($pixel['token'])) {
+                echo json_encode(['status' => 'error', 'message' => 'Pixel ID and Conversions API token are required.']);
+                break;
+            }
+
+            // A real recent click makes the test representative — it carries the same
+            // fbclid/IP/user-agent a live event would. Falls back to a synthetic one.
+            $clickRow = null;
+            if (!empty($data['campaign_id'])) {
+                $stmt = $pdo->prepare("
+                    SELECT id, ip, user_agent, referer, country_code, region, city, zipcode,
+                           parameters_json, created_at
+                    FROM clicks
+                    WHERE campaign_id = ? AND json_extract(parameters_json, '$.fbclid') IS NOT NULL
+                    ORDER BY created_at DESC LIMIT 1
+                ");
+                $stmt->execute([$data['campaign_id']]);
+                $clickRow = $stmt->fetch(PDO::FETCH_ASSOC);
+            }
+            if (!$clickRow) {
+                $clickRow = [
+                    'ip'              => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+                    'user_agent'      => $_SERVER['HTTP_USER_AGENT'] ?? 'Orbitra/CAPI-test',
+                    'referer'         => '',
+                    'country_code'    => '',
+                    'region'          => '',
+                    'city'            => '',
+                    'zipcode'         => '',
+                    'parameters_json' => '{}',
+                    'created_at'      => date('Y-m-d H:i:s'),
+                ];
+            }
+
+            $clickParamsForTest = json_decode($clickRow['parameters_json'] ?? '{}', true);
+            if (!is_array($clickParamsForTest)) {
+                $clickParamsForTest = [];
+            }
+
+            $payload = FacebookConversions::buildPayload($pixel, $clickRow, [
+                'event_name'   => $data['event_name'] ?? 'Lead',
+                'event_time'   => time(),
+                'event_id'     => 'orbitra_test_' . bin2hex(random_bytes(6)),
+                'payout'       => (float) ($data['payout'] ?? 1),
+                'currency'     => $data['currency'] ?? 'USD',
+                'click_params' => $clickParamsForTest,
+                'extra'        => [],
+            ]);
+
+            $result = FacebookConversions::send($pixel, $payload);
+            echo json_encode([
+                'status'  => $result['success'] ? 'success' : 'error',
+                'message' => $result['message'],
+                'data'    => [
+                    'used_real_click' => !empty($clickRow['id']),
+                    'payload'         => $payload,
+                    'response'        => $result['response'],
+                ],
+            ]);
             break;
 
         case 'delete_campaign_pixel':
@@ -9525,7 +9642,7 @@ try {
                                     require_once __DIR__ . '/core/CostImporter.php';
 
                                     $pdo->beginTransaction();
-                                    $costStats = CostImporter::import($pdo, (int) $connectionId, $records);
+                                    $costStats = CostImporter::import($pdo, (int) $connectionId, $records, is_array($fieldMapping) ? $fieldMapping : []);
                                     $pdo->commit();
 
                                     $fetched  = $costStats['fetched'];

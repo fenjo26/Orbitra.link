@@ -49,7 +49,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 16;
+    $LATEST_SCHEMA_VERSION = 17;
 
     $schemaVersion = 0;
     try {
@@ -1198,6 +1198,50 @@ try {
                     $pdo->exec("UPDATE domains SET ssl_status = 'pending', ssl_attempts = 0 WHERE ssl_status = 'failed'");
                 } catch (\Throwable $e) {
                     // Non-critical: the worker re-evaluates every domain anyway.
+                }
+            }
+
+            if ($schemaVersion < 17) {
+                // Migration 17: Facebook Conversions API + cost-import correctness.
+                //
+                // CAPI events are delivered by the same worker as outbound S2S
+                // postbacks, so a queue row has to be able to carry a JSON body
+                // (and its own proxy) instead of only a URL with a query string.
+                $alters = [
+                    "ALTER TABLE s2s_postbacks_log ADD COLUMN payload_json TEXT",
+                    "ALTER TABLE s2s_postbacks_log ADD COLUMN content_type TEXT",
+                    "ALTER TABLE s2s_postbacks_log ADD COLUMN proxy_url TEXT",
+                    // Pixel rows gain the server-side half: status→event mapping,
+                    // Meta's test event code, API version and an optional egress proxy.
+                    "ALTER TABLE campaign_pixels ADD COLUMN mapping_json TEXT",
+                    "ALTER TABLE campaign_pixels ADD COLUMN test_event_code TEXT",
+                    "ALTER TABLE campaign_pixels ADD COLUMN proxy_url TEXT",
+                    "ALTER TABLE campaign_pixels ADD COLUMN api_version TEXT",
+                ];
+                foreach ($alters as $sql) {
+                    try {
+                        $pdo->exec($sql);
+                    } catch (\Throwable $e) {
+                        // Column already present on a half-migrated DB.
+                    }
+                }
+
+                // Cost import resolves spend to clicks by ad/adset/campaign id for a
+                // given day. Without an index on the date that is a full scan of
+                // clicks per cost record, which at real traffic volume turns one sync
+                // into a minutes-long write lock.
+                try {
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_clicks_created_date ON clicks(date(created_at))");
+                } catch (\Throwable $e) {
+                    // Expression indexes need SQLite 3.9+; matching still works without it.
+                }
+                try {
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_cost_records_conn_ext ON cost_records(connection_id, external_id)");
+                } catch (\Throwable $e) {
+                }
+                try {
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_s2s_queue_pending ON s2s_postbacks_log(status, next_retry_at)");
+                } catch (\Throwable $e) {
                 }
             }
 

@@ -126,7 +126,7 @@ try {
     // Select due rows. Claiming is done by flipping status to 'in_flight' inside a
     // transaction so a parallel worker cannot pick the same row.
     $dueStmt = $pdo->prepare("
-        SELECT id, conversion_id, url, method, attempts
+        SELECT id, conversion_id, url, method, attempts, payload_json, content_type, proxy_url
         FROM s2s_postbacks_log
         WHERE status = 'pending'
           AND next_retry_at <= datetime('now')
@@ -220,15 +220,48 @@ try {
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
 
+        // Some rows carry their own egress proxy (Facebook CAPI, when Meta blocks the
+        // tracker's own IP range). Applied before the body so a transport failure is
+        // attributed to the proxy, not to the payload.
+        $rowProxy = trim((string) ($row['proxy_url'] ?? ''));
+        if ($rowProxy !== '') {
+            $proxyParts = parse_url($rowProxy);
+            if (is_array($proxyParts) && !empty($proxyParts['host'])) {
+                $proxyScheme = strtolower($proxyParts['scheme'] ?? 'http');
+                $proxyType = CURLPROXY_HTTP;
+                if ($proxyScheme === 'socks5' || $proxyScheme === 'socks5h') {
+                    $proxyType = CURLPROXY_SOCKS5_HOSTNAME;
+                } elseif ($proxyScheme === 'socks4') {
+                    $proxyType = CURLPROXY_SOCKS4;
+                }
+                curl_setopt($ch, CURLOPT_PROXY, $proxyParts['host'] . (isset($proxyParts['port']) ? ':' . $proxyParts['port'] : ''));
+                curl_setopt($ch, CURLOPT_PROXYTYPE, $proxyType);
+                if (isset($proxyParts['user'])) {
+                    curl_setopt($ch, CURLOPT_PROXYUSERPWD, urldecode($proxyParts['user']) . ':' . urldecode($proxyParts['pass'] ?? ''));
+                }
+            }
+        }
+
         if ($method === 'POST') {
-            // Move query-string fields into the POST body so partners receive them in
-            // the request body (the common S2S convention) instead of an empty body.
             curl_setopt($ch, CURLOPT_POST, true);
-            $parsedForBody = parse_url($url);
-            parse_str($parsedForBody['query'] ?? '', $bodyFields);
-            if (!empty($bodyFields)) {
-                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($bodyFields));
-                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+
+            $rawBody = (string) ($row['payload_json'] ?? '');
+            if ($rawBody !== '') {
+                // A row with a prepared body (Facebook Conversions API) is sent
+                // verbatim — its JSON structure is the message, and folding it into
+                // form fields would make Meta reject the event.
+                $contentType = trim((string) ($row['content_type'] ?? '')) ?: 'application/json';
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $rawBody);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: ' . $contentType]);
+            } else {
+                // Move query-string fields into the POST body so partners receive them in
+                // the request body (the common S2S convention) instead of an empty body.
+                $parsedForBody = parse_url($url);
+                parse_str($parsedForBody['query'] ?? '', $bodyFields);
+                if (!empty($bodyFields)) {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($bodyFields));
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+                }
             }
         }
 

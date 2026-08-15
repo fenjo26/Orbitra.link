@@ -466,7 +466,7 @@ export default function AggregatorPage() {
                                 <label className="form-label" style={{ fontWeight: 700, fontSize: '0.95rem' }}>{t('aggregator.credentials')}</label>
                                 {engineFields.map(field => (
                                     <div key={field.key} style={{ marginBottom: 12 }}>
-                                        <label className="form-label" style={{ fontSize: '0.8rem' }}>{field.label}{field.required && ' *'}</label>
+                                        <label className="form-label" style={{ fontSize: '0.8rem' }}>{field.label_key ? t(field.label_key, field.label) : field.label}{field.required && ' *'}</label>
                                         {field.type === 'textarea' ? (
                                             <textarea className="input" rows={3} value={form.credentials[field.key] || ''} onChange={e => updateCredential(field.key, e.target.value)} placeholder={field.placeholder} />
                                         ) : field.type === 'select' ? (

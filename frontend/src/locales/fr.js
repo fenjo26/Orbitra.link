@@ -1818,7 +1818,16 @@ export default {
         "saved": "Pixel enregistré",
         "deleted": "Pixel supprimé",
         "confirmDelete": "Supprimer ce pixel ?",
-        "selectPlatform": "Sélectionner la plate-forme pour ajouter un pixel"
+        "selectPlatform": "Sélectionner la plate-forme pour ajouter un pixel",
+        "capiTitle": "Conversions API (côté serveur)",
+        "capiHint": "Avec un jeton Conversions API renseigné, Orbitra envoie chaque conversion à Meta depuis le serveur — ces événements survivent aux bloqueurs de publicité et aux restrictions iOS qui bloquent le pixel navigateur.",
+        "mapping": "Statut → événement Meta",
+        "doNotSend": "Ne pas envoyer",
+        "testEventCode": "Code d'événement de test",
+        "proxy": "Proxy (optionnel)",
+        "sendTestEvent": "Envoyer un événement de test",
+        "sending": "Envoi…",
+        "syntheticClick": "(aucun clic récent avec fbclid — un clic synthétique a été utilisé)"
     },
     "appConfig": {
         "title": "Configuration de l'application",
@@ -2188,6 +2197,14 @@ export default {
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",
-        "description": "Importe les dépenses publicitaires quotidiennes et les attribue aux clics via les IDs d'annonce que vos modèles de source de trafic capturent déjà."
+        "description": "Importe les dépenses publicitaires quotidiennes et les attribue aux clics via les IDs d'annonce que vos modèles de source de trafic capturent déjà.",
+        "fields": {
+            "fbToken": "Access Token (longue durée / utilisateur système)",
+            "fbAdAccount": "ID du compte publicitaire",
+            "fbApiVersion": "Version de l'API Facebook",
+            "fbAppId": "App ID (optionnel, pour certains jetons)",
+            "fbAppSecret": "App Secret (optionnel)",
+            "proxy": "Proxy (optionnel) — scheme://user:pass@host:port"
+        }
     }
 };

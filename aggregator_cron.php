@@ -129,6 +129,22 @@ foreach ($connections as $conn) {
 
     $credentials = json_decode($conn['credentials_json'] ?? '{}', true);
     $fieldMapping = json_decode($conn['field_mapping_json'] ?? '{}', true);
+    if (!is_array($fieldMapping)) {
+        $fieldMapping = [];
+    }
+
+    // Ad platforms keep restating past days: spend is attributed late, refunds and
+    // invalid-click credits land days after the fact, and the current day is a
+    // running total. A 2-day window therefore freezes yesterday's numbers wrong.
+    // Cost connections re-read the last 5 days, and 30 days on the very first sync
+    // so a connection added today does not leave the previous month at zero cost.
+    $connDateFrom = $dateFrom;
+    $connDateTo = $dateTo;
+    $isCostConnection = in_array($conn['engine'], ['facebook', 'google_ads'], true);
+    if ($isCostConnection && !isset($options['days'])) {
+        $lookbackDays = empty($conn['last_sync_at']) ? 30 : 5;
+        $connDateFrom = date('Y-m-d', strtotime("-{$lookbackDays} days"));
+    }
 
     try {
         // Load appropriate engine
@@ -156,14 +172,14 @@ foreach ($connections as $conn) {
             case 'facebook':
                 if (file_exists(__DIR__ . '/aggregator_engines/FacebookAdsEngine.php')) {
                     require_once __DIR__ . '/aggregator_engines/FacebookAdsEngine.php';
-                    $records = FacebookAdsEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                    $records = FacebookAdsEngine::fetchRecords($credentials, $connDateFrom, $connDateTo, $fieldMapping);
                     $isCostEngine = true;
                 }
                 break;
             case 'google_ads':
                 if (file_exists(__DIR__ . '/aggregator_engines/GoogleAdsEngine.php')) {
                     require_once __DIR__ . '/aggregator_engines/GoogleAdsEngine.php';
-                    $records = GoogleAdsEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                    $records = GoogleAdsEngine::fetchRecords($credentials, $connDateFrom, $connDateTo, $fieldMapping);
                     $isCostEngine = true;
                 }
                 break;
@@ -181,7 +197,7 @@ foreach ($connections as $conn) {
             require_once __DIR__ . '/core/CostImporter.php';
 
             $pdo->beginTransaction();
-            $costStats = CostImporter::import($pdo, (int) $conn['id'], $records);
+            $costStats = CostImporter::import($pdo, (int) $conn['id'], $records, $fieldMapping);
             $fetched  = $costStats['fetched'];
             $matched  = $costStats['matched'];
             $newCount = $costStats['new'];
@@ -193,12 +209,20 @@ foreach ($connections as $conn) {
             $pdo->prepare("UPDATE aggregator_connections SET last_sync_at = datetime('now'), last_sync_status = 'success', last_sync_error = NULL WHERE id = ?")
                 ->execute([$conn['id']]);
             $pdo->prepare("INSERT INTO aggregator_sync_logs (connection_id, status, records_fetched, records_matched, records_new, duration_ms, date_from, date_to) VALUES (?,?,?,?,?,?,?,?)")
-                ->execute([$conn['id'], 'success', $fetched, $matched, $newCount, $durationMs, $dateFrom, $dateTo]);
+                ->execute([$conn['id'], 'success', $fetched, $matched, $newCount, $durationMs, $connDateFrom, $connDateTo]);
 
             $totalFetched += $fetched;
             $totalMatched += $matched;
             $totalNew += $newCount;
-            cron_log("[$connName] ✓ Done (cost). Fetched: $fetched, Matched: $matched, New: $newCount, Updated: $updatedCount ({$durationMs}ms)");
+            $unmatched = $costStats['unmatched'];
+            $costCurrency = $costStats['currency'];
+            cron_log("[$connName] ✓ Done (cost, $connDateFrom→$connDateTo). Fetched: $fetched, Matched: $matched, Unmatched: $unmatched, New: $newCount, Updated: $updatedCount, Currency: $costCurrency ({$durationMs}ms)");
+            if ($fetched > 0 && $matched === 0) {
+                // The single most common misconfiguration: spend arrives, but the
+                // campaign URL carries no {{ad.id}}/{{adset.id}}, so none of it can
+                // be attached to a click. Silence here reads as "working".
+                cron_log("[$connName] ⚠ Spend was imported but matched 0 clicks — check that the campaign URL passes ad_id/adset_id/campaign_id (Facebook source template).");
+            }
             continue;
         }
 

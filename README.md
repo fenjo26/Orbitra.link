@@ -1,4 +1,4 @@
-# Orbitra v0.9.7.5 Tracker
+# Orbitra v0.9.7.6 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -88,6 +88,8 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 - **Affiliate network templates**: platform-level (Everflow, CAKE, HitPath, Affise, TUNE/HasOffers) plus networks Leadbit, M4Leads, Dr.Cash, AdCombo and others
 - **Source templates**: Facebook, Google, TikTok, Yandex, Taboola, Outbrain, Email and others
 - **Click API** — tokens for working with integration scripts
+- **Facebook cost import** — daily ad spend pulled from the Meta Marketing API and attributed to clicks by ad / adset / campaign ID, converted into the tracker's currency ([docs](docs/facebook.md))
+- **Facebook Conversions API** — conversions sent to Meta server-side, deduplicated against the browser pixel, so the events ad blockers and iOS strip out still reach the optimiser
 - **Telegram Bot** — real-time monitoring and notifications
 
 ### 5. **Analytics & Reports**
@@ -385,6 +387,62 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.7.6
+
+### Added
+- 📤 **Facebook Conversions API.** Conversions are now sent to Meta from the
+  server, not only from the browser pixel — the events ad blockers, ITP and iOS
+  strip out reach the optimiser again. Set it up per campaign (Integrations tab):
+  pixel ID, Conversions API token, a status→event mapping, optional test event
+  code and proxy. Events carry `fbc`/`fbp`, the click's IP and user agent, and
+  SHA-256 hashed email/phone/name/geo, with an `event_id` that deduplicates
+  against the browser pixel. Delivery rides the existing S2S retry queue, so a
+  slow answer from Meta never delays the reply to the affiliate network's
+  postback. `rejected` and `trash` are unmapped by default — feeding a rejected
+  lead back as a conversion teaches the algorithm to buy the wrong traffic.
+- 💱 **Ad spend is converted into the tracker's currency.** Meta and Google bill
+  in the ad account's currency, which was previously written into `clicks.cost`
+  as-is and mixed with revenue in another currency. Rates are cached for 12
+  hours; `fx_rates_manual_json` pins them by hand.
+- 📖 **[docs/facebook.md](docs/facebook.md)** — tokens, macros, mapping,
+  troubleshooting. Plus `tests/facebook_integration_test.php`, which covers the
+  whole path without touching the network.
+
+### Fixed
+- 💰 **Facebook cost import fetched nothing at all.** The insights request asked
+  for a field named `currency`, which does not exist on that endpoint — Meta
+  rejects the entire request when one field identifier is wrong, so every sync
+  returned zero rows. The field is `account_currency`.
+- 🔇 **A failing sync reported success.** Transport and API errors were swallowed
+  and returned as an empty array, so an expired token showed up as "success, 0
+  records". Errors now land in `last_sync_error` with Meta's own message.
+- 🎯 **Clicks never recorded the ad IDs cost import matches on.** The traffic
+  source templates advertised `{{ad.id}}` and `{{adset.id}}`, but click logging
+  kept only a fixed list of `sub_id_*` keys — so imported spend could not attach
+  to any click and campaigns showed cost 0. Capture now lives in one shared
+  helper used by both the redirect path and the Click API, and covers the
+  ad-network IDs, the platform click identifiers (`fbclid`, `gclid`, `ttclid`, …),
+  the `_fbp`/`_fbc` cookies and any parameter the campaign's source declares.
+- 🎯 **Spend was never attributed at adset level.** Matching jumped straight from
+  ad ID to campaign ID, so `{{adset.id}}` did nothing. The chain is now
+  ad → adset → campaign, and a connection can point each level at a different
+  click parameter for traffic that passes through an app.
+- 📅 **The sync window was too short to be correct.** Platforms restate spend for
+  days afterwards; two days of lookback froze it wrong. Cost connections now
+  re-read the last 5 days, and 30 days on their first sync.
+- 📄 **Pagination could stop early** — the cursor was rebuilt by hand instead of
+  following Meta's `paging.next`.
+
+### Changed
+- Facebook connections gained **API version** and **proxy** settings — Meta
+  periodically geo/IP-filters requests from a tracker's server IP.
+- **Test connection** reads the ad account (name, currency, timezone, status)
+  instead of an insights report, which can be empty and valid for a dead token.
+- Pixels can be **edited**, not only created and deleted.
+- All new interface strings are translated in every locale (en, ru, uk, es, de,
+  fr, zh); aggregator field labels moved out of the PHP engines into the locale
+  files.
 
 ## 📝 What's New in v0.9.7.5
 

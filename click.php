@@ -369,21 +369,11 @@ $languageCodes = clickExtractLanguageCodes($acceptLanguageRaw);
 $language = $languageCodes[0] ?? 'Unknown';
 $clickId = clickGenerateUuid();
 
-// Collect sub parameters
-$clickParams = [];
-$standardKeys = ['keyword', 'cost', 'currency', 'external_id', 'creative_id', 'ad_campaign_id', 'source', 'subid'];
-for ($i = 1; $i <= 30; $i++) {
-    $standardKeys[] = 'sub' . $i;
-    $standardKeys[] = 'sub_id_' . $i;
-}
-foreach ($standardKeys as $key) {
-    if (isset($_GET[$key])) {
-        $clickParams[$key] = $_GET[$key];
-    }
-}
-if (isset($clickParams['subid']) && !isset($clickParams['sub_id_1'])) {
-    $clickParams['sub_id_1'] = $clickParams['subid'];
-}
+// Collect sub parameters. Same helper as index.php — the Click API must record the
+// ad-network IDs (ad_id / adset_id / campaign_id) and fbclid too, otherwise cost
+// import and Conversions API silently skip every click that came in this way.
+require_once __DIR__ . '/core/ClickParams.php';
+$clickParams = orbitraCollectClickParams($pdo, array_merge($_GET, $_POST), $_COOKIE, $campaign['source_id'] ?? null);
 $parametersJson = json_encode($clickParams, JSON_UNESCAPED_UNICODE);
 
 // Check stats_enabled setting

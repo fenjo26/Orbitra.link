@@ -7,6 +7,73 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.7.6] — 2026-08-15
+
+### Added
+- 📤 **Facebook Conversions API.** Conversions are now sent to Meta from the server,
+  not only from the browser pixel — the events ad blockers, ITP and iOS strip out
+  reach the optimiser again. Configured per campaign (Integrations tab): pixel ID,
+  Conversions API token, a status→event mapping, optional test event code and proxy.
+  Events carry `fbc`/`fbp`, the click's IP and user agent, and SHA-256 hashed
+  email/phone/name/geo, with an `event_id` that deduplicates against the browser
+  pixel. Delivery rides the existing S2S queue, so a slow answer from Meta never
+  delays the reply to the affiliate network's postback. A pixel without a token
+  stays browser-only, and `rejected`/`trash` are unmapped by default.
+- 💱 **Ad spend is converted to the tracker's currency.** Meta and Google bill in the
+  ad account's currency, which was previously written into `clicks.cost` as-is and
+  silently mixed with revenue in another currency. Rates are fetched and cached for
+  12 hours; `fx_rates_manual_json` pins them manually. The platform's original
+  amount and currency are kept in `cost_records.raw_json` for audit.
+- 🧪 `tests/facebook_integration_test.php` — end-to-end coverage of capture,
+  attribution, currency, idempotency and CAPI payload construction. No network.
+- 📖 `docs/facebook.md` — setup, macros, token issuance, mapping, troubleshooting.
+
+### Fixed
+- 💰 **Facebook cost import fetched nothing at all.** The insights request asked for a
+  field named `currency`, which does not exist on that endpoint — Meta rejects the
+  whole request when one field identifier is wrong (error 100), so every sync
+  returned zero rows. The field is `account_currency`.
+- 🔇 **A failing sync reported success.** `fetchRecords()` swallowed transport and API
+  errors and returned an empty array, so an expired token showed up in the UI as
+  "success, 0 records". Errors now propagate and land in `last_sync_error` with
+  Meta's own message.
+- 🎯 **Clicks never recorded the ad IDs cost import matches on.** The traffic-source
+  templates advertised `{{ad.id}}` and `{{adset.id}}`, but click logging only kept a
+  fixed list of `sub_id_*` keys and dropped everything else — so imported spend could
+  not be attached to any click and campaigns showed cost 0. Capture now lives in one
+  shared helper (`core/ClickParams.php`) used by both the redirect path and the Click
+  API, and covers the ad-network IDs, the platform click identifiers (`fbclid`,
+  `gclid`, `ttclid`, …), the `_fbp`/`_fbc` cookies, and any parameter the campaign's
+  traffic source declares.
+- 🎯 **Spend was never attributed at adset level.** Matching went straight from ad ID
+  to campaign ID, so `{{adset.id}}` — the one parameter Keitaro requires — did
+  nothing, and any campaign whose ad IDs the tracker had not seen fell back to
+  campaign-level or went unmatched. The chain is now ad → adset → campaign, and a
+  connection can point each level at a different click parameter (`ad_id_param`,
+  `adset_id_param`, `campaign_id_param`) for traffic that passes through an app.
+- 📅 **The sync window was too short to be correct.** Two days of lookback froze
+  restated spend at whatever it was when first read. Cost connections now re-read
+  the last 5 days, and 30 days on their first sync.
+- 📄 **Pagination could stop early.** The cursor was rebuilt by hand instead of
+  following Meta's `paging.next`, so a parameter set that drifted dropped pages
+  silently. Page size raised from 200 to 500.
+
+### Changed
+- Facebook connections gained **API version** and **proxy** settings — Meta
+  periodically geo/IP-filters requests coming from a tracker's server IP.
+- **Test connection** now reads the ad account (name, currency, timezone, status)
+  instead of an insights report, which could come back empty and valid for a dead
+  token. A disabled or closed account is reported as a failure.
+- Existing pixels can be **edited**, not only created and deleted.
+- The cost sync log line reports the date window, unmatched count and currency, and
+  warns explicitly when spend was imported but matched zero clicks.
+- New indexes on `clicks(date(created_at))`, `cost_records(connection_id, external_id)`
+  and the postback queue's pending lookup (schema v17).
+- All new interface strings are translated in every locale (en, ru, uk, es, de, fr, zh);
+  `npm run check:i18n` passes with all seven in parity. Aggregator connection fields now
+  carry a `label_key` alongside their English text, so engine form labels come from the
+  locale files instead of being hardcoded in the PHP engine.
+
 ## [0.9.7.5] — 2026-08-13
 
 ### Fixed

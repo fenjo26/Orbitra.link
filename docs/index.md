@@ -55,7 +55,12 @@ wget -qO- https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh
    - SSL сертификаты
 
 5. **[Лендинги](landing-pages.md)** (English) — все четыре типа, макросы, JS-адаптер, PHP-лендинги и разбор частых ошибок
-6. **[Миграция из Keitaro](keitaro-migration.md)**
+6. **[Facebook / Meta](facebook.md)** (English)
+   - Импорт расходов из Meta Marketing API
+   - Conversions API: отправка конверсий с сервера
+   - Токены, макросы кампании, маппинг статусов
+   - Конвертация валют и разбор ошибок
+7. **[Миграция из Keitaro](keitaro-migration.md)**
    - Создание бекапа Keitaro
    - Загрузка дампа в Orbitra
    - Сохранение токенов Click API
