@@ -6458,107 +6458,165 @@ try {
             break;
 
         case 'campaign_report':
+            // Layered reporting: up to 3 group-by dimensions ("Country → Campaign
+            // → adset_id"), Keitaro-style. campaign_id = 0 means "all campaigns".
             $campaign_id = (int) ($_GET['campaign_id'] ?? 0);
             $date_from = $_GET['date_from'] ?? null;
             $date_to = $_GET['date_to'] ?? null;
-            $group_by = $_GET['group_by'] ?? 'country';
+            $group_by_raw = (string) ($_GET['group_by'] ?? 'country');
 
-            // Validate `group_by` to prevent SQL injection
             $allowed_dimensions = [
-                'country' => 'clicks.country',
+                'country'     => 'clicks.country',
                 'device_type' => 'clicks.device_type',
-                'language' => 'clicks.language',
-                'stream_id' => 'clicks.stream_id',
-                'source_id' => 'clicks.source_id',
+                'os'          => 'clicks.os',
+                'browser'     => 'clicks.browser',
+                'language'    => 'clicks.language',
+                'stream_id'   => 'clicks.stream_id',
+                'source_id'   => 'clicks.source_id',
+                'offer_id'    => 'clicks.offer_id',
+                'landing_id'  => 'clicks.landing_id',
+                'campaign_id' => 'clicks.campaign_id',
+                'day'         => "date(clicks.created_at)",
+                'ad_id'       => "json_extract(clicks.parameters_json, '\$.ad_id')",
+                'adset_id'    => "json_extract(clicks.parameters_json, '\$.adset_id')",
+                'ad_campaign_id' => "json_extract(clicks.parameters_json, '\$.campaign_id')",
             ];
-            for ($i = 1; $i <= 5; $i++) {
-                $allowed_dimensions["sub_id_$i"] = "json_extract(clicks.parameters_json, '$.sub_id_$i')";
+            for ($i = 1; $i <= 10; $i++) {
+                $allowed_dimensions["sub_id_$i"] = "json_extract(clicks.parameters_json, '\$.sub_id_$i')";
             }
 
-            if (!array_key_exists($group_by, $allowed_dimensions)) {
-                echo json_encode(['status' => 'error', 'message' => 'Invalid group_by parameter']);
-                break;
+            $layers = array_values(array_slice(array_filter(array_map('trim', explode(',', $group_by_raw)), fn($d) => $d !== ''), 0, 3));
+            if (empty($layers)) {
+                $layers = ['country'];
+            }
+            foreach ($layers as $layer) {
+                if (!array_key_exists($layer, $allowed_dimensions)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Invalid group_by parameter: ' . htmlspecialchars($layer)]);
+                    break 2;
+                }
             }
 
-            $dim_sql = $allowed_dimensions[$group_by];
-            $conds = ["clicks.campaign_id = ?"];
-            $params = [$campaign_id];
-
+            $conds = [];
+            $params = [];
+            if ($campaign_id > 0) {
+                $conds[] = 'clicks.campaign_id = ?';
+                $params[] = $campaign_id;
+            }
             if ($date_from) {
-                $conds[] = "date(clicks.created_at) >= date(?)";
+                $conds[] = 'date(clicks.created_at) >= date(?)';
                 $params[] = $date_from;
             }
             if ($date_to) {
-                $conds[] = "date(clicks.created_at) <= date(?)";
+                $conds[] = 'date(clicks.created_at) <= date(?)';
                 $params[] = $date_to;
             }
+            $where = $conds ? implode(' AND ', $conds) : '1=1';
 
-            $where = implode(' AND ', $conds);
             $conversionsValueColumn = getConversionsValueColumn($pdo);
-            $campaignRevenueExpression = "0";
+            $campaignRevenueExpression = '0';
             if ($conversionsValueColumn !== null) {
                 $campaignRevenueExpression = "COALESCE((SELECT SUM($conversionsValueColumn) FROM conversions WHERE click_id = clicks.id), 0)";
             }
             $revenueRecordsValueColumn = getRevenueRecordsValueColumn($pdo);
-            $campaignRealRevenueExpression = "0";
+            $campaignRealRevenueExpression = '0';
             if ($revenueRecordsValueColumn !== null) {
                 $campaignRealRevenueExpression = "COALESCE((SELECT SUM($revenueRecordsValueColumn) FROM revenue_records WHERE click_id = clicks.id), 0)";
             }
 
+            $dimInner = [];
+            $dimOuter = [];
+            $dimGroupBy = [];
+            foreach ($layers as $i => $layer) {
+                $dimInner[] = "COALESCE({$allowed_dimensions[$layer]}, 'Unknown') as dim_" . ($i + 1);
+                $dimOuter[] = 'dim_' . ($i + 1);
+                $dimGroupBy[] = 'dim_' . ($i + 1);
+            }
+
             $sql = "
-                SELECT 
-                    dimension_name,
+                SELECT
+                    " . implode(', ', $dimOuter) . ",
                     COUNT(click_id) as clicks,
                     COUNT(DISTINCT click_ip) as unique_clicks,
                     SUM(is_conversion) as conversions,
+                    SUM(click_cost) as cost,
                     SUM(click_revenue) as revenue,
                     SUM(click_real_revenue) as real_revenue
                 FROM (
-                    SELECT COALESCE($dim_sql, 'Unknown') as dimension_name,
-                           clicks.id as click_id,
+                    SELECT clicks.id as click_id,
                            clicks.ip as click_ip,
                            clicks.is_conversion,
+                           clicks.cost as click_cost,
                            $campaignRevenueExpression as click_revenue,
-                           $campaignRealRevenueExpression as click_real_revenue
+                           $campaignRealRevenueExpression as click_real_revenue,
+                           " . implode(', ', $dimInner) . "
                     FROM clicks
                     WHERE $where
                 )
-                GROUP BY dimension_name
+                GROUP BY " . implode(', ', $dimGroupBy) . "
                 ORDER BY clicks DESC
-                LIMIT 500
+                LIMIT 2000
             ";
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute($params);
             $rows = $stmt->fetchAll();
 
-            // Cost and Profit (simplified, assuming 0 cost as per earlier logic)
-            foreach ($rows as &$r) {
-                $r['cost'] = 0.00;
-                $r['profit'] = (float) $r['revenue'] - $r['cost'];
-                $r['real_profit'] = (float) $r['real_revenue'] - $r['cost'];
-                $r['cr'] = $r['clicks'] > 0 ? round(($r['conversions'] / $r['clicks']) * 100, 2) : 0;
-                $r['epc'] = $r['clicks'] > 0 ? round(((float) $r['revenue'] / $r['clicks']), 4) : 0;
-                $r['real_epc'] = $r['clicks'] > 0 ? round(((float) $r['real_revenue'] / $r['clicks']), 4) : 0;
-                $r['real_roi'] = $r['cost'] > 0 ? round(((float) $r['real_profit'] / $r['cost']) * 100, 2) : ($r['real_profit'] > 0 ? 100 : 0);
-
-                // Fetch Stream/Source names instead of IDs if grouped by them
-                if ($group_by === 'stream_id' && is_numeric($r['dimension_name'])) {
-                    $st_q = $pdo->prepare("SELECT name FROM streams WHERE id = ?");
-                    $st_q->execute([$r['dimension_name']]);
-                    if ($st_name = $st_q->fetchColumn()) {
-                        $r['dimension_name'] = $st_name;
-                    }
-                } else if ($group_by === 'source_id' && is_numeric($r['dimension_name'])) {
-                    $st_q = $pdo->prepare("SELECT name FROM traffic_sources WHERE id = ?");
-                    $st_q->execute([$r['dimension_name']]);
-                    if ($st_name = $st_q->fetchColumn()) {
-                        $r['dimension_name'] = $st_name;
+            // Resolve numeric ids of the layer dimensions into names, in batch —
+            // one query per entity type instead of one per row.
+            $nameMaps = [];
+            $idLayers = ['stream_id' => 'streams', 'source_id' => 'traffic_sources', 'offer_id' => 'offers', 'landing_id' => 'landings', 'campaign_id' => 'campaigns'];
+            foreach ($layers as $i => $layer) {
+                if (!isset($idLayers[$layer])) {
+                    continue;
+                }
+                $ids = [];
+                foreach ($rows as $r) {
+                    $v = (string) ($r['dim_' . ($i + 1)] ?? '');
+                    if ($v !== '' && $v !== 'Unknown' && ctype_digit($v)) {
+                        $ids[$v] = true;
                     }
                 }
+                if (!$ids) {
+                    continue;
+                }
+                $placeholders = implode(',', array_fill(0, count($ids), '?'));
+                $st = $pdo->prepare("SELECT id, name FROM {$idLayers[$layer]} WHERE id IN ($placeholders)");
+                $st->execute(array_keys($ids));
+                $nameMaps[$layer] = $st->fetchAll(PDO::FETCH_KEY_PAIR);
             }
 
-            echo json_encode(['status' => 'success', 'data' => $rows]);
+            $out = [];
+            foreach ($rows as $r) {
+                $dims = [];
+                foreach ($layers as $i => $layer) {
+                    $v = (string) ($r['dim_' . ($i + 1)] ?? 'Unknown');
+                    if (isset($nameMaps[$layer][$v])) {
+                        $v = (string) $nameMaps[$layer][$v];
+                    }
+                    $dims[] = $v;
+                }
+                $clicks = (int) $r['clicks'];
+                $cost = (float) $r['cost'];
+                $revenue = (float) $r['revenue'];
+                $realRevenue = (float) $r['real_revenue'];
+                $out[] = [
+                    'dims' => $dims,
+                    'clicks' => $clicks,
+                    'unique_clicks' => (int) $r['unique_clicks'],
+                    'conversions' => (int) $r['conversions'],
+                    'cost' => round($cost, 2),
+                    'revenue' => round($revenue, 2),
+                    'real_revenue' => round($realRevenue, 2),
+                    'profit' => round($revenue - $cost, 2),
+                    'real_profit' => round($realRevenue - $cost, 2),
+                    'cr' => $clicks > 0 ? round(((int) $r['conversions'] / $clicks) * 100, 2) : 0,
+                    'epc' => $clicks > 0 ? round($revenue / $clicks, 4) : 0,
+                    'roi' => $cost > 0 ? round((($revenue - $cost) / $cost) * 100, 2) : ($revenue > $cost ? 100 : 0),
+                    'real_roi' => $cost > 0 ? round((($realRevenue - $cost) / $cost) * 100, 2) : ($realRevenue > $cost ? 100 : 0),
+                ];
+            }
+
+            echo json_encode(['status' => 'success', 'data' => ['layers' => $layers, 'rows' => $out]]);
             break;
 
         case 'global_settings':

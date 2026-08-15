@@ -1603,6 +1603,18 @@ export default {
         "direct": "Direct"
     },
     "campaignReports": {
+        "layers": "Grouping layers",
+        "addLayer": "Add layer",
+        "allCampaigns": "All campaigns",
+        "campaign": "Campaign",
+        "adsetId": "Adset ID",
+        "adId": "Ad ID",
+        "adCampaignId": "Ad Campaign ID",
+        "offer": "Offer",
+        "landing": "Landing",
+        "browser": "Browser",
+        "day": "Day",
+        "total": "Total",
         "report": "Report:",
         "exportCsv": "Export CSV",
         "close": "Close",

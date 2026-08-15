@@ -1603,6 +1603,18 @@ export default {
         "direct": "directo"
     },
     "campaignReports": {
+        "layers": "Niveles de agrupación",
+        "addLayer": "Añadir nivel",
+        "allCampaigns": "Todas las campañas",
+        "campaign": "Campaña",
+        "adsetId": "ID del conjunto",
+        "adId": "ID del anuncio",
+        "adCampaignId": "ID de campaña publicitaria",
+        "offer": "Oferta",
+        "landing": "Landing",
+        "browser": "Navegador",
+        "day": "Día",
+        "total": "Total",
         "report": "Informe:",
         "exportCsv": "Exportar CSV",
         "close": "Cerrar",

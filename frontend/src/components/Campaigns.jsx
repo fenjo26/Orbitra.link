@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Filter, RefreshCw, X, Copy } from 'lucide-react';
+import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Filter, RefreshCw, X, Copy, BarChart2 } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import GroupsModal from './GroupsModal';
+import CampaignReports from './CampaignReports';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -17,6 +18,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [showGroupsModal, setShowGroupsModal] = useState(false);
+    const [showGlobalReports, setShowGlobalReports] = useState(false);
 
     const handleCreate = () => {
         setEditingCampaignId(null);
@@ -274,6 +276,10 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                         <Plus className="w-4 h-4" />
                         {t('common.create')}
                     </button>
+                    <button onClick={() => setShowGlobalReports(true)} className="btn btn-secondary" title={t('campaignReports.report')}>
+                        <BarChart2 className="w-4 h-4" />
+                        {t('campaignReports.report')}
+                    </button>
                     <button onClick={() => setShowGroupsModal(true)} className="btn btn-secondary">
                         {t('campaigns.groups')}
                     </button>
@@ -513,6 +519,14 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                 <GroupsModal
                     type="campaign"
                     onClose={() => setShowGroupsModal(false)}
+                />
+            )}
+
+            {showGlobalReports && (
+                <CampaignReports
+                    campaignId={null}
+                    campaignName={null}
+                    onClose={() => setShowGlobalReports(false)}
                 />
             )}
         </div>

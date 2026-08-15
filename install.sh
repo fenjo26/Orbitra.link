@@ -100,7 +100,7 @@ trap cleanup_tmp EXIT
 # A previous run that died before restoring (a failed clone, for instance) leaves
 # these behind, and "cp -r src dst" copies INTO an existing dst — turning the next
 # backup into var/var, geo/geo, landings/landings and losing part of the restore.
-rm -rf /tmp/orbitra_db_backup.sqlite /tmp/orbitra_var_backup /tmp/orbitra_geo_backup /tmp/orbitra_landings_backup
+rm -rf /tmp/orbitra_db_backup.sqlite /tmp/orbitra_var_backup /tmp/orbitra_geo_backup /tmp/orbitra_landings_backup /tmp/orbitra_offers_backup
 
 if [ -f "/var/www/orbitra/orbitra_db.sqlite" ]; then
     echo "  > Backing up database..."
@@ -120,6 +120,13 @@ fi
 if [ -d "/var/www/orbitra/landings" ]; then
     echo "  > Backing up landings directory..."
     cp -r /var/www/orbitra/landings /tmp/orbitra_landings_backup
+fi
+# Local offer archives live in offers/<id>/ — same story as landings/: the fresh
+# clone ships an empty offers/, so a reinstall without this backup would delete
+# every uploaded local offer's files.
+if [ -d "/var/www/orbitra/offers" ]; then
+    echo "  > Backing up offers directory..."
+    cp -r /var/www/orbitra/offers /tmp/orbitra_offers_backup
 fi
 
 # Clone the repository into a temporary directory first to avoid downtime on clone failure.
@@ -154,6 +161,12 @@ if [ -d "/tmp/orbitra_landings_backup" ]; then
     mkdir -p /var/www/orbitra/landings
     cp -r /tmp/orbitra_landings_backup/. /var/www/orbitra/landings/ 2>/dev/null || true
     rm -rf /tmp/orbitra_landings_backup
+fi
+if [ -d "/tmp/orbitra_offers_backup" ]; then
+    echo "  > Restoring offers directory..."
+    mkdir -p /var/www/orbitra/offers
+    cp -r /tmp/orbitra_offers_backup/. /var/www/orbitra/offers/ 2>/dev/null || true
+    rm -rf /tmp/orbitra_offers_backup
 fi
 
 

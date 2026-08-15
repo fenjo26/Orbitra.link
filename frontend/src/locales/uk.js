@@ -1603,6 +1603,18 @@ export default {
         "direct": "Прямий"
     },
     "campaignReports": {
+        "layers": "Шари групування",
+        "addLayer": "Додати шар",
+        "allCampaigns": "Усі кампанії",
+        "campaign": "Кампанія",
+        "adsetId": "Adset ID",
+        "adId": "Ad ID",
+        "adCampaignId": "ID рекламної кампанії",
+        "offer": "Оффер",
+        "landing": "Лендінг",
+        "browser": "Браузер",
+        "day": "День",
+        "total": "Разом",
         "report": "звіт:",
         "exportCsv": "Експорт CSV",
         "close": "Закрити",

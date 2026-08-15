@@ -1603,6 +1603,18 @@ export default {
         "direct": "直接"
     },
     "campaignReports": {
+        "layers": "分组层级",
+        "addLayer": "添加层级",
+        "allCampaigns": "所有活动",
+        "campaign": "活动",
+        "adsetId": "广告组 ID",
+        "adId": "广告 ID",
+        "adCampaignId": "广告活动 ID",
+        "offer": "Offer",
+        "landing": "落地页",
+        "browser": "浏览器",
+        "day": "日期",
+        "total": "合计",
         "report": "报告：",
         "exportCsv": "导出 CSV",
         "close": "关闭",

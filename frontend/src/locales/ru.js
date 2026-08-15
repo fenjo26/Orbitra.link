@@ -1641,6 +1641,18 @@ export default {
         "direct": "Прямой"
     },
     "campaignReports": {
+        "layers": "Слои группировки",
+        "addLayer": "Добавить слой",
+        "allCampaigns": "Все кампании",
+        "campaign": "Кампания",
+        "adsetId": "Adset ID",
+        "adId": "Ad ID",
+        "adCampaignId": "ID рекламной кампании",
+        "offer": "Оффер",
+        "landing": "Лендинг",
+        "browser": "Браузер",
+        "day": "День",
+        "total": "Итого",
         "report": "Отчет:",
         "exportCsv": "Экспорт CSV",
         "close": "Закрыть",
