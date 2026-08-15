@@ -26,6 +26,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   amount and currency are kept in `cost_records.raw_json` for audit.
 - 🧪 `tests/facebook_integration_test.php` — end-to-end coverage of capture,
   attribution, currency, idempotency and CAPI payload construction. No network.
+- 🧭 **Both integrations now live on the Integrations page**, as their own entries
+  with full management: account list with status and next update, add/edit,
+  *Update spend* (a manual sync), pause/resume, clone, delete and search — the
+  place a Keitaro user actually looks for them. Cost connections still appear on
+  the Aggregators page and a campaign's pixel is still editable from the campaign
+  itself; these are views of the same records, not copies.
 - 📖 `docs/facebook.md` — setup, macros, token issuance, mapping, troubleshooting.
 
 ### Fixed

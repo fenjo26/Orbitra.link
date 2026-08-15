@@ -9182,6 +9182,47 @@ try {
             }
             break;
 
+        // Every Facebook pixel across all campaigns, for the Integrations page.
+        // The token itself is never returned — only whether one is set, which is
+        // what decides between "server-side on" and "browser pixel only".
+        case 'facebook_capi_list':
+            require_once __DIR__ . '/core/FacebookConversions.php';
+            $stmt = $pdo->query("
+                SELECT cp.id, cp.campaign_id, cp.pixel_id, cp.events, cp.is_active,
+                       cp.mapping_json, cp.test_event_code, cp.proxy_url, cp.api_version,
+                       c.name AS campaign_name
+                FROM campaign_pixels cp
+                LEFT JOIN campaigns c ON cp.campaign_id = c.id
+                WHERE cp.type = 'facebook'
+                ORDER BY cp.id DESC
+            ");
+            $pixels = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $tokenStmt = $pdo->prepare("SELECT token FROM campaign_pixels WHERE id = ?");
+            foreach ($pixels as &$px) {
+                $tokenStmt->execute([$px['id']]);
+                $px['has_token'] = trim((string) $tokenStmt->fetchColumn()) !== '';
+
+                // A one-line "lead→Lead, sale→Purchase" for the list row, so the
+                // operator can see what a campaign actually sends without opening it.
+                $mapping = json_decode((string) ($px['mapping_json'] ?? ''), true);
+                if (is_array($mapping) && $mapping) {
+                    $parts = [];
+                    foreach ($mapping as $status => $event) {
+                        if (trim((string) $event) !== '') {
+                            $parts[] = $status . '→' . $event;
+                        }
+                    }
+                    $px['mapping_summary'] = $parts ? implode(', ', $parts) : null;
+                } else {
+                    $px['mapping_summary'] = null;
+                }
+            }
+            unset($px);
+
+            echo json_encode(['status' => 'success', 'data' => $pixels]);
+            break;
+
         // Default status→event map + the Meta events offered in the mapping UI.
         case 'facebook_capi_meta':
             require_once __DIR__ . '/core/FacebookConversions.php';

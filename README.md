@@ -405,6 +405,11 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
   in the ad account's currency, which was previously written into `clicks.cost`
   as-is and mixed with revenue in another currency. Rates are cached for 12
   hours; `fx_rates_manual_json` pins them by hand.
+- 🧭 **Both integrations are managed from the Integrations page** — their own
+  entries with an account list (status, next update), add/edit, manual *Update
+  spend*, pause/resume, clone, delete and search. Cost connections remain visible
+  on the Aggregators page and a campaign's pixel remains editable from the
+  campaign; these are views of the same records.
 - 📖 **[docs/facebook.md](docs/facebook.md)** — tokens, macros, mapping,
   troubleshooting. Plus `tests/facebook_integration_test.php`, which covers the
   whole path without touching the network.

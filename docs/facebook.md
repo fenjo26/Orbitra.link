@@ -5,8 +5,14 @@ the same loop and are configured in different places:
 
 | | What it does | Direction | Where |
 |---|---|---|---|
-| **Facebook Costs** | Imports ad spend from Meta into the tracker | Meta → Orbitra | Aggregators → *Add connection* → engine **Facebook Ads** |
-| **Facebook Conversions API** | Sends conversions from the tracker to Meta | Orbitra → Meta | Campaign → *Integrations* tab → **Facebook Pixel** |
+| **Facebook Costs** | Imports ad spend from Meta into the tracker | Meta → Orbitra | Integrations → **Facebook Costs** |
+| **Facebook Conversions API** | Sends conversions from the tracker to Meta | Orbitra → Meta | Integrations → **Facebook Conversions** |
+
+Both are also reachable from where the underlying records live: cost connections
+appear on the **Aggregators** page (they are `aggregator_connections` rows with
+engine `facebook`), and a campaign's pixel can be edited from the campaign's own
+**Integrations** tab. Same data either way — the Integrations page is the entry
+point, the other two are the context-specific views.
 
 Neither depends on the other. Cost import gives you real ROI; the Conversions API
 gives Meta's optimiser the events the browser pixel loses.
@@ -64,7 +70,7 @@ From [Ads Manager](https://www.facebook.com/adsmanager/manage/accounts) — the
 
 ### Creating the connection
 
-**Aggregators → Add connection**, engine **Facebook Ads**:
+**Integrations → Facebook Costs → Add account**:
 
 | Field | Notes |
 |---|---|
@@ -72,7 +78,11 @@ From [Ads Manager](https://www.facebook.com/adsmanager/manage/accounts) — the
 | Ad Account ID | `act_1234567890` |
 | Facebook API version | defaults to the newest supported; older accounts can pin an older one |
 | Proxy | optional, `scheme://user:pass@host:port`, also accepts `socks5://` |
-| Sync interval | how often the cron re-reads spend |
+| Update spend every | how often the cron re-reads spend |
+| Advanced: parameter mapping | only for traffic through an app — see [below](#traffic-through-an-app) |
+
+Each account row shows its status and next update, and carries **Update spend**
+(one manual sync now), **Pause/Resume**, **Clone** and **Delete**.
 
 **Test connection** reads the ad account itself (name, currency, timezone,
 status), not an insights report — an empty report is a valid answer and would
@@ -132,7 +142,8 @@ If the macros arrive repacked — Facebook → app → Orbitra — forward them 
 
 1. In Facebook: `sub_id_3={{adset.id}}`
 2. From the app to Orbitra: `sub_id_3={sub_id_3}`
-3. In the connection's **field mapping**, set `adset_id_param` to `sub_id_3`
+3. In the account's **Advanced: parameter mapping**, set *Adset ID arrives in
+   parameter* to `sub_id_3`
 
 `ad_id_param` and `campaign_id_param` work the same way. Overrides are tried first
 and the standard keys stay as a fallback, so a partial mapping degrades instead of
@@ -178,18 +189,21 @@ The Pixel ID is on the same page (Events Manager → Data sources).
 
 ### Setting it up
 
-Campaign → **Integrations** tab → **Facebook Pixel**:
+**Integrations → Facebook Conversions → Add account** (or, from inside a campaign,
+its own **Integrations** tab → **Facebook Pixel** — the same record):
 
 | Field | Notes |
 |---|---|
+| Campaign | which campaign's conversions this pixel receives |
 | Pixel ID | from Events Manager |
-| API Token | the Conversions API token — **this is what turns server-side sending on** |
+| Conversions API token | **this is what turns server-side sending on** |
 | Status → Meta event | which tracker status produces which Meta event |
 | Test event code | optional, from Events Manager → *Test events* |
 | Proxy | optional, same format as the cost connection |
 
-A pixel row **without** a token stays browser-only. Nothing is sent server-side
-until a token is present.
+A pixel row **without** a token stays browser-only — the list marks it *Browser
+pixel only* rather than showing it as a working integration. Nothing is sent
+server-side until a token is present.
 
 Default mapping:
 
