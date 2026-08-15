@@ -416,6 +416,10 @@ export default {
         "copyErrors": "Errores"
     },
     "editor": {
+        "showText": "Mostrar texto / blanco",
+        "toCampaign": "Enviar a campaña",
+        "selectCampaign": "— elige campaña —",
+        "textPayloadHint": "texto; vacío = página blanca",
         "tracking": "Tracking",
         "integrationCode": "Código de integración",
         "intCode_link": "Enlace",

@@ -22,9 +22,14 @@ var/cache/
 var/locks/
 var/logs/
 
+# Cloaking feed (downloaded daily by ipranges_cron.php — runtime data)
+var/ipranges/
+
 # Uploads
 /landings/*
 !/landings/.gitkeep
+/offers/*
+!/offers/.gitkeep
 
 # macOS / OS files
 .DS_Store

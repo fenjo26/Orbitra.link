@@ -416,6 +416,10 @@ export default {
         "copyErrors": "Ошибок"
     },
     "editor": {
+        "showText": "Показать текст / пусто",
+        "toCampaign": "Отправить в кампанию",
+        "selectCampaign": "— выберите кампанию —",
+        "textPayloadHint": "текст; пусто = пустая белая страница",
         "tracking": "Tracking",
         "integrationCode": "Код интеграции",
         "intCode_link": "Ссылка",

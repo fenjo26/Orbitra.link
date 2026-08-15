@@ -416,6 +416,10 @@ export default {
         "copyErrors": "Помилки"
     },
     "editor": {
+        "showText": "Показати текст / порожньо",
+        "toCampaign": "Надіслати в кампанію",
+        "selectCampaign": "— оберіть кампанію —",
+        "textPayloadHint": "текст; порожньо = порожня біла сторінка",
         "tracking": "Tracking",
         "integrationCode": "Код інтеграції",
         "intCode_link": "Посилання",

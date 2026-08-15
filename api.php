@@ -5797,6 +5797,38 @@ try {
             }
             break;
 
+        case 'ipranges_update':
+            // Cloaking feed: refresh the datacenter/crawler IP lists
+            // (lord-alfred/ipranges) on demand — the daily cron does the same.
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                try {
+                    require_once __DIR__ . '/core/IpRanges.php';
+                    $resultIr = IpRanges::update();
+                    echo json_encode([
+                        'status' => $resultIr['ok'] ? 'success' : 'error',
+                        'message' => $resultIr['ok'] ? '' : implode('; ', $resultIr['errors']),
+                        'data' => [
+                            'ipv4' => $resultIr['ipv4'],
+                            'ipv6' => $resultIr['ipv6'],
+                            'updated_at' => time(),
+                        ],
+                    ]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            } else {
+                require_once __DIR__ . '/core/IpRanges.php';
+                $v4 = IpRanges::available() && file_exists(IpRanges::fileV4()) ? (int) @filemtime(IpRanges::fileV4()) : null;
+                $v6 = IpRanges::available() && file_exists(IpRanges::fileV6()) ? (int) @filemtime(IpRanges::fileV6()) : null;
+                echo json_encode(['status' => 'success', 'data' => [
+                    'available' => IpRanges::available(),
+                    'fresh' => IpRanges::isFresh(),
+                    'v4_mtime' => $v4,
+                    'v6_mtime' => $v6,
+                ]]);
+            }
+            break;
+
         case 'check_ssl_status':
             // Check SSL installation status for all HTTPS-only domains.
             //

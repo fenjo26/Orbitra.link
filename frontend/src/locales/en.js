@@ -416,6 +416,10 @@ export default {
         "copyErrors": "Errors"
     },
     "editor": {
+        "showText": "Show text / blank",
+        "toCampaign": "Send to campaign",
+        "selectCampaign": "— select campaign —",
+        "textPayloadHint": "text; empty = blank white page",
         "tracking": "Tracking",
         "integrationCode": "Integration code",
         "intCode_link": "Link",

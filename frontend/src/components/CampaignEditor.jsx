@@ -68,6 +68,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [costMatch, setCostMatch] = useState(null);
     const [syncingConnId, setSyncingConnId] = useState(null);
     const [syncResult, setSyncResult] = useState(null);
+
+    // Campaign list — the "Send to campaign" stream action picks a target here.
+    const [allCampaigns, setAllCampaigns] = useState([]);
     const [showTrafficSimModal, setShowTrafficSimModal] = useState(false);
     const [trafficSimResult, setTrafficSimResult] = useState(null);
     const [trafficSimLoading, setTrafficSimLoading] = useState(false);
@@ -333,18 +336,20 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             try {
                 // Cache dropdown data for 5 minutes - rarely changes
                 const TTL = 300000;
-                const [gRes, sRes, dRes, oRes, lRes] = await Promise.all([
+                const [gRes, sRes, dRes, oRes, lRes, cRes] = await Promise.all([
                     cachedGet('campaign_groups', {}, TTL),
                     cachedGet('traffic_sources', {}, TTL),
                     cachedGet('domains', {}, TTL),
                     cachedGet('all_offers', {}, TTL),
-                    cachedGet('landings_simple', {}, TTL) // Use optimized endpoint without heavy joins
+                    cachedGet('landings_simple', {}, TTL), // Use optimized endpoint without heavy joins
+                    cachedGet('campaigns', {}, TTL)
                 ]);
                 if (gRes.data.status === 'success') setGroups(gRes.data.data);
                 if (sRes.data.status === 'success') setSources(sRes.data.data);
                 if (dRes.data.status === 'success') setDomains(dRes.data.data);
                 if (oRes.data.status === 'success') setAllOffers(oRes.data.data);
                 if (lRes.data.status === 'success') setAllLandings(lRes.data.data);
+                if (cRes.data.status === 'success') setAllCampaigns(cRes.data.data);
             } catch (err) {
                 console.error(err);
             }
@@ -2083,19 +2088,62 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                     </select>
                                                 </div>
 
-                                                {stream.schema_type === 'action' && (
-                                                    <select
-                                                        value={stream.action_payload}
-                                                        onChange={e => updateStream(idx, 'action_payload', e.target.value)}
-                                                        className="form-select"
-                                                        style={{ backgroundColor: 'var(--color-bg-soft)' }}
-                                                    >
-                                                        <option value="">{t('editor.selectAction')}</option>
-                                                        <option value="do_nothing">{t('editor.doNothing')}</option>
-                                                        <option value="not_found">{t('editor.show404')}</option>
-                                                        <option value="show_html">{t('editor.showHtml')}</option>
-                                                    </select>
-                                                )}
+                                                {stream.schema_type === 'action' && (() => {
+                                                    // The router accepts "type" or "type:payload" — the
+                                                    // payload carries the HTML/text, or the target campaign id.
+                                                    const raw = String(stream.action_payload || '');
+                                                    const sep = raw.indexOf(':');
+                                                    const aType = sep === -1 ? raw : raw.slice(0, sep);
+                                                    const aPayload = sep === -1 ? '' : raw.slice(sep + 1);
+                                                    const setAction = (type, payload) => updateStream(idx, 'action_payload',
+                                                        (type === 'to_campaign' || type === 'show_html' || type === 'show_text') && payload !== '' && payload != null
+                                                            ? `${type}:${payload}`
+                                                            : type);
+                                                    return (
+                                                        <div className="space-y-2" style={{ minWidth: '220px' }}>
+                                                            <select
+                                                                value={aType}
+                                                                onChange={e => {
+                                                                    const nextType = e.target.value;
+                                                                    // Keep the payload only for types that use one.
+                                                                    setAction(nextType, ['show_html', 'show_text', 'to_campaign'].includes(nextType) ? aPayload : '');
+                                                                }}
+                                                                className="form-select"
+                                                                style={{ backgroundColor: 'var(--color-bg-soft)' }}
+                                                            >
+                                                                <option value="">{t('editor.selectAction')}</option>
+                                                                <option value="do_nothing">{t('editor.doNothing')}</option>
+                                                                <option value="not_found">{t('editor.show404')}</option>
+                                                                <option value="show_text">{t('editor.showText', 'Show text / blank')}</option>
+                                                                <option value="show_html">{t('editor.showHtml')}</option>
+                                                                <option value="to_campaign">{t('editor.toCampaign', 'Send to campaign')}</option>
+                                                            </select>
+
+                                                            {(aType === 'show_html' || aType === 'show_text') && (
+                                                                <textarea
+                                                                    className="form-input text-xs"
+                                                                    rows={aType === 'show_html' ? 3 : 1}
+                                                                    value={aPayload}
+                                                                    onChange={e => setAction(aType, e.target.value)}
+                                                                    placeholder={aType === 'show_html' ? '<h1>...</h1>' : t('editor.textPayloadHint', 'текст; пусто = пустая белая страница')}
+                                                                />
+                                                            )}
+
+                                                            {aType === 'to_campaign' && (
+                                                                <select
+                                                                    className="form-select"
+                                                                    value={aPayload || ''}
+                                                                    onChange={e => setAction('to_campaign', e.target.value)}
+                                                                >
+                                                                    <option value="">{t('editor.selectCampaign')}</option>
+                                                                    {allCampaigns
+                                                                        .filter(c => String(c.id) !== String(formData.id || campaignId || ''))
+                                                                        .map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                                                </select>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })()}
 
                                                 {stream.schema_type === 'landing_offer' && (
                                                     <div className="space-y-3 rounded-2xl p-3" style={{ border: '1px solid var(--color-border)', backgroundColor: 'rgba(59, 130, 246, 0.05)' }}>

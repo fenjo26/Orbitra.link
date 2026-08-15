@@ -151,6 +151,18 @@ class CloakDetector
             'facebookexternalhit', 'telegrambot', 'discord-bot', 'whatsapp',
             'skypeuripreviewer', 'linkedinbot', 'embedly', 'vkshare', 'sitechecker',
             'lighthouse', 'pagespeed', 'chrome-lighthouse', 'w3c_validator', 'validator',
+            // Field-supplied bot list (2026-08): scrapers, link previews and
+            // moderation crawlers that keep appearing in cloaking tickets.
+            'facebot', 'facebookcatalog', 'meta-externalagent', 'meta-externalfetcher',
+            'python', 'zgrab', 'checkmarknetwork', 'nadesiko', 'jetty', 'jersey',
+            'apache-httpclient', 'mediapartners-google', 'surf', 'safednsbot',
+            'bomborabot', 'dianomi', 'weborama-fetcher', 'shortlinktranslate',
+            'bitlybot', 'proximic', 'ruby', 'adsbot-google', 'google-inspectiontool',
+            'googleother', 'bingpreview', 'kakaotalk-scrap', 'kakaostory-og-reader',
+            'line-poker', 'remindpreview', 'blueno', 'kraphio', 'belly-scrap',
+            'bandscraper', 'worksogcrawler', 'goscraper', 'pagebot',
+            'wildlink_preview_bot', 'mijnverlanglijstje', 'mijnverlanglijst',
+            'deeplink.me', 'firephp', 'httpx', 'recon',
         ];
         foreach ($toolSignatures as $sig) {
             if (strpos($uaLower, $sig) !== false) {
@@ -224,6 +236,18 @@ class CloakDetector
                 }
                 if ($detectVpn && isset($sets['vpn_proxy'][$asnInt])) {
                     $reasons[] = 'vpn_proxy_asn';
+                }
+            }
+
+            // Layer 2b: literal IP ranges of clouds and crawlers (AWS, GCP,
+            // Azure, Meta, Telegram, OpenAI, … — lord-alfred/ipranges, refreshed
+            // daily by ipranges_cron.php). Stronger than ASN/ISP heuristics: the
+            // address is IN the provider's own published space, not just "the
+            // ISP name sounds like hosting". Inactive until the lists exist.
+            if ($detectDatacenter && !empty($visitor['ip'])) {
+                require_once __DIR__ . '/IpRanges.php';
+                if (IpRanges::available() && IpRanges::match((string) $visitor['ip'])) {
+                    $reasons[] = 'iprange_datacenter';
                 }
             }
 

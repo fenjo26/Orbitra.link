@@ -373,6 +373,21 @@ if ! crontab -u www-data -l 2>/dev/null | grep -qF "$SSL_CRON_MARKER"; then
       || echo "  > NOTE: could not write the crontab. Add this line manually: 17 * * * * php /var/www/orbitra/cli/ssl_installer.php"
 fi
 
+# Cloaking feed. lord-alfred/ipranges refreshes its datacenter/crawler lists
+# daily; this cron mirrors them into var/ipranges/ for CloakDetector. The job
+# exits on its own when the files are younger than a day, so the exact minute
+# does not matter.
+echo "  > Scheduling the IP-ranges updater (cloaking feed)..."
+IPRANGES_CRON_MARKER="# orbitra-ipranges"
+if ! crontab -u www-data -l 2>/dev/null | grep -qF "$IPRANGES_CRON_MARKER"; then
+    {
+        crontab -u www-data -l 2>/dev/null
+        echo "23 4 * * * php /var/www/orbitra/ipranges_cron.php >> /var/www/orbitra/var/logs/ipranges.log 2>&1 $IPRANGES_CRON_MARKER"
+    } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Updater scheduled (daily)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: 23 4 * * * php /var/www/orbitra/ipranges_cron.php"
+fi
+
 echo "  > Handing the installation over to www-data..."
 chown -R www-data:www-data /var/www/orbitra
 # Permissions are re-applied only where a root step created files. node_modules

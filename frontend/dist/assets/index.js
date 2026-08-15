@@ -16368,6 +16368,10 @@ const ru = {
     "copyErrors": "Ошибок"
   },
   "editor": {
+    "showText": "Показать текст / пусто",
+    "toCampaign": "Отправить в кампанию",
+    "selectCampaign": "— выберите кампанию —",
+    "textPayloadHint": "текст; пусто = пустая белая страница",
     "tracking": "Tracking",
     "integrationCode": "Код интеграции",
     "intCode_link": "Ссылка",
@@ -18724,6 +18728,10 @@ const en = {
     "copyErrors": "Errors"
   },
   "editor": {
+    "showText": "Show text / blank",
+    "toCampaign": "Send to campaign",
+    "selectCampaign": "— select campaign —",
+    "textPayloadHint": "text; empty = blank white page",
     "tracking": "Tracking",
     "integrationCode": "Integration code",
     "intCode_link": "Link",
@@ -21080,6 +21088,10 @@ const uk = {
     "copyErrors": "Помилки"
   },
   "editor": {
+    "showText": "Показати текст / порожньо",
+    "toCampaign": "Надіслати в кампанію",
+    "selectCampaign": "— оберіть кампанію —",
+    "textPayloadHint": "текст; порожньо = порожня біла сторінка",
     "tracking": "Tracking",
     "integrationCode": "Код інтеграції",
     "intCode_link": "Посилання",
@@ -23436,6 +23448,10 @@ const es = {
     "copyErrors": "Errores"
   },
   "editor": {
+    "showText": "Mostrar texto / blanco",
+    "toCampaign": "Enviar a campaña",
+    "selectCampaign": "— elige campaña —",
+    "textPayloadHint": "texto; vacío = página blanca",
     "tracking": "Tracking",
     "integrationCode": "Código de integración",
     "intCode_link": "Enlace",
@@ -25792,6 +25808,10 @@ const zh = {
     "copyErrors": "错误"
   },
   "editor": {
+    "showText": "显示文本 / 空白",
+    "toCampaign": "发送到其他活动",
+    "selectCampaign": "— 选择活动 —",
+    "textPayloadHint": "文本；留空 = 空白页",
     "tracking": "Tracking",
     "integrationCode": "集成代码",
     "intCode_link": "链接",
@@ -28148,6 +28168,10 @@ const fr = {
     "copyErrors": "Erreurs"
   },
   "editor": {
+    "showText": "Afficher texte / blanc",
+    "toCampaign": "Envoyer vers une campagne",
+    "selectCampaign": "— choisir une campagne —",
+    "textPayloadHint": "texte ; vide = page blanche",
     "tracking": "Tracking",
     "integrationCode": "Code d’intégration",
     "intCode_link": "Lien",
@@ -30506,6 +30530,10 @@ const de = {
     "copyErrors": "Fehler"
   },
   "editor": {
+    "showText": "Text zeigen / leer",
+    "toCampaign": "An Kampagne senden",
+    "selectCampaign": "— Kampagne wählen —",
+    "textPayloadHint": "Text; leer = leere weiße Seite",
     "tracking": "Tracking",
     "integrationCode": "Integrationscode",
     "intCode_link": "Link",
@@ -62987,6 +63015,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [costMatch, setCostMatch] = reactExports.useState(null);
   const [syncingConnId, setSyncingConnId] = reactExports.useState(null);
   const [syncResult, setSyncResult] = reactExports.useState(null);
+  const [allCampaigns, setAllCampaigns] = reactExports.useState([]);
   const [showTrafficSimModal, setShowTrafficSimModal] = reactExports.useState(false);
   const [trafficSimResult, setTrafficSimResult] = reactExports.useState(null);
   const [trafficSimLoading, setTrafficSimLoading] = reactExports.useState(false);
@@ -63208,19 +63237,21 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const fetchDeps = async () => {
       try {
         const TTL = 3e5;
-        const [gRes, sRes, dRes, oRes, lRes] = await Promise.all([
+        const [gRes, sRes, dRes, oRes, lRes, cRes] = await Promise.all([
           cachedGet("campaign_groups", {}, TTL),
           cachedGet("traffic_sources", {}, TTL),
           cachedGet("domains", {}, TTL),
           cachedGet("all_offers", {}, TTL),
-          cachedGet("landings_simple", {}, TTL)
+          cachedGet("landings_simple", {}, TTL),
           // Use optimized endpoint without heavy joins
+          cachedGet("campaigns", {}, TTL)
         ]);
         if (gRes.data.status === "success") setGroups(gRes.data.data);
         if (sRes.data.status === "success") setSources(sRes.data.data);
         if (dRes.data.status === "success") setDomains(dRes.data.data);
         if (oRes.data.status === "success") setAllOffers(oRes.data.data);
         if (lRes.data.status === "success") setAllLandings(lRes.data.data);
+        if (cRes.data.status === "success") setAllCampaigns(cRes.data.data);
       } catch (err) {
         console.error(err);
       }
@@ -64876,21 +64907,61 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   }
                 )
               ] }),
-              stream.schema_type === "action" && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  value: stream.action_payload,
-                  onChange: (e) => updateStream(idx, "action_payload", e.target.value),
-                  className: "form-select",
-                  style: { backgroundColor: "var(--color-bg-soft)" },
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.selectAction") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "do_nothing", children: t("editor.doNothing") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "not_found", children: t("editor.show404") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_html", children: t("editor.showHtml") })
-                  ]
-                }
-              ),
+              stream.schema_type === "action" && (() => {
+                const raw = String(stream.action_payload || "");
+                const sep = raw.indexOf(":");
+                const aType = sep === -1 ? raw : raw.slice(0, sep);
+                const aPayload = sep === -1 ? "" : raw.slice(sep + 1);
+                const setAction = (type, payload) => updateStream(
+                  idx,
+                  "action_payload",
+                  (type === "to_campaign" || type === "show_html" || type === "show_text") && payload !== "" && payload != null ? `${type}:${payload}` : type
+                );
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", style: { minWidth: "220px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "select",
+                    {
+                      value: aType,
+                      onChange: (e) => {
+                        const nextType = e.target.value;
+                        setAction(nextType, ["show_html", "show_text", "to_campaign"].includes(nextType) ? aPayload : "");
+                      },
+                      className: "form-select",
+                      style: { backgroundColor: "var(--color-bg-soft)" },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.selectAction") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "do_nothing", children: t("editor.doNothing") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "not_found", children: t("editor.show404") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_text", children: t("editor.showText", "Show text / blank") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_html", children: t("editor.showHtml") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "to_campaign", children: t("editor.toCampaign", "Send to campaign") })
+                      ]
+                    }
+                  ),
+                  (aType === "show_html" || aType === "show_text") && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "textarea",
+                    {
+                      className: "form-input text-xs",
+                      rows: aType === "show_html" ? 3 : 1,
+                      value: aPayload,
+                      onChange: (e) => setAction(aType, e.target.value),
+                      placeholder: aType === "show_html" ? "<h1>...</h1>" : t("editor.textPayloadHint", "текст; пусто = пустая белая страница")
+                    }
+                  ),
+                  aType === "to_campaign" && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "select",
+                    {
+                      className: "form-select",
+                      value: aPayload || "",
+                      onChange: (e) => setAction("to_campaign", e.target.value),
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.selectCampaign") }),
+                        allCampaigns.filter((c) => String(c.id) !== String(formData.id || campaignId || "")).map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: c.id, children: c.name }, c.id))
+                      ]
+                    }
+                  )
+                ] });
+              })(),
               stream.schema_type === "landing_offer" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-2xl p-3", style: { border: "1px solid var(--color-border)", backgroundColor: "rgba(59, 130, 246, 0.05)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2", children: [

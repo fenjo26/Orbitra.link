@@ -416,6 +416,10 @@ export default {
         "copyErrors": "错误"
     },
     "editor": {
+        "showText": "显示文本 / 空白",
+        "toCampaign": "发送到其他活动",
+        "selectCampaign": "— 选择活动 —",
+        "textPayloadHint": "文本；留空 = 空白页",
         "tracking": "Tracking",
         "integrationCode": "集成代码",
         "intCode_link": "链接",
