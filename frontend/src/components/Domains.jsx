@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Clock } from 'lucide-react';
+import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Clock, Cloud } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import HelpTooltip from './HelpTooltip';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -411,7 +411,9 @@ const Domains = ({ campaigns }) => {
                                             distinction, so a certificate nobody wired up no longer
                                             shows as done. The status is also no longer gated on
                                             https_only — every parked domain gets a certificate. */}
-                                        {domain.ssl_status === 'installed' && domain.https_active === false ? (
+                                        {domain.ssl_status === 'cloudflare' ? (
+                                            <Cloud size={16} className="mx-auto" style={{ color: 'var(--color-primary)' }} title={t('domains.sslCloudflare', 'SSL от Cloudflare (проксированный домен)')} />
+                                        ) : domain.ssl_status === 'installed' && domain.https_active === false ? (
                                             <AlertCircle size={16} className="text-orange-500 mx-auto" title={t('domains.sslNotWired')} />
                                         ) : domain.ssl_status === 'installed' ? (
                                             <Check size={16} className="text-green-500 mx-auto" title={t('domains.sslInstalled')} />

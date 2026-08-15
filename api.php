@@ -73,6 +73,78 @@ function orbitraRequestBody()
     return (string) file_get_contents('php://input');
 }
 
+// === Cloudflare integration helpers ===
+
+/** Connection config from settings; server_ip falls back to the web-facing address. */
+function orbitraCloudflareConfig(PDO $pdo): array
+{
+    static $cfg = null;
+    if ($cfg !== null) {
+        return $cfg;
+    }
+    $out = ['token' => '', 'proxied' => true, 'ssl_mode' => 'flexible', 'server_ip' => ''];
+    try {
+        $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('cf_api_token','cf_proxied','cf_ssl_mode','cf_server_ip')");
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            switch ($row['key']) {
+                case 'cf_api_token': $out['token'] = (string) $row['value']; break;
+                case 'cf_proxied': $out['proxied'] = ((string) $row['value']) !== '0'; break;
+                case 'cf_ssl_mode': $out['ssl_mode'] = (string) $row['value']; break;
+                case 'cf_server_ip': $out['server_ip'] = (string) $row['value']; break;
+            }
+        }
+    } catch (\Throwable $e) {
+        // Defaults above degrade into "not connected".
+    }
+    if ($out['server_ip'] === '') {
+        $out['server_ip'] = (string) ($_SERVER['SERVER_ADDR'] ?? '');
+    }
+    $cfg = $out;
+    return $cfg;
+}
+
+/**
+ * Point a domain's A record at the tracker through Cloudflare. On success (and
+ * when the proxy is on) the domain's SSL is served by the CF edge, so its
+ * ssl_status becomes 'cloudflare' and certbot leaves it alone.
+ * @return array{ok:bool,message:string}
+ */
+function orbitraCloudflareSyncDomain(PDO $pdo, array $domain, ?array $cfg = null): array
+{
+    require_once __DIR__ . '/core/CloudflareApi.php';
+    $cfg = $cfg ?? orbitraCloudflareConfig($pdo);
+    if ($cfg['token'] === '') {
+        return ['ok' => false, 'message' => 'Cloudflare is not connected'];
+    }
+    if ($cfg['server_ip'] === '') {
+        return ['ok' => false, 'message' => 'Server IP is unknown — set it in the Cloudflare integration'];
+    }
+
+    $zone = CloudflareApi::findZoneForHost($cfg['token'], (string) $domain['name']);
+    if (!$zone) {
+        return ['ok' => false, 'message' => 'Zone not found in Cloudflare account'];
+    }
+
+    $dns = CloudflareApi::upsertDnsRecord($cfg['token'], $zone, (string) $domain['name'], $cfg['server_ip'], (bool) $cfg['proxied']);
+    if (!$dns['ok']) {
+        return $dns;
+    }
+
+    // SSL mode of the zone: best-effort — a refused setting must not undo the DNS work.
+    CloudflareApi::setSslMode($cfg['token'], (string) $zone['id'], (string) $cfg['ssl_mode']);
+
+    if (!empty($cfg['proxied'])) {
+        // SSL now comes from the CF edge — take the domain out of the certbot queue.
+        try {
+            $pdo->prepare("UPDATE domains SET ssl_status = 'cloudflare', ssl_error = NULL WHERE id = ?")->execute([(int) $domain['id']]);
+        } catch (\Throwable $e) {
+            // The record itself is in place; the status is cosmetic.
+        }
+    }
+
+    return $dns;
+}
+
 /**
  * Runs `composer install` for the tracker and reports what happened.
  *
@@ -5457,6 +5529,18 @@ try {
                                 $newId = $pdo->lastInsertId();
                                 $results[] = ['id' => $newId, 'name' => $domainName];
 
+                                // Cloudflare: when the integration is connected and the
+                                // domain's zone is in the account, the A record is written
+                                // right here — and a proxied domain takes its SSL from the
+                                // CF edge, leaving the certbot queue (ssl_status=cloudflare).
+                                $cfCfg = orbitraCloudflareConfig($pdo);
+                                if ($cfCfg['token'] !== '') {
+                                    $cfSync = orbitraCloudflareSyncDomain($pdo, ['id' => $newId, 'name' => $domainName], $cfCfg);
+                                    $results[count($results) - 1]['cloudflare'] = $cfSync['ok']
+                                        ? $cfSync['message']
+                                        : null; // zone not in the account is not an error
+                                }
+
                                 $sslPending = true;
 
                                 logAudit($pdo, 'CREATE', 'Domain', $newId, "Name: $domainName");
@@ -5579,6 +5663,137 @@ try {
             } catch (\Throwable $e) {
                 error_log('run_ssl_worker failed: ' . $e->getMessage());
                 echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        // === Cloudflare integration ===
+        // One account (API token in settings), Keitaro-style: domains parked in
+        // the tracker get their A record managed in Cloudflare automatically, and
+        // proxied domains get SSL at the CF edge instead of waiting for certbot.
+
+        case 'cloudflare_status':
+            try {
+                $cfgCf = orbitraCloudflareConfig($pdo);
+                echo json_encode(['status' => 'success', 'data' => [
+                    'connected' => $cfgCf['token'] !== '',
+                    'proxied' => $cfgCf['proxied'],
+                    'ssl_mode' => $cfgCf['ssl_mode'],
+                    'server_ip' => $cfgCf['server_ip'],
+                    'managed_domains' => (int) $pdo->query("SELECT COUNT(*) FROM domains WHERE ssl_status = 'cloudflare'")->fetchColumn(),
+                ]]);
+            } catch (\Exception $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        case 'cloudflare_save':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataCf = json_decode(orbitraRequestBody(), true);
+                try {
+                    $token = trim((string) ($dataCf['api_token'] ?? ''));
+                    $proxied = !empty($dataCf['proxied']);
+                    $sslMode = in_array(($dataCf['ssl_mode'] ?? ''), ['flexible', 'full', 'strict'], true) ? $dataCf['ssl_mode'] : 'flexible';
+                    $serverIp = trim((string) ($dataCf['server_ip'] ?? ''));
+
+                    // An empty token field means "keep the stored one" — the form
+                    // never echoes the secret back, same as the FB cost connections.
+                    if ($token === '') {
+                        $stmtOld = $pdo->query("SELECT value FROM settings WHERE key = 'cf_api_token' LIMIT 1");
+                        $token = (string) $stmtOld->fetchColumn();
+                    }
+
+                    if ($token !== '') {
+                        require_once __DIR__ . '/core/CloudflareApi.php';
+                        $verify = CloudflareApi::verifyToken($token);
+                        if (!$verify['ok']) {
+                            echo json_encode(['status' => 'error', 'message' => 'cloudflare_token_invalid', 'detail' => ['error' => $verify['message']]]);
+                            break;
+                        }
+                    }
+
+                    foreach ([
+                        ['cf_api_token', $token],
+                        ['cf_proxied', $proxied ? '1' : '0'],
+                        ['cf_ssl_mode', $sslMode],
+                        ['cf_server_ip', $serverIp],
+                    ] as [$keyCf, $valueCf]) {
+                        $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")->execute([$keyCf, $valueCf]);
+                    }
+
+                    echo json_encode(['status' => 'success', 'data' => ['connected' => $token !== '']]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        case 'cloudflare_test':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                try {
+                    $cfgCf = orbitraCloudflareConfig($pdo);
+                    if ($cfgCf['token'] === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'cloudflare_not_connected']);
+                        break;
+                    }
+                    require_once __DIR__ . '/core/CloudflareApi.php';
+                    $zones = CloudflareApi::listZones($cfgCf['token']);
+                    if (!$zones['ok']) {
+                        echo json_encode(['status' => 'error', 'message' => $zones['message']]);
+                        break;
+                    }
+                    echo json_encode(['status' => 'success', 'data' => ['zones' => $zones['count']]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        case 'cloudflare_sync_domain':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataCf = json_decode(orbitraRequestBody(), true);
+                $idCf = (int) ($dataCf['id'] ?? 0);
+                try {
+                    $stmtCf = $pdo->prepare("SELECT id, name FROM domains WHERE id = ? LIMIT 1");
+                    $stmtCf->execute([$idCf]);
+                    $domainCf = $stmtCf->fetch(PDO::FETCH_ASSOC);
+                    if (!$domainCf) {
+                        echo json_encode(['status' => 'error', 'message' => 'Domain not found']);
+                        break;
+                    }
+                    $resultCf = orbitraCloudflareSyncDomain($pdo, $domainCf);
+                    echo json_encode(['status' => $resultCf['ok'] ? 'success' : 'error', 'message' => $resultCf['message']]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // Re-point every domain whose zone lives in the connected Cloudflare
+        // account at the current server IP — the "moved the tracker to a new
+        // server" button Keitaro's integration is known for.
+        case 'cloudflare_sync_all':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                try {
+                    $cfgCf = orbitraCloudflareConfig($pdo);
+                    if ($cfgCf['token'] === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'cloudflare_not_connected']);
+                        break;
+                    }
+                    $synced = [];
+                    $failed = [];
+                    foreach ($pdo->query("SELECT id, name FROM domains WHERE is_archived = 0") as $domainCf) {
+                        $resultCf = orbitraCloudflareSyncDomain($pdo, $domainCf, $cfgCf);
+                        if ($resultCf['ok']) {
+                            $synced[] = $domainCf['name'];
+                        } elseif (strpos($resultCf['message'], 'Zone not found') === false) {
+                            // A domain outside the CF account is not an error.
+                            $failed[] = $domainCf['name'] . ': ' . $resultCf['message'];
+                        }
+                    }
+                    echo json_encode(['status' => 'success', 'data' => ['synced' => $synced, 'failed' => $failed]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
             }
             break;
 

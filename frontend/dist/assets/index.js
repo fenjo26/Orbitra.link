@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1C = [
+const __iconNode$1D = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$1C = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1C);
-const __iconNode$1B = [
+const Activity = createLucideIcon("activity", __iconNode$1D);
+const __iconNode$1C = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1B);
-const __iconNode$1A = [
+const Archive = createLucideIcon("archive", __iconNode$1C);
+const __iconNode$1B = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1A);
-const __iconNode$1z = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1B);
+const __iconNode$1A = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1z);
-const __iconNode$1y = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1A);
+const __iconNode$1z = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1y);
-const __iconNode$1x = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1z);
+const __iconNode$1y = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$1x = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1x);
-const __iconNode$1w = [
+const BellOff = createLucideIcon("bell-off", __iconNode$1y);
+const __iconNode$1x = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$1w = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1w);
-const __iconNode$1v = [
+const Bell = createLucideIcon("bell", __iconNode$1x);
+const __iconNode$1w = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1v);
-const __iconNode$1u = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$1w);
+const __iconNode$1v = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1u);
-const __iconNode$1t = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1v);
+const __iconNode$1u = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1t);
-const __iconNode$1s = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1u);
+const __iconNode$1t = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$1s = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1s);
-const __iconNode$1r = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1r);
-const __iconNode$1q = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1q);
-const __iconNode$1p = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1p);
-const __iconNode$1o = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1o);
-const __iconNode$1n = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1n);
-const __iconNode$1m = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1t);
+const __iconNode$1s = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1s);
+const __iconNode$1r = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1r);
+const __iconNode$1q = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1q);
+const __iconNode$1p = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1p);
+const __iconNode$1o = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1o);
+const __iconNode$1n = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1m);
-const __iconNode$1l = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1n);
+const __iconNode$1m = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1l);
-const __iconNode$1k = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1m);
+const __iconNode$1l = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1k);
-const __iconNode$1j = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1l);
+const __iconNode$1k = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1j);
-const __iconNode$1i = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1k);
+const __iconNode$1j = [
   [
     "path",
     {
@@ -15240,24 +15240,28 @@ const __iconNode$1i = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1i);
-const __iconNode$1h = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1j);
+const __iconNode$1i = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1h);
-const __iconNode$1g = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1i);
+const __iconNode$1h = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1g);
-const __iconNode$1f = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1h);
+const __iconNode$1g = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1f);
+const Clock = createLucideIcon("clock", __iconNode$1g);
+const __iconNode$1f = [
+  ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
+];
+const Cloud = createLucideIcon("cloud", __iconNode$1f);
 const __iconNode$1e = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
@@ -16627,6 +16631,7 @@ const ru = {
     "bulkExample": "Пример: tracker1.com, tracker2.com, tracker3.com",
     "sslStatus": "Статус SSL",
     "sslInstalled": "SSL установлен",
+    "sslCloudflare": "SSL от Cloudflare (проксированный домен)",
     "sslInstalling": "SSL устанавливается...",
     "sslEnvAcmeNotWritable": "Каталог для проверки Let's Encrypt закрыт для записи — валидация домена не пройдёт.",
     "sslCertbotNoOutput": "Certbot ничего не ответил — проверьте, что он установлен и доступен веб-серверу через sudo.",
@@ -18174,6 +18179,7 @@ const ru = {
     "groupSite": "Сайты",
     "groupBanners": "Баннеры",
     "groupAds": "Рекламные сети",
+    "groupDomains": "Домены и SSL",
     "groupMisc": "Инструменты",
     "trackingScript": "Скрипт отслеживания",
     "bannerScript": "Блок баннеров (script)",
@@ -18197,6 +18203,24 @@ const ru = {
     "syncNow": "Синк сейчас",
     "synced": "Синхронизировано",
     "pushHint": "URL пуша расходов для этой кампании (API-ключ: страница Пользователи, права write)"
+  },
+  "cloudflare": {
+    "title": "Cloudflare",
+    "description": "Управление DNS доменов трекера через Cloudflare API: A-записи прописываются сами, SSL — краем CF",
+    "howTo": "Создайте токен: Cloudflare → My Profile → API Tokens → Create Token → шаблон «Edit zone DNS» → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Домены, чья зона есть в аккаунте, при парковке получают A-запись автоматически; при включённом прокси SSL выдаётся краем Cloudflare мгновенно.",
+    "tokenSaved": "токен сохранён — введите новый, чтобы заменить",
+    "serverIp": "IP сервера (A-запись)",
+    "sslMode": "SSL режим зоны",
+    "sslFlexible": "SSL сразу, сервер по HTTP",
+    "sslFull": "нужен сертификат на сервере",
+    "proxied": "оранжевое облако (SSL от CF)",
+    "saved": "Сохранено",
+    "test": "Проверить",
+    "syncAll": "Перепарковать все домены",
+    "syncAllConfirm": "Переписать A-записи всех доменов, чьи зоны есть в Cloudflare, на текущий IP сервера?",
+    "syncedCount": "перепарковано",
+    "zonesAvailable": "зон в аккаунте",
+    "managedDomains": "Доменов под управлением Cloudflare"
   },
   "costImport": {
     "facebookAds": "Facebook Ads",
@@ -18963,6 +18987,7 @@ const en = {
     "bulkExample": "Example: tracker1.com, tracker2.com, tracker3.com",
     "sslStatus": "SSL Status",
     "sslInstalled": "SSL installed",
+    "sslCloudflare": "SSL by Cloudflare (proxied domain)",
     "sslInstalling": "SSL installing...",
     "sslEnvAcmeNotWritable": "The Let's Encrypt challenge directory is not writable — domain validation will fail.",
     "sslCertbotNoOutput": "Certbot returned nothing — check that it is installed and reachable by the web server via sudo.",
@@ -20510,6 +20535,7 @@ const en = {
     "groupSite": "Sites",
     "groupBanners": "Banner blocks",
     "groupAds": "Ad networks",
+    "groupDomains": "Domains & SSL",
     "groupMisc": "Tools",
     "trackingScript": "Tracking Script",
     "bannerScript": "Banner block (script)",
@@ -20533,6 +20559,24 @@ const en = {
     "syncNow": "Sync now",
     "synced": "Synced",
     "pushHint": "cost push URL for this campaign (API key: Users page, write permissions)"
+  },
+  "cloudflare": {
+    "title": "Cloudflare",
+    "description": "Manage tracker domains' DNS via the Cloudflare API: A-records are written automatically, SSL comes from the CF edge",
+    "howTo": 'Create a token: Cloudflare → My Profile → API Tokens → Create Token → "Edit zone DNS" template → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Domains whose zone is in the account get their A record automatically on parking; with the proxy on, SSL is issued at the Cloudflare edge instantly.',
+    "tokenSaved": "token saved — enter a new one to replace",
+    "serverIp": "Server IP (A record)",
+    "sslMode": "Zone SSL mode",
+    "sslFlexible": "instant SSL, server over HTTP",
+    "sslFull": "needs a certificate on the server",
+    "proxied": "orange cloud (SSL from CF)",
+    "saved": "Saved",
+    "test": "Test",
+    "syncAll": "Re-point all domains",
+    "syncAllConfirm": "Rewrite the A records of all domains whose zones exist in Cloudflare to the current server IP?",
+    "syncedCount": "re-pointed",
+    "zonesAvailable": "zones in account",
+    "managedDomains": "Domains managed by Cloudflare"
   },
   "costImport": {
     "facebookAds": "Facebook Ads",
@@ -21299,6 +21343,7 @@ const uk = {
     "bulkExample": "Example: tracker1.com, tracker2.com, tracker3.com",
     "sslStatus": "SSL Status",
     "sslInstalled": "SSL installed",
+    "sslCloudflare": "SSL від Cloudflare (проксований домен)",
     "sslInstalling": "SSL installing...",
     "sslEnvAcmeNotWritable": "Каталог для перевірки Let's Encrypt закритий для запису — валідація домену не пройде.",
     "sslCertbotNoOutput": "Certbot нічого не відповів — перевірте, що він встановлений і доступний вебсерверу через sudo.",
@@ -22846,6 +22891,7 @@ const uk = {
     "groupSite": "Сайти",
     "groupBanners": "Банери",
     "groupAds": "Рекламні мережі",
+    "groupDomains": "Домени та SSL",
     "groupMisc": "Інструменти",
     "trackingScript": "Скрипт відстеження",
     "bannerScript": "Блок банерів (script)",
@@ -22869,6 +22915,24 @@ const uk = {
     "syncNow": "Синк зараз",
     "synced": "Синхронізовано",
     "pushHint": "URL пушу витрат для цієї кампанії (API-ключ: сторінка Користувачі, права write)"
+  },
+  "cloudflare": {
+    "title": "Cloudflare",
+    "description": "Керування DNS доменів трекера через Cloudflare API: A-записи проставляються самі, SSL — краєм CF",
+    "howTo": "Створіть токен: Cloudflare → My Profile → API Tokens → Create Token → шаблон «Edit zone DNS» → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Домени, чия зона є в акаунті, при паркуванні отримують A-запис автоматично; при ввімкненому проксі SSL видається краєм Cloudflare миттєво.",
+    "tokenSaved": "токен збережено — введіть новий, щоб замінити",
+    "serverIp": "IP сервера (A-запис)",
+    "sslMode": "SSL режим зони",
+    "sslFlexible": "SSL одразу, сервер по HTTP",
+    "sslFull": "потрібен сертифікат на сервері",
+    "proxied": "помаранчова хмара (SSL від CF)",
+    "saved": "Збережено",
+    "test": "Перевірити",
+    "syncAll": "Перепаркувати всі домени",
+    "syncAllConfirm": "Переписати A-записи всіх доменів, чиї зони є в Cloudflare, на поточний IP сервера?",
+    "syncedCount": "перепарковано",
+    "zonesAvailable": "зон в акаунті",
+    "managedDomains": "Доменів під керуванням Cloudflare"
   },
   "costImport": {
     "facebookAds": "Facebook Ads",
@@ -23635,6 +23699,7 @@ const es = {
     "bulkExample": "Example: tracker1.com, tracker2.com, tracker3.com",
     "sslStatus": "SSL Status",
     "sslInstalled": "SSL installed",
+    "sslCloudflare": "SSL de Cloudflare (dominio con proxy)",
     "sslInstalling": "SSL installing...",
     "sslEnvAcmeNotWritable": "El directorio de validación de Let's Encrypt no admite escritura: la validación del dominio fallará.",
     "sslCertbotNoOutput": "Certbot no devolvió nada: compruebe que está instalado y accesible para el servidor web vía sudo.",
@@ -25182,6 +25247,7 @@ const es = {
     "groupSite": "Sitios",
     "groupBanners": "Bloques de banner",
     "groupAds": "Redes de anuncios",
+    "groupDomains": "Dominios y SSL",
     "groupMisc": "Herramientas",
     "trackingScript": "Script de tracking",
     "bannerScript": "Bloque de banner (script)",
@@ -25205,6 +25271,24 @@ const es = {
     "syncNow": "Sincronizar",
     "synced": "Sincronizado",
     "pushHint": "URL de envío de costos para esta campaña (clave API: página Usuarios, permisos write)"
+  },
+  "cloudflare": {
+    "title": "Cloudflare",
+    "description": "Gestiona el DNS de los dominios del tracker vía la API de Cloudflare: registros A automáticos, SSL desde el borde de CF",
+    "howTo": "Crea un token: Cloudflare → My Profile → API Tokens → Create Token → plantilla «Edit zone DNS» → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Los dominios cuya zona esté en la cuenta reciben su registro A automáticamente al estacionarlos; con el proxy activado, SSL se emite al instante en el borde de Cloudflare.",
+    "tokenSaved": "token guardado — introduce uno nuevo para reemplazar",
+    "serverIp": "IP del servidor (registro A)",
+    "sslMode": "Modo SSL de la zona",
+    "sslFlexible": "SSL inmediato, servidor por HTTP",
+    "sslFull": "requiere certificado en el servidor",
+    "proxied": "nube naranja (SSL de CF)",
+    "saved": "Guardado",
+    "test": "Probar",
+    "syncAll": "Repark all domains",
+    "syncAllConfirm": "¿Reescribir los registros A de todos los dominios cuyas zonas existan en Cloudflare a la IP actual del servidor?",
+    "syncedCount": "reapuntados",
+    "zonesAvailable": "zonas en la cuenta",
+    "managedDomains": "Dominios gestionados por Cloudflare"
   },
   "costImport": {
     "facebookAds": "Facebook Ads",
@@ -25971,6 +26055,7 @@ const zh = {
     "bulkExample": "Example: tracker1.com, tracker2.com, tracker3.com",
     "sslStatus": "SSL Status",
     "sslInstalled": "SSL installed",
+    "sslCloudflare": "Cloudflare 提供 SSL（已代理域名）",
     "sslInstalling": "SSL installing...",
     "sslEnvAcmeNotWritable": "Let's Encrypt 验证目录不可写 —— 域名验证将失败。",
     "sslCertbotNoOutput": "Certbot 没有任何输出 —— 请确认已安装且 Web 服务器可通过 sudo 调用。",
@@ -27518,6 +27603,7 @@ const zh = {
     "groupSite": "网站",
     "groupBanners": "横幅块",
     "groupAds": "广告网络",
+    "groupDomains": "域名与 SSL",
     "groupMisc": "工具",
     "trackingScript": "跟踪脚本",
     "bannerScript": "横幅块（script）",
@@ -27541,6 +27627,24 @@ const zh = {
     "syncNow": "立即同步",
     "synced": "已同步",
     "pushHint": "此活动的花费推送 URL（API 密钥：用户页面，write 权限）"
+  },
+  "cloudflare": {
+    "title": "Cloudflare",
+    "description": "通过 Cloudflare API 管理跟踪器域名的 DNS：A 记录自动写入，SSL 由 CF 边缘提供",
+    "howTo": "创建令牌：Cloudflare → My Profile → API Tokens → Create Token → 模板「Edit zone DNS」→ Permissions：Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources：All zones。域名所在区域位于账号中时，停靠即自动获得 A 记录；开启代理后，SSL 由 Cloudflare 边缘即时颁发。",
+    "tokenSaved": "令牌已保存 — 输入新令牌即可替换",
+    "serverIp": "服务器 IP（A 记录）",
+    "sslMode": "区域 SSL 模式",
+    "sslFlexible": "即时 SSL，服务器走 HTTP",
+    "sslFull": "服务器上需要证书",
+    "proxied": "橙色云朵（CF 提供 SSL）",
+    "saved": "已保存",
+    "test": "测试",
+    "syncAll": "重新指向所有域名",
+    "syncAllConfirm": "将 Cloudflare 中存在区域的所有域名的 A 记录改写为当前服务器 IP？",
+    "syncedCount": "已重新指向",
+    "zonesAvailable": "账号中的区域",
+    "managedDomains": "由 Cloudflare 管理的域名"
   },
   "costImport": {
     "facebookAds": "Facebook Ads",
@@ -28307,6 +28411,7 @@ const fr = {
     "bulkExample": "Exemple : tracker1.com, tracker2.com, tracker3.com",
     "sslStatus": "Statut SSL",
     "sslInstalled": "SSL installé",
+    "sslCloudflare": "SSL via Cloudflare (domaine proxifié)",
     "sslInstalling": "Installation SSL...",
     "sslEnvAcmeNotWritable": "Le répertoire de validation Let's Encrypt n'est pas accessible en écriture — la validation du domaine échouera.",
     "sslCertbotNoOutput": "Certbot n'a rien renvoyé — vérifiez qu'il est installé et accessible au serveur web via sudo.",
@@ -29856,6 +29961,7 @@ const fr = {
     "groupSite": "Sites",
     "groupBanners": "Blocs bannière",
     "groupAds": "Réseaux publicitaires",
+    "groupDomains": "Domaines & SSL",
     "groupMisc": "Outils",
     "trackingScript": "Script de tracking",
     "bannerScript": "Bloc bannière (script)",
@@ -29879,6 +29985,24 @@ const fr = {
     "syncNow": "Synchroniser",
     "synced": "Synchronisé",
     "pushHint": "URL de push des coûts pour cette campagne (clé API : page Utilisateurs, droits write)"
+  },
+  "cloudflare": {
+    "title": "Cloudflare",
+    "description": "Gérez le DNS des domaines du tracker via l’API Cloudflare : enregistrements A automatiques, SSL depuis l’edge CF",
+    "howTo": "Créez un token : Cloudflare → My Profile → API Tokens → Create Token → modèle « Edit zone DNS » → Permissions : Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources : All zones. Les domaines dont la zone est dans le compte reçoivent leur enregistrement A automatiquement au parking ; avec le proxy activé, le SSL est émis instantanément à l’edge Cloudflare.",
+    "tokenSaved": "token enregistré — saisissez-en un nouveau pour remplacer",
+    "serverIp": "IP du serveur (enregistrement A)",
+    "sslMode": "Mode SSL de la zone",
+    "sslFlexible": "SSL immédiat, serveur en HTTP",
+    "sslFull": "nécessite un certificat sur le serveur",
+    "proxied": "nuage orange (SSL de CF)",
+    "saved": "Enregistré",
+    "test": "Tester",
+    "syncAll": "Repointer tous les domaines",
+    "syncAllConfirm": "Réécrire les enregistrements A de tous les domaines dont les zones existent dans Cloudflare vers l’IP actuelle du serveur ?",
+    "syncedCount": "repointés",
+    "zonesAvailable": "zones dans le compte",
+    "managedDomains": "Domaines gérés par Cloudflare"
   },
   "costImport": {
     "facebookAds": "Facebook Ads",
@@ -30645,6 +30769,7 @@ const de = {
     "bulkExample": "Beispiel: tracker1.com, tracker2.com, tracker3.com",
     "sslStatus": "SSL-Status",
     "sslInstalled": "SSL installiert",
+    "sslCloudflare": "SSL über Cloudflare (proxied Domain)",
     "sslInstalling": "SSL wird installiert...",
     "sslEnvAcmeNotWritable": "Das Let's-Encrypt-Challenge-Verzeichnis ist nicht beschreibbar — die Domain-Validierung schlägt fehl.",
     "sslCertbotNoOutput": "Certbot hat nichts zurückgegeben — prüfen Sie, ob es installiert und für den Webserver per sudo erreichbar ist.",
@@ -32192,6 +32317,7 @@ const de = {
     "groupSite": "Websites",
     "groupBanners": "Bannerblöcke",
     "groupAds": "Werbenetzwerke",
+    "groupDomains": "Domains & SSL",
     "groupMisc": "Tools",
     "trackingScript": "Tracking-Script",
     "bannerScript": "Bannerblock (script)",
@@ -32215,6 +32341,24 @@ const de = {
     "syncNow": "Jetzt syncen",
     "synced": "Synchronisiert",
     "pushHint": "Kosten-Push-URL für diese Kampagne (API-Schlüssel: Seite Benutzer, Schreibrechte)"
+  },
+  "cloudflare": {
+    "title": "Cloudflare",
+    "description": "DNS der Tracker-Domains über die Cloudflare-API verwalten: A-Records automatisch, SSL von der CF-Edge",
+    "howTo": "Token anlegen: Cloudflare → My Profile → API Tokens → Create Token → Vorlage „Edit zone DNS“ → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Domains, deren Zone im Konto liegt, bekommen beim Parken automatisch den A-Record; mit aktiviertem Proxy kommt SSL sofort von der Cloudflare-Edge.",
+    "tokenSaved": "Token gespeichert — neuen eingeben zum Ersetzen",
+    "serverIp": "Server-IP (A-Record)",
+    "sslMode": "SSL-Modus der Zone",
+    "sslFlexible": "sofortiges SSL, Server über HTTP",
+    "sslFull": "benötigt Zertifikat auf dem Server",
+    "proxied": "orange Wolke (SSL von CF)",
+    "saved": "Gespeichert",
+    "test": "Testen",
+    "syncAll": "Alle Domains umziehen",
+    "syncAllConfirm": "A-Records aller Domains, deren Zonen in Cloudflare liegen, auf die aktuelle Server-IP umschreiben?",
+    "syncedCount": "umgezogen",
+    "zonesAvailable": "Zonen im Konto",
+    "managedDomains": "Von Cloudflare verwaltete Domains"
   },
   "costImport": {
     "facebookAds": "Facebook Ads",
@@ -46161,7 +46305,7 @@ ${t("domains.serverIp")}: ${parsed.expected || "—"}`;
         ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: domain.index_campaign_name || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "italic", style: { color: "var(--color-text-muted)" }, children: t("domains.notSelected") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: domain.https_only ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" } }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: domain.ssl_status === "installed" && domain.https_active === false ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-orange-500 mx-auto", title: t("domains.sslNotWired") }) : domain.ssl_status === "installed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto", title: t("domains.sslInstalled") }) : domain.ssl_status === "installing" ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "text-blue-500 mx-auto animate-spin", title: t("domains.sslInstalling") }) : domain.ssl_status === "waiting_dns" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: describeSslError(domain.ssl_error) || t("domains.sslWaitingDns") }) : domain.ssl_status === "failed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-red-500 mx-auto", title: `${t("domains.sslRetrying")}
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: domain.ssl_status === "cloudflare" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Cloud, { size: 16, className: "mx-auto", style: { color: "var(--color-primary)" }, title: t("domains.sslCloudflare", "SSL от Cloudflare (проксированный домен)") }) : domain.ssl_status === "installed" && domain.https_active === false ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-orange-500 mx-auto", title: t("domains.sslNotWired") }) : domain.ssl_status === "installed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto", title: t("domains.sslInstalled") }) : domain.ssl_status === "installing" ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "text-blue-500 mx-auto animate-spin", title: t("domains.sslInstalling") }) : domain.ssl_status === "waiting_dns" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: describeSslError(domain.ssl_error) || t("domains.sslWaitingDns") }) : domain.ssl_status === "failed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-red-500 mx-auto", title: `${t("domains.sslRetrying")}
 
 ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: t("domains.sslPending") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" }, title: t("domains.sslPending") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: domain.created_at }),
@@ -55895,6 +56039,10 @@ const IntegrationsPage = () => {
   const [capiTest, setCapiTest] = reactExports.useState(null);
   const [capiTesting, setCapiTesting] = reactExports.useState(false);
   const [capiMessage, setCapiMessage] = reactExports.useState(null);
+  const [cfForm, setCfForm] = reactExports.useState({ api_token: "", proxied: true, ssl_mode: "flexible", server_ip: "" });
+  const [cfStatus, setCfStatus] = reactExports.useState(null);
+  const [cfBusy, setCfBusy] = reactExports.useState(false);
+  const [cfMessage, setCfMessage] = reactExports.useState(null);
   const [rcSaving, setRcSaving] = reactExports.useState(false);
   const [rcMessage, setRcMessage] = reactExports.useState(null);
   const [rcSettings, setRcSettings] = reactExports.useState({
@@ -56269,6 +56417,15 @@ const IntegrationsPage = () => {
       fetchCapiPixels();
       fetchCapiMeta();
       fetchCampaigns();
+    }
+    if (activeTab === "cloudflare") {
+      axios.get(`${API_URL$a}?action=cloudflare_status`).then((res) => {
+        if (res.data.status === "success") {
+          setCfStatus(res.data.data);
+          setCfForm((f) => ({ ...f, proxied: !!res.data.data.proxied, ssl_mode: res.data.data.ssl_mode || "flexible", server_ip: res.data.data.server_ip || "" }));
+        }
+      }).catch(() => {
+      });
     }
   }, [activeTab, fetchFbConnections, fetchFbFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns]);
   const loadFbConnection = async (id) => {
@@ -57024,6 +57181,12 @@ $client->execute();
 }
 
 # ${t("extCosts.hint", "Фильтры матчатся по параметрам клика: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолты шаблона Facebook), либо любое имя параметра напрямую (ad_id, adset_id, campaign_id...). Расход делится поровну между совпавшими кликами за период; повторная отправка перезаписывает, а не суммирует.")}`
+    },
+    cloudflare: {
+      title: t("cloudflare.title", "Cloudflare"),
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Cloud, { className: "w-5 h-5" }),
+      description: t("cloudflare.description", "Управление DNS доменов трекера через Cloudflare API: A-записи прописываются сами, SSL — краем CF"),
+      isCloudflare: true
     },
     recaptcha: {
       title: t("recaptcha.tabTitle"),
@@ -58134,6 +58297,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
       }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("nav", { style: { padding: "8px", overflowY: "auto" }, children: (() => {
         const groups = [
           { label: t("integrations.groupAds", "Ad networks"), ids: ["facebook_costs", "facebook_conversions", "dolphin_fbtool"] },
+          { label: t("integrations.groupDomains", "Domains & SSL"), ids: ["cloudflare"] },
           { label: t("integrations.groupSites", "Sites & landings"), ids: ["kclient_php", "kclient_js", "tracking_pixel", "js_banner", "wordpress", "wordpress_plugin", "static_site", "geo_redirect", "device_redirect"] },
           { label: t("integrations.groupTools", "Tools"), ids: ["countdown_timer", "back_button_trap", "exit_popup", "app_config", "recaptcha", "telegram"] }
         ];
@@ -58220,7 +58384,164 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
             margin: "8px 0 0 0"
           }, children: activeObj.description })
         ] }),
-        activeObj.isRecaptcha ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "600px", display: "flex", flexDirection: "column", gap: "24px" }, children: [
+        activeObj.isCloudflare ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "620px", display: "flex", flexDirection: "column", gap: "20px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginBottom: "16px", lineHeight: 1.6 }, children: t("cloudflare.howTo", "Создайте токен: Cloudflare → My Profile → API Tokens → Create Token → шаблон «Edit zone DNS» → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Домены, чья зона есть в аккаунте, при парковке получают A-запись автоматически; при включённом прокси SSL выдаётся краем Cloudflare мгновенно.") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: [
+                  "API Token ",
+                  cfStatus?.connected ? "✓" : ""
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "password",
+                    className: "form-input",
+                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" },
+                    value: cfForm.api_token,
+                    onChange: (e) => setCfForm({ ...cfForm, api_token: e.target.value }),
+                    placeholder: cfStatus?.connected ? t("cloudflare.tokenSaved", "токен сохранён — введите новый, чтобы заменить") : ""
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("cloudflare.serverIp", "IP сервера (A-запись)") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    className: "form-input",
+                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" },
+                    value: cfForm.server_ip,
+                    onChange: (e) => setCfForm({ ...cfForm, server_ip: e.target.value }),
+                    placeholder: cfStatus?.server_ip || "auto"
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("cloudflare.sslMode", "SSL режим зоны") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "select",
+                    {
+                      className: "form-select",
+                      style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px" },
+                      value: cfForm.ssl_mode,
+                      onChange: (e) => setCfForm({ ...cfForm, ssl_mode: e.target.value }),
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "flexible", children: [
+                          "Flexible — ",
+                          t("cloudflare.sslFlexible", "SSL сразу, сервер по HTTP")
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "full", children: [
+                          "Full — ",
+                          t("cloudflare.sslFull", "нужен сертификат на сервере")
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "strict", children: "Strict" })
+                      ]
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "Cloudflare Proxy" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { padding: "10px 0", color: "var(--color-text-primary)", fontSize: "14px" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: cfForm.proxied, onChange: (e) => setCfForm({ ...cfForm, proxied: e.target.checked }) }),
+                    t("cloudflare.proxied", "оранжевое облако (SSL от CF)")
+                  ] })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", style: { marginTop: "4px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    className: "btn btn-primary",
+                    disabled: cfBusy,
+                    onClick: async () => {
+                      setCfBusy(true);
+                      setCfMessage(null);
+                      try {
+                        const res = await axios.post(`${API_URL$a}?action=cloudflare_save`, cfForm);
+                        if (res.data.status === "success") {
+                          setCfMessage("✓ " + t("cloudflare.saved", "Сохранено"));
+                          const st = await axios.get(`${API_URL$a}?action=cloudflare_status`);
+                          if (st.data.status === "success") setCfStatus(st.data.data);
+                          setCfForm((f) => ({ ...f, api_token: "" }));
+                        } else {
+                          setCfMessage("⚠ " + (res.data.message || t("common.error")) + (res.data.detail?.error ? `: ${res.data.detail.error}` : ""));
+                        }
+                      } catch (err) {
+                        setCfMessage("⚠ " + t("common.networkError"));
+                      } finally {
+                        setCfBusy(false);
+                      }
+                    },
+                    children: cfBusy ? t("common.saving") : t("common.save")
+                  }
+                ),
+                cfStatus?.connected && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      className: "btn btn-secondary",
+                      disabled: cfBusy,
+                      onClick: async () => {
+                        setCfBusy(true);
+                        setCfMessage(null);
+                        try {
+                          const res = await axios.post(`${API_URL$a}?action=cloudflare_test`, {});
+                          setCfMessage(res.data.status === "success" ? `✓ ${t("cloudflare.zonesAvailable", "зон в аккаунте")}: ${res.data.data.zones}` : "⚠ " + (res.data.message || t("common.error")));
+                        } catch (err) {
+                          setCfMessage("⚠ " + t("common.networkError"));
+                        } finally {
+                          setCfBusy(false);
+                        }
+                      },
+                      children: t("cloudflare.test", "Проверить")
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      className: "btn btn-secondary",
+                      disabled: cfBusy,
+                      onClick: async () => {
+                        if (!window.confirm(t("cloudflare.syncAllConfirm", "Переписать A-записи всех доменов, чьи зоны есть в Cloudflare, на текущий IP сервера?"))) return;
+                        setCfBusy(true);
+                        setCfMessage(null);
+                        try {
+                          const res = await axios.post(`${API_URL$a}?action=cloudflare_sync_all`, {});
+                          if (res.data.status === "success") {
+                            const d = res.data.data;
+                            setCfMessage(`✓ ${t("cloudflare.syncedCount", "перепарковано")}: ${d.synced.length}` + (d.failed.length ? ` · ⚠ ${d.failed.length}: ${d.failed.slice(0, 3).join("; ")}` : ""));
+                            const st = await axios.get(`${API_URL$a}?action=cloudflare_status`);
+                            if (st.data.status === "success") setCfStatus(st.data.data);
+                          } else {
+                            setCfMessage("⚠ " + (res.data.message || t("common.error")));
+                          }
+                        } catch (err) {
+                          setCfMessage("⚠ " + t("common.networkError"));
+                        } finally {
+                          setCfBusy(false);
+                        }
+                      },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" }),
+                        t("cloudflare.syncAll", "Перепарковать все домены")
+                      ]
+                    }
+                  )
+                ] })
+              ] }),
+              cfMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: cfMessage })
+            ] })
+          ] }),
+          cfStatus?.connected && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
+            t("cloudflare.managedDomains", "Доменов под управлением Cloudflare"),
+            ": ",
+            cfStatus.managed_domains
+          ] })
+        ] }) }) : activeObj.isRecaptcha ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "600px", display: "flex", flexDirection: "column", gap: "24px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "16px", fontWeight: "600", color: "var(--color-text-primary)", marginBottom: "4px" }, children: t("recaptcha.v2Title") }),

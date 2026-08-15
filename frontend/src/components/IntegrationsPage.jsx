@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign } from 'lucide-react';
+import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -68,6 +68,12 @@ const IntegrationsPage = () => {
     const [capiTest, setCapiTest] = useState(null);
     const [capiTesting, setCapiTesting] = useState(false);
     const [capiMessage, setCapiMessage] = useState(null);
+
+    // Cloudflare state — one account in settings, managed DNS for parked domains.
+    const [cfForm, setCfForm] = useState({ api_token: '', proxied: true, ssl_mode: 'flexible', server_ip: '' });
+    const [cfStatus, setCfStatus] = useState(null);
+    const [cfBusy, setCfBusy] = useState(false);
+    const [cfMessage, setCfMessage] = useState(null);
 
     // reCAPTCHA state
     const [rcSaving, setRcSaving] = useState(false);
@@ -442,6 +448,16 @@ const IntegrationsPage = () => {
     useEffect(() => {
         if (activeTab === 'facebook_costs') { fetchFbConnections(); fetchFbFields(); }
         if (activeTab === 'facebook_conversions') { fetchCapiPixels(); fetchCapiMeta(); fetchCampaigns(); }
+        if (activeTab === 'cloudflare') {
+            axios.get(`${API_URL}?action=cloudflare_status`)
+                .then(res => {
+                    if (res.data.status === 'success') {
+                        setCfStatus(res.data.data);
+                        setCfForm(f => ({ ...f, proxied: !!res.data.data.proxied, ssl_mode: res.data.data.ssl_mode || 'flexible', server_ip: res.data.data.server_ip || '' }));
+                    }
+                })
+                .catch(() => {});
+        }
     }, [activeTab, fetchFbConnections, fetchFbFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns]);
 
     // The list endpoint strips credentials, so editing has to re-read the row.
@@ -1049,6 +1065,12 @@ const IntegrationsPage = () => {
             icon: <DollarSign className="w-5 h-5" />,
             description: t('extCosts.description', 'Приём расходов из Dolphin и Fbtool.pro через Keitaro-совместимый Admin API endpoint'),
             code: `# ${t('extCosts.step1', '1. Создайте API-ключ с правами write: Пользователи → ваш профиль → сгенерировать ключ (permissions: write)')}\n\n# ${t('extCosts.step2', '2. Скопируйте в Dolphin (Настройки → Экспорт расходов → Keitaro) или Fbtool (Расходы → Keitaro):')}\n#    Tracker URL:  ${trackerUrl}\n#    Admin API key: <ваш ключ>\n\n# ${t('extCosts.step3', '3. Endpoint, который вызывают сервисы (совместим с Keitaro Admin API v1):')}\n# POST ${trackerUrl}/admin_api/v1/campaigns/CAMPAIGN_ID/update_costs\n# Authorization: Bearer <API_KEY>\n{\n  "start_date": "2026-08-15",\n  "end_date": "2026-08-15",\n  "cost": 12.34,\n  "currency": "USD",\n  "timezone": "Europe/Berlin",\n  "filters": { "sub_id_4": "120212558973560058" }\n}\n\n# ${t('extCosts.hint', 'Фильтры матчатся по параметрам клика: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолты шаблона Facebook), либо любое имя параметра напрямую (ad_id, adset_id, campaign_id...). Расход делится поровну между совпавшими кликами за период; повторная отправка перезаписывает, а не суммирует.')}`
+        },
+        cloudflare: {
+            title: t('cloudflare.title', 'Cloudflare'),
+            icon: <Cloud className="w-5 h-5" />,
+            description: t('cloudflare.description', 'Управление DNS доменов трекера через Cloudflare API: A-записи прописываются сами, SSL — краем CF'),
+            isCloudflare: true
         },
         recaptcha: {
             title: t('recaptcha.tabTitle'),
@@ -2004,6 +2026,7 @@ global \$wpdb;
                                 // never silently disappear from the menu.
                                 const groups = [
                                     { label: t('integrations.groupAds', 'Ad networks'), ids: ['facebook_costs', 'facebook_conversions', 'dolphin_fbtool'] },
+                                    { label: t('integrations.groupDomains', 'Domains & SSL'), ids: ['cloudflare'] },
                                     { label: t('integrations.groupSites', 'Sites & landings'), ids: ['kclient_php', 'kclient_js', 'tracking_pixel', 'js_banner', 'wordpress', 'wordpress_plugin', 'static_site', 'geo_redirect', 'device_redirect'] },
                                     { label: t('integrations.groupTools', 'Tools'), ids: ['countdown_timer', 'back_button_trap', 'exit_popup', 'app_config', 'recaptcha', 'telegram'] },
                                 ];
@@ -2105,7 +2128,146 @@ global \$wpdb;
                         </div>
 
                         {/* Content */}
-                        {activeObj.isRecaptcha ? (
+                        {activeObj.isCloudflare ? (
+                            <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
+                                <div style={{ maxWidth: '620px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    <div style={{ background: 'var(--color-bg-card)', borderRadius: '12px', padding: '24px', border: '1px solid var(--color-border)' }}>
+                                        <p className="text-xs" style={{ color: 'var(--color-text-secondary)', marginBottom: '16px', lineHeight: 1.6 }}>
+                                            {t('cloudflare.howTo', 'Создайте токен: Cloudflare → My Profile → API Tokens → Create Token → шаблон «Edit zone DNS» → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Домены, чья зона есть в аккаунте, при парковке получают A-запись автоматически; при включённом прокси SSL выдаётся краем Cloudflare мгновенно.')}
+                                        </p>
+
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            <div>
+                                                <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                    API Token {cfStatus?.connected ? '✓' : ''}
+                                                </label>
+                                                <input
+                                                    type="password"
+                                                    className="form-input"
+                                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px', fontFamily: 'monospace' }}
+                                                    value={cfForm.api_token}
+                                                    onChange={e => setCfForm({ ...cfForm, api_token: e.target.value })}
+                                                    placeholder={cfStatus?.connected ? t('cloudflare.tokenSaved', 'токен сохранён — введите новый, чтобы заменить') : ''}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                    {t('cloudflare.serverIp', 'IP сервера (A-запись)')}
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className="form-input"
+                                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px', fontFamily: 'monospace' }}
+                                                    value={cfForm.server_ip}
+                                                    onChange={e => setCfForm({ ...cfForm, server_ip: e.target.value })}
+                                                    placeholder={cfStatus?.server_ip || 'auto'}
+                                                />
+                                            </div>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                                <div>
+                                                    <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                        {t('cloudflare.sslMode', 'SSL режим зоны')}
+                                                    </label>
+                                                    <select
+                                                        className="form-select"
+                                                        style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px' }}
+                                                        value={cfForm.ssl_mode}
+                                                        onChange={e => setCfForm({ ...cfForm, ssl_mode: e.target.value })}
+                                                    >
+                                                        <option value="flexible">Flexible — {t('cloudflare.sslFlexible', 'SSL сразу, сервер по HTTP')}</option>
+                                                        <option value="full">Full — {t('cloudflare.sslFull', 'нужен сертификат на сервере')}</option>
+                                                        <option value="strict">Strict</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                        Cloudflare Proxy
+                                                    </label>
+                                                    <label className="flex items-center gap-2" style={{ padding: '10px 0', color: 'var(--color-text-primary)', fontSize: '14px' }}>
+                                                        <input type="checkbox" checked={cfForm.proxied} onChange={e => setCfForm({ ...cfForm, proxied: e.target.checked })} />
+                                                        {t('cloudflare.proxied', 'оранжевое облако (SSL от CF)')}
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex gap-2" style={{ marginTop: '4px' }}>
+                                                <button
+                                                    className="btn btn-primary"
+                                                    disabled={cfBusy}
+                                                    onClick={async () => {
+                                                        setCfBusy(true); setCfMessage(null);
+                                                        try {
+                                                            const res = await axios.post(`${API_URL}?action=cloudflare_save`, cfForm);
+                                                            if (res.data.status === 'success') {
+                                                                setCfMessage('✓ ' + t('cloudflare.saved', 'Сохранено'));
+                                                                const st = await axios.get(`${API_URL}?action=cloudflare_status`);
+                                                                if (st.data.status === 'success') setCfStatus(st.data.data);
+                                                                setCfForm(f => ({ ...f, api_token: '' }));
+                                                            } else {
+                                                                setCfMessage('⚠ ' + (res.data.message || t('common.error')) + (res.data.detail?.error ? `: ${res.data.detail.error}` : ''));
+                                                            }
+                                                        } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
+                                                        finally { setCfBusy(false); }
+                                                    }}
+                                                >
+                                                    {cfBusy ? t('common.saving') : t('common.save')}
+                                                </button>
+                                                {cfStatus?.connected && (
+                                                    <>
+                                                        <button
+                                                            className="btn btn-secondary"
+                                                            disabled={cfBusy}
+                                                            onClick={async () => {
+                                                                setCfBusy(true); setCfMessage(null);
+                                                                try {
+                                                                    const res = await axios.post(`${API_URL}?action=cloudflare_test`, {});
+                                                                    setCfMessage(res.data.status === 'success'
+                                                                        ? `✓ ${t('cloudflare.zonesAvailable', 'зон в аккаунте')}: ${res.data.data.zones}`
+                                                                        : '⚠ ' + (res.data.message || t('common.error')));
+                                                                } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
+                                                                finally { setCfBusy(false); }
+                                                            }}
+                                                        >
+                                                            {t('cloudflare.test', 'Проверить')}
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-secondary"
+                                                            disabled={cfBusy}
+                                                            onClick={async () => {
+                                                                if (!window.confirm(t('cloudflare.syncAllConfirm', 'Переписать A-записи всех доменов, чьи зоны есть в Cloudflare, на текущий IP сервера?'))) return;
+                                                                setCfBusy(true); setCfMessage(null);
+                                                                try {
+                                                                    const res = await axios.post(`${API_URL}?action=cloudflare_sync_all`, {});
+                                                                    if (res.data.status === 'success') {
+                                                                        const d = res.data.data;
+                                                                        setCfMessage(`✓ ${t('cloudflare.syncedCount', 'перепарковано')}: ${d.synced.length}` + (d.failed.length ? ` · ⚠ ${d.failed.length}: ${d.failed.slice(0, 3).join('; ')}` : ''));
+                                                                        const st = await axios.get(`${API_URL}?action=cloudflare_status`);
+                                                                        if (st.data.status === 'success') setCfStatus(st.data.data);
+                                                                    } else {
+                                                                        setCfMessage('⚠ ' + (res.data.message || t('common.error')));
+                                                                    }
+                                                                } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
+                                                                finally { setCfBusy(false); }
+                                                            }}
+                                                        >
+                                                            <RefreshCw className="w-4 h-4" />
+                                                            {t('cloudflare.syncAll', 'Перепарковать все домены')}
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </div>
+                                            {cfMessage && <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{cfMessage}</p>}
+                                        </div>
+                                    </div>
+
+                                    {cfStatus?.connected && (
+                                        <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                            {t('cloudflare.managedDomains', 'Доменов под управлением Cloudflare')}: {cfStatus.managed_domains}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        ) : activeObj.isRecaptcha ? (
                             <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
                                 <div style={{ maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
                                     {/* v2 section */}
