@@ -1287,6 +1287,17 @@ try {
             $stmtPb->execute([$id]);
             $campaign['postbacks'] = $stmtPb->fetchAll();
 
+            // URL parameters are edited as a plain map in the editor; decode the
+            // stored blob so the "Параметры" tab survives a save/reopen cycle.
+            $campaign['parameters'] = [];
+            if (!empty($campaign['parameters_json'])) {
+                $decoded = json_decode($campaign['parameters_json'], true);
+                if (is_array($decoded)) {
+                    $campaign['parameters'] = $decoded;
+                }
+            }
+            unset($campaign['parameters_json']);
+
             echo json_encode(['status' => 'success', 'data' => $campaign]);
             break;
 
@@ -1431,6 +1442,13 @@ try {
                     // Backfill token for older campaigns where it may be NULL/empty.
                     $pdo->prepare("UPDATE campaigns SET token = ? WHERE id = ? AND (token IS NULL OR token = '')")
                         ->execute([$generateCampaignToken(), (int) $id]);
+
+                    // Persist the URL-parameter map only when the client sent one,
+                    // so older API clients can't wipe it with an absent field.
+                    if (is_array($data['parameters'] ?? null)) {
+                        $pdo->prepare("UPDATE campaigns SET parameters_json = ? WHERE id = ?")
+                            ->execute([json_encode($data['parameters'], JSON_UNESCAPED_UNICODE), (int) $id]);
+                    }
 
                     // For MVP: delete old streams and insert new ones
                     $pdo->prepare("DELETE FROM streams WHERE campaign_id = ?")->execute([$id]);
@@ -1727,6 +1745,21 @@ try {
             } else {
                 $stmt = $pdo->query("SELECT * FROM campaign_groups ORDER BY name ASC");
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+            }
+            break;
+
+        case 'delete_campaign_group':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(orbitraRequestBody(), true);
+                $id = $data['id'] ?? null;
+                if ($id) {
+                    // Reset group_id for campaigns in this group
+                    $pdo->prepare("UPDATE campaigns SET group_id = NULL WHERE group_id = ?")->execute([$id]);
+                    $pdo->prepare("DELETE FROM campaign_groups WHERE id = ?")->execute([$id]);
+                    echo json_encode(['status' => 'success']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
+                }
             }
             break;
 
@@ -2102,6 +2135,7 @@ try {
                         ['alias' => 'ad_id', 'param' => 'ad_id', 'macro' => '__CID__'],
                         ['alias' => 'creative', 'param' => 'creative', 'macro' => '__CREATIVE_ID__'],
                         ['alias' => 'pixel', 'param' => 'pixel', 'macro' => '__PIXEL__'],
+                        ['alias' => 'ttclid', 'param' => 'ttclid', 'macro' => '__CLICKID__'],
                     ]
                 ],
                 [
@@ -2160,6 +2194,21 @@ try {
             } else {
                 $stmt = $pdo->query("SELECT * FROM landing_groups ORDER BY name ASC");
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+            }
+            break;
+
+        case 'delete_landing_group':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(orbitraRequestBody(), true);
+                $id = $data['id'] ?? null;
+                if ($id) {
+                    // Reset group_id for landings in this group
+                    $pdo->prepare("UPDATE landings SET group_id = NULL WHERE group_id = ?")->execute([$id]);
+                    $pdo->prepare("DELETE FROM landing_groups WHERE id = ?")->execute([$id]);
+                    echo json_encode(['status' => 'success']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
+                }
             }
             break;
 
@@ -9533,6 +9582,7 @@ try {
                 require_once __DIR__ . '/aggregator_engines/AffilkaEngine.php';
                 require_once __DIR__ . '/aggregator_engines/FacebookAdsEngine.php';
                 require_once __DIR__ . '/aggregator_engines/GoogleAdsEngine.php';
+                require_once __DIR__ . '/aggregator_engines/TikTokAdsEngine.php';
 
                 switch ($action) {
                     case 'aggregator_connections':
@@ -9622,6 +9672,9 @@ try {
                                 case 'google_ads':
                                     $result = GoogleAdsEngine::testConnection($credentials);
                                     break;
+                                case 'tiktok':
+                                    $result = TikTokAdsEngine::testConnection($credentials);
+                                    break;
                                 default:
                                     $result = GenericApiEngine::testConnection($credentials);
                             }
@@ -9670,6 +9723,10 @@ try {
                                         break;
                                     case 'google_ads':
                                         $records = GoogleAdsEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
+                                        $isCostEngine = true;
+                                        break;
+                                    case 'tiktok':
+                                        $records = TikTokAdsEngine::fetchRecords($credentials, $dateFrom, $dateTo, $fieldMapping);
                                         $isCostEngine = true;
                                         break;
                                     default:
@@ -9924,6 +9981,9 @@ try {
                                 break;
                             case 'google_ads':
                                 $fields = GoogleAdsEngine::getRequiredFields();
+                                break;
+                            case 'tiktok':
+                                $fields = TikTokAdsEngine::getRequiredFields();
                                 break;
                             default:
                                 $fields = GenericApiEngine::getRequiredFields();

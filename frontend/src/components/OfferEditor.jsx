@@ -3,7 +3,10 @@ import { Save, X, Upload, Plus, Trash2, Info, ChevronDown, ChevronUp } from 'luc
 import axios from 'axios';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
+import GroupsModal from './GroupsModal';
+import AffiliateNetworkEditor from './AffiliateNetworkEditor';
 import { useLanguage } from '../contexts/LanguageContext';
+import { cachedGet } from '../utils/apiCache';
 
 const API_URL = '/api.php';
 
@@ -45,6 +48,38 @@ const OfferEditor = ({ offerId, onClose }) => {
 
     // Show/hide advanced sections
     const [showCapping, setShowCapping] = useState(false);
+
+    // Quick-create modals opened from the "+" next to the selects
+    const [showGroupsModal, setShowGroupsModal] = useState(false);
+    const [showNetworkEditor, setShowNetworkEditor] = useState(false);
+    const [postbackKey, setPostbackKey] = useState('');
+
+    useEffect(() => {
+        // The network editor builds postback URLs from the tracker's key.
+        cachedGet('settings')
+            .then(({ data }) => { if (data.status === 'success') setPostbackKey(data.data.postback_key || ''); })
+            .catch(() => {});
+    }, []);
+
+    const refetchGroups = async () => {
+        try {
+            const res = await axios.get(`${API_URL}?action=offer_groups`);
+            if (res.data.status === 'success') setGroups(res.data.data);
+        } catch (err) { console.error(err); }
+    };
+
+    const refetchNetworks = async (selectNewest = false) => {
+        try {
+            const res = await axios.get(`${API_URL}?action=affiliate_networks`);
+            if (res.data.status === 'success') {
+                setAffiliateNetworks(res.data.data);
+                if (selectNewest && res.data.data.length) {
+                    const newest = res.data.data.reduce((a, b) => (a.id > b.id ? a : b));
+                    setFormData(prev => ({ ...prev, affiliate_network_id: String(newest.id) }));
+                }
+            }
+        } catch (err) { console.error(err); }
+    };
 
     useEffect(() => {
         const fetchDeps = async () => {
@@ -225,7 +260,7 @@ const OfferEditor = ({ offerId, onClose }) => {
                                                 <option key={g.id} value={g.id}>{g.name}</option>
                                             ))}
                                         </select>
-                                        <button className="btn btn-secondary rounded-l-none border-l-0">
+                                        <button type="button" className="btn btn-secondary rounded-l-none border-l-0" onClick={() => setShowGroupsModal(true)} title={t('groupsModal.offerGroups')}>
                                             <Plus className="w-4 h-4" />
                                         </button>
                                     </div>
@@ -251,7 +286,7 @@ const OfferEditor = ({ offerId, onClose }) => {
                                                 <option key={an.id} value={an.id}>{an.name}</option>
                                             ))}
                                         </select>
-                                        <button className="btn btn-secondary rounded-l-none border-l-0">
+                                        <button type="button" className="btn btn-secondary rounded-l-none border-l-0" onClick={() => setShowNetworkEditor(true)} title={t('networks.title')}>
                                             <Plus className="w-4 h-4" />
                                         </button>
                                     </div>
@@ -590,6 +625,28 @@ const OfferEditor = ({ offerId, onClose }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Quick-create group from the "+" next to the group select */}
+            {showGroupsModal && (
+                <GroupsModal
+                    type="offer"
+                    onClose={() => { setShowGroupsModal(false); refetchGroups(); }}
+                    onGroupCreated={(g) => {
+                        if (!g || !g.id) return;
+                        setGroups(prev => prev.some(x => x.id == g.id) ? prev : [...prev, g]);
+                        setFormData(prev => ({ ...prev, group_id: String(g.id) }));
+                    }}
+                />
+            )}
+
+            {/* Quick-create network from the "+" next to the network select */}
+            {showNetworkEditor && (
+                <AffiliateNetworkEditor
+                    networkId={null}
+                    onClose={() => { setShowNetworkEditor(false); refetchNetworks(true); }}
+                    postbackKey={postbackKey}
+                />
+            )}
         </div>
     );
 };

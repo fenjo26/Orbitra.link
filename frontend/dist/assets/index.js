@@ -15953,6 +15953,13 @@ const ru = {
     "tablet": "Планшет"
   },
   "parameters": {
+    "adId": "ID объявления",
+    "adsetId": "ID группы объявлений",
+    "campaignId": "ID кампании",
+    "adName": "Название объявления",
+    "adsetName": "Название группы",
+    "campaignName": "Название кампании",
+    "site": "Площадка",
     "keyword": "Ключевое слово",
     "cost": "Расход",
     "currency": "Валюта",
@@ -16357,6 +16364,10 @@ const ru = {
     "copyErrors": "Ошибок"
   },
   "editor": {
+    "integrationCode": "Код интеграции",
+    "intCode_link": "Ссылка",
+    "intCode_iframe": "Iframe",
+    "intCode_script": "Скрипт",
     "offerSelection": "Выбор оффера",
     "offerSelectionBefore": "Перед кликом",
     "offerSelectionAfter": "После клика",
@@ -18142,11 +18153,22 @@ const ru = {
     "queueHealthy": "Воркер доставки работает.",
     "queueStale": "Воркер доставки давно не отмечался. Установите cron, чтобы включить повторы."
   },
+  "extCosts": {
+    "title": "Dolphin / Fbtool — Keitaro API",
+    "description": "Приём расходов из Dolphin и Fbtool.pro через Keitaro-совместимый Admin API endpoint",
+    "step1": "1. Создайте API-ключ с правами write: Пользователи → ваш профиль → сгенерировать ключ (permissions: write)",
+    "step2": "2. Скопируйте в Dolphin (Настройки → Экспорт расходов → Keitaro) или Fbtool (Расходы → Keitaro):",
+    "step3": "3. Endpoint, который вызывают сервисы (совместим с Keitaro Admin API v1):",
+    "hint": "Фильтры матчатся по параметрам клика: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолты шаблона Facebook), либо любое имя параметра напрямую (ad_id, adset_id, campaign_id...). Расход делится поровну между совпавшими кликами за период; повторная отправка перезаписывает, а не суммирует."
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
+    "tiktokAds": "TikTok Ads",
     "description": "Импортирует дневной рекламный расход и атрибутирует его к кликам по рекламным ID, которые уже ловят шаблоны источников трафика.",
     "fields": {
+      "ttToken": "Access Token",
+      "ttAdvertiser": "Advertiser ID (ID кабинета)",
       "fbToken": "Access Token (long-lived / system user)",
       "fbAdAccount": "ID рекламного кабинета",
       "fbApiVersion": "Версия Facebook API",
@@ -18230,6 +18252,13 @@ const en = {
     "tablet": "Tablet"
   },
   "parameters": {
+    "adId": "Ad ID",
+    "adsetId": "Adset ID",
+    "campaignId": "Campaign ID",
+    "adName": "Ad name",
+    "adsetName": "Adset name",
+    "campaignName": "Campaign name",
+    "site": "Site",
     "keyword": "Keyword",
     "cost": "Cost",
     "currency": "Currency",
@@ -18634,6 +18663,10 @@ const en = {
     "copyErrors": "Errors"
   },
   "editor": {
+    "integrationCode": "Integration code",
+    "intCode_link": "Link",
+    "intCode_iframe": "Iframe",
+    "intCode_script": "Script",
     "offerSelection": "Offer selection",
     "offerSelectionBefore": "Before the click",
     "offerSelectionAfter": "After the click",
@@ -20419,11 +20452,22 @@ const en = {
     "queueHealthy": "Delivery worker is running.",
     "queueStale": "Delivery worker has not pinged recently. Install the cron to enable retries."
   },
+  "extCosts": {
+    "title": "Dolphin / Fbtool — Keitaro API",
+    "description": "Receive spend from Dolphin and Fbtool.pro via a Keitaro-compatible Admin API endpoint",
+    "step1": "1. Create a write-permission API key: Users → your profile → generate key (permissions: write)",
+    "step2": "2. Paste into Dolphin (Settings → Cost export → Keitaro) or Fbtool (Costs → Keitaro):",
+    "step3": "3. The endpoint the services call (Keitaro Admin API v1 compatible):",
+    "hint": "Filters match click parameters: sub_id_4 = ad_id, sub_id_3 = adset_id (Facebook template defaults), or any parameter name directly (ad_id, adset_id, campaign_id...). Spend is split evenly across matched clicks for the period; re-sending overwrites instead of accumulating."
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
+    "tiktokAds": "TikTok Ads",
     "description": "Import daily ad spend and attribute it to clicks by the ad IDs your traffic-source templates already capture.",
     "fields": {
+      "ttToken": "Access Token",
+      "ttAdvertiser": "Advertiser ID",
       "fbToken": "Access Token (long-lived / system user)",
       "fbAdAccount": "Ad Account ID",
       "fbApiVersion": "Facebook API version",
@@ -20507,6 +20551,13 @@ const uk = {
     "tablet": "Планшет"
   },
   "parameters": {
+    "adId": "ID оголошення",
+    "adsetId": "ID групи оголошень",
+    "campaignId": "ID кампанії",
+    "adName": "Назва оголошення",
+    "adsetName": "Назва групи",
+    "campaignName": "Назва кампанії",
+    "site": "Майданчик",
     "keyword": "Ключове слово",
     "cost": "Витрати",
     "currency": "Валюта",
@@ -20911,6 +20962,10 @@ const uk = {
     "copyErrors": "Помилки"
   },
   "editor": {
+    "integrationCode": "Код інтеграції",
+    "intCode_link": "Посилання",
+    "intCode_iframe": "Iframe",
+    "intCode_script": "Скрипт",
     "offerSelection": "Вибір офера",
     "offerSelectionBefore": "Перед кліком",
     "offerSelectionAfter": "Після кліку",
@@ -22696,11 +22751,22 @@ const uk = {
     "queueHealthy": "Воркер доставки працює.",
     "queueStale": "Воркер доставки давно не відзначався. Встановіть cron, щоб увімкнути повтори."
   },
+  "extCosts": {
+    "title": "Dolphin / Fbtool — Keitaro API",
+    "description": "Приймання витрат із Dolphin та Fbtool.pro через Keitaro-сумісний Admin API endpoint",
+    "step1": "1. Створіть API-ключ із правами write: Користувачі → ваш профіль → згенерувати ключ (permissions: write)",
+    "step2": "2. Скопіюйте в Dolphin (Налаштування → Експорт витрат → Keitaro) або Fbtool (Витрати → Keitaro):",
+    "step3": "3. Endpoint, який викликають сервіси (сумісний із Keitaro Admin API v1):",
+    "hint": "Фільтри матчаться за параметрами кліку: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолти шаблону Facebook), або будь-яке ім’я параметра напряму (ad_id, adset_id, campaign_id...). Витрата ділиться порівну між кліками, що збіглися, за період; повторне надсилання перезаписує, а не сумує."
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
+    "tiktokAds": "TikTok Ads",
     "description": "Імпортує денну рекламну витрату і атрибутує її до кліків за рекламними ID, які вже ловлять шаблони джерел трафіку.",
     "fields": {
+      "ttToken": "Access Token",
+      "ttAdvertiser": "Advertiser ID (ID кабінету)",
       "fbToken": "Access Token (long-lived / system user)",
       "fbAdAccount": "ID рекламного кабінету",
       "fbApiVersion": "Версія Facebook API",
@@ -22784,6 +22850,13 @@ const es = {
     "tablet": "Tableta"
   },
   "parameters": {
+    "adId": "ID del anuncio",
+    "adsetId": "ID del conjunto",
+    "campaignId": "ID de la campaña",
+    "adName": "Nombre del anuncio",
+    "adsetName": "Nombre del conjunto",
+    "campaignName": "Nombre de la campaña",
+    "site": "Sitio",
     "keyword": "Palabra clave",
     "cost": "Coste",
     "currency": "Moneda",
@@ -23188,6 +23261,10 @@ const es = {
     "copyErrors": "Errores"
   },
   "editor": {
+    "integrationCode": "Código de integración",
+    "intCode_link": "Enlace",
+    "intCode_iframe": "Iframe",
+    "intCode_script": "Script",
     "offerSelection": "Selección de oferta",
     "offerSelectionBefore": "Antes del clic",
     "offerSelectionAfter": "Después del clic",
@@ -24973,11 +25050,22 @@ const es = {
     "queueHealthy": "El worker de envío está activo.",
     "queueStale": "El worker de envío no ha reportado recientemente. Instala el cron para habilitar reintentos."
   },
+  "extCosts": {
+    "title": "Dolphin / Fbtool — Keitaro API",
+    "description": "Recibir gastos de Dolphin y Fbtool.pro mediante un endpoint compatible con Keitaro Admin API",
+    "step1": "1. Crea una clave API con permisos de escritura: Usuarios → tu perfil → generar clave (permissions: write)",
+    "step2": "2. Pégalo en Dolphin (Ajustes → Exportar gastos → Keitaro) o Fbtool (Gastos → Keitaro):",
+    "step3": "3. El endpoint al que llaman los servicios (compatible con Keitaro Admin API v1):",
+    "hint": "Los filtros coinciden con parámetros del clic: sub_id_4 = ad_id, sub_id_3 = adset_id (valores por defecto de la plantilla de Facebook), o cualquier nombre de parámetro directamente (ad_id, adset_id, campaign_id...). El gasto se reparte a partes iguales entre los clics coincidentes del periodo; reenviar sobrescribe en vez de acumular."
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
+    "tiktokAds": "TikTok Ads",
     "description": "Importa el gasto publicitario diario y lo atribuye a los clics por los IDs de anuncio que tus plantillas de fuente de tráfico ya capturan.",
     "fields": {
+      "ttToken": "Access Token",
+      "ttAdvertiser": "Advertiser ID",
       "fbToken": "Access Token (de larga duración / usuario de sistema)",
       "fbAdAccount": "ID de la cuenta publicitaria",
       "fbApiVersion": "Versión de la API de Facebook",
@@ -25061,6 +25149,13 @@ const zh = {
     "tablet": "平板"
   },
   "parameters": {
+    "adId": "广告 ID",
+    "adsetId": "广告组 ID",
+    "campaignId": "广告系列 ID",
+    "adName": "广告名称",
+    "adsetName": "广告组名称",
+    "campaignName": "广告系列名称",
+    "site": "站点",
     "keyword": "关键词",
     "cost": "成本",
     "currency": "货币",
@@ -25465,6 +25560,10 @@ const zh = {
     "copyErrors": "错误"
   },
   "editor": {
+    "integrationCode": "集成代码",
+    "intCode_link": "链接",
+    "intCode_iframe": "Iframe",
+    "intCode_script": "脚本",
     "offerSelection": "报价选择",
     "offerSelectionBefore": "点击前",
     "offerSelectionAfter": "点击后",
@@ -27250,11 +27349,22 @@ const zh = {
     "queueHealthy": "投递 worker 正在运行。",
     "queueStale": "投递 worker 已较长时间未报告。请安装 cron 以启用重试。"
   },
+  "extCosts": {
+    "title": "Dolphin / Fbtool — Keitaro API",
+    "description": "通过兼容 Keitaro Admin API 的端点接收 Dolphin 和 Fbtool.pro 的花费",
+    "step1": "1. 创建具有 write 权限的 API 密钥：用户 → 你的资料 → 生成密钥（permissions: write）",
+    "step2": "2. 粘贴到 Dolphin（设置 → 花费导出 → Keitaro）或 Fbtool（花费 → Keitaro）：",
+    "step3": "3. 服务调用的端点（兼容 Keitaro Admin API v1）：",
+    "hint": "过滤器按点击参数匹配：sub_id_4 = ad_id、sub_id_3 = adset_id（Facebook 模板默认值），也可直接使用任意参数名（ad_id、adset_id、campaign_id...）。花费在周期内匹配的点击之间平均分配；重复发送会覆盖而不是累加。"
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
+    "tiktokAds": "TikTok Ads",
     "description": "导入每日广告支出，并通过流量来源模板已捕获的广告 ID 将其归因到点击。",
     "fields": {
+      "ttToken": "Access Token",
+      "ttAdvertiser": "广告主 ID",
       "fbToken": "访问令牌（长期 / 系统用户）",
       "fbAdAccount": "广告账户 ID",
       "fbApiVersion": "Facebook API 版本",
@@ -27338,6 +27448,13 @@ const fr = {
     "tablet": "Tablette"
   },
   "parameters": {
+    "adId": "ID de l’annonce",
+    "adsetId": "ID de l’ensemble",
+    "campaignId": "ID de la campagne",
+    "adName": "Nom de l’annonce",
+    "adsetName": "Nom de l’ensemble",
+    "campaignName": "Nom de la campagne",
+    "site": "Site",
     "keyword": "Mot-clé",
     "cost": "Coût",
     "currency": "Devise",
@@ -27742,6 +27859,10 @@ const fr = {
     "copyErrors": "Erreurs"
   },
   "editor": {
+    "integrationCode": "Code d’intégration",
+    "intCode_link": "Lien",
+    "intCode_iframe": "Iframe",
+    "intCode_script": "Script",
     "offerSelection": "Choix de l'offre",
     "offerSelectionBefore": "Avant le clic",
     "offerSelectionAfter": "Après le clic",
@@ -29529,11 +29650,22 @@ const fr = {
     "queueHealthy": "Le worker de livraison fonctionne.",
     "queueStale": "Le worker de livraison n'a pas signalé récemment. Installez le cron pour activer les réessais."
   },
+  "extCosts": {
+    "title": "Dolphin / Fbtool — Keitaro API",
+    "description": "Recevoir les dépenses de Dolphin et Fbtool.pro via un endpoint compatible Keitaro Admin API",
+    "step1": "1. Créez une clé API en écriture : Utilisateurs → votre profil → générer une clé (permissions : write)",
+    "step2": "2. Collez dans Dolphin (Paramètres → Export des dépenses → Keitaro) ou Fbtool (Dépenses → Keitaro) :",
+    "step3": "3. L’endpoint appelé par les services (compatible Keitaro Admin API v1) :",
+    "hint": "Les filtres correspondent aux paramètres du clic : sub_id_4 = ad_id, sub_id_3 = adset_id (valeurs par défaut du template Facebook), ou tout nom de paramètre directement (ad_id, adset_id, campaign_id...). La dépense est répartie également entre les clics correspondants de la période ; un renvoi remplace au lieu de s’additionner."
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
+    "tiktokAds": "TikTok Ads",
     "description": "Importe les dépenses publicitaires quotidiennes et les attribue aux clics via les IDs d'annonce que vos modèles de source de trafic capturent déjà.",
     "fields": {
+      "ttToken": "Access Token",
+      "ttAdvertiser": "ID annonceur",
       "fbToken": "Access Token (longue durée / utilisateur système)",
       "fbAdAccount": "ID du compte publicitaire",
       "fbApiVersion": "Version de l'API Facebook",
@@ -29617,6 +29749,13 @@ const de = {
     "tablet": "Tablet"
   },
   "parameters": {
+    "adId": "Anzeigen-ID",
+    "adsetId": "Anzeigengruppen-ID",
+    "campaignId": "Kampagnen-ID",
+    "adName": "Anzeigenname",
+    "adsetName": "Anzeigengruppenname",
+    "campaignName": "Kampagnenname",
+    "site": "Platzierung",
     "keyword": "Keyword",
     "cost": "Kosten",
     "currency": "Währung",
@@ -30021,6 +30160,10 @@ const de = {
     "copyErrors": "Fehler"
   },
   "editor": {
+    "integrationCode": "Integrationscode",
+    "intCode_link": "Link",
+    "intCode_iframe": "Iframe",
+    "intCode_script": "Script",
     "offerSelection": "Angebotsauswahl",
     "offerSelectionBefore": "Vor dem Klick",
     "offerSelectionAfter": "Nach dem Klick",
@@ -31806,11 +31949,22 @@ const de = {
     "queueHealthy": "Zustellungs-Worker läuft.",
     "queueStale": "Zustellungs-Worker hat sich lange nicht gemeldet. Installieren Sie den Cron, um Wiederholungen zu aktivieren."
   },
+  "extCosts": {
+    "title": "Dolphin / Fbtool — Keitaro API",
+    "description": "Ausgaben aus Dolphin und Fbtool.pro über einen Keitaro-kompatiblen Admin-API-Endpunkt empfangen",
+    "step1": "1. API-Schlüssel mit Schreibrechten erstellen: Benutzer → Profil → Schlüssel generieren (permissions: write)",
+    "step2": "2. In Dolphin (Einstellungen → Kostenexport → Keitaro) oder Fbtool (Kosten → Keitaro) eintragen:",
+    "step3": "3. Endpunkt, den die Dienste aufrufen (kompatibel mit Keitaro Admin API v1):",
+    "hint": "Filter matchen Klick-Parameter: sub_id_4 = ad_id, sub_id_3 = adset_id (Facebook-Template-Defaults) oder jeder Parametername direkt (ad_id, adset_id, campaign_id...). Ausgaben werden gleichmäßig auf die passenden Klicks des Zeitraums verteilt; erneutes Senden überschreibt statt zu addieren."
+  },
   "costImport": {
     "facebookAds": "Facebook Ads",
     "googleAds": "Google Ads",
+    "tiktokAds": "TikTok Ads",
     "description": "Importiert tägliche Werbeausgaben und ordnet sie Klicks über die Anzeigen-IDs zu, die Ihre Traffic-Quell-Vorlagen bereits erfassen.",
     "fields": {
+      "ttToken": "Access Token",
+      "ttAdvertiser": "Advertiser-ID",
       "fbToken": "Access Token (langlebig / System-User)",
       "fbAdAccount": "Werbekonto-ID",
       "fbApiVersion": "Facebook-API-Version",
@@ -45389,6 +45543,17 @@ async function cachedGet(action, params = {}, ttl = CACHE_TTL) {
   }
   return { data: response.data, fromCache: false };
 }
+function invalidateCache(pattern) {
+  if (!pattern) {
+    cache.clear();
+    return;
+  }
+  for (const key of cache.keys()) {
+    if (key.includes(pattern)) {
+      cache.delete(key);
+    }
+  }
+}
 async function cachedPost(action, data = {}, params = {}) {
   const response = await axios.post(API_URL$A, data, { params: { action, ...params } });
   if (response.data?.status === "success") {
@@ -46560,6 +46725,125 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   ] });
 };
 const API_URL$y = "/api.php";
+const GroupsModal = ({ type, onClose, onGroupCreated }) => {
+  const { t } = useLanguage();
+  const [groups, setGroups] = reactExports.useState([]);
+  const [loading, setLoading] = reactExports.useState(true);
+  const [newGroupName, setNewGroupName] = reactExports.useState("");
+  const getEndpoint = () => {
+    switch (type) {
+      case "offer":
+        return "offer_groups";
+      case "landing":
+        return "landing_groups";
+      case "campaign":
+        return "campaign_groups";
+      default:
+        return "offer_groups";
+    }
+  };
+  const getDeleteEndpoint = () => {
+    switch (type) {
+      case "offer":
+        return "delete_offer_group";
+      case "landing":
+        return "delete_landing_group";
+      case "campaign":
+        return "delete_campaign_group";
+      default:
+        return "delete_offer_group";
+    }
+  };
+  const getTitle = () => {
+    switch (type) {
+      case "offer":
+        return t("groupsModal.offerGroups");
+      case "landing":
+        return t("groupsModal.landingGroups");
+      case "campaign":
+        return t("groupsModal.campaignGroups");
+      default:
+        return t("groupsModal.groups");
+    }
+  };
+  const endpoint = getEndpoint();
+  reactExports.useEffect(() => {
+    fetchGroups();
+  }, [endpoint]);
+  const fetchGroups = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_URL$y}?action=${endpoint}`);
+      if (res.data.status === "success") setGroups(res.data.data);
+    } catch (err) {
+      console.error("Error fetching groups:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleCreate = async () => {
+    if (!newGroupName.trim()) return;
+    try {
+      const res = await axios.post(`${API_URL$y}?action=${endpoint}`, { name: newGroupName.trim() });
+      if (res.data.status === "success") {
+        const created = { id: res.data.data?.id, name: newGroupName.trim() };
+        setNewGroupName("");
+        fetchGroups();
+        if (onGroupCreated) onGroupCreated(created);
+      } else alert(res.data.message || t("groupsModal.createError"));
+    } catch {
+      alert(t("groupsModal.networkError"));
+    }
+  };
+  const handleDelete = async (id) => {
+    if (!window.confirm(t("groupsModal.deleteConfirm"))) return;
+    try {
+      await axios.post(`${API_URL$y}?action=${getDeleteEndpoint()}`, { id });
+      fetchGroups();
+    } catch {
+      alert(t("groupsModal.deleteError"));
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "480px" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: getTitle() }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-b", style: { borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "text",
+          value: newGroupName,
+          onChange: (e) => setNewGroupName(e.target.value),
+          onKeyPress: (e) => e.key === "Enter" && handleCreate(),
+          placeholder: t("groups.placeholder"),
+          className: "form-input text-sm",
+          autoFocus: true
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleCreate, disabled: !newGroupName.trim(), className: "btn btn-primary whitespace-nowrap", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
+        t("groupsModal.add")
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-h-80 overflow-y-auto", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-8 text-center", style: { color: "var(--color-text-muted)" }, children: t("groupsModal.loading") }) : groups.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-8 text-center", style: { color: "var(--color-text-muted)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("groupsModal.noGroups") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-1", children: t("groupsModal.createFirst") })
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y", style: { borderColor: "var(--color-border)" }, children: groups.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center justify-between px-6 py-3 transition", style: { borderColor: "var(--color-border)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", style: { color: "var(--color-text-primary)" }, children: group.name }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
+          "ID: ",
+          group.id
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(group.id), className: "action-btn", title: t("groups.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4", style: { color: "var(--color-text-muted)" } }) })
+    ] }, group.id)) }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t flex justify-end", style: { borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("groupsModal.close") }) })
+  ] }) });
+};
+const API_URL$x = "/api.php";
 const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId }) => {
   const { t } = useLanguage();
   const [actionModal, setActionModal] = reactExports.useState({ type: null, campaignId: null });
@@ -46569,6 +46853,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   const [search, setSearch] = reactExports.useState("");
   const [settingsOpen, setSettingsOpen] = reactExports.useState(false);
   const [refreshing, setRefreshing] = reactExports.useState(false);
+  const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
   const handleCreate = () => {
     setEditingCampaignId(null);
     setActiveTab("campaign_editor");
@@ -46580,7 +46865,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   const handleDelete = async (id) => {
     if (window.confirm(t("campaigns.deleteConfirm"))) {
       try {
-        await axios.post(`${API_URL$y}?action=delete_campaign`, { id });
+        await axios.post(`${API_URL$x}?action=delete_campaign`, { id });
         refreshData();
       } catch (err) {
         alert(t("common.deleteError"));
@@ -46666,7 +46951,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     const msg = (t("common.deleteSelectedConfirm") || t("campaigns.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$y}?action=bulk_delete_campaigns`, { ids });
+      await axios.post(`${API_URL$x}?action=bulk_delete_campaigns`, { ids });
       setSelectedCampaignIds(/* @__PURE__ */ new Set());
       refreshData();
     } catch (err) {
@@ -46682,7 +46967,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     let errorCount = 0;
     for (const id of ids) {
       try {
-        await axios.post(`${API_URL$y}?action=copy_campaign`, { id });
+        await axios.post(`${API_URL$x}?action=copy_campaign`, { id });
         successCount++;
       } catch (err) {
         errorCount++;
@@ -46758,7 +47043,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   };
   const handleClearStats = async () => {
     try {
-      await axios.post(`${API_URL$y}?action=clear_stats`, { campaign_id: actionModal.campaignId });
+      await axios.post(`${API_URL$x}?action=clear_stats`, { campaign_id: actionModal.campaignId });
       refreshData();
       setActionModal({ type: null, campaignId: null });
     } catch (err) {
@@ -46776,7 +47061,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
       unique_only: fd.get("unique_only") === "on"
     };
     try {
-      const res = await axios.post(`${API_URL$y}?action=update_costs`, data);
+      const res = await axios.post(`${API_URL$x}?action=update_costs`, data);
       if (res.data.status === "success") {
         alert(t("campaigns.updatedClicks").replace("{count}", res.data.updated_clicks));
         refreshData();
@@ -46796,8 +47081,8 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
           t("common.create")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t("campaigns.groups") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t("campaigns.sources") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowGroupsModal(true), className: "btn btn-secondary", children: t("campaigns.groups") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActiveTab("sources"), className: "btn btn-secondary", children: t("campaigns.sources") }),
         selectedCampaignIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkCopySelected, className: "btn btn-success", title: t("campaigns.copySelected"), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }),
@@ -46979,10 +47264,17 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         }, children: t("common.clearSelection", "Clear selection") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-primary w-full", onClick: exportVisibleCsv, children: t("common.exportCsv", "Export CSV") })
       ] })
-    ] }) })
+    ] }) }),
+    showGroupsModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      GroupsModal,
+      {
+        type: "campaign",
+        onClose: () => setShowGroupsModal(false)
+      }
+    )
   ] });
 };
-const API_URL$x = "/api.php";
+const API_URL$w = "/api.php";
 const TrafficSimulation = () => {
   const { t } = useLanguage();
   const [campaigns, setCampaigns] = reactExports.useState([]);
@@ -46997,7 +47289,7 @@ const TrafficSimulation = () => {
   const [trace, setTrace] = reactExports.useState(null);
   const [loading, setLoading] = reactExports.useState(false);
   reactExports.useEffect(() => {
-    axios.get(`${API_URL$x}?action=campaigns`).then((res) => {
+    axios.get(`${API_URL$w}?action=campaigns`).then((res) => {
       if (res.data.status === "success") {
         setCampaigns(res.data.data);
         if (res.data.data.length > 0) {
@@ -47011,7 +47303,7 @@ const TrafficSimulation = () => {
     setLoading(true);
     setTrace(null);
     try {
-      const res = await axios.post(`${API_URL$x}?action=simulate_traffic`, formData);
+      const res = await axios.post(`${API_URL$w}?action=simulate_traffic`, formData);
       if (res.data.status === "success") {
         setTrace(res.data.trace);
       } else {
@@ -47206,7 +47498,7 @@ function translateLandingRequestError(t, error) {
   }
   return t("landingEditor.networkError");
 }
-const API_URL$w = "/api.php";
+const API_URL$v = "/api.php";
 const CopyableCode = ({ text, copied, onCopy, t, muted = false }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative mt-1", children: [
   /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "button",
@@ -47271,7 +47563,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   reactExports.useEffect(() => {
     if (landing.type !== "action" || landing.action_type !== "to_campaign" || campaigns.length) return;
     let cancelled = false;
-    axios.get(`${API_URL$w}?action=campaigns`).then((res) => {
+    axios.get(`${API_URL$v}?action=campaigns`).then((res) => {
       if (!cancelled && res.data.status === "success") setCampaigns(res.data.data || []);
     }).catch(() => {
     });
@@ -47284,10 +47576,10 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
       setLoading(true);
       try {
         const [groupsRes, settingsRes] = await Promise.all([
-          axios.get(`${API_URL$w}?action=landing_groups`),
+          axios.get(`${API_URL$v}?action=landing_groups`),
           // Needed to build the adapter's postback URL, which is keyed by
           // the instance's postback_key.
-          axios.get(`${API_URL$w}?action=settings`).catch(() => null)
+          axios.get(`${API_URL$v}?action=settings`).catch(() => null)
         ]);
         if (groupsRes.data.status === "success") {
           setGroups(groupsRes.data.data);
@@ -47296,7 +47588,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
           setPostbackKey(settingsRes.data.data?.postback_key || "");
         }
         if (landingId) {
-          const landingRes = await axios.get(`${API_URL$w}?action=get_landing&id=${landingId}`);
+          const landingRes = await axios.get(`${API_URL$v}?action=get_landing&id=${landingId}`);
           if (landingRes.data.status === "success") {
             setLanding(landingRes.data.data);
             if (landingRes.data.data.type === "local") {
@@ -47315,7 +47607,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   }, [landingId]);
   const fetchLandingFiles = async (id) => {
     try {
-      const res = await axios.get(`${API_URL$w}?action=landing_files&id=${id}`);
+      const res = await axios.get(`${API_URL$v}?action=landing_files&id=${id}`);
       if (res.data.status === "success") {
         setFiles(res.data.data);
       }
@@ -47328,7 +47620,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     try {
       const payload = { ...landing };
       if (landingId) payload.id = landingId;
-      const res = await axios.post(`${API_URL$w}?action=save_landing`, payload);
+      const res = await axios.post(`${API_URL$v}?action=save_landing`, payload);
       if (res.data.status === "success") {
         setSavedSomething(true);
         const newId = res.data.data?.id;
@@ -47355,7 +47647,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   };
   const fileOp = async (payload, okMessage) => {
     try {
-      const res = await axios.post(`${API_URL$w}?action=landing_file_op`, { id: landingId, ...payload });
+      const res = await axios.post(`${API_URL$v}?action=landing_file_op`, { id: landingId, ...payload });
       if (res.data.status !== "success") throw new Error(res.data.message || "failed");
       fetchLandingFiles(landingId);
       if (okMessage) ;
@@ -47396,7 +47688,7 @@ ${file}`)) return;
     fd.append("id", landingId);
     fd.append("dir", dir);
     try {
-      const res = await axios.post(`${API_URL$w}?action=upload_landing_file`, fd, {
+      const res = await axios.post(`${API_URL$v}?action=upload_landing_file`, fd, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status !== "success") throw new Error(res.data.message || "failed");
@@ -47413,7 +47705,7 @@ ${file}`)) return;
     formData.append("file", file);
     formData.append("id", id);
     try {
-      const res = await axios.post(`${API_URL$w}?action=upload_landing`, formData, {
+      const res = await axios.post(`${API_URL$v}?action=upload_landing`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status === "success") {
@@ -47438,7 +47730,7 @@ ${file}`)) return;
   };
   const loadFileContent = async (path) => {
     try {
-      const res = await axios.get(`${API_URL$w}?action=get_landing_file&id=${landingId}&path=${encodeURIComponent(path)}`);
+      const res = await axios.get(`${API_URL$v}?action=get_landing_file&id=${landingId}&path=${encodeURIComponent(path)}`);
       if (res.data.status === "success") {
         setSelectedFile(path);
         setFileContent(res.data.data);
@@ -47453,7 +47745,7 @@ ${file}`)) return;
     if (!selectedFile) return;
     setSavingFile(true);
     try {
-      const res = await axios.post(`${API_URL$w}?action=save_landing_file`, {
+      const res = await axios.post(`${API_URL$v}?action=save_landing_file`, {
         id: landingId,
         path: selectedFile,
         content: fileContent
@@ -47926,10 +48218,11 @@ ${file}`)) return;
     ] })
   ] }) });
 };
-const API_URL$v = "/api.php";
+const API_URL$u = "/api.php";
 const Landings = ({ landings, refreshData }) => {
   const { t } = useLanguage();
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
+  const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
   const [editingLandingId, setEditingLandingId] = reactExports.useState(null);
   const [selectedLandingIds, setSelectedLandingIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
   const [showFilters, setShowFilters] = reactExports.useState(false);
@@ -47949,7 +48242,7 @@ const Landings = ({ landings, refreshData }) => {
   const handleDelete = async (id) => {
     if (window.confirm(t("common.deleteConfirm"))) {
       try {
-        const res = await axios.post(`${API_URL$v}?action=delete_landing`, { id });
+        const res = await axios.post(`${API_URL$u}?action=delete_landing`, { id });
         if (res?.data?.status !== "success") {
           alert(res?.data?.message || t("common.error"));
           return;
@@ -48001,7 +48294,7 @@ const Landings = ({ landings, refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$v}?action=bulk_delete_landings`, { ids });
+      await axios.post(`${API_URL$u}?action=bulk_delete_landings`, { ids });
       setSelectedLandingIds(/* @__PURE__ */ new Set());
       refreshData();
     } catch (err) {
@@ -48062,7 +48355,7 @@ const Landings = ({ landings, refreshData }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
           t("common.create")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary", children: t("campaigns.groups") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowGroupsModal(true), className: "btn btn-secondary", children: t("campaigns.groups") }),
         selectedLandingIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t("common.deleteSelected"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
           t("common.deleteSelected") || t("common.delete"),
@@ -48232,10 +48525,17 @@ const Landings = ({ landings, refreshData }) => {
         }, children: t("common.clearSelection") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-primary w-full", onClick: exportVisibleCsv, children: t("common.exportCsv") })
       ] })
-    ] }) })
+    ] }) }),
+    showGroupsModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      GroupsModal,
+      {
+        type: "landing",
+        onClose: () => setShowGroupsModal(false)
+      }
+    )
   ] });
 };
-const API_URL$u = "/api.php";
+const API_URL$t = "/api.php";
 const getCountryFlag = (code) => {
   if (!code || code === "Unknown" || code === "??") return "🏳️";
   if (code.length !== 2) return "📍";
@@ -48260,8 +48560,8 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
     const loadData = async () => {
       try {
         const [cRes, pRes] = await Promise.all([
-          axios.get(`${API_URL$u}?action=countries_list`),
-          axios.get(`${API_URL$u}?action=geo_profiles`)
+          axios.get(`${API_URL$t}?action=countries_list`),
+          axios.get(`${API_URL$t}?action=geo_profiles`)
         ]);
         if (cRes.data?.data) setCountries(cRes.data.data);
         if (pRes.data?.data) setProfiles(pRes.data.data);
@@ -48478,7 +48778,261 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
     ] })
   ] });
 };
-const API_URL$t = "/api.php";
+const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
+  const { t } = useLanguage();
+  const [loading, setLoading] = reactExports.useState(false);
+  const [saving, setSaving] = reactExports.useState(false);
+  const [templates, setTemplates] = reactExports.useState([]);
+  const [copied, setCopied] = reactExports.useState(false);
+  const [formData, setFormData] = reactExports.useState({
+    name: "",
+    template: "generic",
+    offer_params: "&subid={subid}",
+    postback_url: "",
+    notes: "",
+    state: "active"
+  });
+  reactExports.useEffect(() => {
+    fetchTemplates();
+    if (networkId) {
+      fetchNetwork();
+    }
+  }, [networkId]);
+  const fetchTemplates = async () => {
+    try {
+      const { data } = await cachedGet("affiliate_network_templates", {}, 6e4);
+      if (data.status === "success") {
+        setTemplates(data.data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const fetchNetwork = async () => {
+    setLoading(true);
+    try {
+      const { data } = await cachedGet("get_affiliate_network", { id: networkId });
+      if (data.status === "success") {
+        setFormData({
+          name: data.data.name || "",
+          template: data.data.template || "generic",
+          offer_params: data.data.offer_params || "",
+          postback_url: data.data.postback_url || "",
+          notes: data.data.notes || "",
+          state: data.data.state || "active"
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleTemplateChange = (templateName) => {
+    const template = templates.find((t2) => t2.name === templateName);
+    if (template) {
+      let postbackUrl = "";
+      if (template.postback_url_template) {
+        const host = window.location.host;
+        postbackUrl = template.postback_url_template.replace("{domain}", host).replace("{postback_key}", postbackKey);
+      }
+      setFormData({
+        ...formData,
+        template: templateName,
+        offer_params: template.offer_params_template || "",
+        postback_url: postbackUrl || formData.postback_url,
+        notes: template.notes_template && template.notes_template.startsWith("tpl.") ? t(template.notes_template) : template.notes_template || ""
+      });
+    }
+  };
+  const handleSave = async () => {
+    if (!formData.name) {
+      alert(t("botSettings.fillName"));
+      return;
+    }
+    setSaving(true);
+    try {
+      const payload = { ...formData };
+      if (networkId) {
+        payload.id = networkId;
+      }
+      const res = await cachedPost("affiliate_networks", payload);
+      if (res.data.status === "success") {
+        onClose(true);
+      } else {
+        alert(t("offerEditor.saveError") + " " + res.data.message);
+      }
+    } catch (err) {
+      alert(t("offerEditor.networkError"));
+    } finally {
+      setSaving(false);
+    }
+  };
+  const getPostbackUrl = () => {
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    return `${protocol}//${host}/${postbackKey}/postback`;
+  };
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2e3);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const availableMacros = [
+    { macro: "{subid}", description: t("networkEditor.macroSubid") },
+    { macro: "{ip}", description: t("networkEditor.macroIp") },
+    { macro: "{user_agent}", description: "User Agent" },
+    { macro: "{country}", description: t("networkEditor.macroCountry") },
+    { macro: "{device}", description: t("networkEditor.macroDevice") },
+    { macro: "{referer}", description: t("networkEditor.macroReferer") },
+    { macro: "{keyword}", description: t("networkEditor.macroKeyword") },
+    { macro: "{cost}", description: t("networkEditor.macroCost") },
+    { macro: "{external_id}", description: t("networkEditor.macroExternalId") },
+    { macro: "{creative}", description: t("networkEditor.macroCreative") },
+    { macro: "{ad_campaign}", description: t("networkEditor.macroAdCampaign") }
+  ];
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "700px" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: networkId ? `${t("networks.title")}: ${formData.name}` : t("networks.title") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: t("common.loading") }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded border border-gray-200 space-y-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t("networkEditor.basicSettings") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.nameLabel") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: formData.name,
+                onChange: (e) => setFormData({ ...formData, name: e.target.value }),
+                className: "w-full border border-gray-300 rounded px-3 py-2 text-sm",
+                placeholder: t("networkEditor.namePlaceholder")
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.template") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "select",
+              {
+                value: formData.template,
+                onChange: (e) => handleTemplateChange(e.target.value),
+                className: "w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white",
+                children: templates.map((tmpl) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tmpl.name, children: t("tpl.net_" + tmpl.name, tmpl.display_name) }, tmpl.name))
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.status") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: formData.state,
+              onChange: (e) => setFormData({ ...formData, state: e.target.value }),
+              className: "w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("networkEditor.active") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("networkEditor.disabled") })
+              ]
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-blue-50 p-4 rounded border border-blue-200 space-y-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-blue-800", children: "Postback URL" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-blue-600", children: t("networkEditor.postbackHint") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "flex-1 bg-white px-3 py-2 rounded border border-blue-200 text-sm", children: getPostbackUrl() }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => copyToClipboard(getPostbackUrl()),
+              className: "px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition",
+              children: copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-blue-600", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("networkEditor.paramsToAdd") }),
+          " ?subid=",
+          "{subid_macro}",
+          "&status=",
+          "{status_macro}",
+          "&payout=",
+          "{payout_macro}"
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded border border-gray-200 space-y-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t("networkEditor.offerParams") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500", children: t("networkEditor.offerParamsDesc") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.offerParamsLabel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: formData.offer_params,
+              onChange: (e) => setFormData({ ...formData, offer_params: e.target.value }),
+              className: "w-full border border-gray-300 rounded px-3 py-2 text-sm font-mono",
+              placeholder: "&subid={subid}&sub2={ip}"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-gray-400 mt-1", children: [
+            t("networkEditor.example"),
+            " &sub1=",
+            "{subid}",
+            "&ip=",
+            "{ip}"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: t("networkEditor.availableMacros") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: availableMacros.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "flex items-center justify-between bg-gray-50 px-2 py-1 rounded text-xs cursor-pointer hover:bg-gray-100",
+              onClick: () => {
+                document.querySelector('input[value="' + formData.offer_params + '"]');
+                navigator.clipboard.writeText(m.macro);
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-blue-600", children: m.macro }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400", children: m.description })
+              ]
+            },
+            m.macro
+          )) })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded border border-gray-200 space-y-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t("networkEditor.notes") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "textarea",
+          {
+            value: formData.notes,
+            onChange: (e) => setFormData({ ...formData, notes: e.target.value }),
+            className: "w-full border border-gray-300 rounded px-3 py-2 text-sm",
+            rows: 3,
+            placeholder: t("networkEditor.notesPlaceholder")
+          }
+        )
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("common.cancel") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, disabled: saving, className: "btn btn-primary", children: saving ? t("common.saving") : t("common.save") })
+    ] })
+  ] }) });
+};
+const API_URL$s = "/api.php";
 const OfferEditor = ({ offerId, onClose }) => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
@@ -48509,13 +49063,44 @@ const OfferEditor = ({ offerId, onClose }) => {
   const [uploadingZip, setUploadingZip] = reactExports.useState(false);
   reactExports.useRef(null);
   const [showCapping, setShowCapping] = reactExports.useState(false);
+  const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
+  const [showNetworkEditor, setShowNetworkEditor] = reactExports.useState(false);
+  const [postbackKey, setPostbackKey] = reactExports.useState("");
+  reactExports.useEffect(() => {
+    cachedGet("settings").then(({ data }) => {
+      if (data.status === "success") setPostbackKey(data.data.postback_key || "");
+    }).catch(() => {
+    });
+  }, []);
+  const refetchGroups = async () => {
+    try {
+      const res = await axios.get(`${API_URL$s}?action=offer_groups`);
+      if (res.data.status === "success") setGroups(res.data.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const refetchNetworks = async (selectNewest = false) => {
+    try {
+      const res = await axios.get(`${API_URL$s}?action=affiliate_networks`);
+      if (res.data.status === "success") {
+        setAffiliateNetworks(res.data.data);
+        if (selectNewest && res.data.data.length) {
+          const newest = res.data.data.reduce((a, b) => a.id > b.id ? a : b);
+          setFormData((prev) => ({ ...prev, affiliate_network_id: String(newest.id) }));
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
   reactExports.useEffect(() => {
     const fetchDeps = async () => {
       try {
         const [gRes, anRes, oRes] = await Promise.all([
-          axios.get(`${API_URL$t}?action=offer_groups`),
-          axios.get(`${API_URL$t}?action=affiliate_networks`),
-          axios.get(`${API_URL$t}?action=all_offers`)
+          axios.get(`${API_URL$s}?action=offer_groups`),
+          axios.get(`${API_URL$s}?action=affiliate_networks`),
+          axios.get(`${API_URL$s}?action=all_offers`)
         ]);
         if (gRes.data.status === "success") setGroups(gRes.data.data);
         if (anRes.data.status === "success") setAffiliateNetworks(anRes.data.data);
@@ -48527,7 +49112,7 @@ const OfferEditor = ({ offerId, onClose }) => {
     fetchDeps();
     if (offerId) {
       setLoading(true);
-      axios.get(`${API_URL$t}?action=get_offer&id=${offerId}`).then((res) => {
+      axios.get(`${API_URL$s}?action=get_offer&id=${offerId}`).then((res) => {
         if (res.data.status === "success") {
           const data = res.data.data;
           setFormData({
@@ -48567,7 +49152,7 @@ const OfferEditor = ({ offerId, onClose }) => {
       setLoading(true);
       const payload = { ...formData };
       if (offerId) payload.id = offerId;
-      const res = await axios.post(`${API_URL$t}?action=save_offer`, payload);
+      const res = await axios.post(`${API_URL$s}?action=save_offer`, payload);
       if (res.data.status === "success") {
         onClose(true);
       } else {
@@ -48613,522 +49198,455 @@ const OfferEditor = ({ offerId, onClose }) => {
   if (loading && offerId && !formData.name) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-content", style: { maxWidth: "300px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-6", style: { color: "var(--color-text-muted)" }, children: t("common.loading") }) }) });
   }
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "800px", width: "100%" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: offerId ? `${t("offers.title")}: ${formData.name}` : t("offers.title") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex px-5 pt-1 gap-6", style: { borderBottom: "1px solid var(--color-border)" }, children: ["general", "settings", "values", "notes"].map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "button",
-      {
-        className: "pb-3 px-1 font-medium text-sm transition border-b-2",
-        style: {
-          borderColor: activeTab === tab ? "var(--color-primary)" : "transparent",
-          color: activeTab === tab ? "var(--color-primary)" : "var(--color-text-secondary)"
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-overlay", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "800px", width: "100%" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: offerId ? `${t("offers.title")}: ${formData.name}` : t("offers.title") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex px-5 pt-1 gap-6", style: { borderBottom: "1px solid var(--color-border)" }, children: ["general", "settings", "values", "notes"].map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          className: "pb-3 px-1 font-medium text-sm transition border-b-2",
+          style: {
+            borderColor: activeTab === tab ? "var(--color-primary)" : "transparent",
+            color: activeTab === tab ? "var(--color-primary)" : "var(--color-text-secondary)"
+          },
+          onClick: () => setActiveTab(tab),
+          children: [
+            tab === "general" && t("editor.general"),
+            tab === "settings" && t("editor.params"),
+            tab === "values" && t("editor.notes"),
+            tab === "notes" && t("editor.notes")
+          ]
         },
-        onClick: () => setActiveTab(tab),
-        children: [
-          tab === "general" && t("editor.general"),
-          tab === "settings" && t("editor.params"),
-          tab === "values" && t("editor.notes"),
-          tab === "notes" && t("editor.notes")
-        ]
-      },
-      tab
-    )) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-6", children: [
-      activeTab === "general" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-            t("offerEditor.nameLabel"),
-            " ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-danger)" }, children: "*" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "text",
-              required: true,
-              value: formData.name,
-              onChange: (e) => setFormData({ ...formData, name: e.target.value }),
-              className: "form-input",
-              placeholder: t("offerEditor.namePlaceholder")
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
+        tab
+      )) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-6", children: [
+        activeTab === "general" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.group") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  value: formData.group_id,
-                  onChange: (e) => setFormData({ ...formData, group_id: e.target.value }),
-                  className: "form-select rounded-r-none",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.noGroup") }),
-                    groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
-                  ]
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary rounded-l-none border-l-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+              t("offerEditor.nameLabel"),
+              " ",
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-danger)" }, children: "*" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                required: true,
+                value: formData.name,
+                onChange: (e) => setFormData({ ...formData, name: e.target.value }),
+                className: "form-input",
+                placeholder: t("offerEditor.namePlaceholder")
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.group") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    value: formData.group_id,
+                    onChange: (e) => setFormData({ ...formData, group_id: e.target.value }),
+                    className: "form-select rounded-r-none",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.noGroup") }),
+                      groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary rounded-l-none border-l-0", onClick: () => setShowGroupsModal(true), title: t("groupsModal.offerGroups"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                t("offerEditor.affiliateNetwork"),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 relative group cursor-pointer inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold rounded-full", style: { color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: [
+                  "?",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute bottom-full mb-2 hidden group-hover:block w-48 rounded-xl p-2 z-10 shadow-lg text-xs", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }, children: t("offerEditor.networkTooltip") })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    value: formData.affiliate_network_id,
+                    onChange: (e) => setFormData({ ...formData, affiliate_network_id: e.target.value }),
+                    className: "form-select rounded-r-none",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.noNetwork") }),
+                      affiliateNetworks.map((an) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: an.id, children: an.name }, an.id))
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary rounded-l-none border-l-0", onClick: () => setShowNetworkEditor(true), title: t("networks.title"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
+              ] })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-              t("offerEditor.affiliateNetwork"),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 relative group cursor-pointer inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold rounded-full", style: { color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: [
-                "?",
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute bottom-full mb-2 hidden group-hover:block w-48 rounded-xl p-2 z-10 shadow-lg text-xs", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }, children: t("offerEditor.networkTooltip") })
-              ] })
+              t("offerEditor.redirectType"),
+              " ",
+              /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.redirectTypeTooltip" })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex rounded-xl overflow-hidden mb-3", style: { border: "1px solid var(--color-border)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
                 {
-                  value: formData.affiliate_network_id,
-                  onChange: (e) => setFormData({ ...formData, affiliate_network_id: e.target.value }),
-                  className: "form-select rounded-r-none",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.noNetwork") }),
-                    affiliateNetworks.map((an) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: an.id, children: an.name }, an.id))
-                  ]
+                  onClick: () => setFormData({ ...formData, redirect_type: "local", is_local: true }),
+                  className: "flex-1 px-4 py-2 text-sm font-medium transition",
+                  style: {
+                    backgroundColor: formData.is_local ? "var(--color-primary-light)" : "var(--color-bg-card)",
+                    color: formData.is_local ? "var(--color-primary)" : "var(--color-text-primary)",
+                    borderRight: "1px solid var(--color-border)"
+                  },
+                  children: t("offers.local")
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary rounded-l-none border-l-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
-            ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-            t("offerEditor.redirectType"),
-            " ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.redirectTypeTooltip" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex rounded-xl overflow-hidden mb-3", style: { border: "1px solid var(--color-border)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: () => setFormData({ ...formData, redirect_type: "redirect", is_local: false }),
+                  className: "flex-1 px-4 py-2 text-sm font-medium transition",
+                  style: {
+                    backgroundColor: !formData.is_local && formData.redirect_type === "redirect" ? "var(--color-primary-light)" : "var(--color-bg-card)",
+                    color: !formData.is_local && formData.redirect_type === "redirect" ? "var(--color-primary)" : "var(--color-text-primary)",
+                    borderRight: "1px solid var(--color-border)"
+                  },
+                  children: t("offers.redirect")
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: () => setFormData({ ...formData, redirect_type: "preload", is_local: false }),
+                  className: "flex-1 px-4 py-2 text-sm font-medium transition",
+                  style: {
+                    backgroundColor: !formData.is_local && formData.redirect_type === "preload" ? "var(--color-primary-light)" : "var(--color-bg-card)",
+                    color: !formData.is_local && formData.redirect_type === "preload" ? "var(--color-primary)" : "var(--color-text-primary)",
+                    borderRight: "1px solid var(--color-border)"
+                  },
+                  children: t("landingEditor.preload").split(" ")[0]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: () => setFormData({ ...formData, redirect_type: "action", is_local: false }),
+                  className: "flex-1 px-4 py-2 text-sm font-medium transition",
+                  style: {
+                    backgroundColor: !formData.is_local && formData.redirect_type === "action" ? "var(--color-primary-light)" : "var(--color-bg-card)",
+                    color: !formData.is_local && formData.redirect_type === "action" ? "var(--color-primary)" : "var(--color-text-primary)"
+                  },
+                  children: t("editor.action")
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
               {
-                onClick: () => setFormData({ ...formData, redirect_type: "local", is_local: true }),
-                className: "flex-1 px-4 py-2 text-sm font-medium transition",
-                style: {
-                  backgroundColor: formData.is_local ? "var(--color-primary-light)" : "var(--color-bg-card)",
-                  color: formData.is_local ? "var(--color-primary)" : "var(--color-text-primary)",
-                  borderRight: "1px solid var(--color-border)"
-                },
-                children: t("offers.local")
+                value: formData.redirect_type,
+                onChange: (e) => setFormData({ ...formData, redirect_type: e.target.value }),
+                className: "form-select",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("offerEditor.httpRedirect") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "js", children: t("redirectTypes.jsName") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "meta_refresh", children: t("redirectTypes.metaName") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "frame", children: t("redirectTypes.iframeName") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "form_submit", children: t("redirectTypes.formName") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t("offerEditor.preloadCurl") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "curl_proxy", children: t("redirectTypes.curlProxyName") })
+                ]
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: () => setFormData({ ...formData, redirect_type: "redirect", is_local: false }),
-                className: "flex-1 px-4 py-2 text-sm font-medium transition",
-                style: {
-                  backgroundColor: !formData.is_local && formData.redirect_type === "redirect" ? "var(--color-primary-light)" : "var(--color-bg-card)",
-                  color: !formData.is_local && formData.redirect_type === "redirect" ? "var(--color-primary)" : "var(--color-text-primary)",
-                  borderRight: "1px solid var(--color-border)"
-                },
-                children: t("offers.redirect")
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: () => setFormData({ ...formData, redirect_type: "preload", is_local: false }),
-                className: "flex-1 px-4 py-2 text-sm font-medium transition",
-                style: {
-                  backgroundColor: !formData.is_local && formData.redirect_type === "preload" ? "var(--color-primary-light)" : "var(--color-bg-card)",
-                  color: !formData.is_local && formData.redirect_type === "preload" ? "var(--color-primary)" : "var(--color-text-primary)",
-                  borderRight: "1px solid var(--color-border)"
-                },
-                children: t("landingEditor.preload").split(" ")[0]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: () => setFormData({ ...formData, redirect_type: "action", is_local: false }),
-                className: "flex-1 px-4 py-2 text-sm font-medium transition",
-                style: {
-                  backgroundColor: !formData.is_local && formData.redirect_type === "action" ? "var(--color-primary-light)" : "var(--color-bg-card)",
-                  color: !formData.is_local && formData.redirect_type === "action" ? "var(--color-primary)" : "var(--color-text-primary)"
-                },
-                children: t("editor.action")
-              }
-            )
+            (() => {
+              const descKey = {
+                redirect: "redirectTypes.redirectDesc",
+                js: "redirectTypes.jsDesc",
+                meta_refresh: "redirectTypes.metaDesc",
+                frame: "redirectTypes.iframeDesc",
+                form_submit: "redirectTypes.formDesc",
+                preload: "redirectTypes.preloadDesc",
+                curl_proxy: "redirectTypes.curlProxyDesc"
+              }[formData.redirect_type];
+              return descKey ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t(descKey) }) : null;
+            })()
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "select",
-            {
-              value: formData.redirect_type,
-              onChange: (e) => setFormData({ ...formData, redirect_type: e.target.value }),
-              className: "form-select",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("offerEditor.httpRedirect") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "js", children: t("redirectTypes.jsName") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "meta_refresh", children: t("redirectTypes.metaName") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "frame", children: t("redirectTypes.iframeName") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "form_submit", children: t("redirectTypes.formName") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t("offerEditor.preloadCurl") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "curl_proxy", children: t("redirectTypes.curlProxyName") })
-              ]
-            }
-          ),
-          (() => {
-            const descKey = {
-              redirect: "redirectTypes.redirectDesc",
-              js: "redirectTypes.jsDesc",
-              meta_refresh: "redirectTypes.metaDesc",
-              frame: "redirectTypes.iframeDesc",
-              form_submit: "redirectTypes.formDesc",
-              preload: "redirectTypes.preloadDesc",
-              curl_proxy: "redirectTypes.curlProxyDesc"
-            }[formData.redirect_type];
-            return descKey ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t(descKey) }) : null;
-          })()
-        ] }),
-        !formData.is_local && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-            "URL ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-danger)" }, children: "*" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "url",
-              required: true,
-              value: formData.url,
-              onChange: (e) => setFormData({ ...formData, url: e.target.value }),
-              className: "form-input",
-              placeholder: "https://offer.example.com/?subid={subid}"
-            }
-          )
-        ] })
-      ] }),
-      activeTab === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.countries") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            GeoSelector,
-            {
-              value: formData.geo,
-              onChange: (geo) => setFormData({ ...formData, geo }),
-              placeholder: t("offerEditor.countriesPlaceholder")
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold mb-3", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.payouts") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 mb-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "radio",
-                  name: "payout_type",
-                  value: "cpa",
-                  checked: formData.payout_type === "cpa",
-                  onChange: () => setFormData({ ...formData, payout_type: "cpa" }),
-                  style: { accentColor: "var(--color-primary)" }
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: "CPA" })
+          !formData.is_local && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+              "URL ",
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-danger)" }, children: "*" })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "radio",
-                  name: "payout_type",
-                  value: "cpc",
-                  checked: formData.payout_type === "cpc",
-                  onChange: () => setFormData({ ...formData, payout_type: "cpc" }),
-                  style: { accentColor: "var(--color-primary)" }
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: "CPC" })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 items-center", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 max-w-[200px] relative", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "number",
-                  step: "0.01",
-                  value: formData.payout_value,
-                  onChange: (e) => setFormData({ ...formData, payout_value: parseFloat(e.target.value) || 0 }),
-                  className: "form-input pr-8",
-                  disabled: formData.payout_auto
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute right-3 top-2", style: { color: "var(--color-text-muted)" }, children: "$" })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "checkbox",
-                  checked: formData.payout_auto,
-                  onChange: (e) => setFormData({ ...formData, payout_auto: e.target.checked }),
-                  className: "rounded"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.payoutByParam") })
-            ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2 flex items-center justify-between", style: { borderTop: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.rebills") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "relative inline-flex items-center cursor-pointer", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
-                type: "checkbox",
-                className: "sr-only peer",
-                checked: formData.allow_rebills,
-                onChange: (e) => setFormData({ ...formData, allow_rebills: e.target.checked })
+                type: "url",
+                required: true,
+                value: formData.url,
+                onChange: (e) => setFormData({ ...formData, url: e.target.value }),
+                className: "form-input",
+                placeholder: "https://offer.example.com/?subid={subid}"
               }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-9 h-5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:rounded-full after:h-4 after:w-4 after:transition-all", style: { backgroundColor: formData.allow_rebills ? "var(--color-primary)" : "var(--color-bg-hover)", "--tw-bg-opacity": 1, after: { backgroundColor: "white" } }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-[2px] left-[2px] w-4 h-4 rounded-full transition-transform", style: { backgroundColor: "white", transform: formData.allow_rebills ? "translateX(16px)" : "translateX(0)" } }) })
+            )
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.conversionCap") }),
+        activeTab === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.countries") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              GeoSelector,
+              {
+                value: formData.geo,
+                onChange: (geo) => setFormData({ ...formData, geo }),
+                placeholder: t("offerEditor.countriesPlaceholder")
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold mb-3", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.payouts") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "radio",
+                    name: "payout_type",
+                    value: "cpa",
+                    checked: formData.payout_type === "cpa",
+                    onChange: () => setFormData({ ...formData, payout_type: "cpa" }),
+                    style: { accentColor: "var(--color-primary)" }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: "CPA" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "radio",
+                    name: "payout_type",
+                    value: "cpc",
+                    checked: formData.payout_type === "cpc",
+                    onChange: () => setFormData({ ...formData, payout_type: "cpc" }),
+                    style: { accentColor: "var(--color-primary)" }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: "CPC" })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 items-center", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 max-w-[200px] relative", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "number",
+                    step: "0.01",
+                    value: formData.payout_value,
+                    onChange: (e) => setFormData({ ...formData, payout_value: parseFloat(e.target.value) || 0 }),
+                    className: "form-input pr-8",
+                    disabled: formData.payout_auto
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute right-3 top-2", style: { color: "var(--color-text-muted)" }, children: "$" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "checkbox",
+                    checked: formData.payout_auto,
+                    onChange: (e) => setFormData({ ...formData, payout_auto: e.target.checked }),
+                    className: "rounded"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.payoutByParam") })
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2 flex items-center justify-between", style: { borderTop: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.rebills") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "relative inline-flex items-center cursor-pointer", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
                   type: "checkbox",
                   className: "sr-only peer",
-                  checked: showCapping,
-                  onChange: () => setShowCapping(!showCapping)
+                  checked: formData.allow_rebills,
+                  onChange: (e) => setFormData({ ...formData, allow_rebills: e.target.checked })
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-9 h-5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:rounded-full after:h-4 after:w-4 after:transition-all", style: { backgroundColor: showCapping ? "var(--color-primary)" : "var(--color-bg-hover)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-[2px] left-[2px] w-4 h-4 rounded-full transition-transform", style: { backgroundColor: "white", transform: showCapping ? "translateX(16px)" : "translateX(0)" } }) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-9 h-5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:rounded-full after:h-4 after:w-4 after:transition-all", style: { backgroundColor: formData.allow_rebills ? "var(--color-primary)" : "var(--color-bg-hover)", "--tw-bg-opacity": 1, after: { backgroundColor: "white" } }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-[2px] left-[2px] w-4 h-4 rounded-full transition-transform", style: { backgroundColor: "white", transform: formData.allow_rebills ? "translateX(16px)" : "translateX(0)" } }) })
             ] })
           ] }),
-          showCapping && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 p-4 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.dailyLimit") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.conversionCap") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "relative inline-flex items-center cursor-pointer", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "input",
                   {
-                    type: "number",
-                    min: "0",
-                    value: formData.capping_limit,
-                    onChange: (e) => setFormData({ ...formData, capping_limit: parseInt(e.target.value) || 0 }),
-                    className: "form-input"
+                    type: "checkbox",
+                    className: "sr-only peer",
+                    checked: showCapping,
+                    onChange: () => setShowCapping(!showCapping)
                   }
-                )
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-9 h-5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:rounded-full after:h-4 after:w-4 after:transition-all", style: { backgroundColor: showCapping ? "var(--color-primary)" : "var(--color-bg-hover)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-[2px] left-[2px] w-4 h-4 rounded-full transition-transform", style: { backgroundColor: "white", transform: showCapping ? "translateX(16px)" : "translateX(0)" } }) })
+              ] })
+            ] }),
+            showCapping && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 p-4 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.dailyLimit") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "number",
+                      min: "0",
+                      value: formData.capping_limit,
+                      onChange: (e) => setFormData({ ...formData, capping_limit: parseInt(e.target.value) || 0 }),
+                      className: "form-input"
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.timezone") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "select",
+                    {
+                      value: formData.capping_timezone,
+                      onChange: (e) => setFormData({ ...formData, capping_timezone: e.target.value }),
+                      className: "form-select",
+                      children: timezones.map((tz) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tz, children: tz }, tz))
+                    }
+                  )
+                ] })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.timezone") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.altOffer") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "select",
                   {
-                    value: formData.capping_timezone,
-                    onChange: (e) => setFormData({ ...formData, capping_timezone: e.target.value }),
+                    value: formData.alt_offer_id,
+                    onChange: (e) => setFormData({ ...formData, alt_offer_id: e.target.value }),
                     className: "form-select",
-                    children: timezones.map((tz) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tz, children: tz }, tz))
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.notSelected") }),
+                      allOffers.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o.id, children: o.name }, o.id))
+                    ]
                   }
                 )
               ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.altOffer") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  value: formData.alt_offer_id,
-                  onChange: (e) => setFormData({ ...formData, alt_offer_id: e.target.value }),
-                  className: "form-select",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.notSelected") }),
-                    allOffers.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o.id, children: o.name }, o.id))
-                  ]
-                }
-              )
             ] })
           ] })
-        ] })
-      ] }),
-      activeTab === "values" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center pb-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.valuesTitle") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("offerEditor.valuesDesc") })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              onClick: addValue,
-              disabled: formData.values.length >= 10,
-              className: "btn btn-secondary btn-sm",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
-                t("offerEditor.add")
-              ]
-            }
-          )
         ] }),
-        formData.values.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10 rounded-xl border-2 border-dashed", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", children: t("offerEditor.noValues") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: formData.values.map((val, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "text",
-              value: val.name,
-              onChange: (e) => updateValue(idx, "name", e.target.value),
-              className: "form-input",
-              placeholder: t("offerEditor.paramNamePlaceholder")
-            }
-          ) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-[2]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "text",
-              value: val.value,
-              onChange: (e) => updateValue(idx, "value", e.target.value),
-              className: "form-input",
-              placeholder: t("offerEditor.paramValuePlaceholder")
-            }
-          ) }),
+        activeTab === "values" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center pb-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.valuesTitle") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("offerEditor.valuesDesc") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: addValue,
+                disabled: formData.values.length >= 10,
+                className: "btn btn-secondary btn-sm",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
+                  t("offerEditor.add")
+                ]
+              }
+            )
+          ] }),
+          formData.values.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10 rounded-xl border-2 border-dashed", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", children: t("offerEditor.noValues") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: formData.values.map((val, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: val.name,
+                onChange: (e) => updateValue(idx, "name", e.target.value),
+                className: "form-input",
+                placeholder: t("offerEditor.paramNamePlaceholder")
+              }
+            ) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-[2]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: val.value,
+                onChange: (e) => updateValue(idx, "value", e.target.value),
+                className: "form-input",
+                placeholder: t("offerEditor.paramValuePlaceholder")
+              }
+            ) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => removeValue(idx),
+                className: "action-btn text-red",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
+              }
+            )
+          ] }, idx)) }),
+          formData.values.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 pt-4", style: { borderTop: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-semibold text-xs mb-2", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.usageExamples") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "text-xs space-y-1 font-mono p-3 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)", color: "var(--color-text-secondary)" }, children: formData.values.filter((v) => v.name).map((v, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+              `{offer_value:${v.name}}`,
+              " → ",
+              v.value || t("offerEditor.empty")
+            ] }, idx)) })
+          ] })
+        ] }),
+        activeTab === "notes" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.notes") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
+            "textarea",
             {
-              onClick: () => removeValue(idx),
-              className: "action-btn text-red",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
+              rows: 8,
+              value: formData.notes,
+              onChange: (e) => setFormData({ ...formData, notes: e.target.value }),
+              className: "form-input resize-none",
+              placeholder: t("offerEditor.notesPlaceholder")
             }
           )
-        ] }, idx)) }),
-        formData.values.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 pt-4", style: { borderTop: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-semibold text-xs mb-2", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.usageExamples") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "text-xs space-y-1 font-mono p-3 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)", color: "var(--color-text-secondary)" }, children: formData.values.filter((v) => v.name).map((v, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
-            `{offer_value:${v.name}}`,
-            " → ",
-            v.value || t("offerEditor.empty")
-          ] }, idx)) })
         ] })
       ] }),
-      activeTab === "notes" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.notes") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "textarea",
-          {
-            rows: 8,
-            value: formData.notes,
-            onChange: (e) => setFormData({ ...formData, notes: e.target.value }),
-            className: "form-input resize-none",
-            placeholder: t("offerEditor.notesPlaceholder")
-          }
-        )
-      ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("common.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, disabled: loading, className: "btn btn-primary", children: offerId ? t("common.save") : t("common.create") })
+      ] }) })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("common.cancel") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, disabled: loading, className: "btn btn-primary", children: offerId ? t("common.save") : t("common.create") })
-    ] }) })
-  ] }) });
-};
-const API_URL$s = "/api.php";
-const GroupsModal = ({ type, onClose }) => {
-  const { t } = useLanguage();
-  const [groups, setGroups] = reactExports.useState([]);
-  const [loading, setLoading] = reactExports.useState(true);
-  const [newGroupName, setNewGroupName] = reactExports.useState("");
-  const getEndpoint = () => {
-    switch (type) {
-      case "offer":
-        return "offer_groups";
-      case "landing":
-        return "landing_groups";
-      case "campaign":
-        return "campaign_groups";
-      default:
-        return "offer_groups";
-    }
-  };
-  const getTitle = () => {
-    switch (type) {
-      case "offer":
-        return t("groupsModal.offerGroups");
-      case "landing":
-        return t("groupsModal.landingGroups");
-      case "campaign":
-        return t("groupsModal.campaignGroups");
-      default:
-        return t("groupsModal.groups");
-    }
-  };
-  const endpoint = getEndpoint();
-  reactExports.useEffect(() => {
-    fetchGroups();
-  }, [endpoint]);
-  const fetchGroups = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`${API_URL$s}?action=${endpoint}`);
-      if (res.data.status === "success") setGroups(res.data.data);
-    } catch (err) {
-      console.error("Error fetching groups:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const handleCreate = async () => {
-    if (!newGroupName.trim()) return;
-    try {
-      const res = await axios.post(`${API_URL$s}?action=${endpoint}`, { name: newGroupName.trim() });
-      if (res.data.status === "success") {
-        setNewGroupName("");
-        fetchGroups();
-      } else alert(res.data.message || t("groupsModal.createError"));
-    } catch {
-      alert(t("groupsModal.networkError"));
-    }
-  };
-  const handleDelete = async (id) => {
-    if (!window.confirm(t("groupsModal.deleteConfirm"))) return;
-    try {
-      const del = type === "offer" ? "delete_offer_group" : endpoint;
-      await axios.post(`${API_URL$s}?action=${del}`, { id });
-      fetchGroups();
-    } catch {
-      alert(t("groupsModal.deleteError"));
-    }
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-md", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-lg", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold text-gray-800", children: getTitle() }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "text-gray-500 hover:text-gray-700", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-b border-gray-200", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex space-x-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", value: newGroupName, onChange: (e) => setNewGroupName(e.target.value), onKeyPress: (e) => e.key === "Enter" && handleCreate(), placeholder: t("groups.placeholder"), className: "flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleCreate, disabled: !newGroupName.trim(), className: "flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4 mr-1" }),
-        t("groupsModal.add")
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-h-80 overflow-y-auto", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-8 text-center text-gray-500", children: t("groupsModal.loading") }) : groups.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-8 text-center text-gray-400", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("groupsModal.noGroups") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-1", children: t("groupsModal.createFirst") })
-    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y divide-gray-200", children: groups.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center justify-between px-6 py-3 hover:bg-gray-50 transition", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-gray-700", children: group.name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-400", children: [
-          "ID: ",
-          group.id
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(group.id), className: "text-gray-400 hover:text-red-600 p-1", title: t("groups.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
-    ] }, group.id)) }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition", children: t("groupsModal.close") }) })
-  ] }) });
+    showGroupsModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      GroupsModal,
+      {
+        type: "offer",
+        onClose: () => {
+          setShowGroupsModal(false);
+          refetchGroups();
+        },
+        onGroupCreated: (g) => {
+          if (!g || !g.id) return;
+          setGroups((prev) => prev.some((x) => x.id == g.id) ? prev : [...prev, g]);
+          setFormData((prev) => ({ ...prev, group_id: String(g.id) }));
+        }
+      }
+    ),
+    showNetworkEditor && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      AffiliateNetworkEditor,
+      {
+        networkId: null,
+        onClose: () => {
+          setShowNetworkEditor(false);
+          refetchNetworks(true);
+        },
+        postbackKey
+      }
+    )
+  ] });
 };
 const API_URL$r = "/api.php";
 const Offers = ({ offers, refreshData }) => {
@@ -49689,8 +50207,12 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     }
     try {
       const payload = { ...formData, id };
-      await axios.post(`${API_URL$q}?action=traffic_sources`, payload);
-      onSave();
+      const res = await axios.post(`${API_URL$q}?action=traffic_sources`, payload);
+      if (res.data.status !== "success") {
+        alert(res.data.message || t("common.error"));
+        return;
+      }
+      onSave(res.data.data || {});
     } catch (error) {
       console.error("Error saving traffic source:", error);
       alert(t("common.error"));
@@ -51217,260 +51739,6 @@ const PostbackSettings = () => {
       }
     ) })
   ] });
-};
-const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
-  const { t } = useLanguage();
-  const [loading, setLoading] = reactExports.useState(false);
-  const [saving, setSaving] = reactExports.useState(false);
-  const [templates, setTemplates] = reactExports.useState([]);
-  const [copied, setCopied] = reactExports.useState(false);
-  const [formData, setFormData] = reactExports.useState({
-    name: "",
-    template: "generic",
-    offer_params: "&subid={subid}",
-    postback_url: "",
-    notes: "",
-    state: "active"
-  });
-  reactExports.useEffect(() => {
-    fetchTemplates();
-    if (networkId) {
-      fetchNetwork();
-    }
-  }, [networkId]);
-  const fetchTemplates = async () => {
-    try {
-      const { data } = await cachedGet("affiliate_network_templates", {}, 6e4);
-      if (data.status === "success") {
-        setTemplates(data.data);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  const fetchNetwork = async () => {
-    setLoading(true);
-    try {
-      const { data } = await cachedGet("get_affiliate_network", { id: networkId });
-      if (data.status === "success") {
-        setFormData({
-          name: data.data.name || "",
-          template: data.data.template || "generic",
-          offer_params: data.data.offer_params || "",
-          postback_url: data.data.postback_url || "",
-          notes: data.data.notes || "",
-          state: data.data.state || "active"
-        });
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const handleTemplateChange = (templateName) => {
-    const template = templates.find((t2) => t2.name === templateName);
-    if (template) {
-      let postbackUrl = "";
-      if (template.postback_url_template) {
-        const host = window.location.host;
-        postbackUrl = template.postback_url_template.replace("{domain}", host).replace("{postback_key}", postbackKey);
-      }
-      setFormData({
-        ...formData,
-        template: templateName,
-        offer_params: template.offer_params_template || "",
-        postback_url: postbackUrl || formData.postback_url,
-        notes: template.notes_template && template.notes_template.startsWith("tpl.") ? t(template.notes_template) : template.notes_template || ""
-      });
-    }
-  };
-  const handleSave = async () => {
-    if (!formData.name) {
-      alert(t("botSettings.fillName"));
-      return;
-    }
-    setSaving(true);
-    try {
-      const payload = { ...formData };
-      if (networkId) {
-        payload.id = networkId;
-      }
-      const res = await cachedPost("affiliate_networks", payload);
-      if (res.data.status === "success") {
-        onClose(true);
-      } else {
-        alert(t("offerEditor.saveError") + " " + res.data.message);
-      }
-    } catch (err) {
-      alert(t("offerEditor.networkError"));
-    } finally {
-      setSaving(false);
-    }
-  };
-  const getPostbackUrl = () => {
-    const protocol = window.location.protocol;
-    const host = window.location.host;
-    return `${protocol}//${host}/${postbackKey}/postback`;
-  };
-  const copyToClipboard = async (text) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2e3);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  const availableMacros = [
-    { macro: "{subid}", description: t("networkEditor.macroSubid") },
-    { macro: "{ip}", description: t("networkEditor.macroIp") },
-    { macro: "{user_agent}", description: "User Agent" },
-    { macro: "{country}", description: t("networkEditor.macroCountry") },
-    { macro: "{device}", description: t("networkEditor.macroDevice") },
-    { macro: "{referer}", description: t("networkEditor.macroReferer") },
-    { macro: "{keyword}", description: t("networkEditor.macroKeyword") },
-    { macro: "{cost}", description: t("networkEditor.macroCost") },
-    { macro: "{external_id}", description: t("networkEditor.macroExternalId") },
-    { macro: "{creative}", description: t("networkEditor.macroCreative") },
-    { macro: "{ad_campaign}", description: t("networkEditor.macroAdCampaign") }
-  ];
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "700px" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: networkId ? `${t("networks.title")}: ${formData.name}` : t("networks.title") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: t("common.loading") }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded border border-gray-200 space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t("networkEditor.basicSettings") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.nameLabel") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "text",
-                value: formData.name,
-                onChange: (e) => setFormData({ ...formData, name: e.target.value }),
-                className: "w-full border border-gray-300 rounded px-3 py-2 text-sm",
-                placeholder: t("networkEditor.namePlaceholder")
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.template") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "select",
-              {
-                value: formData.template,
-                onChange: (e) => handleTemplateChange(e.target.value),
-                className: "w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white",
-                children: templates.map((tmpl) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tmpl.name, children: t("tpl.net_" + tmpl.name, tmpl.display_name) }, tmpl.name))
-              }
-            )
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.status") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "select",
-            {
-              value: formData.state,
-              onChange: (e) => setFormData({ ...formData, state: e.target.value }),
-              className: "w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("networkEditor.active") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("networkEditor.disabled") })
-              ]
-            }
-          )
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-blue-50 p-4 rounded border border-blue-200 space-y-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-blue-800", children: "Postback URL" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-blue-600", children: t("networkEditor.postbackHint") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "flex-1 bg-white px-3 py-2 rounded border border-blue-200 text-sm", children: getPostbackUrl() }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => copyToClipboard(getPostbackUrl()),
-              className: "px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition",
-              children: copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-blue-600", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("networkEditor.paramsToAdd") }),
-          " ?subid=",
-          "{subid_macro}",
-          "&status=",
-          "{status_macro}",
-          "&payout=",
-          "{payout_macro}"
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded border border-gray-200 space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t("networkEditor.offerParams") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500", children: t("networkEditor.offerParamsDesc") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.offerParamsLabel") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "text",
-              value: formData.offer_params,
-              onChange: (e) => setFormData({ ...formData, offer_params: e.target.value }),
-              className: "w-full border border-gray-300 rounded px-3 py-2 text-sm font-mono",
-              placeholder: "&subid={subid}&sub2={ip}"
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-gray-400 mt-1", children: [
-            t("networkEditor.example"),
-            " &sub1=",
-            "{subid}",
-            "&ip=",
-            "{ip}"
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: t("networkEditor.availableMacros") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: availableMacros.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "div",
-            {
-              className: "flex items-center justify-between bg-gray-50 px-2 py-1 rounded text-xs cursor-pointer hover:bg-gray-100",
-              onClick: () => {
-                document.querySelector('input[value="' + formData.offer_params + '"]');
-                navigator.clipboard.writeText(m.macro);
-              },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-blue-600", children: m.macro }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400", children: m.description })
-              ]
-            },
-            m.macro
-          )) })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded border border-gray-200 space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t("networkEditor.notes") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "textarea",
-          {
-            value: formData.notes,
-            onChange: (e) => setFormData({ ...formData, notes: e.target.value }),
-            className: "w-full border border-gray-300 rounded px-3 py-2 text-sm",
-            rows: 3,
-            placeholder: t("networkEditor.notesPlaceholder")
-          }
-        )
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("common.cancel") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, disabled: saving, className: "btn btn-primary", children: saving ? t("common.saving") : t("common.save") })
-    ] })
-  ] }) });
 };
 const AffiliateNetworks = () => {
   const { t } = useLanguage();
@@ -56359,6 +56627,30 @@ $client->execute();
       description: t("fbConv.description"),
       isFacebookConversions: true
     },
+    dolphin_fbtool: {
+      title: t("extCosts.title", "Dolphin / Fbtool — Keitaro API"),
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-5 h-5" }),
+      description: t("extCosts.description", "Приём расходов из Dolphin и Fbtool.pro через Keitaro-совместимый Admin API endpoint"),
+      code: `# ${t("extCosts.step1", "1. Создайте API-ключ с правами write: Пользователи → ваш профиль → сгенерировать ключ (permissions: write)")}
+
+# ${t("extCosts.step2", "2. Скопируйте в Dolphin (Настройки → Экспорт расходов → Keitaro) или Fbtool (Расходы → Keitaro):")}
+#    Tracker URL:  ${trackerUrl}
+#    Admin API key: <ваш ключ>
+
+# ${t("extCosts.step3", "3. Endpoint, который вызывают сервисы (совместим с Keitaro Admin API v1):")}
+# POST ${trackerUrl}/admin_api/v1/campaigns/CAMPAIGN_ID/update_costs
+# Authorization: Bearer <API_KEY>
+{
+  "start_date": "2026-08-15",
+  "end_date": "2026-08-15",
+  "cost": 12.34,
+  "currency": "USD",
+  "timezone": "Europe/Berlin",
+  "filters": { "sub_id_4": "120212558973560058" }
+}
+
+# ${t("extCosts.hint", "Фильтры матчатся по параметрам клика: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолты шаблона Facebook), либо любое имя параметра напрямую (ad_id, adset_id, campaign_id...). Расход делится поровну между совпавшими кликами за период; повторная отправка перезаписывает, а не суммирует.")}`
+    },
     recaptcha: {
       title: t("recaptcha.tabTitle"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "w-5 h-5" }),
@@ -60001,6 +60293,7 @@ function AggregatorPage() {
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "affilka", children: "Affilka (SoftSwiss)" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "facebook", children: t("costImport.facebookAds") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "google_ads", children: t("costImport.googleAds") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tiktok", children: t("costImport.tiktokAds", "TikTok Ads") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "custom", children: "Custom" })
             ] })
           ] })
@@ -61697,6 +61990,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [showReportsMenu, setShowReportsMenu] = reactExports.useState(false);
   const [showReports, setShowReports] = reactExports.useState(false);
   const [showConversionsLog, setShowConversionsLog] = reactExports.useState(false);
+  const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
+  const [showSourceEditor, setShowSourceEditor] = reactExports.useState(false);
+  const [integrationSnippet, setIntegrationSnippet] = reactExports.useState("link");
   const [showTrafficSimModal, setShowTrafficSimModal] = reactExports.useState(false);
   const [trafficSimResult, setTrafficSimResult] = reactExports.useState(null);
   const [trafficSimLoading, setTrafficSimLoading] = reactExports.useState(false);
@@ -61757,6 +62053,19 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     { value: "RevShare", label: t("costModels.revShare") }
   ];
   const availableParameters = [
+    { key: "ad_id", label: t("parameters.adId", "Ad ID") },
+    { key: "adset_id", label: t("parameters.adsetId", "Adset ID") },
+    { key: "campaign_id", label: t("parameters.campaignId", "Campaign ID") },
+    { key: "ad_name", label: t("parameters.adName", "Ad name") },
+    { key: "adset_name", label: t("parameters.adsetName", "Adset name") },
+    { key: "campaign_name", label: t("parameters.campaignName", "Campaign name") },
+    { key: "site", label: t("parameters.site", "Site") },
+    { key: "ttclid", label: "ttclid (TikTok)" },
+    { key: "utm_source", label: "utm_source" },
+    { key: "utm_medium", label: "utm_medium" },
+    { key: "utm_campaign", label: "utm_campaign" },
+    { key: "utm_content", label: "utm_content" },
+    { key: "utm_term", label: "utm_term" },
     { key: "keyword", label: t("parameters.keyword") },
     { key: "cost", label: t("parameters.cost") },
     { key: "currency", label: t("parameters.currency") },
@@ -61776,7 +62085,94 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const getCampaignUrl = () => {
     const domain = domains.find((d) => d.id == formData.domain_id);
     const baseUrl = domain ? `https://${domain.name}` : window.location.origin;
-    return `${baseUrl}/${formData.alias}`;
+    const pairs = Object.entries(formData.parameters || {}).filter(([, v]) => String(v ?? "").trim() !== "").map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v).trim())}`);
+    return pairs.length ? `${baseUrl}/${formData.alias}?${pairs.join("&")}` : `${baseUrl}/${formData.alias}`;
+  };
+  const sourceToParameters = (source) => {
+    const params = {};
+    if (source && Array.isArray(source.parameters)) {
+      source.parameters.forEach((p) => {
+        if (p && p.param && String(p.macro ?? "").trim() !== "") {
+          params[p.param] = String(p.macro).trim();
+        }
+      });
+    }
+    return params;
+  };
+  const handleSourceChange = (sourceId) => {
+    const source = sources.find((s) => s.id == sourceId);
+    setFormData((prev) => ({
+      ...prev,
+      source_id: sourceId,
+      parameters: source ? sourceToParameters(source) : {}
+    }));
+  };
+  const handleSourceCreated = async (saved) => {
+    setShowSourceEditor(false);
+    invalidateCache("traffic_sources");
+    try {
+      const res = await cachedGet("traffic_sources", {}, 3e5);
+      if (res.data.status === "success") {
+        setSources(res.data.data);
+        const created = res.data.data.find((s) => s.id == (saved?.id ?? -1));
+        if (created) {
+          setFormData((prev) => ({
+            ...prev,
+            source_id: String(created.id),
+            parameters: sourceToParameters(created)
+          }));
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const buildIntegrationSnippets = () => {
+    const url = getCampaignUrl();
+    const cid = window.crypto && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36);
+    const pass = `' + encodeURIComponent(document.referrer) + '&default_keyword=' + encodeURIComponent(document.title) + '&'+window.location.search.replace('?', '&')`;
+    return {
+      link: `<span id="${cid}"></span>
+<script type="application/javascript">
+document.getElementById('${cid}').innerHTML = '<a href="${url}?se_referrer=${pass}">Link</a>';
+<\/script>`,
+      iframe: `<div id="${cid}"></div>
+<script type="application/javascript">
+document.getElementById('${cid}').innerHTML = '<iframe sandbox="allow-top-navigation allow-scripts allow-popups allow-forms" frameborder="0" width="100%" height="100%" src="${url}?se_referrer=${pass}&frm=frame"></iframe>';
+<\/script>`,
+      script: `<span id="${cid}"></span><script type="application/javascript">
+var d=document;var s=d.createElement('script');
+s.src='${url}?se_referrer=${pass}&frm=script&_cid=${cid}';
+if (document.currentScript) { document.currentScript.parentNode.insertBefore(s, document.currentScript); } else { d.getElementsByTagName('head')[0].appendChild(s); }
+<\/script>`
+    };
+  };
+  const copyIntegrationSnippet = async (text) => {
+    let copied = false;
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        copied = true;
+      } catch (e) {
+        copied = false;
+      }
+    }
+    if (!copied) {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        copied = document.execCommand("copy");
+        document.body.removeChild(textarea);
+      } catch (e) {
+        copied = false;
+      }
+    }
+    if (!copied) alert(t("common.error"));
   };
   const copyUrl = async () => {
     const url = getCampaignUrl();
@@ -61890,6 +62286,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       }).finally(() => setLoading(false));
     }
   }, [campaignId]);
+  reactExports.useEffect(() => {
+    if (!formData.source_id || !sources.length) return;
+    if (formData.parameters && Object.keys(formData.parameters).length > 0) return;
+    const source = sources.find((s) => s.id == formData.source_id);
+    if (!source) return;
+    const prefilled = sourceToParameters(source);
+    if (Object.keys(prefilled).length === 0) return;
+    setFormData((prev) => ({ ...prev, parameters: prefilled }));
+  }, [sources, formData.source_id]);
   const fetchPixels = async () => {
     if (!campaignId) return;
     try {
@@ -62471,7 +62876,16 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           ]
                         }
                       ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          className: "btn btn-secondary btn-icon",
+                          onClick: () => setShowGroupsModal(true),
+                          title: t("groupsModal.campaignGroups"),
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" })
+                        }
+                      )
                     ] })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2 border-t", style: { borderColor: "var(--color-border)" }, children: [
@@ -62559,7 +62973,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         "select",
                         {
                           value: formData.source_id,
-                          onChange: (e) => setFormData({ ...formData, source_id: e.target.value }),
+                          onChange: (e) => handleSourceChange(e.target.value),
                           className: "form-select",
                           children: [
                             /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.organicTraffic") }),
@@ -62567,7 +62981,16 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           ]
                         }
                       ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          className: "btn btn-secondary btn-icon",
+                          onClick: () => setShowSourceEditor(true),
+                          title: t("sources.title"),
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" })
+                        }
+                      )
                     ] })
                   ] })
                 ] })
@@ -62790,6 +63213,57 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               ] }, param.key))
             ] }),
             activeTab === "integrations" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+                border: "1px solid var(--color-border)",
+                borderRadius: "16px",
+                padding: "14px 16px",
+                background: "var(--color-bg-card)"
+              }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px", flexWrap: "wrap", gap: "8px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600, fontSize: "14px", color: "var(--color-text-primary)" }, children: t("editor.integrationCode") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                    ["link", "iframe", "script"].map((kind) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => setIntegrationSnippet(kind),
+                        className: `btn ${integrationSnippet === kind ? "btn-primary" : "btn-secondary"}`,
+                        style: { padding: "4px 10px", fontSize: "12px" },
+                        children: t("editor.intCode_" + kind, kind)
+                      },
+                      kind
+                    )),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => copyIntegrationSnippet(buildIntegrationSnippets()[integrationSnippet]),
+                        className: "btn btn-secondary btn-icon",
+                        title: t("common.copy"),
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
+                      }
+                    )
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "pre",
+                  {
+                    className: "text-xs overflow-x-auto",
+                    style: {
+                      fontFamily: "monospace",
+                      color: "var(--color-text-secondary)",
+                      background: "var(--color-bg-soft)",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: "8px",
+                      padding: "10px 12px",
+                      margin: 0,
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-all"
+                    },
+                    children: buildIntegrationSnippets()[integrationSnippet]
+                  }
+                )
+              ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mb-2", style: { color: "var(--color-text-secondary)" }, children: t("pixels.selectPlatform") }),
               pixels.map((px) => {
                 const platform2 = pixelPlatforms.find((p) => p.id === px.type) || { name: px.type, icon: "📊" };
@@ -64002,7 +64476,29 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setQuickCreate(null), disabled: quickSaving, className: "btn btn-secondary", style: { flex: 1 }, children: t("common.cancel") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: submitQuickCreate, disabled: quickSaving || !quickCreate.name.trim(), className: "btn btn-primary", style: { flex: 1 }, children: quickSaving ? t("common.saving") : t("common.create") })
       ] })
-    ] }) })
+    ] }) }),
+    showGroupsModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      GroupsModal,
+      {
+        type: "campaign",
+        onClose: () => {
+          setShowGroupsModal(false);
+          invalidateCache("campaign_groups");
+        },
+        onGroupCreated: (g) => {
+          if (!g || !g.id) return;
+          setGroups((prev) => prev.some((x) => x.id == g.id) ? prev : [...prev, g]);
+          setFormData((prev) => ({ ...prev, group_id: String(g.id) }));
+        }
+      }
+    ),
+    showSourceEditor && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      TrafficSourceEditor,
+      {
+        onClose: () => setShowSourceEditor(false),
+        onSave: handleSourceCreated
+      }
+    )
   ] });
 };
 function r(e) {

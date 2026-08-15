@@ -5,6 +5,13 @@ export default {
         "tablet": "Планшет"
     },
     "parameters": {
+        "adId": "ID объявления",
+        "adsetId": "ID группы объявлений",
+        "campaignId": "ID кампании",
+        "adName": "Название объявления",
+        "adsetName": "Название группы",
+        "campaignName": "Название кампании",
+        "site": "Площадка",
         "keyword": "Ключевое слово",
         "cost": "Расход",
         "currency": "Валюта",
@@ -409,6 +416,10 @@ export default {
         "copyErrors": "Ошибок"
     },
     "editor": {
+        "integrationCode": "Код интеграции",
+        "intCode_link": "Ссылка",
+        "intCode_iframe": "Iframe",
+        "intCode_script": "Скрипт",
         "offerSelection": "Выбор оффера",
         "offerSelectionBefore": "Перед кликом",
         "offerSelectionAfter": "После клика",
@@ -2194,11 +2205,22 @@ export default {
         "queueHealthy": "Воркер доставки работает.",
         "queueStale": "Воркер доставки давно не отмечался. Установите cron, чтобы включить повторы."
     },
+    "extCosts": {
+        "title": "Dolphin / Fbtool — Keitaro API",
+        "description": "Приём расходов из Dolphin и Fbtool.pro через Keitaro-совместимый Admin API endpoint",
+        "step1": "1. Создайте API-ключ с правами write: Пользователи → ваш профиль → сгенерировать ключ (permissions: write)",
+        "step2": "2. Скопируйте в Dolphin (Настройки → Экспорт расходов → Keitaro) или Fbtool (Расходы → Keitaro):",
+        "step3": "3. Endpoint, который вызывают сервисы (совместим с Keitaro Admin API v1):",
+        "hint": "Фильтры матчатся по параметрам клика: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолты шаблона Facebook), либо любое имя параметра напрямую (ad_id, adset_id, campaign_id...). Расход делится поровну между совпавшими кликами за период; повторная отправка перезаписывает, а не суммирует."
+    },
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",
+        "tiktokAds": "TikTok Ads",
         "description": "Импортирует дневной рекламный расход и атрибутирует его к кликам по рекламным ID, которые уже ловят шаблоны источников трафика.",
         "fields": {
+            "ttToken": "Access Token",
+            "ttAdvertiser": "Advertiser ID (ID кабинета)",
             "fbToken": "Access Token (long-lived / system user)",
             "fbAdAccount": "ID рекламного кабинета",
             "fbApiVersion": "Версия Facebook API",

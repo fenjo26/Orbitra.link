@@ -140,7 +140,7 @@ foreach ($connections as $conn) {
     // so a connection added today does not leave the previous month at zero cost.
     $connDateFrom = $dateFrom;
     $connDateTo = $dateTo;
-    $isCostConnection = in_array($conn['engine'], ['facebook', 'google_ads'], true);
+    $isCostConnection = in_array($conn['engine'], ['facebook', 'google_ads', 'tiktok'], true);
     if ($isCostConnection && !isset($options['days'])) {
         $lookbackDays = empty($conn['last_sync_at']) ? 30 : 5;
         $connDateFrom = date('Y-m-d', strtotime("-{$lookbackDays} days"));
@@ -180,6 +180,13 @@ foreach ($connections as $conn) {
                 if (file_exists(__DIR__ . '/aggregator_engines/GoogleAdsEngine.php')) {
                     require_once __DIR__ . '/aggregator_engines/GoogleAdsEngine.php';
                     $records = GoogleAdsEngine::fetchRecords($credentials, $connDateFrom, $connDateTo, $fieldMapping);
+                    $isCostEngine = true;
+                }
+                break;
+            case 'tiktok':
+                if (file_exists(__DIR__ . '/aggregator_engines/TikTokAdsEngine.php')) {
+                    require_once __DIR__ . '/aggregator_engines/TikTokAdsEngine.php';
+                    $records = TikTokAdsEngine::fetchRecords($credentials, $connDateFrom, $connDateTo, $fieldMapping);
                     $isCostEngine = true;
                 }
                 break;

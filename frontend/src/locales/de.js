@@ -5,6 +5,13 @@ export default {
         "tablet": "Tablet"
     },
     "parameters": {
+        "adId": "Anzeigen-ID",
+        "adsetId": "Anzeigengruppen-ID",
+        "campaignId": "Kampagnen-ID",
+        "adName": "Anzeigenname",
+        "adsetName": "Anzeigengruppenname",
+        "campaignName": "Kampagnenname",
+        "site": "Platzierung",
         "keyword": "Keyword",
         "cost": "Kosten",
         "currency": "Währung",
@@ -409,6 +416,10 @@ export default {
         "copyErrors": "Fehler"
     },
     "editor": {
+        "integrationCode": "Integrationscode",
+        "intCode_link": "Link",
+        "intCode_iframe": "Iframe",
+        "intCode_script": "Script",
         "offerSelection": "Angebotsauswahl",
         "offerSelectionBefore": "Vor dem Klick",
         "offerSelectionAfter": "Nach dem Klick",
@@ -2194,11 +2205,22 @@ export default {
         "queueHealthy": "Zustellungs-Worker läuft.",
         "queueStale": "Zustellungs-Worker hat sich lange nicht gemeldet. Installieren Sie den Cron, um Wiederholungen zu aktivieren."
     },
+    "extCosts": {
+        "title": "Dolphin / Fbtool — Keitaro API",
+        "description": "Ausgaben aus Dolphin und Fbtool.pro über einen Keitaro-kompatiblen Admin-API-Endpunkt empfangen",
+        "step1": "1. API-Schlüssel mit Schreibrechten erstellen: Benutzer → Profil → Schlüssel generieren (permissions: write)",
+        "step2": "2. In Dolphin (Einstellungen → Kostenexport → Keitaro) oder Fbtool (Kosten → Keitaro) eintragen:",
+        "step3": "3. Endpunkt, den die Dienste aufrufen (kompatibel mit Keitaro Admin API v1):",
+        "hint": "Filter matchen Klick-Parameter: sub_id_4 = ad_id, sub_id_3 = adset_id (Facebook-Template-Defaults) oder jeder Parametername direkt (ad_id, adset_id, campaign_id...). Ausgaben werden gleichmäßig auf die passenden Klicks des Zeitraums verteilt; erneutes Senden überschreibt statt zu addieren."
+    },
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",
+        "tiktokAds": "TikTok Ads",
         "description": "Importiert tägliche Werbeausgaben und ordnet sie Klicks über die Anzeigen-IDs zu, die Ihre Traffic-Quell-Vorlagen bereits erfassen.",
         "fields": {
+            "ttToken": "Access Token",
+            "ttAdvertiser": "Advertiser-ID",
             "fbToken": "Access Token (langlebig / System-User)",
             "fbAdAccount": "Werbekonto-ID",
             "fbApiVersion": "Facebook-API-Version",

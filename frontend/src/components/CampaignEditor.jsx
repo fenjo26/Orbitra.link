@@ -5,8 +5,10 @@ import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, Chev
 import CampaignReports from './CampaignReports';
 import ConversionsLog from './ConversionsLog';
 import LandingEditor from './LandingEditor';
+import GroupsModal from './GroupsModal';
+import TrafficSourceEditor from './TrafficSourceEditor';
 import { useLanguage } from '../contexts/LanguageContext';
-import { cachedGet, cachedPost } from '../utils/apiCache';
+import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
 import { translateLandingRequestError } from '../utils/landingErrors';
 
 // Generate random alias like Keitaro (8 chars: a-z0-9)
@@ -43,6 +45,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [showReportsMenu, setShowReportsMenu] = useState(false);
     const [showReports, setShowReports] = useState(false);
     const [showConversionsLog, setShowConversionsLog] = useState(false);
+    const [showGroupsModal, setShowGroupsModal] = useState(false);
+    const [showSourceEditor, setShowSourceEditor] = useState(false);
+    const [integrationSnippet, setIntegrationSnippet] = useState('link');
     const [showTrafficSimModal, setShowTrafficSimModal] = useState(false);
     const [trafficSimResult, setTrafficSimResult] = useState(null);
     const [trafficSimLoading, setTrafficSimLoading] = useState(false);
@@ -124,6 +129,19 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     // Available parameters
     const availableParameters = [
+        { key: 'ad_id', label: t('parameters.adId', 'Ad ID') },
+        { key: 'adset_id', label: t('parameters.adsetId', 'Adset ID') },
+        { key: 'campaign_id', label: t('parameters.campaignId', 'Campaign ID') },
+        { key: 'ad_name', label: t('parameters.adName', 'Ad name') },
+        { key: 'adset_name', label: t('parameters.adsetName', 'Adset name') },
+        { key: 'campaign_name', label: t('parameters.campaignName', 'Campaign name') },
+        { key: 'site', label: t('parameters.site', 'Site') },
+        { key: 'ttclid', label: 'ttclid (TikTok)' },
+        { key: 'utm_source', label: 'utm_source' },
+        { key: 'utm_medium', label: 'utm_medium' },
+        { key: 'utm_campaign', label: 'utm_campaign' },
+        { key: 'utm_content', label: 'utm_content' },
+        { key: 'utm_term', label: 'utm_term' },
         { key: 'keyword', label: t('parameters.keyword') },
         { key: 'cost', label: t('parameters.cost') },
         { key: 'currency', label: t('parameters.currency') },
@@ -147,7 +165,97 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const getCampaignUrl = () => {
         const domain = domains.find(d => d.id == formData.domain_id);
         const baseUrl = domain ? `https://${domain.name}` : window.location.origin;
-        return `${baseUrl}/${formData.alias}`;
+        // Non-empty parameter values (macros like {{ad.id}}) become the query
+        // string the user pastes into the ad network — Keitaro's Campaign URL.
+        const pairs = Object.entries(formData.parameters || {})
+            .filter(([, v]) => String(v ?? '').trim() !== '')
+            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v).trim())}`);
+        return pairs.length ? `${baseUrl}/${formData.alias}?${pairs.join('&')}` : `${baseUrl}/${formData.alias}`;
+    };
+
+    // Map a traffic source's [{alias, param, macro}] into the campaign's
+    // {paramKey: macro} parameter map used by the "Параметры" tab and the URL.
+    const sourceToParameters = (source) => {
+        const params = {};
+        if (source && Array.isArray(source.parameters)) {
+            source.parameters.forEach(p => {
+                if (p && p.param && String(p.macro ?? '').trim() !== '') {
+                    params[p.param] = String(p.macro).trim();
+                }
+            });
+        }
+        return params;
+    };
+
+    // Keitaro parity: switching the traffic source REPLACES the campaign's
+    // parameter set with the parameters of the newly selected source.
+    const handleSourceChange = (sourceId) => {
+        const source = sources.find(s => s.id == sourceId);
+        setFormData(prev => ({
+            ...prev,
+            source_id: sourceId,
+            parameters: source ? sourceToParameters(source) : {}
+        }));
+    };
+
+    // Called after a source created from the editor's "+" button is saved:
+    // refresh the list and select the new source with its parameters applied.
+    const handleSourceCreated = async (saved) => {
+        setShowSourceEditor(false);
+        invalidateCache('traffic_sources');
+        try {
+            const res = await cachedGet('traffic_sources', {}, 300000);
+            if (res.data.status === 'success') {
+                setSources(res.data.data);
+                const created = res.data.data.find(s => s.id == (saved?.id ?? -1));
+                if (created) {
+                    setFormData(prev => ({
+                        ...prev,
+                        source_id: String(created.id),
+                        parameters: sourceToParameters(created)
+                    }));
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // Keitaro-style integration snippets built from the campaign URL: the ad
+    // network gets the plain URL, site builders get link/iframe/script tags
+    // that pass the page's referrer, title and query string through.
+    const buildIntegrationSnippets = () => {
+        const url = getCampaignUrl();
+        const cid = (window.crypto && crypto.randomUUID)
+            ? crypto.randomUUID()
+            : Math.random().toString(36).slice(2) + Date.now().toString(36);
+        const pass = `' + encodeURIComponent(document.referrer) + '&default_keyword=' + encodeURIComponent(document.title) + '&'+window.location.search.replace('?', '&')`;
+        return {
+            link: `<span id="${cid}"></span>\n<script type="application/javascript">\ndocument.getElementById('${cid}').innerHTML = '<a href="${url}?se_referrer=${pass}">Link</a>';\n</script>`,
+            iframe: `<div id="${cid}"></div>\n<script type="application/javascript">\ndocument.getElementById('${cid}').innerHTML = '<iframe sandbox="allow-top-navigation allow-scripts allow-popups allow-forms" frameborder="0" width="100%" height="100%" src="${url}?se_referrer=${pass}&frm=frame"></iframe>';\n</script>`,
+            script: `<span id="${cid}"></span><script type="application/javascript">\nvar d=document;var s=d.createElement('script');\ns.src='${url}?se_referrer=${pass}&frm=script&_cid=${cid}';\nif (document.currentScript) { document.currentScript.parentNode.insertBefore(s, document.currentScript); } else { d.getElementsByTagName('head')[0].appendChild(s); }\n</script>`
+        };
+    };
+
+    const copyIntegrationSnippet = async (text) => {
+        let copied = false;
+        if (navigator.clipboard && window.isSecureContext) {
+            try { await navigator.clipboard.writeText(text); copied = true; } catch (e) { copied = false; }
+        }
+        if (!copied) {
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.setAttribute('readonly', '');
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                copied = document.execCommand('copy');
+                document.body.removeChild(textarea);
+            } catch (e) { copied = false; }
+        }
+        if (!copied) alert(t('common.error'));
     };
 
     // Copy URL to clipboard with fallback for non-secure contexts / older browsers
@@ -272,6 +380,19 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 .finally(() => setLoading(false));
         }
     }, [campaignId]);
+
+    // Prefill URL parameters from the campaign's traffic source when the editor
+    // opens on a campaign that never had any (saved before parameters persisted).
+    // Only fires while the map is empty, so manual edits are never overwritten.
+    useEffect(() => {
+        if (!formData.source_id || !sources.length) return;
+        if (formData.parameters && Object.keys(formData.parameters).length > 0) return;
+        const source = sources.find(s => s.id == formData.source_id);
+        if (!source) return;
+        const prefilled = sourceToParameters(source);
+        if (Object.keys(prefilled).length === 0) return;
+        setFormData(prev => ({ ...prev, parameters: prefilled }));
+    }, [sources, formData.source_id]);
 
     const fetchPixels = async () => {
         if (!campaignId) return;
@@ -891,10 +1012,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 onChange={e => setFormData({ ...formData, group_id: e.target.value })}
                                                                 className="form-select"
                                                             >
-                                                                <option value="">{t('editor.noGroup')}</option>
-                                                                {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
-                                                            </select>
-                                                            <button className="btn btn-secondary btn-icon">
+                                                            <option value="">{t('editor.noGroup')}</option>
+                                                            {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+                                                        </select>
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-secondary btn-icon"
+                                                                onClick={() => setShowGroupsModal(true)}
+                                                                title={t('groupsModal.campaignGroups')}
+                                                            >
                                                                 <Plus className="w-4 h-4" />
                                                             </button>
                                                         </div>
@@ -970,13 +1096,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         <div className="flex gap-2">
                                                             <select
                                                                 value={formData.source_id}
-                                                                onChange={e => setFormData({ ...formData, source_id: e.target.value })}
+                                                                onChange={e => handleSourceChange(e.target.value)}
                                                                 className="form-select"
                                                             >
                                                                 <option value="">{t('editor.organicTraffic')}</option>
                                                                 {sources.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                                             </select>
-                                                            <button className="btn btn-secondary btn-icon">
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-secondary btn-icon"
+                                                                onClick={() => setShowSourceEditor(true)}
+                                                                title={t('sources.title')}
+                                                            >
                                                                 <Plus className="w-4 h-4" />
                                                             </button>
                                                         </div>
@@ -1218,6 +1349,55 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                     {/* Integrations Tab */}
                                     {activeTab === 'integrations' && (
                                         <div className="space-y-4">
+                                            {/* Integration code snippets (Keitaro-style) */}
+                                            <div style={{
+                                                border: '1px solid var(--color-border)',
+                                                borderRadius: '16px',
+                                                padding: '14px 16px',
+                                                background: 'var(--color-bg-card)'
+                                            }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+                                                    <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-text-primary)' }}>{t('editor.integrationCode')}</span>
+                                                    <div className="flex gap-2">
+                                                        {['link', 'iframe', 'script'].map(kind => (
+                                                            <button
+                                                                key={kind}
+                                                                type="button"
+                                                                onClick={() => setIntegrationSnippet(kind)}
+                                                                className={`btn ${integrationSnippet === kind ? 'btn-primary' : 'btn-secondary'}`}
+                                                                style={{ padding: '4px 10px', fontSize: '12px' }}
+                                                            >
+                                                                {t('editor.intCode_' + kind, kind)}
+                                                            </button>
+                                                        ))}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => copyIntegrationSnippet(buildIntegrationSnippets()[integrationSnippet])}
+                                                            className="btn btn-secondary btn-icon"
+                                                            title={t('common.copy')}
+                                                        >
+                                                            <Copy className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <pre
+                                                    className="text-xs overflow-x-auto"
+                                                    style={{
+                                                        fontFamily: 'monospace',
+                                                        color: 'var(--color-text-secondary)',
+                                                        background: 'var(--color-bg-soft)',
+                                                        border: '1px solid var(--color-border)',
+                                                        borderRadius: '8px',
+                                                        padding: '10px 12px',
+                                                        margin: 0,
+                                                        whiteSpace: 'pre-wrap',
+                                                        wordBreak: 'break-all'
+                                                    }}
+                                                >
+                                                    {buildIntegrationSnippets()[integrationSnippet]}
+                                                </pre>
+                                            </div>
+
                                             <p className="text-xs mb-2" style={{ color: 'var(--color-text-secondary)' }}>{t('pixels.selectPlatform')}</p>
 
                                             {/* Existing pixels */}
@@ -2496,6 +2676,30 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Groups quick-create from the "+" next to the group select */}
+            {showGroupsModal && (
+                <GroupsModal
+                    type="campaign"
+                    onClose={() => {
+                        setShowGroupsModal(false);
+                        invalidateCache('campaign_groups');
+                    }}
+                    onGroupCreated={(g) => {
+                        if (!g || !g.id) return;
+                        setGroups(prev => prev.some(x => x.id == g.id) ? prev : [...prev, g]);
+                        setFormData(prev => ({ ...prev, group_id: String(g.id) }));
+                    }}
+                />
+            )}
+
+            {/* Traffic source quick-create from the "+" next to the source select */}
+            {showSourceEditor && (
+                <TrafficSourceEditor
+                    onClose={() => setShowSourceEditor(false)}
+                    onSave={handleSourceCreated}
+                />
             )}
         </>
     );

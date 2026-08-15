@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Filter, RefreshCw, X, Copy } from 'lucide-react';
 import InfoBanner from './InfoBanner';
+import GroupsModal from './GroupsModal';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -15,6 +16,7 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     const [search, setSearch] = useState('');
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const [showGroupsModal, setShowGroupsModal] = useState(false);
 
     const handleCreate = () => {
         setEditingCampaignId(null);
@@ -272,10 +274,10 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                         <Plus className="w-4 h-4" />
                         {t('common.create')}
                     </button>
-                    <button className="btn btn-secondary">
+                    <button onClick={() => setShowGroupsModal(true)} className="btn btn-secondary">
                         {t('campaigns.groups')}
                     </button>
-                    <button className="btn btn-secondary">
+                    <button onClick={() => setActiveTab('sources')} className="btn btn-secondary">
                         {t('campaigns.sources')}
                     </button>
                     {selectedCampaignIds.size > 0 && (
@@ -505,6 +507,13 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                         </div>
                     </div>
                 </div>
+            )}
+
+            {showGroupsModal && (
+                <GroupsModal
+                    type="campaign"
+                    onClose={() => setShowGroupsModal(false)}
+                />
             )}
         </div>
     );

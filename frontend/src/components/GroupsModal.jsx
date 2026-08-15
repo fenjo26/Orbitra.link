@@ -5,7 +5,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
 
-const GroupsModal = ({ type, onClose }) => {
+const GroupsModal = ({ type, onClose, onGroupCreated }) => {
     const { t } = useLanguage();
     const [groups, setGroups] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -17,6 +17,15 @@ const GroupsModal = ({ type, onClose }) => {
             case 'landing': return 'landing_groups';
             case 'campaign': return 'campaign_groups';
             default: return 'offer_groups';
+        }
+    };
+
+    const getDeleteEndpoint = () => {
+        switch (type) {
+            case 'offer': return 'delete_offer_group';
+            case 'landing': return 'delete_landing_group';
+            case 'campaign': return 'delete_campaign_group';
+            default: return 'delete_offer_group';
         }
     };
 
@@ -47,7 +56,14 @@ const GroupsModal = ({ type, onClose }) => {
         if (!newGroupName.trim()) return;
         try {
             const res = await axios.post(`${API_URL}?action=${endpoint}`, { name: newGroupName.trim() });
-            if (res.data.status === 'success') { setNewGroupName(''); fetchGroups(); }
+            if (res.data.status === 'success') {
+                const created = { id: res.data.data?.id, name: newGroupName.trim() };
+                setNewGroupName('');
+                fetchGroups();
+                // Let the caller (e.g. a "+" button next to a group select) select
+                // the new group immediately instead of reopening the dropdown.
+                if (onGroupCreated) onGroupCreated(created);
+            }
             else alert(res.data.message || t('groupsModal.createError'));
         } catch { alert(t('groupsModal.networkError')); }
     };
@@ -55,53 +71,62 @@ const GroupsModal = ({ type, onClose }) => {
     const handleDelete = async (id) => {
         if (!window.confirm(t('groupsModal.deleteConfirm'))) return;
         try {
-            const del = type === 'offer' ? 'delete_offer_group' : endpoint;
-            await axios.post(`${API_URL}?action=${del}`, { id });
+            await axios.post(`${API_URL}?action=${getDeleteEndpoint()}`, { id });
             fetchGroups();
         } catch { alert(t('groupsModal.deleteError')); }
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-                <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
-                    <h3 className="text-lg font-bold text-gray-800">{getTitle()}</h3>
-                    <button onClick={() => onClose(false)} className="text-gray-500 hover:text-gray-700"><X className="w-5 h-5" /></button>
+        <div className="modal-overlay">
+            <div className="modal-content" style={{ maxWidth: '480px' }}>
+                <div className="modal-header">
+                    <h2 className="modal-title">{getTitle()}</h2>
+                    <button onClick={() => onClose(false)} className="action-btn">
+                        <X className="w-5 h-5" />
+                    </button>
                 </div>
-                <div className="p-4 border-b border-gray-200">
-                    <div className="flex space-x-2">
-                        <input type="text" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleCreate()} placeholder={t('groups.placeholder')} className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" />
-                        <button onClick={handleCreate} disabled={!newGroupName.trim()} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition">
-                            <Plus className="w-4 h-4 mr-1" />{t('groupsModal.add')}
+                <div className="p-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            value={newGroupName}
+                            onChange={(e) => setNewGroupName(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && handleCreate()}
+                            placeholder={t('groups.placeholder')}
+                            className="form-input text-sm"
+                            autoFocus
+                        />
+                        <button onClick={handleCreate} disabled={!newGroupName.trim()} className="btn btn-primary whitespace-nowrap">
+                            <Plus className="w-4 h-4" />{t('groupsModal.add')}
                         </button>
                     </div>
                 </div>
                 <div className="max-h-80 overflow-y-auto">
                     {loading ? (
-                        <div className="p-8 text-center text-gray-500">{t('groupsModal.loading')}</div>
+                        <div className="p-8 text-center" style={{ color: 'var(--color-text-muted)' }}>{t('groupsModal.loading')}</div>
                     ) : groups.length === 0 ? (
-                        <div className="p-8 text-center text-gray-400">
+                        <div className="p-8 text-center" style={{ color: 'var(--color-text-muted)' }}>
                             <p>{t('groupsModal.noGroups')}</p>
                             <p className="text-sm mt-1">{t('groupsModal.createFirst')}</p>
                         </div>
                     ) : (
-                        <ul className="divide-y divide-gray-200">
+                        <ul className="divide-y" style={{ borderColor: 'var(--color-border)' }}>
                             {groups.map((group) => (
-                                <li key={group.id} className="flex items-center justify-between px-6 py-3 hover:bg-gray-50 transition">
-                                    <div className="flex items-center space-x-3">
-                                        <span className="text-sm font-medium text-gray-700">{group.name}</span>
-                                        <span className="text-xs text-gray-400">ID: {group.id}</span>
+                                <li key={group.id} className="flex items-center justify-between px-6 py-3 transition" style={{ borderColor: 'var(--color-border)' }}>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{group.name}</span>
+                                        <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>ID: {group.id}</span>
                                     </div>
-                                    <button onClick={() => handleDelete(group.id)} className="text-gray-400 hover:text-red-600 p-1" title={t('groups.delete')}>
-                                        <Trash2 className="w-4 h-4" />
+                                    <button onClick={() => handleDelete(group.id)} className="action-btn" title={t('groups.delete')}>
+                                        <Trash2 className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />
                                     </button>
                                 </li>
                             ))}
                         </ul>
                     )}
                 </div>
-                <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg flex justify-end">
-                    <button onClick={() => onClose(false)} className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">{t('groupsModal.close')}</button>
+                <div className="px-6 py-4 border-t flex justify-end" style={{ borderColor: 'var(--color-border)' }}>
+                    <button onClick={() => onClose(false)} className="btn btn-secondary">{t('groupsModal.close')}</button>
                 </div>
             </div>
         </div>

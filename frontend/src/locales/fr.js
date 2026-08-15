@@ -5,6 +5,13 @@ export default {
         "tablet": "Tablette"
     },
     "parameters": {
+        "adId": "ID de l’annonce",
+        "adsetId": "ID de l’ensemble",
+        "campaignId": "ID de la campagne",
+        "adName": "Nom de l’annonce",
+        "adsetName": "Nom de l’ensemble",
+        "campaignName": "Nom de la campagne",
+        "site": "Site",
         "keyword": "Mot-clé",
         "cost": "Coût",
         "currency": "Devise",
@@ -409,6 +416,10 @@ export default {
         "copyErrors": "Erreurs"
     },
     "editor": {
+        "integrationCode": "Code d’intégration",
+        "intCode_link": "Lien",
+        "intCode_iframe": "Iframe",
+        "intCode_script": "Script",
         "offerSelection": "Choix de l'offre",
         "offerSelectionBefore": "Avant le clic",
         "offerSelectionAfter": "Après le clic",
@@ -2194,11 +2205,22 @@ export default {
         "queueHealthy": "Le worker de livraison fonctionne.",
         "queueStale": "Le worker de livraison n'a pas signalé récemment. Installez le cron pour activer les réessais."
     },
+    "extCosts": {
+        "title": "Dolphin / Fbtool — Keitaro API",
+        "description": "Recevoir les dépenses de Dolphin et Fbtool.pro via un endpoint compatible Keitaro Admin API",
+        "step1": "1. Créez une clé API en écriture : Utilisateurs → votre profil → générer une clé (permissions : write)",
+        "step2": "2. Collez dans Dolphin (Paramètres → Export des dépenses → Keitaro) ou Fbtool (Dépenses → Keitaro) :",
+        "step3": "3. L’endpoint appelé par les services (compatible Keitaro Admin API v1) :",
+        "hint": "Les filtres correspondent aux paramètres du clic : sub_id_4 = ad_id, sub_id_3 = adset_id (valeurs par défaut du template Facebook), ou tout nom de paramètre directement (ad_id, adset_id, campaign_id...). La dépense est répartie également entre les clics correspondants de la période ; un renvoi remplace au lieu de s’additionner."
+    },
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",
+        "tiktokAds": "TikTok Ads",
         "description": "Importe les dépenses publicitaires quotidiennes et les attribue aux clics via les IDs d'annonce que vos modèles de source de trafic capturent déjà.",
         "fields": {
+            "ttToken": "Access Token",
+            "ttAdvertiser": "ID annonceur",
             "fbToken": "Access Token (longue durée / utilisateur système)",
             "fbAdAccount": "ID du compte publicitaire",
             "fbApiVersion": "Version de l'API Facebook",

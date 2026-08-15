@@ -5,6 +5,13 @@ export default {
         "tablet": "Tableta"
     },
     "parameters": {
+        "adId": "ID del anuncio",
+        "adsetId": "ID del conjunto",
+        "campaignId": "ID de la campaña",
+        "adName": "Nombre del anuncio",
+        "adsetName": "Nombre del conjunto",
+        "campaignName": "Nombre de la campaña",
+        "site": "Sitio",
         "keyword": "Palabra clave",
         "cost": "Coste",
         "currency": "Moneda",
@@ -409,6 +416,10 @@ export default {
         "copyErrors": "Errores"
     },
     "editor": {
+        "integrationCode": "Código de integración",
+        "intCode_link": "Enlace",
+        "intCode_iframe": "Iframe",
+        "intCode_script": "Script",
         "offerSelection": "Selección de oferta",
         "offerSelectionBefore": "Antes del clic",
         "offerSelectionAfter": "Después del clic",
@@ -2194,11 +2205,22 @@ export default {
         "queueHealthy": "El worker de envío está activo.",
         "queueStale": "El worker de envío no ha reportado recientemente. Instala el cron para habilitar reintentos."
     },
+    "extCosts": {
+        "title": "Dolphin / Fbtool — Keitaro API",
+        "description": "Recibir gastos de Dolphin y Fbtool.pro mediante un endpoint compatible con Keitaro Admin API",
+        "step1": "1. Crea una clave API con permisos de escritura: Usuarios → tu perfil → generar clave (permissions: write)",
+        "step2": "2. Pégalo en Dolphin (Ajustes → Exportar gastos → Keitaro) o Fbtool (Gastos → Keitaro):",
+        "step3": "3. El endpoint al que llaman los servicios (compatible con Keitaro Admin API v1):",
+        "hint": "Los filtros coinciden con parámetros del clic: sub_id_4 = ad_id, sub_id_3 = adset_id (valores por defecto de la plantilla de Facebook), o cualquier nombre de parámetro directamente (ad_id, adset_id, campaign_id...). El gasto se reparte a partes iguales entre los clics coincidentes del periodo; reenviar sobrescribe en vez de acumular."
+    },
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",
+        "tiktokAds": "TikTok Ads",
         "description": "Importa el gasto publicitario diario y lo atribuye a los clics por los IDs de anuncio que tus plantillas de fuente de tráfico ya capturan.",
         "fields": {
+            "ttToken": "Access Token",
+            "ttAdvertiser": "Advertiser ID",
             "fbToken": "Access Token (de larga duración / usuario de sistema)",
             "fbAdAccount": "ID de la cuenta publicitaria",
             "fbApiVersion": "Versión de la API de Facebook",

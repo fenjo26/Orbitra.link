@@ -25,7 +25,7 @@ class CostImporter
      */
     private const DEFAULT_KEYS = [
         'ad'       => ['ad_id', 'creative_id', 'creative'],
-        'adset'    => ['adset_id', 'adgroup', 'adgroupid', 'ad_group_id'],
+        'adset'    => ['adset_id', 'adgroup_id', 'adgroup', 'adgroupid', 'ad_group_id'],
         'campaign' => ['campaign_id', 'campaign', 'campaignid', 'ad_campaign_id'],
     ];
 

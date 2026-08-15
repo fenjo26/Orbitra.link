@@ -119,6 +119,13 @@ function orbitraNginxCommonBody(string $fpmSocket): string
     $b .= "        try_files \$uri \$uri/ /frontend/dist/index.html;\n";
     $b .= "    }\n\n";
 
+    $b .= "    # Keitaro Admin API compatible endpoint (Dolphin / Fbtool cost push).\n";
+    $b .= "    # Without this the generic router below would hand /admin_api/... to\n";
+    $b .= "    # index.php as a campaign alias. PHP still sees the original REQUEST_URI.\n";
+    $b .= "    location ^~ /admin_api/ {\n";
+    $b .= "        rewrite ^/admin_api/(.*)\$ /admin_api.php last;\n";
+    $b .= "    }\n\n";
+
     $b .= "    # Router handling (API and clicks)\n";
     $b .= "    location / {\n";
     $b .= "        try_files \$uri \$uri/ /index.php?\$query_string;\n";

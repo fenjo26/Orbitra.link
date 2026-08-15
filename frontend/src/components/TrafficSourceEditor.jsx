@@ -102,8 +102,14 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
 
         try {
             const payload = { ...formData, id };
-            await axios.post(`${API_URL}?action=traffic_sources`, payload);
-            onSave();
+            const res = await axios.post(`${API_URL}?action=traffic_sources`, payload);
+            if (res.data.status !== 'success') {
+                alert(res.data.message || t('common.error'));
+                return;
+            }
+            // Pass {id} so callers (e.g. the campaign editor's "+") can select
+            // the freshly created source instead of guessing by name.
+            onSave(res.data.data || {});
         } catch (error) {
             console.error('Error saving traffic source:', error);
             alert(t('common.error'));

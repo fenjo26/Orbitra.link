@@ -5,6 +5,13 @@ export default {
         "tablet": "Планшет"
     },
     "parameters": {
+        "adId": "ID оголошення",
+        "adsetId": "ID групи оголошень",
+        "campaignId": "ID кампанії",
+        "adName": "Назва оголошення",
+        "adsetName": "Назва групи",
+        "campaignName": "Назва кампанії",
+        "site": "Майданчик",
         "keyword": "Ключове слово",
         "cost": "Витрати",
         "currency": "Валюта",
@@ -409,6 +416,10 @@ export default {
         "copyErrors": "Помилки"
     },
     "editor": {
+        "integrationCode": "Код інтеграції",
+        "intCode_link": "Посилання",
+        "intCode_iframe": "Iframe",
+        "intCode_script": "Скрипт",
         "offerSelection": "Вибір офера",
         "offerSelectionBefore": "Перед кліком",
         "offerSelectionAfter": "Після кліку",
@@ -2194,11 +2205,22 @@ export default {
         "queueHealthy": "Воркер доставки працює.",
         "queueStale": "Воркер доставки давно не відзначався. Встановіть cron, щоб увімкнути повтори."
     },
+    "extCosts": {
+        "title": "Dolphin / Fbtool — Keitaro API",
+        "description": "Приймання витрат із Dolphin та Fbtool.pro через Keitaro-сумісний Admin API endpoint",
+        "step1": "1. Створіть API-ключ із правами write: Користувачі → ваш профіль → згенерувати ключ (permissions: write)",
+        "step2": "2. Скопіюйте в Dolphin (Налаштування → Експорт витрат → Keitaro) або Fbtool (Витрати → Keitaro):",
+        "step3": "3. Endpoint, який викликають сервіси (сумісний із Keitaro Admin API v1):",
+        "hint": "Фільтри матчаться за параметрами кліку: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолти шаблону Facebook), або будь-яке ім’я параметра напряму (ad_id, adset_id, campaign_id...). Витрата ділиться порівну між кліками, що збіглися, за період; повторне надсилання перезаписує, а не сумує."
+    },
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",
+        "tiktokAds": "TikTok Ads",
         "description": "Імпортує денну рекламну витрату і атрибутує її до кліків за рекламними ID, які вже ловлять шаблони джерел трафіку.",
         "fields": {
+            "ttToken": "Access Token",
+            "ttAdvertiser": "Advertiser ID (ID кабінету)",
             "fbToken": "Access Token (long-lived / system user)",
             "fbAdAccount": "ID рекламного кабінету",
             "fbApiVersion": "Версія Facebook API",

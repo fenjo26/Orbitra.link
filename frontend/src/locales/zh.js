@@ -5,6 +5,13 @@ export default {
         "tablet": "平板"
     },
     "parameters": {
+        "adId": "广告 ID",
+        "adsetId": "广告组 ID",
+        "campaignId": "广告系列 ID",
+        "adName": "广告名称",
+        "adsetName": "广告组名称",
+        "campaignName": "广告系列名称",
+        "site": "站点",
         "keyword": "关键词",
         "cost": "成本",
         "currency": "货币",
@@ -409,6 +416,10 @@ export default {
         "copyErrors": "错误"
     },
     "editor": {
+        "integrationCode": "集成代码",
+        "intCode_link": "链接",
+        "intCode_iframe": "Iframe",
+        "intCode_script": "脚本",
         "offerSelection": "报价选择",
         "offerSelectionBefore": "点击前",
         "offerSelectionAfter": "点击后",
@@ -2194,11 +2205,22 @@ export default {
         "queueHealthy": "投递 worker 正在运行。",
         "queueStale": "投递 worker 已较长时间未报告。请安装 cron 以启用重试。"
     },
+    "extCosts": {
+        "title": "Dolphin / Fbtool — Keitaro API",
+        "description": "通过兼容 Keitaro Admin API 的端点接收 Dolphin 和 Fbtool.pro 的花费",
+        "step1": "1. 创建具有 write 权限的 API 密钥：用户 → 你的资料 → 生成密钥（permissions: write）",
+        "step2": "2. 粘贴到 Dolphin（设置 → 花费导出 → Keitaro）或 Fbtool（花费 → Keitaro）：",
+        "step3": "3. 服务调用的端点（兼容 Keitaro Admin API v1）：",
+        "hint": "过滤器按点击参数匹配：sub_id_4 = ad_id、sub_id_3 = adset_id（Facebook 模板默认值），也可直接使用任意参数名（ad_id、adset_id、campaign_id...）。花费在周期内匹配的点击之间平均分配；重复发送会覆盖而不是累加。"
+    },
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",
+        "tiktokAds": "TikTok Ads",
         "description": "导入每日广告支出，并通过流量来源模板已捕获的广告 ID 将其归因到点击。",
         "fields": {
+            "ttToken": "Access Token",
+            "ttAdvertiser": "广告主 ID",
             "fbToken": "访问令牌（长期 / 系统用户）",
             "fbAdAccount": "广告账户 ID",
             "fbApiVersion": "Facebook API 版本",

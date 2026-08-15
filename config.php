@@ -49,7 +49,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 17;
+    $LATEST_SCHEMA_VERSION = 18;
 
     $schemaVersion = 0;
     try {
@@ -240,6 +240,7 @@ try {
         rotation_type TEXT DEFAULT 'position',
         token TEXT,
         catch_404_stream_id INTEGER,
+        parameters_json TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         is_archived INTEGER DEFAULT 0,
         archived_at DATETIME,
@@ -1242,6 +1243,17 @@ try {
                 try {
                     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_s2s_queue_pending ON s2s_postbacks_log(status, next_retry_at)");
                 } catch (\Throwable $e) {
+                }
+            }
+
+            if ($schemaVersion < 18) {
+                // Migration 18: campaign-level URL parameters. The editor's
+                // "Параметры" tab used to live only in browser memory, so the
+                // macros a campaign link was built from were lost on reopen.
+                try {
+                    $pdo->exec("ALTER TABLE campaigns ADD COLUMN parameters_json TEXT");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
                 }
             }
 

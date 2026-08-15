@@ -160,6 +160,7 @@ CREATE TABLE campaigns (
         rotation_type TEXT DEFAULT 'position',
         token TEXT,
         catch_404_stream_id INTEGER,
+        parameters_json TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         is_archived INTEGER DEFAULT 0,
         archived_at DATETIME, challenge_type TEXT DEFAULT 'none', challenge_custom_code TEXT,

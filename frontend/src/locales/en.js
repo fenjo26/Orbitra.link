@@ -5,6 +5,13 @@ export default {
         "tablet": "Tablet"
     },
     "parameters": {
+        "adId": "Ad ID",
+        "adsetId": "Adset ID",
+        "campaignId": "Campaign ID",
+        "adName": "Ad name",
+        "adsetName": "Adset name",
+        "campaignName": "Campaign name",
+        "site": "Site",
         "keyword": "Keyword",
         "cost": "Cost",
         "currency": "Currency",
@@ -409,6 +416,10 @@ export default {
         "copyErrors": "Errors"
     },
     "editor": {
+        "integrationCode": "Integration code",
+        "intCode_link": "Link",
+        "intCode_iframe": "Iframe",
+        "intCode_script": "Script",
         "offerSelection": "Offer selection",
         "offerSelectionBefore": "Before the click",
         "offerSelectionAfter": "After the click",
@@ -2194,11 +2205,22 @@ export default {
         "queueHealthy": "Delivery worker is running.",
         "queueStale": "Delivery worker has not pinged recently. Install the cron to enable retries."
     },
+    "extCosts": {
+        "title": "Dolphin / Fbtool — Keitaro API",
+        "description": "Receive spend from Dolphin and Fbtool.pro via a Keitaro-compatible Admin API endpoint",
+        "step1": "1. Create a write-permission API key: Users → your profile → generate key (permissions: write)",
+        "step2": "2. Paste into Dolphin (Settings → Cost export → Keitaro) or Fbtool (Costs → Keitaro):",
+        "step3": "3. The endpoint the services call (Keitaro Admin API v1 compatible):",
+        "hint": "Filters match click parameters: sub_id_4 = ad_id, sub_id_3 = adset_id (Facebook template defaults), or any parameter name directly (ad_id, adset_id, campaign_id...). Spend is split evenly across matched clicks for the period; re-sending overwrites instead of accumulating."
+    },
     "costImport": {
         "facebookAds": "Facebook Ads",
         "googleAds": "Google Ads",
+        "tiktokAds": "TikTok Ads",
         "description": "Import daily ad spend and attribute it to clicks by the ad IDs your traffic-source templates already capture.",
         "fields": {
+            "ttToken": "Access Token",
+            "ttAdvertiser": "Advertiser ID",
             "fbToken": "Access Token (long-lived / system user)",
             "fbAdAccount": "Ad Account ID",
             "fbApiVersion": "Facebook API version",

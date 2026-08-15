@@ -1044,6 +1044,12 @@ const IntegrationsPage = () => {
             description: t('fbConv.description'),
             isFacebookConversions: true
         },
+        dolphin_fbtool: {
+            title: t('extCosts.title', 'Dolphin / Fbtool — Keitaro API'),
+            icon: <DollarSign className="w-5 h-5" />,
+            description: t('extCosts.description', 'Приём расходов из Dolphin и Fbtool.pro через Keitaro-совместимый Admin API endpoint'),
+            code: `# ${t('extCosts.step1', '1. Создайте API-ключ с правами write: Пользователи → ваш профиль → сгенерировать ключ (permissions: write)')}\n\n# ${t('extCosts.step2', '2. Скопируйте в Dolphin (Настройки → Экспорт расходов → Keitaro) или Fbtool (Расходы → Keitaro):')}\n#    Tracker URL:  ${trackerUrl}\n#    Admin API key: <ваш ключ>\n\n# ${t('extCosts.step3', '3. Endpoint, который вызывают сервисы (совместим с Keitaro Admin API v1):')}\n# POST ${trackerUrl}/admin_api/v1/campaigns/CAMPAIGN_ID/update_costs\n# Authorization: Bearer <API_KEY>\n{\n  "start_date": "2026-08-15",\n  "end_date": "2026-08-15",\n  "cost": 12.34,\n  "currency": "USD",\n  "timezone": "Europe/Berlin",\n  "filters": { "sub_id_4": "120212558973560058" }\n}\n\n# ${t('extCosts.hint', 'Фильтры матчатся по параметрам клика: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолты шаблона Facebook), либо любое имя параметра напрямую (ad_id, adset_id, campaign_id...). Расход делится поровну между совпавшими кликами за период; повторная отправка перезаписывает, а не суммирует.')}`
+        },
         recaptcha: {
             title: t('recaptcha.tabTitle'),
             icon: <Shield className="w-5 h-5" />,

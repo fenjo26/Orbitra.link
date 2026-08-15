@@ -4,6 +4,10 @@ RewriteRule ^r/(.*)$ index.php?campaign=$1 [L,QSA]
 # Keitaro-like Click API endpoint
 RewriteRule ^click_api/v3/?$ index.php [L,QSA]
 
+# Keitaro Admin API compatible endpoint (Dolphin / Fbtool cost push).
+# admin_api.php parses the original REQUEST_URI itself.
+RewriteRule ^admin_api/ admin_api.php [L,QSA]
+
 # A local landing's own address, /lander/<slug>/... — index.php resolves the slug
 # and serves the files. Nginx reaches this through its catch-all try_files, but
 # Apache has no such fallback here: without this rule the path matches nothing on

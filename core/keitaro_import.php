@@ -249,6 +249,71 @@ function orbitraKeitaroMapUniquenessMethod(string $v): string
     return 'IP';
 }
 
+/**
+ * Normalize a Keitaro traffic-source `parameters` blob into Orbitra's
+ * traffic_sources.parameters_json shape: a JSON array of {alias, param, macro}.
+ *
+ * Keitaro stores the parameters in its own schema (PHP-serialized array on
+ * older builds, JSON on newer ones; entry keys vary: name/param/alias/
+ * placeholder). Storing that blob as-is silently disables parameter capture on
+ * every imported source — core/ClickParams.php and the source editor can't read
+ * it — which then breaks ad_id/adset_id matching for cost import. Unknown
+ * shapes degrade to an empty parameter list rather than to a broken blob.
+ */
+function orbitraKeitaroNormalizeSourceParameters($raw): string
+{
+    $raw = is_string($raw) ? trim($raw) : '';
+    if ($raw === '' || strcasecmp($raw, 'NULL') === 0) {
+        return '[]';
+    }
+
+    $decoded = null;
+    if (str_starts_with($raw, 'a:') || str_starts_with($raw, 'O:')) {
+        $un = @unserialize($raw);
+        if (is_array($un)) {
+            $decoded = $un;
+        }
+    }
+    if ($decoded === null && ($raw[0] === '[' || $raw[0] === '{')) {
+        $j = json_decode($raw, true);
+        if (is_array($j)) {
+            $decoded = $j;
+        }
+    }
+    if ($decoded === null) {
+        return '[]';
+    }
+    // Some exports wrap the list: {"parameters": [...]}
+    if (isset($decoded['parameters']) && is_array($decoded['parameters'])) {
+        $decoded = $decoded['parameters'];
+    }
+
+    $out = [];
+    foreach ($decoded as $entry) {
+        if (is_string($entry)) {
+            // Bare string list: a param name without a macro.
+            $entry = ['param' => $entry];
+        }
+        if (!is_array($entry)) {
+            continue;
+        }
+
+        // Keitaro columns map to Orbitra as: Параметр→param, Токен/значение→macro.
+        $param  = trim((string) ($entry['param'] ?? $entry['name'] ?? $entry['alias'] ?? ''));
+        $alias  = trim((string) ($entry['alias'] ?? $entry['name'] ?? ''));
+        $macro  = trim((string) ($entry['macro'] ?? $entry['placeholder'] ?? $entry['token'] ?? $entry['value'] ?? ''));
+        if ($param === '') {
+            continue;
+        }
+        if ($alias === '') {
+            $alias = $param;
+        }
+        $out[] = ['alias' => $alias, 'param' => $param, 'macro' => $macro];
+    }
+
+    return json_encode($out, JSON_UNESCAPED_UNICODE);
+}
+
 function orbitraKeitaroMapCostModel(string $v): string
 {
     $v = strtoupper(trim($v));
@@ -592,6 +657,7 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
             'domains' => ['inserted' => 0, 'skipped' => 0],
             'traffic_sources' => ['inserted' => 0, 'skipped' => 0],
             'landings' => ['inserted' => 0, 'skipped' => 0],
+            'landing_groups' => ['inserted' => 0, 'skipped' => 0],
             'campaign_groups' => ['inserted' => 0, 'skipped' => 0],
             'campaigns' => ['inserted' => 0, 'skipped' => 0],
             'streams' => ['inserted' => 0, 'skipped' => 0, 'updated' => 0],
@@ -777,7 +843,7 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                         // Keitaro has multiple schemas; keep minimal.
                         $template = (string) ($r['template_name'] ?? ($r['template'] ?? ''));
                         $postbackUrl = (string) ($r['postback_url'] ?? ($r['postback'] ?? ''));
-                        $paramsJson = (string) ($r['parameters'] ?? ($r['params'] ?? ''));
+                        $paramsJson = orbitraKeitaroNormalizeSourceParameters($r['parameters'] ?? ($r['params'] ?? ''));
                         $notes = (string) ($r['notes'] ?? '');
                         $postbackStatuses = 'lead,sale,rejected';
 
@@ -796,7 +862,9 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                             $template,
                             $postbackUrl,
                             $postbackStatuses,
-                            is_string($paramsJson) && $paramsJson !== '' ? $paramsJson : json_encode(new stdClass()),
+                            // Normalized {alias, param, macro} list — see the
+                            // helper above; never the raw Keitaro blob.
+                            $paramsJson !== '' ? $paramsJson : '[]',
                             $notes,
                             $state,
                             $kid > 0 ? $kid : null,
@@ -808,13 +876,43 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                 }
             }
 
+            // ---- Landing groups (from keitaro_groups where type='landings') ----
+            $keitaroGroupIdToLandingGroupId = [];
+            if ($doLandings) {
+                $rows = $parsed['keitaro_groups']['rows'] ?? [];
+                $stmtFind = $pdo->prepare("SELECT id FROM landing_groups WHERE name = ? LIMIT 1");
+                $stmtIns = $pdo->prepare("INSERT INTO landing_groups (name) VALUES (?)");
+
+                foreach ($rows as $r) {
+                    $kid = (int) ($r['id'] ?? 0);
+                    $type = strtolower(trim((string) ($r['type'] ?? '')));
+                    $name = trim((string) ($r['name'] ?? ''));
+                    if ($name === '' || ($type !== 'landings' && $type !== 'landing')) continue;
+
+                    $stmtFind->execute([$name]);
+                    $existingId = $stmtFind->fetchColumn();
+                    if ($existingId) {
+                        $keitaroGroupIdToLandingGroupId[$kid] = (int) $existingId;
+                        $result['imported']['landing_groups']['skipped']++;
+                        continue;
+                    }
+
+                    $stmtIns->execute([$name]);
+                    $oid = (int) ($pdo->lastInsertId() ?: 0);
+                    if ($kid > 0 && $oid > 0) {
+                        $keitaroGroupIdToLandingGroupId[$kid] = $oid;
+                    }
+                    $result['imported']['landing_groups']['inserted']++;
+                }
+            }
+
             // ---- Landings ----
             $keitaroLandingIdToOrbitraId = [];
             if ($doLandings) {
                 $rows = $parsed['keitaro_landings']['rows'] ?? [];
                 if (!empty($rows)) {
                     $stmtFind = $pdo->prepare("SELECT id, keitaro_id FROM landings WHERE url = ? LIMIT 1");
-                    $stmtIns = $pdo->prepare("INSERT INTO landings (name, url, group_id, type, state, action_payload, keitaro_id) VALUES (?, ?, NULL, ?, ?, ?, ?)");
+                    $stmtIns = $pdo->prepare("INSERT INTO landings (name, url, group_id, type, state, action_payload, keitaro_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
                     $stmtUpdK = null;
                     if ($hasLandingKeitaroId) {
                         $stmtUpdK = $pdo->prepare("UPDATE landings SET keitaro_id = ? WHERE id = ? AND (keitaro_id IS NULL OR keitaro_id = 0)");
@@ -837,6 +935,11 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                         $type = 'redirect';
                         $actionPayload = null;
 
+                        $kGroupId = (int) ($r['group_id'] ?? 0);
+                        $groupId = ($kGroupId > 0 && isset($keitaroGroupIdToLandingGroupId[$kGroupId]))
+                            ? (int) $keitaroGroupIdToLandingGroupId[$kGroupId]
+                            : null;
+
                         $stmtFind->execute([$url]);
                         $existing = $stmtFind->fetch(PDO::FETCH_ASSOC);
                         if ($existing && isset($existing['id'])) {
@@ -847,7 +950,7 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                             continue;
                         }
 
-                        $stmtIns->execute([$name, $url, $type, $state, $actionPayload, $kid > 0 ? $kid : null]);
+                        $stmtIns->execute([$name, $url, $groupId, $type, $state, $actionPayload, $kid > 0 ? $kid : null]);
                         $oid = (int) ($pdo->lastInsertId() ?: 0);
                         if ($kid > 0 && $oid > 0) $keitaroLandingIdToOrbitraId[$kid] = $oid;
                         $result['imported']['landings']['inserted']++;

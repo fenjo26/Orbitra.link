@@ -1,4 +1,4 @@
-# Orbitra v0.9.7.6 Tracker
+# Orbitra v0.9.7.7 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -387,6 +387,39 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.7.7
+
+### Added
+- 🎯 **Traffic sources are selectable from the campaign editor.** The '+' next to
+  the traffic-source select opens the source editor, so a Facebook source can be
+  created from a template right there — previously Facebook only existed as a
+  template and could not be picked at all. Choosing a source auto-fills the
+  campaign's URL parameters with the source's macros (Keitaro behaviour: switching
+  replaces the set), parameters persist across save/reopen, and the campaign URL
+  comes out ready to paste into the ad network. Keitaro-style link/iframe/script
+  integration snippets are on the campaign's Integrations tab.
+- 🎵 **TikTok Ads cost import.** New aggregator engine (Access Token + Advertiser
+  ID) pulls daily spend and attributes it to clicks by the IDs the TikTok
+  traffic-source template captures (`__CID__`/`__AID__`/`__CAMPAIGN_ID__`,
+  `ttclid`).
+- 📥 **Dolphin / Fbtool cost intake.** `POST /admin_api/v1/campaigns/{id}/update_costs`
+  is wire-compatible with the Keitaro Admin API, so Dolphin and Fbtool.pro push
+  Facebook spend into Orbitra exactly as they do into Keitaro. Filters match
+  click parameters (`sub_id_4`=ad_id, `sub_id_3`=adset_id by default), spend is
+  currency-converted, split across matched clicks and re-sent periods overwrite.
+  See `docs/dolphin-fbtool.md`.
+
+### Fixed
+- 🪟 The '+' buttons next to group/source/network selects and the 'Группы'/
+  'Источники' buttons on the Campaigns/Landings pages were dead (no click handler
+  since the first commit) — all now open the right dialog and auto-pick the
+  created item. Group deletion works for campaign and landing groups too, and the
+  groups modal follows the theme in dark mode.
+- 🛬 Keitaro migration: traffic-source parameters were imported as the raw
+  Keitaro blob and never captured on clicks, which silently broke cost matching —
+  they are now normalized into Orbitra's `{alias, param, macro}` format, and
+  landing groups import with landings attached.
 
 ## 📝 What's New in v0.9.7.6
 

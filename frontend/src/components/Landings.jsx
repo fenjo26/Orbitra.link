@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import LandingEditor from './LandingEditor';
+import GroupsModal from './GroupsModal';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -10,6 +11,7 @@ const API_URL = '/api.php';
 const Landings = ({ landings, refreshData }) => {
     const { t } = useLanguage();
     const [isEditorOpen, setIsEditorOpen] = useState(false);
+    const [showGroupsModal, setShowGroupsModal] = useState(false);
     const [editingLandingId, setEditingLandingId] = useState(null);
     const [selectedLandingIds, setSelectedLandingIds] = useState(() => new Set());
     const [showFilters, setShowFilters] = useState(false);
@@ -161,7 +163,7 @@ const Landings = ({ landings, refreshData }) => {
                         <Plus className="w-4 h-4" />
                         {t('common.create')}
                     </button>
-                    <button className="btn btn-secondary">
+                    <button onClick={() => setShowGroupsModal(true)} className="btn btn-secondary">
                         {t('campaigns.groups')}
                     </button>
                     {selectedLandingIds.size > 0 && (
@@ -362,6 +364,13 @@ const Landings = ({ landings, refreshData }) => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {showGroupsModal && (
+                <GroupsModal
+                    type="landing"
+                    onClose={() => setShowGroupsModal(false)}
+                />
             )}
         </div>
     );

@@ -421,6 +421,7 @@ export default function AggregatorPage() {
                                         <option value="affilka">Affilka (SoftSwiss)</option>
                                         <option value="facebook">{t('costImport.facebookAds')}</option>
                                         <option value="google_ads">{t('costImport.googleAds')}</option>
+                                        <option value="tiktok">{t('costImport.tiktokAds', 'TikTok Ads')}</option>
                                         <option value="custom">Custom</option>
                                     </select>
                                 </div>

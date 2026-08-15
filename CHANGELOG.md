@@ -7,6 +7,57 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.7.7] — 2026-08-15
+
+### Added
+- 🎯 **Facebook is now selectable in the campaign editor.** The '+' next to the
+  traffic-source select opens the source editor, so a Facebook (or any) source can
+  be created from a template without leaving the campaign. Picking a traffic source
+  auto-fills the campaign's URL parameters with the source's macros
+  (`ad_id={{ad.id}}&adset_id={{adset.id}}&campaign_id={{campaign.id}}…`) — the
+  Keitaro behaviour: switching a source replaces the parameter set. Parameters now
+  persist (`campaigns.parameters_json`, migration 18) instead of living only in
+  browser memory, and the built campaign URL carries them as a query string.
+- 🧩 **Integration code snippets** on the campaign's Integrations tab: Keitaro-style
+  link / iframe / script tags built from the campaign URL, with referrer/title/
+  query-string pass-through, ready to paste into site builders.
+- 🎵 **TikTok Ads cost engine.** `aggregator_engines/TikTokAdsEngine.php` pulls
+  daily spend from the TikTok Business API (Access Token + Advertiser ID, optional
+  proxy), attributes it to clicks by `ad_id`/`adgroup_id`/`campaign_id` — the keys
+  the TikTok traffic-source template writes (`__CID__`, `__AID__`,
+  `__CAMPAIGN_ID__`, plus `ttclid=__CLICKID__`). Same cron, same cost_records, same
+  flat-CPC distribution as the Facebook engine.
+- 📥 **Keitaro-compatible `update_costs` endpoint (Dolphin / Fbtool).**
+  `POST /admin_api/v1/campaigns/{id}/update_costs` with
+  `Authorization: Bearer <personal API key>` accepts the exact payload Dolphin and
+  Fbtool.pro send to Keitaro: `{start_date, end_date, cost, currency, timezone,
+  filters:{sub_id_4:…}}`. Filters match click parameters (`sub_id_3`→`adset_id`,
+  `sub_id_4`→`ad_id` — the Keitaro Facebook-template defaults — or any param name
+  directly); the amount is
+  converted to the tracker currency and split evenly across matched clicks, and a
+  re-sent period overwrites rather than accumulates. Unmatched amounts are parked
+  in `cost_records` under a hidden `external_api` connection so nothing is lost
+  silently. Routing lives in `.htaccess` and `core/nginx_config.php`;
+  `docs/dolphin-fbtool.md` documents the setup on both services' sides.
+
+### Fixed
+- 🪟 **The '+' buttons that never worked.** Campaign editor (group, traffic
+  source), offer editor (group, affiliate network) and the 'Группы'/'Источники'
+  buttons on the Campaigns and Landings pages were committed without click
+  handlers back in the initial commit; all now open the right dialog, refresh the
+  select and auto-pick the created item.
+- 🗑 **Group deletion for every type.** Only offer groups could be deleted;
+  `delete_campaign_group` and `delete_landing_group` reset the linked rows and
+  remove the group. GroupsModal was also hardcoded to light-theme Tailwind colors
+  and rendered washed-out in dark themes — it now uses the app's CSS variables.
+- 🛬 **Keitaro import: traffic-source parameters were stored as the raw Keitaro
+  blob.** Keitaro keeps them PHP-serialized (or JSON, depending on the version)
+  with its own field names; Orbitra's `ClickParams` could not read that shape, so
+  imported sources never captured `ad_id`/`adset_id`/`campaign_id` on clicks and
+  cost matching had nothing to match. Parameters are now normalized into
+  `{alias, param, macro}` entries; landing groups (`keitaro_groups` type
+  `landings`) are imported and attached to landings.
+
 ## [0.9.7.6] — 2026-08-15
 
 ### Added
