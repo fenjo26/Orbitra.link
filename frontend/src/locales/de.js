@@ -529,6 +529,7 @@ export default {
         "weight": "Gewichtung (Verkehrsanteil)",
         "filters": "Filter",
         "addFilter": "+ Filter hinzufügen",
+        "filtersLogicHint": "Filterkombination: AND — jeder Filter muss erfüllt sein, OR — einer genügt",
         "editFilter": "Filter bearbeiten",
         "noFilters": "Keine Filter – der gesamte Datenverkehr wird weitergeleitet",
         "filterType": "Typ",

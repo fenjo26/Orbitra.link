@@ -745,6 +745,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             offer_id: 0,
             action_payload: '',
             filters: [],
+            filters_logic: 'and',
             schema_custom: { landings: [], offers: [] },
             offer_selection: 'before'
         };
@@ -2763,8 +2764,33 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 {/* Filters */}
                                                 {stream.type !== 'fallback' && (
                                                     <div>
-                                                        <div className="flex justify-between mb-2">
-                                                            <span className="text-xs font-semibold uppercase" style={{ color: 'var(--color-text-muted)' }}>{t('editor.filters')}</span>
+                                                        <div className="flex justify-between items-center mb-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-xs font-semibold uppercase" style={{ color: 'var(--color-text-muted)' }}>{t('editor.filters')}</span>
+                                                                {/* AND / OR: one filter can't be combined with anything,
+                                                                    so the switcher appears from the second filter on. */}
+                                                                {stream.filters && stream.filters.length > 1 && (
+                                                                    <div className="inline-flex rounded-lg p-0.5" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }} title={t('editor.filtersLogicHint')}>
+                                                                        {['and', 'or'].map(mode => {
+                                                                            const active = (stream.filters_logic || 'and') === mode;
+                                                                            return (
+                                                                                <button
+                                                                                    key={mode}
+                                                                                    type="button"
+                                                                                    onClick={() => updateStream(idx, 'filters_logic', mode)}
+                                                                                    className="px-2 py-0.5 text-[11px] font-bold rounded-md transition-colors"
+                                                                                    style={{
+                                                                                        backgroundColor: active ? 'var(--color-primary)' : 'transparent',
+                                                                                        color: active ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)'
+                                                                                    }}
+                                                                                >
+                                                                                    {mode.toUpperCase()}
+                                                                                </button>
+                                                                            );
+                                                                        })}
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                             <button onClick={() => openFilterModal(idx)} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.addFilter')}</button>
                                                         </div>
                                                         {stream.filters && stream.filters.length > 0 ? (

@@ -4,6 +4,8 @@
 // and by the API + index.php path resolution. Safe to load before $pdo exists:
 // the functions only touch the database when given a $pdo argument.
 require_once __DIR__ . '/core/landing_path.php';
+// Stream filter AND/OR combination — shared by every click-matching engine.
+require_once __DIR__ . '/core/StreamFilters.php';
 
 $db_file = __DIR__ . '/orbitra_db.sqlite';
 $postback_key = 'fd12e72';
@@ -49,7 +51,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 20;
+    $LATEST_SCHEMA_VERSION = 21;
 
     $schemaVersion = 0;
     try {
@@ -269,6 +271,7 @@ try {
         type TEXT DEFAULT 'regular',
         position INTEGER DEFAULT 0,
         filters_json TEXT,
+        filters_logic TEXT DEFAULT 'and',
         schema_type TEXT DEFAULT 'redirect',
         action_payload TEXT,
         schema_custom_json TEXT,
@@ -1307,6 +1310,17 @@ try {
                     // The uniqueness lookups probe by ip within the window.
                     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_clicks_ip_created ON clicks(ip, created_at)");
                 } catch (\Throwable $e) {
+                }
+            }
+
+            if ($schemaVersion < 21) {
+                // Migration 21: per-stream filter combination logic (AND/OR).
+                // Every existing stream keeps AND — the behavior it was built
+                // with; OR is opt-in from the stream's FILTERS header.
+                try {
+                    $pdo->exec("ALTER TABLE streams ADD COLUMN filters_logic TEXT DEFAULT 'and'");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
                 }
             }
 

@@ -16526,6 +16526,7 @@ const ru = {
     "weight": "Вес (доля трафика)",
     "filters": "Фильтры",
     "addFilter": "+ Добавить фильтр",
+    "filtersLogicHint": "Комбинация фильтров: AND — должны выполняться все, OR — достаточно одного",
     "editFilter": "Редактировать фильтр",
     "noFilters": "Без фильтров — весь трафик проходит",
     "filterType": "Тип",
@@ -19084,6 +19085,7 @@ const en = {
     "weight": "Weight (traffic share)",
     "filters": "Filters",
     "addFilter": "+ Add filter",
+    "filtersLogicHint": "Filter combination: AND — every filter must pass, OR — any one is enough",
     "editFilter": "Edit filter",
     "noFilters": "No filters — all traffic passes",
     "filterType": "Type",
@@ -21642,6 +21644,7 @@ const uk = {
     "weight": "Вага (частка трафіку)",
     "filters": "Фільтри",
     "addFilter": "+ Додати фільтр",
+    "filtersLogicHint": "Комбінація фільтрів: AND — має виконатися всі, OR — достатньо одного",
     "editFilter": "Редагувати фільтр",
     "noFilters": "Без фільтрів — весь трафік пропускається",
     "filterType": "Тип",
@@ -24200,6 +24203,7 @@ const es = {
     "weight": "Peso (participación de tráfico)",
     "filters": "Filtros",
     "addFilter": "+ Añadir filtro",
+    "filtersLogicHint": "Combinación de filtros: AND — deben cumplirse todos, OR — basta con uno",
     "editFilter": "Editar filtro",
     "noFilters": "Sin filtros: todo el tráfico pasa",
     "filterType": "Tipo",
@@ -26758,6 +26762,7 @@ const zh = {
     "weight": "权重（流量份额）",
     "filters": "过滤器",
     "addFilter": "+ 添加过滤器",
+    "filtersLogicHint": "筛选条件组合：AND — 需满足全部条件，OR — 满足其一即可",
     "editFilter": "编辑过滤器",
     "noFilters": "没有过滤器——所有流量都通过",
     "filterType": "类型",
@@ -29316,6 +29321,7 @@ const fr = {
     "weight": "Poids (trafic partager)",
     "filters": "Filtres",
     "addFilter": "+ Ajouter un filtre",
+    "filtersLogicHint": "Combinaison de filtres : AND — tous doivent passer, OR — un seul suffit",
     "editFilter": "Modifier le filtre",
     "noFilters": "Aucun filtre — tout le trafic passe",
     "filterType": "Type",
@@ -31876,6 +31882,7 @@ const de = {
     "weight": "Gewichtung (Verkehrsanteil)",
     "filters": "Filter",
     "addFilter": "+ Filter hinzufügen",
+    "filtersLogicHint": "Filterkombination: AND — jeder Filter muss erfüllt sein, OR — einer genügt",
     "editFilter": "Filter bearbeiten",
     "noFilters": "Keine Filter – der gesamte Datenverkehr wird weitergeleitet",
     "filterType": "Typ",
@@ -67716,6 +67723,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       offer_id: 0,
       action_payload: "",
       filters: [],
+      filters_logic: "and",
       schema_custom: { landings: [], offers: [] },
       offer_selection: "before"
     };
@@ -69615,8 +69623,27 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 ] });
               })(),
               stream.type !== "fallback" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: t("editor.filters") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: t("editor.filters") }),
+                    stream.filters && stream.filters.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "inline-flex rounded-lg p-0.5", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, title: t("editor.filtersLogicHint"), children: ["and", "or"].map((mode) => {
+                      const active = (stream.filters_logic || "and") === mode;
+                      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          onClick: () => updateStream(idx, "filters_logic", mode),
+                          className: "px-2 py-0.5 text-[11px] font-bold rounded-md transition-colors",
+                          style: {
+                            backgroundColor: active ? "var(--color-primary)" : "transparent",
+                            color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)"
+                          },
+                          children: mode.toUpperCase()
+                        },
+                        mode
+                      );
+                    }) })
+                  ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => openFilterModal(idx), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.addFilter") })
                 ] }),
                 stream.filters && stream.filters.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: stream.filters.map((f, fIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex rounded-lg text-sm overflow-hidden items-center", style: { border: "1px solid var(--color-border)" }, children: [

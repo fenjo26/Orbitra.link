@@ -1957,6 +1957,9 @@ function streamMatchesFilters($stream, $visitor, $pdo)
     $timezone = $visitor['timezone'] ?? '';
     $isp = trim(($visitor['isp'] ?? '') . ' ' . ($visitor['asn'] ?? ''));
 
+    $logic = orbitraStreamFilterLogic($stream);
+    $votes = [];
+
     foreach ($filters as $f) {
         $mode = $f['mode'] ?? 'include';
         $payload = $f['payload'] ?? [];
@@ -2127,12 +2130,12 @@ function streamMatchesFilters($stream, $visitor, $pdo)
                 continue 2;
         }
 
-        if ($mode === 'include' && !$matched)
-            return false;
-        if ($mode === 'exclude' && $matched)
-            return false;
+        // Filters that reach this point vote; the `continue 2` cases above
+        // (undeterminable country/ISP, connection type, unknown types)
+        // abstain — an abstention neither blocks AND nor satisfies OR.
+        $votes[] = ($mode === 'include') ? $matched : !$matched;
     }
-    return true;
+    return orbitraCombineFilterVotes($votes, $logic);
 }
 
 // Convert "HH" or "HH:MM" to minutes since midnight, or null if invalid.

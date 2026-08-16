@@ -1727,8 +1727,8 @@ try {
                     $pdo->prepare("DELETE FROM streams WHERE campaign_id = ?")->execute([$id]);
 
                     $stmtStream = $pdo->prepare("
-                        INSERT INTO streams (campaign_id, offer_id, weight, is_active, type, position, filters_json, schema_type, action_payload, schema_custom_json, offer_selection)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        INSERT INTO streams (campaign_id, offer_id, weight, is_active, type, position, filters_json, filters_logic, schema_type, action_payload, schema_custom_json, offer_selection)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ");
                     foreach ($streams as $str) {
                         // Convert offer_id = 0 to NULL to avoid FOREIGN KEY constraint error
@@ -1742,6 +1742,7 @@ try {
                             $str['type'] ?? 'regular',
                             $str['position'] ?? 0,
                             json_encode($str['filters'] ?? []),
+                            (($str['filters_logic'] ?? 'and') === 'or') ? 'or' : 'and',
                             $str['schema_type'] ?? 'redirect',
                             $str['action_payload'] ?? '',
                             json_encode($str['schema_custom'] ?? []),
@@ -1959,13 +1960,15 @@ try {
                         $stmt = $pdo->prepare("
                             INSERT INTO streams (
                                 campaign_id, offer_id, weight, is_active, type,
-                                position, filters_json, schema_type, action_payload, schema_custom_json, name
-                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                position, filters_json, filters_logic, schema_type, action_payload, schema_custom_json, name
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         $stmt->execute([
                             $newCampaignId, $stream['offer_id'], $stream['weight'],
                             $stream['is_active'], $stream['type'], $stream['position'],
-                            $stream['filters_json'], $stream['schema_type'],
+                            $stream['filters_json'],
+                            (($stream['filters_logic'] ?? 'and') === 'or') ? 'or' : 'and',
+                            $stream['schema_type'],
                             $stream['action_payload'], $stream['schema_custom_json'],
                             $stream['name'] ?? ''
                         ]);
@@ -6294,6 +6297,9 @@ try {
                         if (json_last_error() !== JSON_ERROR_NONE || !is_array($filters) || empty($filters))
                             return true;
 
+                        $logic = orbitraStreamFilterLogic($stream);
+                        $votes = [];
+
                         foreach ($filters as $f) {
                             $mode = $f['mode'] ?? 'include';
                             $payload = $f['payload'] ?? [];
@@ -6324,16 +6330,19 @@ try {
                             else
                                 $matched = true;
 
-                            if ($mode === 'include' && !$matched) {
-                                $trace[] = "  [Filter Failed] Stream '{$stream['name']}' requires {$f['name']} IN " . implode(',', $payload);
-                                return false;
-                            }
-                            if ($mode === 'exclude' && $matched) {
-                                $trace[] = "  [Filter Failed] Stream '{$stream['name']}' excludes {$f['name']} IN " . implode(',', $payload);
-                                return false;
+                            $vote = ($mode === 'include') ? $matched : !$matched;
+                            $votes[] = $vote;
+                            if (!$vote) {
+                                $trace[] = "  [Filter " . ($logic === 'or' ? 'Not Satisfied' : 'Failed') . "] Stream '" . $stream['name'] . "' "
+                                    . ($mode === 'include' ? 'requires' : 'excludes') . " {$f['name']} IN " . implode(',', $payload)
+                                    . " (logic: " . strtoupper($logic) . ")";
                             }
                         }
-                        return true;
+                        $result = orbitraCombineFilterVotes($votes, $logic);
+                        if ($logic === 'or' && in_array(true, $votes, true)) {
+                            $trace[] = "  [Filter Satisfied] Stream '{$stream['name']}' matched at least one filter (logic: OR)";
+                        }
+                        return $result;
                     }
                 }
 

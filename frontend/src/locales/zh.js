@@ -529,6 +529,7 @@ export default {
         "weight": "权重（流量份额）",
         "filters": "过滤器",
         "addFilter": "+ 添加过滤器",
+        "filtersLogicHint": "筛选条件组合：AND — 需满足全部条件，OR — 满足其一即可",
         "editFilter": "编辑过滤器",
         "noFilters": "没有过滤器——所有流量都通过",
         "filterType": "类型",

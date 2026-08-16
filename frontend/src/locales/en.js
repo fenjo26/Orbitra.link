@@ -529,6 +529,7 @@ export default {
         "weight": "Weight (traffic share)",
         "filters": "Filters",
         "addFilter": "+ Add filter",
+        "filtersLogicHint": "Filter combination: AND — every filter must pass, OR — any one is enough",
         "editFilter": "Edit filter",
         "noFilters": "No filters — all traffic passes",
         "filterType": "Type",

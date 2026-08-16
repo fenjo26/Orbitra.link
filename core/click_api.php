@@ -12,6 +12,7 @@
 
 require_once __DIR__ . '/geo_databases.php';
 require_once __DIR__ . '/CloakDetector.php';
+require_once __DIR__ . '/StreamFilters.php';
 
 function orbitraClickApiGetSettings(PDO $pdo): array
 {
@@ -388,6 +389,9 @@ function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $
         return true;
     }
 
+    $logic = orbitraStreamFilterLogic($stream);
+    $votes = [];
+
     foreach ($filters as $f) {
         $mode = $f['mode'] ?? 'include';
         $payload = $f['payload'] ?? [];
@@ -435,15 +439,13 @@ function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $
                 break;
         }
 
-        if ($mode === 'include' && !$matched) {
-            return false;
-        }
-        if ($mode === 'exclude' && $matched) {
-            return false;
-        }
+        $votes[] = ($mode === 'include') ? $matched : !$matched;
     }
 
-    return true;
+    // Unknown filter types vote "pass" above (permissive), so they keep the
+    // stream eligible under AND and satisfy OR — same behavior as before the
+    // logic toggle, now routed through the shared combiner.
+    return orbitraCombineFilterVotes($votes, $logic);
 }
 
 function orbitraClickApiV3(PDO $pdo): void
