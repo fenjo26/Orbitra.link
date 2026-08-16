@@ -52717,16 +52717,16 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
     mode === "select" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
-        className: `min-h-[42px] border border-gray-300 rounded-[4px] p-1.5 flex flex-wrap items-center gap-1.5 cursor-text transition-colors ${isOpen ? "ring-1 ring-blue-500 border-blue-500" : "hover:border-gray-400 bg-white"}`,
+        className: `min-h-[42px] border rounded-[4px] p-1.5 flex flex-wrap items-center gap-1.5 cursor-text transition-colors bg-[var(--color-bg-card)] ${isOpen ? "border-[var(--color-primary)] ring-1 ring-[var(--color-primary)]" : "border-[var(--color-border)] hover:border-[var(--color-text-muted)]"}`,
         onClick: () => {
           setIsOpen(true);
           if (inputRef.current) inputRef.current.focus();
         },
         children: [
-          selectedCodes.map((code) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 bg-gray-100 border border-gray-200 text-gray-800 px-2 py-0.5 rounded-[4px] text-[13px]", children: [
+          selectedCodes.map((code) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 bg-[var(--color-bg-soft)] border border-[var(--color-border)] text-[var(--color-text-primary)] px-2 py-0.5 rounded-[4px] text-[13px]", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: getCountryFlag(code) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: code }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-500 max-w-[100px] truncate", title: getCountryName(code), children: getCountryName(code) !== code ? `(${getCountryName(code)})` : "" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-muted)] max-w-[100px] truncate", title: getCountryName(code), children: getCountryName(code) !== code ? `(${getCountryName(code)})` : "" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
@@ -52735,7 +52735,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
                   e.stopPropagation();
                   removeCode(code);
                 },
-                className: "ml-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full p-0.5 transition-colors",
+                className: "ml-0.5 text-[var(--color-text-muted)] hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)] rounded-full p-0.5 transition-colors",
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 12 })
               }
             )
@@ -52751,11 +52751,11 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
                 setIsOpen(true);
                 setShowProfiles(false);
               },
-              className: "w-full bg-transparent border-none outline-none text-sm p-1 text-gray-700 placeholder-gray-400",
+              className: "w-full bg-transparent border-none outline-none text-sm p-1 text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]",
               placeholder: selectedCodes.length === 0 ? placeholder || t("geoSelector.placeholder") : ""
             }
           ) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { size: 16 }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-2 top-1/2 transform -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { size: 16 }) })
         ]
       }
     ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -52764,11 +52764,11 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
         value: textareaValue,
         onChange: handleTextareaChange,
         onBlur: handleTextareaBlur,
-        className: "w-full border border-gray-300 rounded-[4px] px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 outline-none transition uppercase min-h-[84px] resize-y",
+        className: "form-input text-sm uppercase min-h-[84px] resize-y",
         placeholder: t("geoSelector.placeholder")
       }
     ),
-    mode === "select" && isOpen && !showProfiles && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-full left-0 w-full mt-1 bg-white border border-gray-200 rounded-[4px] shadow-lg z-50 max-h-60 overflow-y-auto", children: filteredCountries.length > 0 ? filteredCountries.map((country) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    mode === "select" && isOpen && !showProfiles && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-full left-0 w-full mt-1 bg-[var(--color-bg-dropdown)] border border-[var(--color-border)] rounded-[4px] shadow-lg z-50 max-h-60 overflow-y-auto", children: filteredCountries.length > 0 ? filteredCountries.map((country) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "button",
       {
         type: "button",
@@ -52776,20 +52776,20 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
           e.stopPropagation();
           addCode(country.code);
         },
-        className: "w-full text-left px-3 py-2 hover:bg-gray-50 flex items-center justify-between group transition-colors",
+        className: "w-full text-left px-3 py-2 hover:bg-[var(--color-bg-hover)] flex items-center justify-between group transition-colors",
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-lg leading-none", children: getCountryFlag(country.code) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-gray-700 group-hover:text-blue-600", children: country.name }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-gray-400", children: country.code })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-primary)]", children: country.name }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-[var(--color-text-muted)]", children: country.code })
           ] }),
-          selectedCodes.includes(country.code) && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-blue-500" })
+          selectedCodes.includes(country.code) && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-[var(--color-primary)]" })
         ]
       },
       country.code
-    )) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-3 text-sm text-gray-500 text-center", children: t("geoSelector.nothingFound") }) }),
-    mode === "select" && showProfiles && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute top-full left-0 w-full mt-1 bg-white border border-gray-200 rounded-[4px] shadow-lg z-50 max-h-60 overflow-y-auto", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-2 border-b border-gray-100 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider", children: t("geoSelector.geoProfiles") }),
+    )) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-3 text-sm text-[var(--color-text-muted)] text-center", children: t("geoSelector.nothingFound") }) }),
+    mode === "select" && showProfiles && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute top-full left-0 w-full mt-1 bg-[var(--color-bg-dropdown)] border border-[var(--color-border)] rounded-[4px] shadow-lg z-50 max-h-60 overflow-y-auto", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-2 border-b border-[var(--color-border)] bg-[var(--color-bg-soft)] text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider", children: t("geoSelector.geoProfiles") }),
       profiles.length > 0 ? profiles.map((profile) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
         {
@@ -52798,17 +52798,17 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
             e.stopPropagation();
             handleProfileSelect(profile);
           },
-          className: "w-full text-left px-3 py-2 hover:bg-blue-50 flex items-center gap-2 transition-colors border-b border-gray-50 last:border-0 group",
+          className: "w-full text-left px-3 py-2 hover:bg-[var(--color-primary-light)] flex items-center gap-2 transition-colors border-b border-[var(--color-border)] last:border-0 group",
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 14, className: "text-blue-400 group-hover:text-blue-600" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 14, className: "text-[var(--color-primary)]" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium text-gray-700 group-hover:text-blue-700", children: profile.name }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-400 truncate max-w-[300px]", children: (profile.countries || []).join(", ") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-primary)]", children: profile.name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)] truncate max-w-[300px]", children: (profile.countries || []).join(", ") })
             ] })
           ]
         },
         profile.id
-      )) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-3 text-sm text-gray-500 text-center", children: t("geoSelector.noProfiles") })
+      )) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-3 text-sm text-[var(--color-text-muted)] text-center", children: t("geoSelector.noProfiles") })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mt-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -52816,7 +52816,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
         {
           type: "button",
           onClick: toggleMode,
-          className: "text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 font-medium transition-colors",
+          className: "text-xs text-[var(--color-primary)] hover:underline flex items-center gap-1 font-medium transition-colors",
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Type, { size: 12 }),
             mode === "select" ? t("geoSelector.switchToTextarea") : t("geoSelector.switchToSelect")
@@ -52833,7 +52833,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
               setIsOpen(false);
               setShowProfiles(!showProfiles);
             },
-            className: "text-xs text-gray-600 hover:text-gray-900 hover:underline flex items-center gap-1 transition-colors",
+            className: "text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline flex items-center gap-1 transition-colors",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { size: 12 }),
               t("geoSelector.insertFromProfile")
@@ -52848,7 +52848,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
               e.stopPropagation();
               addUnknown();
             },
-            className: "text-xs text-gray-600 hover:text-gray-900 hover:underline flex items-center gap-1 transition-colors",
+            className: "text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline flex items-center gap-1 transition-colors",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 12 }),
               t("geoSelector.addUnknown")

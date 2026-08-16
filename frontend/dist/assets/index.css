@@ -1646,6 +1646,10 @@
     background-color: var(--color-bg-card);
   }
 
+  .bg-\[var\(--color-bg-dropdown\)\] {
+    background-color: var(--color-bg-dropdown);
+  }
+
   .bg-\[var\(--color-bg-soft\)\] {
     background-color: var(--color-bg-soft);
   }
@@ -2499,6 +2503,10 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
 
+  .ring-\[var\(--color-primary\)\] {
+    --tw-ring-color: var(--color-primary);
+  }
+
   .ring-blue-500 {
     --tw-ring-color: var(--color-blue-500);
   }
@@ -2606,6 +2614,10 @@
       display: block;
     }
 
+    .group-hover\:text-\[var\(--color-primary\)\]:is(:where(.group):hover *) {
+      color: var(--color-primary);
+    }
+
     .group-hover\:text-blue-600:is(:where(.group):hover *) {
       color: var(--color-blue-600);
     }
@@ -2630,6 +2642,10 @@
   .peer-focus\:outline-none:is(:where(.peer):focus ~ *) {
     --tw-outline-style: none;
     outline-style: none;
+  }
+
+  .placeholder\:text-\[var\(--color-text-muted\)\]::placeholder {
+    color: var(--color-text-muted);
   }
 
   .after\:absolute:after {
@@ -2714,6 +2730,10 @@
       border-color: var(--color-primary);
     }
 
+    .hover\:border-\[var\(--color-text-muted\)\]:hover {
+      border-color: var(--color-text-muted);
+    }
+
     .hover\:border-blue-400:hover {
       border-color: var(--color-blue-400);
     }
@@ -2748,6 +2768,14 @@
 
     .hover\:bg-\[var\(--color-border\)\]:hover {
       background-color: var(--color-border);
+    }
+
+    .hover\:bg-\[var\(--color-danger-bg\)\]:hover {
+      background-color: var(--color-danger-bg);
+    }
+
+    .hover\:bg-\[var\(--color-primary-light\)\]:hover {
+      background-color: var(--color-primary-light);
     }
 
     .hover\:bg-amber-100:hover {
@@ -2834,6 +2862,10 @@
       .hover\:bg-red-500\/20:hover {
         background-color: color-mix(in oklab, var(--color-red-500) 20%, transparent);
       }
+    }
+
+    .hover\:text-\[var\(--color-danger\)\]:hover {
+      color: var(--color-danger);
     }
 
     .hover\:text-\[var\(--color-primary\)\]:hover {
