@@ -57648,7 +57648,7 @@ const GeoProfilesPage = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 fade-in", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-4 flex-1", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex-1 max-w-md", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400", size: 18 }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-3 top-1/2 transform -translate-y-1/2", size: 18, style: { color: "var(--color-text-muted)" } }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
@@ -57656,7 +57656,7 @@ const GeoProfilesPage = () => {
             placeholder: t("geoProfiles.searchPlaceholder"),
             value: searchTerm,
             onChange: (e) => setSearchTerm(e.target.value),
-            className: "w-full pl-10 pr-4 py-2 border rounded-lg"
+            className: "form-input pl-12"
           }
         )
       ] }) }),
@@ -57678,27 +57678,31 @@ const GeoProfilesPage = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("geoProfiles.countriesSelected").replace(":", "") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-24", children: t("geoDb.colActions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: filteredProfiles.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "3", className: "text-center py-8 text-gray-500", children: profiles.length === 0 ? t("geoProfiles.noProfiles") : t("geoProfiles.notFound") }) }) : filteredProfiles.map((profile) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: filteredProfiles.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "3", className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: profiles.length === 0 ? t("geoProfiles.noProfiles") : t("geoProfiles.notFound") }) }) : filteredProfiles.map((profile) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18, className: "text-blue-500" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18, style: { color: "var(--color-primary)" } }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: profile.name }),
-          profile.is_template && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs px-2 py-0.5 bg-blue-100 text-blue-600 rounded", children: t("geoProfiles.template") })
+          profile.is_template && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs px-2 py-0.5 rounded", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: t("geoProfiles.template") })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1 max-w-lg", children: [
           (profile.countries || []).slice(0, 10).map((code) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "span",
             {
-              className: "inline-flex items-center px-2 py-0.5 bg-gray-100 rounded text-xs",
+              className: "inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium",
+              style: {
+                backgroundColor: "var(--color-bg-soft)",
+                color: "var(--color-text-primary)",
+                border: "1px solid var(--color-border)"
+              },
               title: getCountryName(code),
               children: [
-                getCountryFlag2(code),
-                " ",
-                code
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm leading-none", children: getCountryFlag2(code) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: code })
               ]
             },
             code
           )),
-          (profile.countries || []).length > 10 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500", children: [
+          (profile.countries || []).length > 10 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-medium self-center", style: { color: "var(--color-text-muted)" }, children: [
             "+",
             (profile.countries || []).length - 10,
             " ",
@@ -57710,7 +57714,8 @@ const GeoProfilesPage = () => {
             "button",
             {
               onClick: () => openModal(profile),
-              className: "p-1 hover:bg-gray-100 rounded",
+              className: "p-1 rounded transition-colors hover:bg-[var(--color-bg-hover)]",
+              style: { color: "var(--color-text-secondary)" },
               title: t("geoProfiles.edit"),
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 })
             }
@@ -57719,7 +57724,7 @@ const GeoProfilesPage = () => {
             "button",
             {
               onClick: () => handleDelete(profile.id),
-              className: "p-1 hover:bg-red-50 text-red-500 rounded",
+              className: "p-1 rounded transition-colors text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)]",
               title: t("geoProfiles.delete"),
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 })
             }
@@ -57727,24 +57732,24 @@ const GeoProfilesPage = () => {
         ] }) })
       ] }, profile.id)) })
     ] }) }),
-    showModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 flex items-center justify-center z-50 modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center p-4 border-b", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-lg font-semibold flex items-center gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { size: 20, className: "text-blue-500" }),
+    showModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "800px", backgroundColor: "var(--color-bg-card)", color: "var(--color-text-primary)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { size: 20, style: { color: "var(--color-primary)" } }),
           editingProfile ? t("geoProfiles.editProfile") : t("geoProfiles.createProfile")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: closeModal, className: "p-1 hover:bg-gray-100 rounded", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: closeModal, className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t("geoProfiles.profileName") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("geoProfiles.profileName") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
               type: "text",
               value: formData.name,
               onChange: (e) => setFormData((prev) => ({ ...prev, name: e.target.value })),
-              className: "w-full border rounded px-3 py-2",
+              className: "form-input",
               placeholder: t("geoProfiles.namePlaceholder")
             }
           )
@@ -57753,7 +57758,7 @@ const GeoProfilesPage = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm font-medium", children: [
             t("geoProfiles.countriesSelected"),
             " ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-blue-600", children: formData.countries.length })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-primary)" }, children: formData.countries.length })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -57761,7 +57766,8 @@ const GeoProfilesPage = () => {
               {
                 type: "button",
                 onClick: selectAllVisible,
-                className: "text-sm text-blue-600 hover:underline",
+                className: "text-sm hover:underline",
+                style: { color: "var(--color-primary)" },
                 children: t("geoProfiles.selectAll")
               }
             ),
@@ -57770,7 +57776,8 @@ const GeoProfilesPage = () => {
               {
                 type: "button",
                 onClick: deselectAll,
-                className: "text-sm text-red-600 hover:underline",
+                className: "text-sm hover:underline",
+                style: { color: "var(--color-danger)" },
                 children: t("geoProfiles.clear")
               }
             )
@@ -57778,7 +57785,7 @@ const GeoProfilesPage = () => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative mb-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400", size: 16 }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-3 top-1/2 transform -translate-y-1/2", size: 16, style: { color: "var(--color-text-muted)" } }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
@@ -57786,39 +57793,44 @@ const GeoProfilesPage = () => {
                 placeholder: t("geoProfiles.countrySearch"),
                 value: countrySearch,
                 onChange: (e) => setCountrySearch(e.target.value),
-                className: "w-full pl-9 pr-4 py-2 border rounded text-sm"
+                className: "form-input pl-12"
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border rounded-lg max-h-64 overflow-y-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-3 md:grid-cols-4 gap-1 p-2", children: filteredCountries.map((country) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border rounded-lg max-h-64 overflow-y-auto", style: { borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-3 md:grid-cols-4 gap-1 p-2", children: filteredCountries.map((country) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
               onClick: () => toggleCountry(country.code),
-              className: `flex items-center gap-1 px-2 py-1 rounded text-sm text-left transition-colors ${formData.countries.includes(country.code) ? "bg-blue-100 text-blue-800 border border-blue-300" : "hover:bg-gray-100 border border-transparent"}`,
+              className: `flex items-center gap-1 px-2 py-1 rounded text-sm text-left transition-colors border ${formData.countries.includes(country.code) ? "bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold border-[var(--color-primary)]" : "hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] border-transparent"}`,
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-base", children: getCountryFlag2(country.code) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: country.name }),
-                formData.countries.includes(country.code) && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14, className: "ml-auto text-blue-600 flex-shrink-0" })
+                formData.countries.includes(country.code) && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14, className: "ml-auto flex-shrink-0", style: { color: "var(--color-primary)" } })
               ]
             },
             country.code
           )) }) })
         ] }),
-        formData.countries.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border rounded-lg p-3 bg-gray-50", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium mb-2", children: t("geoProfiles.selectedCountries") }),
+        formData.countries.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border rounded-xl p-3", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium mb-2", style: { color: "var(--color-text-primary)" }, children: t("geoProfiles.selectedCountries") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1 max-h-32 overflow-y-auto", children: formData.countries.map((code) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "span",
             {
-              className: "inline-flex items-center gap-1 px-2 py-0.5 bg-white border rounded text-xs",
+              className: "inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium",
+              style: {
+                backgroundColor: "var(--color-bg-card)",
+                color: "var(--color-text-primary)",
+                border: "1px solid var(--color-border)"
+              },
               children: [
-                getCountryFlag2(code),
-                " ",
-                code,
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: getCountryFlag2(code) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: code }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "button",
                   {
                     onClick: () => toggleCountry(code),
-                    className: "ml-1 hover:text-red-500",
+                    className: "ml-1 hover:text-[var(--color-danger)] transition-colors",
+                    title: "Remove",
                     children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 12 })
                   }
                 )
@@ -57828,12 +57840,12 @@ const GeoProfilesPage = () => {
           )) })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-3 p-4 border-t bg-gray-50", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
             onClick: closeModal,
-            className: "px-4 py-2 border rounded hover:bg-gray-100",
+            className: "btn btn-secondary",
             children: t("geoProfiles.cancel")
           }
         ),
