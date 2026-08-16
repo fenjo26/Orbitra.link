@@ -155,30 +155,30 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                     ) : (
                         <div className="space-y-6">
                             {/* Basic Settings */}
-                            <div className="bg-white p-4 rounded border border-gray-200 space-y-4">
-                                <h3 className="font-medium text-gray-800 border-b pb-2">{t('networkEditor.basicSettings')}</h3>
+                            <div className="p-4 rounded border space-y-4" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
+                                <h3 className="font-medium pb-2" style={{ color: 'var(--color-text-primary)', borderBottom: '1px solid var(--color-border)' }}>{t('networkEditor.basicSettings')}</h3>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label className="form-label">
                                             {t('networkEditor.nameLabel')}
                                         </label>
                                         <input
                                             type="text"
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                                            className="form-input"
                                             placeholder={t('networkEditor.namePlaceholder')}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label className="form-label">
                                             {t('networkEditor.template')}
                                         </label>
                                         <select
                                             value={formData.template}
                                             onChange={(e) => handleTemplateChange(e.target.value)}
-                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white"
+                                            className="form-select"
                                         >
                                             {templates.map((tmpl) => (
                                                 <option key={tmpl.name} value={tmpl.name}>{t('tpl.net_' + tmpl.name, tmpl.display_name)}</option>
@@ -188,13 +188,13 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="form-label">
                                         {t('networkEditor.status')}
                                     </label>
                                     <select
                                         value={formData.state}
                                         onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white"
+                                        className="form-select"
                                     >
                                         <option value="active">{t('networkEditor.active')}</option>
                                         <option value="paused">{t('networkEditor.disabled')}</option>
@@ -203,66 +203,74 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                             </div>
 
                             {/* Postback URL */}
-                            <div className="bg-blue-50 p-4 rounded border border-blue-200 space-y-3">
-                                <h3 className="font-medium text-blue-800">Postback URL</h3>
-                                <p className="text-sm text-blue-600">
+                            <div className="p-4 rounded border space-y-3" style={{
+                                background: 'color-mix(in srgb, var(--color-primary) 8%, transparent)',
+                                borderColor: 'color-mix(in srgb, var(--color-primary) 30%, transparent)'
+                            }}>
+                                <h3 className="font-medium" style={{ color: 'var(--color-primary)' }}>Postback URL</h3>
+                                <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                                     {t('networkEditor.postbackHint')}
                                 </p>
                                 <div className="flex items-center space-x-2">
-                                    <code className="flex-1 bg-white px-3 py-2 rounded border border-blue-200 text-sm">
+                                    <code className="flex-1 px-3 py-2 rounded border text-sm" style={{
+                                        background: 'var(--color-bg-card)',
+                                        borderColor: 'var(--color-border)',
+                                        color: 'var(--color-text-primary)'
+                                    }}>
                                         {getPostbackUrl()}
                                     </code>
-                                    <button
-                                        onClick={() => copyToClipboard(getPostbackUrl())}
-                                        className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                                    >
+                                    <button onClick={() => copyToClipboard(getPostbackUrl())} className="btn btn-secondary btn-icon">
                                         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                                     </button>
                                 </div>
-                                <div className="text-xs text-blue-600">
+                                <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                                     <strong>{t('networkEditor.paramsToAdd')}</strong> ?subid={'{subid_macro}'}&status={'{status_macro}'}&payout={'{payout_macro}'}
                                 </div>
                             </div>
 
                             {/* Offer Parameters */}
-                            <div className="bg-white p-4 rounded border border-gray-200 space-y-4">
-                                <h3 className="font-medium text-gray-800 border-b pb-2">{t('networkEditor.offerParams')}</h3>
-                                <p className="text-sm text-gray-500">
+                            <div className="p-4 rounded border space-y-4" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
+                                <h3 className="font-medium pb-2" style={{ color: 'var(--color-text-primary)', borderBottom: '1px solid var(--color-border)' }}>{t('networkEditor.offerParams')}</h3>
+                                <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                                     {t('networkEditor.offerParamsDesc')}
                                 </p>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="form-label">
                                         {t('networkEditor.offerParamsLabel')}
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.offer_params}
                                         onChange={(e) => setFormData({ ...formData, offer_params: e.target.value })}
-                                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm font-mono"
+                                        className="form-input font-mono"
                                         placeholder="&subid={subid}&sub2={ip}"
                                     />
-                                    <p className="text-xs text-gray-400 mt-1">
+                                    <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
                                         {t('networkEditor.example')} &sub1={'{subid}'}&ip={'{ip}'}
                                     </p>
                                 </div>
 
                                 {/* Available Macros */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="form-label mb-2">
                                         {t('networkEditor.availableMacros')}
                                     </label>
                                     <div className="grid grid-cols-2 gap-2">
                                         {availableMacros.map((m) => (
                                             <div
                                                 key={m.macro}
-                                                className="flex items-center justify-between bg-gray-50 px-2 py-1 rounded text-xs cursor-pointer hover:bg-gray-100"
+                                                className="flex items-center justify-between px-2 py-1 rounded text-xs cursor-pointer"
+                                                style={{
+                                                    background: 'var(--color-bg-card)',
+                                                    border: '1px solid var(--color-border)'
+                                                }}
                                                 onClick={() => {
                                                     const input = document.querySelector('input[value="' + formData.offer_params + '"]');
                                                     navigator.clipboard.writeText(m.macro);
                                                 }}
                                             >
-                                                <code className="text-blue-600">{m.macro}</code>
-                                                <span className="text-gray-400">{m.description}</span>
+                                                <code style={{ color: 'var(--color-primary)' }}>{m.macro}</code>
+                                                <span style={{ color: 'var(--color-text-muted)' }}>{m.description}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -270,12 +278,12 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                             </div>
 
                             {/* Notes */}
-                            <div className="bg-white p-4 rounded border border-gray-200 space-y-4">
-                                <h3 className="font-medium text-gray-800 border-b pb-2">{t('networkEditor.notes')}</h3>
+                            <div className="p-4 rounded border space-y-4" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
+                                <h3 className="font-medium pb-2" style={{ color: 'var(--color-text-primary)', borderBottom: '1px solid var(--color-border)' }}>{t('networkEditor.notes')}</h3>
                                 <textarea
                                     value={formData.notes}
                                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                                    className="form-input"
                                     rows={3}
                                     placeholder={t('networkEditor.notesPlaceholder')}
                                 />

@@ -2795,16 +2795,6 @@
       background-color: var(--color-blue-50);
     }
 
-    .hover\:bg-blue-50\/5:hover {
-      background-color: #eff6ff0d;
-    }
-
-    @supports (color: color-mix(in lab, red, red)) {
-      .hover\:bg-blue-50\/5:hover {
-        background-color: color-mix(in oklab, var(--color-blue-50) 5%, transparent);
-      }
-    }
-
     .hover\:bg-blue-50\/10:hover {
       background-color: #eff6ff1a;
     }

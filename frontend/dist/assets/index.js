@@ -52220,43 +52220,43 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: t("common.loading") }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded border border-gray-200 space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t("networkEditor.basicSettings") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded border space-y-4", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium pb-2", style: { color: "var(--color-text-primary)", borderBottom: "1px solid var(--color-border)" }, children: t("networkEditor.basicSettings") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.nameLabel") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("networkEditor.nameLabel") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
                 type: "text",
                 value: formData.name,
                 onChange: (e) => setFormData({ ...formData, name: e.target.value }),
-                className: "w-full border border-gray-300 rounded px-3 py-2 text-sm",
+                className: "form-input",
                 placeholder: t("networkEditor.namePlaceholder")
               }
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.template") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("networkEditor.template") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "select",
               {
                 value: formData.template,
                 onChange: (e) => handleTemplateChange(e.target.value),
-                className: "w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white",
+                className: "form-select",
                 children: templates.map((tmpl) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tmpl.name, children: t("tpl.net_" + tmpl.name, tmpl.display_name) }, tmpl.name))
               }
             )
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.status") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("networkEditor.status") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
             {
               value: formData.state,
               onChange: (e) => setFormData({ ...formData, state: e.target.value }),
-              className: "w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white",
+              className: "form-select",
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("networkEditor.active") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("networkEditor.disabled") })
@@ -52265,21 +52265,21 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
           )
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-blue-50 p-4 rounded border border-blue-200 space-y-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-blue-800", children: "Postback URL" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-blue-600", children: t("networkEditor.postbackHint") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded border space-y-3", style: {
+        background: "color-mix(in srgb, var(--color-primary) 8%, transparent)",
+        borderColor: "color-mix(in srgb, var(--color-primary) 30%, transparent)"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium", style: { color: "var(--color-primary)" }, children: "Postback URL" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("networkEditor.postbackHint") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "flex-1 bg-white px-3 py-2 rounded border border-blue-200 text-sm", children: getPostbackUrl() }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => copyToClipboard(getPostbackUrl()),
-              className: "px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition",
-              children: copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
-            }
-          )
+          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "flex-1 px-3 py-2 rounded border text-sm", style: {
+            background: "var(--color-bg-card)",
+            borderColor: "var(--color-border)",
+            color: "var(--color-text-primary)"
+          }, children: getPostbackUrl() }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => copyToClipboard(getPostbackUrl()), className: "btn btn-secondary btn-icon", children: copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }) })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-blue-600", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("networkEditor.paramsToAdd") }),
           " ?subid=",
           "{subid_macro}",
@@ -52289,22 +52289,22 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
           "{payout_macro}"
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded border border-gray-200 space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t("networkEditor.offerParams") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500", children: t("networkEditor.offerParamsDesc") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded border space-y-4", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium pb-2", style: { color: "var(--color-text-primary)", borderBottom: "1px solid var(--color-border)" }, children: t("networkEditor.offerParams") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("networkEditor.offerParamsDesc") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: t("networkEditor.offerParamsLabel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("networkEditor.offerParamsLabel") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
               type: "text",
               value: formData.offer_params,
               onChange: (e) => setFormData({ ...formData, offer_params: e.target.value }),
-              className: "w-full border border-gray-300 rounded px-3 py-2 text-sm font-mono",
+              className: "form-input font-mono",
               placeholder: "&subid={subid}&sub2={ip}"
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-gray-400 mt-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: [
             t("networkEditor.example"),
             " &sub1=",
             "{subid}",
@@ -52313,32 +52313,36 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: t("networkEditor.availableMacros") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label mb-2", children: t("networkEditor.availableMacros") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: availableMacros.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "div",
             {
-              className: "flex items-center justify-between bg-gray-50 px-2 py-1 rounded text-xs cursor-pointer hover:bg-gray-100",
+              className: "flex items-center justify-between px-2 py-1 rounded text-xs cursor-pointer",
+              style: {
+                background: "var(--color-bg-card)",
+                border: "1px solid var(--color-border)"
+              },
               onClick: () => {
                 document.querySelector('input[value="' + formData.offer_params + '"]');
                 navigator.clipboard.writeText(m.macro);
               },
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-blue-600", children: m.macro }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-400", children: m.description })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { color: "var(--color-primary)" }, children: m.macro }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: m.description })
               ]
             },
             m.macro
           )) })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-4 rounded border border-gray-200 space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium text-gray-800 border-b pb-2", children: t("networkEditor.notes") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded border space-y-4", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium pb-2", style: { color: "var(--color-text-primary)", borderBottom: "1px solid var(--color-border)" }, children: t("networkEditor.notes") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "textarea",
           {
             value: formData.notes,
             onChange: (e) => setFormData({ ...formData, notes: e.target.value }),
-            className: "w-full border border-gray-300 rounded px-3 py-2 text-sm",
+            className: "form-input",
             rows: 3,
             placeholder: t("networkEditor.notesPlaceholder")
           }
