@@ -49750,9 +49750,16 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
           ]
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-auto p-6", style: { color: "var(--color-text-primary)" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center h-64", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-10 w-10 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { padding: 0, overflow: "hidden" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", style: { fontVariantNumeric: "tabular-nums" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-auto p-6", style: { color: "var(--color-text-primary)" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center h-64", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-10 w-10 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { padding: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { overflowX: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", style: { fontVariantNumeric: "tabular-nums", minWidth: "100%", width: "max-content" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { minWidth: "240px", textAlign: "left" }, children: layerKeys.join(" → ") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: {
+            minWidth: "240px",
+            textAlign: "left",
+            position: "sticky",
+            left: 0,
+            zIndex: 3,
+            backgroundColor: "var(--color-bg-card)"
+          }, children: layerKeys.join(" → ") }),
           chosenColumns.map((colId, colIdx) => {
             const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
             const label = def?.label || colId;
@@ -49766,7 +49773,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                 style: {
                   textAlign: "right",
                   cursor: "grab",
-                  userSelect: "none"
+                  userSelect: "none",
+                  whiteSpace: "nowrap"
                 },
                 children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center justify-end gap-1 w-full", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-30 -ml-1" }),
@@ -49779,15 +49787,15 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: rows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 1 + chosenColumns.length, className: "text-center p-8", style: { color: "var(--color-text-muted)" }, children: t("campaignReports.noDataFilters", "No report data found for this period and grouping.") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "text-xs", style: { backgroundColor: "var(--color-bg-soft)", position: "sticky", top: 0, fontWeight: 700, borderBottom: "2px solid var(--color-border)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-bold", children: t("campaignReports.total", "Totals") }),
-            chosenColumns.map((cId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(cId, grandTotal, true) }, cId))
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-bold", style: { position: "sticky", left: 0, zIndex: 2, backgroundColor: "var(--color-bg-soft)" }, children: t("campaignReports.total", "Totals") }),
+            chosenColumns.map((cId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }, children: formatMetricCell(cId, grandTotal, true) }, cId))
           ] }),
           displayRows.map((r2, idx) => {
             const isSubtotal = r2.depth < layers.length - 1;
             return /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "tr",
               {
-                className: "text-xs transition-colors hover:bg-blue-50/5",
+                className: "text-xs transition-colors",
                 style: {
                   backgroundColor: isSubtotal ? "color-mix(in srgb, var(--color-bg-soft) 40%, transparent)" : void 0
                 },
@@ -49796,9 +49804,13 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                     paddingLeft: `${12 + r2.depth * 20}px`,
                     fontWeight: isSubtotal ? 600 : 400,
                     color: isSubtotal ? "var(--color-text-primary)" : "var(--color-text-secondary)",
-                    whiteSpace: "nowrap"
+                    whiteSpace: "nowrap",
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 2,
+                    backgroundColor: isSubtotal ? "color-mix(in srgb, var(--color-bg-soft) 55%, transparent)" : "var(--color-bg-card)"
                   }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center gap-1.5", children: [
-                    isSubtotal && /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-3 h-3 text-blue-500 inline" }),
+                    isSubtotal && /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-3 h-3 inline", style: { color: "var(--color-primary)" } }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: r2.name }),
                     isSubtotal && r2.childrenCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)", fontSize: "11px" }, children: [
                       "(",
@@ -49806,14 +49818,14 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                       ")"
                     ] })
                   ] }) }),
-                  chosenColumns.map((cId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(cId, r2, isSubtotal) }, cId))
+                  chosenColumns.map((cId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }, children: formatMetricCell(cId, r2, isSubtotal) }, cId))
                 ]
               },
               idx
             );
           })
         ] }) })
-      ] }) }) })
+      ] }) }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       ReportCustomizerModal,

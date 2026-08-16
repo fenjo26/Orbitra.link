@@ -539,11 +539,20 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                             <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: 'var(--color-primary)' }}></div>
                         </div>
                     ) : (
-                        <div className="page-card" style={{ padding: 0, overflow: 'hidden' }}>
-                            <table className="page-table" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        <div className="page-card" style={{ padding: 0 }}>
+                            {/* Horizontal scroll for wide column sets (all 64 metrics
+                                used to be clipped by overflow:hidden — looked like
+                                "selecting columns does nothing"). The name column
+                                stays pinned while scrolling. */}
+                            <div style={{ overflowX: 'auto' }}>
+                            <table className="page-table" style={{ fontVariantNumeric: 'tabular-nums', minWidth: '100%', width: 'max-content' }}>
                                 <thead>
                                     <tr>
-                                        <th style={{ minWidth: '240px', textAlign: 'left' }}>
+                                        <th style={{
+                                            minWidth: '240px', textAlign: 'left',
+                                            position: 'sticky', left: 0, zIndex: 3,
+                                            backgroundColor: 'var(--color-bg-card)'
+                                        }}>
                                             {layerKeys.join(' → ')}
                                         </th>
                                         {chosenColumns.map((colId, colIdx) => {
@@ -559,7 +568,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                     style={{
                                                         textAlign: 'right',
                                                         cursor: 'grab',
-                                                        userSelect: 'none'
+                                                        userSelect: 'none',
+                                                        whiteSpace: 'nowrap'
                                                     }}
                                                 >
                                                     <div className="inline-flex items-center justify-end gap-1 w-full">
@@ -582,9 +592,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                         <>
                                             {/* Sticky Summary Header Row */}
                                             <tr className="text-xs" style={{ backgroundColor: 'var(--color-bg-soft)', position: 'sticky', top: 0, fontWeight: 700, borderBottom: '2px solid var(--color-border)' }}>
-                                                <td className="font-bold">{t('campaignReports.total', 'Totals')}</td>
+                                                <td className="font-bold" style={{ position: 'sticky', left: 0, zIndex: 2, backgroundColor: 'var(--color-bg-soft)' }}>{t('campaignReports.total', 'Totals')}</td>
                                                 {chosenColumns.map(cId => (
-                                                    <td key={cId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                                                    <td key={cId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
                                                         {formatMetricCell(cId, grandTotal, true)}
                                                     </td>
                                                 ))}
@@ -596,7 +606,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                 return (
                                                     <tr
                                                         key={idx}
-                                                        className="text-xs transition-colors hover:bg-blue-50/5"
+                                                        className="text-xs transition-colors"
                                                         style={{
                                                             backgroundColor: isSubtotal ? 'color-mix(in srgb, var(--color-bg-soft) 40%, transparent)' : undefined
                                                         }}
@@ -605,10 +615,14 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                             paddingLeft: `${12 + r.depth * 20}px`,
                                                             fontWeight: isSubtotal ? 600 : 400,
                                                             color: isSubtotal ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                                                            whiteSpace: 'nowrap'
+                                                            whiteSpace: 'nowrap',
+                                                            position: 'sticky', left: 0, zIndex: 2,
+                                                            backgroundColor: isSubtotal
+                                                                ? 'color-mix(in srgb, var(--color-bg-soft) 55%, transparent)'
+                                                                : 'var(--color-bg-card)'
                                                         }}>
                                                             <div className="inline-flex items-center gap-1.5">
-                                                                {isSubtotal && <ChevronRight className="w-3 h-3 text-blue-500 inline" />}
+                                                                {isSubtotal && <ChevronRight className="w-3 h-3 inline" style={{ color: 'var(--color-primary)' }} />}
                                                                 <span>{r.name}</span>
                                                                 {isSubtotal && r.childrenCount > 0 && (
                                                                     <span style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>({r.childrenCount})</span>
@@ -616,7 +630,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                             </div>
                                                         </td>
                                                         {chosenColumns.map(cId => (
-                                                            <td key={cId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                                                            <td key={cId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
                                                                 {formatMetricCell(cId, r, isSubtotal)}
                                                             </td>
                                                         ))}
@@ -627,6 +641,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                     )}
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     )}
                 </div>
