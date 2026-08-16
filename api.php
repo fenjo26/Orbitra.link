@@ -6659,6 +6659,18 @@ try {
                 }
             }
 
+            // Dimension aliases for both query levels: the inner select computes
+            // COALESCE(expr) once, the outer one selects and groups by the alias.
+            // (This block was dropped in a merge — implode(null) 500'd every report.)
+            $dimInner = [];
+            $dimOuter = [];
+            $dimGroupBy = [];
+            foreach ($layers as $i => $layer) {
+                $dimInner[] = "COALESCE({$allowed_dimensions[$layer]}, 'Unknown') as dim_" . ($i + 1);
+                $dimOuter[] = 'dim_' . ($i + 1);
+                $dimGroupBy[] = 'dim_' . ($i + 1);
+            }
+
             $conds = [];
             $params = [];
             if ($campaign_id > 0) {
