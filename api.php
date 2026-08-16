@@ -2411,13 +2411,18 @@ try {
                     'display_name' => 'Facebook Ads',
                     'postback_url' => '',
                     'parameters' => [
-                        ['alias' => 'ad_id', 'param' => 'ad_id', 'macro' => '{{ad.id}}'],
-                        ['alias' => 'adset_id', 'param' => 'adset_id', 'macro' => '{{adset.id}}'],
+                        // Official Meta dynamic URL parameters only. {{site.name}}
+                        // used to sit here — it is not a Meta macro and substituted
+                        // to nothing; {{site_source_name}} (fb/ig/msg/an) and
+                        // {{placement}} (Feed/Stories/Reels/AN) are the real ones.
+                        ['alias' => 'utm_placement', 'param' => 'utm_placement', 'macro' => '{{placement}}'],
+                        ['alias' => 'source', 'param' => 'source', 'macro' => '{{site_source_name}}'],
                         ['alias' => 'campaign_id', 'param' => 'campaign_id', 'macro' => '{{campaign.id}}'],
-                        ['alias' => 'ad_name', 'param' => 'ad_name', 'macro' => '{{ad.name}}'],
-                        ['alias' => 'adset_name', 'param' => 'adset_name', 'macro' => '{{adset.name}}'],
                         ['alias' => 'campaign_name', 'param' => 'campaign_name', 'macro' => '{{campaign.name}}'],
-                        ['alias' => 'site', 'param' => 'site', 'macro' => '{{site.name}}'],
+                        ['alias' => 'adset_id', 'param' => 'adset_id', 'macro' => '{{adset.id}}'],
+                        ['alias' => 'adset_name', 'param' => 'adset_name', 'macro' => '{{adset.name}}'],
+                        ['alias' => 'ad_id', 'param' => 'ad_id', 'macro' => '{{ad.id}}'],
+                        ['alias' => 'ad_name', 'param' => 'ad_name', 'macro' => '{{ad.name}}'],
                     ]
                 ],
                 [
