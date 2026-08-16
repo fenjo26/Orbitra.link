@@ -267,7 +267,7 @@ try {
 
             $clickStmt = $pdo->prepare("
                 SELECT id, ip, user_agent, referer, country_code, region, city, zipcode,
-                       parameters_json, created_at
+                       parameters_json, created_at, landing_id
                 FROM clicks WHERE id = ? LIMIT 1
             ");
             $clickStmt->execute([$clickId]);
@@ -290,6 +290,33 @@ try {
                 }
                 $capiConversionId = (int) ($capiConvStmt->fetchColumn() ?: 0) ?: null;
 
+                // Макросы {campaign_url}/{landing_url} для event_source_url пикселя:
+                // трекинговый URL кампании (домен + алиас) и фактический URL лендинга
+                // этого клика. Оба lookup — по первичным ключам, best effort.
+                $capiCampaignUrl = '';
+                $capiLandingUrl = '';
+                try {
+                    $campUrlStmt = $pdo->prepare("
+                        SELECT c.alias, d.name AS domain_name
+                        FROM campaigns c LEFT JOIN domains d ON d.id = c.domain_id
+                        WHERE c.id = ? LIMIT 1
+                    ");
+                    $campUrlStmt->execute([$campaignId]);
+                    $campUrlRow = $campUrlStmt->fetch(PDO::FETCH_ASSOC);
+                    if ($campUrlRow && !empty($campUrlRow['domain_name'])) {
+                        $capiCampaignUrl = 'https://' . $campUrlRow['domain_name'] . '/' . ltrim((string) $campUrlRow['alias'], '/');
+                    }
+                } catch (\Throwable $e) {
+                }
+                if (!empty($clickRow['landing_id'])) {
+                    try {
+                        $landUrlStmt = $pdo->prepare("SELECT url FROM landings WHERE id = ? LIMIT 1");
+                        $landUrlStmt->execute([(int) $clickRow['landing_id']]);
+                        $capiLandingUrl = (string) ($landUrlStmt->fetchColumn() ?: '');
+                    } catch (\Throwable $e) {
+                    }
+                }
+
                 foreach ($capiPixels as $pixel) {
                     try {
                         FacebookConversions::enqueue($pdo, $pixel, $clickRow, [
@@ -302,6 +329,8 @@ try {
                             'event_id'     => $clickId . '_' . $internalStatus . ($tid ? '_' . $tid : ''),
                             'click_params' => $clickParamsForCapi,
                             'extra'        => $_GET,
+                            'campaign_url' => $capiCampaignUrl,
+                            'landing_url'  => $capiLandingUrl,
                         ], $capiConversionId);
                     } catch (\Throwable $pixelErr) {
                         // Один сломанный пиксель не должен ронять остальные.

@@ -151,12 +151,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // Pixel states
     const [pixels, setPixels] = useState([]);
     const [editingPixel, setEditingPixel] = useState(null);
-    const [pixelForm, setPixelForm] = useState({ type: '', pixel_id: '', token: '', events: 'PageView,Lead', is_active: 1, mapping: {}, test_event_code: '', proxy_url: '' });
+    const [pixelForm, setPixelForm] = useState({ type: '', pixel_id: '', token: '', events: 'PageView,Lead', event_source_url: '', is_active: 1, mapping: {}, test_event_code: '', proxy_url: '' });
     const [capiMeta, setCapiMeta] = useState({ default_mapping: {}, available_events: [] });
     const [capiTest, setCapiTest] = useState(null);
     const [capiTesting, setCapiTesting] = useState(false);
 
-    const emptyPixelForm = { type: '', pixel_id: '', token: '', events: 'PageView,Lead', is_active: 1, mapping: {}, test_event_code: '', proxy_url: '' };
+    const emptyPixelForm = { type: '', pixel_id: '', token: '', events: 'PageView,Lead', event_source_url: '', is_active: 1, mapping: {}, test_event_code: '', proxy_url: '' };
 
     // Log data
     const [clickLogs, setClickLogs] = useState([]);
@@ -572,6 +572,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             events: px.events || 'PageView,Lead',
             is_active: px.is_active ? 1 : 0,
             mapping,
+            event_source_url: px.event_source_url || '',
             test_event_code: px.test_event_code || '',
             proxy_url: px.proxy_url || '',
         });
@@ -590,6 +591,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 token: pixelForm.token,
                 test_event_code: pixelForm.test_event_code,
                 proxy_url: pixelForm.proxy_url,
+                event_source_url: pixelForm.event_source_url,
                 event_name: 'Lead',
             });
             setCapiTest({ ok: data.status === 'success', message: data.message, usedRealClick: data.data?.used_real_click });
@@ -1848,6 +1850,20 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                             </select>
                                                                         </div>
                                                                     ))}
+                                                                </div>
+
+                                                                <div>
+                                                                    <label className="form-label">{t('pixels.eventSourceUrl', 'Event URL / Thank You Page URL')}</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={pixelForm.event_source_url || ''}
+                                                                        onChange={e => setPixelForm({ ...pixelForm, event_source_url: e.target.value })}
+                                                                        placeholder="https://example.com/thankyou.php"
+                                                                        className="form-input font-mono text-sm"
+                                                                    />
+                                                                    <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                                                                        {t('pixels.eventSourceUrlHint', 'Sent to Meta CAPI as event_source_url. Supports {campaign_url}, {landing_url} and {clickid}.')}
+                                                                    </p>
                                                                 </div>
 
                                                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>

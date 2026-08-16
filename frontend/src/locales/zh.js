@@ -1919,7 +1919,9 @@ export default {
         "proxy": "代理（可选）",
         "sendTestEvent": "发送测试事件",
         "sending": "发送中…",
-        "syntheticClick": "（没有带 fbclid 的近期点击 — 已使用合成点击）"
+        "syntheticClick": "（没有带 fbclid 的近期点击 — 已使用合成点击）",
+        "eventSourceUrl": "事件 URL / 感谢页 URL",
+        "eventSourceUrlHint": "作为 event_source_url 发送到 Meta CAPI。支持 {campaign_url}、{landing_url} 和 {clickid}。"
     },
     "appConfig": {
         "title": "应用程序配置",

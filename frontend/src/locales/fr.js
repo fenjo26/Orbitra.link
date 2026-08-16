@@ -1919,7 +1919,9 @@ export default {
         "proxy": "Proxy (optionnel)",
         "sendTestEvent": "Envoyer un événement de test",
         "sending": "Envoi…",
-        "syntheticClick": "(aucun clic récent avec fbclid — un clic synthétique a été utilisé)"
+        "syntheticClick": "(aucun clic récent avec fbclid — un clic synthétique a été utilisé)",
+        "eventSourceUrl": "URL de l'événement / page de remerciement",
+        "eventSourceUrlHint": "Envoyée à Meta CAPI en tant qu'event_source_url. Prend en charge {campaign_url}, {landing_url} et {clickid}."
     },
     "appConfig": {
         "title": "Configuration de l'application",

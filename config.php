@@ -51,7 +51,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 21;
+    $LATEST_SCHEMA_VERSION = 22;
 
     $schemaVersion = 0;
     try {
@@ -1319,6 +1319,18 @@ try {
                 // with; OR is opt-in from the stream's FILTERS header.
                 try {
                     $pdo->exec("ALTER TABLE streams ADD COLUMN filters_logic TEXT DEFAULT 'and'");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
+                }
+            }
+
+            if ($schemaVersion < 22) {
+                // Migration 22: per-pixel event_source_url for Meta CAPI.
+                // Optional thank-you/checkout page URL sent with every event;
+                // supports {campaign_url}/{landing_url}/{clickid} macros that
+                // postback.php resolves against the converting click.
+                try {
+                    $pdo->exec("ALTER TABLE campaign_pixels ADD COLUMN event_source_url TEXT");
                 } catch (\Throwable $e) {
                     // Column already present on a half-migrated DB.
                 }

@@ -18122,7 +18122,9 @@ const ru = {
     "proxy": "Прокси (опционально)",
     "sendTestEvent": "Отправить тестовое событие",
     "sending": "Отправка…",
-    "syntheticClick": "(свежего клика с fbclid нет — использован синтетический)"
+    "syntheticClick": "(свежего клика с fbclid нет — использован синтетический)",
+    "eventSourceUrl": "URL события / Thank You Page",
+    "eventSourceUrlHint": "Отправляется в Meta CAPI как event_source_url. Поддерживает макросы {campaign_url}, {landing_url} и {clickid}."
   },
   "appConfig": {
     "title": "App Config",
@@ -20476,7 +20478,9 @@ const en = {
     "proxy": "Proxy (optional)",
     "sendTestEvent": "Send test event",
     "sending": "Sending…",
-    "syntheticClick": "(no recent click with fbclid — a synthetic one was used)"
+    "syntheticClick": "(no recent click with fbclid — a synthetic one was used)",
+    "eventSourceUrl": "Event URL / Thank You Page URL",
+    "eventSourceUrlHint": "Sent to Meta CAPI as event_source_url. Supports {campaign_url}, {landing_url} and {clickid}."
   },
   "appConfig": {
     "title": "App Config",
@@ -23036,7 +23040,9 @@ const uk = {
     "proxy": "Проксі (опційно)",
     "sendTestEvent": "Надіслати тестову подію",
     "sending": "Надсилання…",
-    "syntheticClick": "(свіжого кліку з fbclid немає — використано синтетичний)"
+    "syntheticClick": "(свіжого кліку з fbclid немає — використано синтетичний)",
+    "eventSourceUrl": "URL події / сторінки подяки",
+    "eventSourceUrlHint": "Надсилається до Meta CAPI як event_source_url. Підтримує макроси {campaign_url}, {landing_url} і {clickid}."
   },
   "appConfig": {
     "title": "Конфігурація програми",
@@ -25596,7 +25602,9 @@ const es = {
     "proxy": "Proxy (opcional)",
     "sendTestEvent": "Enviar evento de prueba",
     "sending": "Enviando…",
-    "syntheticClick": "(no hay clic reciente con fbclid — se usó uno sintético)"
+    "syntheticClick": "(no hay clic reciente con fbclid — se usó uno sintético)",
+    "eventSourceUrl": "URL del evento / página de agradecimiento",
+    "eventSourceUrlHint": "Se envía a Meta CAPI como event_source_url. Admite {campaign_url}, {landing_url} y {clickid}."
   },
   "appConfig": {
     "title": "Configuración de la aplicación",
@@ -28156,7 +28164,9 @@ const zh = {
     "proxy": "代理（可选）",
     "sendTestEvent": "发送测试事件",
     "sending": "发送中…",
-    "syntheticClick": "（没有带 fbclid 的近期点击 — 已使用合成点击）"
+    "syntheticClick": "（没有带 fbclid 的近期点击 — 已使用合成点击）",
+    "eventSourceUrl": "事件 URL / 感谢页 URL",
+    "eventSourceUrlHint": "作为 event_source_url 发送到 Meta CAPI。支持 {campaign_url}、{landing_url} 和 {clickid}。"
   },
   "appConfig": {
     "title": "应用程序配置",
@@ -30716,7 +30726,9 @@ const fr = {
     "proxy": "Proxy (optionnel)",
     "sendTestEvent": "Envoyer un événement de test",
     "sending": "Envoi…",
-    "syntheticClick": "(aucun clic récent avec fbclid — un clic synthétique a été utilisé)"
+    "syntheticClick": "(aucun clic récent avec fbclid — un clic synthétique a été utilisé)",
+    "eventSourceUrl": "URL de l'événement / page de remerciement",
+    "eventSourceUrlHint": "Envoyée à Meta CAPI en tant qu'event_source_url. Prend en charge {campaign_url}, {landing_url} et {clickid}."
   },
   "appConfig": {
     "title": "Configuration de l'application",
@@ -33278,7 +33290,9 @@ const de = {
     "proxy": "Proxy (optional)",
     "sendTestEvent": "Testereignis senden",
     "sending": "Wird gesendet…",
-    "syntheticClick": "(kein aktueller Klick mit fbclid — ein synthetischer wurde verwendet)"
+    "syntheticClick": "(kein aktueller Klick mit fbclid — ein synthetischer wurde verwendet)",
+    "eventSourceUrl": "Event-URL / Thank-You-Page-URL",
+    "eventSourceUrlHint": "Wird als event_source_url an die Meta CAPI gesendet. Unterstützt {campaign_url}, {landing_url} und {clickid}."
   },
   "appConfig": {
     "title": "App-Konfiguration",
@@ -67226,11 +67240,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   });
   const [pixels, setPixels] = reactExports.useState([]);
   const [editingPixel, setEditingPixel] = reactExports.useState(null);
-  const [pixelForm, setPixelForm] = reactExports.useState({ type: "", pixel_id: "", token: "", events: "PageView,Lead", is_active: 1, mapping: {}, test_event_code: "", proxy_url: "" });
+  const [pixelForm, setPixelForm] = reactExports.useState({ type: "", pixel_id: "", token: "", events: "PageView,Lead", event_source_url: "", is_active: 1, mapping: {}, test_event_code: "", proxy_url: "" });
   const [capiMeta, setCapiMeta] = reactExports.useState({ default_mapping: {}, available_events: [] });
   const [capiTest, setCapiTest] = reactExports.useState(null);
   const [capiTesting, setCapiTesting] = reactExports.useState(false);
-  const emptyPixelForm = { type: "", pixel_id: "", token: "", events: "PageView,Lead", is_active: 1, mapping: {}, test_event_code: "", proxy_url: "" };
+  const emptyPixelForm = { type: "", pixel_id: "", token: "", events: "PageView,Lead", event_source_url: "", is_active: 1, mapping: {}, test_event_code: "", proxy_url: "" };
   const [clickLogs, setClickLogs] = reactExports.useState([]);
   const [groups, setGroups] = reactExports.useState([]);
   const [sources, setSources] = reactExports.useState([]);
@@ -67597,6 +67611,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       events: px.events || "PageView,Lead",
       is_active: px.is_active ? 1 : 0,
       mapping,
+      event_source_url: px.event_source_url || "",
       test_event_code: px.test_event_code || "",
       proxy_url: px.proxy_url || ""
     });
@@ -67614,6 +67629,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         token: pixelForm.token,
         test_event_code: pixelForm.test_event_code,
         proxy_url: pixelForm.proxy_url,
+        event_source_url: pixelForm.event_source_url,
         event_name: "Lead"
       });
       setCapiTest({ ok: data.status === "success", message: data.message, usedRealClick: data.data?.used_real_click });
@@ -68818,6 +68834,20 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         }
                       )
                     ] }, status)) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("pixels.eventSourceUrl", "Event URL / Thank You Page URL") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "text",
+                          value: pixelForm.event_source_url || "",
+                          onChange: (e) => setPixelForm({ ...pixelForm, event_source_url: e.target.value }),
+                          placeholder: "https://example.com/thankyou.php",
+                          className: "form-input font-mono text-sm"
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px" }, children: t("pixels.eventSourceUrlHint", "Sent to Meta CAPI as event_source_url. Supports {campaign_url}, {landing_url} and {clickid}.") })
+                    ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }, children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("pixels.testEventCode") }),

@@ -222,6 +222,32 @@ check('country hashed as 2-letter code', $event['user_data']['country'][0] === h
 check('payout becomes custom_data value', abs($event['custom_data']['value'] - 42.5) < 0.001 && $event['custom_data']['currency'] === 'USD');
 check('test_event_code forwarded', ($payload['test_event_code'] ?? null) === 'TEST123');
 check('no raw PII left in the payload', !str_contains(json_encode($payload), 'john.doe@example.com'));
+check('unconfigured pixel falls back to the click referer',
+    ($event['event_source_url'] ?? null) === 'https://lp.example/a');
+
+// event_source_url: the operator-configured thank-you page URL wins, macros
+// resolve against the converting click, and a macro that resolves empty drops
+// the field instead of sending a broken literal.
+$payloadCfg = FacebookConversions::buildPayload($pixel + ['event_source_url' => 'https://thanks.example.com/?c={clickid}'], $clickRow, [
+    'event_name' => 'Purchase', 'event_time' => 1700000000, 'event_id' => 'e1',
+    'click_params' => [], 'extra' => [],
+]);
+check('configured event_source_url sent with {clickid} resolved',
+    ($payloadCfg['data'][0]['event_source_url'] ?? '') === 'https://thanks.example.com/?c=click-ad-1');
+
+$payloadLanding = FacebookConversions::buildPayload($pixel + ['event_source_url' => '{landing_url}/thankyou'], $clickRow, [
+    'event_name' => 'Purchase', 'event_time' => 1700000000, 'event_id' => 'e2',
+    'click_params' => [], 'extra' => [], 'landing_url' => 'https://lp.example.com/offer',
+]);
+check('{landing_url} resolves from ctx over the referer',
+    ($payloadLanding['data'][0]['event_source_url'] ?? '') === 'https://lp.example.com/offer/thankyou');
+
+$payloadBroken = FacebookConversions::buildPayload($pixel + ['event_source_url' => '{campaign_url}/thanks'], $clickRow, [
+    'event_name' => 'Purchase', 'event_time' => 1700000000, 'event_id' => 'e3',
+    'click_params' => [], 'extra' => [], 'campaign_url' => '',
+]);
+check('empty macro result drops event_source_url instead of sending a broken literal',
+    !isset($payloadBroken['data'][0]['event_source_url']));
 
 $queued = FacebookConversions::enqueue($pdo, $pixel, $clickRow, [
     'status' => 'sale', 'payout' => 42.5, 'currency' => 'USD',

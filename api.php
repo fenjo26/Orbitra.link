@@ -10109,13 +10109,14 @@ try {
                 $test_event_code = trim((string) ($data['test_event_code'] ?? ''));
                 $proxy_url = trim((string) ($data['proxy_url'] ?? ''));
                 $api_version = trim((string) ($data['api_version'] ?? ''));
+                $event_source_url = trim((string) ($data['event_source_url'] ?? ''));
 
                 if ($id) {
-                    $stmt = $pdo->prepare("UPDATE campaign_pixels SET type=?, pixel_id=?, token=?, events=?, is_active=?, mapping_json=?, test_event_code=?, proxy_url=?, api_version=? WHERE id=? AND campaign_id=?");
-                    $stmt->execute([$type, $pixel_id, $token, $events, $is_active, $mapping_json, $test_event_code, $proxy_url, $api_version, $id, $campaign_id]);
+                    $stmt = $pdo->prepare("UPDATE campaign_pixels SET type=?, pixel_id=?, token=?, events=?, is_active=?, mapping_json=?, test_event_code=?, proxy_url=?, api_version=?, event_source_url=? WHERE id=? AND campaign_id=?");
+                    $stmt->execute([$type, $pixel_id, $token, $events, $is_active, $mapping_json, $test_event_code, $proxy_url, $api_version, $event_source_url, $id, $campaign_id]);
                 } else {
-                    $stmt = $pdo->prepare("INSERT INTO campaign_pixels (campaign_id, type, pixel_id, token, events, is_active, mapping_json, test_event_code, proxy_url, api_version) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    $stmt->execute([$campaign_id, $type, $pixel_id, $token, $events, $is_active, $mapping_json, $test_event_code, $proxy_url, $api_version]);
+                    $stmt = $pdo->prepare("INSERT INTO campaign_pixels (campaign_id, type, pixel_id, token, events, is_active, mapping_json, test_event_code, proxy_url, api_version, event_source_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([$campaign_id, $type, $pixel_id, $token, $events, $is_active, $mapping_json, $test_event_code, $proxy_url, $api_version, $event_source_url]);
                     $id = $pdo->lastInsertId();
                 }
 
@@ -10197,12 +10198,13 @@ try {
             // Unsaved form: accept the credentials inline so "test" works before save.
             if (!$pixel) {
                 $pixel = [
-                    'pixel_id'        => $data['pixel_id'] ?? '',
-                    'token'           => $data['token'] ?? '',
-                    'mapping_json'    => $data['mapping_json'] ?? null,
-                    'test_event_code' => $data['test_event_code'] ?? '',
-                    'proxy_url'       => $data['proxy_url'] ?? '',
-                    'api_version'     => $data['api_version'] ?? '',
+                    'pixel_id'          => $data['pixel_id'] ?? '',
+                    'token'             => $data['token'] ?? '',
+                    'mapping_json'      => $data['mapping_json'] ?? null,
+                    'test_event_code'   => $data['test_event_code'] ?? '',
+                    'proxy_url'         => $data['proxy_url'] ?? '',
+                    'api_version'       => $data['api_version'] ?? '',
+                    'event_source_url'  => $data['event_source_url'] ?? '',
                 ];
             }
 

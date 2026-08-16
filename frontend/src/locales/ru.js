@@ -2125,7 +2125,9 @@ export default {
         "proxy": "Прокси (опционально)",
         "sendTestEvent": "Отправить тестовое событие",
         "sending": "Отправка…",
-        "syntheticClick": "(свежего клика с fbclid нет — использован синтетический)"
+        "syntheticClick": "(свежего клика с fbclid нет — использован синтетический)",
+        "eventSourceUrl": "URL события / Thank You Page",
+        "eventSourceUrlHint": "Отправляется в Meta CAPI как event_source_url. Поддерживает макросы {campaign_url}, {landing_url} и {clickid}."
     },
     "appConfig": {
         "title": "App Config",

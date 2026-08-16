@@ -82,10 +82,13 @@ class FacebookConversions
     /**
      * Build the Conversions API payload for one conversion.
      *
-     * @param array $pixel  campaign_pixels row (pixel_id, token, mapping_json, test_event_code)
-     * @param array $click  clicks row (ip, user_agent, referer, country_code, region, city, zipcode)
+     * @param array $pixel  campaign_pixels row (pixel_id, token, mapping_json, test_event_code,
+     *                      event_source_url)
+     * @param array $click  clicks row (id, ip, user_agent, referer, country_code, region, city, zipcode)
      * @param array $ctx    event_name, event_id, event_time, payout, currency,
-     *                      click_params (decoded parameters_json), extra ($_GET of the postback)
+     *                      click_params (decoded parameters_json), extra ($_GET of the postback),
+     *                      campaign_url / landing_url / event_source_url (macro values for
+     *                      the pixel's event_source_url, resolved by the caller)
      */
     public static function buildPayload(array $pixel, array $click, array $ctx): array
     {
@@ -150,7 +153,28 @@ class FacebookConversions
             $event['event_id'] = (string) $ctx['event_id'];
         }
 
-        $sourceUrl = (string) ($ctx['event_source_url'] ?? $click['referer'] ?? '');
+        // event_source_url — the browser-side URL Meta attributes the event to.
+        // The operator-configured thank-you/checkout page wins; its
+        // {campaign_url}/{landing_url}/{clickid} macros resolve against this
+        // click. Unconfigured pixels keep the old chain: explicit ctx value,
+        // then the click's referer. Anything that doesn't survive macro
+        // substitution as an absolute http(s) URL is dropped rather than sent
+        // as a broken literal.
+        $configuredUrl = trim((string) ($pixel['event_source_url'] ?? ''));
+        if ($configuredUrl !== '') {
+            $landingUrl = trim((string) ($ctx['landing_url'] ?? ''));
+            if ($landingUrl === '') {
+                $landingUrl = trim((string) ($click['referer'] ?? ''));
+            }
+            $configuredUrl = str_replace(
+                ['{campaign_url}', '{landing_url}', '{clickid}'],
+                [(string) ($ctx['campaign_url'] ?? ''), $landingUrl, (string) ($click['id'] ?? '')],
+                $configuredUrl
+            );
+        }
+        $sourceUrl = $configuredUrl !== ''
+            ? $configuredUrl
+            : (string) ($ctx['event_source_url'] ?? $click['referer'] ?? '');
         if ($sourceUrl !== '' && preg_match('#^https?://#i', $sourceUrl)) {
             $event['event_source_url'] = $sourceUrl;
         }
