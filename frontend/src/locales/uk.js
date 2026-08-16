@@ -390,6 +390,12 @@ export default {
         "cpc": "CPC",
         "cpa": "CPA",
         "ctr": "CTR",
+        "visits": "Візити",
+        "uniqueVisits": "Унік. візити",
+        "trash": "Сміття",
+        "approve": "Апрув %",
+        "epc": "EPC",
+        "epv": "EPV",
         "realRevenue": "Реальний дохід",
         "realRoi": "Реальний ROI"
     },

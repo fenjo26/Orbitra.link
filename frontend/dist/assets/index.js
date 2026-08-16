@@ -16399,6 +16399,12 @@ const ru = {
     "cpc": "CPC",
     "cpa": "CPA",
     "ctr": "CTR",
+    "visits": "Визиты",
+    "uniqueVisits": "Уник. визиты",
+    "trash": "Трэш",
+    "approve": "Аппрув %",
+    "epc": "EPC",
+    "epv": "EPV",
     "realRevenue": "Реальный доход",
     "realRoi": "Реальный ROI"
   },
@@ -19059,6 +19065,12 @@ const en = {
     "cpc": "CPC",
     "cpa": "CPA",
     "ctr": "CTR",
+    "visits": "Visits",
+    "uniqueVisits": "uVisits",
+    "trash": "Trash",
+    "approve": "Approve %",
+    "epc": "EPC",
+    "epv": "EPV",
     "realRevenue": "Real Revenue",
     "realRoi": "Real ROI"
   },
@@ -21719,6 +21731,12 @@ const uk = {
     "cpc": "CPC",
     "cpa": "CPA",
     "ctr": "CTR",
+    "visits": "Візити",
+    "uniqueVisits": "Унік. візити",
+    "trash": "Сміття",
+    "approve": "Апрув %",
+    "epc": "EPC",
+    "epv": "EPV",
     "realRevenue": "Реальний дохід",
     "realRoi": "Реальний ROI"
   },
@@ -24379,6 +24397,12 @@ const es = {
     "cpc": "Partido Comunista de China",
     "cpa": "contador público",
     "ctr": "CTR",
+    "visits": "Visitas",
+    "uniqueVisits": "Visitas únicas",
+    "trash": "Basura",
+    "approve": "Aprobación %",
+    "epc": "EPC",
+    "epv": "EPV",
     "realRevenue": "Ingresos reales",
     "realRoi": "Retorno de la inversión real"
   },
@@ -27039,6 +27063,12 @@ const zh = {
     "cpc": "中国共产党",
     "cpa": "注册会计师",
     "ctr": "点击率",
+    "visits": "访问量",
+    "uniqueVisits": "独立访问",
+    "trash": "垃圾",
+    "approve": "批准率 %",
+    "epc": "EPC",
+    "epv": "EPV",
     "realRevenue": "实际收入",
     "realRoi": "真正的投资回报率"
   },
@@ -29699,6 +29729,12 @@ const fr = {
     "cpc": "CPC",
     "cpa": "CPA",
     "ctr": "CTR",
+    "visits": "Visites",
+    "uniqueVisits": "Visites uniques",
+    "trash": "Poubelle",
+    "approve": "Approbation %",
+    "epc": "EPC",
+    "epv": "EPV",
     "realRevenue": "Revenu réel",
     "realRoi": "ROI réel"
   },
@@ -32361,6 +32397,12 @@ const de = {
     "cpc": "CPC",
     "cpa": "CPA",
     "ctr": "CTR",
+    "visits": "Besuche",
+    "uniqueVisits": "Unique-Besuche",
+    "trash": "Trash",
+    "approve": "Approve %",
+    "epc": "EPC",
+    "epv": "EPV",
     "realRevenue": "Realer Umsatz",
     "realRoi": "Echter ROI"
   },
@@ -53205,15 +53247,33 @@ const API_URL$t = "/api.php";
 const ALL_LANDING_COLUMNS = [
   { id: "id", label: "ID" },
   { id: "name", label: "Name", required: true },
+  { id: "group_name", label: "Group" },
   { id: "type", label: "Type" },
   { id: "state", label: "Status" },
-  { id: "clicks", label: "Clicks" },
-  { id: "unique_clicks", label: "Uniques" },
-  { id: "lp_clicks", label: "LP Clicks" },
-  { id: "lp_ctr", label: "LP CTR" },
-  { id: "conversions", label: "Conversions" },
-  { id: "cr", label: "CR" },
-  { id: "group_name", label: "Group" },
+  { id: "visits", label: "Visits", alignRight: true },
+  { id: "unique_visits", label: "uVisits", alignRight: true },
+  { id: "clicks", label: "Clicks", alignRight: true },
+  { id: "unique_clicks", label: "Uniques", alignRight: true },
+  { id: "lp_clicks", label: "LP Clicks", alignRight: true },
+  { id: "lp_ctr", label: "LP CTR", alignRight: true },
+  { id: "conversions", label: "Conversions", alignRight: true },
+  { id: "leads", label: "Leads", alignRight: true },
+  { id: "sales", label: "Sales", alignRight: true },
+  { id: "rejected", label: "Rejected", alignRight: true },
+  { id: "trash", label: "Trash", alignRight: true },
+  { id: "approve_rate", label: "Approve %", alignRight: true },
+  { id: "cr", label: "CR", alignRight: true },
+  { id: "cost", label: "Cost", alignRight: true },
+  { id: "revenue", label: "Revenue", alignRight: true },
+  { id: "revenue_confirmed", label: "Revenue (conf)", alignRight: true },
+  { id: "profit", label: "Profit", alignRight: true },
+  { id: "profit_confirmed", label: "Profit (conf)", alignRight: true },
+  { id: "cpc", label: "CPC", alignRight: true },
+  { id: "epc", label: "EPC", alignRight: true },
+  { id: "epc_confirmed", label: "EPC (conf)", alignRight: true },
+  { id: "epv", label: "EPV", alignRight: true },
+  { id: "roi", label: "ROI", alignRight: true },
+  { id: "roi_confirmed", label: "ROI (conf)", alignRight: true },
   { id: "last_event", label: "Last Event" }
 ];
 const DEFAULT_LANDING_COLUMNS = [
@@ -53374,12 +53434,30 @@ const Landings = ({ landings, refreshData }) => {
     name: t("components.aliasName"),
     type: t("components.type"),
     state: t("components.status"),
+    visits: t("metrics.visits"),
+    unique_visits: t("metrics.uniqueVisits"),
     clicks: t("components.clicks"),
     unique_clicks: t("components.uniques"),
     lp_clicks: t("components.lpClicks"),
     lp_ctr: t("components.lpCtr"),
     conversions: t("landingColumns.conversions"),
+    leads: t("offerColumns.leads"),
+    sales: t("offerColumns.sales"),
+    rejected: t("offerColumns.rejected"),
+    trash: t("metrics.trash"),
+    approve_rate: t("metrics.approve"),
     cr: t("landingColumns.cr"),
+    cost: t("metrics.cost"),
+    revenue: t("metrics.revenue"),
+    revenue_confirmed: t("offerColumns.revenueConfirmed"),
+    profit: t("metrics.profit"),
+    profit_confirmed: t("offerColumns.profitConfirmed"),
+    cpc: t("metrics.cpc"),
+    epc: t("metrics.epc"),
+    epc_confirmed: t("offerColumns.epcConfirmed"),
+    epv: t("metrics.epv"),
+    roi: t("metrics.roi"),
+    roi_confirmed: t("offerColumns.roiConfirmed"),
     group_name: t("components.group"),
     last_event: t("landingColumns.lastEvent")
   })[colId] || colId;
@@ -53391,7 +53469,9 @@ const Landings = ({ landings, refreshData }) => {
     const p = (n) => String(n).padStart(2, "0");
     return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
   };
+  const money = (v) => `$${(parseFloat(v) || 0).toFixed(2)}`;
   const renderLandingCell = (landing, colId) => {
+    const tdCls = ALL_LANDING_COLUMNS.find((c) => c.id === colId)?.alignRight ? "text-right" : "";
     switch (colId) {
       case "id":
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: landing.id }, colId);
@@ -53417,14 +53497,37 @@ const Landings = ({ landings, refreshData }) => {
         ] }) }, colId);
       case "group_name":
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: landing.group_name || "-" }, colId);
+      case "cost":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: money(landing.cost) }, colId);
+      case "revenue":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: "var(--color-success)" }, children: money(landing.revenue) }, colId);
+      case "revenue_confirmed":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: "var(--color-success)" }, children: money(landing.revenue_confirmed) }, colId);
+      case "profit":
+      case "profit_confirmed": {
+        const v = parseFloat(landing[colId]) || 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: v > 0 ? "var(--color-success)" : v < 0 ? "var(--color-danger)" : "var(--color-text-secondary)" }, children: money(v) }, colId);
+      }
+      case "cpc":
+      case "epc":
+      case "epc_confirmed":
+      case "epv":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: money(landing[colId]) }, colId);
+      case "approve_rate":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `${parseFloat(landing.approve_rate) || 0}%` }, colId);
+      case "roi":
+      case "roi_confirmed": {
+        const v = landing[colId];
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: (parseFloat(v) || 0) > 0 ? "var(--color-success)" : "var(--color-text-secondary)" }, children: v !== null && v !== void 0 ? `${v}%` : "—" }, colId);
+      }
       case "lp_ctr":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing.lp_ctr !== void 0 ? `${landing.lp_ctr}%` : "0%" }, colId);
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: landing.lp_ctr !== void 0 ? `${landing.lp_ctr}%` : "0%" }, colId);
       case "cr":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing.cr !== void 0 ? `${landing.cr}%` : "0%" }, colId);
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: landing.cr !== void 0 ? `${landing.cr}%` : "0%" }, colId);
       case "last_event":
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: formatLastEvent(landing.last_event) }, colId);
       default:
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing[colId] || 0 }, colId);
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: Number(landing[colId] || 0).toLocaleString() }, colId);
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
@@ -53554,7 +53657,7 @@ const Landings = ({ landings, refreshData }) => {
             onChange: (e) => toggleSelectAll(e.target.checked)
           }
         ) }),
-        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: columnLabel(colId) }, colId)),
+        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: ALL_LANDING_COLUMNS.find((c) => c.id === colId)?.alignRight ? "text-right" : "", children: columnLabel(colId) }, colId)),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleLandings.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: chosenColumns.length + 2, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
@@ -54891,17 +54994,27 @@ const ALL_OFFER_COLUMNS = [
   { id: "payout", label: "Payout" },
   { id: "clicks", label: "Clicks", alignRight: true },
   { id: "unique_clicks", label: "Uniques", alignRight: true },
+  { id: "visits", label: "Visits", alignRight: true },
+  { id: "unique_visits", label: "uVisits", alignRight: true },
+  { id: "lp_clicks", label: "LP Clicks", alignRight: true },
+  { id: "lp_ctr", label: "LP CTR", alignRight: true },
   { id: "conversions", label: "Conversions", alignRight: true },
   { id: "leads", label: "Leads", alignRight: true },
   { id: "sales", label: "Sales", alignRight: true },
   { id: "rejected", label: "Rejected", alignRight: true },
+  { id: "trash", label: "Trash", alignRight: true },
+  { id: "approve_rate", label: "Approve %", alignRight: true },
   { id: "revenue", label: "Revenue", alignRight: true },
   { id: "revenue_confirmed", label: "Revenue (confirmed)", alignRight: true },
   { id: "cost", label: "Cost", alignRight: true },
   { id: "cr", label: "CR", alignRight: true },
+  { id: "epc", label: "EPC", alignRight: true },
   { id: "epc_confirmed", label: "EPC (confirmed)", alignRight: true },
+  { id: "epv", label: "EPV", alignRight: true },
   { id: "cpc", label: "CPC", alignRight: true },
+  { id: "profit", label: "Profit", alignRight: true },
   { id: "profit_confirmed", label: "P/L (confirmed)", alignRight: true },
+  { id: "roi", label: "ROI", alignRight: true },
   { id: "roi_confirmed", label: "ROI (confirmed)", alignRight: true }
 ];
 const DEFAULT_OFFER_COLUMNS = [
@@ -54987,6 +55100,14 @@ const Offers = ({ offers, refreshData }) => {
           return Number(o.clicks) || 0;
         case "unique_clicks":
           return Number(o.unique_clicks) || 0;
+        case "visits":
+          return Number(o.visits) || 0;
+        case "unique_visits":
+          return Number(o.unique_visits) || 0;
+        case "lp_clicks":
+          return Number(o.lp_clicks) || 0;
+        case "lp_ctr":
+          return Number(o.lp_ctr) || 0;
         case "conversions":
           return Number(o.conversions) || 0;
         case "leads":
@@ -54995,6 +55116,10 @@ const Offers = ({ offers, refreshData }) => {
           return Number(o.sales) || 0;
         case "rejected":
           return Number(o.rejected) || 0;
+        case "trash":
+          return Number(o.trash) || 0;
+        case "approve_rate":
+          return Number(o.approve_rate) || 0;
         case "revenue":
           return Number(o.revenue) || 0;
         case "revenue_confirmed":
@@ -55003,12 +55128,20 @@ const Offers = ({ offers, refreshData }) => {
           return Number(o.cost) || 0;
         case "cr":
           return Number(o.cr) || 0;
+        case "epc":
+          return Number(o.epc) || 0;
         case "epc_confirmed":
           return Number(o.epc_confirmed) || 0;
+        case "epv":
+          return Number(o.epv) || 0;
         case "cpc":
           return Number(o.cpc) || 0;
+        case "profit":
+          return Number(o.profit) || 0;
         case "profit_confirmed":
           return Number(o.profit_confirmed) || 0;
+        case "roi":
+          return Number(o.roi) || 0;
         case "roi_confirmed":
           return Number(o.roi_confirmed) || 0;
         default:
@@ -55020,17 +55153,27 @@ const Offers = ({ offers, refreshData }) => {
       "payout",
       "clicks",
       "unique_clicks",
+      "visits",
+      "unique_visits",
+      "lp_clicks",
+      "lp_ctr",
       "conversions",
       "leads",
       "sales",
       "rejected",
+      "trash",
+      "approve_rate",
       "revenue",
       "revenue_confirmed",
       "cost",
       "cr",
+      "epc",
       "epc_confirmed",
+      "epv",
       "cpc",
+      "profit",
       "profit_confirmed",
+      "roi",
       "roi_confirmed"
     ].includes(sortBy.key);
     return filteredOffers.map((offer, idx) => ({ offer, idx })).sort((a, b) => {
@@ -55137,22 +55280,48 @@ const Offers = ({ offers, refreshData }) => {
   const totals = filteredOffers.reduce((acc, o) => {
     acc.clicks += parseInt(o.clicks || 0);
     acc.unique_clicks += parseInt(o.unique_clicks || 0);
+    acc.visits += parseInt(o.visits || 0);
+    acc.unique_visits += parseInt(o.unique_visits || 0);
+    acc.lp_clicks += parseInt(o.lp_clicks || 0);
     acc.conversions += parseInt(o.conversions || 0);
     acc.leads += parseInt(o.leads || 0);
     acc.sales += parseInt(o.sales || 0);
     acc.rejected += parseInt(o.rejected || 0);
+    acc.trash += parseInt(o.trash || 0);
     acc.revenue += parseFloat(o.revenue || 0);
     acc.revenue_confirmed += parseFloat(o.revenue_confirmed || 0);
     acc.cost += parseFloat(o.cost || 0);
     return acc;
-  }, { clicks: 0, unique_clicks: 0, conversions: 0, leads: 0, sales: 0, rejected: 0, revenue: 0, revenue_confirmed: 0, cost: 0 });
+  }, {
+    clicks: 0,
+    unique_clicks: 0,
+    visits: 0,
+    unique_visits: 0,
+    lp_clicks: 0,
+    conversions: 0,
+    leads: 0,
+    sales: 0,
+    rejected: 0,
+    trash: 0,
+    revenue: 0,
+    revenue_confirmed: 0,
+    cost: 0
+  });
+  const totalsProfit = totals.revenue - totals.cost;
   const totalsProfitConfirmed = totals.revenue_confirmed - totals.cost;
+  const totalsApproveDenom = totals.sales + totals.leads + totals.rejected + totals.trash;
   const renderTotalCell = (colId) => {
     switch (colId) {
       case "clicks":
         return totals.clicks.toLocaleString();
       case "unique_clicks":
         return totals.unique_clicks.toLocaleString();
+      case "visits":
+        return totals.visits.toLocaleString();
+      case "unique_visits":
+        return totals.unique_visits.toLocaleString();
+      case "lp_clicks":
+        return totals.lp_clicks.toLocaleString();
       case "conversions":
         return totals.conversions.toLocaleString();
       case "leads":
@@ -55161,20 +55330,34 @@ const Offers = ({ offers, refreshData }) => {
         return totals.sales.toLocaleString();
       case "rejected":
         return totals.rejected.toLocaleString();
+      case "trash":
+        return totals.trash.toLocaleString();
+      case "approve_rate":
+        return totalsApproveDenom > 0 ? `${(totals.sales / totalsApproveDenom * 100).toFixed(2)}%` : "0%";
+      case "lp_ctr":
+        return totals.clicks > 0 ? `${(totals.lp_clicks / totals.clicks * 100).toFixed(2)}%` : "0%";
       case "revenue":
         return `$${totals.revenue.toFixed(2)}`;
       case "revenue_confirmed":
         return `$${totals.revenue_confirmed.toFixed(2)}`;
       case "cost":
         return `$${totals.cost.toFixed(2)}`;
+      case "profit":
+        return `$${totalsProfit.toFixed(2)}`;
       case "profit_confirmed":
         return `$${totalsProfitConfirmed.toFixed(2)}`;
       case "cr":
         return totals.clicks > 0 ? `${(totals.conversions / totals.clicks * 100).toFixed(2)}%` : "0%";
+      case "epc":
+        return totals.clicks > 0 ? `$${(totals.revenue / totals.clicks).toFixed(2)}` : "$0";
       case "epc_confirmed":
         return totals.clicks > 0 ? `$${(totals.revenue_confirmed / totals.clicks).toFixed(2)}` : "$0";
+      case "epv":
+        return totals.clicks > 0 ? `$${(totals.revenue / totals.clicks).toFixed(2)}` : "$0";
       case "cpc":
         return totals.clicks > 0 ? `$${(totals.cost / totals.clicks).toFixed(2)}` : "$0";
+      case "roi":
+        return totals.cost > 0 ? `${(totalsProfit / totals.cost * 100).toFixed(2)}%` : "—";
       case "roi_confirmed":
         return totals.cost > 0 ? `${(totalsProfitConfirmed / totals.cost * 100).toFixed(2)}%` : "—";
       default:
@@ -55192,17 +55375,27 @@ const Offers = ({ offers, refreshData }) => {
     payout: t("offerColumns.payout"),
     clicks: t("components.clicks"),
     unique_clicks: t("components.uniques"),
+    visits: t("metrics.visits"),
+    unique_visits: t("metrics.uniqueVisits"),
+    lp_clicks: t("components.lpClicks"),
+    lp_ctr: t("components.lpCtr"),
     conversions: t("metrics.conversions"),
     leads: t("offerColumns.leads"),
     sales: t("offerColumns.sales"),
     rejected: t("offerColumns.rejected"),
+    trash: t("metrics.trash"),
+    approve_rate: t("metrics.approve"),
     revenue: t("metrics.revenue"),
     revenue_confirmed: t("offerColumns.revenueConfirmed"),
     cost: t("offerColumns.cost"),
     cr: t("offerColumns.cr"),
+    epc: t("metrics.epc"),
     epc_confirmed: t("offerColumns.epcConfirmed"),
+    epv: t("metrics.epv"),
     cpc: t("offerColumns.cpc"),
+    profit: t("metrics.profit"),
     profit_confirmed: t("offerColumns.profitConfirmed"),
+    roi: t("metrics.roi"),
     roi_confirmed: t("offerColumns.roiConfirmed")
   })[colId] || colId;
   const localizedColumns = ALL_OFFER_COLUMNS.map((c) => ({ ...c, label: columnLabel(c.id) }));
@@ -55251,14 +55444,26 @@ const Offers = ({ offers, refreshData }) => {
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: "var(--color-success)" }, children: money(offer.revenue_confirmed) }, colId);
       case "cost":
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: money(offer.cost) }, colId);
+      case "profit":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: (parseFloat(offer.profit) || 0) > 0 ? "var(--color-success)" : (parseFloat(offer.profit) || 0) < 0 ? "var(--color-danger)" : "var(--color-text-secondary)" }, children: money(offer.profit) }, colId);
       case "profit_confirmed":
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: (parseFloat(offer.profit_confirmed) || 0) > 0 ? "var(--color-success)" : (parseFloat(offer.profit_confirmed) || 0) < 0 ? "var(--color-danger)" : "var(--color-text-secondary)" }, children: money(offer.profit_confirmed) }, colId);
       case "roi_confirmed":
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: (parseFloat(offer.roi_confirmed) || 0) > 0 ? "var(--color-success)" : "var(--color-text-secondary)" }, children: offer.roi_confirmed !== null && offer.roi_confirmed !== void 0 ? `${offer.roi_confirmed}%` : "—" }, colId);
+      case "roi":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: (parseFloat(offer.roi) || 0) > 0 ? "var(--color-success)" : "var(--color-text-secondary)" }, children: offer.roi !== null && offer.roi !== void 0 ? `${offer.roi}%` : "—" }, colId);
       case "cr":
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `${offer.cr || 0}%` }, colId);
+      case "lp_ctr":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `${parseFloat(offer.lp_ctr) || 0}%` }, colId);
+      case "approve_rate":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `${parseFloat(offer.approve_rate) || 0}%` }, colId);
+      case "epc":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: money(offer.epc) }, colId);
       case "epc_confirmed":
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `$${(parseFloat(offer.epc_confirmed) || 0).toFixed(2)}` }, colId);
+      case "epv":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: money(offer.epv) }, colId);
       case "cpc":
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `$${(parseFloat(offer.cpc) || 0).toFixed(2)}` }, colId);
       default:
@@ -55529,7 +55734,7 @@ const Offers = ({ offers, refreshData }) => {
           }
           const val = renderTotalCell(colId);
           const alignRight = ALL_OFFER_COLUMNS.find((c) => c.id === colId)?.alignRight;
-          return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `px-4 py-3 ${alignRight ? "text-right" : ""}`, style: { color: colId === "profit_confirmed" && totalsProfitConfirmed < 0 ? "var(--color-danger)" : void 0 }, children: val ?? "" }, colId);
+          return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `px-4 py-3 ${alignRight ? "text-right" : ""}`, style: { color: colId === "profit_confirmed" && totalsProfitConfirmed < 0 || colId === "profit" && totalsProfit < 0 ? "var(--color-danger)" : void 0 }, children: val ?? "" }, colId);
         }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
       ] }) })

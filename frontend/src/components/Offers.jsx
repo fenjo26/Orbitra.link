@@ -23,17 +23,27 @@ export const ALL_OFFER_COLUMNS = [
     { id: 'payout', label: 'Payout' },
     { id: 'clicks', label: 'Clicks', alignRight: true },
     { id: 'unique_clicks', label: 'Uniques', alignRight: true },
+    { id: 'visits', label: 'Visits', alignRight: true },
+    { id: 'unique_visits', label: 'uVisits', alignRight: true },
+    { id: 'lp_clicks', label: 'LP Clicks', alignRight: true },
+    { id: 'lp_ctr', label: 'LP CTR', alignRight: true },
     { id: 'conversions', label: 'Conversions', alignRight: true },
     { id: 'leads', label: 'Leads', alignRight: true },
     { id: 'sales', label: 'Sales', alignRight: true },
     { id: 'rejected', label: 'Rejected', alignRight: true },
+    { id: 'trash', label: 'Trash', alignRight: true },
+    { id: 'approve_rate', label: 'Approve %', alignRight: true },
     { id: 'revenue', label: 'Revenue', alignRight: true },
     { id: 'revenue_confirmed', label: 'Revenue (confirmed)', alignRight: true },
     { id: 'cost', label: 'Cost', alignRight: true },
     { id: 'cr', label: 'CR', alignRight: true },
+    { id: 'epc', label: 'EPC', alignRight: true },
     { id: 'epc_confirmed', label: 'EPC (confirmed)', alignRight: true },
+    { id: 'epv', label: 'EPV', alignRight: true },
     { id: 'cpc', label: 'CPC', alignRight: true },
+    { id: 'profit', label: 'Profit', alignRight: true },
     { id: 'profit_confirmed', label: 'P/L (confirmed)', alignRight: true },
+    { id: 'roi', label: 'ROI', alignRight: true },
     { id: 'roi_confirmed', label: 'ROI (confirmed)', alignRight: true },
 ];
 
@@ -107,25 +117,36 @@ const Offers = ({ offers, refreshData }) => {
                 case 'payout': return Number(o.payout_value) || 0;
                 case 'clicks': return Number(o.clicks) || 0;
                 case 'unique_clicks': return Number(o.unique_clicks) || 0;
+                case 'visits': return Number(o.visits) || 0;
+                case 'unique_visits': return Number(o.unique_visits) || 0;
+                case 'lp_clicks': return Number(o.lp_clicks) || 0;
+                case 'lp_ctr': return Number(o.lp_ctr) || 0;
                 case 'conversions': return Number(o.conversions) || 0;
                 case 'leads': return Number(o.leads) || 0;
                 case 'sales': return Number(o.sales) || 0;
                 case 'rejected': return Number(o.rejected) || 0;
+                case 'trash': return Number(o.trash) || 0;
+                case 'approve_rate': return Number(o.approve_rate) || 0;
                 case 'revenue': return Number(o.revenue) || 0;
                 case 'revenue_confirmed': return Number(o.revenue_confirmed) || 0;
                 case 'cost': return Number(o.cost) || 0;
                 case 'cr': return Number(o.cr) || 0;
+                case 'epc': return Number(o.epc) || 0;
                 case 'epc_confirmed': return Number(o.epc_confirmed) || 0;
+                case 'epv': return Number(o.epv) || 0;
                 case 'cpc': return Number(o.cpc) || 0;
+                case 'profit': return Number(o.profit) || 0;
                 case 'profit_confirmed': return Number(o.profit_confirmed) || 0;
+                case 'roi': return Number(o.roi) || 0;
                 case 'roi_confirmed': return Number(o.roi_confirmed) || 0;
                 default: return '';
             }
         };
 
-        const isNumeric = ['id', 'payout', 'clicks', 'unique_clicks', 'conversions', 'leads', 'sales',
-            'rejected', 'revenue', 'revenue_confirmed', 'cost', 'cr', 'epc_confirmed', 'cpc',
-            'profit_confirmed', 'roi_confirmed'].includes(sortBy.key);
+        const isNumeric = ['id', 'payout', 'clicks', 'unique_clicks', 'visits', 'unique_visits',
+            'lp_clicks', 'lp_ctr', 'conversions', 'leads', 'sales', 'rejected', 'trash',
+            'approve_rate', 'revenue', 'revenue_confirmed', 'cost', 'cr', 'epc', 'epc_confirmed',
+            'epv', 'cpc', 'profit', 'profit_confirmed', 'roi', 'roi_confirmed'].includes(sortBy.key);
 
         return filteredOffers
             .map((offer, idx) => ({ offer, idx }))
@@ -253,32 +274,49 @@ const Offers = ({ offers, refreshData }) => {
     const totals = filteredOffers.reduce((acc, o) => {
         acc.clicks += parseInt(o.clicks || 0);
         acc.unique_clicks += parseInt(o.unique_clicks || 0);
+        acc.visits += parseInt(o.visits || 0);
+        acc.unique_visits += parseInt(o.unique_visits || 0);
+        acc.lp_clicks += parseInt(o.lp_clicks || 0);
         acc.conversions += parseInt(o.conversions || 0);
         acc.leads += parseInt(o.leads || 0);
         acc.sales += parseInt(o.sales || 0);
         acc.rejected += parseInt(o.rejected || 0);
+        acc.trash += parseInt(o.trash || 0);
         acc.revenue += parseFloat(o.revenue || 0);
         acc.revenue_confirmed += parseFloat(o.revenue_confirmed || 0);
         acc.cost += parseFloat(o.cost || 0);
         return acc;
-    }, { clicks: 0, unique_clicks: 0, conversions: 0, leads: 0, sales: 0, rejected: 0, revenue: 0, revenue_confirmed: 0, cost: 0 });
+    }, { clicks: 0, unique_clicks: 0, visits: 0, unique_visits: 0, lp_clicks: 0, conversions: 0,
+        leads: 0, sales: 0, rejected: 0, trash: 0, revenue: 0, revenue_confirmed: 0, cost: 0 });
 
+    const totalsProfit = totals.revenue - totals.cost;
     const totalsProfitConfirmed = totals.revenue_confirmed - totals.cost;
+    const totalsApproveDenom = totals.sales + totals.leads + totals.rejected + totals.trash;
     const renderTotalCell = (colId) => {
         switch (colId) {
             case 'clicks': return totals.clicks.toLocaleString();
             case 'unique_clicks': return totals.unique_clicks.toLocaleString();
+            case 'visits': return totals.visits.toLocaleString();
+            case 'unique_visits': return totals.unique_visits.toLocaleString();
+            case 'lp_clicks': return totals.lp_clicks.toLocaleString();
             case 'conversions': return totals.conversions.toLocaleString();
             case 'leads': return totals.leads.toLocaleString();
             case 'sales': return totals.sales.toLocaleString();
             case 'rejected': return totals.rejected.toLocaleString();
+            case 'trash': return totals.trash.toLocaleString();
+            case 'approve_rate': return totalsApproveDenom > 0 ? `${((totals.sales / totalsApproveDenom) * 100).toFixed(2)}%` : '0%';
+            case 'lp_ctr': return totals.clicks > 0 ? `${((totals.lp_clicks / totals.clicks) * 100).toFixed(2)}%` : '0%';
             case 'revenue': return `$${totals.revenue.toFixed(2)}`;
             case 'revenue_confirmed': return `$${totals.revenue_confirmed.toFixed(2)}`;
             case 'cost': return `$${totals.cost.toFixed(2)}`;
+            case 'profit': return `$${totalsProfit.toFixed(2)}`;
             case 'profit_confirmed': return `$${totalsProfitConfirmed.toFixed(2)}`;
             case 'cr': return totals.clicks > 0 ? `${((totals.conversions / totals.clicks) * 100).toFixed(2)}%` : '0%';
+            case 'epc': return totals.clicks > 0 ? `$${(totals.revenue / totals.clicks).toFixed(2)}` : '$0';
             case 'epc_confirmed': return totals.clicks > 0 ? `$${(totals.revenue_confirmed / totals.clicks).toFixed(2)}` : '$0';
+            case 'epv': return totals.clicks > 0 ? `$${(totals.revenue / totals.clicks).toFixed(2)}` : '$0';
             case 'cpc': return totals.clicks > 0 ? `$${(totals.cost / totals.clicks).toFixed(2)}` : '$0';
+            case 'roi': return totals.cost > 0 ? `${((totalsProfit / totals.cost) * 100).toFixed(2)}%` : '—';
             case 'roi_confirmed': return totals.cost > 0 ? `${((totalsProfitConfirmed / totals.cost) * 100).toFixed(2)}%` : '—';
             default: return null;
         }
@@ -295,17 +333,27 @@ const Offers = ({ offers, refreshData }) => {
         payout: t('offerColumns.payout'),
         clicks: t('components.clicks'),
         unique_clicks: t('components.uniques'),
+        visits: t('metrics.visits'),
+        unique_visits: t('metrics.uniqueVisits'),
+        lp_clicks: t('components.lpClicks'),
+        lp_ctr: t('components.lpCtr'),
         conversions: t('metrics.conversions'),
         leads: t('offerColumns.leads'),
         sales: t('offerColumns.sales'),
         rejected: t('offerColumns.rejected'),
+        trash: t('metrics.trash'),
+        approve_rate: t('metrics.approve'),
         revenue: t('metrics.revenue'),
         revenue_confirmed: t('offerColumns.revenueConfirmed'),
         cost: t('offerColumns.cost'),
         cr: t('offerColumns.cr'),
+        epc: t('metrics.epc'),
         epc_confirmed: t('offerColumns.epcConfirmed'),
+        epv: t('metrics.epv'),
         cpc: t('offerColumns.cpc'),
+        profit: t('metrics.profit'),
         profit_confirmed: t('offerColumns.profitConfirmed'),
+        roi: t('metrics.roi'),
         roi_confirmed: t('offerColumns.roiConfirmed'),
     }[colId] || colId);
 
@@ -387,6 +435,12 @@ const Offers = ({ offers, refreshData }) => {
                 return <td key={colId} className={`${tdCls} font-medium`} style={{ color: 'var(--color-success)' }}>{money(offer.revenue_confirmed)}</td>;
             case 'cost':
                 return <td key={colId} className={tdCls}>{money(offer.cost)}</td>;
+            case 'profit':
+                return (
+                    <td key={colId} className={`${tdCls} font-medium`} style={{ color: (parseFloat(offer.profit) || 0) > 0 ? 'var(--color-success)' : (parseFloat(offer.profit) || 0) < 0 ? 'var(--color-danger)' : 'var(--color-text-secondary)' }}>
+                        {money(offer.profit)}
+                    </td>
+                );
             case 'profit_confirmed':
                 return (
                     <td key={colId} className={`${tdCls} font-medium`} style={{ color: (parseFloat(offer.profit_confirmed) || 0) > 0 ? 'var(--color-success)' : (parseFloat(offer.profit_confirmed) || 0) < 0 ? 'var(--color-danger)' : 'var(--color-text-secondary)' }}>
@@ -399,10 +453,24 @@ const Offers = ({ offers, refreshData }) => {
                         {offer.roi_confirmed !== null && offer.roi_confirmed !== undefined ? `${offer.roi_confirmed}%` : '—'}
                     </td>
                 );
+            case 'roi':
+                return (
+                    <td key={colId} className={`${tdCls} font-medium`} style={{ color: (parseFloat(offer.roi) || 0) > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)' }}>
+                        {offer.roi !== null && offer.roi !== undefined ? `${offer.roi}%` : '—'}
+                    </td>
+                );
             case 'cr':
                 return <td key={colId} className={tdCls}>{`${offer.cr || 0}%`}</td>;
+            case 'lp_ctr':
+                return <td key={colId} className={tdCls}>{`${parseFloat(offer.lp_ctr) || 0}%`}</td>;
+            case 'approve_rate':
+                return <td key={colId} className={tdCls}>{`${parseFloat(offer.approve_rate) || 0}%`}</td>;
+            case 'epc':
+                return <td key={colId} className={tdCls}>{money(offer.epc)}</td>;
             case 'epc_confirmed':
                 return <td key={colId} className={tdCls}>{`$${(parseFloat(offer.epc_confirmed) || 0).toFixed(2)}`}</td>;
+            case 'epv':
+                return <td key={colId} className={tdCls}>{money(offer.epv)}</td>;
             case 'cpc':
                 return <td key={colId} className={tdCls}>{`$${(parseFloat(offer.cpc) || 0).toFixed(2)}`}</td>;
             default:
@@ -692,7 +760,7 @@ const Offers = ({ offers, refreshData }) => {
                                     }
                                     const val = renderTotalCell(colId);
                                     const alignRight = ALL_OFFER_COLUMNS.find(c => c.id === colId)?.alignRight;
-                                    return <td key={colId} className={`px-4 py-3 ${alignRight ? 'text-right' : ''}`} style={{ color: colId === 'profit_confirmed' && totalsProfitConfirmed < 0 ? 'var(--color-danger)' : undefined }}>{val ?? ''}</td>;
+                                    return <td key={colId} className={`px-4 py-3 ${alignRight ? 'text-right' : ''}`} style={{ color: (colId === 'profit_confirmed' && totalsProfitConfirmed < 0) || (colId === 'profit' && totalsProfit < 0) ? 'var(--color-danger)' : undefined }}>{val ?? ''}</td>;
                                 })}
                                 <td></td>
                             </tr>

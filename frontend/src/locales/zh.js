@@ -390,6 +390,12 @@ export default {
         "cpc": "中国共产党",
         "cpa": "注册会计师",
         "ctr": "点击率",
+        "visits": "访问量",
+        "uniqueVisits": "独立访问",
+        "trash": "垃圾",
+        "approve": "批准率 %",
+        "epc": "EPC",
+        "epv": "EPV",
         "realRevenue": "实际收入",
         "realRoi": "真正的投资回报率"
     },

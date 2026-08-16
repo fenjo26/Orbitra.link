@@ -390,6 +390,12 @@ export default {
         "cpc": "Partido Comunista de China",
         "cpa": "contador público",
         "ctr": "CTR",
+        "visits": "Visitas",
+        "uniqueVisits": "Visitas únicas",
+        "trash": "Basura",
+        "approve": "Aprobación %",
+        "epc": "EPC",
+        "epv": "EPV",
         "realRevenue": "Ingresos reales",
         "realRoi": "Retorno de la inversión real"
     },

@@ -69,7 +69,8 @@ if (!function_exists('orbitraConversionStatusGroups')) {
      * verified 64-metric math by construction, not a near copy.
      *
      * Row extras after compute: cr, epc_confirmed, cpc, profit_confirmed,
-     * roi_confirmed (plus raw sales/leads/rejected/trash/revenue_confirmed/cost).
+     * roi_confirmed (plus raw sales/leads/rejected/trash/revenue_confirmed/cost
+     * and lp_clicks — clicks that reached the offer through a landing).
      */
     function orbitraOffersWithStatsSql(string $joinCondition, ?string $valueColumn): string
     {
@@ -81,6 +82,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    notes, state, created_at, group_name, affiliate_network_name,
                    COUNT(click_id) as clicks,
                    COUNT(DISTINCT click_ip) as unique_clicks,
+                   COALESCE(SUM(via_landing), 0) as lp_clicks,
                    COALESCE(SUM(cnt_any), 0) as conversions,
                    COALESCE(SUM(rev_all), 0) as revenue,
                    COALESCE(SUM(rev_sale), 0) as revenue_confirmed,
@@ -99,6 +101,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.id as click_id,
                        cl.ip as click_ip,
                        cl.cost as click_cost,
+                       CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END as via_landing,
                        cva.cnt_any, cva.rev_all, cva.rev_sale,
                        cva.cnt_sale, cva.cnt_hold, cva.cnt_rejected, cva.cnt_trash
                 FROM offers o
@@ -107,6 +110,52 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                 LEFT JOIN clicks cl ON o.id = cl.offer_id $joinCondition
                 LEFT JOIN $agg cva ON cva.click_id = cl.id
                 WHERE o.is_archived = 0
+            )
+            GROUP BY id
+        ";
+    }
+
+    /**
+     * Full landings list with the same counters, keyed on the landing instead
+     * of the offer. Run it and feed each row through orbitraComputeDerivedMetrics()
+     * with prelander_clicks = clicks (every click row bound to a landing is one
+     * landing view), so landing numbers are the same verified math as offers.
+     *
+     * Row extras after compute: lp_ctr, cr, approve_rate, epc/epv family, cpc,
+     * profit, roi (plus raw sales/leads/rejected/trash/revenue_confirmed/cost).
+     */
+    function orbitraLandingsWithStatsSql(string $joinCondition, ?string $valueColumn): string
+    {
+        $agg = orbitraConversionAggregateSql($valueColumn);
+        return "
+            SELECT id, name, type, url, state, group_name,
+                   COUNT(click_id) as clicks,
+                   COUNT(DISTINCT click_ip) as unique_clicks,
+                   COALESCE(SUM(offer_clicked), 0) as lp_clicks,
+                   COALESCE(SUM(cnt_any), 0) as conversions,
+                   COALESCE(SUM(rev_all), 0) as revenue,
+                   COALESCE(SUM(rev_sale), 0) as revenue_confirmed,
+                   COALESCE(SUM(cnt_sale), 0) as sales,
+                   COALESCE(SUM(cnt_hold), 0) as leads,
+                   COALESCE(SUM(cnt_rejected), 0) as rejected,
+                   COALESCE(SUM(cnt_trash), 0) as trash,
+                   COALESCE(SUM(click_cost), 0) as cost,
+                   MAX(click_created) as last_event
+            FROM (
+                SELECT l.id, l.name, l.type, l.url, l.state,
+                       lg.name as group_name,
+                       cl.id as click_id,
+                       cl.ip as click_ip,
+                       cl.cost as click_cost,
+                       cl.created_at as click_created,
+                       CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END as offer_clicked,
+                       cva.cnt_any, cva.rev_all, cva.rev_sale,
+                       cva.cnt_sale, cva.cnt_hold, cva.cnt_rejected, cva.cnt_trash
+                FROM landings l
+                LEFT JOIN landing_groups lg ON l.group_id = lg.id
+                LEFT JOIN clicks cl ON l.id = cl.landing_id $joinCondition
+                LEFT JOIN $agg cva ON cva.click_id = cl.id
+                WHERE l.is_archived = 0
             )
             GROUP BY id
         ";
@@ -248,6 +297,12 @@ if (!function_exists('orbitraConversionStatusGroups')) {
 
             'cpc'                     => $clicks > 0 ? round($cost / $clicks, 4) : 0,
             'ucpc'                    => $uniqueClicks > 0 ? round($cost / $uniqueClicks, 4) : 0,
+            // EPV — earnings per visit. At campaign/landing/offer scope a visit
+            // is one click row (the LP→offer transition updates the row rather
+            // than inserting one), so the denominator is clicks and EPV equals
+            // EPC by definition, not by accident.
+            'epv'                     => $clicks > 0 ? round($revenue / $clicks, 4) : 0,
+            'epv_confirmed'           => $clicks > 0 ? round($revConfirmed / $clicks, 4) : 0,
             // eCPC — effective CPC once conversions are weighed in is not
             // derivable from these counters; keep it the plain cost per click
             // (identical to CPC) rather than the bogus cost*1000 it used to be.

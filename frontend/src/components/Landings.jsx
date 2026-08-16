@@ -10,21 +10,39 @@ import { useLanguage } from '../contexts/LanguageContext';
 const API_URL = '/api.php';
 
 // Every column the landings table can show, backed by fields the `landings`
-// endpoint actually returns. Deliberately no views/geo/money columns: the
-// clicks table has no landing "view" concept, landings carry no GEO, and
-// clicks.revenue/cost are never written — those would render eternal zeros.
+// endpoint actually returns. Money and status counters come from the same
+// conversion aggregate as the reports (see core/ReportMetrics.php); visits
+// equal clicks because one click row IS one landing visit.
 export const ALL_LANDING_COLUMNS = [
     { id: 'id', label: 'ID' },
     { id: 'name', label: 'Name', required: true },
+    { id: 'group_name', label: 'Group' },
     { id: 'type', label: 'Type' },
     { id: 'state', label: 'Status' },
-    { id: 'clicks', label: 'Clicks' },
-    { id: 'unique_clicks', label: 'Uniques' },
-    { id: 'lp_clicks', label: 'LP Clicks' },
-    { id: 'lp_ctr', label: 'LP CTR' },
-    { id: 'conversions', label: 'Conversions' },
-    { id: 'cr', label: 'CR' },
-    { id: 'group_name', label: 'Group' },
+    { id: 'visits', label: 'Visits', alignRight: true },
+    { id: 'unique_visits', label: 'uVisits', alignRight: true },
+    { id: 'clicks', label: 'Clicks', alignRight: true },
+    { id: 'unique_clicks', label: 'Uniques', alignRight: true },
+    { id: 'lp_clicks', label: 'LP Clicks', alignRight: true },
+    { id: 'lp_ctr', label: 'LP CTR', alignRight: true },
+    { id: 'conversions', label: 'Conversions', alignRight: true },
+    { id: 'leads', label: 'Leads', alignRight: true },
+    { id: 'sales', label: 'Sales', alignRight: true },
+    { id: 'rejected', label: 'Rejected', alignRight: true },
+    { id: 'trash', label: 'Trash', alignRight: true },
+    { id: 'approve_rate', label: 'Approve %', alignRight: true },
+    { id: 'cr', label: 'CR', alignRight: true },
+    { id: 'cost', label: 'Cost', alignRight: true },
+    { id: 'revenue', label: 'Revenue', alignRight: true },
+    { id: 'revenue_confirmed', label: 'Revenue (conf)', alignRight: true },
+    { id: 'profit', label: 'Profit', alignRight: true },
+    { id: 'profit_confirmed', label: 'Profit (conf)', alignRight: true },
+    { id: 'cpc', label: 'CPC', alignRight: true },
+    { id: 'epc', label: 'EPC', alignRight: true },
+    { id: 'epc_confirmed', label: 'EPC (conf)', alignRight: true },
+    { id: 'epv', label: 'EPV', alignRight: true },
+    { id: 'roi', label: 'ROI', alignRight: true },
+    { id: 'roi_confirmed', label: 'ROI (conf)', alignRight: true },
     { id: 'last_event', label: 'Last Event' },
 ];
 
@@ -198,12 +216,30 @@ const Landings = ({ landings, refreshData }) => {
         name: t('components.aliasName'),
         type: t('components.type'),
         state: t('components.status'),
+        visits: t('metrics.visits'),
+        unique_visits: t('metrics.uniqueVisits'),
         clicks: t('components.clicks'),
         unique_clicks: t('components.uniques'),
         lp_clicks: t('components.lpClicks'),
         lp_ctr: t('components.lpCtr'),
         conversions: t('landingColumns.conversions'),
+        leads: t('offerColumns.leads'),
+        sales: t('offerColumns.sales'),
+        rejected: t('offerColumns.rejected'),
+        trash: t('metrics.trash'),
+        approve_rate: t('metrics.approve'),
         cr: t('landingColumns.cr'),
+        cost: t('metrics.cost'),
+        revenue: t('metrics.revenue'),
+        revenue_confirmed: t('offerColumns.revenueConfirmed'),
+        profit: t('metrics.profit'),
+        profit_confirmed: t('offerColumns.profitConfirmed'),
+        cpc: t('metrics.cpc'),
+        epc: t('metrics.epc'),
+        epc_confirmed: t('offerColumns.epcConfirmed'),
+        epv: t('metrics.epv'),
+        roi: t('metrics.roi'),
+        roi_confirmed: t('offerColumns.roiConfirmed'),
         group_name: t('components.group'),
         last_event: t('landingColumns.lastEvent'),
     }[colId] || colId);
@@ -220,7 +256,10 @@ const Landings = ({ landings, refreshData }) => {
         return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
     };
 
+    const money = (v) => `$${(parseFloat(v) || 0).toFixed(2)}`;
+
     const renderLandingCell = (landing, colId) => {
+        const tdCls = ALL_LANDING_COLUMNS.find(c => c.id === colId)?.alignRight ? 'text-right' : '';
         switch (colId) {
             case 'id':
                 return <td key={colId} className="font-medium">{landing.id}</td>;
@@ -262,14 +301,45 @@ const Landings = ({ landings, refreshData }) => {
                 );
             case 'group_name':
                 return <td key={colId} style={{ color: 'var(--color-text-secondary)' }}>{landing.group_name || '-'}</td>;
+            case 'cost':
+                return <td key={colId} className={tdCls}>{money(landing.cost)}</td>;
+            case 'revenue':
+                return <td key={colId} className={`${tdCls} font-medium`} style={{ color: 'var(--color-success)' }}>{money(landing.revenue)}</td>;
+            case 'revenue_confirmed':
+                return <td key={colId} className={`${tdCls} font-medium`} style={{ color: 'var(--color-success)' }}>{money(landing.revenue_confirmed)}</td>;
+            case 'profit':
+            case 'profit_confirmed': {
+                const v = parseFloat(landing[colId]) || 0;
+                return (
+                    <td key={colId} className={`${tdCls} font-medium`} style={{ color: v > 0 ? 'var(--color-success)' : v < 0 ? 'var(--color-danger)' : 'var(--color-text-secondary)' }}>
+                        {money(v)}
+                    </td>
+                );
+            }
+            case 'cpc':
+            case 'epc':
+            case 'epc_confirmed':
+            case 'epv':
+                return <td key={colId} className={tdCls}>{money(landing[colId])}</td>;
+            case 'approve_rate':
+                return <td key={colId} className={tdCls}>{`${parseFloat(landing.approve_rate) || 0}%`}</td>;
+            case 'roi':
+            case 'roi_confirmed': {
+                const v = landing[colId];
+                return (
+                    <td key={colId} className={`${tdCls} font-medium`} style={{ color: (parseFloat(v) || 0) > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)' }}>
+                        {v !== null && v !== undefined ? `${v}%` : '—'}
+                    </td>
+                );
+            }
             case 'lp_ctr':
-                return <td key={colId}>{landing.lp_ctr !== undefined ? `${landing.lp_ctr}%` : '0%'}</td>;
+                return <td key={colId} className={tdCls}>{landing.lp_ctr !== undefined ? `${landing.lp_ctr}%` : '0%'}</td>;
             case 'cr':
-                return <td key={colId}>{landing.cr !== undefined ? `${landing.cr}%` : '0%'}</td>;
+                return <td key={colId} className={tdCls}>{landing.cr !== undefined ? `${landing.cr}%` : '0%'}</td>;
             case 'last_event':
                 return <td key={colId} style={{ color: 'var(--color-text-secondary)' }}>{formatLastEvent(landing.last_event)}</td>;
             default:
-                return <td key={colId}>{landing[colId] || 0}</td>;
+                return <td key={colId} className={tdCls}>{Number(landing[colId] || 0).toLocaleString()}</td>;
         }
     };
 
@@ -395,7 +465,7 @@ const Landings = ({ landings, refreshData }) => {
                                 />
                             </th>
                             {chosenColumns.map((colId) => (
-                                <th key={colId}>{columnLabel(colId)}</th>
+                                <th key={colId} className={ALL_LANDING_COLUMNS.find(c => c.id === colId)?.alignRight ? 'text-right' : ''}>{columnLabel(colId)}</th>
                             ))}
                             <th className="text-right">{t('common.actions')}</th>
                         </tr>

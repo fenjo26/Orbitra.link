@@ -2597,36 +2597,37 @@ try {
             list($whereCl, $paramsCl) = getDashboardFilters('cl.');
             $joinCondition = !empty($whereCl) ? str_replace("WHERE ", "AND ", $whereCl) : "";
             $limitClause = isset($_GET['limit']) ? "LIMIT " . (int) $_GET['limit'] : "";
-            $orderBy = isset($_GET['limit']) ? "ORDER BY clicks DESC, l.id DESC" : "ORDER BY l.id DESC";
+            $orderBy = isset($_GET['limit']) ? "ORDER BY clicks DESC, id DESC" : "ORDER BY id DESC";
             $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
 
-            // Expanded to include metrics similarly to offers/campaigns (including LP->Offer clicks and LP CTR)
-            $stmt = $pdo->prepare("
-                SELECT l.id, l.name, l.type, l.url, l.state, lg.name as group_name,
-                       COUNT(cl.id) as clicks,
-                       COUNT(DISTINCT cl.ip) as unique_clicks,
-                       COALESCE(SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END), 0) as lp_clicks,
-                       COALESCE(SUM(cl.is_conversion), 0) as conversions,
-                       MAX(cl.created_at) as last_event
-                FROM landings l
-                LEFT JOIN landing_groups lg ON l.group_id = l.group_id
-                LEFT JOIN clicks cl ON (l.id = cl.landing_id OR (cl.landing_id IS (NULL) AND cl.id = 'NO_DIRECT_LINK_YET')) $joinCondition
-                WHERE l.is_archived = 0
-                GROUP BY l.id
-                $havingClause
-                $orderBy
-                $limitClause
-            ");
+            // Same engine as offers/campaigns: status counters and money come
+            // from the conversion aggregate (conversion EVENTS, not the
+            // per-click is_conversion flag, which caps multi-conversion clicks
+            // at 1), and every ratio from orbitraComputeDerivedMetrics() — so
+            // the landings table cannot drift from the verified 64-metric
+            // math. The SQL lives in core/ReportMetrics.php so tests run the
+            // exact production query.
+            $stmt = $pdo->prepare(orbitraLandingsWithStatsSql($joinCondition, getConversionsValueColumn($pdo))
+                . " $havingClause $orderBy $limitClause");
             $stmt->execute($paramsCl);
             $landingsData = $stmt->fetchAll();
             foreach ($landingsData as &$lRow) {
-                $c = (int) ($lRow['clicks'] ?? 0);
-                $lpc = (int) ($lRow['lp_clicks'] ?? 0);
-                $conv = (int) ($lRow['conversions'] ?? 0);
-                $lRow['lp_clicks'] = $lpc;
-                $lRow['lp_ctr'] = $c > 0 ? round(($lpc / $c) * 100, 2) : 0.0;
-                // Same denominator convention as campaign CR: conversions per click.
-                $lRow['cr'] = $c > 0 ? round(($conv / $c) * 100, 2) : 0.0;
+                // Every click row bound to a landing is one landing view, so
+                // prelander_clicks = clicks; that makes the engine's LP CTR
+                // exactly lp_clicks / visits.
+                $lRow['prelander_clicks'] = $lRow['clicks'];
+                $m = orbitraComputeDerivedMetrics($lRow);
+                foreach (['lp_ctr', 'cr', 'approve_rate', 'epc', 'epc_confirmed', 'epv',
+                    'cpc', 'profit', 'profit_confirmed', 'roi', 'roi_confirmed'] as $k) {
+                    $lRow[$k] = $m[$k];
+                }
+                // A click row IS a landing visit: the LP→offer click-through
+                // updates the same row's offer_id instead of inserting a new
+                // one, so visits/clicks (and uVisits/uClicks) are equal here —
+                // Keitaro landing semantics, where "clicks" counts the hits a
+                // landing received.
+                $lRow['visits'] = $m['clicks'];
+                $lRow['unique_visits'] = $m['unique_clicks'];
             }
             unset($lRow);
             echo json_encode(['status' => 'success', 'data' => $landingsData]);
@@ -3567,12 +3568,17 @@ try {
             $stmt->execute($paramsCl);
             $offersData = $stmt->fetchAll();
             foreach ($offersData as &$oRow) {
+                // For an offer, "visits" are its own click rows; feeding that
+                // back as prelander_clicks makes the engine's LP CTR the share
+                // of the offer's clicks that arrived through a landing.
+                $oRow['prelander_clicks'] = $oRow['clicks'];
                 $m = orbitraComputeDerivedMetrics($oRow);
-                $oRow['cr'] = $m['cr'];
-                $oRow['epc_confirmed'] = $m['epc_confirmed'];
-                $oRow['cpc'] = $m['cpc'];
-                $oRow['profit_confirmed'] = $m['profit_confirmed'];
-                $oRow['roi_confirmed'] = $m['roi_confirmed'];
+                foreach (['cr', 'approve_rate', 'lp_ctr', 'epc', 'epc_confirmed', 'epv',
+                    'cpc', 'profit', 'profit_confirmed', 'roi', 'roi_confirmed'] as $k) {
+                    $oRow[$k] = $m[$k];
+                }
+                $oRow['visits'] = $m['clicks'];
+                $oRow['unique_visits'] = $m['unique_clicks'];
             }
             unset($oRow);
             echo json_encode(['status' => 'success', 'data' => $offersData]);

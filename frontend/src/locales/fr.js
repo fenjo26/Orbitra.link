@@ -390,6 +390,12 @@ export default {
         "cpc": "CPC",
         "cpa": "CPA",
         "ctr": "CTR",
+        "visits": "Visites",
+        "uniqueVisits": "Visites uniques",
+        "trash": "Poubelle",
+        "approve": "Approbation %",
+        "epc": "EPC",
+        "epv": "EPV",
         "realRevenue": "Revenu réel",
         "realRoi": "ROI réel"
     },
