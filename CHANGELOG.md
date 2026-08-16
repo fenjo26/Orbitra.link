@@ -7,6 +7,61 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.8.0] — 2026-08-16
+
+### Added
+- 🎯 **Keitaro-style landing/offer picker for streams.** The "Add landing pages /
+  Add offers" split button opens a selector modal with instant search (name, URL,
+  id), Group / Affiliate Network / Country filters, multi-select with Select all,
+  and "Already added" badges. Picked entities enter the stream with even weight
+  redistribution (floor(100/N), remainder on the first item). The dropdown's
+  second action creates a new landing/offer without leaving the stream; the
+  stripped-down name+URL offer form is now the full OfferEditor.
+- 🔀 **AND / OR filter logic per stream.** The FILTERS header grows an
+  `[AND|OR]` switcher (from the second filter on). Abstaining filters
+  (undetermined country, missing ISP data) block nothing under AND and satisfy
+  nothing under OR. Saved with the campaign, carried by duplicate/export
+  (migration 21).
+- 🧩 **"Select and Order Columns" for Landings and Offers.** Checkboxes, Select
+  All, drag-to-reorder by grip handle, localStorage persistence, Restore to
+  default; Name stays required. The offers footer totals sum counters/money and
+  recompute ratios from the totals.
+- 📊 **Report-grade stats columns on the offers table** — leads, sales,
+  rejected, conversions-as-events, CR, EPC/CPC (confirmed), revenue / cost /
+  P&L / ROI (confirmed) — computed by the same status-group aggregate and
+  derive function behind the verified 64-metric reports, pinned by
+  `tests/offers_stats_test.php` (28 assertions). `conversions` counts events
+  again, matching the reports.
+
+### Fixed
+- ✅ Affiliate-network postback URLs: the full template with macros is built
+  (scheme follows the panel protocol), editable inline, copyable in one click,
+  and shown in the networks list.
+- ✅ Campaign groups: the Groups button on Campaigns wrote into `offer_groups`
+  and loaded a non-existent `action=groups` — groups never appeared in the
+  filter. `groups` is now an alias of `campaign_groups` for older clients.
+- ✅ Column customizer (Campaigns): draggable rows swallowed every click, drag
+  reorder reshuffled rows under an active search, and Select All selected all
+  64 columns regardless of the filter.
+- ✅ Local landings open on the first click after upload: single-nested-folder
+  ZIPs flatten automatically (`__MACOSX` junk removed) in both landing and
+  offer uploads; legacy nested uploads resolve at serve time — page and assets;
+  statcache is dropped before entry lookup; the editor's Save blocks with
+  "Uploading archive…" until the ZIP lands.
+- ✅ Active toggle buttons (Trend/Cohort, metric and view switchers) became
+  unreadable on light-accent themes — text now follows `--color-text-inverse`
+  per theme (`.btn-primary` too, which exposed and fixed a wrong dark-theme
+  inverse value).
+- ✅ Offer/Landing editors unified: "Create Offer/Landing" titles, singular edit
+  titles, the mislabeled double-"Notes" tab merged into Parameters, one type
+  switcher (the method dropdown no longer fights the segments), matching
+  footers, quick-create group "+" in both.
+- ✅ Empty ghost rows in streams (`{id:'',weight:100}`) render as clickable
+  placeholders that open the picker; empty landing/offer lists show dashed
+  empty states.
+- 🌏 `Asia/Kolkata` (IST, UTC+5:30) selectable in DateRangePicker, profile,
+  setup wizard and offer capping; the CET row reads "Berlin / Paris / Rome".
+
 ## [0.9.7.9] — 2026-08-16
 
 ### Added

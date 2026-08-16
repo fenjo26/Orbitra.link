@@ -1,4 +1,4 @@
-# Orbitra v0.9.7.9 Tracker
+# Orbitra v0.9.8.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -387,6 +387,47 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.8.0
+
+### Added
+- 🎯 **Keitaro-style landing/offer picker in campaign streams.** The
+  "Add landing pages / Add offers" split button opens a selector modal: instant
+  search by name/URL/id, Group / Affiliate Network / Country filters,
+  multi-select with Select all, "Already added" badges. Picked entities enter
+  the stream with even weight redistribution (sum always 100%); the dropdown's
+  second action creates a new landing/offer right from the stream.
+- 🔀 **AND / OR stream filter logic** — a per-stream `[AND|OR]` switcher in the
+  FILTERS header. Abstaining filters (unknown country, no ISP data) block
+  nothing under AND and satisfy nothing under OR; the mode survives
+  duplicate/export (migration 21).
+- 🧩 **"Select and Order Columns" for Landings and Offers tables** —
+  checkboxes, Select All, drag-to-reorder, localStorage persistence, Restore to
+  default (Name stays required).
+- 📊 **Report-grade offer columns**: leads, sales, rejected, conversions (as
+  events, CR can exceed 100% again), CR, EPC/CPC, revenue / cost / P&L / ROI
+  confirmed — computed by the same engine as the verified 64-metric reports and
+  covered by a reference-dataset test suite.
+
+### Fixed
+- ✅ **Full postback URL for affiliate networks** — the template's macros are
+  baked in, the field is editable and copies in one click; the networks list
+  shows the saved URL.
+- ✅ **Campaign groups were saved into offer_groups** and the filter loaded a
+  non-existent endpoint — groups never appeared. Now saved and loaded
+  correctly; `groups` aliases `campaign_groups` for older clients.
+- ✅ **Column customizer clicks** — draggable rows swallowed every click,
+  reorder scrambled rows under an active search, Select All ignored the filter.
+- ✅ **Local landings open on the first click after upload** — nested-folder
+  ZIPs flatten automatically (`__MACOSX` junk removed), legacy nested uploads
+  resolve with their assets, and Save blocks with "Uploading archive…" until
+  the archive lands.
+- ✅ Unreadable active toggles on light-accent themes (Neon) — text follows
+  `--color-text-inverse` per theme.
+- ✅ Offer/Landing editors unified (Create titles, Parameters tab, single type
+  switcher, matching footers); empty stream rows became clickable placeholders
+  with empty states; `Asia/Kolkata` (IST, UTC+5:30) added to every timezone
+  dropdown.
 
 ## 📝 What's New in v0.9.7.9
 
