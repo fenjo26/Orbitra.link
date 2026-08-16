@@ -570,6 +570,8 @@ export default {
     },
     "offers": {
         "title": "Офферы",
+        "titleSingular": "Оффер",
+        "createOffer": "Создать оффер",
         "noOffers": "Нет созданных офферов",
         "noOffersDesc": "Вы можете создать первый оффер",
         "noOffersFiltered": "Нет офферов, соответствующих фильтрам",
@@ -1302,6 +1304,7 @@ export default {
         "cancel": "Отмена",
         "save": "Сохранить",
         "createLanding": "Создать лендинг",
+        "landing": "Лендинг",
         "saveChanges": "Сохранить изменения"
     },
     "offerEditor": {

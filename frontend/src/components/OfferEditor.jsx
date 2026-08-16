@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Save, X, Upload, Plus, Trash2, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Upload, Plus, Trash2, Check } from 'lucide-react';
 import axios from 'axios';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
@@ -250,6 +250,14 @@ const OfferEditor = ({ offerId, onClose }) => {
         'America/New_York', 'America/Los_Angeles', 'Asia/Dubai', 'Asia/Tokyo'
     ];
 
+    // Which segment (Local/Redirect/Preload/Action) the persisted fields map
+    // to. Everything that is not local/preload/action is a redirect method.
+    const offerType = formData.is_local
+        ? 'local'
+        : ['preload', 'action'].includes(formData.redirect_type)
+            ? formData.redirect_type
+            : 'redirect';
+
     if (loading && offerId && !formData.name) {
         return (
             <div className="modal-overlay">
@@ -265,16 +273,18 @@ const OfferEditor = ({ offerId, onClose }) => {
             <div className="modal-content" style={{ maxWidth: '800px', width: '100%' }}>
                 <div className="modal-header">
                     <h2 className="modal-title">
-                        {offerId ? `${t('offers.title')}: ${formData.name}` : t('offers.title')}
+                        {offerId ? `${t('offers.titleSingular')}: ${formData.name}` : t('offers.createOffer')}
                     </h2>
                     <button onClick={() => onClose(false)} className="action-btn">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
-                {/* Tabs */}
+                {/* Tabs. Custom values used to live in a tab mislabeled "Notes"
+                    (editor.notes instead of editor.values) — merged into the
+                    Parameters tab so the tab bar reads General | Parameters | Notes. */}
                 <div className="flex px-5 pt-1 gap-6" style={{ borderBottom: '1px solid var(--color-border)' }}>
-                    {['general', 'settings', 'values', 'notes'].map(tab => (
+                    {['general', 'settings', 'notes'].map(tab => (
                         <button
                             key={tab}
                             className="pb-3 px-1 font-medium text-sm transition border-b-2"
@@ -286,7 +296,6 @@ const OfferEditor = ({ offerId, onClose }) => {
                         >
                             {tab === 'general' && t('editor.general')}
                             {tab === 'settings' && t('editor.params')}
-                            {tab === 'values' && t('editor.notes')}
                             {tab === 'notes' && t('editor.notes')}
                         </button>
                     ))}
@@ -357,7 +366,11 @@ const OfferEditor = ({ offerId, onClose }) => {
                                 </div>
                             </div>
 
-                            {/* Offer Type Buttons */}
+                            {/* Offer Type Buttons. offerType is derived from the
+                                persisted fields (is_local + redirect_type), and the
+                                method select below only appears for the Redirect
+                                family — the segmented control and the select used to
+                                fight over redirect_type, deactivating each other. */}
                             <div>
                                 <label className="form-label">{t('offerEditor.redirectType')} <HelpTooltip textKey="help.redirectTypeTooltip" /></label>
                                 <div className="flex rounded-xl overflow-hidden mb-3" style={{ border: '1px solid var(--color-border)' }}>
@@ -376,8 +389,8 @@ const OfferEditor = ({ offerId, onClose }) => {
                                         onClick={() => setFormData({ ...formData, redirect_type: 'redirect', is_local: false })}
                                         className="flex-1 px-4 py-2 text-sm font-medium transition"
                                         style={{
-                                            backgroundColor: !formData.is_local && formData.redirect_type === 'redirect' ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
-                                            color: !formData.is_local && formData.redirect_type === 'redirect' ? 'var(--color-primary)' : 'var(--color-text-primary)',
+                                            backgroundColor: offerType === 'redirect' ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
+                                            color: offerType === 'redirect' ? 'var(--color-primary)' : 'var(--color-text-primary)',
                                             borderRight: '1px solid var(--color-border)'
                                         }}
                                     >
@@ -387,51 +400,55 @@ const OfferEditor = ({ offerId, onClose }) => {
                                         onClick={() => setFormData({ ...formData, redirect_type: 'preload', is_local: false })}
                                         className="flex-1 px-4 py-2 text-sm font-medium transition"
                                         style={{
-                                            backgroundColor: !formData.is_local && formData.redirect_type === 'preload' ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
-                                            color: !formData.is_local && formData.redirect_type === 'preload' ? 'var(--color-primary)' : 'var(--color-text-primary)',
+                                            backgroundColor: offerType === 'preload' ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
+                                            color: offerType === 'preload' ? 'var(--color-primary)' : 'var(--color-text-primary)',
                                             borderRight: '1px solid var(--color-border)'
                                         }}
                                     >
-                                        {t('landingEditor.preload').split(' ')[0]}
+                                        {t('landingEditor.typePreload')}
                                     </button>
                                     <button
                                         onClick={() => setFormData({ ...formData, redirect_type: 'action', is_local: false })}
                                         className="flex-1 px-4 py-2 text-sm font-medium transition"
                                         style={{
-                                            backgroundColor: !formData.is_local && formData.redirect_type === 'action' ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
-                                            color: !formData.is_local && formData.redirect_type === 'action' ? 'var(--color-primary)' : 'var(--color-text-primary)'
+                                            backgroundColor: offerType === 'action' ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
+                                            color: offerType === 'action' ? 'var(--color-primary)' : 'var(--color-text-primary)'
                                         }}
                                     >
                                         {t('editor.action')}
                                     </button>
                                 </div>
-                                <select
-                                    value={formData.redirect_type}
-                                    onChange={e => setFormData({ ...formData, redirect_type: e.target.value })}
-                                    className="form-select"
-                                >
-                                    <option value="redirect">{t('offerEditor.httpRedirect')}</option>
-                                    <option value="js">{t('redirectTypes.jsName')}</option>
-                                    <option value="meta_refresh">{t('redirectTypes.metaName')}</option>
-                                    <option value="frame">{t('redirectTypes.iframeName')}</option>
-                                    <option value="form_submit">{t('redirectTypes.formName')}</option>
-                                    <option value="preload">{t('offerEditor.preloadCurl')}</option>
-                                    <option value="curl_proxy">{t('redirectTypes.curlProxyName')}</option>
-                                </select>
-                                {(() => {
-                                    const descKey = ({
-                                        redirect: 'redirectTypes.redirectDesc',
-                                        js: 'redirectTypes.jsDesc',
-                                        meta_refresh: 'redirectTypes.metaDesc',
-                                        frame: 'redirectTypes.iframeDesc',
-                                        form_submit: 'redirectTypes.formDesc',
-                                        preload: 'redirectTypes.preloadDesc',
-                                        curl_proxy: 'redirectTypes.curlProxyDesc',
-                                    })[formData.redirect_type];
-                                    return descKey ? (
-                                        <div className="form-hint">{t(descKey)}</div>
-                                    ) : null;
-                                })()}
+                                {offerType === 'redirect' && (
+                                    <>
+                                        <select
+                                            value={formData.redirect_type}
+                                            onChange={e => setFormData({ ...formData, redirect_type: e.target.value })}
+                                            className="form-select"
+                                        >
+                                            <option value="redirect">{t('offerEditor.httpRedirect')}</option>
+                                            <option value="js">{t('redirectTypes.jsName')}</option>
+                                            <option value="meta_refresh">{t('redirectTypes.metaName')}</option>
+                                            <option value="frame">{t('redirectTypes.iframeName')}</option>
+                                            <option value="form_submit">{t('redirectTypes.formName')}</option>
+                                            <option value="preload">{t('offerEditor.preloadCurl')}</option>
+                                            <option value="curl_proxy">{t('redirectTypes.curlProxyName')}</option>
+                                        </select>
+                                        {(() => {
+                                            const descKey = ({
+                                                redirect: 'redirectTypes.redirectDesc',
+                                                js: 'redirectTypes.jsDesc',
+                                                meta_refresh: 'redirectTypes.metaDesc',
+                                                frame: 'redirectTypes.iframeDesc',
+                                                form_submit: 'redirectTypes.formDesc',
+                                                preload: 'redirectTypes.preloadDesc',
+                                                curl_proxy: 'redirectTypes.curlProxyDesc',
+                                            })[formData.redirect_type];
+                                            return descKey ? (
+                                                <div className="form-hint">{t(descKey)}</div>
+                                            ) : null;
+                                        })()}
+                                    </>
+                                )}
                             </div>
 
                             {/* Local offer: archive upload + files (mirrors local landings) */}
@@ -659,76 +676,74 @@ const OfferEditor = ({ offerId, onClose }) => {
                                     </div>
                                 )}
                             </div>
-                        </div>
-                    )}
 
-                    {/* Values Tab */}
-                    {activeTab === 'values' && (
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center pb-2">
-                                <div>
-                                    <h3 className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('offerEditor.valuesTitle')}</h3>
-                                    <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
-                                        {t('offerEditor.valuesDesc')}
-                                    </p>
+                            {/* Custom values (merged from the old mislabeled tab) */}
+                            <div className="pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                <div className="flex justify-between items-center mb-3">
+                                    <div>
+                                        <h4 className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('offerEditor.valuesTitle')}</h4>
+                                        <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                                            {t('offerEditor.valuesDesc')}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={addValue}
+                                        disabled={formData.values.length >= 10}
+                                        className="btn btn-secondary btn-sm"
+                                    >
+                                        <Plus className="w-3.5 h-3.5" />
+                                        {t('offerEditor.add')}
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={addValue}
-                                    disabled={formData.values.length >= 10}
-                                    className="btn btn-secondary btn-sm"
-                                >
-                                    <Plus className="w-3.5 h-3.5" />
-                                    {t('offerEditor.add')}
-                                </button>
-                            </div>
 
-                            {formData.values.length === 0 ? (
-                                <div className="text-center py-10 rounded-xl border-2 border-dashed" style={{ color: 'var(--color-text-muted)', backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
-                                    <p className="text-sm">{t('offerEditor.noValues')}</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-2">
-                                    {formData.values.map((val, idx) => (
-                                        <div key={idx} className="flex items-center gap-3">
-                                            <div className="flex-1">
-                                                <input
-                                                    type="text"
-                                                    value={val.name}
-                                                    onChange={e => updateValue(idx, 'name', e.target.value)}
-                                                    className="form-input"
-                                                    placeholder={t('offerEditor.paramNamePlaceholder')}
-                                                />
+                                {formData.values.length === 0 ? (
+                                    <div className="text-center py-8 rounded-xl border-2 border-dashed" style={{ color: 'var(--color-text-muted)', backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
+                                        <p className="text-sm">{t('offerEditor.noValues')}</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {formData.values.map((val, idx) => (
+                                            <div key={idx} className="flex items-center gap-3">
+                                                <div className="flex-1">
+                                                    <input
+                                                        type="text"
+                                                        value={val.name}
+                                                        onChange={e => updateValue(idx, 'name', e.target.value)}
+                                                        className="form-input"
+                                                        placeholder={t('offerEditor.paramNamePlaceholder')}
+                                                    />
+                                                </div>
+                                                <div className="flex-[2]">
+                                                    <input
+                                                        type="text"
+                                                        value={val.value}
+                                                        onChange={e => updateValue(idx, 'value', e.target.value)}
+                                                        className="form-input"
+                                                        placeholder={t('offerEditor.paramValuePlaceholder')}
+                                                    />
+                                                </div>
+                                                <button
+                                                    onClick={() => removeValue(idx)}
+                                                    className="action-btn text-red"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
                                             </div>
-                                            <div className="flex-[2]">
-                                                <input
-                                                    type="text"
-                                                    value={val.value}
-                                                    onChange={e => updateValue(idx, 'value', e.target.value)}
-                                                    className="form-input"
-                                                    placeholder={t('offerEditor.paramValuePlaceholder')}
-                                                />
-                                            </div>
-                                            <button
-                                                onClick={() => removeValue(idx)}
-                                                className="action-btn text-red"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {formData.values.length > 0 && (
-                                <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
-                                    <h4 className="font-semibold text-xs mb-2" style={{ color: 'var(--color-text-primary)' }}>{t('offerEditor.usageExamples')}</h4>
-                                    <ul className="text-xs space-y-1 font-mono p-3 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
-                                        {formData.values.filter(v => v.name).map((v, idx) => (
-                                            <li key={idx}>{`{offer_value:${v.name}}`} → {v.value || t('offerEditor.empty')}</li>
                                         ))}
-                                    </ul>
-                                </div>
-                            )}
+                                    </div>
+                                )}
+
+                                {formData.values.length > 0 && (
+                                    <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                        <h4 className="font-semibold text-xs mb-2" style={{ color: 'var(--color-text-primary)' }}>{t('offerEditor.usageExamples')}</h4>
+                                        <ul className="text-xs space-y-1 font-mono p-3 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
+                                            {formData.values.filter(v => v.name).map((v, idx) => (
+                                                <li key={idx}>{`{offer_value:${v.name}}`} → {v.value || t('offerEditor.empty')}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
 
@@ -749,14 +764,13 @@ const OfferEditor = ({ offerId, onClose }) => {
 
                 {/* Footer */}
                 <div className="modal-footer">
-                    <div className="flex gap-3">
-                        <button onClick={() => onClose(false)} className="btn btn-secondary">
-                            {t('common.cancel')}
-                        </button>
-                        <button onClick={handleSave} disabled={loading} className="btn btn-primary">
-                            {offerId ? t('common.save') : t('common.create')}
-                        </button>
-                    </div>
+                    <button onClick={() => onClose(false)} className="btn btn-secondary">
+                        {t('common.cancel')}
+                    </button>
+                    <button onClick={handleSave} disabled={loading} className="btn btn-primary">
+                        <Check className="w-4 h-4 mr-1.5" />
+                        {offerId ? t('common.save') : t('offers.createOffer')}
+                    </button>
                 </div>
             </div>
 

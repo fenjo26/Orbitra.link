@@ -570,6 +570,8 @@ export default {
     },
     "offers": {
         "title": "Offres",
+        "titleSingular": "Offre",
+        "createOffer": "Créer une offre",
         "noOffers": "Aucune offre créée",
         "noOffersDesc": "Vous pouvez créer votre première offre",
         "noOffersFiltered": "Aucune offre correspondant à ces filtres",
@@ -1302,6 +1304,7 @@ export default {
         "cancel": "Annuler",
         "save": "Enregistrer",
         "createLanding": "Créer une destination",
+        "landing": "Destination",
         "saveChanges": "Enregistrer les modifications"
     },
     "offerEditor": {

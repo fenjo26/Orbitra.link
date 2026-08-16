@@ -570,6 +570,8 @@ export default {
     },
     "offers": {
         "title": "优惠",
+        "titleSingular": "优惠",
+        "createOffer": "创建优惠",
         "noOffers": "没有创建报价",
         "noOffersDesc": "您可以创建您的第一个报价",
         "noOffersFiltered": "没有符合这些过滤条件的优惠",
@@ -1302,6 +1304,7 @@ export default {
         "cancel": "取消",
         "save": "保存",
         "createLanding": "创建登陆",
+        "landing": "登陆",
         "saveChanges": "保存更改"
     },
     "offerEditor": {

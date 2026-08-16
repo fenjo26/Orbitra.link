@@ -570,6 +570,8 @@ export default {
     },
     "offers": {
         "title": "Пропозиції",
+        "titleSingular": "Пропозиція",
+        "createOffer": "Створити пропозицію",
         "noOffers": "Пропозицій не створено",
         "noOffersDesc": "Ви можете створити свою першу пропозицію",
         "noOffersFiltered": "Немає пропозицій, що відповідають цим фільтрам",
@@ -1302,6 +1304,7 @@ export default {
         "cancel": "Скасувати",
         "save": "зберегти",
         "createLanding": "Створити посадку",
+        "landing": "Посадка",
         "saveChanges": "Зберегти зміни"
     },
     "offerEditor": {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Save, X, Upload, FileText, Code, Check, Plus, Eye, ExternalLink } from 'lucide-react';
 import axios from 'axios';
+import GroupsModal from './GroupsModal';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translateLandingError, translateLandingRequestError } from '../utils/landingErrors';
 
@@ -67,6 +68,8 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     });
     const [groups, setGroups] = useState([]);
     const [loading, setLoading] = useState(false);
+    // Quick-create group from the "+" next to the group select, same as the offer editor.
+    const [showGroupsModal, setShowGroupsModal] = useState(false);
     // Only needed by the "send to campaign" action, so it is fetched on demand.
     const [campaigns, setCampaigns] = useState([]);
     const [postbackKey, setPostbackKey] = useState('');
@@ -344,7 +347,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
             <div className="modal-content" style={{ maxWidth: '1200px', width: '100%' }}>
                 <div className="modal-header">
                     <h3 className="modal-title">
-                        {landingId ? t('landingEditor.saveChanges') : t('landingEditor.createLanding')}
+                        {landingId ? `${t('landingEditor.landing')}: ${landing.name}` : t('landingEditor.createLanding')}
                     </h3>
                     <button onClick={() => onClose(savedSomething)} className="action-btn">
                         <X className="w-5 h-5" />
@@ -370,16 +373,21 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                             <div className="flex gap-4">
                                 <div className="flex-1">
                                     <label className="form-label">{t('landingEditor.group')}</label>
-                                    <select
-                                        value={landing.group_id}
-                                        onChange={e => setLanding({ ...landing, group_id: e.target.value })}
-                                        className="form-select"
-                                    >
-                                        <option value="">{t('landingEditor.noGroup')}</option>
-                                        {groups.map(g => (
-                                            <option key={g.id} value={g.id}>{g.name}</option>
-                                        ))}
-                                    </select>
+                                    <div className="flex">
+                                        <select
+                                            value={landing.group_id}
+                                            onChange={e => setLanding({ ...landing, group_id: e.target.value })}
+                                            className="form-select rounded-r-none"
+                                        >
+                                            <option value="">{t('landingEditor.noGroup')}</option>
+                                            {groups.map(g => (
+                                                <option key={g.id} value={g.id}>{g.name}</option>
+                                            ))}
+                                        </select>
+                                        <button type="button" className="btn btn-secondary rounded-l-none border-l-0" onClick={() => setShowGroupsModal(true)} title={t('groupsModal.landingGroups')}>
+                                            <Plus className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="flex-1">
                                     <label className="form-label">{t('landingEditor.status')}</label>
@@ -876,14 +884,32 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
 
                 <div className="modal-footer">
                     <button onClick={() => onClose(savedSomething)} type="button" className="btn btn-secondary">
-                        {t('landingEditor.cancel')}
+                        {t('common.cancel')}
                     </button>
                     <button type="submit" form="landing-form" className="btn btn-primary">
-                        <Check className="w-4 h-4 mr-2" />
+                        <Check className="w-4 h-4 mr-1.5" />
                         {landingId ? t('landingEditor.saveChanges') : t('landingEditor.createLanding')}
                     </button>
                 </div>
             </div>
+
+            {/* Quick-create group from the "+" next to the group select */}
+            {showGroupsModal && (
+                <GroupsModal
+                    type="landing"
+                    onClose={() => {
+                        setShowGroupsModal(false);
+                        axios.get(`${API_URL}?action=landing_groups`)
+                            .then(res => { if (res.data.status === 'success') setGroups(res.data.data); })
+                            .catch(() => {});
+                    }}
+                    onGroupCreated={(g) => {
+                        if (!g || !g.id) return;
+                        setGroups(prev => prev.some(x => x.id == g.id) ? prev : [...prev, g]);
+                        setLanding(prev => ({ ...prev, group_id: String(g.id) }));
+                    }}
+                />
+            )}
         </div>
     );
 };
