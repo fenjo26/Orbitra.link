@@ -448,6 +448,7 @@ export default {
         "newCampaign": "新活动",
         "createCampaign": "创建营销活动",
         "campaign": "活动",
+        "unsavedChanges": "有未保存的更改。要不保存就退出吗？",
         "fillNameAndAlias": "请填写姓名和别名",
         "saved": "得救了！",
         "save": "保存",

@@ -448,6 +448,7 @@ export default {
         "newCampaign": "Новая кампания",
         "createCampaign": "Создание кампании",
         "campaign": "Кампания",
+        "unsavedChanges": "Есть несохранённые изменения. Выйти без сохранения?",
         "fillNameAndAlias": "Заполните Имя и Алиас",
         "saved": "Сохранено!",
         "save": "Сохранить",

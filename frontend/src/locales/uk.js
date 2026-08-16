@@ -448,6 +448,7 @@ export default {
         "newCampaign": "Нова кампанія",
         "createCampaign": "Створити кампанію",
         "campaign": "Кампанія",
+        "unsavedChanges": "Є незбережені зміни. Вийти без збереження?",
         "fillNameAndAlias": "Будь ласка, введіть ім'я та псевдонім",
         "saved": "Збережено!",
         "save": "зберегти",

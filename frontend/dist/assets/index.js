@@ -16457,6 +16457,7 @@ const ru = {
     "newCampaign": "Новая кампания",
     "createCampaign": "Создание кампании",
     "campaign": "Кампания",
+    "unsavedChanges": "Есть несохранённые изменения. Выйти без сохранения?",
     "fillNameAndAlias": "Заполните Имя и Алиас",
     "saved": "Сохранено!",
     "save": "Сохранить",
@@ -19151,6 +19152,7 @@ const en = {
     "newCampaign": "New Campaign",
     "createCampaign": "Create Campaign",
     "campaign": "Campaign",
+    "unsavedChanges": "You have unsaved changes. Leave without saving?",
     "fillNameAndAlias": "Please fill Name and Alias",
     "saved": "Saved!",
     "save": "Save",
@@ -21845,6 +21847,7 @@ const uk = {
     "newCampaign": "Нова кампанія",
     "createCampaign": "Створити кампанію",
     "campaign": "Кампанія",
+    "unsavedChanges": "Є незбережені зміни. Вийти без збереження?",
     "fillNameAndAlias": "Будь ласка, введіть ім'я та псевдонім",
     "saved": "Збережено!",
     "save": "зберегти",
@@ -24539,6 +24542,7 @@ const es = {
     "newCampaign": "Nueva campaña",
     "createCampaign": "Crear campaña",
     "campaign": "Campaña",
+    "unsavedChanges": "Tiene cambios sin guardar. ¿Salir sin guardar?",
     "fillNameAndAlias": "Por favor complete Nombre y Alias",
     "saved": "¡Salvado!",
     "save": "Guardar",
@@ -27233,6 +27237,7 @@ const zh = {
     "newCampaign": "新活动",
     "createCampaign": "创建营销活动",
     "campaign": "活动",
+    "unsavedChanges": "有未保存的更改。要不保存就退出吗？",
     "fillNameAndAlias": "请填写姓名和别名",
     "saved": "得救了！",
     "save": "保存",
@@ -29927,6 +29932,7 @@ const fr = {
     "newCampaign": "Nouvelle campagne",
     "createCampaign": "Créer une campagne",
     "campaign": "Campagne",
+    "unsavedChanges": "Vous avez des modifications non enregistrées. Quitter sans enregistrer ?",
     "fillNameAndAlias": "Veuillez remplir le nom et l'alias",
     "saved": "Enregistré !",
     "save": "Enregistrer",
@@ -32623,6 +32629,7 @@ const de = {
     "newCampaign": "Neue Kampagne",
     "createCampaign": "Kampagne erstellen",
     "campaign": "Kampagne",
+    "unsavedChanges": "Es gibt ungespeicherte Änderungen. Verlassen ohne Speichern?",
     "fillNameAndAlias": "Bitte geben Sie Name und Alias ein",
     "saved": "Gespeichert!",
     "save": "Speichern",
@@ -69344,6 +69351,53 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     challenge_custom_code: ""
   });
   const [expandedStream, setExpandedStream] = reactExports.useState(null);
+  const [isDirty, setIsDirty] = reactExports.useState(false);
+  const baselineRef = reactExports.useRef(null);
+  const latestRef = reactExports.useRef({});
+  latestRef.current = { onClose, t, isDirty };
+  const uiCloseRef = reactExports.useRef(false);
+  reactExports.useEffect(() => {
+    if (baselineRef.current === null) return;
+    setIsDirty(JSON.stringify(formData) !== baselineRef.current);
+  }, [formData]);
+  reactExports.useEffect(() => {
+    if (!isDirty) return;
+    const warn = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [isDirty]);
+  reactExports.useEffect(() => {
+    const HISTORY_KEY = "orbitraCampaignEditor";
+    if (!window.history.state?.[HISTORY_KEY]) {
+      window.history.pushState({ ...window.history.state, [HISTORY_KEY]: true }, "");
+    }
+    const onPopState = () => {
+      const { onClose: close, t: translate, isDirty: dirty } = latestRef.current;
+      if (dirty && !window.confirm(translate("editor.unsavedChanges"))) {
+        window.history.pushState({ ...window.history.state, [HISTORY_KEY]: true }, "");
+        return;
+      }
+      close(true);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      if (uiCloseRef.current && window.history.state?.[HISTORY_KEY]) {
+        window.history.back();
+      }
+    };
+  }, []);
+  const closeEditor = (saved) => {
+    uiCloseRef.current = true;
+    if (onClose) onClose(saved);
+  };
+  const requestClose = () => {
+    if (isDirty && !window.confirm(t("editor.unsavedChanges"))) return;
+    closeEditor(true);
+  };
   const costModels = [
     { value: "CPC", label: t("costModels.cpc") },
     { value: "CPuC", label: t("costModels.cpuc") },
@@ -69542,7 +69596,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       cachedGet("get_campaign", { id: campaignId }).then((res) => {
         if (res.data.status === "success") {
           const data = res.data.data;
-          setFormData({
+          const loaded = {
             id: data.id,
             name: data.name || "",
             alias: data.alias || generateAlias(),
@@ -69576,9 +69630,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             parameters: data.parameters || {},
             challenge_type: data.challenge_type || "none",
             challenge_custom_code: data.challenge_custom_code || ""
-          });
+          };
+          setFormData(loaded);
+          baselineRef.current = JSON.stringify(loaded);
         }
       }).finally(() => setLoading(false));
+    } else {
+      baselineRef.current = JSON.stringify(formData);
     }
   }, [campaignId]);
   reactExports.useEffect(() => {
@@ -69588,7 +69646,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     if (!source) return;
     const prefilled = sourceToParameters(source);
     if (Object.keys(prefilled).length === 0) return;
-    setFormData((prev) => ({ ...prev, parameters: prefilled }));
+    setFormData((prev) => {
+      const next = { ...prev, parameters: prefilled };
+      baselineRef.current = JSON.stringify(next);
+      return next;
+    });
   }, [sources, formData.source_id]);
   reactExports.useEffect(() => {
     if (!campaignId) return;
@@ -69725,7 +69787,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         setSaveSuccess(true);
         setTimeout(() => {
           setSaveSuccess(false);
-          if (onClose) onClose(true);
+          closeEditor(true);
         }, 1e3);
       } else {
         alert(`${t("common.error")}: ${res.data.message}`);
@@ -69782,7 +69844,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       setTokenBusy(true);
       const res = await cachedPost("regenerate_campaign_token", { campaign_id: id });
       if (res.data.status === "success") {
-        setFormData((prev) => ({ ...prev, token: res.data.data?.token || "" }));
+        const token = res.data.data?.token || "";
+        baselineRef.current = JSON.stringify({ ...formData, token });
+        setFormData((prev) => ({ ...prev, token }));
       } else {
         alert(`${t("common.error")}: ${res.data.message || "Unknown error"}`);
       }
@@ -69800,7 +69864,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       if (res.data.status === "success") {
         alert(t("editor.saved"));
         setShowClearModal(false);
-        if (onClose) onClose(true);
+        closeEditor(true);
       }
     } catch (e) {
       alert(t("common.clearError"));
@@ -70150,6 +70214,16 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "h-[calc(100vh-80px)] w-full flex flex-col overflow-hidden rounded-[24px] shadow-lg", style: { backgroundColor: "var(--color-bg-card)", border: "none" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-6 py-4 flex-shrink-0", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: requestClose,
+              className: "btn btn-secondary btn-icon",
+              title: t("common.back"),
+              "aria-label": t("common.back"),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { className: "w-5 h-5" })
+            }
+          ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-bold", style: { color: "var(--color-text-primary)" }, children: campaignId ? `${t("editor.campaign")}: ${formData.name}` : t("editor.createCampaign") }),
           formData.alias && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-mono px-2 py-1 rounded-lg", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-hover)" }, children: [
             "/",
@@ -70258,7 +70332,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => onClose(true), className: "btn btn-secondary", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: requestClose, className: "btn btn-secondary", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5 mr-2" }),
           t("common.close")
         ] })

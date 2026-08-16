@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
 import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3, Eye, Info } from 'lucide-react';
@@ -281,6 +281,75 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // Stream Expansion state
     const [expandedStream, setExpandedStream] = useState(null);
 
+    // Unsaved-change tracking: baselineRef holds the serialized formData the
+    // editor started from (loaded campaign or the new-campaign template);
+    // isDirty is any deviation from it at close time.
+    const [isDirty, setIsDirty] = useState(false);
+    const baselineRef = useRef(null);
+    // Latest-render closures for the mount-only history effect below.
+    const latestRef = useRef({});
+    latestRef.current = { onClose, t, isDirty };
+    // Set when the editor closes through its own UI (Back / ✕ / Save) rather
+    // than the browser Back button, which consumes the history entry itself.
+    const uiCloseRef = useRef(false);
+
+    // Recompute the dirty flag on every form change once a baseline exists.
+    useEffect(() => {
+        if (baselineRef.current === null) return;
+        setIsDirty(JSON.stringify(formData) !== baselineRef.current);
+    }, [formData]);
+
+    // Warn before the tab itself is closed or reloaded with unsaved edits.
+    useEffect(() => {
+        if (!isDirty) return;
+        const warn = (e) => { e.preventDefault(); e.returnValue = ''; };
+        window.addEventListener('beforeunload', warn);
+        return () => window.removeEventListener('beforeunload', warn);
+    }, [isDirty]);
+
+    // The editor is a plain SPA tab with no history integration, so a browser
+    // Back used to leave the tracker entirely and burn unsaved edits. Push one
+    // history entry per editor session: browser Back then closes the editor
+    // (after a dirty check), while a UI close pops the entry again so the
+    // history stack stays clean. The state-flag dedupe keeps StrictMode's
+    // double-invoked effects from stacking entries.
+    useEffect(() => {
+        const HISTORY_KEY = 'orbitraCampaignEditor';
+        if (!window.history.state?.[HISTORY_KEY]) {
+            window.history.pushState({ ...window.history.state, [HISTORY_KEY]: true }, '');
+        }
+
+        const onPopState = () => {
+            const { onClose: close, t: translate, isDirty: dirty } = latestRef.current;
+            if (dirty && !window.confirm(translate('editor.unsavedChanges'))) {
+                // User chose to stay: restore the entry Back just consumed.
+                window.history.pushState({ ...window.history.state, [HISTORY_KEY]: true }, '');
+                return;
+            }
+            close(true);
+        };
+
+        window.addEventListener('popstate', onPopState);
+        return () => {
+            window.removeEventListener('popstate', onPopState);
+            if (uiCloseRef.current && window.history.state?.[HISTORY_KEY]) {
+                window.history.back();
+            }
+        };
+    }, []);
+
+    // All editor exits funnel through here so the pushed history entry is
+    // consumed exactly once (browser Back consumes it by itself).
+    const closeEditor = (saved) => {
+        uiCloseRef.current = true;
+        if (onClose) onClose(saved);
+    };
+
+    const requestClose = () => {
+        if (isDirty && !window.confirm(t('editor.unsavedChanges'))) return;
+        closeEditor(true);
+    };
+
     // Cost models
     const costModels = [
         { value: 'CPC', label: t('costModels.cpc') },
@@ -513,7 +582,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 .then(res => {
                     if (res.data.status === 'success') {
                         const data = res.data.data;
-                        setFormData({
+                        const loaded = {
                             id: data.id,
                             name: data.name || '',
                             alias: data.alias || generateAlias(),
@@ -547,11 +616,20 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             parameters: data.parameters || {},
                             challenge_type: data.challenge_type || 'none',
                             challenge_custom_code: data.challenge_custom_code || ''
-                        });
+                        };
+                        setFormData(loaded);
+                        // The loaded campaign is the clean baseline for the dirty check.
+                        baselineRef.current = JSON.stringify(loaded);
                     }
                 })
                 .finally(() => setLoading(false));
+        } else {
+            // New campaign: the template the form starts from is the baseline.
+            // (Deps stay [campaignId] on purpose: tracking formData here would
+            // reset the baseline on every keystroke and break dirty tracking.)
+            baselineRef.current = JSON.stringify(formData);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [campaignId]);
 
     // Prefill URL parameters from the campaign's traffic source when the editor
@@ -564,7 +642,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         if (!source) return;
         const prefilled = sourceToParameters(source);
         if (Object.keys(prefilled).length === 0) return;
-        setFormData(prev => ({ ...prev, parameters: prefilled }));
+        setFormData(prev => {
+            const next = { ...prev, parameters: prefilled };
+            // Prefill is normalization rather than a user edit — count it as clean.
+            baselineRef.current = JSON.stringify(next);
+            return next;
+        });
     }, [sources, formData.source_id]);
 
     // Cost Sync (campaign's Integrations tab): the spend connections that can
@@ -708,7 +791,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 setSaveSuccess(true);
                 setTimeout(() => {
                     setSaveSuccess(false);
-                    if (onClose) onClose(true);
+                    closeEditor(true);
                 }, 1000);
             } else {
                 alert(`${t('common.error')}: ${res.data.message}`);
@@ -771,7 +854,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             setTokenBusy(true);
             const res = await cachedPost('regenerate_campaign_token', { campaign_id: id });
             if (res.data.status === 'success') {
-                setFormData(prev => ({ ...prev, token: res.data.data?.token || '' }));
+                const token = res.data.data?.token || '';
+                // The token is persisted by its own endpoint right away, so the
+                // local refresh must not count as an unsaved edit.
+                baselineRef.current = JSON.stringify({ ...formData, token });
+                setFormData(prev => ({ ...prev, token }));
             } else {
                 alert(`${t('common.error')}: ${res.data.message || 'Unknown error'}`);
             }
@@ -790,7 +877,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             if (res.data.status === 'success') {
                 alert(t('editor.saved'));
                 setShowClearModal(false);
-                if (onClose) onClose(true);
+                closeEditor(true);
             }
         } catch (e) {
             alert(t('common.clearError'));
@@ -1210,6 +1297,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 {/* Header */}
                 <div className="flex justify-between items-center px-6 py-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
                     <div className="flex items-center gap-4">
+                        <button
+                            onClick={requestClose}
+                            className="btn btn-secondary btn-icon"
+                            title={t('common.back')}
+                            aria-label={t('common.back')}
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                        </button>
                         <h2 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
                             {campaignId ? `${t('editor.campaign')}: ${formData.name}` : t('editor.createCampaign')}
                         </h2>
@@ -1293,7 +1388,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
                     </div>
                     {/* Close button */}
-                    <button onClick={() => onClose(true)} className="btn btn-secondary">
+                    <button onClick={requestClose} className="btn btn-secondary">
                         <X className="w-5 h-5 mr-2" />
                         {t('common.close')}
                     </button>

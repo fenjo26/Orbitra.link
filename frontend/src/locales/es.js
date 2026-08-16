@@ -448,6 +448,7 @@ export default {
         "newCampaign": "Nueva campaña",
         "createCampaign": "Crear campaña",
         "campaign": "Campaña",
+        "unsavedChanges": "Tiene cambios sin guardar. ¿Salir sin guardar?",
         "fillNameAndAlias": "Por favor complete Nombre y Alias",
         "saved": "¡Salvado!",
         "save": "Guardar",
