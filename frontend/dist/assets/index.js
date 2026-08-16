@@ -48988,7 +48988,8 @@ const ReportCustomizerModal = ({
   const [selectedSet, setSelectedSet] = reactExports.useState(() => new Set(PRESETS.best));
   const [layers, setLayers] = reactExports.useState([]);
   const [filters, setFilters] = reactExports.useState([]);
-  const [dragIndex, setDragIndex] = reactExports.useState(null);
+  const [draggedId, setDraggedId] = reactExports.useState(null);
+  const [dragOverId, setDragOverId] = reactExports.useState(null);
   reactExports.useEffect(() => {
     if (isOpen) {
       const initialSelected = selectedColumns.length > 0 ? selectedColumns : PRESETS.best;
@@ -49001,14 +49002,6 @@ const ReportCustomizerModal = ({
       setSearchQuery("");
     }
   }, [isOpen, selectedColumns, currentLayers, currentFilters]);
-  const isAllSelected = orderedMetricIds.every((id) => selectedSet.has(id));
-  const handleToggleAll = () => {
-    if (isAllSelected) {
-      setSelectedSet(/* @__PURE__ */ new Set(["clicks"]));
-    } else {
-      setSelectedSet(new Set(orderedMetricIds));
-    }
-  };
   const handleToggleMetric = (id) => {
     setSelectedSet((prev) => {
       const next = new Set(prev);
@@ -49024,20 +49017,40 @@ const ReportCustomizerModal = ({
     setSelectedSet(new Set(PRESETS.best));
     setOrderedMetricIds([...DEFAULT_METRIC_ORDER]);
   };
-  const handleDragStart = (idx) => {
-    setDragIndex(idx);
+  const handleDragStart = (e, metricId) => {
+    setDraggedId(metricId);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", metricId);
   };
-  const handleDragOver = (e, idx) => {
+  const handleDragOver = (e, targetMetricId) => {
     e.preventDefault();
-    if (dragIndex === null || dragIndex === idx) return;
-    const copy = [...orderedMetricIds];
-    const item = copy.splice(dragIndex, 1)[0];
-    copy.splice(idx, 0, item);
-    setDragIndex(idx);
-    setOrderedMetricIds(copy);
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverId !== targetMetricId) {
+      setDragOverId(targetMetricId);
+    }
+  };
+  const handleDrop = (e, targetMetricId) => {
+    e.preventDefault();
+    try {
+      const droppedId = draggedId || e.dataTransfer.getData("text/plain");
+      if (droppedId && droppedId !== targetMetricId) {
+        const currentOrder = [...orderedMetricIds];
+        const fromIndex = currentOrder.indexOf(droppedId);
+        const toIndex = currentOrder.indexOf(targetMetricId);
+        if (fromIndex !== -1 && toIndex !== -1) {
+          currentOrder.splice(fromIndex, 1);
+          currentOrder.splice(toIndex, 0, droppedId);
+          setOrderedMetricIds(currentOrder);
+        }
+      }
+    } finally {
+      setDraggedId(null);
+      setDragOverId(null);
+    }
   };
   const handleDragEnd = () => {
-    setDragIndex(null);
+    setDraggedId(null);
+    setDragOverId(null);
   };
   const handleSave = () => {
     const result = orderedMetricIds.filter((id) => selectedSet.has(id));
@@ -49054,6 +49067,15 @@ const ReportCustomizerModal = ({
     const q = searchQuery.trim().toLowerCase();
     return orderedMetricIds.map((id) => ALL_REPORT_METRICS.find((m) => m.id === id)).filter(Boolean).filter((m) => !q || m.label.toLowerCase().includes(q) || m.id.toLowerCase().includes(q));
   }, [orderedMetricIds, searchQuery]);
+  const isAllSelected = displayMetrics.length > 0 && displayMetrics.every((m) => selectedSet.has(m.id));
+  const handleToggleAll = () => {
+    if (isAllSelected) {
+      setSelectedSet(/* @__PURE__ */ new Set(["clicks"]));
+    } else {
+      const visibleIds = displayMetrics.map((m) => m.id);
+      setSelectedSet((prev) => /* @__PURE__ */ new Set([...prev, ...visibleIds]));
+    }
+  };
   if (!isOpen) return null;
   const handleAddUrlParam = () => {
     const param = window.prompt(t("reportCustomizer.urlParamPrompt", "Enter URL parameter name (e.g. adset_id, utm_source, custom_id):"));
@@ -49166,55 +49188,69 @@ const ReportCustomizerModal = ({
             /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "select_all_cols", className: "text-xs font-medium cursor-pointer", style: { color: "var(--color-text-primary)" }, children: t("reportCustomizer.selectAll", "Select All") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-[1px] my-1.5", style: { backgroundColor: "var(--color-border)" } }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto space-y-0.5 pr-1", style: { scrollbarWidth: "thin" }, children: displayMetrics.map((metric, idx) => {
-            const isChecked = selectedSet.has(metric.id);
-            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "div",
-              {
-                draggable: true,
-                onDragStart: () => handleDragStart(idx),
-                onDragOver: (e) => handleDragOver(e, idx),
-                onDragEnd: handleDragEnd,
-                onClick: () => handleToggleMetric(metric.id),
-                className: "flex items-center gap-3 px-2 py-2 rounded-lg text-xs cursor-pointer select-none transition-colors hover:bg-black/5 dark:hover:bg-white/5",
-                style: {
-                  opacity: dragIndex === idx ? 0.4 : 1
-                },
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "div",
-                    {
-                      className: "cursor-grab active:cursor-grabbing p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200",
-                      onClick: (e) => e.stopPropagation(),
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3.5 h-3.5 opacity-60" })
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "input",
-                    {
-                      type: "checkbox",
-                      checked: isChecked,
-                      onChange: () => {
-                      },
-                      className: "w-4 h-4 rounded cursor-pointer pointer-events-none",
-                      style: { accentColor: "var(--color-primary)" }
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "span",
-                    {
-                      className: "flex-1 font-normal",
-                      style: {
-                        color: isChecked ? "var(--color-text-primary)" : "var(--color-text-secondary)"
-                      },
-                      children: metric.label
-                    }
-                  )
-                ]
-              },
-              metric.id
-            );
-          }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "flex-1 overflow-y-auto space-y-0.5 pr-1",
+              style: { scrollbarWidth: "thin" },
+              onDragLeave: () => setDragOverId(null),
+              children: displayMetrics.map((metric) => {
+                const isChecked = selectedSet.has(metric.id);
+                const isDragging = draggedId === metric.id;
+                const isOver = dragOverId === metric.id && draggedId && draggedId !== metric.id;
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "div",
+                  {
+                    onDragOver: (e) => handleDragOver(e, metric.id),
+                    onDrop: (e) => handleDrop(e, metric.id),
+                    onClick: () => handleToggleMetric(metric.id),
+                    className: "flex items-center gap-3 px-2 py-2 rounded-lg text-xs cursor-pointer select-none transition-colors hover:bg-black/5 dark:hover:bg-white/5",
+                    style: {
+                      opacity: isDragging ? 0.4 : 1,
+                      // Insert-before highlight; inset shadow instead of a
+                      // border so the rows don't jump while dragging.
+                      boxShadow: isOver ? "inset 0 2px 0 var(--color-primary)" : "none"
+                    },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "div",
+                        {
+                          draggable: true,
+                          onDragStart: (e) => handleDragStart(e, metric.id),
+                          onDragEnd: handleDragEnd,
+                          className: "cursor-grab active:cursor-grabbing p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200",
+                          onClick: (e) => e.stopPropagation(),
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3.5 h-3.5 opacity-60" })
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          checked: isChecked,
+                          onChange: () => handleToggleMetric(metric.id),
+                          onClick: (e) => e.stopPropagation(),
+                          className: "w-4 h-4 rounded cursor-pointer",
+                          style: { accentColor: "var(--color-primary)" }
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "span",
+                        {
+                          className: "flex-1 font-normal",
+                          style: {
+                            color: isChecked ? "var(--color-text-primary)" : "var(--color-text-secondary)"
+                          },
+                          children: metric.label
+                        }
+                      )
+                    ]
+                  },
+                  metric.id
+                );
+              })
+            }
+          )
         ] }),
         activeTab === "layers" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-5 space-y-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [

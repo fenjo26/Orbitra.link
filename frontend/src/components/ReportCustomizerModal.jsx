@@ -105,8 +105,11 @@ const ReportCustomizerModal = ({
     // Filters
     const [filters, setFilters] = useState([]);
 
-    // Drag-and-drop state
-    const [dragIndex, setDragIndex] = useState(null);
+    // Drag-and-drop state, by metric id. Indexes from displayMetrics (filtered
+    // by search) never matched the full orderedMetricIds array, which scrambled
+    // rows whenever a search was active; ids index into anything safely.
+    const [draggedId, setDraggedId] = useState(null);
+    const [dragOverId, setDragOverId] = useState(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -123,16 +126,6 @@ const ReportCustomizerModal = ({
             setSearchQuery('');
         }
     }, [isOpen, selectedColumns, currentLayers, currentFilters]);
-
-    const isAllSelected = orderedMetricIds.every(id => selectedSet.has(id));
-
-    const handleToggleAll = () => {
-        if (isAllSelected) {
-            setSelectedSet(new Set(['clicks']));
-        } else {
-            setSelectedSet(new Set(orderedMetricIds));
-        }
-    };
 
     const handleToggleMetric = (id) => {
         setSelectedSet(prev => {
@@ -151,22 +144,47 @@ const ReportCustomizerModal = ({
         setOrderedMetricIds([...DEFAULT_METRIC_ORDER]);
     };
 
-    const handleDragStart = (idx) => {
-        setDragIndex(idx);
+    // Drag starts only from the grip handle: a draggable row swallowed row
+    // clicks (the checkbox had no handler of its own), and reordering inside
+    // onDragOver re-rendered mid-drag, so the browser cancelled the session.
+    // The single reorder happens on drop.
+    const handleDragStart = (e, metricId) => {
+        setDraggedId(metricId);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', metricId);
     };
 
-    const handleDragOver = (e, idx) => {
+    const handleDragOver = (e, targetMetricId) => {
         e.preventDefault();
-        if (dragIndex === null || dragIndex === idx) return;
-        const copy = [...orderedMetricIds];
-        const item = copy.splice(dragIndex, 1)[0];
-        copy.splice(idx, 0, item);
-        setDragIndex(idx);
-        setOrderedMetricIds(copy);
+        e.dataTransfer.dropEffect = 'move';
+        if (dragOverId !== targetMetricId) {
+            setDragOverId(targetMetricId);
+        }
+    };
+
+    const handleDrop = (e, targetMetricId) => {
+        e.preventDefault();
+        try {
+            const droppedId = draggedId || e.dataTransfer.getData('text/plain');
+            if (droppedId && droppedId !== targetMetricId) {
+                const currentOrder = [...orderedMetricIds];
+                const fromIndex = currentOrder.indexOf(droppedId);
+                const toIndex = currentOrder.indexOf(targetMetricId);
+                if (fromIndex !== -1 && toIndex !== -1) {
+                    currentOrder.splice(fromIndex, 1);
+                    currentOrder.splice(toIndex, 0, droppedId);
+                    setOrderedMetricIds(currentOrder);
+                }
+            }
+        } finally {
+            setDraggedId(null);
+            setDragOverId(null);
+        }
     };
 
     const handleDragEnd = () => {
-        setDragIndex(null);
+        setDraggedId(null);
+        setDragOverId(null);
     };
 
     const handleSave = () => {
@@ -191,6 +209,19 @@ const ReportCustomizerModal = ({
             .filter(Boolean)
             .filter(m => !q || m.label.toLowerCase().includes(q) || m.id.toLowerCase().includes(q));
     }, [orderedMetricIds, searchQuery]);
+
+    // Select All toggles the visible (filtered) metrics: with a search active,
+    // it adds what is on screen to the selection instead of all 64 columns.
+    const isAllSelected = displayMetrics.length > 0 && displayMetrics.every(m => selectedSet.has(m.id));
+
+    const handleToggleAll = () => {
+        if (isAllSelected) {
+            setSelectedSet(new Set(['clicks']));
+        } else {
+            const visibleIds = displayMetrics.map(m => m.id);
+            setSelectedSet(prev => new Set([...prev, ...visibleIds]));
+        }
+    };
 
     // Early return goes AFTER every hook: a null render that skipped the
     // useMemo below made React throw #310 ("rendered more hooks than during
@@ -322,23 +353,35 @@ const ReportCustomizerModal = ({
                         <div className="h-[1px] my-1.5" style={{ backgroundColor: 'var(--color-border)' }}></div>
 
                         {/* Reorderable Columns List */}
-                        <div className="flex-1 overflow-y-auto space-y-0.5 pr-1" style={{ scrollbarWidth: 'thin' }}>
-                            {displayMetrics.map((metric, idx) => {
+                        <div
+                            className="flex-1 overflow-y-auto space-y-0.5 pr-1"
+                            style={{ scrollbarWidth: 'thin' }}
+                            onDragLeave={() => setDragOverId(null)}
+                        >
+                            {displayMetrics.map((metric) => {
                                 const isChecked = selectedSet.has(metric.id);
+                                const isDragging = draggedId === metric.id;
+                                const isOver = dragOverId === metric.id && draggedId && draggedId !== metric.id;
                                 return (
                                     <div
                                         key={metric.id}
-                                        draggable
-                                        onDragStart={() => handleDragStart(idx)}
-                                        onDragOver={(e) => handleDragOver(e, idx)}
-                                        onDragEnd={handleDragEnd}
+                                        onDragOver={(e) => handleDragOver(e, metric.id)}
+                                        onDrop={(e) => handleDrop(e, metric.id)}
                                         onClick={() => handleToggleMetric(metric.id)}
                                         className="flex items-center gap-3 px-2 py-2 rounded-lg text-xs cursor-pointer select-none transition-colors hover:bg-black/5 dark:hover:bg-white/5"
                                         style={{
-                                            opacity: dragIndex === idx ? 0.4 : 1
+                                            opacity: isDragging ? 0.4 : 1,
+                                            // Insert-before highlight; inset shadow instead of a
+                                            // border so the rows don't jump while dragging.
+                                            boxShadow: isOver ? 'inset 0 2px 0 var(--color-primary)' : 'none'
                                         }}
                                     >
+                                        {/* Drag handle — the only draggable element, so row
+                                            clicks keep reaching the checkbox toggle */}
                                         <div
+                                            draggable
+                                            onDragStart={(e) => handleDragStart(e, metric.id)}
+                                            onDragEnd={handleDragEnd}
                                             className="cursor-grab active:cursor-grabbing p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
                                             onClick={(e) => e.stopPropagation()}
                                         >
@@ -348,8 +391,9 @@ const ReportCustomizerModal = ({
                                         <input
                                             type="checkbox"
                                             checked={isChecked}
-                                            onChange={() => {}} // handled by parent div
-                                            className="w-4 h-4 rounded cursor-pointer pointer-events-none"
+                                            onChange={() => handleToggleMetric(metric.id)}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="w-4 h-4 rounded cursor-pointer"
                                             style={{ accentColor: 'var(--color-primary)' }}
                                         />
 
