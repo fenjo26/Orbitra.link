@@ -48854,7 +48854,6 @@ const ReportCustomizerModal = ({
       setSearchQuery("");
     }
   }, [isOpen, selectedColumns, currentLayers, currentFilters]);
-  if (!isOpen) return null;
   const isAllSelected = orderedMetricIds.every((id) => selectedSet.has(id));
   const handleToggleAll = () => {
     if (isAllSelected) {
@@ -48908,6 +48907,7 @@ const ReportCustomizerModal = ({
     const q = searchQuery.trim().toLowerCase();
     return orderedMetricIds.map((id) => ALL_REPORT_METRICS.find((m) => m.id === id)).filter(Boolean).filter((m) => !q || m.label.toLowerCase().includes(q) || m.id.toLowerCase().includes(q));
   }, [orderedMetricIds, searchQuery]);
+  if (!isOpen) return null;
   const handleAddUrlParam = () => {
     const param = window.prompt(t("reportCustomizer.urlParamPrompt", "Enter URL parameter name (e.g. adset_id, utm_source, custom_id):"));
     if (param) {

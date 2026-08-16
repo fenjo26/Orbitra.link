@@ -124,8 +124,6 @@ const ReportCustomizerModal = ({
         }
     }, [isOpen, selectedColumns, currentLayers, currentFilters]);
 
-    if (!isOpen) return null;
-
     const isAllSelected = orderedMetricIds.every(id => selectedSet.has(id));
 
     const handleToggleAll = () => {
@@ -193,6 +191,11 @@ const ReportCustomizerModal = ({
             .filter(Boolean)
             .filter(m => !q || m.label.toLowerCase().includes(q) || m.id.toLowerCase().includes(q));
     }, [orderedMetricIds, searchQuery]);
+
+    // Early return goes AFTER every hook: a null render that skipped the
+    // useMemo below made React throw #310 ("rendered more hooks than during
+    // the previous render") the moment the modal opened — black screen.
+    if (!isOpen) return null;
 
     const handleAddUrlParam = () => {
         const param = window.prompt(t('reportCustomizer.urlParamPrompt', 'Enter URL parameter name (e.g. adset_id, utm_source, custom_id):'));
