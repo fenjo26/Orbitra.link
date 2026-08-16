@@ -7,6 +7,46 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.8.2] — 2026-08-16
+
+### Added
+- 🔐 **RBAC role templates** (Admin / Media Buyer / Video Editor / Developer /
+  Custom) — one-click role + permission matrix in the user modal — plus
+  server-side financial masking: `show_costs` / `show_revenue` / `show_payout`
+  null the money families across metrics, chart, campaign_report, campaigns,
+  offers endpoints; save-guards restore hidden amounts. Nav tabs hide on
+  `None` permission; gear menus filter per item.
+- 🌐 **Namecheap integration** — Keitaro-style zero-config DNS parking, domain
+  purchasing, import & subdomain parking.
+- 🕵️ **Cloaking quick targeting filters** — GEO, devices, bot-ISP blocklist on
+  the cloak card + global `bot_isp_list` setting.
+- 📡 **CAPI per-pixel `event_source_url`** with `{campaign_url}` /
+  `{landing_url}` / `{clickid}` macros (migration 22).
+- 🎛️ **Redesigned Tracking tab** — two-column layout, per-method options, live
+  widget preview, install hints.
+- 📊 **Keitaro-parity Landings & Offers columns** — visits/uVisits, LP
+  clicks/CTR, leads/sales/rejected/trash, Approve %, CR, cost/revenue(conf),
+  profit, CPC/EPC/EPV, ROI/ROI(conf); compact `shortLabel` report headers with
+  full-name tooltips.
+
+### Fixed
+- 🚨 **"Prefetch ignored." blank screen** — the prefetch guard killed the page
+  instead of the click; all three entry points now serve the campaign, skip
+  only the click INSERT and send `Cache-Control: no-store`.
+- 🧩 **Generated snippets were broken code** — kclient-php nested open tag,
+  back-button trap firing on Forward, unterminated-concat SyntaxErrors in
+  link/iframe/script snippets; `EXIT_BUTTON_COLORS` wired into the editor.
+- 🔗 Campaign URL kept ad-network macros percent-encoded (`%7B%7Bad.id%7D%7D`)
+  so they were never substituted.
+- 📘 Facebook Ads template: real Meta macros `{{placement}}` /
+  `{{site_source_name}}`, fabricated `{{site.name}}` dropped.
+- 🌍 i18n: country names hardcoded Russian in `countries_list`; es/zh/uk
+  machine-translation howlers (CPC → "Communist Party", IP → "intellectual
+  property", GEO → "orbital").
+- 🎨 Themes: duplicate `.btn-primary` made neon buttons unreadable; Geo
+  Profiles / GeoSelector hardcoded light-only colors; country dropdown clipped
+  by the filter modal; columns-modal checkbox and drag reliability.
+
 ## [0.9.8.1] — 2026-08-16
 
 ### Fixed

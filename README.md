@@ -1,4 +1,4 @@
-# Orbitra v0.9.8.1 Tracker
+# Orbitra v0.9.8.2 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -387,6 +387,51 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.8.2
+
+### Added
+- 🔐 **RBAC role templates + server-side financial masking.** One-click presets
+  (Admin / Media Buyer / Video Editor / Developer / Custom) fill the role and
+  the whole permission matrix in the user modal. New *Financial data* switches
+  — `show_costs` / `show_revenue` / `show_payout` — mask the money families
+  server-side across metrics, charts, campaigns and offers, and save-guards
+  restore hidden amounts so a masked editor load can't wipe them on save. Nav
+  tabs hide on `None` permission and gear menus filter per item.
+- 🌐 **Keitaro-style Namecheap integration** — zero-config DNS parking, domain
+  purchasing, import and subdomain parking.
+- 🕵️ **Quick targeting filters on the cloak card** — GEO, devices and a
+  bot-ISP blocklist, plus a global `bot_isp_list` setting.
+- 📡 **CAPI per-pixel `event_source_url`** with `{campaign_url}` /
+  `{landing_url}` / `{clickid}` macros (migration 22).
+- 🎛️ **Redesigned Tracking tab** — two-column layout, per-method options, live
+  widget preview and install hints.
+- 📊 **Keitaro-parity columns for Landings & Offers** — visits/uVisits, LP
+  clicks/CTR, leads/sales/rejected/trash, Approve %, CR, cost/revenue (conf),
+  profit, CPC/EPC/EPV, ROI/ROI(conf) — plus compact report headers with
+  full-name tooltips.
+
+### Fixed
+- 🚨 **"Prefetch ignored." blank screen** — Chrome/Edge omnibox preloading
+  cached the old stub response and showed it as the page until a manual
+  refresh. Prefetch requests now serve the campaign normally, skip only the
+  click INSERT and answer with `Cache-Control: no-store`, so the real
+  navigation is counted properly.
+- 🧩 **Generated tracking snippets were broken code** — the kclient-php
+  `get_link` snippet had a nested open tag, the back-button trap fired on
+  Forward instead of Back, and link/iframe/script snippets died with
+  SyntaxError from an unterminated concat. All snippets are now verified with
+  `php -l` / `node --check`; `EXIT_BUTTON_COLORS` is wired into the editor.
+- 🔗 **Encoded ad-network macros never substituted** — a campaign URL that
+  kept `%7B%7Bad.id%7D%7D` percent-encoded passed the macro through untouched.
+- 📘 **Facebook Ads template ships real Meta macros** (`{{placement}}`,
+  `{{site_source_name}}`) and drops the fabricated `{{site.name}}`.
+- 🌍 **i18n** — country names were hardcoded Russian regardless of the UI
+  language; es/zh/uk machine-translation howlers fixed (CPC read as
+  "Communist Party", IP as "intellectual property", GEO as "orbital").
+- 🎨 **Themes** — neon buttons were unreadable (duplicate `.btn-primary`
+  block), Geo Profiles and GeoSelector colors were hardcoded light-only, and
+  the country dropdown was clipped inside the filter modal.
 
 ## 📝 What's New in v0.9.8.1
 
