@@ -1329,6 +1329,14 @@ export default {
         "countries": "国家",
         "network": "联属网络",
     },
+    "landingColumns": {
+        "title": "选择并排序列",
+        "required": "必选",
+        "conversions": "转化",
+        "cr": "CR",
+        "lastEvent": "最近事件",
+        "never": "从未",
+    },
     "offerEditor": {
         "localArchive": "本地 offer 文件",
         "uploadZip": "上传 ZIP",

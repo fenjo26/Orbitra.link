@@ -2499,12 +2499,13 @@ try {
             // Expanded to include metrics similarly to offers/campaigns (including LP->Offer clicks and LP CTR)
             $stmt = $pdo->prepare("
                 SELECT l.id, l.name, l.type, l.url, l.state, lg.name as group_name,
-                       COUNT(cl.id) as clicks, 
+                       COUNT(cl.id) as clicks,
                        COUNT(DISTINCT cl.ip) as unique_clicks,
                        COALESCE(SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END), 0) as lp_clicks,
-                       COALESCE(SUM(cl.is_conversion), 0) as conversions
+                       COALESCE(SUM(cl.is_conversion), 0) as conversions,
+                       MAX(cl.created_at) as last_event
                 FROM landings l
-                LEFT JOIN landing_groups lg ON l.group_id = lg.id
+                LEFT JOIN landing_groups lg ON l.group_id = l.group_id
                 LEFT JOIN clicks cl ON (l.id = cl.landing_id OR (cl.landing_id IS (NULL) AND cl.id = 'NO_DIRECT_LINK_YET')) $joinCondition
                 WHERE l.is_archived = 0
                 GROUP BY l.id
@@ -2517,8 +2518,11 @@ try {
             foreach ($landingsData as &$lRow) {
                 $c = (int) ($lRow['clicks'] ?? 0);
                 $lpc = (int) ($lRow['lp_clicks'] ?? 0);
+                $conv = (int) ($lRow['conversions'] ?? 0);
                 $lRow['lp_clicks'] = $lpc;
                 $lRow['lp_ctr'] = $c > 0 ? round(($lpc / $c) * 100, 2) : 0.0;
+                // Same denominator convention as campaign CR: conversions per click.
+                $lRow['cr'] = $c > 0 ? round(($conv / $c) * 100, 2) : 0.0;
             }
             unset($lRow);
             echo json_encode(['status' => 'success', 'data' => $landingsData]);

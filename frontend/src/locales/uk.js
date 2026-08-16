@@ -1329,6 +1329,14 @@ export default {
         "countries": "Країни",
         "network": "Партнерська мережа",
     },
+    "landingColumns": {
+        "title": "Вибір і порядок колонок",
+        "required": "обов'язкова",
+        "conversions": "Конверсії",
+        "cr": "CR",
+        "lastEvent": "Остання подія",
+        "never": "Ніколи",
+    },
     "offerEditor": {
         "localArchive": "Файли локального оффера",
         "uploadZip": "Завантажити ZIP",

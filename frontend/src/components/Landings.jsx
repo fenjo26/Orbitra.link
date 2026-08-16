@@ -1,12 +1,51 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X } from 'lucide-react';
+import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import LandingEditor from './LandingEditor';
 import GroupsModal from './GroupsModal';
+import ColumnsOrderModal from './ColumnsOrderModal';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
+
+// Every column the landings table can show, backed by fields the `landings`
+// endpoint actually returns. Deliberately no views/geo/money columns: the
+// clicks table has no landing "view" concept, landings carry no GEO, and
+// clicks.revenue/cost are never written — those would render eternal zeros.
+export const ALL_LANDING_COLUMNS = [
+    { id: 'id', label: 'ID' },
+    { id: 'name', label: 'Name', required: true },
+    { id: 'type', label: 'Type' },
+    { id: 'state', label: 'Status' },
+    { id: 'clicks', label: 'Clicks' },
+    { id: 'unique_clicks', label: 'Uniques' },
+    { id: 'lp_clicks', label: 'LP Clicks' },
+    { id: 'lp_ctr', label: 'LP CTR' },
+    { id: 'conversions', label: 'Conversions' },
+    { id: 'cr', label: 'CR' },
+    { id: 'group_name', label: 'Group' },
+    { id: 'last_event', label: 'Last Event' },
+];
+
+// The table as it shipped: order and composition users already know.
+export const DEFAULT_LANDING_COLUMNS = [
+    'id', 'name', 'group_name', 'type', 'state',
+    'clicks', 'unique_clicks', 'lp_clicks', 'lp_ctr',
+];
+
+const LANDING_COLUMNS_KEY = 'orbitra_landing_columns';
+
+const loadLandingColumns = () => {
+    try {
+        const saved = JSON.parse(localStorage.getItem(LANDING_COLUMNS_KEY) || 'null');
+        if (Array.isArray(saved) && saved.length) {
+            const valid = saved.filter(id => ALL_LANDING_COLUMNS.some(c => c.id === id));
+            if (valid.includes('name')) return valid;
+        }
+    } catch (e) { /* fall through to default */ }
+    return [...DEFAULT_LANDING_COLUMNS];
+};
 
 const Landings = ({ landings, refreshData }) => {
     const { t } = useLanguage();
@@ -20,6 +59,8 @@ const Landings = ({ landings, refreshData }) => {
     const [stateFilter, setStateFilter] = useState('');
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const [columnsModalOpen, setColumnsModalOpen] = useState(false);
+    const [chosenColumns, setChosenColumns] = useState(() => loadLandingColumns());
 
     const handleCreate = () => {
         setEditingLandingId(null);
@@ -152,6 +193,86 @@ const Landings = ({ landings, refreshData }) => {
         }
     };
 
+    const columnLabel = (colId) => ({
+        id: 'ID',
+        name: t('components.aliasName'),
+        type: t('components.type'),
+        state: t('components.status'),
+        clicks: t('components.clicks'),
+        unique_clicks: t('components.uniques'),
+        lp_clicks: t('components.lpClicks'),
+        lp_ctr: t('components.lpCtr'),
+        conversions: t('landingColumns.conversions'),
+        cr: t('landingColumns.cr'),
+        group_name: t('components.group'),
+        last_event: t('landingColumns.lastEvent'),
+    }[colId] || colId);
+
+    const localizedColumns = ALL_LANDING_COLUMNS.map(c => ({ ...c, label: columnLabel(c.id) }));
+
+    // SQLite hands back "YYYY-MM-DD HH:MM:SS"; the space separator chokes
+    // Safari's Date parser, so normalize to ISO before formatting.
+    const formatLastEvent = (v) => {
+        if (!v) return t('landingColumns.never');
+        const d = new Date(String(v).replace(' ', 'T'));
+        if (isNaN(d.getTime())) return t('landingColumns.never');
+        const p = (n) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+    };
+
+    const renderLandingCell = (landing, colId) => {
+        switch (colId) {
+            case 'id':
+                return <td key={colId} className="font-medium">{landing.id}</td>;
+            case 'name':
+                return (
+                    <td key={colId}>
+                        <div className="flex flex-col">
+                            <span
+                                className="font-semibold cursor-pointer hover:underline"
+                                style={{ color: 'var(--color-primary)' }}
+                                onClick={() => handleEdit(landing.id)}
+                            >
+                                {landing.name}
+                            </span>
+                            {landing.type !== 'local' && landing.type !== 'action' && (
+                                <span style={{ color: 'var(--color-text-muted)', fontSize: '12px' }} className="truncate max-w-[200px]" title={landing.url}>
+                                    {landing.url}
+                                </span>
+                            )}
+                        </div>
+                    </td>
+                );
+            case 'type':
+                return (
+                    <td key={colId}>
+                        <span className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
+                            {landing.type}
+                        </span>
+                    </td>
+                );
+            case 'state':
+                return (
+                    <td key={colId}>
+                        <span className="flex items-center text-xs font-medium" style={{ color: landing.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
+                            <span className="w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: landing.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}></span>
+                            {landing.state === 'active' ? t('components.active') : t('components.archive')}
+                        </span>
+                    </td>
+                );
+            case 'group_name':
+                return <td key={colId} style={{ color: 'var(--color-text-secondary)' }}>{landing.group_name || '-'}</td>;
+            case 'lp_ctr':
+                return <td key={colId}>{landing.lp_ctr !== undefined ? `${landing.lp_ctr}%` : '0%'}</td>;
+            case 'cr':
+                return <td key={colId}>{landing.cr !== undefined ? `${landing.cr}%` : '0%'}</td>;
+            case 'last_event':
+                return <td key={colId} style={{ color: 'var(--color-text-secondary)' }}>{formatLastEvent(landing.last_event)}</td>;
+            default:
+                return <td key={colId}>{landing[colId] || 0}</td>;
+        }
+    };
+
     return (
         <div className="page-card">
             <InfoBanner storageKey="help_landings" title={t('help.landingBannerTitle')}>
@@ -174,6 +295,24 @@ const Landings = ({ landings, refreshData }) => {
                     )}
                 </div>
                 <div className="flex gap-2">
+                    {/* Columns Customizer Button [ ☵ ] */}
+                    <button
+                        type="button"
+                        onClick={() => setColumnsModalOpen(true)}
+                        className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium"
+                        title={t('landingColumns.title')}
+                        style={{
+                            backgroundColor: 'var(--color-bg-card)',
+                            border: '1px solid var(--color-border)',
+                            color: 'var(--color-text-primary)'
+                        }}
+                    >
+                        <SlidersHorizontal className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
+                        <span>{t('reportCustomizer.columns')}</span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded-full" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
+                            {chosenColumns.length}
+                        </span>
+                    </button>
                     <button
                         type="button"
                         onClick={() => setShowFilters(!showFilters)}
@@ -255,22 +394,16 @@ const Landings = ({ landings, refreshData }) => {
                                     onChange={(e) => toggleSelectAll(e.target.checked)}
                                 />
                             </th>
-                            <th>ID</th>
-                            <th>{t('components.aliasName')}</th>
-                            <th>{t('components.group')}</th>
-                            <th>{t('components.type')}</th>
-                            <th>{t('components.status')}</th>
-                            <th>{t('components.clicks')}</th>
-                            <th>{t('components.uniques')}</th>
-                            <th>{t('components.lpClicks') || 'LP Clicks'}</th>
-                            <th>{t('components.lpCtr') || 'LP CTR'}</th>
+                            {chosenColumns.map((colId) => (
+                                <th key={colId}>{columnLabel(colId)}</th>
+                            ))}
                             <th className="text-right">{t('common.actions')}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {visibleLandings.length === 0 ? (
                             <tr>
-                                <td colSpan="11" className="text-center py-12">
+                                <td colSpan={chosenColumns.length + 2} className="text-center py-12">
                                     <div className="empty-state">
                                         <p className="empty-state-title">{t('landings.noLandings')}</p>
                                         <p className="empty-state-text">{t('landings.noLandingsDesc')}</p>
@@ -287,40 +420,7 @@ const Landings = ({ landings, refreshData }) => {
                                             onChange={(e) => toggleSelected(landing.id, e.target.checked)}
                                         />
                                     </td>
-                                    <td className="font-medium">{landing.id}</td>
-                                    <td>
-                                        <div className="flex flex-col">
-                                            <span
-                                                className="font-semibold cursor-pointer hover:underline"
-                                                style={{ color: 'var(--color-primary)' }}
-                                                onClick={() => handleEdit(landing.id)}
-                                            >
-                                                {landing.name}
-                                            </span>
-                                            {landing.type !== 'local' && landing.type !== 'action' && (
-                                                <span style={{ color: 'var(--color-text-muted)', fontSize: '12px' }} className="truncate max-w-[200px]" title={landing.url}>
-                                                    {landing.url}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td style={{ color: 'var(--color-text-secondary)' }}>{landing.group_name || '-'}</td>
-                                    <td>
-                                        <span className={`px-2 py-1 rounded text-xs font-semibold ${landing.type === 'local' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'
-                                            }`}>
-                                            {landing.type}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className="flex items-center text-xs font-medium" style={{ color: landing.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
-                                            <span className="w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: landing.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}></span>
-                                            {landing.state === 'active' ? t('components.active') : t('components.archive')}
-                                        </span>
-                                    </td>
-                                    <td>{landing.clicks || 0}</td>
-                                    <td>{landing.unique_clicks || 0}</td>
-                                    <td>{landing.lp_clicks || 0}</td>
-                                    <td>{landing.lp_ctr !== undefined ? `${landing.lp_ctr}%` : '0%'}</td>
+                                    {chosenColumns.map((colId) => renderLandingCell(landing, colId))}
                                     <td>
                                         <div className="action-buttons">
                                             <button onClick={() => handleEdit(landing.id)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
@@ -370,6 +470,20 @@ const Landings = ({ landings, refreshData }) => {
                 <GroupsModal
                     type="landing"
                     onClose={() => setShowGroupsModal(false)}
+                />
+            )}
+
+            {columnsModalOpen && (
+                <ColumnsOrderModal
+                    columns={localizedColumns}
+                    selectedIds={chosenColumns}
+                    defaultIds={DEFAULT_LANDING_COLUMNS}
+                    onClose={() => setColumnsModalOpen(false)}
+                    onSave={(ids) => {
+                        setChosenColumns(ids);
+                        localStorage.setItem(LANDING_COLUMNS_KEY, JSON.stringify(ids));
+                        setColumnsModalOpen(false);
+                    }}
                 />
             )}
         </div>

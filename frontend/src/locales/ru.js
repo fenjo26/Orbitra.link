@@ -1329,6 +1329,14 @@ export default {
         "countries": "Страны",
         "network": "Партнёрская сеть",
     },
+    "landingColumns": {
+        "title": "Выбор и порядок колонок",
+        "required": "обязательная",
+        "conversions": "Конверсии",
+        "cr": "CR",
+        "lastEvent": "Последнее событие",
+        "never": "Никогда",
+    },
     "offerEditor": {
         "localArchive": "Файлы локального оффера",
         "uploadZip": "Загрузить ZIP",

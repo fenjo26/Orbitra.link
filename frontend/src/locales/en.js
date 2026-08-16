@@ -1329,6 +1329,14 @@ export default {
         "countries": "Countries",
         "network": "Affiliate network",
     },
+    "landingColumns": {
+        "title": "Select and Order Columns",
+        "required": "required",
+        "conversions": "Conversions",
+        "cr": "CR",
+        "lastEvent": "Last Event",
+        "never": "Never",
+    },
     "offerEditor": {
         "localArchive": "Local offer files",
         "uploadZip": "Upload ZIP",

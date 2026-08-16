@@ -17326,6 +17326,14 @@ const ru = {
     "countries": "Страны",
     "network": "Партнёрская сеть"
   },
+  "landingColumns": {
+    "title": "Выбор и порядок колонок",
+    "required": "обязательная",
+    "conversions": "Конверсии",
+    "cr": "CR",
+    "lastEvent": "Последнее событие",
+    "never": "Никогда"
+  },
   "offerEditor": {
     "localArchive": "Файлы локального оффера",
     "uploadZip": "Загрузить ZIP",
@@ -19855,6 +19863,14 @@ const en = {
     "group": "Group",
     "countries": "Countries",
     "network": "Affiliate network"
+  },
+  "landingColumns": {
+    "title": "Select and Order Columns",
+    "required": "required",
+    "conversions": "Conversions",
+    "cr": "CR",
+    "lastEvent": "Last Event",
+    "never": "Never"
   },
   "offerEditor": {
     "localArchive": "Local offer files",
@@ -22386,6 +22402,14 @@ const uk = {
     "countries": "Країни",
     "network": "Партнерська мережа"
   },
+  "landingColumns": {
+    "title": "Вибір і порядок колонок",
+    "required": "обов'язкова",
+    "conversions": "Конверсії",
+    "cr": "CR",
+    "lastEvent": "Остання подія",
+    "never": "Ніколи"
+  },
   "offerEditor": {
     "localArchive": "Файли локального оффера",
     "uploadZip": "Завантажити ZIP",
@@ -24915,6 +24939,14 @@ const es = {
     "group": "Grupo",
     "countries": "Países",
     "network": "Red de afiliados"
+  },
+  "landingColumns": {
+    "title": "Seleccionar y ordenar columnas",
+    "required": "obligatoria",
+    "conversions": "Conversiones",
+    "cr": "CR",
+    "lastEvent": "Último evento",
+    "never": "Nunca"
   },
   "offerEditor": {
     "localArchive": "Archivos del offer local",
@@ -27446,6 +27478,14 @@ const zh = {
     "countries": "国家",
     "network": "联属网络"
   },
+  "landingColumns": {
+    "title": "选择并排序列",
+    "required": "必选",
+    "conversions": "转化",
+    "cr": "CR",
+    "lastEvent": "最近事件",
+    "never": "从未"
+  },
   "offerEditor": {
     "localArchive": "本地 offer 文件",
     "uploadZip": "上传 ZIP",
@@ -29975,6 +30015,14 @@ const fr = {
     "group": "Groupe",
     "countries": "Pays",
     "network": "Réseau d'affiliation"
+  },
+  "landingColumns": {
+    "title": "Sélectionner et ordonner les colonnes",
+    "required": "obligatoire",
+    "conversions": "Conversions",
+    "cr": "CR",
+    "lastEvent": "Dernier événement",
+    "never": "Jamais"
   },
   "offerEditor": {
     "localArchive": "Fichiers de l’offre locale",
@@ -32507,6 +32555,14 @@ const de = {
     "group": "Gruppe",
     "countries": "Länder",
     "network": "Affiliate-Netzwerk"
+  },
+  "landingColumns": {
+    "title": "Spalten auswählen und sortieren",
+    "required": "erforderlich",
+    "conversions": "Konversionen",
+    "cr": "CR",
+    "lastEvent": "Letztes Ereignis",
+    "never": "Nie"
   },
   "offerEditor": {
     "localArchive": "Dateien des lokalen Offers",
@@ -51775,7 +51831,249 @@ ${file}`)) return;
     )
   ] });
 };
+const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }) => {
+  const { t } = useLanguage();
+  const [selectedSet, setSelectedSet] = reactExports.useState(() => new Set(selectedIds));
+  const [orderedIds, setOrderedIds] = reactExports.useState(() => {
+    const chosen = selectedIds.filter((id) => columns.some((c) => c.id === id));
+    const rest = columns.map((c) => c.id).filter((id) => !chosen.includes(id));
+    return [...chosen, ...rest];
+  });
+  const [draggedId, setDraggedId] = reactExports.useState(null);
+  const [dragOverId, setDragOverId] = reactExports.useState(null);
+  reactExports.useEffect(() => {
+    setSelectedSet(new Set(selectedIds));
+    const chosen = selectedIds.filter((id) => columns.some((c) => c.id === id));
+    const rest = columns.map((c) => c.id).filter((id) => !chosen.includes(id));
+    setOrderedIds([...chosen, ...rest]);
+  }, [selectedIds]);
+  const isAllSelected = columns.every((c) => selectedSet.has(c.id));
+  const handleToggle = (id, required) => {
+    if (required) return;
+    setSelectedSet((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+  const handleToggleAll = () => {
+    setSelectedSet((prev) => {
+      const allIn = columns.every((c) => prev.has(c.id));
+      const next = new Set(prev);
+      if (allIn) {
+        columns.forEach((c) => {
+          if (!c.required) next.delete(c.id);
+        });
+      } else {
+        columns.forEach((c) => next.add(c.id));
+      }
+      return next;
+    });
+  };
+  const handleRestoreDefault = () => {
+    setSelectedSet(new Set(defaultIds));
+    const rest = columns.map((c) => c.id).filter((id) => !defaultIds.includes(id));
+    setOrderedIds([...defaultIds.filter((id) => columns.some((c) => c.id === id)), ...rest]);
+  };
+  const handleDragStart = (e, id) => {
+    setDraggedId(id);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", id);
+  };
+  const handleDragOver = (e, id) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverId !== id) setDragOverId(id);
+  };
+  const handleDrop = (e, targetId) => {
+    e.preventDefault();
+    try {
+      const droppedId = draggedId || e.dataTransfer.getData("text/plain");
+      if (droppedId && droppedId !== targetId) {
+        const copy = [...orderedIds];
+        const from2 = copy.indexOf(droppedId);
+        const to2 = copy.indexOf(targetId);
+        if (from2 !== -1 && to2 !== -1) {
+          copy.splice(from2, 1);
+          copy.splice(to2, 0, droppedId);
+          setOrderedIds(copy);
+        }
+      }
+    } finally {
+      setDraggedId(null);
+      setDragOverId(null);
+    }
+  };
+  const handleDragEnd = () => {
+    setDraggedId(null);
+    setDragOverId(null);
+  };
+  const handleSave = () => {
+    const result = orderedIds.filter((id) => selectedSet.has(id));
+    onSave(result.length > 0 ? result : defaultIds);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { padding: "24px 16px", zIndex: 1200 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "modal-content rounded-2xl shadow-2xl flex flex-col overflow-hidden",
+      style: {
+        maxWidth: "480px",
+        width: "100%",
+        maxHeight: "80vh",
+        padding: 0,
+        backgroundColor: "var(--color-bg-card)",
+        border: "1px solid var(--color-border)",
+        color: "var(--color-text-primary)"
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-6 py-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-semibold", style: { color: "var(--color-text-primary)" }, children: t("landingColumns.title") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: onClose,
+              className: "btn-icon p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors",
+              style: { color: "var(--color-text-muted)" },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 px-6 py-3 border-b select-none", style: { borderColor: "var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "checkbox",
+              checked: isAllSelected,
+              onChange: handleToggleAll,
+              className: "w-4 h-4 rounded cursor-pointer",
+              style: { accentColor: "var(--color-primary)" }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium", style: { color: "var(--color-text-primary)" }, children: t("editor.selectAll") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "flex-1 overflow-y-auto px-4 py-3 space-y-0.5",
+            style: { scrollbarWidth: "thin" },
+            onDragLeave: () => setDragOverId(null),
+            children: orderedIds.map((id) => {
+              const col = columns.find((c) => c.id === id);
+              if (!col) return null;
+              const isChecked = selectedSet.has(id);
+              const isDragging = draggedId === id;
+              const isOver = dragOverId === id && draggedId && draggedId !== id;
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  onDragOver: (e) => handleDragOver(e, id),
+                  onDrop: (e) => handleDrop(e, id),
+                  onClick: () => handleToggle(id, col.required),
+                  className: "flex items-center gap-3 px-2 py-2 rounded-lg text-xs cursor-pointer select-none transition-colors hover:bg-black/5 dark:hover:bg-white/5",
+                  style: {
+                    opacity: isDragging ? 0.4 : 1,
+                    boxShadow: isOver ? "inset 0 2px 0 var(--color-primary)" : "none"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "div",
+                      {
+                        draggable: true,
+                        onDragStart: (e) => handleDragStart(e, id),
+                        onDragEnd: handleDragEnd,
+                        className: "cursor-grab active:cursor-grabbing p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200",
+                        onClick: (e) => e.stopPropagation(),
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3.5 h-3.5 opacity-60" })
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "checkbox",
+                        checked: isChecked,
+                        disabled: col.required,
+                        onChange: () => handleToggle(id, col.required),
+                        onClick: (e) => e.stopPropagation(),
+                        className: "w-4 h-4 rounded cursor-pointer",
+                        style: { accentColor: "var(--color-primary)" }
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "span",
+                      {
+                        className: "flex-1 font-normal",
+                        style: { color: isChecked ? "var(--color-text-primary)" : "var(--color-text-secondary)" },
+                        children: col.label
+                      }
+                    ),
+                    col.required && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10.5px] px-1.5 py-0.5 rounded-md", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: t("landingColumns.required") })
+                  ]
+                },
+                id
+              );
+            })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-6 py-3.5 border-t", style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: handleRestoreDefault,
+              className: "text-xs transition-colors hover:underline",
+              style: { color: "var(--color-primary)" },
+              children: t("reportCustomizer.restoreDefault")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onClose, className: "btn btn-secondary text-xs py-2 px-4 rounded-xl font-medium", children: t("common.cancel") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: handleSave, className: "btn btn-primary text-xs py-2 px-5 rounded-xl font-medium", children: t("common.save") })
+          ] })
+        ] })
+      ]
+    }
+  ) });
+};
 const API_URL$t = "/api.php";
+const ALL_LANDING_COLUMNS = [
+  { id: "id", label: "ID" },
+  { id: "name", label: "Name", required: true },
+  { id: "type", label: "Type" },
+  { id: "state", label: "Status" },
+  { id: "clicks", label: "Clicks" },
+  { id: "unique_clicks", label: "Uniques" },
+  { id: "lp_clicks", label: "LP Clicks" },
+  { id: "lp_ctr", label: "LP CTR" },
+  { id: "conversions", label: "Conversions" },
+  { id: "cr", label: "CR" },
+  { id: "group_name", label: "Group" },
+  { id: "last_event", label: "Last Event" }
+];
+const DEFAULT_LANDING_COLUMNS = [
+  "id",
+  "name",
+  "group_name",
+  "type",
+  "state",
+  "clicks",
+  "unique_clicks",
+  "lp_clicks",
+  "lp_ctr"
+];
+const LANDING_COLUMNS_KEY = "orbitra_landing_columns";
+const loadLandingColumns = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(LANDING_COLUMNS_KEY) || "null");
+    if (Array.isArray(saved) && saved.length) {
+      const valid = saved.filter((id) => ALL_LANDING_COLUMNS.some((c) => c.id === id));
+      if (valid.includes("name")) return valid;
+    }
+  } catch (e) {
+  }
+  return [...DEFAULT_LANDING_COLUMNS];
+};
 const Landings = ({ landings, refreshData }) => {
   const { t } = useLanguage();
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
@@ -51788,6 +52086,8 @@ const Landings = ({ landings, refreshData }) => {
   const [stateFilter, setStateFilter] = reactExports.useState("");
   const [settingsOpen, setSettingsOpen] = reactExports.useState(false);
   const [refreshing, setRefreshing] = reactExports.useState(false);
+  const [columnsModalOpen, setColumnsModalOpen] = reactExports.useState(false);
+  const [chosenColumns, setChosenColumns] = reactExports.useState(() => loadLandingColumns());
   const handleCreate = () => {
     setEditingLandingId(null);
     setIsEditorOpen(true);
@@ -51904,6 +52204,64 @@ const Landings = ({ landings, refreshData }) => {
       refreshData();
     }
   };
+  const columnLabel = (colId) => ({
+    id: "ID",
+    name: t("components.aliasName"),
+    type: t("components.type"),
+    state: t("components.status"),
+    clicks: t("components.clicks"),
+    unique_clicks: t("components.uniques"),
+    lp_clicks: t("components.lpClicks"),
+    lp_ctr: t("components.lpCtr"),
+    conversions: t("landingColumns.conversions"),
+    cr: t("landingColumns.cr"),
+    group_name: t("components.group"),
+    last_event: t("landingColumns.lastEvent")
+  })[colId] || colId;
+  const localizedColumns = ALL_LANDING_COLUMNS.map((c) => ({ ...c, label: columnLabel(c.id) }));
+  const formatLastEvent = (v) => {
+    if (!v) return t("landingColumns.never");
+    const d = new Date(String(v).replace(" ", "T"));
+    if (isNaN(d.getTime())) return t("landingColumns.never");
+    const p = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  };
+  const renderLandingCell = (landing, colId) => {
+    switch (colId) {
+      case "id":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: landing.id }, colId);
+      case "name":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: "font-semibold cursor-pointer hover:underline",
+              style: { color: "var(--color-primary)" },
+              onClick: () => handleEdit(landing.id),
+              children: landing.name
+            }
+          ),
+          landing.type !== "local" && landing.type !== "action" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontSize: "12px" }, className: "truncate max-w-[200px]", title: landing.url, children: landing.url })
+        ] }) }, colId);
+      case "type":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-1 rounded text-xs font-semibold", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: landing.type }) }, colId);
+      case "state":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center text-xs font-medium", style: { color: landing.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-2 h-2 rounded-full mr-1.5", style: { backgroundColor: landing.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" } }),
+          landing.state === "active" ? t("components.active") : t("components.archive")
+        ] }) }, colId);
+      case "group_name":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: landing.group_name || "-" }, colId);
+      case "lp_ctr":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing.lp_ctr !== void 0 ? `${landing.lp_ctr}%` : "0%" }, colId);
+      case "cr":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing.cr !== void 0 ? `${landing.cr}%` : "0%" }, colId);
+      case "last_event":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: formatLastEvent(landing.last_event) }, colId);
+      default:
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing[colId] || 0 }, colId);
+    }
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_landings", title: t("help.landingBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.landingBanner") }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", children: [
@@ -51922,6 +52280,25 @@ const Landings = ({ landings, refreshData }) => {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setColumnsModalOpen(true),
+            className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium",
+            title: t("landingColumns.title"),
+            style: {
+              backgroundColor: "var(--color-bg-card)",
+              border: "1px solid var(--color-border)",
+              color: "var(--color-text-primary)"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SlidersHorizontal, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("reportCustomizer.columns") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 py-0.2 rounded-full", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: chosenColumns.length })
+            ]
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
@@ -52012,18 +52389,10 @@ const Landings = ({ landings, refreshData }) => {
             onChange: (e) => toggleSelectAll(e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.aliasName") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.group") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.type") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.clicks") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.uniques") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.lpClicks") || "LP Clicks" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.lpCtr") || "LP CTR" }),
+        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: columnLabel(colId) }, colId)),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleLandings.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "11", className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleLandings.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: chosenColumns.length + 2, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("landings.noLandings") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("landings.noLandingsDesc") })
       ] }) }) }) : visibleLandings.map((landing) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -52035,29 +52404,7 @@ const Landings = ({ landings, refreshData }) => {
             onChange: (e) => toggleSelected(landing.id, e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: landing.id }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "span",
-            {
-              className: "font-semibold cursor-pointer hover:underline",
-              style: { color: "var(--color-primary)" },
-              onClick: () => handleEdit(landing.id),
-              children: landing.name
-            }
-          ),
-          landing.type !== "local" && landing.type !== "action" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontSize: "12px" }, className: "truncate max-w-[200px]", title: landing.url, children: landing.url })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: landing.group_name || "-" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `px-2 py-1 rounded text-xs font-semibold ${landing.type === "local" ? "bg-indigo-100 text-indigo-800" : "bg-gray-100 text-gray-800"}`, children: landing.type }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center text-xs font-medium", style: { color: landing.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-2 h-2 rounded-full mr-1.5", style: { backgroundColor: landing.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" } }),
-          landing.state === "active" ? t("components.active") : t("components.archive")
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing.clicks || 0 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing.unique_clicks || 0 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing.lp_clicks || 0 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: landing.lp_ctr !== void 0 ? `${landing.lp_ctr}%` : "0%" }),
+        chosenColumns.map((colId) => renderLandingCell(landing, colId)),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(landing.id), className: "action-btn text-blue", title: t("common.edit") || t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(landing.id), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
@@ -52088,6 +52435,20 @@ const Landings = ({ landings, refreshData }) => {
       {
         type: "landing",
         onClose: () => setShowGroupsModal(false)
+      }
+    ),
+    columnsModalOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ColumnsOrderModal,
+      {
+        columns: localizedColumns,
+        selectedIds: chosenColumns,
+        defaultIds: DEFAULT_LANDING_COLUMNS,
+        onClose: () => setColumnsModalOpen(false),
+        onSave: (ids) => {
+          setChosenColumns(ids);
+          localStorage.setItem(LANDING_COLUMNS_KEY, JSON.stringify(ids));
+          setColumnsModalOpen(false);
+        }
       }
     )
   ] });
