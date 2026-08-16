@@ -1829,9 +1829,11 @@ foreach ($stmtSets->fetchAll() as $row) {
     $settings[$row['key']] = $row['value'];
 }
 
-if (($settings['ignore_prefetch'] ?? '1') === '1') {
-    orbitraMaybeDieOnPrefetch('1');
-}
+// Prefetch guard (ignore_prefetch): a speculative request is not counted as a
+// click, but the campaign itself is served — killing the request here used to
+// leave the browser showing the cached "Prefetch ignored." body instead of the
+// landing until a manual refresh.
+$isPrefetchRequest = orbitraShouldSkipClickOnPrefetch($settings['ignore_prefetch'] ?? '1');
 
 // === BOT CHALLENGE VERIFICATION ===
 $challengeType = $campaign['challenge_type'] ?? 'none';
@@ -2541,7 +2543,8 @@ if ($stmtDebounce->fetch()) {
     $isDebounced = true;
 }
 
-if ($statsEnabled && !$isDebounced) {
+// A prefetch hit serves the campaign but never reaches the stats.
+if ($statsEnabled && !$isDebounced && !$isPrefetchRequest) {
     // No offer (e.g. landing-only stream) must be logged as NULL, not 0, to
     // avoid the offers(id) foreign-key violation.
     $offerIdForDb = !empty($offerIdToLog) ? $offerIdToLog : null;

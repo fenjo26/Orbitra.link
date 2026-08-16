@@ -27,7 +27,10 @@ try {
 } catch (\Throwable $e) {
     // Default stands on a read error.
 }
-orbitraMaybeDieOnPrefetch($ignorePrefetch);
+// Prefetch guard (ignore_prefetch): a speculative request is answered normally
+// but its click is not logged — killing the request used to leave the cached
+// "Prefetch ignored." body on the visitor's screen.
+$skipClickOnPrefetch = orbitraShouldSkipClickOnPrefetch($ignorePrefetch);
 
 $campaignId = $_GET['campaign_id'] ?? null;
 $token = $_GET['token'] ?? ($_GET['api_token'] ?? null);
@@ -455,8 +458,8 @@ if ($stmtDebounce->fetch()) {
     $isDebounced = true;
 }
 
-// Log click
-if ($statsEnabled && !$isDebounced) {
+// Log click (a prefetch hit is served but never logged)
+if ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch) {
     $insertStmt = $pdo->prepare("
         INSERT INTO clicks (
             id, campaign_id, offer_id, stream_id, source_id, ip, user_agent, referer,

@@ -2,23 +2,24 @@
 /**
  * Prefetch / preload detection.
  *
- * Browsers and crawlers fire speculative requests — link prefetching, tab
- * preloading, `<link rel=preload>`, Chrome's earlier prerender — that would
- * otherwise be counted as real clicks. The "ignore_prefetch" setting makes
- * the tracker drop them instead.
+ * Browsers fire speculative requests — omnibox preloading, link prefetching,
+ * Chrome prerender — that would otherwise be counted as real clicks. The
+ * "ignore_prefetch" setting makes the tracker skip click logging for them.
  *
- * index.php had a header check that only recognised the legacy Safari/Firefox
- * hints (X-Purpose: preview, X-Moz: prefetch); this helper adds the modern
- * Sec-Purpose / Sec-Fetch-* vocabulary so current Chrome and Edge are caught
- * too, and keeps the three click entry points (index.php, click.php,
- * core/click_api.php) identical.
+ * A prefetch response must still serve the campaign. The guard used to
+ * die("Prefetch ignored."), and the browser happily cached that stub and
+ * displayed it as the page once the prefetched navigation was activated —
+ * a blank "Prefetch ignored." screen until a manual refresh. Now the click
+ * is simply not logged and the landing/redirect goes out as usual, with a
+ * no-store hint so the browser re-requests on the real navigation and that
+ * visit is counted properly.
  */
 
 /**
  * Does the request look like a prefetch / preload?
  *
- * Pure function over the server globals so the three entry points behave the
- * same way and the result is trivially unit-testable.
+ * Pure function over the server globals so the entry points behave the same
+ * way and the result is trivially unit-testable.
  */
 function orbitraIsPrefetch(array $server): bool
 {
@@ -34,11 +35,11 @@ function orbitraIsPrefetch(array $server): bool
         return true;
     }
 
-    // Modern Fetch Metadata. "Sec-Purpose: prefetch" (Chrome/Safari) and
-    // "Sec-Purpose: prefetch" alongside a navigation covers link hover and
-    // prerender; older drafts spelled it "Sec-Fetch-Dest: document".
+    // Modern Fetch Metadata. "Sec-Purpose: prefetch" covers omnibox preloading
+    // and link prefetch in Chrome/Edge/Safari; prerendering announces itself
+    // the same way, and older drafts spelled the header "Sec-Fetch-Purpose".
     $secPurpose = $server['HTTP_SEC_PURPOSE'] ?? $server['HTTP_SEC_FETCH_PURPOSE'] ?? '';
-    if (is_string($secPurpose) && preg_match('/\bprefetch\b/i', $secPurpose)) {
+    if (is_string($secPurpose) && preg_match('/\b(?:prefetch|prerender)\b/i', $secPurpose)) {
         return true;
     }
 
@@ -53,15 +54,33 @@ function orbitraIsPrefetch(array $server): bool
 
 /**
  * Apply the ignore_prefetch setting: when enabled and the request looks like a
- * prefetch, stop the request with the same terse body the inline code used.
+ * prefetch, its click must NOT be logged — but the response itself must go out
+ * so the visitor never sees a blank page instead of the landing.
+ *
+ * Side effect: marks the response Cache-Control: no-store, nudging the browser
+ * into re-requesting on the real navigation so that visit lands in the stats.
+ */
+function orbitraShouldSkipClickOnPrefetch(string $prefetchSetting): bool
+{
+    if ($prefetchSetting !== '1') {
+        return false;
+    }
+    if (!orbitraIsPrefetch($_SERVER)) {
+        return false;
+    }
+    if (!headers_sent()) {
+        header('Cache-Control: no-store');
+    }
+    return true;
+}
+
+/**
+ * Deprecated no-op kept for backwards compatibility. It used to terminate the
+ * request with "Prefetch ignored." — which the browser then showed as the page
+ * once the prefetched navigation was activated. Callers should use
+ * orbitraShouldSkipClickOnPrefetch() and keep serving the campaign.
  */
 function orbitraMaybeDieOnPrefetch(string $prefetchSetting): void
 {
-    if ($prefetchSetting !== '1') {
-        return;
-    }
-    if (orbitraIsPrefetch($_SERVER)) {
-        // Keep the historical body so log scrapers/grep that looked for it still match.
-        die("Prefetch ignored.");
-    }
+    // Intentionally does nothing.
 }

@@ -477,13 +477,14 @@ function orbitraClickApiV3(PDO $pdo): void
         return;
     }
 
-    // Apply ignore_prefetch consistently with the other click entry points. The
+    // Apply ignore_prefetch consistently with the other click entry points: a
+    // speculative request is answered normally but its click is not logged. The
     // helper is loaded by index.php for this path; require once keeps it safe if
     // the file is ever reached another way.
-    if (!function_exists('orbitraMaybeDieOnPrefetch')) {
+    if (!function_exists('orbitraShouldSkipClickOnPrefetch')) {
         require_once __DIR__ . '/prefetch.php';
     }
-    orbitraMaybeDieOnPrefetch($settings['ignore_prefetch'] ?? '1');
+    $prefetchSkipClick = orbitraShouldSkipClickOnPrefetch($settings['ignore_prefetch'] ?? '1');
 
     $stmt = $pdo->prepare("SELECT * FROM campaigns WHERE is_archived = 0 AND token = ? LIMIT 1");
     $stmt->execute([$token]);
@@ -687,9 +688,9 @@ function orbitraClickApiV3(PDO $pdo): void
         }
     }
 
-    // Log click (if stats are enabled).
+    // Log click (if stats are enabled; a prefetch hit is answered but skipped).
     $statsEnabled = ($settings['stats_enabled'] ?? '1') !== '0';
-    if ($statsEnabled) {
+    if ($statsEnabled && !$prefetchSkipClick) {
         try {
             $insertStmt = $pdo->prepare("
                 INSERT INTO clicks
