@@ -560,7 +560,25 @@ function serveLandingAsset($landingId, $uriPath, $baseDir = null)
     // contains the request — a crafted "/../../config.php" cannot escape.
     $file = realpath($root . '/' . ltrim(rawurldecode($uriPath), '/'));
     if ($file === false || !is_file($file) || strpos($file, $root . DIRECTORY_SEPARATOR) !== 0) {
-        return;
+        // Legacy single-nested archives: retry the subdirectory that holds the
+        // index, so pages served from there get their css/js/images too. The
+        // containment check applies to the candidate exactly as to the root hit.
+        $nestedHit = false;
+        foreach ((array) glob($root . '/*', GLOB_ONLYDIR) as $sub) {
+            $subBase = basename($sub);
+            if ($subBase === '__MACOSX' || $subBase[0] === '.') {
+                continue;
+            }
+            $candidate = realpath($sub . '/' . ltrim(rawurldecode($uriPath), '/'));
+            if ($candidate !== false && is_file($candidate) && strpos($candidate, $root . DIRECTORY_SEPARATOR) === 0) {
+                $file = $candidate;
+                $nestedHit = true;
+                break;
+            }
+        }
+        if (!$nestedHit) {
+            return;
+        }
     }
 
     $size = filesize($file);
@@ -885,6 +903,8 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
     if (!is_dir($dir)) {
         return false;
     }
+    // Same nested-folder/statcache resolution as landings.
+    $dir = orbitraLandingContentDir($dir);
 
     // Assets of this page resolve against the offer's directory; the landing
     // cookie must go, or the landing the visitor came from would answer instead.
@@ -2616,7 +2636,9 @@ if ($actionToPerfrom) {
 
     if (isset($landingType) && $landingType !== 'redirect') {
         if ($landingType === 'local') {
-            $landingDir = orbitraLandingDir($pdo, $landingIdToLog);
+            // Resolves through single-nested folders and drops statcache — the
+            // very first click after an upload must find the files too.
+            $landingDir = orbitraLandingContentDir(orbitraLandingDir($pdo, $landingIdToLog));
             if (file_exists($landingDir . '/index.php')) {
                 require_once __DIR__ . '/core/PhpLanding.php';
                 if (!PhpLanding::enabled($pdo)) {

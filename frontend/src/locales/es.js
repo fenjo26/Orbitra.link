@@ -1305,6 +1305,7 @@ export default {
         "actionPayloadPlaceholder": "ventana.ubicación.replace('{oferta}');",
         "saveFirst": "Primero guarde la configuración de aterrizaje para cargar archivos.",
         "uploadZip": "Subir ZIP",
+        "uploadingZip": "Subiendo archivo…",
         "viewCode": "Código",
         "viewPreview": "Vista previa",
         "openInTab": "Abrir en una pestaña nueva",

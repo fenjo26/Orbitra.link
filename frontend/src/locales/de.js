@@ -1305,6 +1305,7 @@ export default {
         "actionPayloadPlaceholder": "window.location.replace('{offer}');",
         "saveFirst": "Speichern Sie zuerst die Landung Einstellungen zum Hochladen von Archivdateien.",
         "uploadZip": "ZIP hochladen",
+        "uploadingZip": "Archiv wird hochgeladen…",
         "viewCode": "Code",
         "viewPreview": "Vorschau",
         "openInTab": "In neuem Tab öffnen",

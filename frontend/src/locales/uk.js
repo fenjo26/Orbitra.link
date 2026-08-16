@@ -1305,6 +1305,7 @@ export default {
         "actionPayloadPlaceholder": "window.location.replace('{пропозиція}');",
         "saveFirst": "Спочатку збережіть налаштування посадки для завантаження архівних файлів.",
         "uploadZip": "Завантажити ZIP",
+        "uploadingZip": "Завантаження архіву…",
         "viewCode": "Код",
         "viewPreview": "Перегляд",
         "openInTab": "Відкрити в новій вкладці",

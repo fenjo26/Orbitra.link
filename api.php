@@ -2923,6 +2923,11 @@ try {
                             break;
                         }
 
+                        // Single-nested-folder archives ("zip -r folder/") land one
+                        // level down and would never serve; lift them to the root
+                        // before anything inspects the layout.
+                        orbitraFlattenSingleNestedDir($uploadDir);
+
                         // Names alone cannot tell whether the PHP inside is acceptable,
                         // so the check happens on the extracted source — and a failing
                         // archive is removed rather than left half-installed.
@@ -3120,6 +3125,10 @@ try {
                             ]);
                             break;
                         }
+
+                        // Same nested-folder flattening as landings — offer archives
+                        // come from the same zip tools.
+                        orbitraFlattenSingleNestedDir($uploadDir);
 
                         require_once __DIR__ . '/core/PhpLanding.php';
                         $phpProblems = PhpLanding::scanDirectory($uploadDir);

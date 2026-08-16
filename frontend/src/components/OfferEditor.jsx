@@ -774,9 +774,9 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                     <button onClick={() => onClose(false)} className="btn btn-secondary">
                         {t('common.cancel')}
                     </button>
-                    <button onClick={handleSave} disabled={loading} className="btn btn-primary">
+                    <button onClick={handleSave} disabled={loading || uploadingZip} className="btn btn-primary">
                         <Check className="w-4 h-4 mr-1.5" />
-                        {offerId ? t('common.save') : t('offers.createOffer')}
+                        {uploadingZip ? t('landingEditor.uploadingZip') : (offerId ? t('common.save') : t('offers.createOffer'))}
                     </button>
                 </div>
             </div>

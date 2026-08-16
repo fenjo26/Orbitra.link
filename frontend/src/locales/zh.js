@@ -1305,6 +1305,7 @@ export default {
         "actionPayloadPlaceholder": "window.location.replace('{offer}');",
         "saveFirst": "首先保存登陆设置上传存档文件。",
         "uploadZip": "上传ZIP",
+        "uploadingZip": "正在上传压缩包…",
         "viewCode": "代码",
         "viewPreview": "预览",
         "openInTab": "在新标签页中打开",

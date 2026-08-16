@@ -219,3 +219,86 @@ function orbitraLandingDirForSlug(string $slug): string
     }
     return $base . '/0';
 }
+
+/**
+ * Lift a "single nested folder" archive to the target root.
+ *
+ * Archives zipped from a directory ("Compress folder", `zip -r landing.zip
+ * landing/`, macOS Finder) put every real file one level down, while the
+ * click router only serves index.php/index.html from the root — the landing
+ * answers "files not found" forever. When the only non-junk entry is one
+ * directory, its contents move up to the root. __MACOSX resource forks and
+ * dotfiles count as junk, not content.
+ *
+ * Lives here (not api.php) so the upload handler and the tests share one
+ * implementation; api.php cannot be required standalone.
+ */
+function orbitraFlattenSingleNestedDir(string $dir): void
+{
+    $junk = ['.', '..', '__MACOSX'];
+    $entries = [];
+    foreach ((array) scandir($dir) as $e) {
+        if (in_array($e, $junk, true) || $e[0] === '.') {
+            continue;
+        }
+        $entries[] = $e;
+    }
+    if (count($entries) !== 1 || !is_dir($dir . '/' . $entries[0])) {
+        return;
+    }
+    $nested = $dir . '/' . $entries[0];
+    foreach ((array) scandir($nested) as $file) {
+        if ($file === '.' || $file === '..') {
+            continue;
+        }
+        @rename($nested . '/' . $file, $dir . '/' . $file);
+    }
+    @rmdir($nested);
+
+    // Whatever the layout, Finder's __MACOSX tree is never wanted.
+    $macosx = $dir . '/__MACOSX';
+    if (is_dir($macosx)) {
+        $it = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($macosx, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($it as $entry) {
+            $entry->isDir() ? @rmdir($entry->getPathname()) : @unlink($entry->getPathname());
+        }
+        @rmdir($macosx);
+    }
+
+    @chmod($dir, 0755);
+    clearstatcache(true, $dir);
+}
+
+/**
+ * Root of a local landing's/offer's files, seeing through single-nested-folder
+ * archives. New uploads are flattened on the way in (orbitraFlattenSingleNestedDir),
+ * but archives uploaded before that keep everything one level down — resolve the
+ * subdirectory holding the index instead of answering "files not found".
+ *
+ * clearstatcache() first: PHP caches stat results for the request's lifetime,
+ * and the click that tests the campaign link can arrive moments after the
+ * upload request created these paths on a box where the same FPM worker
+ * served both. Lives here so index.php and the tests share one implementation.
+ */
+function orbitraLandingContentDir($dir)
+{
+    clearstatcache(true, $dir);
+    foreach (['index.php', 'index.html'] as $entry) {
+        if (is_file($dir . '/' . $entry)) {
+            return $dir;
+        }
+    }
+    foreach ((array) glob($dir . '/*', GLOB_ONLYDIR) as $sub) {
+        $base = basename($sub);
+        if ($base === '__MACOSX' || $base[0] === '.') {
+            continue;
+        }
+        if (is_file($sub . '/index.php') || is_file($sub . '/index.html')) {
+            return $sub;
+        }
+    }
+    return $dir;
+}

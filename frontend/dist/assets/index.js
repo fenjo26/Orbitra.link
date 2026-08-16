@@ -17302,6 +17302,7 @@ const ru = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "Сперва сохраните настройки лендинга, чтобы загрузить файлы архива.",
     "uploadZip": "Загрузить ZIP",
+    "uploadingZip": "Загрузка архива…",
     "viewCode": "Код",
     "viewPreview": "Просмотр",
     "openInTab": "Открыть в новой вкладке",
@@ -19861,6 +19862,7 @@ const en = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "First save the landing settings to upload archive files.",
     "uploadZip": "Upload ZIP",
+    "uploadingZip": "Uploading archive…",
     "viewCode": "Code",
     "viewPreview": "Preview",
     "openInTab": "Open in a new tab",
@@ -22420,6 +22422,7 @@ const uk = {
     "actionPayloadPlaceholder": "window.location.replace('{пропозиція}');",
     "saveFirst": "Спочатку збережіть налаштування посадки для завантаження архівних файлів.",
     "uploadZip": "Завантажити ZIP",
+    "uploadingZip": "Завантаження архіву…",
     "viewCode": "Код",
     "viewPreview": "Перегляд",
     "openInTab": "Відкрити в новій вкладці",
@@ -24979,6 +24982,7 @@ const es = {
     "actionPayloadPlaceholder": "ventana.ubicación.replace('{oferta}');",
     "saveFirst": "Primero guarde la configuración de aterrizaje para cargar archivos.",
     "uploadZip": "Subir ZIP",
+    "uploadingZip": "Subiendo archivo…",
     "viewCode": "Código",
     "viewPreview": "Vista previa",
     "openInTab": "Abrir en una pestaña nueva",
@@ -27538,6 +27542,7 @@ const zh = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "首先保存登陆设置上传存档文件。",
     "uploadZip": "上传ZIP",
+    "uploadingZip": "正在上传压缩包…",
     "viewCode": "代码",
     "viewPreview": "预览",
     "openInTab": "在新标签页中打开",
@@ -30097,6 +30102,7 @@ const fr = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "Enregistrez d'abord la destination paramètres pour télécharger les fichiers d'archive.",
     "uploadZip": "Télécharger le fichier ZIP",
+    "uploadingZip": "Envoi de l'archive…",
     "viewCode": "Code",
     "viewPreview": "Aperçu",
     "openInTab": "Ouvrir dans un nouvel onglet",
@@ -32658,6 +32664,7 @@ const de = {
     "actionPayloadPlaceholder": "window.location.replace('{offer}');",
     "saveFirst": "Speichern Sie zuerst die Landung Einstellungen zum Hochladen von Archivdateien.",
     "uploadZip": "ZIP hochladen",
+    "uploadingZip": "Archiv wird hochgeladen…",
     "viewCode": "Code",
     "viewPreview": "Vorschau",
     "openInTab": "In neuem Tab öffnen",
@@ -51952,10 +51959,19 @@ ${file}`)) return;
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(savedSomething), type: "button", className: "btn btn-secondary", children: t("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "submit", form: "landing-form", className: "btn btn-primary", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 mr-1.5" }),
-          landingId ? t("landingEditor.saveChanges") : t("landingEditor.createLanding")
-        ] })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "submit",
+            form: "landing-form",
+            className: "btn btn-primary",
+            disabled: uploadingZip,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 mr-1.5" }),
+              uploadingZip ? t("landingEditor.uploadingZip") : landingId ? t("landingEditor.saveChanges") : t("landingEditor.createLanding")
+            ]
+          }
+        )
       ] })
     ] }),
     showGroupsModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -53827,9 +53843,9 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleSave, disabled: loading, className: "btn btn-primary", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleSave, disabled: loading || uploadingZip, className: "btn btn-primary", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 mr-1.5" }),
-          offerId ? t("common.save") : t("offers.createOffer")
+          uploadingZip ? t("landingEditor.uploadingZip") : offerId ? t("common.save") : t("offers.createOffer")
         ] })
       ] })
     ] }),

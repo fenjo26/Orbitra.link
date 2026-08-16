@@ -886,9 +886,16 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                     <button onClick={() => onClose(savedSomething)} type="button" className="btn btn-secondary">
                         {t('common.cancel')}
                     </button>
-                    <button type="submit" form="landing-form" className="btn btn-primary">
+                    <button
+                        type="submit"
+                        form="landing-form"
+                        className="btn btn-primary"
+                        // The archive upload must finish before the campaign link
+                        // is worth testing — the first click used to race it.
+                        disabled={uploadingZip}
+                    >
                         <Check className="w-4 h-4 mr-1.5" />
-                        {landingId ? t('landingEditor.saveChanges') : t('landingEditor.createLanding')}
+                        {uploadingZip ? t('landingEditor.uploadingZip') : (landingId ? t('landingEditor.saveChanges') : t('landingEditor.createLanding'))}
                     </button>
                 </div>
             </div>

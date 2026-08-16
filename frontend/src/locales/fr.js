@@ -1305,6 +1305,7 @@ export default {
         "actionPayloadPlaceholder": "window.location.replace('{offer}');",
         "saveFirst": "Enregistrez d'abord la destination paramètres pour télécharger les fichiers d'archive.",
         "uploadZip": "Télécharger le fichier ZIP",
+        "uploadingZip": "Envoi de l'archive…",
         "viewCode": "Code",
         "viewPreview": "Aperçu",
         "openInTab": "Ouvrir dans un nouvel onglet",

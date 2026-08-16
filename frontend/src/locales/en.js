@@ -1305,6 +1305,7 @@ export default {
         "actionPayloadPlaceholder": "window.location.replace('{offer}');",
         "saveFirst": "First save the landing settings to upload archive files.",
         "uploadZip": "Upload ZIP",
+        "uploadingZip": "Uploading archive…",
         "viewCode": "Code",
         "viewPreview": "Preview",
         "openInTab": "Open in a new tab",

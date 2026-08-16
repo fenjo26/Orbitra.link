@@ -1305,6 +1305,7 @@ export default {
         "actionPayloadPlaceholder": "window.location.replace('{offer}');",
         "saveFirst": "Сперва сохраните настройки лендинга, чтобы загрузить файлы архива.",
         "uploadZip": "Загрузить ZIP",
+        "uploadingZip": "Загрузка архива…",
         "viewCode": "Код",
         "viewPreview": "Просмотр",
         "openInTab": "Открыть в новой вкладке",
