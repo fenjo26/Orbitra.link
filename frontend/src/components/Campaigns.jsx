@@ -337,12 +337,13 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />;
     };
 
-    const SortableTh = ({ colKey, label, defaultDir = 'asc', alignRight = false, draggable = false, onDragStart, onDragOver, onDragEnd }) => {
+    const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, onDragStart, onDragOver, onDragEnd }) => {
         const isActive = sortBy.key === colKey;
         return (
             <th
-                className={alignRight ? 'text-right' : 'text-left'}
+                className={`${alignRight ? 'text-right' : 'text-left'} whitespace-nowrap`}
                 aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                title={fullTitle}
                 draggable={draggable}
                 onDragStart={onDragStart}
                 onDragOver={onDragOver}
@@ -356,14 +357,13 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 <button
                     type="button"
                     onClick={() => requestSort(colKey, defaultDir)}
-                    className={`inline-flex items-center gap-1 text-xs font-semibold ${alignRight ? 'justify-end w-full' : ''}`}
+                    className={`inline-flex items-center gap-1 text-xs font-semibold whitespace-nowrap ${alignRight ? 'justify-end w-full' : ''}`}
                     style={{
                         color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                         textAlign: alignRight ? 'right' : 'left'
                     }}
-                    title={t('common.sort', 'Sort')}
                 >
-                    {draggable && <GripVertical className="w-3 h-3 opacity-30 -ml-1 cursor-grab" />}
+                    {draggable && <GripVertical className="w-3 h-3 opacity-30 -ml-1 cursor-grab flex-shrink-0" />}
                     <span>{label}</span>
                     <SortIcon colKey={colKey} />
                 </button>
@@ -676,12 +676,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                             {/* Dynamically configured metric columns */}
                             {chosenColumns.map((colId, colIdx) => {
                                 const def = ALL_REPORT_METRICS.find(m => m.id === colId);
-                                const label = def?.label || colId;
                                 return (
                                     <SortableTh
                                         key={colId}
                                         colKey={colId}
-                                        label={label}
+                                        label={def?.shortLabel || def?.label || colId}
+                                        fullTitle={def?.label}
                                         defaultDir="desc"
                                         alignRight={true}
                                         draggable={true}

@@ -557,7 +557,6 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                         </th>
                                         {chosenColumns.map((colId, colIdx) => {
                                             const def = ALL_REPORT_METRICS.find(m => m.id === colId);
-                                            const label = def?.label || colId;
                                             return (
                                                 <th
                                                     key={colId}
@@ -565,6 +564,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                     onDragStart={() => handleThDragStart(colIdx)}
                                                     onDragOver={(e) => handleThDragOver(e, colIdx)}
                                                     onDragEnd={handleThDragEnd}
+                                                    title={def?.label}
                                                     style={{
                                                         textAlign: 'right',
                                                         cursor: 'grab',
@@ -574,7 +574,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                 >
                                                     <div className="inline-flex items-center justify-end gap-1 w-full">
                                                         <GripVertical className="w-3 h-3 opacity-30 -ml-1" />
-                                                        <span>{label}</span>
+                                                        <span>{def?.shortLabel || def?.label || colId}</span>
                                                     </div>
                                                 </th>
                                             );
