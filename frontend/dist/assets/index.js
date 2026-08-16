@@ -69036,7 +69036,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const getCampaignUrl = () => {
     const domain = domains.find((d) => d.id == formData.domain_id);
     const baseUrl = domain ? `https://${domain.name}` : window.location.origin;
-    const pairs = Object.entries(formData.parameters || {}).filter(([, v]) => String(v ?? "").trim() !== "").map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v).trim())}`);
+    const pairs = Object.entries(formData.parameters || {}).filter(([, v]) => String(v ?? "").trim() !== "").map(([k, v]) => {
+      const safeVal = encodeURIComponent(String(v).trim()).replace(/%7B/gi, "{").replace(/%7D/gi, "}").replace(/%3A/gi, ":");
+      return `${encodeURIComponent(k)}=${safeVal}`;
+    });
     return pairs.length ? `${baseUrl}/${formData.alias}?${pairs.join("&")}` : `${baseUrl}/${formData.alias}`;
   };
   const sourceToParameters = (source) => {

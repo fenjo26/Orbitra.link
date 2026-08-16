@@ -333,7 +333,17 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         // string the user pastes into the ad network — Keitaro's Campaign URL.
         const pairs = Object.entries(formData.parameters || {})
             .filter(([, v]) => String(v ?? '').trim() !== '')
-            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v).trim())}`);
+            .map(([k, v]) => {
+                // Ad networks substitute {{ad.id}}, {keyword}, __CID__ etc. in the
+                // URL they are handed — encoded braces (%7B%7B) match no macro
+                // table, so every value would arrive empty. Keep braces and colons
+                // raw (both legal in a query string); the rest stays encoded.
+                const safeVal = encodeURIComponent(String(v).trim())
+                    .replace(/%7B/gi, '{')
+                    .replace(/%7D/gi, '}')
+                    .replace(/%3A/gi, ':');
+                return `${encodeURIComponent(k)}=${safeVal}`;
+            });
         return pairs.length ? `${baseUrl}/${formData.alias}?${pairs.join('&')}` : `${baseUrl}/${formData.alias}`;
     };
 
