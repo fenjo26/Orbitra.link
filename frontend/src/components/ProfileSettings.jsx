@@ -152,6 +152,7 @@ const ProfileSettings = () => {
                                 <option value="Asia/Dubai">Asia/Dubai (UTC+4)</option>
                                 <option value="Asia/Karachi">Asia/Karachi (UTC+5)</option>
                                 <option value="Asia/Almaty">Asia/Almaty (UTC+5)</option>
+                                <option value="Asia/Kolkata">Asia/Kolkata (IST, UTC+5:30)</option>
                                 <option value="Asia/Bangkok">Asia/Bangkok (UTC+7)</option>
                                 <option value="Asia/Shanghai">Asia/Shanghai (UTC+8)</option>
                                 <option value="Asia/Tokyo">Asia/Tokyo (UTC+9)</option>

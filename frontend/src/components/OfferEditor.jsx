@@ -249,9 +249,12 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         setFormData({ ...formData, values: newValues });
     };
 
+    // Keep 'Europe/Kiev' (deprecated IANA alias) so offers stored with it
+    // still match an option and don't render a blank select.
     const timezones = [
-        'UTC', 'Europe/Moscow', 'Europe/Kiev', 'Europe/London', 'Europe/Berlin',
-        'America/New_York', 'America/Los_Angeles', 'Asia/Dubai', 'Asia/Tokyo'
+        'UTC', 'Europe/Moscow', 'Europe/Kiev', 'Europe/Kyiv', 'Europe/London', 'Europe/Berlin',
+        'Asia/Dubai', 'Asia/Kolkata', 'Asia/Bangkok', 'Asia/Singapore', 'Asia/Tokyo',
+        'America/New_York', 'America/Chicago', 'America/Los_Angeles', 'America/Sao_Paulo'
     ];
 
     // Which segment (Local/Redirect/Preload/Action) the persisted fields map

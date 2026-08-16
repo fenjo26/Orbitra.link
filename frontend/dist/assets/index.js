@@ -34347,6 +34347,7 @@ const SetupWizard = ({ onComplete }) => {
     { value: "Asia/Dubai", label: "Asia/Dubai (UTC+4)" },
     { value: "Asia/Karachi", label: "Asia/Karachi (UTC+5)" },
     { value: "Asia/Almaty", label: "Asia/Almaty (UTC+5)" },
+    { value: "Asia/Kolkata", label: "Asia/Kolkata (IST, UTC+5:30)" },
     { value: "Asia/Bangkok", label: "Asia/Bangkok (UTC+7)" },
     { value: "Asia/Shanghai", label: "Asia/Shanghai (UTC+8)" },
     { value: "Asia/Tokyo", label: "Asia/Tokyo (UTC+9)" },
@@ -48484,10 +48485,11 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
 const TIMEZONES = [
   { value: "UTC", label: "UTC (UTC+00:00)" },
   { value: "Europe/London", label: "London (UTC+01:00 / +00:00)" },
-  { value: "Europe/Berlin", label: "Berlin / Paris (UTC+02:00 / +01:00)" },
+  { value: "Europe/Berlin", label: "Berlin / Paris / Rome (CET, UTC+01:00 / +02:00)" },
   { value: "Europe/Kyiv", label: "Kyiv (UTC+03:00 / +02:00)" },
   { value: "Europe/Moscow", label: "Moscow (UTC+03:00)" },
   { value: "Asia/Dubai", label: "Dubai (UTC+04:00)" },
+  { value: "Asia/Kolkata", label: "India / Kolkata (IST, UTC+05:30)" },
   { value: "Asia/Bangkok", label: "Bangkok (UTC+07:00)" },
   { value: "Asia/Singapore", label: "Singapore (UTC+08:00)" },
   { value: "Asia/Tokyo", label: "Tokyo (UTC+09:00)" },
@@ -52792,12 +52794,18 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     "UTC",
     "Europe/Moscow",
     "Europe/Kiev",
+    "Europe/Kyiv",
     "Europe/London",
     "Europe/Berlin",
-    "America/New_York",
-    "America/Los_Angeles",
     "Asia/Dubai",
-    "Asia/Tokyo"
+    "Asia/Kolkata",
+    "Asia/Bangkok",
+    "Asia/Singapore",
+    "Asia/Tokyo",
+    "America/New_York",
+    "America/Chicago",
+    "America/Los_Angeles",
+    "America/Sao_Paulo"
   ];
   const offerType = formData.is_local ? "local" : ["preload", "action"].includes(formData.redirect_type) ? formData.redirect_type : "redirect";
   if (loading && offerId && !formData.name) {
@@ -57334,6 +57342,7 @@ const ProfileSettings = () => {
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Asia/Dubai", children: "Asia/Dubai (UTC+4)" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Asia/Karachi", children: "Asia/Karachi (UTC+5)" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Asia/Almaty", children: "Asia/Almaty (UTC+5)" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Asia/Kolkata", children: "Asia/Kolkata (IST, UTC+5:30)" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Asia/Bangkok", children: "Asia/Bangkok (UTC+7)" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Asia/Shanghai", children: "Asia/Shanghai (UTC+8)" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Asia/Tokyo", children: "Asia/Tokyo (UTC+9)" }),

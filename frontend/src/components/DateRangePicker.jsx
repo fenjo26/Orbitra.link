@@ -5,10 +5,11 @@ import { useLanguage } from '../contexts/LanguageContext';
 export const TIMEZONES = [
     { value: 'UTC', label: 'UTC (UTC+00:00)' },
     { value: 'Europe/London', label: 'London (UTC+01:00 / +00:00)' },
-    { value: 'Europe/Berlin', label: 'Berlin / Paris (UTC+02:00 / +01:00)' },
+    { value: 'Europe/Berlin', label: 'Berlin / Paris / Rome (CET, UTC+01:00 / +02:00)' },
     { value: 'Europe/Kyiv', label: 'Kyiv (UTC+03:00 / +02:00)' },
     { value: 'Europe/Moscow', label: 'Moscow (UTC+03:00)' },
     { value: 'Asia/Dubai', label: 'Dubai (UTC+04:00)' },
+    { value: 'Asia/Kolkata', label: 'India / Kolkata (IST, UTC+05:30)' },
     { value: 'Asia/Bangkok', label: 'Bangkok (UTC+07:00)' },
     { value: 'Asia/Singapore', label: 'Singapore (UTC+08:00)' },
     { value: 'Asia/Tokyo', label: 'Tokyo (UTC+09:00)' },

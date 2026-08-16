@@ -28,6 +28,7 @@ const SetupWizard = ({ onComplete }) => {
         { value: 'Asia/Dubai', label: 'Asia/Dubai (UTC+4)' },
         { value: 'Asia/Karachi', label: 'Asia/Karachi (UTC+5)' },
         { value: 'Asia/Almaty', label: 'Asia/Almaty (UTC+5)' },
+        { value: 'Asia/Kolkata', label: 'Asia/Kolkata (IST, UTC+5:30)' },
         { value: 'Asia/Bangkok', label: 'Asia/Bangkok (UTC+7)' },
         { value: 'Asia/Shanghai', label: 'Asia/Shanghai (UTC+8)' },
         { value: 'Asia/Tokyo', label: 'Asia/Tokyo (UTC+9)' },
