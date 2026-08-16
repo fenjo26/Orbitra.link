@@ -24,7 +24,7 @@ import TrendsPage from './components/TrendsPage';
 import CampaignEditor from './components/CampaignEditor';
 import DashboardHeader from './components/DashboardHeader';
 import DashboardSettingsModal from './components/DashboardSettingsModal';
-import { canAccessTab, firstAllowedTab, isAdminTab, isAdminUser } from './utils/permissions';
+import { canAccessTab, firstAllowedTab } from './utils/permissions';
 
 // In development, Vite runs on port 5173 and the API on 8080.
 // In production they are served from the same domain.
@@ -410,15 +410,11 @@ function App() {
     }
   }, [activeTab, user]);
 
-  // Route guard: keep the user away from tabs they cannot access — admin gear
-  // sections for non-admins, or a tab whose resource permission is 'none'
-  // (restored from localStorage or reached via a stale link).
+  // Route guard: keep the user away from tabs they cannot open — admin-only
+  // gear sections, gear entries tied to a revoked resource, or a permission
+  // key set to 'none' (restored from localStorage or a stale link).
   useEffect(() => {
     if (!user) return;
-    if (isAdminTab(activeTab) && !isAdminUser(user)) {
-      setActiveTab('dashboard');
-      return;
-    }
     if (!canAccessTab(user, activeTab)) {
       setActiveTab(firstAllowedTab(user));
     }

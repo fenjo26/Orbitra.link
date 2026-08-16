@@ -34883,9 +34883,18 @@ const TAB_PERMISSION_KEYS = {
   networks: "networks",
   sources: "sources"
 };
-const ADMIN_MENU_TABS = /* @__PURE__ */ new Set(["postback", "conversions", "simulation"]);
-const isAdminUser = (user) => user?.role === "admin";
-const isAdminTab = (tab) => typeof tab === "string" && (tab.startsWith("admin_") || ADMIN_MENU_TABS.has(tab));
+const USER_GEAR_TABS = {
+  admin_branding: null,
+  // theme personalization (save_settings)
+  admin_feedback: null,
+  // static contact/support info
+  admin_logs: null,
+  // click-debugging log viewer (action=logs)
+  postback: "campaigns",
+  // postback settings (settings/save_settings)
+  conversions: "campaigns"
+};
+const ADMIN_ONLY_TABS = /* @__PURE__ */ new Set(["simulation"]);
 const parsePermissions = (user) => {
   const raw = user?.permissions;
   if (!raw) return {};
@@ -34899,12 +34908,21 @@ const parsePermissions = (user) => {
   }
   return typeof raw === "object" ? raw : {};
 };
+const isAdminUser = (user) => user?.role === "admin";
+const hasResourceAccess = (user, permKey) => parsePermissions(user)[permKey]?.access !== "none";
 const canAccessTab = (user, tab) => {
   if (!user) return false;
   if (isAdminUser(user)) return true;
+  if (tab in USER_GEAR_TABS) {
+    const required = USER_GEAR_TABS[tab];
+    return required ? hasResourceAccess(user, required) : true;
+  }
+  if (typeof tab === "string" && (tab.startsWith("admin_") || ADMIN_ONLY_TABS.has(tab))) {
+    return false;
+  }
   const permKey = TAB_PERMISSION_KEYS[tab];
   if (!permKey) return true;
-  return parsePermissions(user)[permKey]?.access !== "none";
+  return hasResourceAccess(user, permKey);
 };
 const firstAllowedTab = (user) => ["campaigns", "offers", "landings", "sources", "networks", "dashboard"].find((tab) => canAccessTab(user, tab)) || "dashboard";
 const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
@@ -34972,6 +34990,12 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     setAdminMenuOpen(false);
     setMobileMenuOpen(false);
   };
+  const allowedMenuEntries = adminMenuItems.filter((item) => item.divider || canAccessTab(user, item.tab));
+  const visibleAdminMenuItems = allowedMenuEntries.filter((item, idx, arr) => {
+    if (!item.divider) return true;
+    if (idx === 0 || idx === arr.length - 1) return false;
+    return !arr[idx - 1].divider;
+  });
   const mobileNavItems = [
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutDashboard, { size: 18 }), label: t("nav.dashboard"), tab: "dashboard" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { size: 18 }), label: t("nav.campaigns"), tab: "campaigns" },
@@ -35004,7 +35028,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2 md:space-x-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden md:flex items-center space-x-4", children: [
-          isAdminUser(user) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", ref: adminMenuRef, children: [
+          visibleAdminMenuItems.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", ref: adminMenuRef, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "div",
               {
@@ -35015,7 +35039,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { size: 18 })
               }
             ),
-            adminMenuOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-0 top-full mt-1 w-56 rounded-lg shadow-xl py-1 z-[100] border", style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" }, children: adminMenuItems.map((item, idx) => item.divider ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t my-1", style: { borderColor: "var(--color-border)" } }, `div-${idx}`) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            adminMenuOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-0 top-full mt-1 w-56 rounded-lg shadow-xl py-1 z-[100] border", style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" }, children: visibleAdminMenuItems.map((item, idx) => item.divider ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "border-t my-1", style: { borderColor: "var(--color-border)" } }, `div-${idx}`) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
               {
                 onClick: () => handleMenuClick(item.tab),
@@ -35152,9 +35176,9 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
               ))
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: "1px", background: "var(--color-border)", margin: "12px 0" } }),
-            isAdminUser(user) && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            visibleAdminMenuItems.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px", paddingLeft: "12px" }, children: t("navbar.adminTitle") }),
-              adminMenuItems.filter((i) => !i.divider).map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              visibleAdminMenuItems.filter((i) => !i.divider).map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
                   onClick: () => handleMenuClick(item.tab),
@@ -83171,10 +83195,6 @@ function App() {
   }, [activeTab, user]);
   reactExports.useEffect(() => {
     if (!user) return;
-    if (isAdminTab(activeTab) && !isAdminUser(user)) {
-      setActiveTab("dashboard");
-      return;
-    }
     if (!canAccessTab(user, activeTab)) {
       setActiveTab(firstAllowedTab(user));
     }

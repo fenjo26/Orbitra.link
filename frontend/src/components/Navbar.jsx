@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Globe2, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { canAccessTab, isAdminUser } from '../utils/permissions';
+import { canAccessTab } from '../utils/permissions';
 
 const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     const { t } = useLanguage();
@@ -78,6 +78,15 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         setMobileMenuOpen(false);
     };
 
+    // Gear-menu entries this user may open, with orphaned dividers dropped
+    // (leading/trailing or left between two removed items).
+    const allowedMenuEntries = adminMenuItems.filter(item => item.divider || canAccessTab(user, item.tab));
+    const visibleAdminMenuItems = allowedMenuEntries.filter((item, idx, arr) => {
+        if (!item.divider) return true;
+        if (idx === 0 || idx === arr.length - 1) return false;
+        return !arr[idx - 1].divider;
+    });
+
     const mobileNavItems = [
         { icon: <LayoutDashboard size={18} />, label: t('nav.dashboard'), tab: 'dashboard' },
         { icon: <Tag size={18} />, label: t('nav.campaigns'), tab: 'campaigns' },
@@ -126,8 +135,8 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                 <div className="flex items-center space-x-2 md:space-x-4">
                     {/* Desktop icons */}
                     <div className="hidden md:flex items-center space-x-4">
-                        {/* Admin Menu (admins only) */}
-                        {isAdminUser(user) && (
+                        {/* Settings Menu (shown only when the user may open at least one entry) */}
+                        {visibleAdminMenuItems.length > 0 && (
                             <div className="relative" ref={adminMenuRef}>
                             <div
                                 onClick={() => setAdminMenuOpen(!adminMenuOpen)}
@@ -143,7 +152,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
 
                             {adminMenuOpen && (
                                 <div className="absolute right-0 top-full mt-1 w-56 rounded-lg shadow-xl py-1 z-[100] border" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
-                                    {adminMenuItems.map((item, idx) => (
+                                    {visibleAdminMenuItems.map((item, idx) => (
                                         item.divider ? (
                                             <div key={`div-${idx}`} className="border-t my-1" style={{ borderColor: 'var(--color-border)' }} />
                                         ) : (
@@ -277,11 +286,11 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
 
                         <div style={{ height: '1px', background: 'var(--color-border)', margin: '12px 0' }} />
 
-                        {isAdminUser(user) && (
+                        {visibleAdminMenuItems.length > 0 && (
                             <>
-                                {/* Admin items */}
+                                {/* Settings items */}
                                 <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', paddingLeft: '12px' }}>{t('navbar.adminTitle')}</p>
-                                {adminMenuItems.filter(i => !i.divider).map(item => (
+                                {visibleAdminMenuItems.filter(i => !i.divider).map(item => (
                                     <button
                                         key={item.tab}
                                         onClick={() => handleMenuClick(item.tab)}

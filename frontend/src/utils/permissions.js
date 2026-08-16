@@ -1,7 +1,7 @@
 // Tab visibility helpers driven by the per-user permissions set in the
 // UsersPage permissions modal. The modal (and the backend save_user handler)
-// only knows these five resources; every other tab has no permission key and
-// stays visible.
+// only knows five resources; every other tab has no permission key and
+// defaults to visible.
 
 const TAB_PERMISSION_KEYS = {
     campaigns: 'campaigns',
@@ -11,13 +11,20 @@ const TAB_PERMISSION_KEYS = {
     sources: 'sources',
 };
 
-// Tabs without the admin_ prefix that still live inside the admin gear menu.
-const ADMIN_MENU_TABS = new Set(['postback', 'conversions', 'simulation']);
+// Gear-menu (⚙️) tabs a non-admin may open. Value = required permission
+// resource (tab hides when that resource's access is 'none'), null = open to
+// every user. Verified against the backend: none of these pages call an
+// admin-gated API action. All other gear tabs (admin_* prefix plus
+// simulation) are admin-only.
+const USER_GEAR_TABS = {
+    admin_branding: null,   // theme personalization (save_settings)
+    admin_feedback: null,   // static contact/support info
+    admin_logs: null,       // click-debugging log viewer (action=logs)
+    postback: 'campaigns',  // postback settings (settings/save_settings)
+    conversions: 'campaigns'
+};
 
-export const isAdminUser = (user) => user?.role === 'admin';
-
-export const isAdminTab = (tab) =>
-    typeof tab === 'string' && (tab.startsWith('admin_') || ADMIN_MENU_TABS.has(tab));
+const ADMIN_ONLY_TABS = new Set(['simulation']);
 
 // The backend decodes permissions_json on login, so this is normally already
 // an object — but it is [] when the user has none saved, and a stale string
@@ -36,14 +43,26 @@ const parsePermissions = (user) => {
     return typeof raw === 'object' ? raw : {};
 };
 
-// A tab is hidden only when its resource access is explicitly 'none';
+export const isAdminUser = (user) => user?.role === 'admin';
+
+const hasResourceAccess = (user, permKey) =>
+    parsePermissions(user)[permKey]?.access !== 'none';
+
+// A permission-keyed tab is hidden only when its access is explicitly 'none';
 // full/read/selected/own all keep the tab visible.
 export const canAccessTab = (user, tab) => {
     if (!user) return false;
     if (isAdminUser(user)) return true; // backend ignores permissions for admins
+    if (tab in USER_GEAR_TABS) {
+        const required = USER_GEAR_TABS[tab];
+        return required ? hasResourceAccess(user, required) : true;
+    }
+    if (typeof tab === 'string' && (tab.startsWith('admin_') || ADMIN_ONLY_TABS.has(tab))) {
+        return false;
+    }
     const permKey = TAB_PERMISSION_KEYS[tab];
     if (!permKey) return true;
-    return parsePermissions(user)[permKey]?.access !== 'none';
+    return hasResourceAccess(user, permKey);
 };
 
 export const firstAllowedTab = (user) =>
