@@ -1519,7 +1519,7 @@ export default {
         "conversionsVar": "Conversions",
         "revenueVar": "Revenus",
         "costVar": "Coût",
-        "operatorsHint": "Opérateurs : + - * / ( ). Exemple de retour sur investissement :",
+        "operatorsHint": "Opérateurs : + - * / ( ). Exemple de ROI :",
         "metricNameInReports": "Nom de la mesure dans les rapports",
         "calculationFormula": "Formule de calcul",
         "outputFormat": "Format de sortie",
