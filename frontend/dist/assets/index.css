@@ -1183,6 +1183,10 @@
     min-width: 140px;
   }
 
+  .min-w-\[200px\] {
+    min-width: 200px;
+  }
+
   .min-w-\[300px\] {
     min-width: 300px;
   }
@@ -2163,6 +2167,10 @@
     line-height: var(--tw-leading, var(--text-xs--line-height));
   }
 
+  .text-\[10\.5px\] {
+    font-size: 10.5px;
+  }
+
   .text-\[10px\] {
     font-size: 10px;
   }
@@ -2418,6 +2426,10 @@
   .tabular-nums {
     --tw-numeric-spacing: tabular-nums;
     font-variant-numeric: var(--tw-ordinal,  ) var(--tw-slashed-zero,  ) var(--tw-numeric-figure,  ) var(--tw-numeric-spacing,  ) var(--tw-numeric-fraction,  );
+  }
+
+  .line-through {
+    text-decoration-line: line-through;
   }
 
   .underline {

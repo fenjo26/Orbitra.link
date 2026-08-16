@@ -10,7 +10,7 @@ import { cachedGet } from '../utils/apiCache';
 
 const API_URL = '/api.php';
 
-const OfferEditor = ({ offerId, onClose }) => {
+const OfferEditor = ({ offerId, onClose, onCreated }) => {
     const { t } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('general');
@@ -157,14 +157,18 @@ const OfferEditor = ({ offerId, onClose }) => {
             const payload = { ...formData };
             if (offerId) payload.id = offerId;
 
-            const res = await axios.post(`${API_URL}?action=save_offer`, payload);
-            if (res.data.status === 'success') {
-                // A local offer picked its archive before the offer existed —
-                // upload needs an id, so send it as soon as one exists. Keep the
-                // editor open afterwards, same as local landings do, because the
-                // file panel is only useful on a saved offer.
-                const newId = res.data.data?.id || offerId;
-                if (formData.is_local && pendingZip && newId) {
+                const res = await axios.post(`${API_URL}?action=save_offer`, payload);
+                if (res.data.status === 'success') {
+                    // Fires once, on the save that creates the offer, so a caller
+                    // embedding this editor (the campaign stream) can wire the new
+                    // id into its rotation — mirroring LandingEditor's onSaved.
+                    const newId = res.data.data?.id || offerId;
+                    if (!offerId && onCreated) onCreated(newId);
+                    // A local offer picked its archive before the offer existed —
+                    // upload needs an id, so send it as soon as one exists. Keep the
+                    // editor open afterwards, same as local landings do, because the
+                    // file panel is only useful on a saved offer.
+                    if (formData.is_local && pendingZip && newId) {
                     const zip = pendingZip;
                     setPendingZip(null);
                     await uploadOfferZip(newId, zip);

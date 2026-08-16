@@ -16513,7 +16513,12 @@ const ru = {
     "doNothing": "Do nothing",
     "show404": "Показать 404",
     "showHtml": "Показать HTML",
-    "add": "+ Добавить",
+    "add": "Добавить",
+    "addOffers": "Добавить офферы",
+    "addLandings": "Добавить лендинги",
+    "createOfferDropdown": "Создать оффер",
+    "createLandingDropdown": "Создать лендинг",
+    "selectAll": "Выбрать все",
     "weight": "Вес (доля трафика)",
     "filters": "Фильтры",
     "addFilter": "+ Добавить фильтр",
@@ -17303,6 +17308,19 @@ const ru = {
     "createLanding": "Создать лендинг",
     "landing": "Лендинг",
     "saveChanges": "Сохранить изменения"
+  },
+  "picker": {
+    "offersTitle": "Офферы",
+    "landingsTitle": "Лендинги",
+    "search": "Поиск",
+    "allGroups": "Все группы",
+    "allNetworks": "Все сети",
+    "allCountries": "Все страны",
+    "alreadyAdded": "Уже добавлен",
+    "noResults": "Ничего не найдено",
+    "group": "Группа",
+    "countries": "Страны",
+    "network": "Партнёрская сеть"
   },
   "offerEditor": {
     "localArchive": "Файлы локального оффера",
@@ -19021,7 +19039,12 @@ const en = {
     "doNothing": "Do nothing",
     "show404": "Show 404",
     "showHtml": "Show HTML",
-    "add": "+ Add",
+    "add": "Add",
+    "addOffers": "Add offers",
+    "addLandings": "Add landing pages",
+    "createOfferDropdown": "Create Offer",
+    "createLandingDropdown": "Create landing page",
+    "selectAll": "Select all",
     "weight": "Weight (traffic share)",
     "filters": "Filters",
     "addFilter": "+ Add filter",
@@ -19811,6 +19834,19 @@ const en = {
     "createLanding": "Create Landing",
     "landing": "Landing",
     "saveChanges": "Save Changes"
+  },
+  "picker": {
+    "offersTitle": "Offers",
+    "landingsTitle": "Landing pages",
+    "search": "Search",
+    "allGroups": "All groups",
+    "allNetworks": "All networks",
+    "allCountries": "All countries",
+    "alreadyAdded": "Already added",
+    "noResults": "Nothing found",
+    "group": "Group",
+    "countries": "Countries",
+    "network": "Affiliate network"
   },
   "offerEditor": {
     "localArchive": "Local offer files",
@@ -21529,7 +21565,12 @@ const uk = {
     "doNothing": "Нічого не робити",
     "show404": "Показати 404",
     "showHtml": "Показати HTML",
-    "add": "+ Додати",
+    "add": "Додати",
+    "addOffers": "Додати оферів",
+    "addLandings": "Додати посадки",
+    "createOfferDropdown": "Створити офер",
+    "createLandingDropdown": "Створити посадку",
+    "selectAll": "Вибрати все",
     "weight": "Вага (частка трафіку)",
     "filters": "Фільтри",
     "addFilter": "+ Додати фільтр",
@@ -22319,6 +22360,19 @@ const uk = {
     "createLanding": "Створити посадку",
     "landing": "Посадка",
     "saveChanges": "Зберегти зміни"
+  },
+  "picker": {
+    "offersTitle": "Офери",
+    "landingsTitle": "Посадки",
+    "search": "Пошук",
+    "allGroups": "Усі групи",
+    "allNetworks": "Усі мережі",
+    "allCountries": "Усі країни",
+    "alreadyAdded": "Вже додано",
+    "noResults": "Нічого не знайдено",
+    "group": "Група",
+    "countries": "Країни",
+    "network": "Партнерська мережа"
   },
   "offerEditor": {
     "localArchive": "Файли локального оффера",
@@ -24037,7 +24091,12 @@ const es = {
     "doNothing": "no hacer nada",
     "show404": "Mostrar 404",
     "showHtml": "Mostrar HTML",
-    "add": "+ Agregar",
+    "add": "Agregar",
+    "addOffers": "Agregar ofertas",
+    "addLandings": "Agregar aterrizajes",
+    "createOfferDropdown": "Crear oferta",
+    "createLandingDropdown": "Crear aterrizaje",
+    "selectAll": "Seleccionar todo",
     "weight": "Peso (participación de tráfico)",
     "filters": "Filtros",
     "addFilter": "+ Añadir filtro",
@@ -24827,6 +24886,19 @@ const es = {
     "createLanding": "Crear aterrizaje",
     "landing": "Aterrizaje",
     "saveChanges": "Guardar cambios"
+  },
+  "picker": {
+    "offersTitle": "Ofertas",
+    "landingsTitle": "Aterrizajes",
+    "search": "Buscar",
+    "allGroups": "Todos los grupos",
+    "allNetworks": "Todas las redes",
+    "allCountries": "Todos los países",
+    "alreadyAdded": "Ya agregado",
+    "noResults": "No se encontró nada",
+    "group": "Grupo",
+    "countries": "Países",
+    "network": "Red de afiliados"
   },
   "offerEditor": {
     "localArchive": "Archivos del offer local",
@@ -26545,7 +26617,12 @@ const zh = {
     "doNothing": "什么都不做",
     "show404": "显示 404",
     "showHtml": "显示 HTML",
-    "add": "+ 添加",
+    "add": "添加",
+    "addOffers": "添加优惠",
+    "addLandings": "添加登陆页",
+    "createOfferDropdown": "创建优惠",
+    "createLandingDropdown": "创建登陆页",
+    "selectAll": "全选",
     "weight": "权重（流量份额）",
     "filters": "过滤器",
     "addFilter": "+ 添加过滤器",
@@ -27335,6 +27412,19 @@ const zh = {
     "createLanding": "创建登陆",
     "landing": "登陆",
     "saveChanges": "保存更改"
+  },
+  "picker": {
+    "offersTitle": "优惠",
+    "landingsTitle": "登陆页",
+    "search": "搜索",
+    "allGroups": "所有分组",
+    "allNetworks": "所有网络",
+    "allCountries": "所有国家",
+    "alreadyAdded": "已添加",
+    "noResults": "未找到任何内容",
+    "group": "分组",
+    "countries": "国家",
+    "network": "联属网络"
   },
   "offerEditor": {
     "localArchive": "本地 offer 文件",
@@ -29053,7 +29143,12 @@ const fr = {
     "doNothing": "Ne rien faire",
     "show404": "Afficher 404",
     "showHtml": "Afficher HTML",
-    "add": "+ Ajouter",
+    "add": "Ajouter",
+    "addOffers": "Ajouter des offres",
+    "addLandings": "Ajouter des destinations",
+    "createOfferDropdown": "Créer une offre",
+    "createLandingDropdown": "Créer une destination",
+    "selectAll": "Tout sélectionner",
     "weight": "Poids (trafic partager)",
     "filters": "Filtres",
     "addFilter": "+ Ajouter un filtre",
@@ -29843,6 +29938,19 @@ const fr = {
     "createLanding": "Créer une destination",
     "landing": "Destination",
     "saveChanges": "Enregistrer les modifications"
+  },
+  "picker": {
+    "offersTitle": "Offres",
+    "landingsTitle": "Destinations",
+    "search": "Rechercher",
+    "allGroups": "Tous les groupes",
+    "allNetworks": "Tous les réseaux",
+    "allCountries": "Tous les pays",
+    "alreadyAdded": "Déjà ajouté",
+    "noResults": "Aucun résultat",
+    "group": "Groupe",
+    "countries": "Pays",
+    "network": "Réseau d'affiliation"
   },
   "offerEditor": {
     "localArchive": "Fichiers de l’offre locale",
@@ -31563,7 +31671,12 @@ const de = {
     "doNothing": "Nichts tun",
     "show404": "404 anzeigen",
     "showHtml": "HTML anzeigen",
-    "add": "+ hinzufügen",
+    "add": "Hinzufügen",
+    "addOffers": "Angebote hinzufügen",
+    "addLandings": "Landingpages hinzufügen",
+    "createOfferDropdown": "Angebot erstellen",
+    "createLandingDropdown": "Landingpage erstellen",
+    "selectAll": "Alle auswählen",
     "weight": "Gewichtung (Verkehrsanteil)",
     "filters": "Filter",
     "addFilter": "+ Filter hinzufügen",
@@ -32353,6 +32466,19 @@ const de = {
     "createLanding": "Landung erstellen",
     "landing": "Landing",
     "saveChanges": "Änderungen speichern"
+  },
+  "picker": {
+    "offersTitle": "Angebote",
+    "landingsTitle": "Landingpages",
+    "search": "Suche",
+    "allGroups": "Alle Gruppen",
+    "allNetworks": "Alle Netzwerke",
+    "allCountries": "Alle Länder",
+    "alreadyAdded": "Bereits hinzugefügt",
+    "noResults": "Nichts gefunden",
+    "group": "Gruppe",
+    "countries": "Länder",
+    "network": "Affiliate-Netzwerk"
   },
   "offerEditor": {
     "localArchive": "Dateien des lokalen Offers",
@@ -52418,7 +52544,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
   ] }) });
 };
 const API_URL$r = "/api.php";
-const OfferEditor = ({ offerId, onClose }) => {
+const OfferEditor = ({ offerId, onClose, onCreated }) => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
   const [activeTab, setActiveTab] = reactExports.useState("general");
@@ -52550,6 +52676,7 @@ const OfferEditor = ({ offerId, onClose }) => {
       const res = await axios.post(`${API_URL$r}?action=save_offer`, payload);
       if (res.data.status === "success") {
         const newId = res.data.data?.id || offerId;
+        if (!offerId && onCreated) onCreated(newId);
         if (formData.is_local && pendingZip && newId) {
           const zip = pendingZip;
           setPendingZip(null);
@@ -65677,6 +65804,202 @@ const TrendsPage = () => {
     ] }) })
   ] });
 };
+const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
+  const { t } = useLanguage();
+  const [q, setQ] = reactExports.useState("");
+  const [groupFilter, setGroupFilter] = reactExports.useState("");
+  const [networkFilter, setNetworkFilter] = reactExports.useState("");
+  const [countryFilter, setCountryFilter] = reactExports.useState("");
+  const [selected, setSelected] = reactExports.useState(() => /* @__PURE__ */ new Set());
+  const isOffers = type === "offers";
+  const existing = reactExports.useMemo(() => new Set((existingIds || []).map((id) => parseInt(id, 10))), [existingIds]);
+  const uniqueByName = (entries) => {
+    const seen = /* @__PURE__ */ new Map();
+    entries.forEach(([id, name]) => {
+      if (!seen.has(id)) seen.set(id, name);
+    });
+    return Array.from(seen, ([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+  };
+  const groups = reactExports.useMemo(() => uniqueByName(
+    (items || []).filter((it) => it.group_id).map((it) => [it.group_id, it.group_name || `#${it.group_id}`])
+  ), [items]);
+  const networks = reactExports.useMemo(() => {
+    if (!isOffers) return [];
+    return uniqueByName(
+      (items || []).filter((it) => it.affiliate_network_id).map((it) => [it.affiliate_network_id, it.affiliate_network_name || `#${it.affiliate_network_id}`])
+    );
+  }, [items, isOffers]);
+  const countries = reactExports.useMemo(() => {
+    if (!isOffers) return [];
+    const seen = /* @__PURE__ */ new Set();
+    (items || []).forEach((it) => {
+      String(it.geo || "").split(",").forEach((c) => {
+        const code = c.trim().toUpperCase();
+        if (code) seen.add(code);
+      });
+    });
+    return Array.from(seen).sort();
+  }, [items, isOffers]);
+  const filtered = reactExports.useMemo(() => {
+    const needle = String(q || "").trim().toLowerCase();
+    return (items || []).filter((it) => {
+      if (needle) {
+        const haystack = `${it.name || ""} ${it.url || ""} ${it.id}`.toLowerCase();
+        if (!haystack.includes(needle)) return false;
+      }
+      if (groupFilter && String(it.group_id || "") !== String(groupFilter)) return false;
+      if (isOffers && networkFilter && String(it.affiliate_network_id || "") !== String(networkFilter)) return false;
+      if (isOffers && countryFilter) {
+        const codes = String(it.geo || "").split(",").map((c) => c.trim().toUpperCase());
+        if (!codes.includes(countryFilter)) return false;
+      }
+      return true;
+    });
+  }, [items, q, groupFilter, networkFilter, countryFilter, isOffers]);
+  const pickable = filtered.filter((it) => !existing.has(parseInt(it.id, 10)));
+  const allPicked = pickable.length > 0 && pickable.every((it) => selected.has(it.id));
+  const somePicked = pickable.some((it) => selected.has(it.id));
+  const toggle = (id) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+  const toggleAll = () => {
+    setSelected((prev) => {
+      const allIn = pickable.length > 0 && pickable.every((it) => prev.has(it.id));
+      const next = new Set(prev);
+      if (allIn) {
+        pickable.forEach((it) => next.delete(it.id));
+      } else {
+        pickable.forEach((it) => next.add(it.id));
+      }
+      return next;
+    });
+  };
+  const th = { padding: "6px 10px", textAlign: "left", fontSize: "11.5px", textTransform: "uppercase", letterSpacing: "0.03em", color: "var(--color-text-muted)", borderBottom: "1px solid var(--color-border)", whiteSpace: "nowrap", position: "sticky", top: 0, backgroundColor: "var(--color-bg-card)", zIndex: 1 };
+  const td = { padding: "7px 10px", color: "var(--color-text-primary)", borderBottom: "1px solid var(--color-border)", verticalAlign: "middle" };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "760px" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: isOffers ? t("picker.offersTitle") : t("picker.landingsTitle") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onClose, className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 flex flex-wrap gap-2", style: { borderBottom: "1px solid var(--color-border)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex-1", style: { minWidth: "180px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2", style: { color: "var(--color-text-muted)" } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            value: q,
+            onChange: (e) => setQ(e.target.value),
+            className: "form-input pl-9",
+            placeholder: t("picker.search"),
+            autoFocus: true
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { value: groupFilter, onChange: (e) => setGroupFilter(e.target.value), className: "form-select text-sm", style: { width: "auto", minWidth: "130px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("picker.allGroups") }),
+        groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
+      ] }),
+      isOffers && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { value: networkFilter, onChange: (e) => setNetworkFilter(e.target.value), className: "form-select text-sm", style: { width: "auto", minWidth: "130px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("picker.allNetworks") }),
+          networks.map((n) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: n.id, children: n.name }, n.id))
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { value: countryFilter, onChange: (e) => setCountryFilter(e.target.value), className: "form-select text-sm", style: { width: "auto", minWidth: "120px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("picker.allCountries") }),
+          countries.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: c, children: c }, c))
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto", style: { maxHeight: "46vh", minHeight: "200px" }, children: filtered.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-12 text-sm", style: { color: "var(--color-text-muted)" }, children: t("picker.noResults") }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-sm", style: { borderCollapse: "collapse" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { ...th, width: "36px" } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { ...th, width: "60px" }, children: "ID" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: t("editor.name") }),
+        isOffers && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: t("picker.countries") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: t("picker.group") }),
+        isOffers && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: t("picker.network") })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: filtered.map((it) => {
+        const id = parseInt(it.id, 10);
+        const isExisting = existing.has(id);
+        const isSelected = selected.has(id);
+        const rowStyle = {
+          ...td,
+          backgroundColor: isExisting ? "var(--color-bg-soft)" : isSelected ? "color-mix(in srgb, var(--color-primary) 8%, transparent)" : "transparent",
+          opacity: isExisting ? 0.6 : 1
+        };
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "tr",
+          {
+            onClick: () => {
+              if (!isExisting) toggle(id);
+            },
+            style: { cursor: isExisting ? "default" : "pointer" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: rowStyle, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "checkbox",
+                  checked: isExisting || isSelected,
+                  disabled: isExisting,
+                  onChange: () => toggle(id),
+                  onClick: (e) => e.stopPropagation(),
+                  style: { accentColor: "var(--color-primary)", verticalAlign: "middle" }
+                }
+              ) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { ...rowStyle, color: "var(--color-text-muted)" }, children: it.id }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: rowStyle, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", style: { textDecoration: isExisting ? "line-through" : "none" }, children: it.name }),
+                isExisting && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 text-[10.5px] px-1.5 py-0.5 rounded-md", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: t("picker.alreadyAdded") })
+              ] }),
+              isOffers && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: rowStyle, children: it.geo || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "—" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: rowStyle, children: it.group_name || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "—" }) }),
+              isOffers && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: rowStyle, children: it.affiliate_network_name || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "—" }) })
+            ]
+          },
+          it.id
+        );
+      }) })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", style: { justifyContent: "space-between" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-sm cursor-pointer select-none", style: { color: "var(--color-text-secondary)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: allPicked,
+            ref: (el) => {
+              if (el) el.indeterminate = !allPicked && somePicked;
+            },
+            onChange: toggleAll,
+            disabled: pickable.length === 0,
+            style: { accentColor: "var(--color-primary)" }
+          }
+        ),
+        t("editor.selectAll")
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onClose, className: "btn btn-secondary", children: t("common.close") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => onAdd(Array.from(selected)),
+            disabled: selected.size === 0,
+            className: "btn btn-primary",
+            children: t("common.add")
+          }
+        )
+      ] })
+    ] })
+  ] }) });
+};
 const cid = () => window.crypto && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36);
 const pagePassthrough = () => `' + encodeURIComponent(document.referrer) + '&default_keyword=' + encodeURIComponent(document.title) + '&'+window.location.search.replace('?', '&')`;
 function buildSnippet(methodId, ctx, opts = {}) {
@@ -65935,6 +66258,61 @@ function wordpressSnippet({ campaign }) {
 <!-- Конверсия со страницы «Спасибо» (Contact Form 7 и т.п.): -->
 [send_postback]`;
 }
+const AddDropdownButton = ({ label, createLabel, onMain, onCreate }) => {
+  const [open, setOpen] = reactExports.useState(false);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative inline-block", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          onClick: onMain,
+          className: "btn btn-secondary btn-sm rounded-r-none flex items-center gap-1.5",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
+            label
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          onClick: () => setOpen(!open),
+          className: "btn btn-secondary btn-sm rounded-l-none border-l-0 px-1.5",
+          title: createLabel,
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5" })
+        }
+      )
+    ] }),
+    open && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0", style: { zIndex: 40 }, onClick: () => setOpen(false) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "absolute right-0 mt-1 rounded-xl py-1 shadow-lg min-w-[200px]",
+          style: { zIndex: 41, backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" },
+          children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              className: "w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors hover:bg-[var(--color-bg-soft)]",
+              style: { color: "var(--color-text-primary)" },
+              onClick: () => {
+                setOpen(false);
+                onCreate();
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
+                createLabel
+              ]
+            }
+          )
+        }
+      )
+    ] })
+  ] });
+};
 const generateAlias = () => {
   const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
@@ -66018,7 +66396,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [allOffers, setAllOffers] = reactExports.useState([]);
   const [allLandings, setAllLandings] = reactExports.useState([]);
   const [quickCreate, setQuickCreate] = reactExports.useState(null);
-  const [quickSaving, setQuickSaving] = reactExports.useState(false);
+  const [pickerState, setPickerState] = reactExports.useState({ open: false, streamIdx: null, type: null });
   const [formData, setFormData] = reactExports.useState({
     name: t("editor.newCampaign"),
     alias: generateAlias(),
@@ -66599,34 +66977,45 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     p.splice(index2, 1);
     setFormData({ ...formData, postbacks: p });
   };
-  const submitQuickCreate = async () => {
-    if (!quickCreate?.name?.trim()) return;
-    setQuickSaving(true);
-    try {
-      const res = await cachedPost("save_offer", {
-        name: quickCreate.name,
-        url: quickCreate.url || "",
-        payout_type: "CPA",
-        payout_value: 0,
-        state: "active"
+  const addEntitiesToStream = (streamIdx, type, ids) => {
+    const numeric = (ids || []).map((id) => parseInt(id, 10)).filter((id) => !!id);
+    if (!numeric.length) return;
+    const s = [...formData.streams];
+    if (!s[streamIdx]) return;
+    if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
+    const list = (s[streamIdx].schema_custom[type] || []).map((x) => ({ ...x }));
+    numeric.forEach((id) => {
+      if (!list.some((x) => parseInt(x.id, 10) === id)) list.push({ id, weight: 100 });
+    });
+    if (list.length > 1) {
+      const base = Math.floor(100 / list.length);
+      list.forEach((item, i) => {
+        item.weight = base + (i === 0 ? 100 - base * list.length : 0);
       });
-      if (res.data.status !== "success") throw new Error(res.data.message || "save failed");
-      const newId = parseInt(res.data.data?.id, 10);
+    } else if (list.length === 1) {
+      list[0].weight = 100;
+    }
+    s[streamIdx].schema_custom[type] = list;
+    setFormData({ ...formData, streams: s });
+  };
+  const openEntityPicker = (streamIdx, type) => setPickerState({ open: true, streamIdx, type });
+  const attachOfferToStream = async (newId) => {
+    const id = parseInt(newId, 10);
+    if (!id) return;
+    try {
       const listRes = await cachedGet("all_offers", { _: Date.now() }, 0);
       if (listRes.data.status === "success") {
         setAllOffers(listRes.data.data);
       }
-      const s = [...formData.streams];
-      const streamIdx = quickCreate.streamIdx;
-      if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
-      s[streamIdx].schema_custom.offers.push({ id: newId, weight: 100 });
-      setFormData({ ...formData, streams: s });
-      setQuickCreate(null);
     } catch (e) {
-      alert(`${t("editor.quickCreateError")}: ${translateLandingRequestError(t, e)}`);
-    } finally {
-      setQuickSaving(false);
     }
+    if (quickCreate?.editingId) return;
+    const streamIdx = quickCreate?.streamIdx;
+    if (streamIdx === void 0 || streamIdx === null) return;
+    addEntitiesToStream(streamIdx, "offers", [id]);
+  };
+  const openOfferEdit = (offerId, streamIdx) => {
+    setQuickCreate({ kind: "offers", streamIdx, editingId: offerId });
   };
   const attachLandingToStream = async (newId) => {
     const id = parseInt(newId, 10);
@@ -66641,20 +67030,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     if (quickCreate?.editingId) return;
     const streamIdx = quickCreate?.streamIdx;
     if (streamIdx === void 0 || streamIdx === null) return;
-    const s = [...formData.streams];
-    if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
-    if (s[streamIdx].schema_custom.landings.some((l) => parseInt(l.id, 10) === id)) return;
-    s[streamIdx].schema_custom.landings.push({ id, weight: 100 });
-    setFormData({ ...formData, streams: s });
+    addEntitiesToStream(streamIdx, "landings", [id]);
   };
   const openLandingEdit = (landingId, streamIdx) => {
     setQuickCreate({ kind: "landings", streamIdx, editingId: landingId });
-  };
-  const addSchemaItem = (streamIdx, type) => {
-    const s = [...formData.streams];
-    if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
-    s[streamIdx].schema_custom[type].push({ id: "", weight: 100 });
-    setFormData({ ...formData, streams: s });
   };
   const updateSchemaItem = (streamIdx, type, itemIdx, field, value) => {
     const s = [...formData.streams];
@@ -66665,6 +67044,87 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const s = [...formData.streams];
     s[streamIdx].schema_custom[type].splice(itemIdx, 1);
     setFormData({ ...formData, streams: s });
+  };
+  const schemaBadge = (label) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10.5px] leading-none px-1.5 py-1 rounded-md", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: label }, label);
+  const schemaWeightInput = (streamIdx, type, item, itemIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 flex-shrink-0", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "input",
+      {
+        type: "number",
+        value: list.length === 1 ? 100 : item.weight,
+        disabled: list.length === 1,
+        onChange: (e) => updateSchemaItem(streamIdx, type, itemIdx, "weight", parseInt(e.target.value)),
+        className: "w-14 text-center rounded-lg px-1 py-1 text-xs",
+        style: {
+          backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)",
+          border: "1px solid var(--color-border)",
+          color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)"
+        },
+        title: t("editor.weight")
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
+  ] });
+  const renderLandingRow = (idx, l, lIdx, list) => {
+    const info = allLandings.find((al) => al.id === parseInt(l.id, 10));
+    const name = info ? info.name : l.id ? `#${l.id}` : t("editor.landingInfo");
+    const typeLabels = {
+      local: t("landingEditor.typeLocal"),
+      redirect: t("landingEditor.typeRedirect"),
+      preload: t("landingEditor.typePreload"),
+      action: t("landingEditor.typeAction")
+    };
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 px-3 py-2 rounded-xl", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium truncate", style: { color: "var(--color-text-primary)" }, title: name, children: name }),
+        info && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1 mt-1", children: [
+          schemaBadge(typeLabels[info.type] || info.type),
+          info.group_name && schemaBadge(info.group_name)
+        ] })
+      ] }),
+      schemaWeightInput(idx, "landings", l, lIdx, list),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          onClick: () => l.id && openLandingEdit(l.id, idx),
+          disabled: !l.id,
+          className: "action-btn",
+          style: { color: "var(--color-primary)", opacity: l.id ? 1 : 0.4 },
+          title: t("editor.editLanding"),
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" })
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchemaItem(idx, "landings", lIdx), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }) })
+    ] }, lIdx);
+  };
+  const renderOfferRow = (idx, o, oIdx, list) => {
+    const info = allOffers.find((ao) => ao.id === parseInt(o.id, 10));
+    const name = info ? info.name : o.id ? `#${o.id}` : t("editor.offerInfo");
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 px-3 py-2 rounded-xl", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium truncate", style: { color: "var(--color-text-primary)" }, title: name, children: name }),
+        info && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1 mt-1", children: [
+          schemaBadge(info.is_local ? t("offers.local") : t("offers.redirect")),
+          info.affiliate_network_name && schemaBadge(info.affiliate_network_name),
+          info.geo && schemaBadge(`GEO: ${info.geo}`),
+          parseFloat(info.payout_value) > 0 && schemaBadge(`${info.payout_value}$ · ${String(info.payout_type || "cpa").toUpperCase()}`),
+          info.group_name && schemaBadge(info.group_name)
+        ] })
+      ] }),
+      schemaWeightInput(idx, "offers", o, oIdx, list),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          onClick: () => o.id && openOfferEdit(o.id, idx),
+          disabled: !o.id,
+          className: "action-btn",
+          style: { color: "var(--color-primary)", opacity: o.id ? 1 : 0.4 },
+          title: t("common.edit"),
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" })
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchemaItem(idx, "offers", oIdx), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }) })
+    ] }, oIdx);
   };
   const [filterModal, setFilterModal] = reactExports.useState({ open: false, streamIdx: null });
   const [newFilter, setNewFilter] = reactExports.useState({ name: "Country", mode: "include", payload: "" });
@@ -67987,93 +68447,34 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               })(),
               stream.schema_type === "landing_offer" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-2xl p-3", style: { border: "1px solid var(--color-border)", backgroundColor: "rgba(59, 130, 246, 0.05)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.landings") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "landings"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setQuickCreate({ kind: "landings", streamIdx: idx }), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.quickCreateLanding") })
-                    ] })
-                  ] }),
-                  (stream.schema_custom?.landings || []).map((l, lIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mb-2", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "select",
-                      {
-                        value: l.id,
-                        onChange: (e) => updateSchemaItem(idx, "landings", lIdx, "id", parseInt(e.target.value)),
-                        className: "form-select text-sm",
-                        children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.landingInfo") }),
-                          allLandings.map((al) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: al.id, children: al.name }, al.id))
-                        ]
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "input",
-                        {
-                          type: "number",
-                          value: list.length === 1 ? 100 : l.weight,
-                          disabled: list.length === 1,
-                          onChange: (e) => updateSchemaItem(idx, "landings", lIdx, "weight", parseInt(e.target.value)),
-                          className: "w-16 text-center rounded-lg px-1 py-1 text-sm",
-                          style: { backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)", border: "1px solid var(--color-border)", color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)" },
-                          title: t("editor.weight")
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
-                    ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "button",
+                      AddDropdownButton,
                       {
-                        onClick: () => l.id && openLandingEdit(l.id, idx),
-                        disabled: !l.id,
-                        className: "action-btn",
-                        style: { color: "var(--color-primary)", opacity: l.id ? 1 : 0.4 },
-                        title: t("editor.editLanding"),
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" })
+                        label: t("editor.addLandings"),
+                        createLabel: t("editor.createLandingDropdown"),
+                        onMain: () => openEntityPicker(idx, "landings"),
+                        onCreate: () => setQuickCreate({ kind: "landings", streamIdx: idx })
                       }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchemaItem(idx, "landings", lIdx), className: "action-btn text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }) })
-                  ] }, lIdx))
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (stream.schema_custom?.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list)) })
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "offers"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setQuickCreate({ kind: "offers", streamIdx: idx, name: "", type: "local", url: "", file: null }), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.quickCreateOffer") })
-                    ] })
-                  ] }),
-                  (stream.schema_custom?.offers || []).map((o, oIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mb-2", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "select",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      AddDropdownButton,
                       {
-                        value: o.id,
-                        onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "id", parseInt(e.target.value)),
-                        className: "form-select text-sm",
-                        children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.offerInfo") }),
-                          allOffers.map((ao) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: ao.id, children: ao.name }, ao.id))
-                        ]
+                        label: t("editor.addOffers"),
+                        createLabel: t("editor.createOfferDropdown"),
+                        onMain: () => openEntityPicker(idx, "offers"),
+                        onCreate: () => setQuickCreate({ kind: "offers", streamIdx: idx })
                       }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "input",
-                        {
-                          type: "number",
-                          value: list.length === 1 ? 100 : o.weight,
-                          disabled: list.length === 1,
-                          onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "weight", parseInt(e.target.value)),
-                          className: "w-16 text-center rounded-lg px-1 py-1 text-sm",
-                          style: { backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)", border: "1px solid var(--color-border)", color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)" },
-                          title: t("editor.weight")
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
-                    ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchemaItem(idx, "offers", oIdx), className: "action-btn text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }) })
-                  ] }, oIdx)),
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (stream.schema_custom?.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list)) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 pt-3", style: { borderTop: "1px dashed var(--color-border)" }, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold mb-1", style: { color: "var(--color-text-primary)" }, children: t("editor.offerSelection") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-4", children: ["before", "after"].map((mode) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-1 text-xs cursor-pointer", style: { color: "var(--color-text-secondary)" }, children: [
@@ -68245,76 +68646,32 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-1.5", children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("editor.landings") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => addSchemaItem(idx, "landings"), className: "text-xs text-blue-500 hover:underline", children: [
-                          "+ ",
-                          t("editor.add")
-                        ] })
-                      ] }),
-                      (sc.landings || []).map((l, lIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-center mb-1.5", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                          "select",
-                          {
-                            value: l.id,
-                            onChange: (e) => updateSchemaItem(idx, "landings", lIdx, "id", parseInt(e.target.value)),
-                            className: "form-select text-xs flex-1 rounded-xl",
-                            children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.landingInfo") }),
-                              allLandings.map((al) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: al.id, children: al.name }, al.id))
-                            ]
-                          }
-                        ),
                         /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "input",
+                          AddDropdownButton,
                           {
-                            type: "number",
-                            value: list.length === 1 ? 100 : l.weight,
-                            disabled: list.length === 1,
-                            onChange: (e) => updateSchemaItem(idx, "landings", lIdx, "weight", parseInt(e.target.value)),
-                            className: "w-14 text-center rounded-xl px-1 py-1 text-xs",
-                            style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" },
-                            title: t("editor.weight")
+                            label: t("editor.addLandings"),
+                            createLabel: t("editor.createLandingDropdown"),
+                            onMain: () => openEntityPicker(idx, "landings"),
+                            onCreate: () => setQuickCreate({ kind: "landings", streamIdx: idx })
                           }
-                        ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => removeSchemaItem(idx, "landings", lIdx), className: "btn-icon text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }) })
-                      ] }, lIdx))
+                        )
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (sc.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list)) })
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-1.5", children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("editor.offers") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => addSchemaItem(idx, "offers"), className: "text-xs text-blue-500 hover:underline", children: [
-                          "+ ",
-                          t("editor.add")
-                        ] })
-                      ] }),
-                      (sc.offers || []).map((o, oIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-center mb-1.5", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                          "select",
-                          {
-                            value: o.id,
-                            onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "id", parseInt(e.target.value)),
-                            className: "form-select text-xs flex-1 rounded-xl",
-                            children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.offerInfo") }),
-                              allOffers.map((ao) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: ao.id, children: ao.name }, ao.id))
-                            ]
-                          }
-                        ),
                         /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "input",
+                          AddDropdownButton,
                           {
-                            type: "number",
-                            value: list.length === 1 ? 100 : o.weight,
-                            disabled: list.length === 1,
-                            onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "weight", parseInt(e.target.value)),
-                            className: "w-14 text-center rounded-xl px-1 py-1 text-xs",
-                            style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" },
-                            title: t("editor.weight")
+                            label: t("editor.addOffers"),
+                            createLabel: t("editor.createOfferDropdown"),
+                            onMain: () => openEntityPicker(idx, "offers"),
+                            onCreate: () => setQuickCreate({ kind: "offers", streamIdx: idx })
                           }
-                        ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => removeSchemaItem(idx, "offers", oIdx), className: "btn-icon text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }) })
-                      ] }, oIdx))
+                        )
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (sc.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list)) })
                     ] })
                   ] })
                 ] });
@@ -68391,16 +68748,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        "button",
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        AddDropdownButton,
                         {
-                          type: "button",
-                          onClick: () => addSchemaItem(idx, "offers"),
-                          className: "btn btn-secondary text-xs py-1 px-2.5 rounded-xl flex items-center gap-1",
-                          children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3 h-3" }),
-                            t("editor.add")
-                          ]
+                          label: t("editor.addOffers"),
+                          createLabel: t("editor.createOfferDropdown"),
+                          onMain: () => openEntityPicker(idx, "offers"),
+                          onCreate: () => setQuickCreate({ kind: "offers", streamIdx: idx })
                         }
                       )
                     ] }),
@@ -68416,42 +68770,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           totalWeight,
                           t("editor.weightWarningEnd")
                         ] }),
-                        offers.map((o, oIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-center", children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                            "select",
-                            {
-                              value: o.id,
-                              onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "id", parseInt(e.target.value)),
-                              className: "form-select text-xs flex-1 rounded-xl",
-                              children: [
-                                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.offerInfo") }),
-                                allOffers.map((ao) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: ao.id, children: ao.name }, ao.id))
-                              ]
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "input",
-                              {
-                                type: "number",
-                                value: list.length === 1 ? 100 : o.weight,
-                                disabled: list.length === 1,
-                                onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "weight", parseInt(e.target.value)),
-                                className: "w-16 text-center rounded-xl px-1 py-1.5 text-xs font-semibold",
-                                style: {
-                                  backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)",
-                                  border: `1px solid ${isOverWeight ? "var(--color-warning)" : "var(--color-border)"}`,
-                                  color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)"
-                                },
-                                title: t("editor.weight"),
-                                max: "100",
-                                min: "1"
-                              }
-                            ),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
-                          ] }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => removeSchemaItem(idx, "offers", oIdx), className: "btn-icon text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
-                        ] }, oIdx))
+                        offers.map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list))
                       ] });
                     })()
                   ] })
@@ -68951,39 +69270,27 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         onClose: () => setQuickCreate(null)
       }
     ),
-    quickCreate && quickCreate.kind === "offers" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => !quickSaving && setQuickCreate(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "640px", maxHeight: "90vh", overflowY: "auto" }, onClick: (e) => e.stopPropagation(), children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.quickCreateOffer") }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.quickCreateName") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              autoFocus: true,
-              value: quickCreate.name,
-              onChange: (e) => setQuickCreate({ ...quickCreate, name: e.target.value }),
-              className: "form-input"
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "URL" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              value: quickCreate.url,
-              onChange: (e) => setQuickCreate({ ...quickCreate, url: e.target.value }),
-              className: "form-input",
-              placeholder: "https://example.com/?click={clickid}"
-            }
-          )
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mt-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setQuickCreate(null), disabled: quickSaving, className: "btn btn-secondary", style: { flex: 1 }, children: t("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: submitQuickCreate, disabled: quickSaving || !quickCreate.name.trim(), className: "btn btn-primary", style: { flex: 1 }, children: quickSaving ? t("common.saving") : t("common.create") })
-      ] })
-    ] }) }),
+    quickCreate && quickCreate.kind === "offers" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      OfferEditor,
+      {
+        offerId: quickCreate.editingId || null,
+        onCreated: attachOfferToStream,
+        onClose: () => setQuickCreate(null)
+      }
+    ),
+    pickerState.open && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      EntitySelectorModal,
+      {
+        type: pickerState.type,
+        items: pickerState.type === "landings" ? allLandings : allOffers,
+        existingIds: (formData.streams[pickerState.streamIdx]?.schema_custom?.[pickerState.type] || []).map((x) => parseInt(x.id, 10)).filter(Boolean),
+        onClose: () => setPickerState({ open: false, streamIdx: null, type: null }),
+        onAdd: (ids) => {
+          addEntitiesToStream(pickerState.streamIdx, pickerState.type, ids);
+          setPickerState({ open: false, streamIdx: null, type: null });
+        }
+      }
+    ),
     showGroupsModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
       GroupsModal,
       {

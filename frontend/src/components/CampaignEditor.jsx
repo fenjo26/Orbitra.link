@@ -5,17 +5,68 @@ import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, Chev
 import CampaignReports from './CampaignReports';
 import ConversionsLog from './ConversionsLog';
 import LandingEditor from './LandingEditor';
+import OfferEditor from './OfferEditor';
+import EntitySelectorModal from './EntitySelectorModal';
 import GroupsModal from './GroupsModal';
 import TrafficSourceEditor from './TrafficSourceEditor';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
 import { buildSnippet } from '../utils/integrationSnippets';
-import { translateLandingRequestError } from '../utils/landingErrors';
+
+/**
+ * Keitaro-style split button: the main part opens the entity picker, the
+ * chevron opens a one-item menu to create a new landing/offer without leaving
+ * the stream. The transparent fixed layer behind the menu closes it on any
+ * outside click.
+ */
+const AddDropdownButton = ({ label, createLabel, onMain, onCreate }) => {
+    const [open, setOpen] = useState(false);
+    return (
+        <div className="relative inline-block">
+            <div className="flex">
+                <button
+                    type="button"
+                    onClick={onMain}
+                    className="btn btn-secondary btn-sm rounded-r-none flex items-center gap-1.5"
+                >
+                    <Plus className="w-3.5 h-3.5" />
+                    {label}
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setOpen(!open)}
+                    className="btn btn-secondary btn-sm rounded-l-none border-l-0 px-1.5"
+                    title={createLabel}
+                >
+                    <ChevronDown className="w-3.5 h-3.5" />
+                </button>
+            </div>
+            {open && (
+                <>
+                    <div className="fixed inset-0" style={{ zIndex: 40 }} onClick={() => setOpen(false)} />
+                    <div
+                        className="absolute right-0 mt-1 rounded-xl py-1 shadow-lg min-w-[200px]"
+                        style={{ zIndex: 41, backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}
+                    >
+                        <button
+                            type="button"
+                            className="w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors hover:bg-[var(--color-bg-soft)]"
+                            style={{ color: 'var(--color-text-primary)' }}
+                            onClick={() => { setOpen(false); onCreate(); }}
+                        >
+                            <Plus className="w-3.5 h-3.5" />
+                            {createLabel}
+                        </button>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
 
 // Generate random alias like Keitaro (8 chars: a-z0-9)
-const generateAlias = () => {
-    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+const generateAlias = () => {    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     for (let i = 0; i < 8; i++) {
         result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -122,7 +173,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // hint state used to live here too, purely to feed a second copy of the
     // landing form; LandingEditor fetches what it needs itself.
     const [quickCreate, setQuickCreate] = useState(null);
-    const [quickSaving, setQuickSaving] = useState(false);
+    // The Keitaro-style picker a stream's "Add ..." split button opens.
+    const [pickerState, setPickerState] = useState({ open: false, streamIdx: null, type: null });
 
     // Form State
     const [formData, setFormData] = useState({
@@ -767,47 +819,61 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     // Schema item management
     /**
-     * Create an offer and drop it straight into the stream.
-     *
-     * Landings do not come through here any more: they render the shared
-     * LandingEditor, which owns its own saving, and report back through
-     * attachLandingToStream.
-     *
-     * The list this feeds is cached, so it is refreshed with a cache-busting read
-     * rather than waiting out the five-minute TTL — otherwise the thing you just
-     * made would be missing from the dropdown that is supposed to show it.
+     * Add landings/offers to a stream's rotation and split the weights evenly:
+     * floor(100/N) each with the remainder on the first item (2 → 50/50,
+     * 3 → 34/33/33), so the total always stays 100%. Used by the picker's Add
+     * button and by both quick-create attach paths.
      */
-    const submitQuickCreate = async () => {
-        if (!quickCreate?.name?.trim()) return;
-        setQuickSaving(true);
-        try {
-            const res = await cachedPost('save_offer', {
-                name: quickCreate.name,
-                url: quickCreate.url || '',
-                payout_type: 'CPA',
-                payout_value: 0,
-                state: 'active'
-            });
-            if (res.data.status !== 'success') throw new Error(res.data.message || 'save failed');
-            const newId = parseInt(res.data.data?.id, 10);
+    const addEntitiesToStream = (streamIdx, type, ids) => {
+        const numeric = (ids || []).map(id => parseInt(id, 10)).filter(id => !!id);
+        if (!numeric.length) return;
+        const s = [...formData.streams];
+        if (!s[streamIdx]) return;
+        if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
+        const list = (s[streamIdx].schema_custom[type] || []).map(x => ({ ...x }));
+        numeric.forEach(id => {
+            if (!list.some(x => parseInt(x.id, 10) === id)) list.push({ id, weight: 100 });
+        });
+        if (list.length > 1) {
+            const base = Math.floor(100 / list.length);
+            list.forEach((item, i) => { item.weight = base + (i === 0 ? 100 - base * list.length : 0); });
+        } else if (list.length === 1) {
+            list[0].weight = 100;
+        }
+        s[streamIdx].schema_custom[type] = list;
+        setFormData({ ...formData, streams: s });
+    };
 
+    const openEntityPicker = (streamIdx, type) => setPickerState({ open: true, streamIdx, type });
+
+    /**
+     * An offer was created inside the stream's embedded OfferEditor — refresh
+     * the picker's list and, when it is new, wire it into this stream's
+     * rotation. Mirrors attachLandingToStream below.
+     */
+    const attachOfferToStream = async (newId) => {
+        const id = parseInt(newId, 10);
+        if (!id) return;
+        try {
             const listRes = await cachedGet('all_offers', { _: Date.now() }, 0);
             if (listRes.data.status === 'success') {
                 setAllOffers(listRes.data.data);
             }
-
-            const s = [...formData.streams];
-            const streamIdx = quickCreate.streamIdx;
-            if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
-            s[streamIdx].schema_custom.offers.push({ id: newId, weight: 100 });
-            setFormData({ ...formData, streams: s });
-
-            setQuickCreate(null);
         } catch (e) {
-            alert(`${t('editor.quickCreateError')}: ${translateLandingRequestError(t, e)}`);
-        } finally {
-            setQuickSaving(false);
+            // A stale list is survivable; the offer itself is already saved.
         }
+
+        if (quickCreate?.editingId) return;
+        const streamIdx = quickCreate?.streamIdx;
+        if (streamIdx === undefined || streamIdx === null) return;
+        addEntitiesToStream(streamIdx, 'offers', [id]);
+    };
+
+    /**
+     * Open an existing offer in the shared editor, straight from a stream row.
+     */
+    const openOfferEdit = (offerId, streamIdx) => {
+        setQuickCreate({ kind: 'offers', streamIdx, editingId: offerId });
     };
 
     /**
@@ -835,11 +901,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
         const streamIdx = quickCreate?.streamIdx;
         if (streamIdx === undefined || streamIdx === null) return;
-        const s = [...formData.streams];
-        if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
-        if (s[streamIdx].schema_custom.landings.some(l => parseInt(l.id, 10) === id)) return;
-        s[streamIdx].schema_custom.landings.push({ id, weight: 100 });
-        setFormData({ ...formData, streams: s });
+        addEntitiesToStream(streamIdx, 'landings', [id]);
     };
 
     /**
@@ -849,13 +911,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
      */
     const openLandingEdit = (landingId, streamIdx) => {
         setQuickCreate({ kind: 'landings', streamIdx, editingId: landingId });
-    };
-
-    const addSchemaItem = (streamIdx, type) => {
-        const s = [...formData.streams];
-        if (!s[streamIdx].schema_custom) s[streamIdx].schema_custom = { landings: [], offers: [] };
-        s[streamIdx].schema_custom[type].push({ id: '', weight: 100 });
-        setFormData({ ...formData, streams: s });
     };
 
     const updateSchemaItem = (streamIdx, type, itemIdx, field, value) => {
@@ -868,6 +923,106 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         const s = [...formData.streams];
         s[streamIdx].schema_custom[type].splice(itemIdx, 1);
         setFormData({ ...formData, streams: s });
+    };
+
+    // Rows below the "Add ..." split buttons. They used to be raw <select>s;
+    // entities are now picked through EntitySelectorModal, so a row shows the
+    // resolved name plus badges instead of a dropdown, with the weight, edit
+    // and delete controls kept inline.
+    const schemaBadge = (label) => (
+        <span key={label} className="text-[10.5px] leading-none px-1.5 py-1 rounded-md" style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
+            {label}
+        </span>
+    );
+
+    const schemaWeightInput = (streamIdx, type, item, itemIdx, list) => (
+        <div className="flex items-center gap-1 flex-shrink-0">
+            <input
+                type="number"
+                value={list.length === 1 ? 100 : item.weight}
+                disabled={list.length === 1}
+                onChange={e => updateSchemaItem(streamIdx, type, itemIdx, 'weight', parseInt(e.target.value))}
+                className="w-14 text-center rounded-lg px-1 py-1 text-xs"
+                style={{
+                    backgroundColor: list.length === 1 ? 'var(--color-bg-soft)' : 'var(--color-bg-card)',
+                    border: '1px solid var(--color-border)',
+                    color: list.length === 1 ? 'var(--color-text-muted)' : 'var(--color-text-primary)'
+                }}
+                title={t('editor.weight')}
+            />
+            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
+        </div>
+    );
+
+    const renderLandingRow = (idx, l, lIdx, list) => {
+        const info = allLandings.find(al => al.id === parseInt(l.id, 10));
+        const name = info ? info.name : (l.id ? `#${l.id}` : t('editor.landingInfo'));
+        const typeLabels = {
+            local: t('landingEditor.typeLocal'),
+            redirect: t('landingEditor.typeRedirect'),
+            preload: t('landingEditor.typePreload'),
+            action: t('landingEditor.typeAction'),
+        };
+        return (
+            <div key={lIdx} className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }} title={name}>{name}</div>
+                    {info && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                            {schemaBadge(typeLabels[info.type] || info.type)}
+                            {info.group_name && schemaBadge(info.group_name)}
+                        </div>
+                    )}
+                </div>
+                {schemaWeightInput(idx, 'landings', l, lIdx, list)}
+                <button
+                    onClick={() => l.id && openLandingEdit(l.id, idx)}
+                    disabled={!l.id}
+                    className="action-btn"
+                    style={{ color: 'var(--color-primary)', opacity: l.id ? 1 : 0.4 }}
+                    title={t('editor.editLanding')}
+                >
+                    <Edit3 className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => removeSchemaItem(idx, 'landings', lIdx)} className="action-btn text-red" title={t('common.delete')}>
+                    <X className="w-3.5 h-3.5" />
+                </button>
+            </div>
+        );
+    };
+
+    const renderOfferRow = (idx, o, oIdx, list) => {
+        const info = allOffers.find(ao => ao.id === parseInt(o.id, 10));
+        const name = info ? info.name : (o.id ? `#${o.id}` : t('editor.offerInfo'));
+        return (
+            <div key={oIdx} className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }} title={name}>{name}</div>
+                    {info && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                            {schemaBadge(info.is_local ? t('offers.local') : t('offers.redirect'))}
+                            {info.affiliate_network_name && schemaBadge(info.affiliate_network_name)}
+                            {info.geo && schemaBadge(`GEO: ${info.geo}`)}
+                            {parseFloat(info.payout_value) > 0 && schemaBadge(`${info.payout_value}$ · ${String(info.payout_type || 'cpa').toUpperCase()}`)}
+                            {info.group_name && schemaBadge(info.group_name)}
+                        </div>
+                    )}
+                </div>
+                {schemaWeightInput(idx, 'offers', o, oIdx, list)}
+                <button
+                    onClick={() => o.id && openOfferEdit(o.id, idx)}
+                    disabled={!o.id}
+                    className="action-btn"
+                    style={{ color: 'var(--color-primary)', opacity: o.id ? 1 : 0.4 }}
+                    title={t('common.edit')}
+                >
+                    <Edit3 className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => removeSchemaItem(idx, 'offers', oIdx)} className="action-btn text-red" title={t('common.delete')}>
+                    <X className="w-3.5 h-3.5" />
+                </button>
+            </div>
+        );
     };
 
     // Filter management
@@ -2199,85 +2354,32 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 {stream.schema_type === 'landing_offer' && (
                                                     <div className="space-y-3 rounded-2xl p-3" style={{ border: '1px solid var(--color-border)', backgroundColor: 'rgba(59, 130, 246, 0.05)' }}>
                                                         <div>
-                                                            <div className="flex justify-between mb-2">
+                                                            <div className="flex justify-between items-center mb-2">
                                                                 <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.landings')}</span>
-                                                                <div className="flex gap-3">
-                                                                    <button onClick={() => addSchemaItem(idx, 'landings')} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.add')}</button>
-                                                                    <button onClick={() => setQuickCreate({ kind: 'landings', streamIdx: idx })} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.quickCreateLanding')}</button>
-                                                                </div>
+                                                                <AddDropdownButton
+                                                                    label={t('editor.addLandings')}
+                                                                    createLabel={t('editor.createLandingDropdown')}
+                                                                    onMain={() => openEntityPicker(idx, 'landings')}
+                                                                    onCreate={() => setQuickCreate({ kind: 'landings', streamIdx: idx })}
+                                                                />
                                                             </div>
-                                                            {(stream.schema_custom?.landings || []).map((l, lIdx, list) => (
-                                                                <div key={lIdx} className="flex gap-2 mb-2">
-                                                                    <select
-                                                                        value={l.id}
-                                                                        onChange={e => updateSchemaItem(idx, 'landings', lIdx, 'id', parseInt(e.target.value))}
-                                                                        className="form-select text-sm"
-                                                                    >
-                                                                        <option value="">{t('editor.landingInfo')}</option>
-                                                                        {allLandings.map(al => <option key={al.id} value={al.id}>{al.name}</option>)}
-                                                                    </select>
-                                                                    <div className="flex items-center gap-1">
-                                                                        <input
-                                                                            type="number"
-                                                                            value={list.length === 1 ? 100 : l.weight}
-                                                                            disabled={list.length === 1}
-                                                                            onChange={e => updateSchemaItem(idx, 'landings', lIdx, 'weight', parseInt(e.target.value))}
-                                                                            className="w-16 text-center rounded-lg px-1 py-1 text-sm"
-                                                                            style={{ backgroundColor: list.length === 1 ? 'var(--color-bg-soft)' : 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: list.length === 1 ? 'var(--color-text-muted)' : 'var(--color-text-primary)' }}
-                                                                            title={t('editor.weight')}
-                                                                        />
-                                                                        <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
-                                                                    </div>
-                                                                    <button
-                                                                        onClick={() => l.id && openLandingEdit(l.id, idx)}
-                                                                        disabled={!l.id}
-                                                                        className="action-btn"
-                                                                        style={{ color: 'var(--color-primary)', opacity: l.id ? 1 : 0.4 }}
-                                                                        title={t('editor.editLanding')}
-                                                                    >
-                                                                        <Edit3 className="w-4 h-4" />
-                                                                    </button>
-                                                                    <button onClick={() => removeSchemaItem(idx, 'landings', lIdx)} className="action-btn text-red">
-                                                                        <X className="w-4 h-4" />
-                                                                    </button>
-                                                                </div>
-                                                            ))}
+                                                            <div className="space-y-1.5">
+                                                                {(stream.schema_custom?.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list))}
+                                                            </div>
                                                         </div>
                                                         <div className="pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
-                                                            <div className="flex justify-between mb-2">
+                                                            <div className="flex justify-between items-center mb-2">
                                                                 <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offers')}</span>
-                                                                <div className="flex gap-3">
-                                                                    <button onClick={() => addSchemaItem(idx, 'offers')} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.add')}</button>
-                                                                    <button onClick={() => setQuickCreate({ kind: 'offers', streamIdx: idx, name: '', type: 'local', url: '', file: null })} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.quickCreateOffer')}</button>
-                                                                </div>
+                                                                <AddDropdownButton
+                                                                    label={t('editor.addOffers')}
+                                                                    createLabel={t('editor.createOfferDropdown')}
+                                                                    onMain={() => openEntityPicker(idx, 'offers')}
+                                                                    onCreate={() => setQuickCreate({ kind: 'offers', streamIdx: idx })}
+                                                                />
                                                             </div>
-                                                            {(stream.schema_custom?.offers || []).map((o, oIdx, list) => (
-                                                                <div key={oIdx} className="flex gap-2 mb-2">
-                                                                    <select
-                                                                        value={o.id}
-                                                                        onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'id', parseInt(e.target.value))}
-                                                                        className="form-select text-sm"
-                                                                    >
-                                                                        <option value="">{t('editor.offerInfo')}</option>
-                                                                        {allOffers.map(ao => <option key={ao.id} value={ao.id}>{ao.name}</option>)}
-                                                                    </select>
-                                                                    <div className="flex items-center gap-1">
-                                                                        <input
-                                                                            type="number"
-                                                                            value={list.length === 1 ? 100 : o.weight}
-                                                                            disabled={list.length === 1}
-                                                                            onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'weight', parseInt(e.target.value))}
-                                                                            className="w-16 text-center rounded-lg px-1 py-1 text-sm"
-                                                                            style={{ backgroundColor: list.length === 1 ? 'var(--color-bg-soft)' : 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: list.length === 1 ? 'var(--color-text-muted)' : 'var(--color-text-primary)' }}
-                                                                            title={t('editor.weight')}
-                                                                        />
-                                                                        <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
-                                                                    </div>
-                                                                    <button onClick={() => removeSchemaItem(idx, 'offers', oIdx)} className="action-btn text-red">
-                                                                        <X className="w-4 h-4" />
-                                                                    </button>
-                                                                </div>
-                                                            ))}
+                                                            <div className="space-y-1.5">
+                                                                {(stream.schema_custom?.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list))}
+                                                            </div>
 
                                                             <div className="mt-3 pt-3" style={{ borderTop: '1px dashed var(--color-border)' }}>
                                                                 <div className="text-xs font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offerSelection')}</div>
@@ -2464,70 +2566,32 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 <div>
                                                                     <div className="flex justify-between items-center mb-1.5">
                                                                         <span className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('editor.landings')}</span>
-                                                                        <button type="button" onClick={() => addSchemaItem(idx, 'landings')} className="text-xs text-blue-500 hover:underline">
-                                                                            + {t('editor.add')}
-                                                                        </button>
+                                                                        <AddDropdownButton
+                                                                            label={t('editor.addLandings')}
+                                                                            createLabel={t('editor.createLandingDropdown')}
+                                                                            onMain={() => openEntityPicker(idx, 'landings')}
+                                                                            onCreate={() => setQuickCreate({ kind: 'landings', streamIdx: idx })}
+                                                                        />
                                                                     </div>
-                                                                    {(sc.landings || []).map((l, lIdx, list) => (
-                                                                        <div key={lIdx} className="flex gap-2 items-center mb-1.5">
-                                                                            <select
-                                                                                value={l.id}
-                                                                                onChange={e => updateSchemaItem(idx, 'landings', lIdx, 'id', parseInt(e.target.value))}
-                                                                                className="form-select text-xs flex-1 rounded-xl"
-                                                                            >
-                                                                                <option value="">{t('editor.landingInfo')}</option>
-                                                                                {allLandings.map(al => <option key={al.id} value={al.id}>{al.name}</option>)}
-                                                                            </select>
-                                                                            <input
-                                                                                type="number"
-                                                                                value={list.length === 1 ? 100 : l.weight}
-                                                                                disabled={list.length === 1}
-                                                                                onChange={e => updateSchemaItem(idx, 'landings', lIdx, 'weight', parseInt(e.target.value))}
-                                                                                className="w-14 text-center rounded-xl px-1 py-1 text-xs"
-                                                                                style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}
-                                                                                title={t('editor.weight')}
-                                                                            />
-                                                                            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
-                                                                            <button type="button" onClick={() => removeSchemaItem(idx, 'landings', lIdx)} className="btn-icon text-red">
-                                                                                <X className="w-3.5 h-3.5" />
-                                                                            </button>
-                                                                        </div>
-                                                                    ))}
+                                                                    <div className="space-y-1.5">
+                                                                        {(sc.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list))}
+                                                                    </div>
                                                                 </div>
 
                                                                 {/* Money Offers */}
                                                                 <div className="pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
                                                                     <div className="flex justify-between items-center mb-1.5">
                                                                         <span className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('editor.offers')}</span>
-                                                                        <button type="button" onClick={() => addSchemaItem(idx, 'offers')} className="text-xs text-blue-500 hover:underline">
-                                                                            + {t('editor.add')}
-                                                                        </button>
+                                                                        <AddDropdownButton
+                                                                            label={t('editor.addOffers')}
+                                                                            createLabel={t('editor.createOfferDropdown')}
+                                                                            onMain={() => openEntityPicker(idx, 'offers')}
+                                                                            onCreate={() => setQuickCreate({ kind: 'offers', streamIdx: idx })}
+                                                                        />
                                                                     </div>
-                                                                    {(sc.offers || []).map((o, oIdx, list) => (
-                                                                        <div key={oIdx} className="flex gap-2 items-center mb-1.5">
-                                                                            <select
-                                                                                value={o.id}
-                                                                                onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'id', parseInt(e.target.value))}
-                                                                                className="form-select text-xs flex-1 rounded-xl"
-                                                                            >
-                                                                                <option value="">{t('editor.offerInfo')}</option>
-                                                                                {allOffers.map(ao => <option key={ao.id} value={ao.id}>{ao.name}</option>)}
-                                                                            </select>
-                                                                            <input
-                                                                                type="number"
-                                                                                value={list.length === 1 ? 100 : o.weight}
-                                                                                disabled={list.length === 1}
-                                                                                onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'weight', parseInt(e.target.value))}
-                                                                                className="w-14 text-center rounded-xl px-1 py-1 text-xs"
-                                                                                style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}
-                                                                                title={t('editor.weight')}
-                                                                            />
-                                                                            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
-                                                                            <button type="button" onClick={() => removeSchemaItem(idx, 'offers', oIdx)} className="btn-icon text-red">
-                                                                                <X className="w-3.5 h-3.5" />
-                                                                            </button>
-                                                                        </div>
-                                                                    ))}
+                                                                    <div className="space-y-1.5">
+                                                                        {(sc.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list))}
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -2612,14 +2676,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 <div className="space-y-3">
                                                                     <div className="flex justify-between items-center">
                                                                         <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offers')}</span>
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => addSchemaItem(idx, 'offers')}
-                                                                            className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl flex items-center gap-1"
-                                                                        >
-                                                                            <Plus className="w-3 h-3" />
-                                                                            {t('editor.add')}
-                                                                        </button>
+                                                                        <AddDropdownButton
+                                                                            label={t('editor.addOffers')}
+                                                                            createLabel={t('editor.createOfferDropdown')}
+                                                                            onMain={() => openEntityPicker(idx, 'offers')}
+                                                                            onCreate={() => setQuickCreate({ kind: 'offers', streamIdx: idx })}
+                                                                        />
                                                                     </div>
 
                                                                     {(() => {
@@ -2639,39 +2701,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                                         {t('editor.weightWarning')} {totalWeight}{t('editor.weightWarningEnd')}
                                                                                     </div>
                                                                                 )}
-                                                                                {offers.map((o, oIdx, list) => (
-                                                                                    <div key={oIdx} className="flex gap-2 items-center">
-                                                                                        <select
-                                                                                            value={o.id}
-                                                                                            onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'id', parseInt(e.target.value))}
-                                                                                            className="form-select text-xs flex-1 rounded-xl"
-                                                                                        >
-                                                                                            <option value="">{t('editor.offerInfo')}</option>
-                                                                                            {allOffers.map(ao => <option key={ao.id} value={ao.id}>{ao.name}</option>)}
-                                                                                        </select>
-                                                                                        <div className="flex items-center gap-1">
-                                                                                            <input
-                                                                                                type="number"
-                                                                                                value={list.length === 1 ? 100 : o.weight}
-                                                                                                disabled={list.length === 1}
-                                                                                                onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'weight', parseInt(e.target.value))}
-                                                                                                className="w-16 text-center rounded-xl px-1 py-1.5 text-xs font-semibold"
-                                                                                                style={{
-                                                                                                    backgroundColor: list.length === 1 ? 'var(--color-bg-soft)' : 'var(--color-bg-card)',
-                                                                                                    border: `1px solid ${isOverWeight ? 'var(--color-warning)' : 'var(--color-border)'}`,
-                                                                                                    color: list.length === 1 ? 'var(--color-text-muted)' : 'var(--color-text-primary)'
-                                                                                                }}
-                                                                                                title={t('editor.weight')}
-                                                                                                max="100"
-                                                                                                min="1"
-                                                                                            />
-                                                                                            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
-                                                                                        </div>
-                                                                                        <button type="button" onClick={() => removeSchemaItem(idx, 'offers', oIdx)} className="btn-icon text-red">
-                                                                                            <Trash2 className="w-4 h-4" />
-                                                                                        </button>
-                                                                                    </div>
-                                                                                ))}
+                                                                                {offers.map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list))}
                                                                             </>
                                                                         );
                                                                     })()}
@@ -3225,45 +3255,32 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 />
             )}
 
+            {/* Offers render the shared OfferEditor now. It used to be a
+                stripped-down name+URL form; the split button's "Create Offer"
+                and the row edit button both land here, and a newly created
+                offer wires itself into the stream via onCreated. */}
             {quickCreate && quickCreate.kind === 'offers' && (
-                <div className="modal-overlay" onClick={() => !quickSaving && setQuickCreate(null)}>
-                    <div className="modal-content" style={{ maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3 className="modal-title">{t('editor.quickCreateOffer')}</h3>
-                        </div>
+                <OfferEditor
+                    offerId={quickCreate.editingId || null}
+                    onCreated={attachOfferToStream}
+                    onClose={() => setQuickCreate(null)}
+                />
+            )}
 
-                        <div className="space-y-3">
-                            <div>
-                                <label className="form-label">{t('editor.quickCreateName')}</label>
-                                <input
-                                    autoFocus
-                                    value={quickCreate.name}
-                                    onChange={e => setQuickCreate({ ...quickCreate, name: e.target.value })}
-                                    className="form-input"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="form-label">URL</label>
-                                <input
-                                    value={quickCreate.url}
-                                    onChange={e => setQuickCreate({ ...quickCreate, url: e.target.value })}
-                                    className="form-input"
-                                    placeholder="https://example.com/?click={clickid}"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex gap-2 mt-4">
-                            <button onClick={() => setQuickCreate(null)} disabled={quickSaving} className="btn btn-secondary" style={{ flex: 1 }}>
-                                {t('common.cancel')}
-                            </button>
-                            <button onClick={submitQuickCreate} disabled={quickSaving || !quickCreate.name.trim()} className="btn btn-primary" style={{ flex: 1 }}>
-                                {quickSaving ? t('common.saving') : t('common.create')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            {/* Keitaro-style entity picker opened by a stream's "Add ..." button */}
+            {pickerState.open && (
+                <EntitySelectorModal
+                    type={pickerState.type}
+                    items={pickerState.type === 'landings' ? allLandings : allOffers}
+                    existingIds={(formData.streams[pickerState.streamIdx]?.schema_custom?.[pickerState.type] || [])
+                        .map(x => parseInt(x.id, 10))
+                        .filter(Boolean)}
+                    onClose={() => setPickerState({ open: false, streamIdx: null, type: null })}
+                    onAdd={(ids) => {
+                        addEntitiesToStream(pickerState.streamIdx, pickerState.type, ids);
+                        setPickerState({ open: false, streamIdx: null, type: null });
+                    }}
+                />
             )}
 
             {/* Groups quick-create from the "+" next to the group select */}

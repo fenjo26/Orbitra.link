@@ -2524,8 +2524,9 @@ try {
         // Simple landings list for dropdowns (no heavy joins with clicks table)
         case 'landings_simple':
             $stmt = $pdo->query("
-                SELECT l.id, l.name, l.state, l.type
+                SELECT l.id, l.name, l.state, l.type, l.group_id, lg.name AS group_name
                 FROM landings l
+                LEFT JOIN landing_groups lg ON lg.id = l.group_id
                 WHERE l.is_archived = 0
                 ORDER BY l.name ASC
             ");
@@ -3476,7 +3477,19 @@ try {
             break;
 
         case 'all_offers':
-            $stmt = $pdo->query("SELECT id, name, url, state FROM offers WHERE state = 'active' ORDER BY name ASC");
+            // The campaign stream picker filters and displays by group, network
+            // and GEO, so the dropdown payload carries the names it needs.
+            $stmt = $pdo->query("
+                SELECT o.id, o.name, o.url, o.state, o.is_local, o.redirect_type,
+                       o.group_id, og.name AS group_name,
+                       o.affiliate_network_id, an.name AS affiliate_network_name,
+                       o.geo, o.payout_type, o.payout_value
+                FROM offers o
+                LEFT JOIN offer_groups og ON og.id = o.group_id
+                LEFT JOIN affiliate_networks an ON an.id = o.affiliate_network_id
+                WHERE o.state = 'active'
+                ORDER BY o.name ASC
+            ");
             echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             break;
 
