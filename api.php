@@ -2005,6 +2005,9 @@ try {
             }
             break;
 
+        // 'groups' is an alias kept for older clients that called it instead of
+        // the namespaced action (Campaigns.jsx used ?action=groups for years).
+        case 'groups':
         case 'campaign_groups':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);

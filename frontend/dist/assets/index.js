@@ -50085,13 +50085,16 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     return [...PRESETS.best];
   });
   const [thDragIdx, setThDragIdx] = reactExports.useState(null);
-  reactExports.useEffect(() => {
-    axios.get(`${API_URL$w}?action=groups`).then((res) => {
+  const fetchGroups = () => {
+    axios.get(`${API_URL$w}?action=campaign_groups`).then((res) => {
       if (res.data.status === "success") {
         setGroups(res.data.data || []);
       }
     }).catch(() => {
     });
+  };
+  reactExports.useEffect(() => {
+    fetchGroups();
   }, []);
   const fetchCampaigns = async () => {
     setRefreshing(true);
@@ -50771,12 +50774,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     showGroupsModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
       GroupsModal,
       {
-        isOpen: showGroupsModal,
+        type: "campaign",
         onClose: () => {
           setShowGroupsModal(false);
-          axios.get(`${API_URL$w}?action=groups`).then((r2) => {
-            if (r2.data.status === "success") setGroups(r2.data.data || []);
-          });
+          fetchGroups();
         }
       }
     ),

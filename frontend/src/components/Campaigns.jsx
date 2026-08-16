@@ -49,14 +49,18 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const [thDragIdx, setThDragIdx] = useState(null);
 
     // Fetch groups on mount
-    useEffect(() => {
-        axios.get(`${API_URL}?action=groups`)
+    const fetchGroups = () => {
+        axios.get(`${API_URL}?action=campaign_groups`)
             .then(res => {
                 if (res.data.status === 'success') {
                     setGroups(res.data.data || []);
                 }
             })
             .catch(() => {});
+    };
+
+    useEffect(() => {
+        fetchGroups();
     }, []);
 
     // Fetch campaigns with date_from, date_to, group_id
@@ -848,10 +852,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             {/* Groups Modal */}
             {showGroupsModal && (
                 <GroupsModal
-                    isOpen={showGroupsModal}
+                    type="campaign"
                     onClose={() => {
                         setShowGroupsModal(false);
-                        axios.get(`${API_URL}?action=groups`).then(r => { if (r.data.status === 'success') setGroups(r.data.data || []); });
+                        fetchGroups();
                     }}
                 />
             )}
