@@ -3271,6 +3271,12 @@ h2 {
   border-radius: 18px !important;
 }
 
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+  box-shadow: 0 12px 25px var(--color-primary-shadow);
+  transform: translateY(-2px);
+}
+
 .btn-primary:active {
   transform: translateY(1px);
 }
@@ -3737,18 +3743,6 @@ code {
   font-weight: 500;
   transition: all .3s;
   display: inline-flex;
-}
-
-.btn-primary {
-  background: var(--color-primary);
-  color: #fff;
-  box-shadow: 0 8px 20px var(--color-primary-shadow);
-}
-
-.btn-primary:hover {
-  background: var(--color-primary-hover);
-  box-shadow: 0 12px 25px var(--color-primary-shadow);
-  transform: translateY(-2px);
 }
 
 .btn-secondary {

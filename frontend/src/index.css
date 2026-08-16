@@ -776,17 +776,9 @@ code {
   border: none;
 }
 
-.btn-primary {
-  background: var(--color-primary);
-  color: white;
-  box-shadow: 0 8px 20px var(--color-primary-shadow);
-}
-
-.btn-primary:hover {
-  background: var(--color-primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 25px var(--color-primary-shadow);
-}
+/* .btn-primary lives once, up in the Default Button Styles section, and its
+   text color is the theme's --color-text-inverse — a hardcoded white here
+   used to override it (unreadable on neon's lime primary). */
 
 .btn-secondary {
   background: var(--color-bg-soft);
