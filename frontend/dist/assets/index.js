@@ -34876,6 +34876,37 @@ const LanguageProvider = ({ children }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(LanguageContext.Provider, { value: { language, setLanguage, t }, children });
 };
 const useLanguage = () => reactExports.useContext(LanguageContext);
+const TAB_PERMISSION_KEYS = {
+  campaigns: "campaigns",
+  landings: "landings",
+  offers: "offers",
+  networks: "networks",
+  sources: "sources"
+};
+const ADMIN_MENU_TABS = /* @__PURE__ */ new Set(["postback", "conversions", "simulation"]);
+const isAdminUser = (user) => user?.role === "admin";
+const isAdminTab = (tab) => typeof tab === "string" && (tab.startsWith("admin_") || ADMIN_MENU_TABS.has(tab));
+const parsePermissions = (user) => {
+  const raw = user?.permissions;
+  if (!raw) return {};
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+  return typeof raw === "object" ? raw : {};
+};
+const canAccessTab = (user, tab) => {
+  if (!user) return false;
+  if (isAdminUser(user)) return true;
+  const permKey = TAB_PERMISSION_KEYS[tab];
+  if (!permKey) return true;
+  return parsePermissions(user)[permKey]?.access !== "none";
+};
+const firstAllowedTab = (user) => ["campaigns", "offers", "landings", "sources", "networks", "dashboard"].find((tab) => canAccessTab(user, tab)) || "dashboard";
 const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
   const { t } = useLanguage();
   const [adminMenuOpen, setAdminMenuOpen] = reactExports.useState(false);
@@ -34961,11 +34992,11 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden md:flex space-x-2 h-full items-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutDashboard, { size: 18 }), label: t("nav.dashboard"), active: activeTab === "dashboard", onClick: () => setActiveTab("dashboard") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { size: 18 }), label: t("nav.campaigns"), active: activeTab === "campaigns", onClick: () => setActiveTab("campaigns") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t("nav.landings"), active: activeTab === "landings", onClick: () => setActiveTab("landings") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { size: 18 }), label: t("nav.offers"), active: activeTab === "offers", onClick: () => setActiveTab("offers") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 18 }), label: t("nav.networks"), active: activeTab === "networks", onClick: () => setActiveTab("networks") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 18 }), label: t("nav.sources"), active: activeTab === "sources", onClick: () => setActiveTab("sources") }),
+          canAccessTab(user, "campaigns") && /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { size: 18 }), label: t("nav.campaigns"), active: activeTab === "campaigns", onClick: () => setActiveTab("campaigns") }),
+          canAccessTab(user, "landings") && /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t("nav.landings"), active: activeTab === "landings", onClick: () => setActiveTab("landings") }),
+          canAccessTab(user, "offers") && /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { size: 18 }), label: t("nav.offers"), active: activeTab === "offers", onClick: () => setActiveTab("offers") }),
+          canAccessTab(user, "networks") && /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 18 }), label: t("nav.networks"), active: activeTab === "networks", onClick: () => setActiveTab("networks") }),
+          canAccessTab(user, "sources") && /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 18 }), label: t("nav.sources"), active: activeTab === "sources", onClick: () => setActiveTab("sources") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { size: 18 }), label: t("nav.analytics"), active: activeTab === "trends", onClick: () => setActiveTab("trends") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t("nav.domains"), active: activeTab === "domains", onClick: () => setActiveTab("domains") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 18 }), label: t("nav.backorder"), active: activeTab === "backorder", onClick: () => setActiveTab("backorder") })
@@ -34973,7 +35004,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2 md:space-x-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden md:flex items-center space-x-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", ref: adminMenuRef, children: [
+          isAdminUser(user) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", ref: adminMenuRef, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "div",
               {
@@ -35091,7 +35122,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px", paddingLeft: "12px" }, children: t("nav.navigation") || "Navigation" }),
-              mobileNavItems.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              mobileNavItems.filter((item) => canAccessTab(user, item.tab)).map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
                   onClick: () => handleMenuClick(item.tab),
@@ -35121,36 +35152,38 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
               ))
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: "1px", background: "var(--color-border)", margin: "12px 0" } }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px", paddingLeft: "12px" }, children: t("navbar.adminTitle") }),
-            adminMenuItems.filter((i) => !i.divider).map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                onClick: () => handleMenuClick(item.tab),
-                style: {
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  width: "100%",
-                  padding: "10px 12px",
-                  borderRadius: "14px",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: "13px",
-                  fontWeight: 400,
-                  textAlign: "left",
-                  background: activeTab === item.tab ? "var(--color-primary-light)" : "transparent",
-                  color: activeTab === item.tab ? "var(--color-primary)" : "var(--color-text-secondary)",
-                  marginBottom: "2px",
-                  transition: "all 0.2s ease"
+            isAdminUser(user) && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px", paddingLeft: "12px" }, children: t("navbar.adminTitle") }),
+              adminMenuItems.filter((i) => !i.divider).map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  onClick: () => handleMenuClick(item.tab),
+                  style: {
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    width: "100%",
+                    padding: "10px 12px",
+                    borderRadius: "14px",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "13px",
+                    fontWeight: 400,
+                    textAlign: "left",
+                    background: activeTab === item.tab ? "var(--color-primary-light)" : "transparent",
+                    color: activeTab === item.tab ? "var(--color-primary)" : "var(--color-text-secondary)",
+                    marginBottom: "2px",
+                    transition: "all 0.2s ease"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: item.icon }),
+                    item.label
+                  ]
                 },
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: item.icon }),
-                  item.label
-                ]
-              },
-              item.tab
-            )),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: "1px", background: "var(--color-border)", margin: "12px 0" } }),
+                item.tab
+              )),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: "1px", background: "var(--color-border)", margin: "12px 0" } })
+            ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
               {
@@ -83138,8 +83171,12 @@ function App() {
   }, [activeTab, user]);
   reactExports.useEffect(() => {
     if (!user) return;
-    if (activeTab.startsWith("admin_") && user?.role !== "admin") {
+    if (isAdminTab(activeTab) && !isAdminUser(user)) {
       setActiveTab("dashboard");
+      return;
+    }
+    if (!canAccessTab(user, activeTab)) {
+      setActiveTab(firstAllowedTab(user));
     }
   }, [activeTab, user]);
   if (needsSetup === null) {

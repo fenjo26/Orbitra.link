@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Globe2, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { canAccessTab, isAdminUser } from '../utils/permissions';
 
 const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     const { t } = useLanguage();
@@ -101,11 +102,21 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                     {/* Navigation Links */}
                     <div className="hidden md:flex space-x-2 h-full items-center">
                         <NavItem icon={<LayoutDashboard size={18} />} label={t('nav.dashboard')} active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
-                        <NavItem icon={<Tag size={18} />} label={t('nav.campaigns')} active={activeTab === 'campaigns'} onClick={() => setActiveTab('campaigns')} />
-                        <NavItem icon={<Globe size={18} />} label={t('nav.landings')} active={activeTab === 'landings'} onClick={() => setActiveTab('landings')} />
-                        <NavItem icon={<DollarSign size={18} />} label={t('nav.offers')} active={activeTab === 'offers'} onClick={() => setActiveTab('offers')} />
-                        <NavItem icon={<Users size={18} />} label={t('nav.networks')} active={activeTab === 'networks'} onClick={() => setActiveTab('networks')} />
-                        <NavItem icon={<Link size={18} />} label={t('nav.sources')} active={activeTab === 'sources'} onClick={() => setActiveTab('sources')} />
+                        {canAccessTab(user, 'campaigns') && (
+                            <NavItem icon={<Tag size={18} />} label={t('nav.campaigns')} active={activeTab === 'campaigns'} onClick={() => setActiveTab('campaigns')} />
+                        )}
+                        {canAccessTab(user, 'landings') && (
+                            <NavItem icon={<Globe size={18} />} label={t('nav.landings')} active={activeTab === 'landings'} onClick={() => setActiveTab('landings')} />
+                        )}
+                        {canAccessTab(user, 'offers') && (
+                            <NavItem icon={<DollarSign size={18} />} label={t('nav.offers')} active={activeTab === 'offers'} onClick={() => setActiveTab('offers')} />
+                        )}
+                        {canAccessTab(user, 'networks') && (
+                            <NavItem icon={<Users size={18} />} label={t('nav.networks')} active={activeTab === 'networks'} onClick={() => setActiveTab('networks')} />
+                        )}
+                        {canAccessTab(user, 'sources') && (
+                            <NavItem icon={<Link size={18} />} label={t('nav.sources')} active={activeTab === 'sources'} onClick={() => setActiveTab('sources')} />
+                        )}
                         <NavItem icon={<TrendingUp size={18} />} label={t('nav.analytics')} active={activeTab === 'trends'} onClick={() => setActiveTab('trends')} />
                         <NavItem icon={<Globe size={18} />} label={t('nav.domains')} active={activeTab === 'domains'} onClick={() => setActiveTab('domains')} />
                         <NavItem icon={<Search size={18} />} label={t('nav.backorder')} active={activeTab === 'backorder'} onClick={() => setActiveTab('backorder')} />
@@ -115,8 +126,9 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                 <div className="flex items-center space-x-2 md:space-x-4">
                     {/* Desktop icons */}
                     <div className="hidden md:flex items-center space-x-4">
-                        {/* Admin Menu */}
-                        <div className="relative" ref={adminMenuRef}>
+                        {/* Admin Menu (admins only) */}
+                        {isAdminUser(user) && (
+                            <div className="relative" ref={adminMenuRef}>
                             <div
                                 onClick={() => setAdminMenuOpen(!adminMenuOpen)}
                                 className={`flex items-center justify-center w-10 h-10 rounded-2xl cursor-pointer transition-all
@@ -151,7 +163,8 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                                     ))}
                                 </div>
                             )}
-                        </div>
+                            </div>
+                        )}
 
                         {/* Theme Toggle */}
                         <div>
@@ -243,7 +256,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                         {/* Nav items */}
                         <div style={{ marginBottom: '16px' }}>
                             <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', paddingLeft: '12px' }}>{t('nav.navigation') || 'Navigation'}</p>
-                            {mobileNavItems.map(item => (
+                            {mobileNavItems.filter(item => canAccessTab(user, item.tab)).map(item => (
                                 <button
                                     key={item.tab}
                                     onClick={() => handleMenuClick(item.tab)}
@@ -264,27 +277,31 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
 
                         <div style={{ height: '1px', background: 'var(--color-border)', margin: '12px 0' }} />
 
-                        {/* Admin items */}
-                        <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', paddingLeft: '12px' }}>{t('navbar.adminTitle')}</p>
-                        {adminMenuItems.filter(i => !i.divider).map(item => (
-                            <button
-                                key={item.tab}
-                                onClick={() => handleMenuClick(item.tab)}
-                                style={{
-                                    display: 'flex', alignItems: 'center', gap: '12px', width: '100%',
-                                    padding: '10px 12px', borderRadius: '14px', border: 'none',
-                                    cursor: 'pointer', fontSize: '13px', fontWeight: 400, textAlign: 'left',
-                                    background: activeTab === item.tab ? 'var(--color-primary-light)' : 'transparent',
-                                    color: activeTab === item.tab ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                                    marginBottom: '2px', transition: 'all 0.2s ease'
-                                }}
-                            >
-                                <span style={{ color: 'var(--color-text-muted)' }}>{item.icon}</span>
-                                {item.label}
-                            </button>
-                        ))}
+                        {isAdminUser(user) && (
+                            <>
+                                {/* Admin items */}
+                                <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', paddingLeft: '12px' }}>{t('navbar.adminTitle')}</p>
+                                {adminMenuItems.filter(i => !i.divider).map(item => (
+                                    <button
+                                        key={item.tab}
+                                        onClick={() => handleMenuClick(item.tab)}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '12px', width: '100%',
+                                            padding: '10px 12px', borderRadius: '14px', border: 'none',
+                                            cursor: 'pointer', fontSize: '13px', fontWeight: 400, textAlign: 'left',
+                                            background: activeTab === item.tab ? 'var(--color-primary-light)' : 'transparent',
+                                            color: activeTab === item.tab ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                                            marginBottom: '2px', transition: 'all 0.2s ease'
+                                        }}
+                                    >
+                                        <span style={{ color: 'var(--color-text-muted)' }}>{item.icon}</span>
+                                        {item.label}
+                                    </button>
+                                ))}
 
-                        <div style={{ height: '1px', background: 'var(--color-border)', margin: '12px 0' }} />
+                                <div style={{ height: '1px', background: 'var(--color-border)', margin: '12px 0' }} />
+                            </>
+                        )}
 
                         {/* Theme + Logout */}
                         <button
