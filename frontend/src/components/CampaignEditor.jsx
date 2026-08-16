@@ -956,7 +956,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     const renderLandingRow = (idx, l, lIdx, list) => {
         const info = allLandings.find(al => al.id === parseInt(l.id, 10));
-        const name = info ? info.name : (l.id ? `#${l.id}` : t('editor.landingInfo'));
+        // A row without an id is legacy junk from the old add-a-blank-select flow.
+        // It reads as a clickable placeholder: clicking drops the empty row and
+        // opens the picker, so the slot is only ever filled with a real landing.
+        const empty = !info && !l.id;
+        const name = info ? info.name : (l.id ? `#${l.id}` : t('editor.selectLandingPlaceholder'));
         const typeLabels = {
             local: t('landingEditor.typeLocal'),
             redirect: t('landingEditor.typeRedirect'),
@@ -964,9 +968,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             action: t('landingEditor.typeAction'),
         };
         return (
-            <div key={lIdx} className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+            <div
+                key={lIdx}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl"
+                style={{
+                    backgroundColor: 'var(--color-bg-card)',
+                    border: empty ? '1px dashed var(--color-border)' : '1px solid var(--color-border)',
+                    cursor: empty ? 'pointer' : 'default'
+                }}
+                onClick={empty ? () => { removeSchemaItem(idx, 'landings', lIdx); openEntityPicker(idx, 'landings'); } : undefined}
+            >
                 <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }} title={name}>{name}</div>
+                    <div className="text-sm font-medium truncate" style={{ color: empty ? 'var(--color-warning)' : 'var(--color-text-primary)' }} title={name}>{name}</div>
                     {info && (
                         <div className="flex flex-wrap gap-1 mt-1">
                             {schemaBadge(typeLabels[info.type] || info.type)}
@@ -993,11 +1006,23 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     const renderOfferRow = (idx, o, oIdx, list) => {
         const info = allOffers.find(ao => ao.id === parseInt(o.id, 10));
-        const name = info ? info.name : (o.id ? `#${o.id}` : t('editor.offerInfo'));
+        // Same legacy-no-id handling as landing rows: clickable placeholder that
+        // swaps itself for a real pick.
+        const empty = !info && !o.id;
+        const name = info ? info.name : (o.id ? `#${o.id}` : t('editor.selectOfferPlaceholder'));
         return (
-            <div key={oIdx} className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+            <div
+                key={oIdx}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl"
+                style={{
+                    backgroundColor: 'var(--color-bg-card)',
+                    border: empty ? '1px dashed var(--color-border)' : '1px solid var(--color-border)',
+                    cursor: empty ? 'pointer' : 'default'
+                }}
+                onClick={empty ? () => { removeSchemaItem(idx, 'offers', oIdx); openEntityPicker(idx, 'offers'); } : undefined}
+            >
                 <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }} title={name}>{name}</div>
+                    <div className="text-sm font-medium truncate" style={{ color: empty ? 'var(--color-warning)' : 'var(--color-text-primary)' }} title={name}>{name}</div>
                     {info && (
                         <div className="flex flex-wrap gap-1 mt-1">
                             {schemaBadge(info.is_local ? t('offers.local') : t('offers.redirect'))}
@@ -2363,9 +2388,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     onCreate={() => setQuickCreate({ kind: 'landings', streamIdx: idx })}
                                                                 />
                                                             </div>
-                                                            <div className="space-y-1.5">
-                                                                {(stream.schema_custom?.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list))}
-                                                            </div>
+                                                            {(stream.schema_custom?.landings || []).length === 0 ? (
+                                                                <div className="text-xs py-3 px-4 rounded-xl border border-dashed text-center" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
+                                                                    {t('editor.noLandingsAdded')}
+                                                                </div>
+                                                            ) : (
+                                                                <div className="space-y-1.5">
+                                                                    {(stream.schema_custom?.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list))}
+                                                                </div>
+                                                            )}
                                                         </div>
                                                         <div className="pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
                                                             <div className="flex justify-between items-center mb-2">
@@ -2377,9 +2408,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     onCreate={() => setQuickCreate({ kind: 'offers', streamIdx: idx })}
                                                                 />
                                                             </div>
-                                                            <div className="space-y-1.5">
-                                                                {(stream.schema_custom?.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list))}
-                                                            </div>
+                                                            {(stream.schema_custom?.offers || []).length === 0 ? (
+                                                                <div className="text-xs py-3 px-4 rounded-xl border border-dashed text-center" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
+                                                                    {t('editor.noOffersAdded')}
+                                                                </div>
+                                                            ) : (
+                                                                <div className="space-y-1.5">
+                                                                    {(stream.schema_custom?.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list))}
+                                                                </div>
+                                                            )}
 
                                                             <div className="mt-3 pt-3" style={{ borderTop: '1px dashed var(--color-border)' }}>
                                                                 <div className="text-xs font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offerSelection')}</div>
@@ -2573,9 +2610,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                             onCreate={() => setQuickCreate({ kind: 'landings', streamIdx: idx })}
                                                                         />
                                                                     </div>
-                                                                    <div className="space-y-1.5">
-                                                                        {(sc.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list))}
-                                                                    </div>
+                                                                    {(sc.landings || []).length === 0 ? (
+                                                                        <div className="text-xs py-3 px-4 rounded-xl border border-dashed text-center" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
+                                                                            {t('editor.noLandingsAdded')}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="space-y-1.5">
+                                                                            {(sc.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list))}
+                                                                        </div>
+                                                                    )}
                                                                 </div>
 
                                                                 {/* Money Offers */}
@@ -2589,9 +2632,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                             onCreate={() => setQuickCreate({ kind: 'offers', streamIdx: idx })}
                                                                         />
                                                                     </div>
-                                                                    <div className="space-y-1.5">
-                                                                        {(sc.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list))}
-                                                                    </div>
+                                                                    {(sc.offers || []).length === 0 ? (
+                                                                        <div className="text-xs py-3 px-4 rounded-xl border border-dashed text-center" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
+                                                                            {t('editor.noOffersAdded')}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="space-y-1.5">
+                                                                            {(sc.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list))}
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </div>

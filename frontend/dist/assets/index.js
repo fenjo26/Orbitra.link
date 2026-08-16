@@ -16519,6 +16519,10 @@ const ru = {
     "createOfferDropdown": "Создать оффер",
     "createLandingDropdown": "Создать лендинг",
     "selectAll": "Выбрать все",
+    "noLandingsAdded": "Лендинги не добавлены. Трафик пойдёт сразу на офферы.",
+    "noOffersAdded": "Офферы не добавлены. Добавьте их через «Добавить офферы».",
+    "selectLandingPlaceholder": "Нажмите, чтобы выбрать лендинг…",
+    "selectOfferPlaceholder": "Нажмите, чтобы выбрать оффер…",
     "weight": "Вес (доля трафика)",
     "filters": "Фильтры",
     "addFilter": "+ Добавить фильтр",
@@ -19045,6 +19049,10 @@ const en = {
     "createOfferDropdown": "Create Offer",
     "createLandingDropdown": "Create landing page",
     "selectAll": "Select all",
+    "noLandingsAdded": "No landings attached. Traffic will go directly to offers.",
+    "noOffersAdded": "No offers attached. Add one via «Add offers».",
+    "selectLandingPlaceholder": "Click to choose a landing…",
+    "selectOfferPlaceholder": "Click to choose an offer…",
     "weight": "Weight (traffic share)",
     "filters": "Filters",
     "addFilter": "+ Add filter",
@@ -21571,6 +21579,10 @@ const uk = {
     "createOfferDropdown": "Створити офер",
     "createLandingDropdown": "Створити посадку",
     "selectAll": "Вибрати все",
+    "noLandingsAdded": "Посадки не додано. Трафік піде одразу на офери.",
+    "noOffersAdded": "Офери не додано. Додайте їх через «Додати оферів».",
+    "selectLandingPlaceholder": "Натисніть, щоб вибрати посадку…",
+    "selectOfferPlaceholder": "Натисніть, щоб вибрати офер…",
     "weight": "Вага (частка трафіку)",
     "filters": "Фільтри",
     "addFilter": "+ Додати фільтр",
@@ -24097,6 +24109,10 @@ const es = {
     "createOfferDropdown": "Crear oferta",
     "createLandingDropdown": "Crear aterrizaje",
     "selectAll": "Seleccionar todo",
+    "noLandingsAdded": "No hay aterrizajes asignados. El tráfico irá directamente a las ofertas.",
+    "noOffersAdded": "No hay ofertas asignadas. Añada una mediante «Agregar ofertas».",
+    "selectLandingPlaceholder": "Haga clic para elegir un aterrizaje…",
+    "selectOfferPlaceholder": "Haga clic para elegir una oferta…",
     "weight": "Peso (participación de tráfico)",
     "filters": "Filtros",
     "addFilter": "+ Añadir filtro",
@@ -26623,6 +26639,10 @@ const zh = {
     "createOfferDropdown": "创建优惠",
     "createLandingDropdown": "创建登陆页",
     "selectAll": "全选",
+    "noLandingsAdded": "未添加登陆页。流量将直接进入优惠。",
+    "noOffersAdded": "未添加优惠。请通过“添加优惠”选择。",
+    "selectLandingPlaceholder": "点击选择登陆页…",
+    "selectOfferPlaceholder": "点击选择优惠…",
     "weight": "权重（流量份额）",
     "filters": "过滤器",
     "addFilter": "+ 添加过滤器",
@@ -29149,6 +29169,10 @@ const fr = {
     "createOfferDropdown": "Créer une offre",
     "createLandingDropdown": "Créer une destination",
     "selectAll": "Tout sélectionner",
+    "noLandingsAdded": "Aucune destination associée. Le trafic ira directement aux offres.",
+    "noOffersAdded": "Aucune offre associée. Ajoutez-en une via « Ajouter des offres ».",
+    "selectLandingPlaceholder": "Cliquez pour choisir une destination…",
+    "selectOfferPlaceholder": "Cliquez pour choisir une offre…",
     "weight": "Poids (trafic partager)",
     "filters": "Filtres",
     "addFilter": "+ Ajouter un filtre",
@@ -31677,6 +31701,10 @@ const de = {
     "createOfferDropdown": "Angebot erstellen",
     "createLandingDropdown": "Landingpage erstellen",
     "selectAll": "Alle auswählen",
+    "noLandingsAdded": "Keine Landings hinterlegt. Der Traffic geht direkt zu den Angeboten.",
+    "noOffersAdded": "Keine Angebote hinterlegt. Fügen Sie eines über „Angebote hinzufügen“ hinzu.",
+    "selectLandingPlaceholder": "Klicken, um ein Landing auszuwählen…",
+    "selectOfferPlaceholder": "Klicken, um ein Angebot auszuwählen…",
     "weight": "Gewichtung (Verkehrsanteil)",
     "filters": "Filter",
     "addFilter": "+ Filter hinzufügen",
@@ -67112,64 +67140,98 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   ] });
   const renderLandingRow = (idx, l, lIdx, list) => {
     const info = allLandings.find((al) => al.id === parseInt(l.id, 10));
-    const name = info ? info.name : l.id ? `#${l.id}` : t("editor.landingInfo");
+    const empty = !info && !l.id;
+    const name = info ? info.name : l.id ? `#${l.id}` : t("editor.selectLandingPlaceholder");
     const typeLabels = {
       local: t("landingEditor.typeLocal"),
       redirect: t("landingEditor.typeRedirect"),
       preload: t("landingEditor.typePreload"),
       action: t("landingEditor.typeAction")
     };
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 px-3 py-2 rounded-xl", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium truncate", style: { color: "var(--color-text-primary)" }, title: name, children: name }),
-        info && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1 mt-1", children: [
-          schemaBadge(typeLabels[info.type] || info.type),
-          info.group_name && schemaBadge(info.group_name)
-        ] })
-      ] }),
-      schemaWeightInput(idx, "landings", l, lIdx, list),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          onClick: () => l.id && openLandingEdit(l.id, idx),
-          disabled: !l.id,
-          className: "action-btn",
-          style: { color: "var(--color-primary)", opacity: l.id ? 1 : 0.4 },
-          title: t("editor.editLanding"),
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" })
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchemaItem(idx, "landings", lIdx), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }) })
-    ] }, lIdx);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "flex items-center gap-2 px-3 py-2 rounded-xl",
+        style: {
+          backgroundColor: "var(--color-bg-card)",
+          border: empty ? "1px dashed var(--color-border)" : "1px solid var(--color-border)",
+          cursor: empty ? "pointer" : "default"
+        },
+        onClick: empty ? () => {
+          removeSchemaItem(idx, "landings", lIdx);
+          openEntityPicker(idx, "landings");
+        } : void 0,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium truncate", style: { color: empty ? "var(--color-warning)" : "var(--color-text-primary)" }, title: name, children: name }),
+            info && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1 mt-1", children: [
+              schemaBadge(typeLabels[info.type] || info.type),
+              info.group_name && schemaBadge(info.group_name)
+            ] })
+          ] }),
+          schemaWeightInput(idx, "landings", l, lIdx, list),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => l.id && openLandingEdit(l.id, idx),
+              disabled: !l.id,
+              className: "action-btn",
+              style: { color: "var(--color-primary)", opacity: l.id ? 1 : 0.4 },
+              title: t("editor.editLanding"),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchemaItem(idx, "landings", lIdx), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }) })
+        ]
+      },
+      lIdx
+    );
   };
   const renderOfferRow = (idx, o, oIdx, list) => {
     const info = allOffers.find((ao) => ao.id === parseInt(o.id, 10));
-    const name = info ? info.name : o.id ? `#${o.id}` : t("editor.offerInfo");
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 px-3 py-2 rounded-xl", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium truncate", style: { color: "var(--color-text-primary)" }, title: name, children: name }),
-        info && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1 mt-1", children: [
-          schemaBadge(info.is_local ? t("offers.local") : t("offers.redirect")),
-          info.affiliate_network_name && schemaBadge(info.affiliate_network_name),
-          info.geo && schemaBadge(`GEO: ${info.geo}`),
-          parseFloat(info.payout_value) > 0 && schemaBadge(`${info.payout_value}$ · ${String(info.payout_type || "cpa").toUpperCase()}`),
-          info.group_name && schemaBadge(info.group_name)
-        ] })
-      ] }),
-      schemaWeightInput(idx, "offers", o, oIdx, list),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          onClick: () => o.id && openOfferEdit(o.id, idx),
-          disabled: !o.id,
-          className: "action-btn",
-          style: { color: "var(--color-primary)", opacity: o.id ? 1 : 0.4 },
-          title: t("common.edit"),
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" })
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchemaItem(idx, "offers", oIdx), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }) })
-    ] }, oIdx);
+    const empty = !info && !o.id;
+    const name = info ? info.name : o.id ? `#${o.id}` : t("editor.selectOfferPlaceholder");
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "flex items-center gap-2 px-3 py-2 rounded-xl",
+        style: {
+          backgroundColor: "var(--color-bg-card)",
+          border: empty ? "1px dashed var(--color-border)" : "1px solid var(--color-border)",
+          cursor: empty ? "pointer" : "default"
+        },
+        onClick: empty ? () => {
+          removeSchemaItem(idx, "offers", oIdx);
+          openEntityPicker(idx, "offers");
+        } : void 0,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium truncate", style: { color: empty ? "var(--color-warning)" : "var(--color-text-primary)" }, title: name, children: name }),
+            info && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1 mt-1", children: [
+              schemaBadge(info.is_local ? t("offers.local") : t("offers.redirect")),
+              info.affiliate_network_name && schemaBadge(info.affiliate_network_name),
+              info.geo && schemaBadge(`GEO: ${info.geo}`),
+              parseFloat(info.payout_value) > 0 && schemaBadge(`${info.payout_value}$ · ${String(info.payout_type || "cpa").toUpperCase()}`),
+              info.group_name && schemaBadge(info.group_name)
+            ] })
+          ] }),
+          schemaWeightInput(idx, "offers", o, oIdx, list),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => o.id && openOfferEdit(o.id, idx),
+              disabled: !o.id,
+              className: "action-btn",
+              style: { color: "var(--color-primary)", opacity: o.id ? 1 : 0.4 },
+              title: t("common.edit"),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchemaItem(idx, "offers", oIdx), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }) })
+        ]
+      },
+      oIdx
+    );
   };
   const [filterModal, setFilterModal] = reactExports.useState({ open: false, streamIdx: null });
   const [newFilter, setNewFilter] = reactExports.useState({ name: "Country", mode: "include", payload: "" });
@@ -68504,7 +68566,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                       }
                     )
                   ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (stream.schema_custom?.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list)) })
+                  (stream.schema_custom?.landings || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noLandingsAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (stream.schema_custom?.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list)) })
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
@@ -68519,7 +68581,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                       }
                     )
                   ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (stream.schema_custom?.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list)) }),
+                  (stream.schema_custom?.offers || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noOffersAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (stream.schema_custom?.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list)) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 pt-3", style: { borderTop: "1px dashed var(--color-border)" }, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold mb-1", style: { color: "var(--color-text-primary)" }, children: t("editor.offerSelection") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-4", children: ["before", "after"].map((mode) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-1 text-xs cursor-pointer", style: { color: "var(--color-text-secondary)" }, children: [
@@ -68701,7 +68763,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           }
                         )
                       ] }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (sc.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list)) })
+                      (sc.landings || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noLandingsAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (sc.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list)) })
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-1.5", children: [
@@ -68716,7 +68778,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           }
                         )
                       ] }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (sc.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list)) })
+                      (sc.offers || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noOffersAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (sc.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list)) })
                     ] })
                   ] })
                 ] });
