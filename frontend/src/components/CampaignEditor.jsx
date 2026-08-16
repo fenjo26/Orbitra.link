@@ -2837,6 +2837,134 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 </div>
                                                             </div>
 
+                                                            {/* Targeting Filters: hard routing rules — any miss goes to the Safe Page */}
+                                                            <div className="space-y-3 pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                                                <span className="text-xs font-semibold uppercase tracking-wider block" style={{ color: 'var(--color-text-muted)' }}>
+                                                                    🎯 {t('cloaking.targetingTitle', 'Targeting Filters (Mismatch → Safe Page)')}
+                                                                </span>
+
+                                                                {/* Country (GEO) */}
+                                                                <div>
+                                                                    <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                                                                        <label className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>
+                                                                            🌍 {t('cloaking.geoFilter', 'Country Filter')}
+                                                                        </label>
+                                                                        <div className="flex items-center gap-3 text-xs">
+                                                                            {[['allow', t('cloaking.allowIn', 'Allow (in)')], ['deny', t('cloaking.blockIn', 'Block (not in)')]].map(([mode, label]) => (
+                                                                                <label key={mode} className="flex items-center gap-1 cursor-pointer">
+                                                                                    <input
+                                                                                        type="radio"
+                                                                                        name={`cloak_geo_mode_${idx}`}
+                                                                                        checked={(sc.geo_mode || 'allow') === mode}
+                                                                                        onChange={() => setCloakField('geo_mode', mode)}
+                                                                                        className="w-3 h-3"
+                                                                                        style={{ accentColor: 'var(--color-primary)' }}
+                                                                                    />
+                                                                                    <span>{label}</span>
+                                                                                </label>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                    <GeoSelector
+                                                                        value={sc.countries || ''}
+                                                                        onChange={selected => setCloakField('countries', selected)}
+                                                                        placeholder={t('cloaking.geoPlaceholder', 'Select target countries (e.g. US, DE, GB)...')}
+                                                                    />
+                                                                </div>
+
+                                                                {/* Device types — the tracker's device model is Mobile/Desktop */}
+                                                                <div>
+                                                                    <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                                                                        <label className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>
+                                                                            📱 {t('cloaking.deviceFilter', 'Device Types')}
+                                                                        </label>
+                                                                        <div className="flex items-center gap-3 text-xs">
+                                                                            {[['allow', t('cloaking.allowOnly', 'Allow only')], ['deny', t('cloaking.blockSelected', 'Block selected')]].map(([mode, label]) => (
+                                                                                <label key={mode} className="flex items-center gap-1 cursor-pointer">
+                                                                                    <input
+                                                                                        type="radio"
+                                                                                        name={`cloak_device_mode_${idx}`}
+                                                                                        checked={(sc.device_mode || 'allow') === mode}
+                                                                                        onChange={() => setCloakField('device_mode', mode)}
+                                                                                        className="w-3 h-3"
+                                                                                        style={{ accentColor: 'var(--color-primary)' }}
+                                                                                    />
+                                                                                    <span>{label}</span>
+                                                                                </label>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="grid grid-cols-2 gap-2">
+                                                                        {['mobile', 'desktop'].map(dev => {
+                                                                            const currentDevs = typeof sc.devices === 'string' && sc.devices.trim() !== ''
+                                                                                ? sc.devices.split(',').map(d => d.trim().toLowerCase()).filter(Boolean)
+                                                                                : ['mobile', 'desktop'];
+                                                                            const isSelected = currentDevs.includes(dev);
+                                                                            return (
+                                                                                <label
+                                                                                    key={dev}
+                                                                                    className="flex items-center gap-2 p-2 rounded-xl border cursor-pointer select-none transition-all text-xs font-medium"
+                                                                                    style={{
+                                                                                        backgroundColor: isSelected ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
+                                                                                        borderColor: isSelected ? 'var(--color-primary)' : 'var(--color-border)',
+                                                                                        color: isSelected ? 'var(--color-primary)' : 'var(--color-text-primary)'
+                                                                                    }}
+                                                                                >
+                                                                                    <input
+                                                                                        type="checkbox"
+                                                                                        checked={isSelected}
+                                                                                        onChange={e => {
+                                                                                            const next = e.target.checked
+                                                                                                ? [...currentDevs, dev]
+                                                                                                : currentDevs.filter(d => d !== dev);
+                                                                                            setCloakField('devices', next.join(','));
+                                                                                        }}
+                                                                                        className="w-3.5 h-3.5 rounded"
+                                                                                        style={{ accentColor: 'var(--color-primary)' }}
+                                                                                    />
+                                                                                    <span className="capitalize">{dev}</span>
+                                                                                </label>
+                                                                            );
+                                                                        })}
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Bot ISP blocklist */}
+                                                                <div className="space-y-1.5">
+                                                                    <label
+                                                                        className="flex items-center gap-2 p-2 rounded-xl border cursor-pointer select-none text-xs font-medium"
+                                                                        style={{
+                                                                            backgroundColor: sc.block_bot_isps !== false ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
+                                                                            borderColor: sc.block_bot_isps !== false ? 'var(--color-primary)' : 'var(--color-border)',
+                                                                            color: 'var(--color-text-primary)'
+                                                                        }}
+                                                                    >
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={sc.block_bot_isps !== false}
+                                                                            onChange={e => setCloakField('block_bot_isps', e.target.checked)}
+                                                                            className="w-3.5 h-3.5 rounded"
+                                                                            style={{ accentColor: 'var(--color-primary)' }}
+                                                                        />
+                                                                        <span>🛡️ {t('cloaking.blockBotIsps', 'Block Bot & Datacenter ISPs (Facebook, Google, Amazon, Hetzner, etc.)')}</span>
+                                                                    </label>
+                                                                    {sc.block_bot_isps !== false && (
+                                                                        <div>
+                                                                            <textarea
+                                                                                rows={2}
+                                                                                className="form-input text-xs font-mono py-1.5 rounded-xl"
+                                                                                placeholder={t('cloaking.botIspPlaceholder', 'Local override: facebook, hetzner, ... (leave empty for the global list)')}
+                                                                                value={sc.custom_bot_isps || ''}
+                                                                                onChange={e => setCloakField('custom_bot_isps', e.target.value)}
+                                                                            />
+                                                                            <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                                                                                {t('cloaking.botIspHint', "Matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.")}
+                                                                            </p>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+
                                                             {/* Safe Page Section */}
                                                             <div className="p-3.5 rounded-xl space-y-3" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
                                                                 <div className="flex flex-wrap items-center justify-between gap-2">

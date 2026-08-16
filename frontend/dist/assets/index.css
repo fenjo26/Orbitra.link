@@ -2366,6 +2366,10 @@
     color: var(--color-yellow-700);
   }
 
+  .capitalize {
+    text-transform: capitalize;
+  }
+
   .lowercase {
     text-transform: lowercase;
   }

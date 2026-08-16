@@ -1467,6 +1467,12 @@ export default {
         "notes": "Notas"
     },
     "botSettings": {
+        "ispTitle": "Lista negra global de ISP de bots",
+        "ispHint": "Palabras clave separadas por comas que se comparan con el ISP y el ASN del visitante. Los flujos Cloak con el filtro de ISP de bots activado envían a estos visitantes a la página segura.",
+        "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+        "save": "Guardar",
+        "saved": "¡Guardado!",
+        "saveError": "Error al guardar",
         "noItems": "Aún no hay entradas",
         "searchPlaceholder": "Buscar en la lista…",
         "showing": "mostrando",
@@ -2257,6 +2263,17 @@ export default {
         "curlProxyDesc": "Sirve una página remota a través de este servidor con una etiqueta base. Útil cuando necesitas alojar el contenido bajo tu propio dominio."
     },
     "cloaking": {
+        "targetingTitle": "Filtros de segmentación (sin coincidencia → página segura)",
+        "geoFilter": "Filtro de países",
+        "geoPlaceholder": "Selecciona los países objetivo (p. ej., US, DE, GB)...",
+        "allowIn": "Permitir (en la lista)",
+        "blockIn": "Bloquear (fuera de la lista)",
+        "deviceFilter": "Tipos de dispositivo",
+        "allowOnly": "Solo los seleccionados",
+        "blockSelected": "Bloquear los seleccionados",
+        "blockBotIsps": "Bloquear ISP de bots y centros de datos (Facebook, Google, Amazon, Hetzner, etc.)",
+        "botIspPlaceholder": "Lista local: facebook, hetzner, ... (vacío = lista global)",
+        "botIspHint": "Se compara con el ISP y el ASN del visitante. Déjalo vacío para usar la lista global de Configuración → Bots.",
         "jsChallenge": "Comprobación de JavaScript",
         "jsChallengeHint": "El visitante ve primero la página segura; una comprobación del navegador en segundo plano decide si pasa a la money page. Lo que no ejecuta JS se queda en la página segura. Añade un salto extra.",
         "mode": "Cloaking",

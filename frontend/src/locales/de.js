@@ -1467,6 +1467,12 @@ export default {
         "notes": "Notizen"
     },
     "botSettings": {
+        "ispTitle": "Globale Bot-ISP-Blacklist",
+        "ispHint": "Durch Kommas getrennte Schlüsselwörter, die gegen ISP und ASN des Besuchers geprüft werden. Cloak-Streams mit aktiviertem Bot-ISP-Filter leiten diese Besucher auf die sichere Seite.",
+        "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+        "save": "Speichern",
+        "saved": "Gespeichert!",
+        "saveError": "Fehler beim Speichern",
         "noItems": "Noch keine Einträge",
         "searchPlaceholder": "Liste durchsuchen…",
         "showing": "angezeigt",
@@ -2257,6 +2263,17 @@ export default {
         "curlProxyDesc": "Liefert eine Remote-Seite über diesen Server mit einem Base-Tag. Nützlich, wenn Sie Inhalte unter Ihrer eigenen Domain hosten müssen."
     },
     "cloaking": {
+        "targetingTitle": "Targeting-Filter (Abweichung → sichere Seite)",
+        "geoFilter": "Länderfilter",
+        "geoPlaceholder": "Zielländer auswählen (z. B. US, DE, GB)...",
+        "allowIn": "Erlauben (in der Liste)",
+        "blockIn": "Blockieren (nicht in der Liste)",
+        "deviceFilter": "Gerätetypen",
+        "allowOnly": "Nur Auswahl",
+        "blockSelected": "Auswahl blockieren",
+        "blockBotIsps": "Bot- und Rechenzentrums-ISP blockieren (Facebook, Google, Amazon, Hetzner usw.)",
+        "botIspPlaceholder": "Lokale Überschreibung: facebook, hetzner, ... (leer = globale Liste)",
+        "botIspHint": "Wird gegen ISP und ASN des Besuchers geprüft. Leer lassen, um die globale Liste unter Einstellungen → Bots zu verwenden.",
         "jsChallenge": "JavaScript-Prüfung",
         "jsChallengeHint": "Der Besucher sieht zuerst die sichere Seite; eine Browser-Prüfung im Hintergrund entscheidet über die Weiterleitung zur Money-Page. Alles ohne JS bleibt auf der sicheren Seite. Kostet einen zusätzlichen Aufruf.",
         "mode": "Cloaking",

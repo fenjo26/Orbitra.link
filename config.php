@@ -761,6 +761,10 @@ try {
         ['use_cookies', '1'],
         ['allow_php_in_landings', '0'],
         ['ignore_prefetch', '1'],
+        // Global Bot ISP blacklist for cloak streams (Settings → Bots). Matched
+        // as whole words against the visitor's ISP+ASN string, so keep entries
+        // provider-specific — generic words would hit residential ISPs too.
+        ['bot_isp_list', 'facebook,meta,amazon,aws,amazon web services,google,googlebot,google cloud,google fiber,google proxy,digital ocean,digitalocean,hetzner,netstack,beget,kaspersky,microsoft,bingbot,azure,ovh,cloudflare,university of california,terrahost,web hosted group,zscaler,linode,vultr,centurylink,level3,qwarta,host europe,hostinger'],
         ['global_macros', '[]'],
         ['privacy_enabled', '1'],
         ['telegram_bot_token', ''],

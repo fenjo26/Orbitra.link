@@ -7245,7 +7245,7 @@ try {
 
         case 'global_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch')");
+                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'bot_isp_list')");
                 $data = [];
                 while ($row = $stmt->fetch()) {
                     $data[$row['key']] = $row['value'];
@@ -7299,7 +7299,7 @@ try {
                     foreach (['postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token',
                               'allow_php_landings', 'php_landing_timeout', 'admin_path',
                               'stats_enabled', 'stats_retention_days', 'archive_retention_days',
-                              'admin_ip_access', 'ignore_prefetch'] as $key) {
+                              'admin_ip_access', 'ignore_prefetch', 'bot_isp_list'] as $key) {
                         if (!isset($settings[$key])) {
                             continue;
                         }
@@ -7341,6 +7341,11 @@ try {
                         // Booleans normalised to '0'/'1'.
                         if ($key === 'stats_enabled' || $key === 'ignore_prefetch') {
                             $value = ($value === '1' || $value === 1 || $value === true) ? '1' : '0';
+                        }
+                        // The Bot ISP blacklist is free text whose only syntax is
+                        // commas — just trim it.
+                        if ($key === 'bot_isp_list') {
+                            $value = is_string($value) ? trim($value) : '';
                         }
                         // Retention windows: positive integers, clamped to a sane
                         // range (1 day..10 years). Empty/garbage falls back to the

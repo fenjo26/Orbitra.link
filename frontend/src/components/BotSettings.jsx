@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ShieldBan, Plus, Trash2, RotateCcw, Search, Upload, FileText, CheckCircle2 } from 'lucide-react';
+import { ShieldBan, Plus, Trash2, RotateCcw, Search, Upload, FileText, CheckCircle2, Save } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
@@ -19,6 +19,12 @@ const BotSettings = () => {
     const searchTimers = useRef({});
     const fileInputIpRef = useRef(null);
     const fileInputSigRef = useRef(null);
+
+    // Global Bot ISP blacklist (settings.bot_isp_list) — a plain keyword list,
+    // not a paged table, so it loads and saves through global_settings.
+    const [ispList, setIspList] = useState('');
+    const [ispSaving, setIspSaving] = useState(false);
+    const [ispSaved, setIspSaved] = useState(false);
 
     const endpointOf = (type) => (type === 'ip' ? 'bot_ips' : 'bot_signatures');
 
@@ -50,6 +56,43 @@ const BotSettings = () => {
         load('ip');
         load('sig');
     }, [load]);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const res = await fetch(`${API_URL}?action=global_settings`);
+                const data = await res.json();
+                if (!cancelled && data.status === 'success') {
+                    setIspList(data.data?.bot_isp_list ?? '');
+                }
+            } catch (e) {
+                // The textarea just starts empty; saving still works.
+            }
+        })();
+        return () => { cancelled = true; };
+    }, []);
+
+    const saveIspList = async () => {
+        setIspSaving(true);
+        try {
+            const res = await fetch(`${API_URL}?action=global_settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ settings: { bot_isp_list: ispList } })
+            });
+            const data = await res.json().catch(() => null);
+            if (!res.ok || data?.status !== 'success') {
+                throw new Error(data?.message || `HTTP ${res.status}`);
+            }
+            setIspSaved(true);
+            setTimeout(() => setIspSaved(false), 2000);
+        } catch (e) {
+            alert(`${t('botSettings.saveError')}: ${e.message}`);
+        } finally {
+            setIspSaving(false);
+        }
+    };
 
     // Debounced search
     const onSearch = (type, value) => {
@@ -212,6 +255,34 @@ const BotSettings = () => {
 
     return (
         <div className="space-y-6">
+            {/* Global Bot ISP blacklist */}
+            <div className="page-card">
+                <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <ShieldBan size={18} style={{ color: 'var(--color-primary)' }} />
+                        <h3 className="page-title" style={{ margin: 0 }}>{t('botSettings.ispTitle')}</h3>
+                    </div>
+                    <button onClick={saveIspList} className="btn btn-primary btn-sm flex items-center gap-1.5" disabled={ispSaving}>
+                        {ispSaved ? <CheckCircle2 size={14} /> : <Save size={14} />}
+                        {ispSaved ? t('botSettings.saved') : t('botSettings.save')}
+                    </button>
+                </div>
+
+                <div style={{ marginTop: '16px' }}>
+                    <p className="text-xs" style={{ color: 'var(--color-text-muted)', marginBottom: '8px', lineHeight: 1.5 }}>
+                        {t('botSettings.ispHint')}
+                    </p>
+                    <textarea
+                        value={ispList}
+                        onChange={(e) => setIspList(e.target.value)}
+                        placeholder={t('botSettings.ispPlaceholder')}
+                        rows={3}
+                        className="form-input"
+                        style={{ fontFamily: 'monospace', fontSize: '13px' }}
+                    />
+                </div>
+            </div>
+
             {/* IP Section */}
             <div className="page-card">
                 <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0 }}>

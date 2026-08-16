@@ -1467,6 +1467,12 @@ export default {
         "notes": "注释"
     },
     "botSettings": {
+        "ispTitle": "全局 Bot ISP 黑名单",
+        "ispHint": "以逗号分隔的关键词，与访客的 ISP 和 ASN 匹配。启用 Bot ISP 过滤的 Cloak 流会将此类访客导向安全页。",
+        "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+        "save": "保存",
+        "saved": "已保存！",
+        "saveError": "保存出错",
         "noItems": "暂无条目",
         "searchPlaceholder": "搜索列表…",
         "showing": "已显示",
@@ -2257,6 +2263,17 @@ export default {
         "curlProxyDesc": "通过本服务器以 base 标签提供远程页面。当您需要在自己的域名下托管内容时非常有用。"
     },
     "cloaking": {
+        "targetingTitle": "定向过滤（不匹配 → 安全页）",
+        "geoFilter": "国家过滤",
+        "geoPlaceholder": "选择目标国家（如 US、DE、GB）...",
+        "allowIn": "允许（在列表内）",
+        "blockIn": "屏蔽（不在列表内）",
+        "deviceFilter": "设备类型",
+        "allowOnly": "仅允许所选",
+        "blockSelected": "屏蔽所选",
+        "blockBotIsps": "屏蔽 Bot 与数据中心 ISP（Facebook、Google、Amazon、Hetzner 等）",
+        "botIspPlaceholder": "本地覆盖：facebook, hetzner, ...（留空使用全局列表）",
+        "botIspHint": "与访客的 ISP 和 ASN 匹配。留空则使用 设置 → Bots 中的全局列表。",
         "jsChallenge": "JavaScript 校验",
         "jsChallengeHint": "访客先看到安全页；后台浏览器校验决定是否放行到 money page。不执行 JS 的一律停留在安全页。会多一次跳转。",
         "mode": "Cloaking",

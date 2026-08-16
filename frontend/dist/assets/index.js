@@ -17476,6 +17476,12 @@ const ru = {
     "notes": "Заметки"
   },
   "botSettings": {
+    "ispTitle": "Глобальный чёрный список Bot ISP",
+    "ispHint": "Ключевые слова через запятую, проверяются по ISP и ASN посетителя. Потоки Cloak с включённым фильтром Bot ISP направляют таких посетителей на белую страницу.",
+    "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+    "save": "Сохранить",
+    "saved": "Сохранено!",
+    "saveError": "Ошибка сохранения",
     "noItems": "Пока пусто",
     "searchPlaceholder": "Поиск по списку…",
     "showing": "показано",
@@ -18266,6 +18272,17 @@ const ru = {
     "curlProxyDesc": "Отдаёт удалённую страницу через этот сервер с base-тегом. Полезно, когда нужно разместить контент под своим доменом."
   },
   "cloaking": {
+    "targetingTitle": "Фильтры таргетинга (несовпадение → белая страница)",
+    "geoFilter": "Фильтр стран",
+    "geoPlaceholder": "Выберите страны (например, US, DE, GB)...",
+    "allowIn": "Разрешить (в списке)",
+    "blockIn": "Блокировать (не в списке)",
+    "deviceFilter": "Типы устройств",
+    "allowOnly": "Только выбранные",
+    "blockSelected": "Блокировать выбранные",
+    "blockBotIsps": "Блокировать ботов и датацентр-провайдеров (Facebook, Google, Amazon, Hetzner и др.)",
+    "botIspPlaceholder": "Локальный список: facebook, hetzner, ... (пусто — использовать глобальный)",
+    "botIspHint": "Проверяется по ISP и ASN посетителя. Оставьте пустым, чтобы использовать глобальный список из Настройки → Боты.",
     "jsChallenge": "Проверка JavaScript",
     "jsChallengeHint": "Посетитель сначала видит белую страницу; фоновая проверка браузера решает, пускать ли его на money page. Всё, что не выполняет JS, остаётся на белой. Добавляет один переход — включайте, если пассивных слоёв не хватает.",
     "mode": "Cloaking",
@@ -20142,6 +20159,12 @@ const en = {
     "notes": "Notes"
   },
   "botSettings": {
+    "ispTitle": "Global Bot ISP Blacklist",
+    "ispHint": "Comma-separated keywords checked against the visitor's ISP and ASN. Cloak streams with the Bot ISP filter enabled route these visitors to the Safe Page.",
+    "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+    "save": "Save",
+    "saved": "Saved!",
+    "saveError": "Save error",
     "noItems": "No entries yet",
     "searchPlaceholder": "Search the list…",
     "showing": "showing",
@@ -20932,6 +20955,17 @@ const en = {
     "curlProxyDesc": "Serves a remote page through this server with a base tag. Useful when you need to host the content under your own domain."
   },
   "cloaking": {
+    "targetingTitle": "Targeting Filters (Mismatch → Safe Page)",
+    "geoFilter": "Country Filter",
+    "geoPlaceholder": "Select target countries (e.g. US, DE, GB)...",
+    "allowIn": "Allow (in)",
+    "blockIn": "Block (not in)",
+    "deviceFilter": "Device Types",
+    "allowOnly": "Allow only",
+    "blockSelected": "Block selected",
+    "blockBotIsps": "Block Bot & Datacenter ISPs (Facebook, Google, Amazon, Hetzner, etc.)",
+    "botIspPlaceholder": "Local override: facebook, hetzner, ... (leave empty for the global list)",
+    "botIspHint": "Matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.",
     "jsChallenge": "JavaScript check",
     "jsChallengeHint": "The visitor sees the safe page first; a background browser check decides whether to forward them to the money page. Anything that does not run JS stays on the safe page. Costs one extra hop — enable when the passive layers are not enough.",
     "mode": "Cloaking",
@@ -22808,6 +22842,12 @@ const uk = {
     "notes": "Примітки"
   },
   "botSettings": {
+    "ispTitle": "Глобальний чорний список Bot ISP",
+    "ispHint": "Ключові слова через кому, перевіряються за ISP та ASN відвідувача. Потоки Cloak із увімкненим фільтром Bot ISP спрямовують таких відвідувачів на білу сторінку.",
+    "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+    "save": "Зберегти",
+    "saved": "Збережено!",
+    "saveError": "Помилка збереження",
     "noItems": "Ще немає записів",
     "searchPlaceholder": "Пошук у списку…",
     "showing": "показано",
@@ -23598,6 +23638,17 @@ const uk = {
     "curlProxyDesc": "Віддає віддалену сторінку через цей сервер з base-тегом. Корисно, коли треба розмістити контент під своїм доменом."
   },
   "cloaking": {
+    "targetingTitle": "Фільтри таргетингу (невідповідність → біла сторінка)",
+    "geoFilter": "Фільтр країн",
+    "geoPlaceholder": "Виберіть країни (наприклад, US, DE, GB)...",
+    "allowIn": "Дозволити (у списку)",
+    "blockIn": "Заблокувати (не у списку)",
+    "deviceFilter": "Типи пристроїв",
+    "allowOnly": "Лише обрані",
+    "blockSelected": "Заблокувати обрані",
+    "blockBotIsps": "Блокувати ботів і датацентр-провайдерів (Facebook, Google, Amazon, Hetzner та ін.)",
+    "botIspPlaceholder": "Локальний список: facebook, hetzner, ... (порожньо — глобальний список)",
+    "botIspHint": "Перевіряється за ISP та ASN відвідувача. Залиште порожнім, щоб використовувати глобальний список із Налаштування → Боти.",
     "jsChallenge": "Перевірка JavaScript",
     "jsChallengeHint": "Відвідувач спершу бачить білу сторінку; фонова перевірка браузера вирішує, чи пускати його на money page. Усе, що не виконує JS, лишається на білій. Додає один перехід.",
     "mode": "Cloaking",
@@ -25474,6 +25525,12 @@ const es = {
     "notes": "Notas"
   },
   "botSettings": {
+    "ispTitle": "Lista negra global de ISP de bots",
+    "ispHint": "Palabras clave separadas por comas que se comparan con el ISP y el ASN del visitante. Los flujos Cloak con el filtro de ISP de bots activado envían a estos visitantes a la página segura.",
+    "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+    "save": "Guardar",
+    "saved": "¡Guardado!",
+    "saveError": "Error al guardar",
     "noItems": "Aún no hay entradas",
     "searchPlaceholder": "Buscar en la lista…",
     "showing": "mostrando",
@@ -26264,6 +26321,17 @@ const es = {
     "curlProxyDesc": "Sirve una página remota a través de este servidor con una etiqueta base. Útil cuando necesitas alojar el contenido bajo tu propio dominio."
   },
   "cloaking": {
+    "targetingTitle": "Filtros de segmentación (sin coincidencia → página segura)",
+    "geoFilter": "Filtro de países",
+    "geoPlaceholder": "Selecciona los países objetivo (p. ej., US, DE, GB)...",
+    "allowIn": "Permitir (en la lista)",
+    "blockIn": "Bloquear (fuera de la lista)",
+    "deviceFilter": "Tipos de dispositivo",
+    "allowOnly": "Solo los seleccionados",
+    "blockSelected": "Bloquear los seleccionados",
+    "blockBotIsps": "Bloquear ISP de bots y centros de datos (Facebook, Google, Amazon, Hetzner, etc.)",
+    "botIspPlaceholder": "Lista local: facebook, hetzner, ... (vacío = lista global)",
+    "botIspHint": "Se compara con el ISP y el ASN del visitante. Déjalo vacío para usar la lista global de Configuración → Bots.",
     "jsChallenge": "Comprobación de JavaScript",
     "jsChallengeHint": "El visitante ve primero la página segura; una comprobación del navegador en segundo plano decide si pasa a la money page. Lo que no ejecuta JS se queda en la página segura. Añade un salto extra.",
     "mode": "Cloaking",
@@ -28140,6 +28208,12 @@ const zh = {
     "notes": "注释"
   },
   "botSettings": {
+    "ispTitle": "全局 Bot ISP 黑名单",
+    "ispHint": "以逗号分隔的关键词，与访客的 ISP 和 ASN 匹配。启用 Bot ISP 过滤的 Cloak 流会将此类访客导向安全页。",
+    "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+    "save": "保存",
+    "saved": "已保存！",
+    "saveError": "保存出错",
     "noItems": "暂无条目",
     "searchPlaceholder": "搜索列表…",
     "showing": "已显示",
@@ -28930,6 +29004,17 @@ const zh = {
     "curlProxyDesc": "通过本服务器以 base 标签提供远程页面。当您需要在自己的域名下托管内容时非常有用。"
   },
   "cloaking": {
+    "targetingTitle": "定向过滤（不匹配 → 安全页）",
+    "geoFilter": "国家过滤",
+    "geoPlaceholder": "选择目标国家（如 US、DE、GB）...",
+    "allowIn": "允许（在列表内）",
+    "blockIn": "屏蔽（不在列表内）",
+    "deviceFilter": "设备类型",
+    "allowOnly": "仅允许所选",
+    "blockSelected": "屏蔽所选",
+    "blockBotIsps": "屏蔽 Bot 与数据中心 ISP（Facebook、Google、Amazon、Hetzner 等）",
+    "botIspPlaceholder": "本地覆盖：facebook, hetzner, ...（留空使用全局列表）",
+    "botIspHint": "与访客的 ISP 和 ASN 匹配。留空则使用 设置 → Bots 中的全局列表。",
     "jsChallenge": "JavaScript 校验",
     "jsChallengeHint": "访客先看到安全页；后台浏览器校验决定是否放行到 money page。不执行 JS 的一律停留在安全页。会多一次跳转。",
     "mode": "Cloaking",
@@ -30806,6 +30891,12 @@ const fr = {
     "notes": "Remarques"
   },
   "botSettings": {
+    "ispTitle": "Liste noire globale des ISP de bots",
+    "ispHint": "Mots-clés séparés par des virgules, comparés à l'ISP et à l'ASN du visiteur. Les flux Cloak avec le filtre ISP de bots activé dirigent ces visiteurs vers la page sûre.",
+    "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+    "save": "Enregistrer",
+    "saved": "Enregistré !",
+    "saveError": "Erreur d'enregistrement",
     "noItems": "Aucune entrée pour l’instant",
     "searchPlaceholder": "Rechercher dans la liste…",
     "showing": "affichés",
@@ -31598,6 +31689,17 @@ const fr = {
     "curlProxyDesc": "Sert une page distante via ce serveur avec une balise base. Utile lorsque vous devez héberger le contenu sous votre propre domaine."
   },
   "cloaking": {
+    "targetingTitle": "Filtres de ciblage (non-correspondance → page sûre)",
+    "geoFilter": "Filtre par pays",
+    "geoPlaceholder": "Sélectionnez les pays cibles (ex. US, DE, GB)...",
+    "allowIn": "Autoriser (dans la liste)",
+    "blockIn": "Bloquer (hors liste)",
+    "deviceFilter": "Types d'appareils",
+    "allowOnly": "Uniquement la sélection",
+    "blockSelected": "Bloquer la sélection",
+    "blockBotIsps": "Bloquer les ISP de bots et datacenters (Facebook, Google, Amazon, Hetzner, etc.)",
+    "botIspPlaceholder": "Liste locale : facebook, hetzner, ... (vide = liste globale)",
+    "botIspHint": "Comparé à l'ISP et à l'ASN du visiteur. Laissez vide pour utiliser la liste globale de Paramètres → Bots.",
     "jsChallenge": "Vérification JavaScript",
     "jsChallengeHint": "Le visiteur voit d'abord la page sûre ; une vérification du navigateur en arrière-plan décide de le rediriger vers la money page. Tout ce qui n'exécute pas JS reste sur la page sûre. Ajoute un aller-retour.",
     "mode": "Cloaking",
@@ -33474,6 +33576,12 @@ const de = {
     "notes": "Notizen"
   },
   "botSettings": {
+    "ispTitle": "Globale Bot-ISP-Blacklist",
+    "ispHint": "Durch Kommas getrennte Schlüsselwörter, die gegen ISP und ASN des Besuchers geprüft werden. Cloak-Streams mit aktiviertem Bot-ISP-Filter leiten diese Besucher auf die sichere Seite.",
+    "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+    "save": "Speichern",
+    "saved": "Gespeichert!",
+    "saveError": "Fehler beim Speichern",
     "noItems": "Noch keine Einträge",
     "searchPlaceholder": "Liste durchsuchen…",
     "showing": "angezeigt",
@@ -34264,6 +34372,17 @@ const de = {
     "curlProxyDesc": "Liefert eine Remote-Seite über diesen Server mit einem Base-Tag. Nützlich, wenn Sie Inhalte unter Ihrer eigenen Domain hosten müssen."
   },
   "cloaking": {
+    "targetingTitle": "Targeting-Filter (Abweichung → sichere Seite)",
+    "geoFilter": "Länderfilter",
+    "geoPlaceholder": "Zielländer auswählen (z. B. US, DE, GB)...",
+    "allowIn": "Erlauben (in der Liste)",
+    "blockIn": "Blockieren (nicht in der Liste)",
+    "deviceFilter": "Gerätetypen",
+    "allowOnly": "Nur Auswahl",
+    "blockSelected": "Auswahl blockieren",
+    "blockBotIsps": "Bot- und Rechenzentrums-ISP blockieren (Facebook, Google, Amazon, Hetzner usw.)",
+    "botIspPlaceholder": "Lokale Überschreibung: facebook, hetzner, ... (leer = globale Liste)",
+    "botIspHint": "Wird gegen ISP und ASN des Besuchers geprüft. Leer lassen, um die globale Liste unter Einstellungen → Bots zu verwenden.",
     "jsChallenge": "JavaScript-Prüfung",
     "jsChallengeHint": "Der Besucher sieht zuerst die sichere Seite; eine Browser-Prüfung im Hintergrund entscheidet über die Weiterleitung zur Money-Page. Alles ohne JS bleibt auf der sicheren Seite. Kostet einen zusätzlichen Aufruf.",
     "mode": "Cloaking",
@@ -59446,6 +59565,9 @@ const BotSettings = () => {
   const searchTimers = reactExports.useRef({});
   const fileInputIpRef = reactExports.useRef(null);
   const fileInputSigRef = reactExports.useRef(null);
+  const [ispList, setIspList] = reactExports.useState("");
+  const [ispSaving, setIspSaving] = reactExports.useState(false);
+  const [ispSaved, setIspSaved] = reactExports.useState(false);
   const endpointOf = (type) => type === "ip" ? "bot_ips" : "bot_signatures";
   const load = reactExports.useCallback(async (type, { search = "", offset: offset2 = 0, append: append2 = false } = {}) => {
     setLists((prev) => ({ ...prev, [type]: { ...prev[type], loading: true } }));
@@ -59474,6 +59596,42 @@ const BotSettings = () => {
     load("ip");
     load("sig");
   }, [load]);
+  reactExports.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API_URL$f}?action=global_settings`);
+        const data = await res.json();
+        if (!cancelled && data.status === "success") {
+          setIspList(data.data?.bot_isp_list ?? "");
+        }
+      } catch (e) {
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const saveIspList = async () => {
+    setIspSaving(true);
+    try {
+      const res = await fetch(`${API_URL$f}?action=global_settings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ settings: { bot_isp_list: ispList } })
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || data?.status !== "success") {
+        throw new Error(data?.message || `HTTP ${res.status}`);
+      }
+      setIspSaved(true);
+      setTimeout(() => setIspSaved(false), 2e3);
+    } catch (e) {
+      alert(`${t("botSettings.saveError")}: ${e.message}`);
+    } finally {
+      setIspSaving(false);
+    }
+  };
   const onSearch = (type, value) => {
     setLists((prev) => ({ ...prev, [type]: { ...prev[type], search: value } }));
     clearTimeout(searchTimers.current[type]);
@@ -59598,6 +59756,32 @@ const BotSettings = () => {
     ] });
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldBan, { size: 18, style: { color: "var(--color-primary)" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("botSettings.ispTitle") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: saveIspList, className: "btn btn-primary btn-sm flex items-center gap-1.5", disabled: ispSaving, children: [
+          ispSaved ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 14 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 14 }),
+          ispSaved ? t("botSettings.saved") : t("botSettings.save")
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "16px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)", marginBottom: "8px", lineHeight: 1.5 }, children: t("botSettings.ispHint") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "textarea",
+          {
+            value: ispList,
+            onChange: (e) => setIspList(e.target.value),
+            placeholder: t("botSettings.ispPlaceholder"),
+            rows: 3,
+            className: "form-input",
+            style: { fontFamily: "monospace", fontSize: "13px" }
+          }
+        )
+      ] })
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
@@ -71216,6 +71400,138 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           ]
                         }
                       )
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold uppercase tracking-wider block", style: { color: "var(--color-text-muted)" }, children: [
+                      "🎯 ",
+                      t("cloaking.targetingTitle", "Targeting Filters (Mismatch → Safe Page)")
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 mb-1.5", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: [
+                          "🌍 ",
+                          t("cloaking.geoFilter", "Country Filter")
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-3 text-xs", children: [["allow", t("cloaking.allowIn", "Allow (in)")], ["deny", t("cloaking.blockIn", "Block (not in)")]].map(([mode, label]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-1 cursor-pointer", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "input",
+                            {
+                              type: "radio",
+                              name: `cloak_geo_mode_${idx}`,
+                              checked: (sc.geo_mode || "allow") === mode,
+                              onChange: () => setCloakField("geo_mode", mode),
+                              className: "w-3 h-3",
+                              style: { accentColor: "var(--color-primary)" }
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
+                        ] }, mode)) })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        GeoSelector,
+                        {
+                          value: sc.countries || "",
+                          onChange: (selected) => setCloakField("countries", selected),
+                          placeholder: t("cloaking.geoPlaceholder", "Select target countries (e.g. US, DE, GB)...")
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 mb-1.5", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: [
+                          "📱 ",
+                          t("cloaking.deviceFilter", "Device Types")
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-3 text-xs", children: [["allow", t("cloaking.allowOnly", "Allow only")], ["deny", t("cloaking.blockSelected", "Block selected")]].map(([mode, label]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-1 cursor-pointer", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "input",
+                            {
+                              type: "radio",
+                              name: `cloak_device_mode_${idx}`,
+                              checked: (sc.device_mode || "allow") === mode,
+                              onChange: () => setCloakField("device_mode", mode),
+                              className: "w-3 h-3",
+                              style: { accentColor: "var(--color-primary)" }
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
+                        ] }, mode)) })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: ["mobile", "desktop"].map((dev) => {
+                        const currentDevs = typeof sc.devices === "string" && sc.devices.trim() !== "" ? sc.devices.split(",").map((d) => d.trim().toLowerCase()).filter(Boolean) : ["mobile", "desktop"];
+                        const isSelected = currentDevs.includes(dev);
+                        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "label",
+                          {
+                            className: "flex items-center gap-2 p-2 rounded-xl border cursor-pointer select-none transition-all text-xs font-medium",
+                            style: {
+                              backgroundColor: isSelected ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                              borderColor: isSelected ? "var(--color-primary)" : "var(--color-border)",
+                              color: isSelected ? "var(--color-primary)" : "var(--color-text-primary)"
+                            },
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                "input",
+                                {
+                                  type: "checkbox",
+                                  checked: isSelected,
+                                  onChange: (e) => {
+                                    const next = e.target.checked ? [...currentDevs, dev] : currentDevs.filter((d) => d !== dev);
+                                    setCloakField("devices", next.join(","));
+                                  },
+                                  className: "w-3.5 h-3.5 rounded",
+                                  style: { accentColor: "var(--color-primary)" }
+                                }
+                              ),
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "capitalize", children: dev })
+                            ]
+                          },
+                          dev
+                        );
+                      }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "label",
+                        {
+                          className: "flex items-center gap-2 p-2 rounded-xl border cursor-pointer select-none text-xs font-medium",
+                          style: {
+                            backgroundColor: sc.block_bot_isps !== false ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                            borderColor: sc.block_bot_isps !== false ? "var(--color-primary)" : "var(--color-border)",
+                            color: "var(--color-text-primary)"
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "input",
+                              {
+                                type: "checkbox",
+                                checked: sc.block_bot_isps !== false,
+                                onChange: (e) => setCloakField("block_bot_isps", e.target.checked),
+                                className: "w-3.5 h-3.5 rounded",
+                                style: { accentColor: "var(--color-primary)" }
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                              "🛡️ ",
+                              t("cloaking.blockBotIsps", "Block Bot & Datacenter ISPs (Facebook, Google, Amazon, Hetzner, etc.)")
+                            ] })
+                          ]
+                        }
+                      ),
+                      sc.block_bot_isps !== false && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "textarea",
+                          {
+                            rows: 2,
+                            className: "form-input text-xs font-mono py-1.5 rounded-xl",
+                            placeholder: t("cloaking.botIspPlaceholder", "Local override: facebook, hetzner, ... (leave empty for the global list)"),
+                            value: sc.custom_bot_isps || "",
+                            onChange: (e) => setCloakField("custom_bot_isps", e.target.value)
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("cloaking.botIspHint", "Matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.") })
+                      ] })
                     ] })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3.5 rounded-xl space-y-3", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [

@@ -2383,6 +2383,30 @@ if ($selectedStream) {
             );
         }
 
+        // Quick targeting filters from the cloak card: hard routing rules, not
+        // heuristics — a country/device/Bot-ISP miss goes to the safe page
+        // whatever the detector said.
+        if (!$cloakShowSafe) {
+            $targetingReasons = CloakDetector::targetingReasons(
+                $customSchema,
+                (string) $countryCode,
+                (string) $deviceType,
+                ($geoData['isp'] ?? '') . ' ' . ($geoData['asn'] ?? ''),
+                (string) ($settings['bot_isp_list'] ?? '')
+            );
+            if (!empty($targetingReasons)) {
+                $cloakShowSafe = true;
+                logCloakEvent(
+                    'TARGETING_SAFE',
+                    $campaignId ?? '?',
+                    $selectedStream['id'] ?? '?',
+                    $cloakVisitorCtx,
+                    $targetingReasons,
+                    $cloakConfig['sensitivity']
+                );
+            }
+        }
+
         // Optional active step: a visitor who passed the passive layers still has to
         // prove it runs a real browser before the money page is served. See
         // renderCloakJsChallenge(). Off by default — it adds a round trip.

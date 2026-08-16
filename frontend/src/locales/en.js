@@ -1467,6 +1467,12 @@ export default {
         "notes": "Notes"
     },
     "botSettings": {
+        "ispTitle": "Global Bot ISP Blacklist",
+        "ispHint": "Comma-separated keywords checked against the visitor's ISP and ASN. Cloak streams with the Bot ISP filter enabled route these visitors to the Safe Page.",
+        "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+        "save": "Save",
+        "saved": "Saved!",
+        "saveError": "Save error",
         "noItems": "No entries yet",
         "searchPlaceholder": "Search the list…",
         "showing": "showing",
@@ -2257,6 +2263,17 @@ export default {
         "curlProxyDesc": "Serves a remote page through this server with a base tag. Useful when you need to host the content under your own domain."
     },
     "cloaking": {
+        "targetingTitle": "Targeting Filters (Mismatch → Safe Page)",
+        "geoFilter": "Country Filter",
+        "geoPlaceholder": "Select target countries (e.g. US, DE, GB)...",
+        "allowIn": "Allow (in)",
+        "blockIn": "Block (not in)",
+        "deviceFilter": "Device Types",
+        "allowOnly": "Allow only",
+        "blockSelected": "Block selected",
+        "blockBotIsps": "Block Bot & Datacenter ISPs (Facebook, Google, Amazon, Hetzner, etc.)",
+        "botIspPlaceholder": "Local override: facebook, hetzner, ... (leave empty for the global list)",
+        "botIspHint": "Matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.",
         "jsChallenge": "JavaScript check",
         "jsChallengeHint": "The visitor sees the safe page first; a background browser check decides whether to forward them to the money page. Anything that does not run JS stays on the safe page. Costs one extra hop — enable when the passive layers are not enough.",
         "mode": "Cloaking",

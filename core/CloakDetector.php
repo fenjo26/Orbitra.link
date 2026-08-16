@@ -128,6 +128,82 @@ class CloakDetector
     }
 
     /**
+     * Quick targeting filters from the cloak card (schema_custom_json):
+     * country allow/block, device allow/block and the Bot ISP blocklist.
+     *
+     * Unlike the detection layers these are hard routing rules, not heuristics —
+     * any miss sends the visitor to the safe page regardless of sensitivity.
+     *
+     * @param array  $targeting schema_custom fields: countries ('US, DE' string or
+     *                          array; empty disables the filter), geo_mode
+     *                          ('allow'|'deny'), devices (string/array, empty
+     *                          disables), device_mode, block_bot_isps (bool,
+     *                          default true), custom_bot_isps (comma-separated
+     *                          local override of the global list)
+     * @param string $countryCode    visitor country, e.g. 'US' (or 'Unknown')
+     * @param string $deviceType     'Mobile'|'Desktop' (case-insensitive)
+     * @param string $ispHaystack    visitor "isp asn" string, any case
+     * @param string $globalBotIspList comma-separated keywords from settings.bot_isp_list
+     * @return array reason codes: geo_country / device_type / bot_isp (may be empty)
+     */
+    public static function targetingReasons(array $targeting, string $countryCode, string $deviceType, string $ispHaystack, string $globalBotIspList): array
+    {
+        $reasons = [];
+        $normalize = static function ($raw): array {
+            $items = is_array($raw) ? $raw : preg_split('/[\s,]+/', (string) $raw);
+            $items = array_map(static fn ($item) => trim((string) $item), $items ?: []);
+            return array_values(array_filter($items, static fn ($item) => $item !== ''));
+        };
+
+        // 1. Country (GEO): allow = must be in the list, deny = must not be.
+        $countries = array_map('strtoupper', $normalize($targeting['countries'] ?? ''));
+        if (!empty($countries)) {
+            $inList = in_array(strtoupper(trim($countryCode)), $countries, true);
+            $deny = ($targeting['geo_mode'] ?? 'allow') === 'deny';
+            if ($deny ? $inList : !$inList) {
+                $reasons[] = 'geo_country';
+            }
+        }
+
+        // 2. Device types: allow = only the selected types, deny = none of them.
+        // The tracker's device model is Mobile/Desktop (getDeviceType()), so the
+        // cloak card offers exactly those two.
+        $devices = array_map('strtolower', $normalize($targeting['devices'] ?? ''));
+        if (!empty($devices)) {
+            $inList = in_array(strtolower(trim($deviceType)), $devices, true);
+            $deny = ($targeting['device_mode'] ?? 'allow') === 'deny';
+            if ($deny ? $inList : !$inList) {
+                $reasons[] = 'device_type';
+            }
+        }
+
+        // 3. Bot ISP blocklist: keywords from the stream's local list, or the
+        //    global settings.bot_isp_list when the local one is empty, matched
+        //    against the visitor's ISP + ASN string. Word boundaries matter:
+        //    'meta' must not hit 'Metronet', 'aws' must not hit 'Lawson' — a
+        //    residential ISP whose name merely contains a cloud vendor's would
+        //    otherwise land its real users on the safe page.
+        if (self::configBool($targeting, 'block_bot_isps', true)) {
+            $rawList = trim((string) ($targeting['custom_bot_isps'] ?? ''));
+            if ($rawList === '') {
+                $rawList = trim($globalBotIspList);
+            }
+            $keywords = $normalize($rawList);
+            $haystack = strtolower(trim($ispHaystack));
+            if (!empty($keywords) && $haystack !== '') {
+                foreach ($keywords as $keyword) {
+                    if (preg_match('/\b' . preg_quote(strtolower($keyword), '/') . '\b/', $haystack)) {
+                        $reasons[] = 'bot_isp';
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $reasons;
+    }
+
+    /**
      * Public bot-UA verdict for click logging (report metric "Bots"): the same
      * signature list the cloaker uses, without any of the heavier layers.
      */
