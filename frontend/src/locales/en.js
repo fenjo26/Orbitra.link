@@ -2387,6 +2387,11 @@ export default {
         "noAccounts": "No campaigns are sending conversions to Meta yet."
     },
     "reportCustomizer": {
+        "dimCity": "City",
+        "dimRegion": "Region",
+        "dimHour": "Hour",
+        "dimCreative": "Creative",
+        "dimExternal": "External ID",
         "groupByHint": "Stack up to 5 grouping levels; URL-param dimensions come from what your traffic source captures.",
         "filtersHint": "Narrow the report before grouping — conditions apply to the raw click rows.",
         "addFilter": "+ Add Filter",

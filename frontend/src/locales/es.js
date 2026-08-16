@@ -2387,6 +2387,11 @@ export default {
         "noAccounts": "Ninguna campaña está enviando conversiones a Meta todavía."
     },
     "reportCustomizer": {
+        "dimCity": "Ciudad",
+        "dimRegion": "Región",
+        "dimHour": "Hora",
+        "dimCreative": "Creativo",
+        "dimExternal": "External ID",
         "groupByHint": "Hasta 5 niveles de agrupación; las dimensiones de parámetro URL vienen de lo que captura tu fuente de tráfico.",
         "filtersHint": "Acota el informe antes de agrupar: las condiciones se aplican a las filas de clics en bruto.",
         "addFilter": "+ Añadir filtro",

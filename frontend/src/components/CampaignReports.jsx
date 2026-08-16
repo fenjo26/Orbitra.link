@@ -13,7 +13,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const [rows, setRows] = useState([]);
     const [layerKeys, setLayerKeys] = useState([]);
 
-    const defaultLayers = campaignId ? ['country', 'adset_id'] : ['country', 'campaign_id', 'adset_id'];
+    // A flat, single-dimension report by default — the multi-level drill-down is
+    // an opt-in via the layer builder. Starting layered made every report look
+    // like duplicated subtotal rows.
+    const defaultLayers = ['country'];
     const [layers, setLayers] = useState(defaultLayers);
     const [filters, setFilters] = useState([]);
 

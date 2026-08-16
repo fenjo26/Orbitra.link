@@ -191,6 +191,21 @@ const ReportCustomizerModal = ({
         { id: 'catRates', label: t('reportCustomizer.catRates', 'Rates & Unit Economics') },
     ];
 
+    // Human labels for the group-by chips — raw keys like device_type used to
+    // render straight into the UI.
+    const DIM_LABELS = {
+        country: t('campaignReports.geoCountry'), city: t('reportCustomizer.dimCity', 'City'),
+        region: t('reportCustomizer.dimRegion', 'Region'), device_type: t('campaignReports.deviceType'),
+        os: 'OS', browser: t('campaignReports.browser', 'Browser'), language: t('campaignReports.language'),
+        day: t('campaignReports.day', 'Day'), hour: t('reportCustomizer.dimHour', 'Hour'),
+        campaign_id: t('campaignReports.campaign'), source_id: t('campaignReports.source'),
+        stream_id: t('campaignReports.stream'), landing_id: t('campaignReports.landing', 'Landing'),
+        offer_id: t('campaignReports.offer', 'Offer'), ad_id: t('campaignReports.adId', 'Ad ID'),
+        adset_id: t('campaignReports.adsetId', 'Adset ID'), keyword: t('parameters.keyword'),
+        creative_id: t('reportCustomizer.dimCreative', 'Creative'), external_id: t('reportCustomizer.dimExternal', 'External ID'),
+        sub_id_1: 'Sub ID 1', sub_id_2: 'Sub ID 2', sub_id_3: 'Sub ID 3', sub_id_4: 'Sub ID 4', sub_id_5: 'Sub ID 5',
+    };
+
     return (
         <div className="modal-overlay">
             <div
@@ -216,34 +231,23 @@ const ReportCustomizerModal = ({
 
                 {/* Navigation Tabs (if report mode) */}
                 {mode === 'report' && (
-                    <div className="flex gap-4 px-6 pt-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab('columns')}
-                            className={`pb-2 text-xs font-semibold uppercase tracking-wider transition-colors ${
-                                activeTab === 'columns' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-zinc-400 hover:text-zinc-200'
-                            }`}
-                        >
-                            {t('reportCustomizer.columns')} ({chosenColumns.length})
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab('layers')}
-                            className={`pb-2 text-xs font-semibold uppercase tracking-wider transition-colors ${
-                                activeTab === 'layers' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-zinc-400 hover:text-zinc-200'
-                            }`}
-                        >
-                            {t('reportCustomizer.groupBy')} ({layers.length})
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab('filters')}
-                            className={`pb-2 text-xs font-semibold uppercase tracking-wider transition-colors ${
-                                activeTab === 'filters' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-zinc-400 hover:text-zinc-200'
-                            }`}
-                        >
-                            {t('reportCustomizer.filters')} ({filters.length})
-                        </button>
+                    <div className="flex gap-5 px-6 pt-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                        {[['columns', t('reportCustomizer.columns') + ' (' + chosenColumns.length + ')'],
+                          ['layers', t('reportCustomizer.groupBy') + ' (' + layers.length + ')'],
+                          ['filters', t('reportCustomizer.filters') + ' (' + filters.length + ')']].map(([tabId, tabLabel]) => (
+                            <button
+                                key={tabId}
+                                type="button"
+                                onClick={() => setActiveTab(tabId)}
+                                className="pb-2 text-xs font-semibold uppercase tracking-wider transition-colors"
+                                style={{
+                                    color: activeTab === tabId ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                    borderBottom: activeTab === tabId ? '2px solid var(--color-primary)' : '2px solid transparent'
+                                }}
+                            >
+                                {tabLabel}
+                            </button>
+                        ))}
                     </div>
                 )}
 
@@ -303,7 +307,8 @@ const ReportCustomizerModal = ({
                                     <button
                                         type="button"
                                         onClick={handleDeselectAll}
-                                        className="btn btn-ghost text-xs py-1 px-2.5 rounded-lg text-red"
+                                        className="btn btn-ghost text-xs py-1 px-2.5 rounded-lg"
+                                        style={{ color: 'var(--color-danger)' }}
                                     >
                                         {t('reportCustomizer.deselectAll')}
                                     </button>
@@ -323,17 +328,18 @@ const ReportCustomizerModal = ({
                                                 <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
                                                     {cat.label}
                                                 </h4>
-                                                <div className="grid grid-cols-2 gap-2">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                                     {catMetrics.map((m) => {
                                                         const isChecked = chosenColumns.includes(m.id);
                                                         return (
                                                             <label
                                                                 key={m.id}
-                                                                className="flex items-center gap-2.5 p-2 rounded-xl border cursor-pointer select-none transition-all"
+                                                                className="flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer select-none transition-all"
                                                                 style={{
                                                                     backgroundColor: isChecked ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
                                                                     borderColor: isChecked ? 'var(--color-primary)' : 'var(--color-border)',
-                                                                    color: 'var(--color-text-primary)'
+                                                                    color: 'var(--color-text-primary)',
+                                                                    minHeight: '40px'
                                                                 }}
                                                             >
                                                                 <input
@@ -400,7 +406,8 @@ const ReportCustomizerModal = ({
                                                             type="button"
                                                             disabled={idx === 0}
                                                             onClick={() => handleMoveColumn(idx, -1)}
-                                                            className="p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-30"
+                                                            className="p-1 rounded disabled:opacity-30"
+                                                            style={{ color: 'var(--color-text-secondary)' }}
                                                         >
                                                             <ArrowUp className="w-3 h-3" />
                                                         </button>
@@ -408,14 +415,16 @@ const ReportCustomizerModal = ({
                                                             type="button"
                                                             disabled={idx === chosenColumns.length - 1}
                                                             onClick={() => handleMoveColumn(idx, 1)}
-                                                            className="p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-30"
+                                                            className="p-1 rounded disabled:opacity-30"
+                                                            style={{ color: 'var(--color-text-secondary)' }}
                                                         >
                                                             <ArrowDown className="w-3 h-3" />
                                                         </button>
                                                         <button
                                                             type="button"
                                                             onClick={() => handleToggleColumn(cId)}
-                                                            className="p-0.5 rounded text-red hover:bg-red/10 ml-1"
+                                                            className="p-1 rounded ml-1"
+                                                            style={{ color: 'var(--color-danger)' }}
                                                         >
                                                             <X className="w-3 h-3" />
                                                         </button>
@@ -472,9 +481,10 @@ const ReportCustomizerModal = ({
                                                 color: isChosen ? 'var(--color-primary)' : 'var(--color-text-primary)'
                                             }}
                                         >
-                                            <span className="font-medium">{dim}</span>
+                                            <span className="font-medium">{DIM_LABELS[dim] || dim}</span>
                                             {isChosen && (
-                                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500 text-white font-bold">
+                                                <span className="text-[10px] min-w-[18px] text-center px-1.5 py-0.5 rounded-full font-bold"
+                                                    style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-bg-card)' }}>
                                                     {layers.indexOf(dim) + 1}
                                                 </span>
                                             )}
@@ -509,11 +519,12 @@ const ReportCustomizerModal = ({
                             )}
 
                             {filters.map((f, fIdx) => (
-                                <div key={fIdx} className="flex items-center gap-2">
+                                <div key={fIdx} className="flex flex-wrap items-center gap-2">
                                     <select
                                         value={f.field}
                                         onChange={(e) => handleUpdateFilter(fIdx, 'field', e.target.value)}
-                                        className="form-select text-xs py-1.5 rounded-xl w-40"
+                                        className="form-select text-xs py-1.5 rounded-xl"
+                                        style={{ minWidth: '150px', flex: '0 1 auto' }}
                                     >
                                         <option value="country">{t('campaignReports.geoCountry')}</option>
                                         <option value="city">{t('reportCustomizer.fCity', 'City')}</option>
@@ -529,7 +540,8 @@ const ReportCustomizerModal = ({
                                     <select
                                         value={f.op}
                                         onChange={(e) => handleUpdateFilter(fIdx, 'op', e.target.value)}
-                                        className="form-select text-xs py-1.5 rounded-xl w-32"
+                                        className="form-select text-xs py-1.5 rounded-xl"
+                                        style={{ minWidth: '140px', flex: '0 1 auto' }}
                                     >
                                         <option value="eq">{t('reportCustomizer.opEq', 'Equal (=)')}</option>
                                         <option value="neq">{t('reportCustomizer.opNeq', 'Not equal (!=)')}</option>
@@ -541,12 +553,14 @@ const ReportCustomizerModal = ({
                                         value={f.value}
                                         onChange={(e) => handleUpdateFilter(fIdx, 'value', e.target.value)}
                                         placeholder={t('reportCustomizer.fValue', 'Value...')}
-                                        className="form-input text-xs py-1.5 px-3 rounded-xl flex-1"
+                                        className="form-input text-xs py-1.5 px-3 rounded-xl"
+                                        style={{ flex: '1 1 160px', minWidth: '140px' }}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => handleRemoveFilter(fIdx)}
-                                        className="btn-icon text-red"
+                                        className="p-1.5 rounded"
+                                        style={{ color: 'var(--color-danger)' }}
                                     >
                                         <Trash2 className="w-4 h-4" />
                                     </button>

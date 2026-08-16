@@ -1,4 +1,4 @@
-# Orbitra v0.9.7.8 Tracker
+# Orbitra v0.9.7.9 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -387,6 +387,36 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.7.9
+
+### Added
+- 📚 **196 traffic-source + 395 affiliate-network templates from Keitaro's own
+  exports**, built into every install (209 sources / 438 networks in the
+  dropdowns). They replace a hand-written batch whose macros were invented —
+  PopAds swapped the click id for the site id, several networks posted to hosts
+  that don't exist. Keitaro's `{status: lead=reg sale=dep}` transform and the
+  `{clickid}`/`{offer_id}`/`{conversion_revenue}` postback macros now resolve.
+- 🎛 **Report customizer**: searchable column picker with presets (COD,
+  Lander→Offer, Finance & ROI), up to **5** group-by levels incl. URL-param
+  dimensions, eq/neq/contains filters, and drag-and-drop column reordering.
+- 📏 **30+ metrics** (LP CTR, approve rate, revenue by status, real aggregator
+  revenue/ROI, CPC/CPA/EPC/UEPC) with a sticky totals row; purchases count
+  conversions, not clicks.
+- 📅 **Date-range picker with a working timezone** — the selection shifts every
+  date condition server-side, not just the label. Interactive calendar with
+  quick presets.
+- 🔗 **Direct URL streams** with `{subid}`/`{clickid}`/`{ip}`/`{country}`
+  substitution; refined cloaking UI (per-layer toggles, segmented safe page);
+  every redirect method on the landing editor; Cost Sync connection modal and
+  manual spend entry; chunked bot-list import for 50k+ entries.
+
+### Fixed
+- 📈 Migration 19 indexes the conversions/revenue_records/clicks joins every
+  report uses — dashboards stop scanning tables end to end.
+- 🔄 The update check no longer claims "no update" when GitHub is unreachable;
+  it explains the check failed and gives the manual `git pull` command.
+- 🌍 `npm run check:i18n` green — full parity across all 7 locales.
 
 ## 📝 What's New in v0.9.7.8
 

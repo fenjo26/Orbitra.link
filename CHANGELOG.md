@@ -7,6 +7,69 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.7.9] — 2026-08-16
+
+### Added
+- 📚 **Traffic-source and affiliate-network templates from Keitaro.** 196 source and
+  395 network templates ship in `data/keitaro_*.json` and merge into the built-in
+  lists — 209 sources and 438 networks in the dropdowns, available to every install
+  after an update, nothing to import by hand. They are generated from Keitaro's own
+  exports by `cli/generate_keitaro_templates.py`, which replaces a hand-written batch
+  whose macros and postback hosts were invented: PopAds mapped the click id to
+  `[WEBSITEID]` (that is the site), MaxBounty used `&s1=` / `{rate}` instead of
+  `s2=` / `#RATE#`, Zeydoo had payout and subid swapped, and RollerAds, Galaksion,
+  Kadam and RichAds pointed at postback hosts that do not exist. Such a template looks
+  right in the UI and tracks nothing.
+- ↔️ **Keitaro status transforms in outgoing postbacks.** `{status: lead=reg sale=dep}`
+  now resolves against the internal status (`core/PostbackMacros.php`) — 15 of the
+  imported source templates use it and used to send the literal macro. `{clickid}`,
+  `{click_id}`, `{offer_id}` and `{conversion_revenue}` joined the S2S macro set the
+  same templates rely on.
+- 🧪 **`php tests/keitaro_templates_test.php`** — checks both packs against values taken
+  from the Keitaro export, so a regenerated pack that drifts fails in CI, not in
+  production.
+- 🎛 **Custom reports: column customizer, presets and drag-and-drop.**
+  `ReportCustomizerModal` adds a searchable column picker with categories (traffic,
+  conversions, financial, unit economics), presets (COD, Lander→Offer, Best,
+  Finance & ROI, All), up to **five** group-by levels with URL-param dimensions,
+  and eq/neq/contains/not-contains filters. Column headers on the campaigns table
+  and the report drag-and-drop to reorder.
+- 📏 **30+ report metrics** computed in `core/ReportMetrics.php`: unique rate,
+  LP CTR, sales/holds/rejected/trash, approve rate (with and without trash),
+  confirmed/hold/rejected revenue split, real (aggregator) revenue and ROI,
+  CPC/UCPC/CPA/EPC/UEPC, earnings per conversion — with a sticky totals row.
+- 📅 **Date-range picker with a real timezone.** Interactive calendar with quick
+  presets and a timezone selector; the choice is sent with every dashboard and
+  report request and the API shifts all date conditions by it (a fixed offset per
+  check — DST edge days on long ranges can differ by an hour).
+- 🔗 **Direct URL streams.** A redirect stream can point straight at an external
+  URL instead of an offer record, with `{subid}`, `{clickid}`, `{ip}`, `{country}`
+  and every captured click parameter substituted (`{subid}` used to travel to the
+  affiliate network as a literal).
+- 🧭 **Refined cloaking UI** — toggle pills per protection layer, segmented safe-page
+  selector (external URL / tracker landing / inline HTML) — plus all redirect methods
+  (JS, meta refresh, iframe, form POST, preload, cURL proxy) on the landing editor.
+- 💰 **Cost Sync upgrades**: an *Add connection* modal (Facebook / Google Ads /
+  TikTok: account id, token, proxy) and manual cost entry for a custom range,
+  right from the campaign's Integrations tab.
+- 🤖 **Bot list import**: transactional chunked inserts (500 per chunk backend,
+  2000 frontend) with a .txt/.csv picker and progress — 50 000+ IPs/UAs import
+  without timeouts.
+- 🌍 **i18n hardening**: `npm run check:i18n` is green with full parity in all
+  7 locales; the report customizer's hardcoded strings are translated.
+
+### Fixed
+- 📈 **Report performance**: migration 19 adds `conversions(click_id)`,
+  `conversions(click_id, status)`, `clicks(campaign_id, created_at)` and
+  `revenue_records(click_id)` — every report metric joins on those, and none had
+  an index.
+- 🧮 **Purchases counted clicks, not conversions** in the campaigns table; ROI at
+  zero spend now shows "—" instead of a made-up 100%.
+- 🔄 **The update check no longer pretends everything is fine when GitHub is
+  unreachable**: a failed fetch used to silently report latest=current ("no
+  update"); the Update page now explains the check failed and gives the manual
+  `git pull` command.
+
 ## [0.9.7.8] — 2026-08-15
 
 ### Added

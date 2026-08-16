@@ -2387,6 +2387,11 @@ export default {
         "noAccounts": "还没有广告系列向 Meta 发送转化。"
     },
     "reportCustomizer": {
+        "dimCity": "城市",
+        "dimRegion": "地区",
+        "dimHour": "小时",
+        "dimCreative": "素材",
+        "dimExternal": "External ID",
         "groupByHint": "最多 5 层分组；「URL 参数」维度来自流量源实际捕获的内容。",
         "filtersHint": "在分组前收窄报告 — 条件作用于原始点击行。",
         "addFilter": "+ 添加筛选",

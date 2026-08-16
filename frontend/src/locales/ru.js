@@ -2387,6 +2387,11 @@ export default {
         "noAccounts": "Ни одна кампания пока не отправляет конверсии в Meta."
     },
     "reportCustomizer": {
+        "dimCity": "Город",
+        "dimRegion": "Регион",
+        "dimHour": "Час",
+        "dimCreative": "Креатив",
+        "dimExternal": "External ID",
         "groupByHint": "До 5 уровней группировки; размеры «URL-параметр» берутся из того, что захватывает источник трафика.",
         "filtersHint": "Сужайте отчёт до группировки — условия применяются к сырым кликам.",
         "addFilter": "+ Добавить фильтр",

@@ -18370,6 +18370,11 @@ const ru = {
     "noAccounts": "Ни одна кампания пока не отправляет конверсии в Meta."
   },
   "reportCustomizer": {
+    "dimCity": "Город",
+    "dimRegion": "Регион",
+    "dimHour": "Час",
+    "dimCreative": "Креатив",
+    "dimExternal": "External ID",
     "groupByHint": "До 5 уровней группировки; размеры «URL-параметр» берутся из того, что захватывает источник трафика.",
     "filtersHint": "Сужайте отчёт до группировки — условия применяются к сырым кликам.",
     "addFilter": "+ Добавить фильтр",
@@ -20867,6 +20872,11 @@ const en = {
     "noAccounts": "No campaigns are sending conversions to Meta yet."
   },
   "reportCustomizer": {
+    "dimCity": "City",
+    "dimRegion": "Region",
+    "dimHour": "Hour",
+    "dimCreative": "Creative",
+    "dimExternal": "External ID",
     "groupByHint": "Stack up to 5 grouping levels; URL-param dimensions come from what your traffic source captures.",
     "filtersHint": "Narrow the report before grouping — conditions apply to the raw click rows.",
     "addFilter": "+ Add Filter",
@@ -23364,6 +23374,11 @@ const uk = {
     "noAccounts": "Жодна кампанія поки не надсилає конверсії в Meta."
   },
   "reportCustomizer": {
+    "dimCity": "Місто",
+    "dimRegion": "Регіон",
+    "dimHour": "Година",
+    "dimCreative": "Креатив",
+    "dimExternal": "External ID",
     "groupByHint": "До 5 рівнів групування; виміри «URL-параметр» беруться з того, що захоплює джерело трафіку.",
     "filtersHint": "Звужуйте звіт до групування — умови застосовуються до сирих кліків.",
     "addFilter": "+ Додати фільтр",
@@ -25861,6 +25876,11 @@ const es = {
     "noAccounts": "Ninguna campaña está enviando conversiones a Meta todavía."
   },
   "reportCustomizer": {
+    "dimCity": "Ciudad",
+    "dimRegion": "Región",
+    "dimHour": "Hora",
+    "dimCreative": "Creativo",
+    "dimExternal": "External ID",
     "groupByHint": "Hasta 5 niveles de agrupación; las dimensiones de parámetro URL vienen de lo que captura tu fuente de tráfico.",
     "filtersHint": "Acota el informe antes de agrupar: las condiciones se aplican a las filas de clics en bruto.",
     "addFilter": "+ Añadir filtro",
@@ -28358,6 +28378,11 @@ const zh = {
     "noAccounts": "还没有广告系列向 Meta 发送转化。"
   },
   "reportCustomizer": {
+    "dimCity": "城市",
+    "dimRegion": "地区",
+    "dimHour": "小时",
+    "dimCreative": "素材",
+    "dimExternal": "External ID",
     "groupByHint": "最多 5 层分组；「URL 参数」维度来自流量源实际捕获的内容。",
     "filtersHint": "在分组前收窄报告 — 条件作用于原始点击行。",
     "addFilter": "+ 添加筛选",
@@ -30857,6 +30882,11 @@ const fr = {
     "noAccounts": "Aucune campagne n’envoie encore de conversions à Meta."
   },
   "reportCustomizer": {
+    "dimCity": "Ville",
+    "dimRegion": "Région",
+    "dimHour": "Heure",
+    "dimCreative": "Créatif",
+    "dimExternal": "External ID",
     "groupByHint": "Jusqu’à 5 niveaux de regroupement ; les dimensions « paramètre URL » viennent de ce que votre source capture.",
     "filtersHint": "Restreignez le rapport avant le regroupement — les conditions s’appliquent aux lignes de clics brutes.",
     "addFilter": "+ Ajouter un filtre",
@@ -33354,6 +33384,11 @@ const de = {
     "noAccounts": "Noch sendet keine Kampagne Conversions an Meta."
   },
   "reportCustomizer": {
+    "dimCity": "Stadt",
+    "dimRegion": "Region",
+    "dimHour": "Stunde",
+    "dimCreative": "Creative",
+    "dimExternal": "External ID",
     "groupByHint": "Bis zu 5 Gruppierungsebenen; URL-Parameter-Dimensionen stammen aus dem, was deine Traffic-Quelle erfasst.",
     "filtersHint": "Den Report vor der Gruppierung einschränken — Bedingungen wirken auf die rohen Klick-Zeilen.",
     "addFilter": "+ Filter hinzufügen",
@@ -48841,6 +48876,32 @@ const ReportCustomizerModal = ({
     { id: "catFinancial", label: t("reportCustomizer.catFinancial", "Financial") },
     { id: "catRates", label: t("reportCustomizer.catRates", "Rates & Unit Economics") }
   ];
+  const DIM_LABELS = {
+    country: t("campaignReports.geoCountry"),
+    city: t("reportCustomizer.dimCity", "City"),
+    region: t("reportCustomizer.dimRegion", "Region"),
+    device_type: t("campaignReports.deviceType"),
+    os: "OS",
+    browser: t("campaignReports.browser", "Browser"),
+    language: t("campaignReports.language"),
+    day: t("campaignReports.day", "Day"),
+    hour: t("reportCustomizer.dimHour", "Hour"),
+    campaign_id: t("campaignReports.campaign"),
+    source_id: t("campaignReports.source"),
+    stream_id: t("campaignReports.stream"),
+    landing_id: t("campaignReports.landing", "Landing"),
+    offer_id: t("campaignReports.offer", "Offer"),
+    ad_id: t("campaignReports.adId", "Ad ID"),
+    adset_id: t("campaignReports.adsetId", "Adset ID"),
+    keyword: t("parameters.keyword"),
+    creative_id: t("reportCustomizer.dimCreative", "Creative"),
+    external_id: t("reportCustomizer.dimExternal", "External ID"),
+    sub_id_1: "Sub ID 1",
+    sub_id_2: "Sub ID 2",
+    sub_id_3: "Sub ID 3",
+    sub_id_4: "Sub ID 4",
+    sub_id_5: "Sub ID 5"
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -48858,50 +48919,24 @@ const ReportCustomizerModal = ({
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
         ] }),
-        mode === "report" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 px-6 pt-3", style: { borderBottom: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              onClick: () => setActiveTab("columns"),
-              className: `pb-2 text-xs font-semibold uppercase tracking-wider transition-colors ${activeTab === "columns" ? "text-blue-500 border-b-2 border-blue-500" : "text-zinc-400 hover:text-zinc-200"}`,
-              children: [
-                t("reportCustomizer.columns"),
-                " (",
-                chosenColumns.length,
-                ")"
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              onClick: () => setActiveTab("layers"),
-              className: `pb-2 text-xs font-semibold uppercase tracking-wider transition-colors ${activeTab === "layers" ? "text-blue-500 border-b-2 border-blue-500" : "text-zinc-400 hover:text-zinc-200"}`,
-              children: [
-                t("reportCustomizer.groupBy"),
-                " (",
-                layers.length,
-                ")"
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              onClick: () => setActiveTab("filters"),
-              className: `pb-2 text-xs font-semibold uppercase tracking-wider transition-colors ${activeTab === "filters" ? "text-blue-500 border-b-2 border-blue-500" : "text-zinc-400 hover:text-zinc-200"}`,
-              children: [
-                t("reportCustomizer.filters"),
-                " (",
-                filters.length,
-                ")"
-              ]
-            }
-          )
-        ] }),
+        mode === "report" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-5 px-6 pt-3", style: { borderBottom: "1px solid var(--color-border)" }, children: [
+          ["columns", t("reportCustomizer.columns") + " (" + chosenColumns.length + ")"],
+          ["layers", t("reportCustomizer.groupBy") + " (" + layers.length + ")"],
+          ["filters", t("reportCustomizer.filters") + " (" + filters.length + ")"]
+        ].map(([tabId, tabLabel]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => setActiveTab(tabId),
+            className: "pb-2 text-xs font-semibold uppercase tracking-wider transition-colors",
+            style: {
+              color: activeTab === tabId ? "var(--color-primary)" : "var(--color-text-muted)",
+              borderBottom: activeTab === tabId ? "2px solid var(--color-primary)" : "2px solid transparent"
+            },
+            children: tabLabel
+          },
+          tabId
+        )) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-6", children: [
           activeTab === "columns" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-6", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
@@ -48961,7 +48996,8 @@ const ReportCustomizerModal = ({
                   {
                     type: "button",
                     onClick: handleDeselectAll,
-                    className: "btn btn-ghost text-xs py-1 px-2.5 rounded-lg text-red",
+                    className: "btn btn-ghost text-xs py-1 px-2.5 rounded-lg",
+                    style: { color: "var(--color-danger)" },
                     children: t("reportCustomizer.deselectAll")
                   }
                 )
@@ -48973,16 +49009,17 @@ const ReportCustomizerModal = ({
                 if (catMetrics.length === 0) return null;
                 return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-xs font-bold uppercase tracking-wider", style: { color: "var(--color-text-muted)" }, children: cat.label }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: catMetrics.map((m) => {
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-2.5", children: catMetrics.map((m) => {
                     const isChecked = chosenColumns.includes(m.id);
                     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
                       "label",
                       {
-                        className: "flex items-center gap-2.5 p-2 rounded-xl border cursor-pointer select-none transition-all",
+                        className: "flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer select-none transition-all",
                         style: {
                           backgroundColor: isChecked ? "var(--color-primary-light)" : "var(--color-bg-soft)",
                           borderColor: isChecked ? "var(--color-primary)" : "var(--color-border)",
-                          color: "var(--color-text-primary)"
+                          color: "var(--color-text-primary)",
+                          minHeight: "40px"
                         },
                         children: [
                           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -49049,7 +49086,8 @@ const ReportCustomizerModal = ({
                                   type: "button",
                                   disabled: idx === 0,
                                   onClick: () => handleMoveColumn(idx, -1),
-                                  className: "p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-30",
+                                  className: "p-1 rounded disabled:opacity-30",
+                                  style: { color: "var(--color-text-secondary)" },
                                   children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowUp, { className: "w-3 h-3" })
                                 }
                               ),
@@ -49059,7 +49097,8 @@ const ReportCustomizerModal = ({
                                   type: "button",
                                   disabled: idx === chosenColumns.length - 1,
                                   onClick: () => handleMoveColumn(idx, 1),
-                                  className: "p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-30",
+                                  className: "p-1 rounded disabled:opacity-30",
+                                  style: { color: "var(--color-text-secondary)" },
                                   children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowDown, { className: "w-3 h-3" })
                                 }
                               ),
@@ -49068,7 +49107,8 @@ const ReportCustomizerModal = ({
                                 {
                                   type: "button",
                                   onClick: () => handleToggleColumn(cId),
-                                  className: "p-0.5 rounded text-red hover:bg-red/10 ml-1",
+                                  className: "p-1 rounded ml-1",
+                                  style: { color: "var(--color-danger)" },
                                   children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3 h-3" })
                                 }
                               )
@@ -49144,8 +49184,15 @@ const ReportCustomizerModal = ({
                     color: isChosen ? "var(--color-primary)" : "var(--color-text-primary)"
                   },
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: dim }),
-                    isChosen && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500 text-white font-bold", children: layers.indexOf(dim) + 1 })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: DIM_LABELS[dim] || dim }),
+                    isChosen && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "span",
+                      {
+                        className: "text-[10px] min-w-[18px] text-center px-1.5 py-0.5 rounded-full font-bold",
+                        style: { backgroundColor: "var(--color-primary)", color: "var(--color-bg-card)" },
+                        children: layers.indexOf(dim) + 1
+                      }
+                    )
                   ]
                 },
                 dim
@@ -49169,13 +49216,14 @@ const ReportCustomizerModal = ({
               )
             ] }),
             filters.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-center py-8", style: { color: "var(--color-text-muted)" }, children: t("reportCustomizer.noFilters", 'No filters configured. Click "+ Add Filter" to add a condition.') }),
-            filters.map((f, fIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+            filters.map((f, fIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "select",
                 {
                   value: f.field,
                   onChange: (e) => handleUpdateFilter(fIdx, "field", e.target.value),
-                  className: "form-select text-xs py-1.5 rounded-xl w-40",
+                  className: "form-select text-xs py-1.5 rounded-xl",
+                  style: { minWidth: "150px", flex: "0 1 auto" },
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "country", children: t("campaignReports.geoCountry") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "city", children: t("reportCustomizer.fCity", "City") }),
@@ -49195,7 +49243,8 @@ const ReportCustomizerModal = ({
                 {
                   value: f.op,
                   onChange: (e) => handleUpdateFilter(fIdx, "op", e.target.value),
-                  className: "form-select text-xs py-1.5 rounded-xl w-32",
+                  className: "form-select text-xs py-1.5 rounded-xl",
+                  style: { minWidth: "140px", flex: "0 1 auto" },
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "eq", children: t("reportCustomizer.opEq", "Equal (=)") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "neq", children: t("reportCustomizer.opNeq", "Not equal (!=)") }),
@@ -49211,7 +49260,8 @@ const ReportCustomizerModal = ({
                   value: f.value,
                   onChange: (e) => handleUpdateFilter(fIdx, "value", e.target.value),
                   placeholder: t("reportCustomizer.fValue", "Value..."),
-                  className: "form-input text-xs py-1.5 px-3 rounded-xl flex-1"
+                  className: "form-input text-xs py-1.5 px-3 rounded-xl",
+                  style: { flex: "1 1 160px", minWidth: "140px" }
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -49219,7 +49269,8 @@ const ReportCustomizerModal = ({
                 {
                   type: "button",
                   onClick: () => handleRemoveFilter(fIdx),
-                  className: "btn-icon text-red",
+                  className: "p-1.5 rounded",
+                  style: { color: "var(--color-danger)" },
                   children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
                 }
               )
@@ -49256,7 +49307,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   const [loading, setLoading] = reactExports.useState(true);
   const [rows, setRows] = reactExports.useState([]);
   const [layerKeys, setLayerKeys] = reactExports.useState([]);
-  const defaultLayers = campaignId ? ["country", "adset_id"] : ["country", "campaign_id", "adset_id"];
+  const defaultLayers = ["country"];
   const [layers, setLayers] = reactExports.useState(defaultLayers);
   const [filters, setFilters] = reactExports.useState([]);
   const todayPreset = getPresetDates("last7Days") || getPresetDates("today");
