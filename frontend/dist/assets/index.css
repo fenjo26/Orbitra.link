@@ -1426,6 +1426,10 @@
     margin-inline-end: calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-x-reverse)));
   }
 
+  .gap-y-1 {
+    row-gap: calc(var(--spacing) * 1);
+  }
+
   .gap-y-4 {
     row-gap: calc(var(--spacing) * 4);
   }
@@ -1584,10 +1588,6 @@
 
   .border-blue-300 {
     border-color: var(--color-blue-300);
-  }
-
-  .border-blue-500 {
-    border-color: var(--color-blue-500);
   }
 
   .border-blue-600 {
@@ -2273,10 +2273,6 @@
     color: var(--color-blue-100);
   }
 
-  .text-blue-400 {
-    color: var(--color-blue-400);
-  }
-
   .text-blue-500 {
     color: var(--color-blue-500);
   }
@@ -2410,10 +2406,6 @@
     text-decoration-line: underline;
   }
 
-  .placeholder-gray-400::placeholder {
-    color: var(--color-gray-400);
-  }
-
   .placeholder-slate-500::placeholder {
     color: var(--color-slate-500);
   }
@@ -2505,10 +2497,6 @@
 
   .ring-\[var\(--color-primary\)\] {
     --tw-ring-color: var(--color-primary);
-  }
-
-  .ring-blue-500 {
-    --tw-ring-color: var(--color-blue-500);
   }
 
   .blur {
@@ -2620,10 +2608,6 @@
 
     .group-hover\:text-blue-600:is(:where(.group):hover *) {
       color: var(--color-blue-600);
-    }
-
-    .group-hover\:text-blue-700:is(:where(.group):hover *) {
-      color: var(--color-blue-700);
     }
 
     .group-hover\:opacity-40:is(:where(.group):hover *) {
@@ -2746,10 +2730,6 @@
       border-color: var(--color-gray-300);
     }
 
-    .hover\:border-gray-400:hover {
-      border-color: var(--color-gray-400);
-    }
-
     .hover\:border-gray-600:hover {
       border-color: var(--color-gray-600);
     }
@@ -2790,10 +2770,6 @@
       .hover\:bg-black\/5:hover {
         background-color: color-mix(in oklab, var(--color-black) 5%, transparent);
       }
-    }
-
-    .hover\:bg-blue-50:hover {
-      background-color: var(--color-blue-50);
     }
 
     .hover\:bg-blue-50\/10:hover {
@@ -2880,20 +2856,12 @@
       color: var(--color-blue-700);
     }
 
-    .hover\:text-blue-800:hover {
-      color: var(--color-blue-800);
-    }
-
     .hover\:text-emerald-500:hover {
       color: var(--color-emerald-500);
     }
 
     .hover\:text-gray-600:hover {
       color: var(--color-gray-600);
-    }
-
-    .hover\:text-gray-900:hover {
-      color: var(--color-gray-900);
     }
 
     .hover\:text-red-500:hover {

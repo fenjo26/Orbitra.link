@@ -52714,6 +52714,53 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
     (c) => c.name.toLowerCase().includes(search.toLowerCase()) || c.code.toLowerCase().includes(search.toLowerCase())
   );
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full relative", ref: wrapperRef, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-2 flex-wrap gap-y-1", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          onClick: toggleMode,
+          className: "text-xs text-[var(--color-primary)] hover:underline flex items-center gap-1 font-medium transition-colors",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Type, { size: 12 }),
+            mode === "select" ? t("geoSelector.switchToTextarea") : t("geoSelector.switchToSelect")
+          ]
+        }
+      ),
+      mode === "select" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: (e) => {
+              e.stopPropagation();
+              setIsOpen(false);
+              setShowProfiles(!showProfiles);
+            },
+            className: "text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline flex items-center gap-1 transition-colors",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { size: 12 }),
+              t("geoSelector.insertFromProfile")
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: (e) => {
+              e.stopPropagation();
+              addUnknown();
+            },
+            className: "text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline flex items-center gap-1 transition-colors",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 12 }),
+              t("geoSelector.addUnknown")
+            ]
+          }
+        )
+      ] })
+    ] }),
     mode === "select" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
@@ -52809,53 +52856,6 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
         },
         profile.id
       )) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-3 text-sm text-[var(--color-text-muted)] text-center", children: t("geoSelector.noProfiles") })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mt-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "button",
-        {
-          type: "button",
-          onClick: toggleMode,
-          className: "text-xs text-[var(--color-primary)] hover:underline flex items-center gap-1 font-medium transition-colors",
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Type, { size: 12 }),
-            mode === "select" ? t("geoSelector.switchToTextarea") : t("geoSelector.switchToSelect")
-          ]
-        }
-      ),
-      mode === "select" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            onClick: (e) => {
-              e.stopPropagation();
-              setIsOpen(false);
-              setShowProfiles(!showProfiles);
-            },
-            className: "text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline flex items-center gap-1 transition-colors",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { size: 12 }),
-              t("geoSelector.insertFromProfile")
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            onClick: (e) => {
-              e.stopPropagation();
-              addUnknown();
-            },
-            className: "text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline flex items-center gap-1 transition-colors",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 12 }),
-              t("geoSelector.addUnknown")
-            ]
-          }
-        )
-      ] })
     ] })
   ] });
 };
@@ -69703,12 +69703,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         ] })
       ] })
     ] }),
-    filterModal.open && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "600px" }, children: [
+    filterModal.open && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "600px", minHeight: "480px", overflow: "visible", display: "flex", flexDirection: "column" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: filterModal.filterIdx !== null ? t("editor.editFilter") : t("editor.addFilter") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setFilterModal({ open: false, streamIdx: null, filterIdx: null }), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 flex-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.filterType") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(

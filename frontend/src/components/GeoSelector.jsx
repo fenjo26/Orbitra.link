@@ -120,6 +120,46 @@ const GeoSelector = ({ value = '', onChange, placeholder }) => {
 
     return (
         <div className="w-full relative" ref={wrapperRef}>
+            {/* Toolbar — kept above the input so the opening dropdown never covers it */}
+            <div className="flex items-center justify-between mb-2 flex-wrap gap-y-1">
+                <button
+                    type="button"
+                    onClick={toggleMode}
+                    className="text-xs text-[var(--color-primary)] hover:underline flex items-center gap-1 font-medium transition-colors"
+                >
+                    <Type size={12} />
+                    {mode === 'select' ? t('geoSelector.switchToTextarea') : t('geoSelector.switchToSelect')}
+                </button>
+
+                {mode === 'select' && (
+                    <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsOpen(false);
+                                setShowProfiles(!showProfiles);
+                            }}
+                            className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline flex items-center gap-1 transition-colors"
+                        >
+                            <MapPin size={12} />
+                            {t('geoSelector.insertFromProfile')}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                addUnknown();
+                            }}
+                            className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline flex items-center gap-1 transition-colors"
+                        >
+                            <Plus size={12} />
+                            {t('geoSelector.addUnknown')}
+                        </button>
+                    </div>
+                )}
+            </div>
+
             {mode === 'select' ? (
                 <div
                     className={`min-h-[42px] border rounded-[4px] p-1.5 flex flex-wrap items-center gap-1.5 cursor-text transition-colors bg-[var(--color-bg-card)] ${isOpen
@@ -242,46 +282,6 @@ const GeoSelector = ({ value = '', onChange, placeholder }) => {
                     )}
                 </div>
             )}
-
-            {/* Toolbar */}
-            <div className="flex items-center justify-between mt-2">
-                <button
-                    type="button"
-                    onClick={toggleMode}
-                    className="text-xs text-[var(--color-primary)] hover:underline flex items-center gap-1 font-medium transition-colors"
-                >
-                    <Type size={12} />
-                    {mode === 'select' ? t('geoSelector.switchToTextarea') : t('geoSelector.switchToSelect')}
-                </button>
-
-                {mode === 'select' && (
-                    <div className="flex items-center gap-3">
-                        <button
-                            type="button"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setIsOpen(false);
-                                setShowProfiles(!showProfiles);
-                            }}
-                            className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline flex items-center gap-1 transition-colors"
-                        >
-                            <MapPin size={12} />
-                            {t('geoSelector.insertFromProfile')}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                addUnknown();
-                            }}
-                            className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline flex items-center gap-1 transition-colors"
-                        >
-                            <Plus size={12} />
-                            {t('geoSelector.addUnknown')}
-                        </button>
-                    </div>
-                )}
-            </div>
         </div>
     );
 };

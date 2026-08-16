@@ -2849,7 +2849,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             {/* Filter Modal */}
             {filterModal.open && (
                 <div className="modal-overlay">
-                    <div className="modal-content" style={{ maxWidth: '600px' }}>
+                    <div className="modal-content" style={{ maxWidth: '600px', minHeight: '480px', overflow: 'visible', display: 'flex', flexDirection: 'column' }}>
                         <div className="modal-header">
                             <h3 className="modal-title">
                                 {filterModal.filterIdx !== null ? t('editor.editFilter') : t('editor.addFilter')}
@@ -2859,7 +2859,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             </button>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-4 flex-1">
                             <div>
                                 <label className="form-label">{t('editor.filterType')}</label>
                                 <select
