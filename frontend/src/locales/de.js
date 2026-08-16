@@ -2387,6 +2387,8 @@ export default {
         "noAccounts": "Noch sendet keine Kampagne Conversions an Meta."
     },
     "reportCustomizer": {
+        "columnsSelector": "Spalten",
+        "restoreDefault": "Standard wiederherstellen",
         "dimCity": "Stadt",
         "dimRegion": "Region",
         "dimHour": "Stunde",
@@ -2404,6 +2406,7 @@ export default {
         "fValue": "Wert…",
         "title": "Berichtsspalten anpassen",
         "campaignColumnsTitle": "Kampagnenspalten anpassen",
+        "headerSubtitle": "Passen Sie die Spalten an, wählen Sie Vorlagen oder ziehen Sie Spalten zum Neuanordnen",
         "presets": "Vorlagen",
         "presetCod": "COD (Nachnahme)",
         "presetLanderToOffer": "Lander zu Offer (Lander to Offer)",

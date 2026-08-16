@@ -2387,6 +2387,8 @@ export default {
         "noAccounts": "Жодна кампанія поки не надсилає конверсії в Meta."
     },
     "reportCustomizer": {
+        "columnsSelector": "Колонки",
+        "restoreDefault": "Відновити стандартні",
         "dimCity": "Місто",
         "dimRegion": "Регіон",
         "dimHour": "Година",
@@ -2404,6 +2406,7 @@ export default {
         "fValue": "Значення…",
         "title": "Налаштування колонок звіту",
         "campaignColumnsTitle": "Налаштування колонок кампаній",
+        "headerSubtitle": "Налаштуйте відображення колонок, оберіть шаблон або перетягніть для зміни порядку",
         "presets": "Пресети",
         "presetCod": "COD (Оплата при отриманні)",
         "presetLanderToOffer": "Лендінг → Оффер (Lander to Offer)",

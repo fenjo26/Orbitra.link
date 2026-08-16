@@ -288,38 +288,64 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         switch (metricId) {
             case 'clicks':
             case 'unique_clicks':
+            case 'visitors':
+            case 'unique_clicks_stream':
+            case 'unique_clicks_global':
+            case 'bots':
+            case 'proxies':
+            case 'empty_referrers':
             case 'prelander_clicks':
             case 'offer_clicks':
+            case 'lp_views':
+            case 'lp_clicks':
             case 'purchases':
+            case 'sales':
             case 'holds':
+            case 'leads':
+            case 'registrations':
+            case 'deposits':
             case 'rejected':
             case 'trash':
                 return num.toLocaleString();
+
             case 'conversions':
                 return num > 0 ? <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span> : '0';
+
+            case 'profitability':
             case 'uc_rate':
+            case 'uc_rate_stream':
+            case 'uc_rate_global':
+            case 'bot_rate':
             case 'lp_ctr':
-            case 'cr':
-            case 'cr_sales':
-            case 'cr_holds':
             case 'approve_rate':
             case 'approve_rate_excl_trash':
+            case 'cr':
+            case 'cr_all':
+            case 'cr_sales':
+            case 'cr_holds':
+            case 'cr_leads':
+            case 'cr_registrations':
+            case 'cr_deposits':
+            case 'cr_regs_to_deps':
+            case 'ucr':
                 return `${num.toFixed(2)}%`;
-            case 'cost':
-            case 'revenue':
-            case 'revenue_confirmed':
-            case 'revenue_hold':
-            case 'revenue_rejected':
-            case 'revenue_trash':
-            case 'real_revenue':
-            case 'epc':
-            case 'uepc':
-            case 'cpc':
-            case 'ucpc':
-            case 'cpa':
-            case 'earnings_per_conv':
-                return `$${num.toFixed(2)}`;
+
+            case 'roi':
+            case 'roi_all':
+            case 'roi_confirmed':
+            case 'real_roi': {
+                if (val === null || val === undefined) return '—';
+                const isPos = num >= 0;
+                return (
+                    <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: strong ? 700 : 600 }}>
+                        {isPos ? '+' : ''}{num.toFixed(2)}%
+                    </span>
+                );
+            }
+
             case 'profit':
+            case 'profit_all':
+            case 'profit_confirmed':
             case 'real_profit': {
                 const isPos = num >= 0;
                 return (
@@ -328,15 +354,44 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                     </span>
                 );
             }
-            case 'roi':
-            case 'real_roi': {
-                const isPos = num >= 0;
-                return (
-                    <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: strong ? 700 : 600 }}>
-                        {isPos ? '+' : ''}{num.toFixed(2)}%
-                    </span>
-                );
-            }
+
+            case 'cost':
+            case 'revenue':
+            case 'revenue_all':
+            case 'revenue_confirmed':
+            case 'revenue_hold':
+            case 'revenue_rejected':
+            case 'revenue_trash':
+            case 'revenue_registration':
+            case 'revenue_deposit':
+            case 'real_revenue':
+            case 'cpa':
+            case 'cps':
+            case 'cpl':
+            case 'cpr':
+            case 'cpd':
+            case 'ecpc':
+            case 'ecpm_all':
+            case 'ecpm_confirmed':
+            case 'earnings_per_conv':
+            case 'ec_all':
+            case 'ec_confirmed':
+                return `$${num.toFixed(2)}`;
+
+            case 'epc':
+            case 'epc_all':
+            case 'uepc':
+            case 'uepc_all':
+            case 'epc_confirmed':
+            case 'uepc_confirmed':
+            case 'epc_hold':
+            case 'uepc_hold':
+            case 'epc_registration':
+            case 'uepc_registration':
+            case 'cpc':
+            case 'ucpc':
+                return `$${num.toFixed(4)}`;
+
             default:
                 return val !== undefined && val !== null ? String(val) : '-';
         }
@@ -348,7 +403,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             layerKeys.join(' > '),
             ...chosenColumns.map(cId => {
                 const def = ALL_REPORT_METRICS.find(m => m.id === cId);
-                return def ? t(def.labelKey, def.defaultLabel) : cId;
+                return def?.label || cId;
             })
         ];
 
@@ -493,7 +548,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                         </th>
                                         {chosenColumns.map((colId, colIdx) => {
                                             const def = ALL_REPORT_METRICS.find(m => m.id === colId);
-                                            const label = def ? t(def.labelKey, def.defaultLabel) : colId;
+                                            const label = def?.label || colId;
                                             return (
                                                 <th
                                                     key={colId}

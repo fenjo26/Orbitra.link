@@ -2387,6 +2387,8 @@ export default {
         "noAccounts": "还没有广告系列向 Meta 发送转化。"
     },
     "reportCustomizer": {
+        "columnsSelector": "列",
+        "restoreDefault": "恢复默认",
         "dimCity": "城市",
         "dimRegion": "地区",
         "dimHour": "小时",
@@ -2404,6 +2406,7 @@ export default {
         "fValue": "值…",
         "title": "自定义报表列",
         "campaignColumnsTitle": "自定义广告系列列",
+        "headerSubtitle": "自定义可见列、切换预设模板或拖动调整排序",
         "presets": "预设模板",
         "presetCod": "COD (货到付款)",
         "presetLanderToOffer": "着陆页至优惠 (Lander to Offer)",

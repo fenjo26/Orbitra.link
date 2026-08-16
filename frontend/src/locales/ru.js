@@ -2387,6 +2387,8 @@ export default {
         "noAccounts": "Ни одна кампания пока не отправляет конверсии в Meta."
     },
     "reportCustomizer": {
+        "columnsSelector": "Колонки",
+        "restoreDefault": "Вернуть по умолчанию",
         "dimCity": "Город",
         "dimRegion": "Регион",
         "dimHour": "Час",
@@ -2404,6 +2406,7 @@ export default {
         "fValue": "Значение...",
         "title": "Настройка колонок отчёта",
         "campaignColumnsTitle": "Настройка колонок кампаний",
+        "headerSubtitle": "Настройте отображение колонок, выберите шаблон или перетащите для изменения порядка",
         "presets": "Пресеты",
         "presetCod": "COD (Оплата при доставке)",
         "presetLanderToOffer": "Лендинг → Оффер (Lander to Offer)",

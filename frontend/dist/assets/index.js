@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1H = [
+const __iconNode$1G = [
   [
     "path",
     {
@@ -15120,18 +15120,13 @@ const __iconNode$1H = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1H);
-const __iconNode$1G = [
+const Activity = createLucideIcon("activity", __iconNode$1G);
+const __iconNode$1F = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1G);
-const __iconNode$1F = [
-  ["path", { d: "M12 5v14", key: "s699le" }],
-  ["path", { d: "m19 12-7 7-7-7", key: "1idqje" }]
-];
-const ArrowDown = createLucideIcon("arrow-down", __iconNode$1F);
+const Archive = createLucideIcon("archive", __iconNode$1F);
 const __iconNode$1E = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
@@ -15150,11 +15145,6 @@ const __iconNode$1C = [
 ];
 const ArrowRight = createLucideIcon("arrow-right", __iconNode$1C);
 const __iconNode$1B = [
-  ["path", { d: "m5 12 7-7 7 7", key: "hav0vg" }],
-  ["path", { d: "M12 19V5", key: "x0mq9r" }]
-];
-const ArrowUp = createLucideIcon("arrow-up", __iconNode$1B);
-const __iconNode$1A = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15166,8 +15156,8 @@ const __iconNode$1A = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1A);
-const __iconNode$1z = [
+const BellOff = createLucideIcon("bell-off", __iconNode$1B);
+const __iconNode$1A = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15177,28 +15167,28 @@ const __iconNode$1z = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1z);
-const __iconNode$1y = [
+const Bell = createLucideIcon("bell", __iconNode$1A);
+const __iconNode$1z = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1y);
-const __iconNode$1x = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$1z);
+const __iconNode$1y = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1x);
-const __iconNode$1w = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1y);
+const __iconNode$1x = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1w);
-const __iconNode$1v = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1x);
+const __iconNode$1w = [
   [
     "path",
     {
@@ -15208,39 +15198,39 @@ const __iconNode$1v = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1v);
-const __iconNode$1u = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1u);
-const __iconNode$1t = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1t);
-const __iconNode$1s = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1s);
-const __iconNode$1r = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1r);
-const __iconNode$1q = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1q);
-const __iconNode$1p = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1w);
+const __iconNode$1v = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1v);
+const __iconNode$1u = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1u);
+const __iconNode$1t = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1t);
+const __iconNode$1s = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1s);
+const __iconNode$1r = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1r);
+const __iconNode$1q = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1p);
-const __iconNode$1o = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1q);
+const __iconNode$1p = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1o);
-const __iconNode$1n = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1p);
+const __iconNode$1o = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1n);
-const __iconNode$1m = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1o);
+const __iconNode$1n = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1m);
-const __iconNode$1l = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1n);
+const __iconNode$1m = [
   [
     "path",
     {
@@ -15250,39 +15240,39 @@ const __iconNode$1l = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1l);
-const __iconNode$1k = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1m);
+const __iconNode$1l = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1k);
-const __iconNode$1j = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1l);
+const __iconNode$1k = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1j);
-const __iconNode$1i = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1k);
+const __iconNode$1j = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1i);
-const __iconNode$1h = [
+const Clock = createLucideIcon("clock", __iconNode$1j);
+const __iconNode$1i = [
   ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1h);
-const __iconNode$1g = [
+const Cloud = createLucideIcon("cloud", __iconNode$1i);
+const __iconNode$1h = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1g);
-const __iconNode$1f = [
+const Code = createLucideIcon("code", __iconNode$1h);
+const __iconNode$1g = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1f);
-const __iconNode$1e = [
+const Copy = createLucideIcon("copy", __iconNode$1g);
+const __iconNode$1f = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15298,25 +15288,25 @@ const __iconNode$1e = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1e);
-const __iconNode$1d = [
+const Cpu = createLucideIcon("cpu", __iconNode$1f);
+const __iconNode$1e = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1d);
-const __iconNode$1c = [
+const Database = createLucideIcon("database", __iconNode$1e);
+const __iconNode$1d = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$1c);
-const __iconNode$1b = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1d);
+const __iconNode$1c = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$1b);
-const __iconNode$1a = [
+const Download = createLucideIcon("download", __iconNode$1c);
+const __iconNode$1b = [
   [
     "path",
     {
@@ -15325,20 +15315,20 @@ const __iconNode$1a = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$1a);
-const __iconNode$19 = [
+const Droplet = createLucideIcon("droplet", __iconNode$1b);
+const __iconNode$1a = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$19);
-const __iconNode$18 = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1a);
+const __iconNode$19 = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$18);
-const __iconNode$17 = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$19);
+const __iconNode$18 = [
   [
     "path",
     {
@@ -15356,8 +15346,8 @@ const __iconNode$17 = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$17);
-const __iconNode$16 = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$18);
+const __iconNode$17 = [
   [
     "path",
     {
@@ -15367,8 +15357,8 @@ const __iconNode$16 = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$16);
-const __iconNode$15 = [
+const Eye = createLucideIcon("eye", __iconNode$17);
+const __iconNode$16 = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15379,8 +15369,8 @@ const __iconNode$15 = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$15);
-const __iconNode$14 = [
+const FileStack = createLucideIcon("file-stack", __iconNode$16);
+const __iconNode$15 = [
   [
     "path",
     {
@@ -15393,8 +15383,8 @@ const __iconNode$14 = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$14);
-const __iconNode$13 = [
+const FileText = createLucideIcon("file-text", __iconNode$15);
+const __iconNode$14 = [
   [
     "path",
     {
@@ -15403,22 +15393,22 @@ const __iconNode$13 = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$13);
-const __iconNode$12 = [
+const Funnel = createLucideIcon("funnel", __iconNode$14);
+const __iconNode$13 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$12);
-const __iconNode$11 = [
+const Globe = createLucideIcon("globe", __iconNode$13);
+const __iconNode$12 = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }],
   ["path", { d: "M9 3v18", key: "fh3hqa" }],
   ["path", { d: "M15 3v18", key: "14nvp0" }]
 ];
-const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$11);
-const __iconNode$10 = [
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$12);
+const __iconNode$11 = [
   ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
   ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
   ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
@@ -15426,8 +15416,8 @@ const __iconNode$10 = [
   ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
   ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
 ];
-const GripVertical = createLucideIcon("grip-vertical", __iconNode$10);
-const __iconNode$$ = [
+const GripVertical = createLucideIcon("grip-vertical", __iconNode$11);
+const __iconNode$10 = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15439,8 +15429,8 @@ const __iconNode$$ = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$$);
-const __iconNode$_ = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$10);
+const __iconNode$$ = [
   [
     "path",
     {
@@ -15449,20 +15439,20 @@ const __iconNode$_ = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$_);
-const __iconNode$Z = [
+const Heart = createLucideIcon("heart", __iconNode$$);
+const __iconNode$_ = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$Z);
-const __iconNode$Y = [
+const Image = createLucideIcon("image", __iconNode$_);
+const __iconNode$Z = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$Y);
-const __iconNode$X = [
+const Info = createLucideIcon("info", __iconNode$Z);
+const __iconNode$Y = [
   [
     "path",
     {
@@ -15472,13 +15462,37 @@ const __iconNode$X = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$X);
-const __iconNode$W = [
+const KeyRound = createLucideIcon("key-round", __iconNode$Y);
+const __iconNode$X = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$W);
+const Key = createLucideIcon("key", __iconNode$X);
+const __iconNode$W = [
+  [
+    "path",
+    {
+      d: "M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z",
+      key: "zw3jo"
+    }
+  ],
+  [
+    "path",
+    {
+      d: "M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12",
+      key: "1wduqc"
+    }
+  ],
+  [
+    "path",
+    {
+      d: "M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17",
+      key: "kqbvx6"
+    }
+  ]
+];
+const Layers = createLucideIcon("layers", __iconNode$W);
 const __iconNode$V = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
@@ -18370,6 +18384,8 @@ const ru = {
     "noAccounts": "Ни одна кампания пока не отправляет конверсии в Meta."
   },
   "reportCustomizer": {
+    "columnsSelector": "Колонки",
+    "restoreDefault": "Вернуть по умолчанию",
     "dimCity": "Город",
     "dimRegion": "Регион",
     "dimHour": "Час",
@@ -18387,6 +18403,7 @@ const ru = {
     "fValue": "Значение...",
     "title": "Настройка колонок отчёта",
     "campaignColumnsTitle": "Настройка колонок кампаний",
+    "headerSubtitle": "Настройте отображение колонок, выберите шаблон или перетащите для изменения порядка",
     "presets": "Пресеты",
     "presetCod": "COD (Оплата при доставке)",
     "presetLanderToOffer": "Лендинг → Оффер (Lander to Offer)",
@@ -20872,6 +20889,8 @@ const en = {
     "noAccounts": "No campaigns are sending conversions to Meta yet."
   },
   "reportCustomizer": {
+    "columnsSelector": "Columns",
+    "restoreDefault": "Restore to default",
     "dimCity": "City",
     "dimRegion": "Region",
     "dimHour": "Hour",
@@ -20889,6 +20908,7 @@ const en = {
     "fValue": "Value...",
     "title": "Customize Report Columns",
     "campaignColumnsTitle": "Customize Campaign Columns",
+    "headerSubtitle": "Customize visible columns, change presets, or drag to reorder",
     "presets": "Presets",
     "presetCod": "COD",
     "presetLanderToOffer": "Lander to Offer via Link",
@@ -23374,6 +23394,8 @@ const uk = {
     "noAccounts": "Жодна кампанія поки не надсилає конверсії в Meta."
   },
   "reportCustomizer": {
+    "columnsSelector": "Колонки",
+    "restoreDefault": "Відновити стандартні",
     "dimCity": "Місто",
     "dimRegion": "Регіон",
     "dimHour": "Година",
@@ -23391,6 +23413,7 @@ const uk = {
     "fValue": "Значення…",
     "title": "Налаштування колонок звіту",
     "campaignColumnsTitle": "Налаштування колонок кампаній",
+    "headerSubtitle": "Налаштуйте відображення колонок, оберіть шаблон або перетягніть для зміни порядку",
     "presets": "Пресети",
     "presetCod": "COD (Оплата при отриманні)",
     "presetLanderToOffer": "Лендінг → Оффер (Lander to Offer)",
@@ -25876,6 +25899,8 @@ const es = {
     "noAccounts": "Ninguna campaña está enviando conversiones a Meta todavía."
   },
   "reportCustomizer": {
+    "columnsSelector": "Columnas",
+    "restoreDefault": "Restaurar valores predeterminados",
     "dimCity": "Ciudad",
     "dimRegion": "Región",
     "dimHour": "Hora",
@@ -25893,6 +25918,7 @@ const es = {
     "fValue": "Valor…",
     "title": "Personalizar columnas de informe",
     "campaignColumnsTitle": "Personalizar columnas de campañas",
+    "headerSubtitle": "Personaliza las columnas visibles, cambia de plantilla o arrastra para reordenar",
     "presets": "Plantillas",
     "presetCod": "COD (Pago contra entrega)",
     "presetLanderToOffer": "Lander a Oferta (Lander to Offer)",
@@ -28378,6 +28404,8 @@ const zh = {
     "noAccounts": "还没有广告系列向 Meta 发送转化。"
   },
   "reportCustomizer": {
+    "columnsSelector": "列",
+    "restoreDefault": "恢复默认",
     "dimCity": "城市",
     "dimRegion": "地区",
     "dimHour": "小时",
@@ -28395,6 +28423,7 @@ const zh = {
     "fValue": "值…",
     "title": "自定义报表列",
     "campaignColumnsTitle": "自定义广告系列列",
+    "headerSubtitle": "自定义可见列、切换预设模板或拖动调整排序",
     "presets": "预设模板",
     "presetCod": "COD (货到付款)",
     "presetLanderToOffer": "着陆页至优惠 (Lander to Offer)",
@@ -30882,6 +30911,8 @@ const fr = {
     "noAccounts": "Aucune campagne n’envoie encore de conversions à Meta."
   },
   "reportCustomizer": {
+    "columnsSelector": "Colonnes",
+    "restoreDefault": "Restaurer par défaut",
     "dimCity": "Ville",
     "dimRegion": "Région",
     "dimHour": "Heure",
@@ -30899,6 +30930,7 @@ const fr = {
     "fValue": "Valeur…",
     "title": "Personnaliser les colonnes du rapport",
     "campaignColumnsTitle": "Personnaliser les colonnes des campagnes",
+    "headerSubtitle": "Personnalisez les colonnes visibles, modifiez les préréglages ou faites glisser pour réorganiser",
     "presets": "Modèles",
     "presetCod": "COD (Paiement à la livraison)",
     "presetLanderToOffer": "Lander vers Offre (Lander to Offer)",
@@ -33384,6 +33416,8 @@ const de = {
     "noAccounts": "Noch sendet keine Kampagne Conversions an Meta."
   },
   "reportCustomizer": {
+    "columnsSelector": "Spalten",
+    "restoreDefault": "Standard wiederherstellen",
     "dimCity": "Stadt",
     "dimRegion": "Region",
     "dimHour": "Stunde",
@@ -33401,6 +33435,7 @@ const de = {
     "fValue": "Wert…",
     "title": "Berichtsspalten anpassen",
     "campaignColumnsTitle": "Kampagnenspalten anpassen",
+    "headerSubtitle": "Passen Sie die Spalten an, wählen Sie Vorlagen oder ziehen Sie Spalten zum Neuanordnen",
     "presets": "Vorlagen",
     "presetCod": "COD (Nachnahme)",
     "presetLanderToOffer": "Lander zu Offer (Lander to Offer)",
@@ -48717,51 +48752,76 @@ const DateRangePicker = ({
   ] });
 };
 const ALL_REPORT_METRICS = [
-  // Traffic
-  { id: "clicks", labelKey: "reportCustomizer.colClicks", defaultLabel: "Clicks", category: "catTraffic" },
-  { id: "unique_clicks", labelKey: "reportCustomizer.colUniqueClicks", defaultLabel: "Unique clicks", category: "catTraffic" },
-  { id: "uc_rate", labelKey: "reportCustomizer.colUcRate", defaultLabel: "U/C (%)", category: "catTraffic" },
-  { id: "prelander_clicks", labelKey: "reportCustomizer.colPrelanderClicks", defaultLabel: "Prelander clicks", category: "catTraffic" },
-  { id: "offer_clicks", labelKey: "reportCustomizer.colOfferClicks", defaultLabel: "Offer clicks", category: "catTraffic" },
-  { id: "lp_ctr", labelKey: "reportCustomizer.colLpCtr", defaultLabel: "LP CTR (%)", category: "catTraffic" },
-  // Conversions & Statuses
-  { id: "conversions", labelKey: "reportCustomizer.colConversions", defaultLabel: "Conversions (CV)", category: "catConversions" },
-  { id: "purchases", labelKey: "reportCustomizer.colPurchases", defaultLabel: "Purchases (Sales)", category: "catConversions" },
-  { id: "holds", labelKey: "reportCustomizer.colHolds", defaultLabel: "Holds (Leads)", category: "catConversions" },
-  { id: "rejected", labelKey: "reportCustomizer.colRejected", defaultLabel: "Rejected", category: "catConversions" },
-  { id: "trash", labelKey: "reportCustomizer.colTrash", defaultLabel: "Trash", category: "catConversions" },
-  { id: "cr", labelKey: "reportCustomizer.colCrAll", defaultLabel: "CR (all) (%)", category: "catConversions" },
-  { id: "cr_sales", labelKey: "reportCustomizer.colCrSales", defaultLabel: "CR (sales) (%)", category: "catConversions" },
-  { id: "cr_holds", labelKey: "reportCustomizer.colCrHolds", defaultLabel: "CR (holds) (%)", category: "catConversions" },
-  { id: "approve_rate", labelKey: "reportCustomizer.colApproveRate", defaultLabel: "Approve rate (%)", category: "catConversions" },
-  { id: "approve_rate_excl_trash", labelKey: "reportCustomizer.colApproveRateExclTrash", defaultLabel: "Approve (excl. trash) (%)", category: "catConversions" },
-  // Financial
-  { id: "cost", labelKey: "reportCustomizer.colCost", defaultLabel: "Cost", category: "catFinancial" },
-  { id: "revenue", labelKey: "reportCustomizer.colRevenue", defaultLabel: "Revenue", category: "catFinancial" },
-  { id: "revenue_confirmed", labelKey: "reportCustomizer.colRevenueConfirmed", defaultLabel: "Revenue (confirmed)", category: "catFinancial" },
-  { id: "revenue_hold", labelKey: "reportCustomizer.colRevenueHold", defaultLabel: "Revenue (hold)", category: "catFinancial" },
-  { id: "revenue_rejected", labelKey: "reportCustomizer.colRevenueRejected", defaultLabel: "Revenue (rejected)", category: "catFinancial" },
-  { id: "revenue_trash", labelKey: "reportCustomizer.colRevenueTrash", defaultLabel: "Revenue (trash)", category: "catFinancial" },
-  { id: "profit", labelKey: "reportCustomizer.colProfit", defaultLabel: "Profit", category: "catFinancial" },
-  { id: "roi", labelKey: "reportCustomizer.colRoi", defaultLabel: "ROI (%)", category: "catFinancial" },
-  { id: "real_revenue", labelKey: "reportCustomizer.colRealRevenue", defaultLabel: "Real Revenue", category: "catFinancial" },
-  { id: "real_profit", labelKey: "reportCustomizer.colRealProfit", defaultLabel: "Real Profit", category: "catFinancial" },
-  { id: "real_roi", labelKey: "reportCustomizer.colRealRoi", defaultLabel: "Real ROI (%)", category: "catFinancial" },
-  // Rates & Unit Economics
-  { id: "epc", labelKey: "reportCustomizer.colEpc", defaultLabel: "EPC", category: "catRates" },
-  { id: "uepc", labelKey: "reportCustomizer.colUepc", defaultLabel: "uEPC", category: "catRates" },
-  { id: "cpc", labelKey: "reportCustomizer.colCpc", defaultLabel: "CPC", category: "catRates" },
-  { id: "ucpc", labelKey: "reportCustomizer.colUcpc", defaultLabel: "uCPC", category: "catRates" },
-  { id: "cpa", labelKey: "reportCustomizer.colCpa", defaultLabel: "CPA", category: "catRates" },
-  { id: "earnings_per_conv", labelKey: "reportCustomizer.colEarningsPerConv", defaultLabel: "Earnings / Conv", category: "catRates" }
+  { id: "profitability", label: "Profitability" },
+  { id: "clicks", label: "Clicks" },
+  { id: "unique_clicks", label: "Unique clicks (campaign)" },
+  { id: "conversions", label: "Conversions" },
+  { id: "roi_confirmed", label: "ROI (confirmed)" },
+  { id: "deposits", label: "Deposits" },
+  { id: "revenue_deposit", label: "Revenue (deposit)" },
+  { id: "revenue_registration", label: "Revenue (registration)" },
+  { id: "revenue", label: "Revenue" },
+  { id: "profit", label: "Profit/Loss (all)" },
+  { id: "revenue_hold", label: "Revenue (hold)" },
+  { id: "revenue_confirmed", label: "Revenue (confirmed)" },
+  { id: "revenue_rejected", label: "Revenue (rejected)" },
+  { id: "revenue_trash", label: "Revenue (trash)" },
+  { id: "cost", label: "Cost" },
+  { id: "visitors", label: "Visitors" },
+  { id: "unique_clicks_stream", label: "Unique clicks (flow)" },
+  { id: "unique_clicks_global", label: "Unique clicks (global)" },
+  { id: "uc_rate", label: "Unique clicks % (campaign)" },
+  { id: "uc_rate_stream", label: "Unique clicks % (flow)" },
+  { id: "uc_rate_global", label: "Unique clicks % (global)" },
+  { id: "bots", label: "Bots" },
+  { id: "bot_rate", label: "Bot %" },
+  { id: "proxies", label: "Proxies" },
+  { id: "empty_referrers", label: "Empty referrers" },
+  { id: "leads", label: "Leads" },
+  { id: "sales", label: "Sales" },
+  { id: "rejected", label: "Rejected" },
+  { id: "trash", label: "Trash" },
+  { id: "approve_rate", label: "Approve %" },
+  { id: "profit_confirmed", label: "Profit/Loss (confirmed)" },
+  { id: "cr", label: "CR — Conversion rate" },
+  { id: "cr_sales", label: "CR (sales) — Conversion rate" },
+  { id: "cr_deposits", label: "CR (deposits) — Conversion rate" },
+  { id: "cr_holds", label: "CR (hold) — Conversion rate" },
+  { id: "cr_registrations", label: "CR (registrations) — Conversion rate" },
+  { id: "roi", label: "ROI (all) — Return on investment" },
+  { id: "epc", label: "EPC (all) — Earnings per click" },
+  { id: "uepc", label: "uEPC (all) — Earnings per unique click" },
+  { id: "epc_hold", label: "EPC (hold) — Earnings per click" },
+  { id: "uepc_hold", label: "uEPC (hold) — Earnings per unique click" },
+  { id: "epc_registration", label: "EPC (registration) — Earnings per click" },
+  { id: "uepc_registration", label: "uEPC (registration) — Earnings per unique click" },
+  { id: "epc_confirmed", label: "EPC (confirmed) — Earnings per click" },
+  { id: "uepc_confirmed", label: "uEPC (confirmed) — Earnings per unique click" },
+  { id: "cps", label: "CPS — Cost per sale" },
+  { id: "cpl", label: "CPL — Cost per lead" },
+  { id: "cpr", label: "CPR — Cost per registration" },
+  { id: "cpd", label: "CPD — Cost per deposit" },
+  { id: "cpa", label: "CPA — Cost per conversion" },
+  { id: "cpc", label: "CPC — Cost per click" },
+  { id: "ucpc", label: "uCPC — Cost per unique click" },
+  { id: "ecpc", label: "eCPC — Cost per 1000 clicks" },
+  { id: "ecpm_all", label: "eCPM (all) — Profit per 1k clicks" },
+  { id: "ecpm_confirmed", label: "eCPM (confirmed) — Profit per 1k clicks" },
+  { id: "earnings_per_conv", label: "EC (all) — Earnings per conversion" },
+  { id: "ec_confirmed", label: "EC (confirmed) — Earning per conversion" },
+  { id: "registrations", label: "Registrations" },
+  { id: "ucr", label: "uCR — Unique clicks to registrations" },
+  { id: "time_since_lp_click", label: "Time since LP click" },
+  { id: "lp_views", label: "LP views" },
+  { id: "prelander_clicks", label: "LP clicks" },
+  { id: "lp_ctr", label: "LP CTR — LP Click-Through Rate" },
+  { id: "cr_regs_to_deps", label: "CR (regs to deps)" }
 ];
 const PRESETS = {
-  best: ["clicks", "unique_clicks", "conversions", "cr", "cost", "revenue", "profit", "roi", "cpc", "cpa", "epc"],
-  cod: ["clicks", "unique_clicks", "conversions", "purchases", "holds", "rejected", "trash", "approve_rate", "cost", "revenue_confirmed", "profit", "roi", "cpa"],
-  lander_to_offer: ["clicks", "unique_clicks", "prelander_clicks", "offer_clicks", "lp_ctr", "conversions", "cr", "cost", "revenue", "profit", "roi", "epc", "cpc"],
-  finance: ["cost", "revenue", "revenue_confirmed", "revenue_hold", "revenue_rejected", "profit", "roi", "real_revenue", "real_profit", "real_roi", "cpa", "epc"],
+  best: ["profitability", "clicks", "unique_clicks", "conversions", "roi_confirmed", "cost", "revenue", "profit", "cr", "epc", "cpc", "cpa"],
   all: ALL_REPORT_METRICS.map((m) => m.id)
 };
+const DEFAULT_METRIC_ORDER = ALL_REPORT_METRICS.map((m) => m.id);
 const ReportCustomizerModal = ({
   isOpen,
   onClose,
@@ -48769,7 +48829,6 @@ const ReportCustomizerModal = ({
   onSaveColumns,
   mode = "report",
   // 'report' or 'campaigns'
-  availableDimensions = [],
   currentLayers = [],
   onSaveLayers,
   currentFilters = [],
@@ -48777,49 +48836,47 @@ const ReportCustomizerModal = ({
 }) => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("columns");
-  const [chosenColumns, setChosenColumns] = reactExports.useState([]);
   const [searchQuery, setSearchQuery] = reactExports.useState("");
-  const [activePreset, setActivePreset] = reactExports.useState("custom");
+  const [orderedMetricIds, setOrderedMetricIds] = reactExports.useState(() => [...DEFAULT_METRIC_ORDER]);
+  const [selectedSet, setSelectedSet] = reactExports.useState(() => new Set(PRESETS.best));
   const [layers, setLayers] = reactExports.useState([]);
   const [filters, setFilters] = reactExports.useState([]);
   const [dragIndex, setDragIndex] = reactExports.useState(null);
   reactExports.useEffect(() => {
     if (isOpen) {
-      setChosenColumns(selectedColumns.length > 0 ? [...selectedColumns] : [...PRESETS.best]);
+      const initialSelected = selectedColumns.length > 0 ? selectedColumns : PRESETS.best;
+      setSelectedSet(new Set(initialSelected));
+      const unselected = DEFAULT_METRIC_ORDER.filter((id) => !initialSelected.includes(id));
+      const initialOrder = [...initialSelected, ...unselected];
+      setOrderedMetricIds(initialOrder);
       if (currentLayers) setLayers([...currentLayers]);
       if (currentFilters) setFilters([...currentFilters]);
+      setSearchQuery("");
     }
   }, [isOpen, selectedColumns, currentLayers, currentFilters]);
   if (!isOpen) return null;
-  const handleApplyPreset = (presetKey) => {
-    setActivePreset(presetKey);
-    if (PRESETS[presetKey]) {
-      setChosenColumns([...PRESETS[presetKey]]);
-    }
-  };
-  const handleToggleColumn = (colId) => {
-    setActivePreset("custom");
-    if (chosenColumns.includes(colId)) {
-      setChosenColumns(chosenColumns.filter((c) => c !== colId));
+  const isAllSelected = orderedMetricIds.every((id) => selectedSet.has(id));
+  const handleToggleAll = () => {
+    if (isAllSelected) {
+      setSelectedSet(/* @__PURE__ */ new Set(["clicks"]));
     } else {
-      setChosenColumns([...chosenColumns, colId]);
+      setSelectedSet(new Set(orderedMetricIds));
     }
   };
-  const handleSelectAll = () => {
-    setActivePreset("all");
-    setChosenColumns(ALL_REPORT_METRICS.map((m) => m.id));
+  const handleToggleMetric = (id) => {
+    setSelectedSet((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        if (next.size > 1) next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   };
-  const handleDeselectAll = () => {
-    setActivePreset("custom");
-    setChosenColumns(["clicks"]);
-  };
-  const handleMoveColumn = (index2, direction) => {
-    const newIndex = index2 + direction;
-    if (newIndex < 0 || newIndex >= chosenColumns.length) return;
-    const copy = [...chosenColumns];
-    const item = copy.splice(index2, 1)[0];
-    copy.splice(newIndex, 0, item);
-    setChosenColumns(copy);
+  const handleRestoreDefault = () => {
+    setSelectedSet(new Set(PRESETS.best));
+    setOrderedMetricIds([...DEFAULT_METRIC_ORDER]);
   };
   const handleDragStart = (idx) => {
     setDragIndex(idx);
@@ -48827,15 +48884,30 @@ const ReportCustomizerModal = ({
   const handleDragOver = (e, idx) => {
     e.preventDefault();
     if (dragIndex === null || dragIndex === idx) return;
-    const copy = [...chosenColumns];
+    const copy = [...orderedMetricIds];
     const item = copy.splice(dragIndex, 1)[0];
     copy.splice(idx, 0, item);
     setDragIndex(idx);
-    setChosenColumns(copy);
+    setOrderedMetricIds(copy);
   };
   const handleDragEnd = () => {
     setDragIndex(null);
   };
+  const handleSave = () => {
+    const result = orderedMetricIds.filter((id) => selectedSet.has(id));
+    onSaveColumns(result.length > 0 ? result : ["clicks"]);
+    if (onSaveLayers && mode === "report") {
+      onSaveLayers(layers);
+    }
+    if (onSaveFilters && mode === "report") {
+      onSaveFilters(filters);
+    }
+    onClose();
+  };
+  const displayMetrics = reactExports.useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return orderedMetricIds.map((id) => ALL_REPORT_METRICS.find((m) => m.id === id)).filter(Boolean).filter((m) => !q || m.label.toLowerCase().includes(q) || m.id.toLowerCase().includes(q));
+  }, [orderedMetricIds, searchQuery]);
   const handleAddUrlParam = () => {
     const param = window.prompt(t("reportCustomizer.urlParamPrompt", "Enter URL parameter name (e.g. adset_id, utm_source, custom_id):"));
     if (param) {
@@ -48856,446 +48928,326 @@ const ReportCustomizerModal = ({
     copy[index2] = { ...copy[index2], [key]: val };
     setFilters(copy);
   };
-  const handleSave = () => {
-    onSaveColumns(chosenColumns);
-    if (onSaveLayers && mode === "report") {
-      onSaveLayers(layers);
-    }
-    if (onSaveFilters && mode === "report") {
-      onSaveFilters(filters);
-    }
-    onClose();
-  };
-  const filteredMetrics = ALL_REPORT_METRICS.filter((m) => {
-    const name = t(m.labelKey, m.defaultLabel).toLowerCase();
-    return name.includes(searchQuery.toLowerCase()) || m.id.toLowerCase().includes(searchQuery.toLowerCase());
-  });
-  const categories = [
-    { id: "catTraffic", label: t("reportCustomizer.catTraffic", "Traffic") },
-    { id: "catConversions", label: t("reportCustomizer.catConversions", "Conversions & Statuses") },
-    { id: "catFinancial", label: t("reportCustomizer.catFinancial", "Financial") },
-    { id: "catRates", label: t("reportCustomizer.catRates", "Rates & Unit Economics") }
-  ];
-  const DIM_LABELS = {
-    country: t("campaignReports.geoCountry"),
-    city: t("reportCustomizer.dimCity", "City"),
-    region: t("reportCustomizer.dimRegion", "Region"),
-    device_type: t("campaignReports.deviceType"),
-    os: "OS",
-    browser: t("campaignReports.browser", "Browser"),
-    language: t("campaignReports.language"),
-    day: t("campaignReports.day", "Day"),
-    hour: t("reportCustomizer.dimHour", "Hour"),
-    campaign_id: t("campaignReports.campaign"),
-    source_id: t("campaignReports.source"),
-    stream_id: t("campaignReports.stream"),
-    landing_id: t("campaignReports.landing", "Landing"),
-    offer_id: t("campaignReports.offer", "Offer"),
-    ad_id: t("campaignReports.adId", "Ad ID"),
-    adset_id: t("campaignReports.adsetId", "Adset ID"),
-    keyword: t("parameters.keyword"),
-    creative_id: t("reportCustomizer.dimCreative", "Creative"),
-    external_id: t("reportCustomizer.dimExternal", "External ID"),
-    sub_id_1: "Sub ID 1",
-    sub_id_2: "Sub ID 2",
-    sub_id_3: "Sub ID 3",
-    sub_id_4: "Sub ID 4",
-    sub_id_5: "Sub ID 5"
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { padding: "24px 16px", zIndex: 1200 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
-      className: "modal-content max-w-4xl w-full rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150",
+      className: "modal-content rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150",
       style: {
+        maxWidth: "540px",
+        width: "100%",
+        maxHeight: "88vh",
+        height: "84vh",
+        padding: 0,
         backgroundColor: "var(--color-bg-card)",
         border: "1px solid var(--color-border)",
         color: "var(--color-text-primary)"
       },
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header flex items-center justify-between p-4", style: { borderBottom: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(SlidersHorizontal, { className: "w-5 h-5", style: { color: "var(--color-primary)" } }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-base font-bold", children: mode === "campaigns" ? t("reportCustomizer.campaignColumnsTitle") : t("reportCustomizer.title") })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-6 py-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-semibold", style: { color: "var(--color-text-primary)" }, children: t("reportCustomizer.columnsSelector", "Columns selector") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: onClose,
+              className: "btn-icon p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors",
+              style: { color: "var(--color-text-muted)" },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" })
+            }
+          )
         ] }),
-        mode === "report" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-5 px-6 pt-3", style: { borderBottom: "1px solid var(--color-border)" }, children: [
-          ["columns", t("reportCustomizer.columns") + " (" + chosenColumns.length + ")"],
-          ["layers", t("reportCustomizer.groupBy") + " (" + layers.length + ")"],
-          ["filters", t("reportCustomizer.filters") + " (" + filters.length + ")"]
-        ].map(([tabId, tabLabel]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        mode === "report" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-6 px-6 pt-2.5 border-b text-xs font-semibold uppercase tracking-wider", style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
+          ["columns", t("reportCustomizer.columns", "Columns"), SlidersHorizontal],
+          ["layers", t("reportCustomizer.groupBy", "Group By") + ` (${layers.length})`, Layers],
+          ["filters", t("reportCustomizer.filters", "Filters") + ` (${filters.length})`, Funnel]
+        ].map(([tabId, tabLabel, Icon2]) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
             type: "button",
             onClick: () => setActiveTab(tabId),
-            className: "pb-2 text-xs font-semibold uppercase tracking-wider transition-colors",
+            className: "flex items-center gap-1.5 pb-2.5 transition-all",
             style: {
               color: activeTab === tabId ? "var(--color-primary)" : "var(--color-text-muted)",
               borderBottom: activeTab === tabId ? "2px solid var(--color-primary)" : "2px solid transparent"
             },
-            children: tabLabel
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "w-3.5 h-3.5" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: tabLabel })
+            ]
           },
           tabId
         )) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-6", children: [
-          activeTab === "columns" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-6", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold uppercase mr-1", style: { color: "var(--color-text-muted)" }, children: [
-                t("reportCustomizer.presets"),
-                ":"
-              ] }),
-              [
-                ["best", t("reportCustomizer.presetBest")],
-                ["cod", t("reportCustomizer.presetCod")],
-                ["lander_to_offer", t("reportCustomizer.presetLanderToOffer")],
-                ["finance", t("reportCustomizer.presetFinance")],
-                ["all", t("reportCustomizer.presetAll")]
-              ].map(([pKey, pLabel]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  type: "button",
-                  onClick: () => handleApplyPreset(pKey),
-                  className: "text-xs px-3 py-1.5 rounded-lg border transition-all",
-                  style: {
-                    backgroundColor: activePreset === pKey ? "var(--color-primary-light)" : "var(--color-bg-soft)",
-                    borderColor: activePreset === pKey ? "var(--color-primary)" : "var(--color-border)",
-                    color: activePreset === pKey ? "var(--color-primary)" : "var(--color-text-primary)",
-                    fontWeight: activePreset === pKey ? 600 : 400
-                  },
-                  children: pLabel
-                },
-                pKey
-              ))
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex-1 max-w-sm", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "w-4 h-4 absolute left-3 top-2.5", style: { color: "var(--color-text-muted)" } }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "text",
-                    value: searchQuery,
-                    onChange: (e) => setSearchQuery(e.target.value),
-                    placeholder: t("reportCustomizer.searchMetrics"),
-                    className: "form-input text-xs pl-9 py-1.5 rounded-xl w-full"
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: handleSelectAll,
-                    className: "btn btn-ghost text-xs py-1 px-2.5 rounded-lg",
-                    children: t("reportCustomizer.selectAll")
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: handleDeselectAll,
-                    className: "btn btn-ghost text-xs py-1 px-2.5 rounded-lg",
-                    style: { color: "var(--color-danger)" },
-                    children: t("reportCustomizer.deselectAll")
-                  }
-                )
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-3 gap-6", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "md:col-span-2 space-y-6", children: categories.map((cat) => {
-                const catMetrics = filteredMetrics.filter((m) => m.category === cat.id);
-                if (catMetrics.length === 0) return null;
-                return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-xs font-bold uppercase tracking-wider", style: { color: "var(--color-text-muted)" }, children: cat.label }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-2.5", children: catMetrics.map((m) => {
-                    const isChecked = chosenColumns.includes(m.id);
-                    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "label",
-                      {
-                        className: "flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer select-none transition-all",
-                        style: {
-                          backgroundColor: isChecked ? "var(--color-primary-light)" : "var(--color-bg-soft)",
-                          borderColor: isChecked ? "var(--color-primary)" : "var(--color-border)",
-                          color: "var(--color-text-primary)",
-                          minHeight: "40px"
-                        },
-                        children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "input",
-                            {
-                              type: "checkbox",
-                              checked: isChecked,
-                              onChange: () => handleToggleColumn(m.id),
-                              className: "w-4 h-4 rounded",
-                              style: { accentColor: "var(--color-primary)" }
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium", children: t(m.labelKey, m.defaultLabel) })
-                        ]
-                      },
-                      m.id
-                    );
-                  }) })
-                ] }, cat.id);
-              }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "div",
-                {
-                  className: "p-3 rounded-2xl flex flex-col gap-2",
-                  style: {
-                    backgroundColor: "var(--color-bg-soft)",
-                    border: "1px solid var(--color-border)"
-                  },
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between pb-2", style: { borderBottom: "1px solid var(--color-border)" }, children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold uppercase", style: { color: "var(--color-text-primary)" }, children: [
-                        t("reportCustomizer.selected"),
-                        " (",
-                        chosenColumns.length,
-                        ")"
-                      ] }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px]", style: { color: "var(--color-text-muted)" }, children: t("reportCustomizer.dragReorderHint") })
-                    ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto space-y-1.5 max-h-[360px] pr-1", children: chosenColumns.map((cId, idx) => {
-                      const def = ALL_REPORT_METRICS.find((m) => m.id === cId);
-                      const label = def ? t(def.labelKey, def.defaultLabel) : cId;
-                      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        "div",
-                        {
-                          draggable: true,
-                          onDragStart: () => handleDragStart(idx),
-                          onDragOver: (e) => handleDragOver(e, idx),
-                          onDragEnd: handleDragEnd,
-                          className: "flex items-center justify-between p-2 rounded-lg text-xs transition-colors cursor-grab active:cursor-grabbing",
-                          style: {
-                            backgroundColor: "var(--color-bg-card)",
-                            border: "1px solid var(--color-border)",
-                            opacity: dragIndex === idx ? 0.5 : 1
-                          },
-                          children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3.5 h-3.5", style: { color: "var(--color-text-muted)" } }),
-                              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: label })
-                            ] }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                "button",
-                                {
-                                  type: "button",
-                                  disabled: idx === 0,
-                                  onClick: () => handleMoveColumn(idx, -1),
-                                  className: "p-1 rounded disabled:opacity-30",
-                                  style: { color: "var(--color-text-secondary)" },
-                                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowUp, { className: "w-3 h-3" })
-                                }
-                              ),
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                "button",
-                                {
-                                  type: "button",
-                                  disabled: idx === chosenColumns.length - 1,
-                                  onClick: () => handleMoveColumn(idx, 1),
-                                  className: "p-1 rounded disabled:opacity-30",
-                                  style: { color: "var(--color-text-secondary)" },
-                                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowDown, { className: "w-3 h-3" })
-                                }
-                              ),
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                "button",
-                                {
-                                  type: "button",
-                                  onClick: () => handleToggleColumn(cId),
-                                  className: "p-1 rounded ml-1",
-                                  style: { color: "var(--color-danger)" },
-                                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3 h-3" })
-                                }
-                              )
-                            ] })
-                          ]
-                        },
-                        cId
-                      );
-                    }) })
-                  ]
+        activeTab === "columns" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col flex-1 overflow-hidden p-5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: searchQuery,
+                onChange: (e) => setSearchQuery(e.target.value),
+                placeholder: "Search...",
+                className: "form-input text-xs py-2 px-3 rounded-xl w-full",
+                style: {
+                  backgroundColor: "var(--color-bg-soft)",
+                  borderColor: "var(--color-border)",
+                  color: "var(--color-text-primary)"
                 }
-              )
-            ] })
+              }
+            ),
+            searchQuery && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => setSearchQuery(""),
+                className: "absolute right-3 top-1/2 -translate-y-1/2 text-xs",
+                style: { color: "var(--color-text-muted)" },
+                children: "✕"
+              }
+            )
           ] }),
-          activeTab === "layers" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("reportCustomizer.groupByHint", "Select up to 5 dimensions for multi-level hierarchical breakdown") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "button",
-                {
-                  type: "button",
-                  onClick: handleAddUrlParam,
-                  className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
-                    t("reportCustomizer.addUrlParam")
-                  ]
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 md:grid-cols-3 gap-2", children: [
-              "country",
-              "city",
-              "region",
-              "device_type",
-              "os",
-              "browser",
-              "language",
-              "day",
-              "hour",
-              "campaign_id",
-              "source_id",
-              "stream_id",
-              "landing_id",
-              "offer_id",
-              "ad_id",
-              "adset_id",
-              "keyword",
-              "creative_id",
-              "external_id",
-              "sub_id_1",
-              "sub_id_2",
-              "sub_id_3",
-              "sub_id_4",
-              "sub_id_5"
-            ].map((dim) => {
-              const isChosen = layers.includes(dim);
-              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "button",
-                {
-                  type: "button",
-                  onClick: () => {
-                    if (isChosen) {
-                      setLayers(layers.filter((l) => l !== dim));
-                    } else if (layers.length < 5) {
-                      setLayers([...layers, dim]);
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 px-2 py-2 select-none", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                id: "select_all_cols",
+                checked: isAllSelected,
+                onChange: handleToggleAll,
+                className: "w-4 h-4 rounded cursor-pointer",
+                style: { accentColor: "var(--color-primary)" }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "select_all_cols", className: "text-xs font-medium cursor-pointer", style: { color: "var(--color-text-primary)" }, children: t("reportCustomizer.selectAll", "Select All") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-[1px] my-1.5", style: { backgroundColor: "var(--color-border)" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto space-y-0.5 pr-1", style: { scrollbarWidth: "thin" }, children: displayMetrics.map((metric, idx) => {
+            const isChecked = selectedSet.has(metric.id);
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                draggable: true,
+                onDragStart: () => handleDragStart(idx),
+                onDragOver: (e) => handleDragOver(e, idx),
+                onDragEnd: handleDragEnd,
+                onClick: () => handleToggleMetric(metric.id),
+                className: "flex items-center gap-3 px-2 py-2 rounded-lg text-xs cursor-pointer select-none transition-colors hover:bg-black/5 dark:hover:bg-white/5",
+                style: {
+                  opacity: dragIndex === idx ? 0.4 : 1
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "div",
+                    {
+                      className: "cursor-grab active:cursor-grabbing p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200",
+                      onClick: (e) => e.stopPropagation(),
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3.5 h-3.5 opacity-60" })
                     }
-                  },
-                  className: "p-2.5 rounded-xl border text-xs text-left flex items-center justify-between transition-all",
-                  style: {
-                    backgroundColor: isChosen ? "var(--color-primary-light)" : "var(--color-bg-soft)",
-                    borderColor: isChosen ? "var(--color-primary)" : "var(--color-border)",
-                    color: isChosen ? "var(--color-primary)" : "var(--color-text-primary)"
-                  },
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: DIM_LABELS[dim] || dim }),
-                    isChosen && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "span",
-                      {
-                        className: "text-[10px] min-w-[18px] text-center px-1.5 py-0.5 rounded-full font-bold",
-                        style: { backgroundColor: "var(--color-primary)", color: "var(--color-bg-card)" },
-                        children: layers.indexOf(dim) + 1
-                      }
-                    )
-                  ]
-                },
-                dim
-              );
-            }) })
-          ] }),
-          activeTab === "filters" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("reportCustomizer.filtersHint", "Apply exact or partial match filters") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "button",
-                {
-                  type: "button",
-                  onClick: handleAddFilter,
-                  className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
-                    t("reportCustomizer.addFilter", "+ Add Filter")
-                  ]
-                }
-              )
-            ] }),
-            filters.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-center py-8", style: { color: "var(--color-text-muted)" }, children: t("reportCustomizer.noFilters", 'No filters configured. Click "+ Add Filter" to add a condition.') }),
-            filters.map((f, fIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  value: f.field,
-                  onChange: (e) => handleUpdateFilter(fIdx, "field", e.target.value),
-                  className: "form-select text-xs py-1.5 rounded-xl",
-                  style: { minWidth: "150px", flex: "0 1 auto" },
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "country", children: t("campaignReports.geoCountry") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "city", children: t("reportCustomizer.fCity", "City") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "device_type", children: t("campaignReports.deviceType") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "os", children: "OS" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "browser", children: t("campaignReports.browser", "Browser") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sub_id_1", children: "Sub ID 1" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sub_id_2", children: "Sub ID 2" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "adset_id", children: t("campaignReports.adsetId", "Adset ID") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "ad_id", children: t("campaignReports.adId", "Ad ID") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "keyword", children: t("parameters.keyword") })
-                  ]
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  value: f.op,
-                  onChange: (e) => handleUpdateFilter(fIdx, "op", e.target.value),
-                  className: "form-select text-xs py-1.5 rounded-xl",
-                  style: { minWidth: "140px", flex: "0 1 auto" },
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "eq", children: t("reportCustomizer.opEq", "Equal (=)") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "neq", children: t("reportCustomizer.opNeq", "Not equal (!=)") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "contains", children: t("reportCustomizer.opContains", "Contains") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "not_contains", children: t("reportCustomizer.opNotContains", "Not contains") })
-                  ]
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "text",
-                  value: f.value,
-                  onChange: (e) => handleUpdateFilter(fIdx, "value", e.target.value),
-                  placeholder: t("reportCustomizer.fValue", "Value..."),
-                  className: "form-input text-xs py-1.5 px-3 rounded-xl",
-                  style: { flex: "1 1 160px", minWidth: "140px" }
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  type: "button",
-                  onClick: () => handleRemoveFilter(fIdx),
-                  className: "p-1.5 rounded",
-                  style: { color: "var(--color-danger)" },
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
-                }
-              )
-            ] }, fIdx))
-          ] })
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "checkbox",
+                      checked: isChecked,
+                      onChange: () => {
+                      },
+                      className: "w-4 h-4 rounded cursor-pointer pointer-events-none",
+                      style: { accentColor: "var(--color-primary)" }
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "span",
+                    {
+                      className: "flex-1 font-normal",
+                      style: {
+                        color: isChecked ? "var(--color-text-primary)" : "var(--color-text-secondary)"
+                      },
+                      children: metric.label
+                    }
+                  )
+                ]
+              },
+              metric.id
+            );
+          }) })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer flex items-center justify-between p-4", style: { borderTop: "1px solid var(--color-border)" }, children: [
+        activeTab === "layers" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-5 space-y-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("reportCustomizer.groupByHint", "Select up to 5 dimensions for multi-level hierarchical breakdown") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: handleAddUrlParam,
+                className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1 font-medium",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3 h-3" }),
+                  t("reportCustomizer.addUrlParam", "+ URL Param")
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: [
+            "country",
+            "city",
+            "region",
+            "device_type",
+            "os",
+            "browser",
+            "language",
+            "day",
+            "hour",
+            "campaign_id",
+            "source_id",
+            "stream_id",
+            "landing_id",
+            "offer_id",
+            "ad_id",
+            "adset_id",
+            "keyword",
+            "creative_id",
+            "external_id",
+            "sub_id_1",
+            "sub_id_2",
+            "sub_id_3",
+            "sub_id_4",
+            "sub_id_5"
+          ].map((dim) => {
+            const isChosen = layers.includes(dim);
+            const layerIndex = layers.indexOf(dim);
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => {
+                  if (isChosen) {
+                    setLayers(layers.filter((l) => l !== dim));
+                  } else if (layers.length < 5) {
+                    setLayers([...layers, dim]);
+                  }
+                },
+                className: "p-2.5 rounded-xl border text-xs text-left flex items-center justify-between transition-all",
+                style: {
+                  backgroundColor: isChosen ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                  borderColor: isChosen ? "var(--color-primary)" : "var(--color-border)",
+                  color: isChosen ? "var(--color-primary)" : "var(--color-text-primary)",
+                  fontWeight: isChosen ? 600 : 400
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: dim }),
+                  isChosen && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 py-0.2 rounded-full bg-blue-500 text-white font-bold", children: layerIndex + 1 })
+                ]
+              },
+              dim
+            );
+          }) })
+        ] }),
+        activeTab === "filters" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-5 space-y-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("reportCustomizer.filtersHint", "Apply exact or partial match filters") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: handleAddFilter,
+                className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1 font-medium",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3 h-3" }),
+                  t("reportCustomizer.addFilter", "+ Add Filter")
+                ]
+              }
+            )
+          ] }),
+          filters.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-center py-10 rounded-xl border border-dashed", style: { color: "var(--color-text-muted)", borderColor: "var(--color-border)" }, children: t("reportCustomizer.noFilters", "No filters configured.") }),
+          filters.map((f, fIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 p-2.5 rounded-xl border", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                value: f.field,
+                onChange: (e) => handleUpdateFilter(fIdx, "field", e.target.value),
+                className: "form-select text-xs py-1.5 rounded-xl w-32",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "country", children: "Country" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "city", children: "City" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "device_type", children: "Device Type" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "os", children: "OS" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "browser", children: "Browser" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sub_id_1", children: "Sub ID 1" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "adset_id", children: "AdSet ID" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "ad_id", children: "Ad ID" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "keyword", children: "Keyword" })
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                value: f.op,
+                onChange: (e) => handleUpdateFilter(fIdx, "op", e.target.value),
+                className: "form-select text-xs py-1.5 rounded-xl w-28",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "eq", children: "=" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "neq", children: "!=" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "contains", children: "contains" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "not_contains", children: "not contains" })
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: f.value,
+                onChange: (e) => handleUpdateFilter(fIdx, "value", e.target.value),
+                placeholder: "Value...",
+                className: "form-input text-xs py-1.5 px-2.5 rounded-xl flex-1"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => handleRemoveFilter(fIdx),
+                className: "btn-icon p-1.5 rounded-lg text-red-500 hover:bg-red-500/10",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3.5 h-3.5" })
+              }
+            )
+          ] }, fIdx))
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-6 py-3.5 border-t", style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
               type: "button",
-              onClick: onClose,
-              className: "btn btn-ghost text-xs py-2 px-4 rounded-xl",
-              children: t("common.cancel", "Cancel")
+              onClick: handleRestoreDefault,
+              className: "text-xs transition-colors hover:underline",
+              style: { color: "var(--color-primary)" },
+              children: t("reportCustomizer.restoreDefault", "Restore to default")
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              type: "button",
-              onClick: handleSave,
-              className: "btn btn-primary text-xs py-2 px-6 rounded-xl font-semibold",
-              children: t("reportCustomizer.apply", "Apply")
-            }
-          )
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: onClose,
+                className: "btn btn-secondary text-xs py-2 px-4 rounded-xl font-medium",
+                style: {
+                  backgroundColor: "var(--color-bg-soft)",
+                  borderColor: "var(--color-border)",
+                  color: "var(--color-text-primary)"
+                },
+                children: t("common.cancel", "Cancel")
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: handleSave,
+                className: "btn btn-primary text-xs py-2 px-5 rounded-xl font-medium",
+                children: t("reportCustomizer.apply", "Apply")
+              }
+            )
+          ] })
         ] })
       ]
     }
@@ -49552,38 +49504,60 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     switch (metricId) {
       case "clicks":
       case "unique_clicks":
+      case "visitors":
+      case "unique_clicks_stream":
+      case "unique_clicks_global":
+      case "bots":
+      case "proxies":
+      case "empty_referrers":
       case "prelander_clicks":
       case "offer_clicks":
+      case "lp_views":
+      case "lp_clicks":
       case "purchases":
+      case "sales":
       case "holds":
+      case "leads":
+      case "registrations":
+      case "deposits":
       case "rejected":
       case "trash":
         return num.toLocaleString();
       case "conversions":
         return num > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-success)" }, children: num.toLocaleString() }) : "0";
+      case "profitability":
       case "uc_rate":
+      case "uc_rate_stream":
+      case "uc_rate_global":
+      case "bot_rate":
       case "lp_ctr":
-      case "cr":
-      case "cr_sales":
-      case "cr_holds":
       case "approve_rate":
       case "approve_rate_excl_trash":
+      case "cr":
+      case "cr_all":
+      case "cr_sales":
+      case "cr_holds":
+      case "cr_leads":
+      case "cr_registrations":
+      case "cr_deposits":
+      case "cr_regs_to_deps":
+      case "ucr":
         return `${num.toFixed(2)}%`;
-      case "cost":
-      case "revenue":
-      case "revenue_confirmed":
-      case "revenue_hold":
-      case "revenue_rejected":
-      case "revenue_trash":
-      case "real_revenue":
-      case "epc":
-      case "uepc":
-      case "cpc":
-      case "ucpc":
-      case "cpa":
-      case "earnings_per_conv":
-        return `$${num.toFixed(2)}`;
+      case "roi":
+      case "roi_all":
+      case "roi_confirmed":
+      case "real_roi": {
+        if (val === null || val === void 0) return "—";
+        const isPos = num >= 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: strong ? 700 : 600 }, children: [
+          isPos ? "+" : "",
+          num.toFixed(2),
+          "%"
+        ] });
+      }
       case "profit":
+      case "profit_all":
+      case "profit_confirmed":
       case "real_profit": {
         const isPos = num >= 0;
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: strong ? 700 : 600 }, children: [
@@ -49592,15 +49566,41 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
           num.toFixed(2)
         ] });
       }
-      case "roi":
-      case "real_roi": {
-        const isPos = num >= 0;
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: strong ? 700 : 600 }, children: [
-          isPos ? "+" : "",
-          num.toFixed(2),
-          "%"
-        ] });
-      }
+      case "cost":
+      case "revenue":
+      case "revenue_all":
+      case "revenue_confirmed":
+      case "revenue_hold":
+      case "revenue_rejected":
+      case "revenue_trash":
+      case "revenue_registration":
+      case "revenue_deposit":
+      case "real_revenue":
+      case "cpa":
+      case "cps":
+      case "cpl":
+      case "cpr":
+      case "cpd":
+      case "ecpc":
+      case "ecpm_all":
+      case "ecpm_confirmed":
+      case "earnings_per_conv":
+      case "ec_all":
+      case "ec_confirmed":
+        return `$${num.toFixed(2)}`;
+      case "epc":
+      case "epc_all":
+      case "uepc":
+      case "uepc_all":
+      case "epc_confirmed":
+      case "uepc_confirmed":
+      case "epc_hold":
+      case "uepc_hold":
+      case "epc_registration":
+      case "uepc_registration":
+      case "cpc":
+      case "ucpc":
+        return `$${num.toFixed(4)}`;
       default:
         return val !== void 0 && val !== null ? String(val) : "-";
     }
@@ -49611,7 +49611,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       layerKeys.join(" > "),
       ...chosenColumns.map((cId) => {
         const def = ALL_REPORT_METRICS.find((m) => m.id === cId);
-        return def ? t(def.labelKey, def.defaultLabel) : cId;
+        return def?.label || cId;
       })
     ];
     const csvContent = [
@@ -49755,7 +49755,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { minWidth: "240px", textAlign: "left" }, children: layerKeys.join(" → ") }),
           chosenColumns.map((colId, colIdx) => {
             const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
-            const label = def ? t(def.labelKey, def.defaultLabel) : colId;
+            const label = def?.label || colId;
             return /* @__PURE__ */ jsxRuntimeExports.jsx(
               "th",
               {
@@ -50148,38 +50148,60 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     switch (metricId) {
       case "clicks":
       case "unique_clicks":
+      case "visitors":
+      case "unique_clicks_stream":
+      case "unique_clicks_global":
+      case "bots":
+      case "proxies":
+      case "empty_referrers":
       case "prelander_clicks":
       case "offer_clicks":
+      case "lp_views":
+      case "lp_clicks":
       case "purchases":
+      case "sales":
       case "holds":
+      case "leads":
+      case "registrations":
+      case "deposits":
       case "rejected":
       case "trash":
         return num.toLocaleString();
       case "conversions":
         return num > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-success)" }, children: num.toLocaleString() }) : "0";
+      case "profitability":
       case "uc_rate":
+      case "uc_rate_stream":
+      case "uc_rate_global":
+      case "bot_rate":
       case "lp_ctr":
-      case "cr":
-      case "cr_sales":
-      case "cr_holds":
       case "approve_rate":
       case "approve_rate_excl_trash":
+      case "cr":
+      case "cr_all":
+      case "cr_sales":
+      case "cr_holds":
+      case "cr_leads":
+      case "cr_registrations":
+      case "cr_deposits":
+      case "cr_regs_to_deps":
+      case "ucr":
         return `${num.toFixed(2)}%`;
-      case "cost":
-      case "revenue":
-      case "revenue_confirmed":
-      case "revenue_hold":
-      case "revenue_rejected":
-      case "revenue_trash":
-      case "real_revenue":
-      case "epc":
-      case "uepc":
-      case "cpc":
-      case "ucpc":
-      case "cpa":
-      case "earnings_per_conv":
-        return `$${num.toFixed(2)}`;
+      case "roi":
+      case "roi_all":
+      case "roi_confirmed":
+      case "real_roi": {
+        if (val === null || val === void 0) return "—";
+        const isPos = num >= 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
+          isPos ? "+" : "",
+          num.toFixed(2),
+          "%"
+        ] });
+      }
       case "profit":
+      case "profit_all":
+      case "profit_confirmed":
       case "real_profit": {
         const isPos = num >= 0;
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
@@ -50188,15 +50210,41 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
           num.toFixed(2)
         ] });
       }
-      case "roi":
-      case "real_roi": {
-        const isPos = num >= 0;
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
-          isPos ? "+" : "",
-          num.toFixed(2),
-          "%"
-        ] });
-      }
+      case "cost":
+      case "revenue":
+      case "revenue_all":
+      case "revenue_confirmed":
+      case "revenue_hold":
+      case "revenue_rejected":
+      case "revenue_trash":
+      case "revenue_registration":
+      case "revenue_deposit":
+      case "real_revenue":
+      case "cpa":
+      case "cps":
+      case "cpl":
+      case "cpr":
+      case "cpd":
+      case "ecpc":
+      case "ecpm_all":
+      case "ecpm_confirmed":
+      case "earnings_per_conv":
+      case "ec_all":
+      case "ec_confirmed":
+        return `$${num.toFixed(2)}`;
+      case "epc":
+      case "epc_all":
+      case "uepc":
+      case "uepc_all":
+      case "epc_confirmed":
+      case "uepc_confirmed":
+      case "epc_hold":
+      case "uepc_hold":
+      case "epc_registration":
+      case "uepc_registration":
+      case "cpc":
+      case "ucpc":
+        return `$${num.toFixed(4)}`;
       default:
         return val !== void 0 && val !== null ? String(val) : "-";
     }
@@ -50376,7 +50424,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "group_name", label: t("campaigns.group"), defaultDir: "asc" }),
         chosenColumns.map((colId, colIdx) => {
           const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
-          const label = def ? t(def.labelKey, def.defaultLabel) : colId;
+          const label = def?.label || colId;
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
             SortableTh,
             {

@@ -1425,12 +1425,16 @@ try {
                        COALESCE(SUM(cv.cnt_hold), 0) as holds,
                        COALESCE(SUM(cv.cnt_rejected), 0) as rejected,
                        COALESCE(SUM(cv.cnt_trash), 0) as trash,
+                       COALESCE(SUM(cv.cnt_registration), 0) as registrations,
+                       COALESCE(SUM(cv.cnt_deposit), 0) as deposits,
                        COALESCE(SUM(cl.cost), 0) as cost,
                        COALESCE(SUM(cv.rev_all), 0) as revenue,
                        COALESCE(SUM(cv.rev_sale), 0) as revenue_confirmed,
                        COALESCE(SUM(cv.rev_hold), 0) as revenue_hold,
                        COALESCE(SUM(cv.rev_rejected), 0) as revenue_rejected,
                        COALESCE(SUM(cv.rev_trash), 0) as revenue_trash,
+                       COALESCE(SUM(cv.rev_registration), 0) as revenue_registration,
+                       COALESCE(SUM(cv.rev_deposit), 0) as revenue_deposit,
                        $realRevSelect as real_revenue
                 FROM campaigns c
                 LEFT JOIN campaign_groups cg ON c.group_id = cg.id
@@ -6745,12 +6749,16 @@ try {
                     COALESCE(SUM(cnt_hold), 0) as holds,
                     COALESCE(SUM(cnt_rejected), 0) as rejected,
                     COALESCE(SUM(cnt_trash), 0) as trash,
+                    COALESCE(SUM(cnt_registration), 0) as registrations,
+                    COALESCE(SUM(cnt_deposit), 0) as deposits,
                     COALESCE(SUM(click_cost), 0) as cost,
                     COALESCE(SUM(click_revenue), 0) as revenue,
                     COALESCE(SUM(click_sale_revenue), 0) as revenue_confirmed,
                     COALESCE(SUM(click_hold_revenue), 0) as revenue_hold,
                     COALESCE(SUM(click_rej_revenue), 0) as revenue_rejected,
                     COALESCE(SUM(click_trash_revenue), 0) as revenue_trash,
+                    COALESCE(SUM(click_reg_revenue), 0) as revenue_registration,
+                    COALESCE(SUM(click_dep_revenue), 0) as revenue_deposit,
                     COALESCE(SUM(click_real_revenue), 0) as real_revenue
                 FROM (
                     SELECT clicks.id as click_id,
@@ -6769,6 +6777,10 @@ try {
                            COALESCE(cv.cnt_hold, 0) as cnt_hold,
                            COALESCE(cv.cnt_rejected, 0) as cnt_rejected,
                            COALESCE(cv.cnt_trash, 0) as cnt_trash,
+                           COALESCE(cv.cnt_registration, 0) as cnt_registration,
+                           COALESCE(cv.cnt_deposit, 0) as cnt_deposit,
+                           COALESCE(cv.rev_registration, 0) as click_reg_revenue,
+                           COALESCE(cv.rev_deposit, 0) as click_dep_revenue,
                            " . implode(', ', $dimInner) . "
                     FROM clicks
                     LEFT JOIN $convAggSql cv ON cv.click_id = clicks.id

@@ -2387,6 +2387,8 @@ export default {
         "noAccounts": "Ninguna campaña está enviando conversiones a Meta todavía."
     },
     "reportCustomizer": {
+        "columnsSelector": "Columnas",
+        "restoreDefault": "Restaurar valores predeterminados",
         "dimCity": "Ciudad",
         "dimRegion": "Región",
         "dimHour": "Hora",
@@ -2404,6 +2406,7 @@ export default {
         "fValue": "Valor…",
         "title": "Personalizar columnas de informe",
         "campaignColumnsTitle": "Personalizar columnas de campañas",
+        "headerSubtitle": "Personaliza las columnas visibles, cambia de plantilla o arrastra para reordenar",
         "presets": "Plantillas",
         "presetCod": "COD (Pago contra entrega)",
         "presetLanderToOffer": "Lander a Oferta (Lander to Offer)",
