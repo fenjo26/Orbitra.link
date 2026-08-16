@@ -1723,12 +1723,14 @@ try {
                             ->execute([json_encode($data['parameters'], JSON_UNESCAPED_UNICODE), (int) $id]);
                     }
 
-                    // For MVP: delete old streams and insert new ones
+                    // For MVP: delete old streams and insert new ones. The name
+                    // column was missing from this INSERT, so every save silently
+                    // wiped the stream names the editor had just collected.
                     $pdo->prepare("DELETE FROM streams WHERE campaign_id = ?")->execute([$id]);
 
                     $stmtStream = $pdo->prepare("
-                        INSERT INTO streams (campaign_id, offer_id, weight, is_active, type, position, filters_json, filters_logic, schema_type, action_payload, schema_custom_json, offer_selection)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        INSERT INTO streams (campaign_id, offer_id, weight, is_active, type, position, filters_json, filters_logic, schema_type, action_payload, schema_custom_json, offer_selection, name)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ");
                     foreach ($streams as $str) {
                         // Convert offer_id = 0 to NULL to avoid FOREIGN KEY constraint error
@@ -1749,6 +1751,7 @@ try {
                             in_array($str['offer_selection'] ?? 'before', ['before', 'after'], true)
                                 ? $str['offer_selection']
                                 : 'before',
+                            $str['name'] ?? null,
                         ]);
                     }
 
