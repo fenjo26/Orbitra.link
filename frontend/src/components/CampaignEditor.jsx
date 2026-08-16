@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
-import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3 } from 'lucide-react';
+import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3, Eye, Info } from 'lucide-react';
 import CampaignReports from './CampaignReports';
 import ConversionsLog from './ConversionsLog';
 import LandingEditor from './LandingEditor';
@@ -12,7 +12,7 @@ import TrafficSourceEditor from './TrafficSourceEditor';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
-import { buildSnippet } from '../utils/integrationSnippets';
+import { buildSnippet, COUNTDOWN_THEMES, METHOD_INSTALL_HINTS } from '../utils/integrationSnippets';
 
 /**
  * Keitaro-style split button: the main part opens the entity picker, the
@@ -84,6 +84,60 @@ const generateToken = () => {
     return result;
 };
 
+// Live previews for the Tracking tab's visual widgets. They read the same
+// option values (and COUNTDOWN_THEMES entries) as utils/integrationSnippets.js,
+// so what the operator previews is exactly what the generated snippet ships.
+const CountdownPreview = ({ hours, minutes, headerText, buttonText, theme, expireAction }) => {
+    const themeDef = COUNTDOWN_THEMES[theme] || COUNTDOWN_THEMES.purple;
+    const total = Math.max(60, (parseInt(hours, 10) || 0) * 3600 + (parseInt(minutes, 10) || 0) * 60);
+    const [left, setLeft] = useState(total);
+
+    useEffect(() => {
+        setLeft(total);
+        const iv = setInterval(() => setLeft(l => (l > 0 ? l - 1 : 0)), 1000);
+        return () => clearInterval(iv);
+    }, [total]);
+
+    const hh = String(Math.floor(left / 3600)).padStart(2, '0');
+    const mm = String(Math.floor((left % 3600) / 60)).padStart(2, '0');
+    const ss = String(left % 60).padStart(2, '0');
+
+    return (
+        <div style={{ background: themeDef.gradient, color: '#fff', borderRadius: 12, padding: 20, textAlign: 'center', maxWidth: 400, margin: '0 auto', fontFamily: 'sans-serif', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+            {left <= 0 ? (
+                <h2 style={{ margin: 0, fontSize: 22, letterSpacing: 2 }}>
+                    {expireAction === 'redirect' ? '→ REDIRECT' : 'OFFER EXPIRED'}
+                </h2>
+            ) : (
+                <>
+                    <div style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 10 }}>
+                        {headerText || 'OFFER EXPIRES IN'}
+                    </div>
+                    <div style={{ fontSize: 42, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+                        {hh}:{mm}:{ss}
+                    </div>
+                    <span style={{ display: 'inline-block', marginTop: 16, padding: '12px 36px', background: themeDef.cta, color: '#fff', borderRadius: 8, fontWeight: 600, fontSize: 15 }}>
+                        {buttonText || 'GET SPECIAL OFFER'}
+                    </span>
+                </>
+            )}
+        </div>
+    );
+};
+
+const ExitIntentPreview = ({ heading, text, buttonText, buttonColor }) => (
+    <div style={{ background: 'rgba(0,0,0,0.7)', borderRadius: 12, padding: 28, display: 'flex', justifyContent: 'center' }}>
+        <div style={{ background: '#fff', padding: 28, borderRadius: 16, maxWidth: 380, textAlign: 'center', position: 'relative', fontFamily: 'sans-serif', color: '#111' }}>
+            <span style={{ position: 'absolute', top: 8, right: 14, fontSize: 22, color: '#999' }}>&times;</span>
+            <h2 style={{ margin: '0 0 12px', fontSize: 22 }}>{heading || 'Wait! Special Offer!'}</h2>
+            <p style={{ fontSize: 14, color: '#666', margin: '0 0 8px' }}>{text || "Don't miss this exclusive deal just for you!"}</p>
+            <span style={{ display: 'inline-block', marginTop: 12, padding: '13px 32px', background: buttonColor, color: '#fff', borderRadius: 8, fontWeight: 600, fontSize: 15 }}>
+                {buttonText || 'CLAIM 50% OFF'}
+            </span>
+        </div>
+    </div>
+);
+
 const CampaignEditor = ({ campaignId, onClose }) => {
     const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState('general');
@@ -103,15 +157,41 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     // Tracking tab: chosen method + per-method options the snippets are built from
     const [trackingMethod, setTrackingMethod] = useState('kclient_js');
+    const [snippetCopied, setSnippetCopied] = useState(false);
+    const [showWidgetPreview, setShowWidgetPreview] = useState(false);
     const [trackOpts, setTrackOpts] = useState({
+        // Countdown Timer
         hours: 2,
+        minutes: 30,
+        headerText: '',
+        buttonText: '',
         offerUrl: '',
+        theme: 'purple',            // purple | emerald | fire | dark
+        expireAction: 'expired',    // expired | redirect
+        expireUrl: '',
+        // Back Button Trap
         trapUrl: '',
+        logClick: true,
+        delay: 0,
+        // Exit Intent Popup
         heading: '',
         text: '',
+        popupButtonText: '',
+        buttonColor: '#22c55e',
+        showDelay: 0,
+        closeOnBackdrop: true,
+        // Banner blocks
         width: 300,
         height: 250,
+        // KClient
         base64: false,
+        sendParams: true,           // PHP only: kclient.js always passes page params
+        phpMode: 'redirect',        // redirect | show_html | get_link
+        // Tracking Pixel
+        pixelType: 'click',         // click | conversion
+        convStatus: 'lead',
+        payout: '',
+        subidParam: '{subid}',
     });
 
     // Cost Sync (campaign's Integrations tab): connections + match diagnostics
@@ -1964,7 +2044,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                         </div>
                                     )}
 
-                                    {/* Tracking Tab — connection methods with the campaign baked in */}
+                                    {/* Tracking Tab — connection methods with the campaign baked in.
+                                        Keitaro-style two columns: settings left, live-generated
+                                        code + install instruction + widget preview right. */}
                                     {activeTab === 'tracking' && (
                                         <div className="space-y-4">
                                             {!(formData.token || '').trim() && (
@@ -1973,43 +2055,51 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 </p>
                                             )}
 
-                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                                <div>
-                                                    <label className="form-label">{t('tracking.method', 'Connection method')}</label>
-                                                    <select
-                                                        className="form-select"
-                                                        value={trackingMethod}
-                                                        onChange={e => setTrackingMethod(e.target.value)}
-                                                    >
-                                                        <optgroup label={t('tracking.groupSite', 'Sites')}>
-                                                            <option value="kclient_js">KClient JS</option>
-                                                            <option value="kclient_php">KClient PHP</option>
-                                                            <option value="tracking_script">{t('tracking.trackingScript', 'Tracking Script')}</option>
-                                                        </optgroup>
-                                                        <optgroup label={t('tracking.groupBanners', 'Banner blocks')}>
-                                                            <option value="banner_script">{t('tracking.bannerScript', 'Banner block (script)')}</option>
-                                                            <option value="banner_iframe">{t('tracking.bannerIframe', 'Banner block (iframe)')}</option>
-                                                        </optgroup>
-                                                        <optgroup label={t('tracking.groupAds', 'Ad networks')}>
-                                                            <option value="campaign_url">Campaign URL</option>
-                                                            <option value="link">{t('editor.intCode_link', 'Link')}</option>
-                                                            <option value="iframe">Iframe</option>
-                                                            <option value="script">Script</option>
-                                                        </optgroup>
-                                                        <optgroup label={t('tracking.groupMisc', 'Tools')}>
-                                                            <option value="pixel">Tracking Pixel</option>
-                                                            <option value="countdown">Countdown Timer</option>
-                                                            <option value="back_button">Back Button Trap</option>
-                                                            <option value="exit_intent">Exit Intent Popup</option>
-                                                            <option value="wordpress">WordPress</option>
-                                                        </optgroup>
-                                                    </select>
-                                                </div>
+                                            <div>
+                                                <label className="form-label">{t('tracking.method', 'Connection method')}</label>
+                                                <select
+                                                    className="form-select"
+                                                    value={trackingMethod}
+                                                    onChange={e => {
+                                                        setTrackingMethod(e.target.value);
+                                                        setShowWidgetPreview(false);
+                                                        setSnippetCopied(false);
+                                                    }}
+                                                >
+                                                    <optgroup label={t('tracking.groupSite', 'Sites')}>
+                                                        <option value="kclient_js">KClient JS</option>
+                                                        <option value="kclient_php">KClient PHP</option>
+                                                        <option value="tracking_script">{t('tracking.trackingScript', 'Tracking Script')}</option>
+                                                    </optgroup>
+                                                    <optgroup label={t('tracking.groupBanners', 'Banner blocks')}>
+                                                        <option value="banner_script">{t('tracking.bannerScript', 'Banner block (script)')}</option>
+                                                        <option value="banner_iframe">{t('tracking.bannerIframe', 'Banner block (iframe)')}</option>
+                                                    </optgroup>
+                                                    <optgroup label={t('tracking.groupAds', 'Ad networks')}>
+                                                        <option value="campaign_url">Campaign URL</option>
+                                                        <option value="link">{t('editor.intCode_link', 'Link')}</option>
+                                                        <option value="iframe">Iframe</option>
+                                                        <option value="script">Script</option>
+                                                    </optgroup>
+                                                    <optgroup label={t('tracking.groupMisc', 'Tools')}>
+                                                        <option value="pixel">Tracking Pixel</option>
+                                                        <option value="countdown">Countdown Timer</option>
+                                                        <option value="back_button">Back Button Trap</option>
+                                                        <option value="exit_intent">Exit Intent Popup</option>
+                                                        <option value="wordpress">WordPress</option>
+                                                    </optgroup>
+                                                </select>
+                                            </div>
 
-                                                {/* Per-method options */}
-                                                <div className="space-y-2">
+                                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
+                                                {/* LEFT — per-method settings & options */}
+                                                <div className="rounded-2xl p-4 space-y-3" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
+                                                    <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--color-text-primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                                        {t('tracking.settings', 'Settings & Options')}
+                                                    </div>
+
                                                     {trackingMethod === 'kclient_js' && (
-                                                        <label className="flex items-center gap-2 text-xs" style={{ color: 'var(--color-text-secondary)', alignSelf: 'end', paddingTop: '22px' }}>
+                                                        <label className="flex items-center gap-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                                                             <input
                                                                 type="checkbox"
                                                                 checked={trackOpts.base64}
@@ -2018,93 +2108,296 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             {t('tracking.base64', 'Base64 (hide from ad blockers)')}
                                                         </label>
                                                     )}
+
+                                                    {trackingMethod === 'kclient_php' && (
+                                                        <>
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.phpMode', 'Execution mode')}</label>
+                                                                <select
+                                                                    className="form-select"
+                                                                    value={trackOpts.phpMode}
+                                                                    onChange={e => setTrackOpts({ ...trackOpts, phpMode: e.target.value })}
+                                                                >
+                                                                    <option value="redirect">{t('tracking.phpRedirect', 'Redirect to offer')}</option>
+                                                                    <option value="show_html">{t('tracking.phpShowHtml', 'Show as HTML (content in page body)')}</option>
+                                                                    <option value="get_link">{t('tracking.phpGetLink', 'Get offer link into a variable')}</option>
+                                                                </select>
+                                                            </div>
+                                                            <label className="flex items-center gap-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={trackOpts.sendParams}
+                                                                    onChange={e => setTrackOpts({ ...trackOpts, sendParams: e.target.checked })}
+                                                                />
+                                                                {t('tracking.sendParams', 'Pass UTM / SubID parameters from the URL')}
+                                                            </label>
+                                                            <a
+                                                                href={`${trackerUrl}/kclient.php?download=1`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="btn btn-secondary"
+                                                                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                                                            >
+                                                                <FileText className="w-4 h-4" />
+                                                                {t('tracking.downloadKclient', 'Download kclient.php')}
+                                                            </a>
+                                                        </>
+                                                    )}
+
                                                     {(trackingMethod === 'banner_script' || trackingMethod === 'banner_iframe') && (
                                                         <div className="flex gap-2">
-                                                            <div>
+                                                            <div className="flex-1">
                                                                 <label className="form-label">W</label>
                                                                 <input type="number" className="form-input" value={trackOpts.width} onChange={e => setTrackOpts({ ...trackOpts, width: parseInt(e.target.value) || 300 })} />
                                                             </div>
-                                                            <div>
+                                                            <div className="flex-1">
                                                                 <label className="form-label">H</label>
                                                                 <input type="number" className="form-input" value={trackOpts.height} onChange={e => setTrackOpts({ ...trackOpts, height: parseInt(e.target.value) || 250 })} />
                                                             </div>
                                                         </div>
                                                     )}
+
                                                     {trackingMethod === 'countdown' && (
-                                                        <div className="space-y-2">
+                                                        <>
+                                                            <div className="grid grid-cols-2 gap-2">
+                                                                <div>
+                                                                    <label className="form-label">{t('tracking.hours', 'Duration, hours')}</label>
+                                                                    <input type="number" min="0" className="form-input" value={trackOpts.hours} onChange={e => setTrackOpts({ ...trackOpts, hours: parseInt(e.target.value) || 0 })} />
+                                                                </div>
+                                                                <div>
+                                                                    <label className="form-label">{t('tracking.minutes', 'Duration, minutes')}</label>
+                                                                    <input type="number" min="0" className="form-input" value={trackOpts.minutes} onChange={e => setTrackOpts({ ...trackOpts, minutes: parseInt(e.target.value) || 0 })} />
+                                                                </div>
+                                                            </div>
                                                             <div>
-                                                                <label className="form-label">{t('tracking.hours', 'Duration, hours')}</label>
-                                                                <input type="number" min="1" className="form-input" value={trackOpts.hours} onChange={e => setTrackOpts({ ...trackOpts, hours: parseInt(e.target.value) || 1 })} />
+                                                                <label className="form-label">{t('tracking.headerText', 'Header text')}</label>
+                                                                <input type="text" className="form-input" placeholder="OFFER EXPIRES IN" value={trackOpts.headerText} onChange={e => setTrackOpts({ ...trackOpts, headerText: e.target.value })} />
+                                                            </div>
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.ctaButtonText', 'Button text')}</label>
+                                                                <input type="text" className="form-input" placeholder="GET SPECIAL OFFER" value={trackOpts.buttonText} onChange={e => setTrackOpts({ ...trackOpts, buttonText: e.target.value })} />
                                                             </div>
                                                             <div>
                                                                 <label className="form-label">{t('tracking.offerUrl', 'Offer URL')}</label>
                                                                 <input type="text" className="form-input" placeholder="https://your-offer.com" value={trackOpts.offerUrl} onChange={e => setTrackOpts({ ...trackOpts, offerUrl: e.target.value })} />
                                                             </div>
-                                                        </div>
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.theme', 'Style theme')}</label>
+                                                                <select className="form-select" value={trackOpts.theme} onChange={e => setTrackOpts({ ...trackOpts, theme: e.target.value })}>
+                                                                    <option value="purple">{t('tracking.themePurple', 'Purple / Indigo')}</option>
+                                                                    <option value="emerald">{t('tracking.themeEmerald', 'Emerald Green')}</option>
+                                                                    <option value="fire">{t('tracking.themeFire', 'Fire Red')}</option>
+                                                                    <option value="dark">{t('tracking.themeDark', 'Dark Minimal')}</option>
+                                                                </select>
+                                                            </div>
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.expireAction', 'On expire')}</label>
+                                                                <select className="form-select" value={trackOpts.expireAction} onChange={e => setTrackOpts({ ...trackOpts, expireAction: e.target.value })}>
+                                                                    <option value="expired">{t('tracking.expireShowBadge', 'Show "EXPIRED"')}</option>
+                                                                    <option value="redirect">{t('tracking.expireRedirect', 'Redirect to fallback URL')}</option>
+                                                                </select>
+                                                            </div>
+                                                            {trackOpts.expireAction === 'redirect' && (
+                                                                <div>
+                                                                    <label className="form-label">{t('tracking.expireUrl', 'Fallback URL (empty = offer URL)')}</label>
+                                                                    <input type="text" className="form-input" placeholder="https://your-fallback.com" value={trackOpts.expireUrl} onChange={e => setTrackOpts({ ...trackOpts, expireUrl: e.target.value })} />
+                                                                </div>
+                                                            )}
+                                                        </>
                                                     )}
+
                                                     {trackingMethod === 'back_button' && (
-                                                        <div>
-                                                            <label className="form-label">{t('tracking.trapUrl', 'Trap URL')}</label>
-                                                            <input type="text" className="form-input" placeholder="https://your-special-offer.com" value={trackOpts.trapUrl} onChange={e => setTrackOpts({ ...trackOpts, trapUrl: e.target.value })} />
-                                                        </div>
+                                                        <>
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.trapUrl', 'Trap Redirect URL')}</label>
+                                                                <input type="text" className="form-input" placeholder="https://your-special-offer.com" value={trackOpts.trapUrl} onChange={e => setTrackOpts({ ...trackOpts, trapUrl: e.target.value })} />
+                                                            </div>
+                                                            <label className="flex items-center gap-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={trackOpts.logClick}
+                                                                    onChange={e => setTrackOpts({ ...trackOpts, logClick: e.target.checked })}
+                                                                />
+                                                                {t('tracking.logClick', 'Log click in tracker (sub1=back_button)')}
+                                                            </label>
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.activationDelay', 'Activation delay, seconds')}</label>
+                                                                <input type="number" min="0" className="form-input" value={trackOpts.delay} onChange={e => setTrackOpts({ ...trackOpts, delay: parseInt(e.target.value) || 0 })} />
+                                                            </div>
+                                                        </>
                                                     )}
+
                                                     {trackingMethod === 'exit_intent' && (
-                                                        <div className="space-y-2">
+                                                        <>
                                                             <div>
                                                                 <label className="form-label">{t('tracking.heading', 'Heading')}</label>
-                                                                <input type="text" className="form-input" value={trackOpts.heading} placeholder="Wait! Special Offer!" onChange={e => setTrackOpts({ ...trackOpts, heading: e.target.value })} />
+                                                                <input type="text" className="form-input" placeholder="Wait! Special Offer!" value={trackOpts.heading} onChange={e => setTrackOpts({ ...trackOpts, heading: e.target.value })} />
+                                                            </div>
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.description', 'Description')}</label>
+                                                                <input type="text" className="form-input" placeholder="Don't miss this exclusive deal just for you!" value={trackOpts.text} onChange={e => setTrackOpts({ ...trackOpts, text: e.target.value })} />
+                                                            </div>
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.popupButtonText', 'Button text')}</label>
+                                                                <input type="text" className="form-input" placeholder="CLAIM 50% OFF" value={trackOpts.popupButtonText} onChange={e => setTrackOpts({ ...trackOpts, popupButtonText: e.target.value })} />
+                                                            </div>
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.buttonColor', 'Button color')}</label>
+                                                                <select className="form-select" value={trackOpts.buttonColor} onChange={e => setTrackOpts({ ...trackOpts, buttonColor: e.target.value })}>
+                                                                    <option value="#22c55e">{t('tracking.colorGreen', 'Green')}</option>
+                                                                    <option value="#3b82f6">{t('tracking.colorBlue', 'Blue')}</option>
+                                                                    <option value="#f05a3e">{t('tracking.colorCoral', 'Coral')}</option>
+                                                                </select>
                                                             </div>
                                                             <div>
                                                                 <label className="form-label">{t('tracking.offerUrl', 'Offer URL')}</label>
                                                                 <input type="text" className="form-input" placeholder="https://your-offer.com" value={trackOpts.offerUrl} onChange={e => setTrackOpts({ ...trackOpts, offerUrl: e.target.value })} />
                                                             </div>
-                                                        </div>
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.showDelay', 'Show delay, seconds')}</label>
+                                                                <input type="number" min="0" className="form-input" value={trackOpts.showDelay} onChange={e => setTrackOpts({ ...trackOpts, showDelay: parseInt(e.target.value) || 0 })} />
+                                                            </div>
+                                                            <label className="flex items-center gap-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={trackOpts.closeOnBackdrop}
+                                                                    onChange={e => setTrackOpts({ ...trackOpts, closeOnBackdrop: e.target.checked })}
+                                                                />
+                                                                {t('tracking.closeOnBackdrop', 'Close on backdrop click')}
+                                                            </label>
+                                                        </>
+                                                    )}
+
+                                                    {trackingMethod === 'pixel' && (
+                                                        <>
+                                                            <div>
+                                                                <label className="form-label">{t('tracking.pixelType', 'Pixel type')}</label>
+                                                                <select className="form-select" value={trackOpts.pixelType} onChange={e => setTrackOpts({ ...trackOpts, pixelType: e.target.value })}>
+                                                                    <option value="click">{t('tracking.pixelClick', 'Click Tracking (email / banners)')}</option>
+                                                                    <option value="conversion">{t('tracking.pixelConversion', 'Conversion (Thank You page)')}</option>
+                                                                </select>
+                                                            </div>
+                                                            {trackOpts.pixelType === 'conversion' && (
+                                                                <>
+                                                                    <div>
+                                                                        <label className="form-label">{t('tracking.convStatus', 'Conversion status')}</label>
+                                                                        <select className="form-select" value={trackOpts.convStatus} onChange={e => setTrackOpts({ ...trackOpts, convStatus: e.target.value })}>
+                                                                            {['lead', 'sale', 'deposit', 'registration'].map(st => (
+                                                                                <option key={st} value={st}>{t('conversions.' + st, st)}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="form-label">{t('tracking.payoutValue', 'Payout value (optional)')}</label>
+                                                                        <input type="number" min="0" step="0.01" className="form-input" placeholder="10.00" value={trackOpts.payout} onChange={e => setTrackOpts({ ...trackOpts, payout: e.target.value })} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="form-label">{t('tracking.subidParam', 'SubID parameter')}</label>
+                                                                        <select className="form-select" value={trackOpts.subidParam} onChange={e => setTrackOpts({ ...trackOpts, subidParam: e.target.value })}>
+                                                                            <option value="{subid}">{t('tracking.subidTemplate', '{subid} — templated by your email/CRM platform')}</option>
+                                                                            <option value="{clickid}">{t('tracking.clickidTemplate', '{clickid} — templated click id')}</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </>
+                                                            )}
+                                                        </>
+                                                    )}
+
+                                                    {['campaign_url', 'link', 'iframe', 'script', 'tracking_script', 'wordpress'].includes(trackingMethod) && (
+                                                        <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                                            {t('tracking.noOptions', 'This method has no extra options — the code on the right is ready to use.')}
+                                                        </p>
                                                     )}
                                                 </div>
-                                            </div>
 
-                                            {/* kclient.php is downloaded, not copy-pasted */}
-                                            {trackingMethod === 'kclient_php' && (
-                                                <a
-                                                    href={`${trackerUrl}/kclient.php?download=1`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="btn btn-secondary"
-                                                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                                                >
-                                                    <FileText className="w-4 h-4" />
-                                                    {t('tracking.downloadKclient', 'Download kclient.php')}
-                                                </a>
-                                            )}
+                                                {/* RIGHT — generated code, copy, preview, install instruction */}
+                                                <div className="space-y-3">
+                                                    <div style={{ position: 'relative' }}>
+                                                        <button
+                                                            type="button"
+                                                            onClick={async () => {
+                                                                await copyIntegrationSnippet(buildSnippet(trackingMethod, snippetCtx(), trackOpts));
+                                                                setSnippetCopied(true);
+                                                                setTimeout(() => setSnippetCopied(false), 2000);
+                                                            }}
+                                                            className={snippetCopied ? 'btn btn-primary btn-icon' : 'btn btn-secondary btn-icon'}
+                                                            style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1, display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px' }}
+                                                            title={t('common.copy')}
+                                                        >
+                                                            {snippetCopied
+                                                                ? <><Check className="w-4 h-4" /> {t('tracking.copied', 'Copied!')}</>
+                                                                : <><Copy className="w-4 h-4" /> {t('tracking.copyCode', 'Copy code')}</>}
+                                                        </button>
+                                                        <div className="form-label" style={{ marginBottom: '6px' }}>{t('tracking.generatedCode', 'Generated integration code')}</div>
+                                                        <pre
+                                                            className="text-xs"
+                                                            style={{
+                                                                fontFamily: 'monospace',
+                                                                color: 'var(--color-text-secondary)',
+                                                                background: 'var(--color-bg-soft)',
+                                                                border: '1px solid var(--color-border)',
+                                                                borderRadius: '8px',
+                                                                padding: '12px 140px 12px 12px',
+                                                                margin: 0,
+                                                                whiteSpace: 'pre-wrap',
+                                                                wordBreak: 'break-all',
+                                                                maxHeight: '420px',
+                                                                overflowY: 'auto'
+                                                            }}
+                                                        >
+                                                            {buildSnippet(trackingMethod, snippetCtx(), trackOpts)}
+                                                        </pre>
+                                                    </div>
 
-                                            <div style={{ position: 'relative' }}>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => copyIntegrationSnippet(buildSnippet(trackingMethod, snippetCtx(), trackOpts))}
-                                                    className="btn btn-secondary btn-icon"
-                                                    style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1 }}
-                                                    title={t('common.copy')}
-                                                >
-                                                    <Copy className="w-4 h-4" />
-                                                </button>
-                                                <pre
-                                                    className="text-xs"
-                                                    style={{
-                                                        fontFamily: 'monospace',
-                                                        color: 'var(--color-text-secondary)',
-                                                        background: 'var(--color-bg-soft)',
-                                                        border: '1px solid var(--color-border)',
-                                                        borderRadius: '8px',
-                                                        padding: '12px 48px 12px 12px',
-                                                        margin: 0,
-                                                        whiteSpace: 'pre-wrap',
-                                                        wordBreak: 'break-all',
-                                                        maxHeight: '420px',
-                                                        overflowY: 'auto'
-                                                    }}
-                                                >
-                                                    {buildSnippet(trackingMethod, snippetCtx(), trackOpts)}
-                                                </pre>
+                                                    {(trackingMethod === 'countdown' || trackingMethod === 'exit_intent') && (
+                                                        <div className="space-y-2">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setShowWidgetPreview(!showWidgetPreview)}
+                                                                className="btn btn-secondary btn-icon"
+                                                                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px' }}
+                                                            >
+                                                                <Eye className="w-4 h-4" />
+                                                                {showWidgetPreview
+                                                                    ? t('tracking.hidePreview', 'Hide preview')
+                                                                    : t('tracking.previewWidget', 'Preview widget')}
+                                                            </button>
+                                                            {showWidgetPreview && (
+                                                                <div className="rounded-2xl p-4" style={{ border: '1px dashed var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
+                                                                    {trackingMethod === 'countdown' ? (
+                                                                        <CountdownPreview
+                                                                            hours={trackOpts.hours}
+                                                                            minutes={trackOpts.minutes}
+                                                                            headerText={trackOpts.headerText}
+                                                                            buttonText={trackOpts.buttonText}
+                                                                            theme={trackOpts.theme}
+                                                                            expireAction={trackOpts.expireAction}
+                                                                        />
+                                                                    ) : (
+                                                                        <ExitIntentPreview
+                                                                            heading={trackOpts.heading}
+                                                                            text={trackOpts.text}
+                                                                            buttonText={trackOpts.popupButtonText}
+                                                                            buttonColor={trackOpts.buttonColor}
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+
+                                                    <div className="rounded-2xl p-3 flex items-start gap-2" style={{ border: '1px solid var(--color-border)', backgroundColor: 'color-mix(in srgb, var(--color-primary) 6%, transparent)' }}>
+                                                        <Info className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--color-primary)', marginTop: '1px' }} />
+                                                        <div>
+                                                            <div className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)', marginBottom: '2px' }}>
+                                                                {t('tracking.howToInstall', 'How to install')}
+                                                            </div>
+                                                            <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                                                                {t(METHOD_INSTALL_HINTS[trackingMethod] || 'tracking.instWidgets')}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     )}

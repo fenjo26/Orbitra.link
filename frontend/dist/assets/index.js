@@ -18315,7 +18315,59 @@ const ru = {
     "offerUrl": "URL оффера",
     "trapUrl": "URL ловушки",
     "heading": "Заголовок",
-    "downloadKclient": "Скачать kclient.php"
+    "downloadKclient": "Скачать kclient.php",
+    "settings": "Настройки и опции",
+    "generatedCode": "Сгенерированный код интеграции",
+    "howToInstall": "Как установить",
+    "copyCode": "Копировать код",
+    "copied": "Скопировано!",
+    "previewWidget": "Предпросмотр виджета",
+    "hidePreview": "Скрыть предпросмотр",
+    "minutes": "Длительность, минуты",
+    "headerText": "Текст заголовка",
+    "ctaButtonText": "Текст кнопки",
+    "theme": "Стиль",
+    "themePurple": "Фиолетовый / Индиго",
+    "themeEmerald": "Изумрудный",
+    "themeFire": "Огненно-красный",
+    "themeDark": "Тёмный минимализм",
+    "expireAction": "По истечении",
+    "expireShowBadge": "Показать «EXPIRED»",
+    "expireRedirect": "Редирект на резервный URL",
+    "expireUrl": "Резервный URL (пусто = URL оффера)",
+    "logClick": "Регистрировать клик в трекере (sub1=back_button)",
+    "activationDelay": "Задержка активации, сек",
+    "description": "Описание",
+    "popupButtonText": "Текст кнопки",
+    "buttonColor": "Цвет кнопки",
+    "colorGreen": "Зелёный",
+    "colorBlue": "Синий",
+    "colorCoral": "Коралловый",
+    "showDelay": "Задержка показа, сек",
+    "closeOnBackdrop": "Закрывать при клике мимо окна",
+    "phpMode": "Режим выполнения",
+    "phpRedirect": "Редирект на оффер",
+    "phpShowHtml": "Показать как HTML (контент в тело страницы)",
+    "phpGetLink": "Получить ссылку на оффер в переменную",
+    "sendParams": "Пробрасывать UTM / SubID из адресной строки",
+    "pixelType": "Тип пикселя",
+    "pixelClick": "Клики (email / баннеры)",
+    "pixelConversion": "Конверсия (страница «Спасибо»)",
+    "convStatus": "Статус конверсии",
+    "payoutValue": "Выплата (опционально)",
+    "subidParam": "Параметр SubID",
+    "subidTemplate": "{subid} — подставляет ваша платформа рассылок/CRM",
+    "clickidTemplate": "{clickid} — подставляемый id клика",
+    "noOptions": "У этого метода нет дополнительных опций — код справа готов к использованию.",
+    "instKclientJs": "Первый блок <script> добавьте в <head> каждой страницы сайта: kclient.js зарегистрирует клик и выполнит правила потока.",
+    "instKclientPhp": "Вставьте в самые первые строки index.php сайта, до любого вывода. kclient.php скачайте и положите рядом с index.php.",
+    "instTrackingScript": "Блок конфигурации — в <head> каждой страницы; часть для конверсии — только на странице «Спасибо».",
+    "instBanner": "Вставьте там, где должен появиться блок баннеров.",
+    "instCampaignUrl": "Используйте этот URL напрямую в настройках рекламной кампании сети.",
+    "instAdSnippet": "Вставьте сниппет в HTML креатива или лендинга там, где нужна ссылка/фрейм.",
+    "instPixel": "Пиксель клика — в HTML-код письма или баннера. Пиксель конверсии — на странице «Спасибо» после формы.",
+    "instWidgets": "Вставьте код в HTML лендинга перед закрывающим тегом </body>.",
+    "instWordpress": "Установите плагин Orbitra и вставляйте шорткоды в записи, страницы или страницу подтверждения CF7."
   },
   "costSync": {
     "title": "Синк расходов",
@@ -20877,7 +20929,59 @@ const en = {
     "offerUrl": "Offer URL",
     "trapUrl": "Trap URL",
     "heading": "Heading",
-    "downloadKclient": "Download kclient.php"
+    "downloadKclient": "Download kclient.php",
+    "settings": "Settings & Options",
+    "generatedCode": "Generated integration code",
+    "howToInstall": "How to install",
+    "copyCode": "Copy code",
+    "copied": "Copied!",
+    "previewWidget": "Preview widget",
+    "hidePreview": "Hide preview",
+    "minutes": "Duration, minutes",
+    "headerText": "Header text",
+    "ctaButtonText": "Button text",
+    "theme": "Style theme",
+    "themePurple": "Purple / Indigo",
+    "themeEmerald": "Emerald Green",
+    "themeFire": "Fire Red",
+    "themeDark": "Dark Minimal",
+    "expireAction": "On expire",
+    "expireShowBadge": 'Show "EXPIRED"',
+    "expireRedirect": "Redirect to fallback URL",
+    "expireUrl": "Fallback URL (empty = offer URL)",
+    "logClick": "Log click in tracker (sub1=back_button)",
+    "activationDelay": "Activation delay, seconds",
+    "description": "Description",
+    "popupButtonText": "Button text",
+    "buttonColor": "Button color",
+    "colorGreen": "Green",
+    "colorBlue": "Blue",
+    "colorCoral": "Coral",
+    "showDelay": "Show delay, seconds",
+    "closeOnBackdrop": "Close on backdrop click",
+    "phpMode": "Execution mode",
+    "phpRedirect": "Redirect to offer",
+    "phpShowHtml": "Show as HTML (content in page body)",
+    "phpGetLink": "Get offer link into a variable",
+    "sendParams": "Pass UTM / SubID parameters from the URL",
+    "pixelType": "Pixel type",
+    "pixelClick": "Click Tracking (email / banners)",
+    "pixelConversion": "Conversion (Thank You page)",
+    "convStatus": "Conversion status",
+    "payoutValue": "Payout value (optional)",
+    "subidParam": "SubID parameter",
+    "subidTemplate": "{subid} — templated by your email/CRM platform",
+    "clickidTemplate": "{clickid} — templated click id",
+    "noOptions": "This method has no extra options — the code on the right is ready to use.",
+    "instKclientJs": "Add the first <script> block to the <head> of every page of your site; kclient.js registers the click and follows the campaign's stream rules.",
+    "instKclientPhp": "Paste at the very top of your site's index.php, before any output. Download kclient.php and place it next to index.php.",
+    "instTrackingScript": "Add the config block to the <head> of every page; the conversion part goes on the Thank You page only.",
+    "instBanner": "Paste where the banner block should appear on the page.",
+    "instCampaignUrl": "Use this URL directly in your ad network's campaign settings.",
+    "instAdSnippet": "Paste the snippet into your ad network's creative or landing HTML where the link/frame should render.",
+    "instPixel": "Click pixel: into the HTML body of your email or banner. Conversion pixel: on the Thank You page after the form.",
+    "instWidgets": "Paste the code into your landing page HTML right before the closing </body> tag.",
+    "instWordpress": "Install the Orbitra plugin, then paste the shortcodes into your posts, pages or the CF7 confirmation page."
   },
   "costSync": {
     "title": "Cost Sync",
@@ -23439,7 +23543,59 @@ const uk = {
     "offerUrl": "URL оффера",
     "trapUrl": "URL пастки",
     "heading": "Заголовок",
-    "downloadKclient": "Завантажити kclient.php"
+    "downloadKclient": "Завантажити kclient.php",
+    "settings": "Налаштування та опції",
+    "generatedCode": "Згенерований код інтеграції",
+    "howToInstall": "Як встановити",
+    "copyCode": "Копіювати код",
+    "copied": "Скопійовано!",
+    "previewWidget": "Передперегляд",
+    "hidePreview": "Сховати передперегляд",
+    "minutes": "Тривалість, хвилини",
+    "headerText": "Текст заголовка",
+    "ctaButtonText": "Текст кнопки",
+    "theme": "Стиль",
+    "themePurple": "Фіолетовий / Індиго",
+    "themeEmerald": "Смарагдовий",
+    "themeFire": "Вогняно-червоний",
+    "themeDark": "Темний мінімалізм",
+    "expireAction": "Після закінчення",
+    "expireShowBadge": "Показати «EXPIRED»",
+    "expireRedirect": "Редирект на резервний URL",
+    "expireUrl": "Резервний URL (порожньо = URL оффера)",
+    "logClick": "Реєструвати клік у трекері (sub1=back_button)",
+    "activationDelay": "Затримка активації, сек",
+    "description": "Опис",
+    "popupButtonText": "Текст кнопки",
+    "buttonColor": "Колір кнопки",
+    "colorGreen": "Зелений",
+    "colorBlue": "Синій",
+    "colorCoral": "Кораловий",
+    "showDelay": "Затримка показу, сек",
+    "closeOnBackdrop": "Закривати при кліку повз вікно",
+    "phpMode": "Режим виконання",
+    "phpRedirect": "Редирект на оффер",
+    "phpShowHtml": "Показати як HTML (контент у тіло сторінки)",
+    "phpGetLink": "Отримати посилання на оффер у змінну",
+    "sendParams": "Пробрасовувати UTM / SubID з адресного рядка",
+    "pixelType": "Тип пікселя",
+    "pixelClick": "Кліки (email / банери)",
+    "pixelConversion": "Конверсія (сторінка «Дякую»)",
+    "convStatus": "Статус конверсії",
+    "payoutValue": "Виплата (опціонально)",
+    "subidParam": "Параметр SubID",
+    "subidTemplate": "{subid} — підставляє ваша платформа розсилок/CRM",
+    "clickidTemplate": "{clickid} — id кліку, що підставляється",
+    "noOptions": "У цього методу немає додаткових опцій — код праворуч готовий до використання.",
+    "instKclientJs": "Перший блок <script> додайте в <head> кожної сторінки сайту: kclient.js зареєструє клік і виконає правила потоку.",
+    "instKclientPhp": "Вставте в найперші рядки index.php сайту, до будь-якого виводу. kclient.php завантажте і покладіть поруч з index.php.",
+    "instTrackingScript": "Блок конфігурації — в <head> кожної сторінки; частину для конверсії — лише на сторінці «Дякую».",
+    "instBanner": "Вставте там, де має з'являтися блок банерів.",
+    "instCampaignUrl": "Використовуйте цей URL безпосередньо в налаштуваннях рекламної кампанії мережі.",
+    "instAdSnippet": "Вставте сніпет в HTML креативу або лендінгу там, де потрібне посилання/фрейм.",
+    "instPixel": "Піксель кліку — в HTML-код листа або банера. Піксель конверсії — на сторінці «Дякую» після форми.",
+    "instWidgets": "Вставте код в HTML лендінгу перед закриваючим тегом </body>.",
+    "instWordpress": "Встановіть плагін Orbitra і вставляйте шорткоди в записи, сторінки або сторінку підтвердження CF7."
   },
   "costSync": {
     "title": "Синк витрат",
@@ -26001,7 +26157,59 @@ const es = {
     "offerUrl": "URL de la oferta",
     "trapUrl": "URL de la trampa",
     "heading": "Título",
-    "downloadKclient": "Descargar kclient.php"
+    "downloadKclient": "Descargar kclient.php",
+    "settings": "Ajustes y opciones",
+    "generatedCode": "Código de integración generado",
+    "howToInstall": "Cómo instalar",
+    "copyCode": "Copiar código",
+    "copied": "¡Copiado!",
+    "previewWidget": "Vista previa",
+    "hidePreview": "Ocultar vista previa",
+    "minutes": "Duración, minutos",
+    "headerText": "Texto del encabezado",
+    "ctaButtonText": "Texto del botón",
+    "theme": "Estilo",
+    "themePurple": "Violeta / Índigo",
+    "themeEmerald": "Verde esmeralda",
+    "themeFire": "Rojo fuego",
+    "themeDark": "Oscuro minimalista",
+    "expireAction": "Al expirar",
+    "expireShowBadge": "Mostrar «EXPIRED»",
+    "expireRedirect": "Redirigir a URL alternativa",
+    "expireUrl": "URL alternativa (vacío = URL de la oferta)",
+    "logClick": "Registrar clic en el tracker (sub1=back_button)",
+    "activationDelay": "Retardo de activación, seg.",
+    "description": "Descripción",
+    "popupButtonText": "Texto del botón",
+    "buttonColor": "Color del botón",
+    "colorGreen": "Verde",
+    "colorBlue": "Azul",
+    "colorCoral": "Coral",
+    "showDelay": "Retardo de muestra, seg.",
+    "closeOnBackdrop": "Cerrar al hacer clic fuera",
+    "phpMode": "Modo de ejecución",
+    "phpRedirect": "Redirigir a la oferta",
+    "phpShowHtml": "Mostrar como HTML (contenido en la página)",
+    "phpGetLink": "Obtener enlace de la oferta en una variable",
+    "sendParams": "Pasar parámetros UTM / SubID de la URL",
+    "pixelType": "Tipo de píxel",
+    "pixelClick": "Seguimiento de clics (email / banners)",
+    "pixelConversion": "Conversión (página de agradecimiento)",
+    "convStatus": "Estado de conversión",
+    "payoutValue": "Pago (opcional)",
+    "subidParam": "Parámetro SubID",
+    "subidTemplate": "{subid} — lo sustituye su plataforma de email/CRM",
+    "clickidTemplate": "{clickid} — id de clic sustituido",
+    "noOptions": "Este método no tiene opciones adicionales: el código de la derecha está listo.",
+    "instKclientJs": "Añada el primer bloque <script> al <head> de cada página; kclient.js registra el clic y sigue las reglas de la campaña.",
+    "instKclientPhp": "Péguelo al principio de index.php, antes de cualquier salida. Descargue kclient.php y colóquelo junto a index.php.",
+    "instTrackingScript": "El bloque de configuración, en el <head> de cada página; la parte de conversión, solo en la página de agradecimiento.",
+    "instBanner": "Péguelo donde deba aparecer el bloque de banners.",
+    "instCampaignUrl": "Use esta URL directamente en la configuración de campaña de su red publicitaria.",
+    "instAdSnippet": "Pegue el snippet en el HTML del creativo o landing donde deba mostrarse el enlace/frame.",
+    "instPixel": "Píxel de clic: en el HTML del email o banner. Píxel de conversión: en la página de agradecimiento tras el formulario.",
+    "instWidgets": "Pegue el código en el HTML del landing justo antes del </body> de cierre.",
+    "instWordpress": "Instale el plugin de Orbitra y pegue los shortcodes en entradas, páginas o la página de confirmación de CF7."
   },
   "costSync": {
     "title": "Sincronización de costos",
@@ -28563,7 +28771,59 @@ const zh = {
     "offerUrl": "Offer URL",
     "trapUrl": "陷阱 URL",
     "heading": "标题",
-    "downloadKclient": "下载 kclient.php"
+    "downloadKclient": "下载 kclient.php",
+    "settings": "设置与选项",
+    "generatedCode": "生成的集成代码",
+    "howToInstall": "安装方法",
+    "copyCode": "复制代码",
+    "copied": "已复制！",
+    "previewWidget": "预览组件",
+    "hidePreview": "隐藏预览",
+    "minutes": "时长，分钟",
+    "headerText": "标题文本",
+    "ctaButtonText": "按钮文本",
+    "theme": "样式主题",
+    "themePurple": "紫色 / 靛蓝",
+    "themeEmerald": "翡翠绿",
+    "themeFire": "火焰红",
+    "themeDark": "深色极简",
+    "expireAction": "到期后",
+    "expireShowBadge": "显示「EXPIRED」",
+    "expireRedirect": "重定向到备用 URL",
+    "expireUrl": "备用 URL（留空 = offer URL）",
+    "logClick": "在跟踪器中记录点击（sub1=back_button）",
+    "activationDelay": "激活延迟，秒",
+    "description": "描述",
+    "popupButtonText": "按钮文本",
+    "buttonColor": "按钮颜色",
+    "colorGreen": "绿色",
+    "colorBlue": "蓝色",
+    "colorCoral": "珊瑚色",
+    "showDelay": "显示延迟，秒",
+    "closeOnBackdrop": "点击遮罩时关闭",
+    "phpMode": "执行模式",
+    "phpRedirect": "重定向到 offer",
+    "phpShowHtml": "以 HTML 显示（内容嵌入页面）",
+    "phpGetLink": "获取 offer 链接到变量",
+    "sendParams": "透传 URL 中的 UTM / SubID 参数",
+    "pixelType": "像素类型",
+    "pixelClick": "点击跟踪（邮件 / 横幅）",
+    "pixelConversion": "转化（感谢页）",
+    "convStatus": "转化状态",
+    "payoutValue": "佣金（可选）",
+    "subidParam": "SubID 参数",
+    "subidTemplate": "{subid} — 由您的邮件/CRM 平台替换",
+    "clickidTemplate": "{clickid} — 被替换的点击 id",
+    "noOptions": "此方法没有额外选项——右侧代码可直接使用。",
+    "instKclientJs": "将第一个 <script> 块加入每个页面的 <head>；kclient.js 会注册点击并执行活动规则。",
+    "instKclientPhp": "粘贴在网站 index.php 的最顶部、任何输出之前。下载 kclient.php 并放在 index.php 旁边。",
+    "instTrackingScript": "配置块加入每个页面的 <head>；转化部分只在感谢页使用。",
+    "instBanner": "粘贴在横幅块应出现的位置。",
+    "instCampaignUrl": "在广告网络的广告系列设置中直接使用此 URL。",
+    "instAdSnippet": "将代码粘贴到创意或落地页 HTML 中需要链接/框架的位置。",
+    "instPixel": "点击像素：放入邮件或横幅的 HTML 正文。转化像素：放在表单后的感谢页。",
+    "instWidgets": "将代码粘贴到落地页 HTML 中 </body> 结束标签之前。",
+    "instWordpress": "安装 Orbitra 插件，然后将短代码粘贴到文章、页面或 CF7 确认页。"
   },
   "costSync": {
     "title": "花费同步",
@@ -31127,7 +31387,59 @@ const fr = {
     "offerUrl": "URL de l’offre",
     "trapUrl": "URL du piège",
     "heading": "Titre",
-    "downloadKclient": "Télécharger kclient.php"
+    "downloadKclient": "Télécharger kclient.php",
+    "settings": "Paramètres et options",
+    "generatedCode": "Code d'intégration généré",
+    "howToInstall": "Comment installer",
+    "copyCode": "Copier le code",
+    "copied": "Copié !",
+    "previewWidget": "Aperçu",
+    "hidePreview": "Masquer l'aperçu",
+    "minutes": "Durée, minutes",
+    "headerText": "Texte d'en-tête",
+    "ctaButtonText": "Texte du bouton",
+    "theme": "Style",
+    "themePurple": "Violet / Indigo",
+    "themeEmerald": "Vert émeraude",
+    "themeFire": "Rouge feu",
+    "themeDark": "Sombre minimal",
+    "expireAction": "À l'expiration",
+    "expireShowBadge": "Afficher « EXPIRED »",
+    "expireRedirect": "Rediriger vers une URL de secours",
+    "expireUrl": "URL de secours (vide = URL de l'offre)",
+    "logClick": "Enregistrer le clic dans le tracker (sub1=back_button)",
+    "activationDelay": "Délai d'activation, sec.",
+    "description": "Description",
+    "popupButtonText": "Texte du bouton",
+    "buttonColor": "Couleur du bouton",
+    "colorGreen": "Vert",
+    "colorBlue": "Bleu",
+    "colorCoral": "Corail",
+    "showDelay": "Délai d'affichage, sec.",
+    "closeOnBackdrop": "Fermer au clic à l'extérieur",
+    "phpMode": "Mode d'exécution",
+    "phpRedirect": "Rediriger vers l'offre",
+    "phpShowHtml": "Afficher en HTML (contenu dans la page)",
+    "phpGetLink": "Récupérer le lien de l'offre dans une variable",
+    "sendParams": "Transmettre les paramètres UTM / SubID de l'URL",
+    "pixelType": "Type de pixel",
+    "pixelClick": "Suivi des clics (e-mail / bannières)",
+    "pixelConversion": "Conversion (page de remerciement)",
+    "convStatus": "Statut de conversion",
+    "payoutValue": "Paiement (optionnel)",
+    "subidParam": "Paramètre SubID",
+    "subidTemplate": "{subid} — substitué par votre plateforme e-mail/CRM",
+    "clickidTemplate": "{clickid} — id de clic substitué",
+    "noOptions": "Cette méthode n'a pas d'options supplémentaires — le code à droite est prêt.",
+    "instKclientJs": "Ajoutez le premier bloc <script> au <head> de chaque page ; kclient.js enregistre le clic et suit les règles de la campagne.",
+    "instKclientPhp": "Collez-le tout en haut de index.php, avant toute sortie. Téléchargez kclient.php et placez-le à côté de index.php.",
+    "instTrackingScript": "Le bloc de configuration dans le <head> de chaque page ; la partie conversion, uniquement sur la page de remerciement.",
+    "instBanner": "Collez-le à l'endroit où le bloc de bannières doit apparaître.",
+    "instCampaignUrl": "Utilisez cette URL directement dans les paramètres de campagne de votre régie publicitaire.",
+    "instAdSnippet": "Collez le snippet dans le HTML du créatif ou du landing où le lien/frame doit s'afficher.",
+    "instPixel": "Pixel de clic : dans le HTML de l'e-mail ou de la bannière. Pixel de conversion : sur la page de remerciement après le formulaire.",
+    "instWidgets": "Collez le code dans le HTML du landing juste avant la balise </body> fermante.",
+    "instWordpress": "Installez le plugin Orbitra et collez les shortcodes dans vos articles, pages ou la page de confirmation CF7."
   },
   "costSync": {
     "title": "Synchro des coûts",
@@ -33689,7 +34001,59 @@ const de = {
     "offerUrl": "Offer-URL",
     "trapUrl": "Trap-URL",
     "heading": "Überschrift",
-    "downloadKclient": "kclient.php herunterladen"
+    "downloadKclient": "kclient.php herunterladen",
+    "settings": "Einstellungen & Optionen",
+    "generatedCode": "Generierter Integrationscode",
+    "howToInstall": "So installieren Sie",
+    "copyCode": "Code kopieren",
+    "copied": "Kopiert!",
+    "previewWidget": "Vorschau",
+    "hidePreview": "Vorschau ausblenden",
+    "minutes": "Dauer, Minuten",
+    "headerText": "Überschriftentext",
+    "ctaButtonText": "Buttontext",
+    "theme": "Stil",
+    "themePurple": "Lila / Indigo",
+    "themeEmerald": "Smaragdgrün",
+    "themeFire": "Feuerrot",
+    "themeDark": "Dunkles Minimal",
+    "expireAction": "Bei Ablauf",
+    "expireShowBadge": "„EXPIRED“ anzeigen",
+    "expireRedirect": "Weiterleitung zur Fallback-URL",
+    "expireUrl": "Fallback-URL (leer = Angebot-URL)",
+    "logClick": "Klick im Tracker erfassen (sub1=back_button)",
+    "activationDelay": "Aktivierungsverzögerung, Sek.",
+    "description": "Beschreibung",
+    "popupButtonText": "Buttontext",
+    "buttonColor": "Buttonfarbe",
+    "colorGreen": "Grün",
+    "colorBlue": "Blau",
+    "colorCoral": "Koralle",
+    "showDelay": "Anzeigeverzögerung, Sek.",
+    "closeOnBackdrop": "Bei Klick außerhalb schließen",
+    "phpMode": "Ausführungsmodus",
+    "phpRedirect": "Weiterleitung zum Angebot",
+    "phpShowHtml": "Als HTML anzeigen (Inhalt im Seitenkörper)",
+    "phpGetLink": "Angebotslink in eine Variable",
+    "sendParams": "UTM-/SubID-Parameter aus der URL übergeben",
+    "pixelType": "Pixeltyp",
+    "pixelClick": "Klick-Tracking (E-Mail / Banner)",
+    "pixelConversion": "Conversion (Danke-Seite)",
+    "convStatus": "Conversion-Status",
+    "payoutValue": "Auszahlung (optional)",
+    "subidParam": "SubID-Parameter",
+    "subidTemplate": "{subid} — von Ihrer E-Mail-/CRM-Plattform ersetzt",
+    "clickidTemplate": "{clickid} — ersetzte Klick-ID",
+    "noOptions": "Diese Methode hat keine zusätzlichen Optionen — der Code rechts ist einsatzbereit.",
+    "instKclientJs": "Den ersten <script>-Block in den <head> jeder Seite einfügen; kclient.js registriert den Klick und folgt den Regeln der Kampagne.",
+    "instKclientPhp": "Ganz oben in die index.php Ihrer Website einfügen, vor jeder Ausgabe. kclient.php herunterladen und neben index.php ablegen.",
+    "instTrackingScript": "Den Konfigurationsblock in den <head> jeder Seite; den Conversion-Teil nur auf der Danke-Seite.",
+    "instBanner": "Dort einfügen, wo der Bannerblock erscheinen soll.",
+    "instCampaignUrl": "Diese URL direkt in den Kampagneneinstellungen Ihres Werbenetzwerks verwenden.",
+    "instAdSnippet": "Den Snippet in das HTML des Creatives oder des Landings einfügen, wo Link/Frame erscheinen soll.",
+    "instPixel": "Klick-Pixel: in den HTML-Body der E-Mail oder des Banners. Conversion-Pixel: auf der Danke-Seite nach dem Formular.",
+    "instWidgets": "Den Code im Landing-HTML direkt vor dem schließenden </body> einfügen.",
+    "instWordpress": "Orbitra-Plugin installieren und die Shortcodes in Beiträge, Seiten oder die CF7-Bestätigungsseite einfügen."
   },
   "costSync": {
     "title": "Kosten-Sync",
@@ -66857,13 +67221,36 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
   ] }) });
 };
 const cid = () => window.crypto && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36);
+const COUNTDOWN_THEMES = {
+  purple: { gradient: "linear-gradient(135deg,#667eea 0%,#764ba2 100%)", cta: "#22c55e" },
+  emerald: { gradient: "linear-gradient(135deg,#10b981 0%,#065f46 100%)", cta: "#fbbf24" },
+  fire: { gradient: "linear-gradient(135deg,#f97316 0%,#dc2626 100%)", cta: "#111827" },
+  dark: { gradient: "linear-gradient(135deg,#374151 0%,#111827 100%)", cta: "#f05a3e" }
+};
+const METHOD_INSTALL_HINTS = {
+  kclient_js: "tracking.instKclientJs",
+  kclient_php: "tracking.instKclientPhp",
+  tracking_script: "tracking.instTrackingScript",
+  banner_script: "tracking.instBanner",
+  banner_iframe: "tracking.instBanner",
+  campaign_url: "tracking.instCampaignUrl",
+  link: "tracking.instAdSnippet",
+  iframe: "tracking.instAdSnippet",
+  script: "tracking.instAdSnippet",
+  pixel: "tracking.instPixel",
+  countdown: "tracking.instWidgets",
+  back_button: "tracking.instWidgets",
+  exit_intent: "tracking.instWidgets",
+  wordpress: "tracking.instWordpress"
+};
+const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 const pagePassthrough = () => `' + encodeURIComponent(document.referrer) + '&default_keyword=' + encodeURIComponent(document.title) + '&'+window.location.search.replace('?', '&')`;
 function buildSnippet(methodId, ctx, opts = {}) {
   switch (methodId) {
     case "kclient_js":
       return kclientJs(ctx, opts);
     case "kclient_php":
-      return kclientPhp(ctx);
+      return kclientPhp(ctx, opts);
     case "tracking_script":
       return trackingScript(ctx);
     case "banner_script":
@@ -66879,7 +67266,7 @@ function buildSnippet(methodId, ctx, opts = {}) {
     case "script":
       return scriptSnippet(ctx);
     case "pixel":
-      return pixelSnippet(ctx);
+      return pixelSnippet(ctx, opts);
     case "countdown":
       return countdownSnippet(ctx, opts);
     case "back_button":
@@ -66912,18 +67299,30 @@ function kclientJs({ trackerUrl, campaign }, opts = {}) {
   }
   return code;
 }
-function kclientPhp({ trackerUrl, campaign }) {
+function kclientPhp({ trackerUrl, campaign }, opts = {}) {
+  const sendParams = opts.sendParams !== false;
+  const mode = opts.phpMode || "redirect";
+  const paramsLine = sendParams ? `$client->sendAllParams();` : `// $client->sendAllParams(); — выключено: UTM/SubID из адресной строки не пробрасываются`;
+  let execution;
+  if (mode === "show_html") {
+    execution = `// «Show as HTML»: контент потока прямо в тело страницы, URL не меняется
+echo $client->getContent();`;
+  } else if (mode === "get_link") {
+    execution = `// «Get Offer Link»: ссылка на оффер в переменную — для своей кнопки
+<?php $offerLink = $client->getOffer(); ?>
+<!-- <a href="<?php echo $offerLink; ?>">BUY NOW</a> -->`;
+  } else {
+    execution = `$client->execute();
+// $client->executeAndBreak(); — останавливать страницу при редиректе`;
+  }
   return `<?php
 // Первые строки index.php сайта, до DOCTYPE.
 // Файл kclient.php скачайте кнопкой выше и положите рядом с index.php.
 require_once dirname(__FILE__) . '/kclient.php';
 
 $client = new KClickClient('${trackerUrl}', '${campaign.token}');
-$client->sendAllParams();
-$client->execute();
-// $client->executeAndBreak(); — останавливать страницу при редиректе
-// echo $client->getContent();   — HTML из потока («Показать как HTML»)
-// echo $client->getOffer();     — ссылка на оффер для своей кнопки
+${paramsLine}
+${execution}
 `;
 }
 function trackingScript({ trackerUrl, campaign }) {
@@ -66984,29 +67383,43 @@ s.src='${campaign.url}?se_referrer=${pagePassthrough()}&frm=script&_cid=${id}';
 if (document.currentScript) { document.currentScript.parentNode.insertBefore(s, document.currentScript); } else { d.getElementsByTagName('head')[0].appendChild(s); }
 <\/script>`;
 }
-function pixelSnippet({ trackerUrl, campaign }) {
-  return `<!-- Пиксель (клики, email-рассылки): -->
-<img src="${trackerUrl}/pixel.gif?campaign_id=${campaign.id}" width="1" height="1" border="0" alt="" />
-
-<!-- Конверсия на странице «Спасибо» (subid со страницы/формы): -->
-<img src="${trackerUrl}/pixel.gif?action=conversion&subid={subid}&status=lead" width="1" height="1" border="0" alt="" />`;
+function pixelSnippet({ trackerUrl, campaign }, opts = {}) {
+  if (opts.pixelType === "conversion") {
+    const status = opts.convStatus || "lead";
+    const payout = parseFloat(opts.payout) > 0 ? `&payout=${parseFloat(opts.payout)}` : "";
+    const subid = opts.subidParam || "{subid}";
+    return `<!-- Пиксель конверсии: на страницу «Спасибо» после формы/заказа.
+     ${esc(subid)} подставляет ваша платформа рассылок/CRM (id клика). -->
+<img src="${trackerUrl}/pixel.gif?action=conversion&subid=${esc(subid)}&status=${esc(status)}${payout}" width="1" height="1" border="0" alt="" />`;
+  }
+  return `<!-- Пиксель клика: открытий email-рассылок и показов баннеров.
+     Параметры клика (sub_id_1 и т.п.) можно добавить в query string. -->
+<img src="${trackerUrl}/pixel.gif?campaign_id=${campaign.id}" width="1" height="1" border="0" alt="" />`;
 }
 function countdownSnippet({ trackerUrl, campaign }, opts = {}) {
-  const hours = opts.hours || 2;
+  const hours = Math.max(0, parseInt(opts.hours, 10) || 0);
+  const minutes = Math.max(0, parseInt(opts.minutes, 10) || 0);
+  const totalSeconds = Math.max(60, hours * 3600 + minutes * 60);
+  const headerText = opts.headerText || "OFFER EXPIRES IN";
+  const buttonText = opts.buttonText || "GET SPECIAL OFFER";
   const offerUrl = opts.offerUrl || "https://your-offer.com";
-  return `<div id="ltt-countdown" style="font-family:sans-serif;text-align:center;padding:20px;
-    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border-radius:12px;max-width:400px;
+  const theme = COUNTDOWN_THEMES[opts.theme] || COUNTDOWN_THEMES.purple;
+  const expireRedirect = opts.expireAction === "redirect" ? opts.expireUrl || offerUrl : "";
+  const onExpire = expireRedirect ? `window.location.href = ${JSON.stringify(expireRedirect)};` : `document.getElementById('ltt-countdown').innerHTML = '<h2>OFFER EXPIRED</h2>';`;
+  return `<!-- Orbitra Countdown Widget — вставьте перед закрывающим </body> лендинга -->
+<div id="ltt-countdown" style="font-family:sans-serif;text-align:center;padding:20px;
+    background:${theme.gradient};color:white;border-radius:12px;max-width:400px;
     margin:0 auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
     <div style="font-size:14px;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">
-        OFFER EXPIRES IN
+        ${esc(headerText)}
     </div>
     <div id="ltt-timer" style="font-size:48px;font-weight:bold;">
         <span id="ltt-hours">00</span>:<span id="ltt-minutes">00</span>:<span id="ltt-seconds">00</span>
     </div>
     <a id="ltt-cta" href="#" style="display:inline-block;margin-top:20px;padding:14px 40px;
-        background:#22c55e;color:white;text-decoration:none;border-radius:8px;font-weight:600;
+        background:${theme.cta};color:white;text-decoration:none;border-radius:8px;font-weight:600;
         font-size:16px;transition:transform 0.2s;">
-        GET OFFER NOW
+        ${esc(buttonText)}
     </a>
 </div>
 
@@ -67014,17 +67427,17 @@ function countdownSnippet({ trackerUrl, campaign }, opts = {}) {
 (function() {
     var trackerUrl = '${trackerUrl}';
     var campaignId = '${campaign.id}';
-    var redirectUrl = '${offerUrl}';
-    var hoursFromNow = ${hours};
+    var redirectUrl = ${JSON.stringify(offerUrl)};
+    var totalSeconds = ${totalSeconds};
 
-    var endTime = new Date().getTime() + (hoursFromNow * 60 * 60 * 1000);
+    var endTime = new Date().getTime() + totalSeconds * 1000;
 
     document.getElementById('ltt-cta').href = trackerUrl + '/click.php?campaign_id=' + campaignId + '&url=' + encodeURIComponent(redirectUrl);
 
     function updateTimer() {
         var distance = endTime - new Date().getTime();
         if (distance < 0) {
-            document.getElementById('ltt-countdown').innerHTML = '<h2>OFFER EXPIRED</h2>';
+            ${onExpire}
             return;
         }
         document.getElementById('ltt-hours').textContent = String(Math.floor(distance / 3600000)).padStart(2, '0');
@@ -67039,21 +67452,29 @@ function countdownSnippet({ trackerUrl, campaign }, opts = {}) {
 }
 function backButtonSnippet({ trackerUrl, campaign }, opts = {}) {
   const trapUrl = opts.trapUrl || "https://your-special-offer.com";
-  return `<script>
-// Back Button Trap — перехват кнопки «назад» браузера
+  const logClick = opts.logClick !== false;
+  const delay = Math.max(0, parseInt(opts.delay, 10) || 0);
+  const armLine = delay > 0 ? `setTimeout(arm, ${delay * 1e3});` : `arm();`;
+  const trapBody = logClick ? `var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + '&sub1=back_button&redirect=0';
+            fetch(clickUrl).finally(function() {
+                window.location.href = trapUrl;
+            });` : `window.location.href = trapUrl;`;
+  return `<!-- Orbitra Back Button Trap — вставьте перед закрывающим </body> лендинга -->
+<script>
 (function() {
     var trackerUrl = '${trackerUrl}';
     var campaignId = '${campaign.id}';
-    var trapUrl = '${trapUrl}';
+    var trapUrl = ${JSON.stringify(trapUrl)};
 
-    history.pushState({ trap: true }, '', location.href);
+    function arm() {
+        history.pushState({ trap: true }, '', location.href);
+    }
+
+    ${armLine}
 
     window.addEventListener('popstate', function(e) {
         if (e.state && e.state.trap) {
-            var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + '&sub1=back_button&redirect=0';
-            fetch(clickUrl).finally(function() {
-                window.location.href = trapUrl;
-            });
+            ${trapBody}
         }
     });
 })();
@@ -67063,7 +67484,17 @@ function exitIntentSnippet({ trackerUrl, campaign }, opts = {}) {
   const offerUrl = opts.offerUrl || "https://your-offer.com";
   const heading = opts.heading || "Wait! Special Offer!";
   const text = opts.text || "Don't miss this exclusive deal just for you!";
-  return `<style>
+  const buttonText = opts.popupButtonText || "CLAIM 50% OFF";
+  const buttonColor = opts.buttonColor || "#22c55e";
+  const showDelay = Math.max(0, parseInt(opts.showDelay, 10) || 0);
+  const closeOnBackdrop = opts.closeOnBackdrop !== false;
+  const activateLine = showDelay > 0 ? `var activateAt = new Date().getTime() + ${showDelay * 1e3};` : `var activateAt = 0;`;
+  const backdropClose = closeOnBackdrop ? `
+    document.getElementById('ltt-exit-popup').addEventListener('click', function(e) {
+        if (e.target === this) { this.classList.remove('show'); }
+    });` : "";
+  return `<!-- Orbitra Exit Intent Popup — вставьте перед закрывающим </body> лендинга -->
+<style>
 .ltt-exit-popup { display:none; position:fixed; top:0; left:0; width:100%; height:100%;
     background:rgba(0,0,0,0.7); z-index:99999; justify-content:center; align-items:center; }
 .ltt-exit-popup.show { display:flex; }
@@ -67071,16 +67502,16 @@ function exitIntentSnippet({ trackerUrl, campaign }, opts = {}) {
     text-align:center; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
 .ltt-exit-close { position:absolute; top:15px; right:20px; font-size:24px; cursor:pointer;
     color:#999; border:none; background:none; }
-.ltt-exit-btn { display:inline-block; margin-top:20px; padding:16px 40px; background:#22c55e;
+.ltt-exit-btn { display:inline-block; margin-top:20px; padding:16px 40px; background:${buttonColor};
     color:white; text-decoration:none; border-radius:8px; font-weight:600; font-size:18px; }
 </style>
 
 <div id="ltt-exit-popup" class="ltt-exit-popup">
     <div class="ltt-exit-content">
         <button class="ltt-exit-close" onclick="document.getElementById('ltt-exit-popup').classList.remove('show')">&times;</button>
-        <h2 style="margin:0 0 15px;font-size:28px;">${heading}</h2>
-        <p style="font-size:16px;color:#666;margin-bottom:10px;">${text}</p>
-        <a id="ltt-exit-cta" href="#" class="ltt-exit-btn">CLAIM OFFER</a>
+        <h2 style="margin:0 0 15px;font-size:28px;">${esc(heading)}</h2>
+        <p style="font-size:16px;color:#666;margin-bottom:10px;">${esc(text)}</p>
+        <a id="ltt-exit-cta" href="#" class="ltt-exit-btn">${esc(buttonText)}</a>
     </div>
 </div>
 
@@ -67088,13 +67519,16 @@ function exitIntentSnippet({ trackerUrl, campaign }, opts = {}) {
 (function() {
     var trackerUrl = '${trackerUrl}';
     var campaignId = '${campaign.id}';
-    var offerUrl = '${offerUrl}';
+    var offerUrl = ${JSON.stringify(offerUrl)};
     var shown = false;
+    ${activateLine}
 
     document.getElementById('ltt-exit-cta').href = trackerUrl + '/click.php?campaign_id=' + campaignId + '&url=' + encodeURIComponent(offerUrl);
+${backdropClose}
 
     document.addEventListener('mouseout', function(e) {
         if (shown) return;
+        if (new Date().getTime() < activateAt) return;
         if (e.clientY < 10 && e.relatedTarget === null) {
             shown = true;
             document.getElementById('ltt-exit-popup').classList.add('show');
@@ -67185,6 +67619,36 @@ const generateToken = () => {
   }
   return result;
 };
+const CountdownPreview = ({ hours, minutes, headerText, buttonText, theme, expireAction }) => {
+  const themeDef = COUNTDOWN_THEMES[theme] || COUNTDOWN_THEMES.purple;
+  const total = Math.max(60, (parseInt(hours, 10) || 0) * 3600 + (parseInt(minutes, 10) || 0) * 60);
+  const [left, setLeft] = reactExports.useState(total);
+  reactExports.useEffect(() => {
+    setLeft(total);
+    const iv = setInterval(() => setLeft((l) => l > 0 ? l - 1 : 0), 1e3);
+    return () => clearInterval(iv);
+  }, [total]);
+  const hh = String(Math.floor(left / 3600)).padStart(2, "0");
+  const mm = String(Math.floor(left % 3600 / 60)).padStart(2, "0");
+  const ss = String(left % 60).padStart(2, "0");
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { background: themeDef.gradient, color: "#fff", borderRadius: 12, padding: 20, textAlign: "center", maxWidth: 400, margin: "0 auto", fontFamily: "sans-serif", boxShadow: "0 10px 40px rgba(0,0,0,0.2)" }, children: left <= 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { margin: 0, fontSize: 22, letterSpacing: 2 }, children: expireAction === "redirect" ? "→ REDIRECT" : "OFFER EXPIRED" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, textTransform: "uppercase", letterSpacing: 2, marginBottom: 10 }, children: headerText || "OFFER EXPIRES IN" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 42, fontWeight: 700, fontVariantNumeric: "tabular-nums" }, children: [
+      hh,
+      ":",
+      mm,
+      ":",
+      ss
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "inline-block", marginTop: 16, padding: "12px 36px", background: themeDef.cta, color: "#fff", borderRadius: 8, fontWeight: 600, fontSize: 15 }, children: buttonText || "GET SPECIAL OFFER" })
+  ] }) });
+};
+const ExitIntentPreview = ({ heading, text, buttonText, buttonColor }) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { background: "rgba(0,0,0,0.7)", borderRadius: 12, padding: 28, display: "flex", justifyContent: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "#fff", padding: 28, borderRadius: 16, maxWidth: 380, textAlign: "center", position: "relative", fontFamily: "sans-serif", color: "#111" }, children: [
+  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { position: "absolute", top: 8, right: 14, fontSize: 22, color: "#999" }, children: "×" }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { margin: "0 0 12px", fontSize: 22 }, children: heading || "Wait! Special Offer!" }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 14, color: "#666", margin: "0 0 8px" }, children: text || "Don't miss this exclusive deal just for you!" }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "inline-block", marginTop: 12, padding: "13px 32px", background: buttonColor, color: "#fff", borderRadius: 8, fontWeight: 600, fontSize: 15 }, children: buttonText || "CLAIM 50% OFF" })
+] }) });
 const CampaignEditor = ({ campaignId, onClose }) => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("general");
@@ -67200,15 +67664,46 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
   const [showSourceEditor, setShowSourceEditor] = reactExports.useState(false);
   const [trackingMethod, setTrackingMethod] = reactExports.useState("kclient_js");
+  const [snippetCopied, setSnippetCopied] = reactExports.useState(false);
+  const [showWidgetPreview, setShowWidgetPreview] = reactExports.useState(false);
   const [trackOpts, setTrackOpts] = reactExports.useState({
+    // Countdown Timer
     hours: 2,
+    minutes: 30,
+    headerText: "",
+    buttonText: "",
     offerUrl: "",
+    theme: "purple",
+    // purple | emerald | fire | dark
+    expireAction: "expired",
+    // expired | redirect
+    expireUrl: "",
+    // Back Button Trap
     trapUrl: "",
+    logClick: true,
+    delay: 0,
+    // Exit Intent Popup
     heading: "",
     text: "",
+    popupButtonText: "",
+    buttonColor: "#22c55e",
+    showDelay: 0,
+    closeOnBackdrop: true,
+    // Banner blocks
     width: 300,
     height: 250,
-    base64: false
+    // KClient
+    base64: false,
+    sendParams: true,
+    // PHP only: kclient.js always passes page params
+    phpMode: "redirect",
+    // redirect | show_html | get_link
+    // Tracking Pixel
+    pixelType: "click",
+    // click | conversion
+    convStatus: "lead",
+    payout: "",
+    subidParam: "{subid}"
   });
   const [costConns, setCostConns] = reactExports.useState([]);
   const [costMatch, setCostMatch] = reactExports.useState(null);
@@ -68958,44 +69453,49 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             ] }),
             activeTab === "tracking" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
               !(formData.token || "").trim() && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("tracking.saveFirst", "Save the campaign first — the tracking code embeds the campaign token.") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.method", "Connection method") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "select",
-                    {
-                      className: "form-select",
-                      value: trackingMethod,
-                      onChange: (e) => setTrackingMethod(e.target.value),
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("optgroup", { label: t("tracking.groupSite", "Sites"), children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "kclient_js", children: "KClient JS" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "kclient_php", children: "KClient PHP" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tracking_script", children: t("tracking.trackingScript", "Tracking Script") })
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("optgroup", { label: t("tracking.groupBanners", "Banner blocks"), children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "banner_script", children: t("tracking.bannerScript", "Banner block (script)") }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "banner_iframe", children: t("tracking.bannerIframe", "Banner block (iframe)") })
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("optgroup", { label: t("tracking.groupAds", "Ad networks"), children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "campaign_url", children: "Campaign URL" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "link", children: t("editor.intCode_link", "Link") }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "iframe", children: "Iframe" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "script", children: "Script" })
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("optgroup", { label: t("tracking.groupMisc", "Tools"), children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "pixel", children: "Tracking Pixel" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "countdown", children: "Countdown Timer" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "back_button", children: "Back Button Trap" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "exit_intent", children: "Exit Intent Popup" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "wordpress", children: "WordPress" })
-                        ] })
-                      ]
-                    }
-                  )
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                  trackingMethod === "kclient_js" && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs", style: { color: "var(--color-text-secondary)", alignSelf: "end", paddingTop: "22px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.method", "Connection method") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    className: "form-select",
+                    value: trackingMethod,
+                    onChange: (e) => {
+                      setTrackingMethod(e.target.value);
+                      setShowWidgetPreview(false);
+                      setSnippetCopied(false);
+                    },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("optgroup", { label: t("tracking.groupSite", "Sites"), children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "kclient_js", children: "KClient JS" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "kclient_php", children: "KClient PHP" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tracking_script", children: t("tracking.trackingScript", "Tracking Script") })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("optgroup", { label: t("tracking.groupBanners", "Banner blocks"), children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "banner_script", children: t("tracking.bannerScript", "Banner block (script)") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "banner_iframe", children: t("tracking.bannerIframe", "Banner block (iframe)") })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("optgroup", { label: t("tracking.groupAds", "Ad networks"), children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "campaign_url", children: "Campaign URL" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "link", children: t("editor.intCode_link", "Link") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "iframe", children: "Iframe" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "script", children: "Script" })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("optgroup", { label: t("tracking.groupMisc", "Tools"), children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "pixel", children: "Tracking Pixel" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "countdown", children: "Countdown Timer" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "back_button", children: "Back Button Trap" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "exit_intent", children: "Exit Intent Popup" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "wordpress", children: "WordPress" })
+                      ] })
+                    ]
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 xl:grid-cols-2 gap-4 items-start", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl p-4 space-y-3", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600, fontSize: "13px", color: "var(--color-text-primary)", textTransform: "uppercase", letterSpacing: "0.5px" }, children: t("tracking.settings", "Settings & Options") }),
+                  trackingMethod === "kclient_js" && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs", style: { color: "var(--color-text-secondary)" }, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "input",
                       {
@@ -69006,88 +69506,282 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     ),
                     t("tracking.base64", "Base64 (hide from ad blockers)")
                   ] }),
-                  (trackingMethod === "banner_script" || trackingMethod === "banner_iframe") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                  trackingMethod === "kclient_php" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.phpMode", "Execution mode") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "select",
+                        {
+                          className: "form-select",
+                          value: trackOpts.phpMode,
+                          onChange: (e) => setTrackOpts({ ...trackOpts, phpMode: e.target.value }),
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("tracking.phpRedirect", "Redirect to offer") }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_html", children: t("tracking.phpShowHtml", "Show as HTML (content in page body)") }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "get_link", children: t("tracking.phpGetLink", "Get offer link into a variable") })
+                          ]
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs", style: { color: "var(--color-text-secondary)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          checked: trackOpts.sendParams,
+                          onChange: (e) => setTrackOpts({ ...trackOpts, sendParams: e.target.checked })
+                        }
+                      ),
+                      t("tracking.sendParams", "Pass UTM / SubID parameters from the URL")
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "a",
+                      {
+                        href: `${trackerUrl}/kclient.php?download=1`,
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                        className: "btn btn-secondary",
+                        style: { display: "inline-flex", alignItems: "center", gap: "6px" },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-4 h-4" }),
+                          t("tracking.downloadKclient", "Download kclient.php")
+                        ]
+                      }
+                    )
+                  ] }),
+                  (trackingMethod === "banner_script" || trackingMethod === "banner_iframe") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "W" }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", className: "form-input", value: trackOpts.width, onChange: (e) => setTrackOpts({ ...trackOpts, width: parseInt(e.target.value) || 300 }) })
                     ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "H" }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", className: "form-input", value: trackOpts.height, onChange: (e) => setTrackOpts({ ...trackOpts, height: parseInt(e.target.value) || 250 }) })
                     ] })
                   ] }),
-                  trackingMethod === "countdown" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                  trackingMethod === "countdown" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.hours", "Duration, hours") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", min: "0", className: "form-input", value: trackOpts.hours, onChange: (e) => setTrackOpts({ ...trackOpts, hours: parseInt(e.target.value) || 0 }) })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.minutes", "Duration, minutes") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", min: "0", className: "form-input", value: trackOpts.minutes, onChange: (e) => setTrackOpts({ ...trackOpts, minutes: parseInt(e.target.value) || 0 }) })
+                      ] })
+                    ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.hours", "Duration, hours") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", min: "1", className: "form-input", value: trackOpts.hours, onChange: (e) => setTrackOpts({ ...trackOpts, hours: parseInt(e.target.value) || 1 }) })
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.headerText", "Header text") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", placeholder: "OFFER EXPIRES IN", value: trackOpts.headerText, onChange: (e) => setTrackOpts({ ...trackOpts, headerText: e.target.value }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.ctaButtonText", "Button text") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", placeholder: "GET SPECIAL OFFER", value: trackOpts.buttonText, onChange: (e) => setTrackOpts({ ...trackOpts, buttonText: e.target.value }) })
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.offerUrl", "Offer URL") }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", placeholder: "https://your-offer.com", value: trackOpts.offerUrl, onChange: (e) => setTrackOpts({ ...trackOpts, offerUrl: e.target.value }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.theme", "Style theme") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "form-select", value: trackOpts.theme, onChange: (e) => setTrackOpts({ ...trackOpts, theme: e.target.value }), children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "purple", children: t("tracking.themePurple", "Purple / Indigo") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "emerald", children: t("tracking.themeEmerald", "Emerald Green") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "fire", children: t("tracking.themeFire", "Fire Red") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "dark", children: t("tracking.themeDark", "Dark Minimal") })
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.expireAction", "On expire") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "form-select", value: trackOpts.expireAction, onChange: (e) => setTrackOpts({ ...trackOpts, expireAction: e.target.value }), children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "expired", children: t("tracking.expireShowBadge", 'Show "EXPIRED"') }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("tracking.expireRedirect", "Redirect to fallback URL") })
+                      ] })
+                    ] }),
+                    trackOpts.expireAction === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.expireUrl", "Fallback URL (empty = offer URL)") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", placeholder: "https://your-fallback.com", value: trackOpts.expireUrl, onChange: (e) => setTrackOpts({ ...trackOpts, expireUrl: e.target.value }) })
                     ] })
                   ] }),
-                  trackingMethod === "back_button" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.trapUrl", "Trap URL") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", placeholder: "https://your-special-offer.com", value: trackOpts.trapUrl, onChange: (e) => setTrackOpts({ ...trackOpts, trapUrl: e.target.value }) })
+                  trackingMethod === "back_button" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.trapUrl", "Trap Redirect URL") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", placeholder: "https://your-special-offer.com", value: trackOpts.trapUrl, onChange: (e) => setTrackOpts({ ...trackOpts, trapUrl: e.target.value }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs", style: { color: "var(--color-text-secondary)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          checked: trackOpts.logClick,
+                          onChange: (e) => setTrackOpts({ ...trackOpts, logClick: e.target.checked })
+                        }
+                      ),
+                      t("tracking.logClick", "Log click in tracker (sub1=back_button)")
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.activationDelay", "Activation delay, seconds") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", min: "0", className: "form-input", value: trackOpts.delay, onChange: (e) => setTrackOpts({ ...trackOpts, delay: parseInt(e.target.value) || 0 }) })
+                    ] })
                   ] }),
-                  trackingMethod === "exit_intent" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                  trackingMethod === "exit_intent" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.heading", "Heading") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", value: trackOpts.heading, placeholder: "Wait! Special Offer!", onChange: (e) => setTrackOpts({ ...trackOpts, heading: e.target.value }) })
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", placeholder: "Wait! Special Offer!", value: trackOpts.heading, onChange: (e) => setTrackOpts({ ...trackOpts, heading: e.target.value }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.description", "Description") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", placeholder: "Don't miss this exclusive deal just for you!", value: trackOpts.text, onChange: (e) => setTrackOpts({ ...trackOpts, text: e.target.value }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.popupButtonText", "Button text") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", placeholder: "CLAIM 50% OFF", value: trackOpts.popupButtonText, onChange: (e) => setTrackOpts({ ...trackOpts, popupButtonText: e.target.value }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.buttonColor", "Button color") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "form-select", value: trackOpts.buttonColor, onChange: (e) => setTrackOpts({ ...trackOpts, buttonColor: e.target.value }), children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "#22c55e", children: t("tracking.colorGreen", "Green") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "#3b82f6", children: t("tracking.colorBlue", "Blue") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "#f05a3e", children: t("tracking.colorCoral", "Coral") })
+                      ] })
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.offerUrl", "Offer URL") }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "text", className: "form-input", placeholder: "https://your-offer.com", value: trackOpts.offerUrl, onChange: (e) => setTrackOpts({ ...trackOpts, offerUrl: e.target.value }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.showDelay", "Show delay, seconds") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", min: "0", className: "form-input", value: trackOpts.showDelay, onChange: (e) => setTrackOpts({ ...trackOpts, showDelay: parseInt(e.target.value) || 0 }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs", style: { color: "var(--color-text-secondary)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          checked: trackOpts.closeOnBackdrop,
+                          onChange: (e) => setTrackOpts({ ...trackOpts, closeOnBackdrop: e.target.checked })
+                        }
+                      ),
+                      t("tracking.closeOnBackdrop", "Close on backdrop click")
+                    ] })
+                  ] }),
+                  trackingMethod === "pixel" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.pixelType", "Pixel type") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "form-select", value: trackOpts.pixelType, onChange: (e) => setTrackOpts({ ...trackOpts, pixelType: e.target.value }), children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "click", children: t("tracking.pixelClick", "Click Tracking (email / banners)") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "conversion", children: t("tracking.pixelConversion", "Conversion (Thank You page)") })
+                      ] })
+                    ] }),
+                    trackOpts.pixelType === "conversion" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.convStatus", "Conversion status") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("select", { className: "form-select", value: trackOpts.convStatus, onChange: (e) => setTrackOpts({ ...trackOpts, convStatus: e.target.value }), children: ["lead", "sale", "deposit", "registration"].map((st) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: st, children: t("conversions." + st, st) }, st)) })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.payoutValue", "Payout value (optional)") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", min: "0", step: "0.01", className: "form-input", placeholder: "10.00", value: trackOpts.payout, onChange: (e) => setTrackOpts({ ...trackOpts, payout: e.target.value }) })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.subidParam", "SubID parameter") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "form-select", value: trackOpts.subidParam, onChange: (e) => setTrackOpts({ ...trackOpts, subidParam: e.target.value }), children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "{subid}", children: t("tracking.subidTemplate", "{subid} — templated by your email/CRM platform") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "{clickid}", children: t("tracking.clickidTemplate", "{clickid} — templated click id") })
+                        ] })
+                      ] })
+                    ] })
+                  ] }),
+                  ["campaign_url", "link", "iframe", "script", "tracking_script", "wordpress"].includes(trackingMethod) && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("tracking.noOptions", "This method has no extra options — the code on the right is ready to use.") })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: async () => {
+                          await copyIntegrationSnippet(buildSnippet(trackingMethod, snippetCtx(), trackOpts));
+                          setSnippetCopied(true);
+                          setTimeout(() => setSnippetCopied(false), 2e3);
+                        },
+                        className: snippetCopied ? "btn btn-primary btn-icon" : "btn btn-secondary btn-icon",
+                        style: { position: "absolute", top: "8px", right: "8px", zIndex: 1, display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 12px" },
+                        title: t("common.copy"),
+                        children: snippetCopied ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }),
+                          " ",
+                          t("tracking.copied", "Copied!")
+                        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }),
+                          " ",
+                          t("tracking.copyCode", "Copy code")
+                        ] })
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-label", style: { marginBottom: "6px" }, children: t("tracking.generatedCode", "Generated integration code") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "pre",
+                      {
+                        className: "text-xs",
+                        style: {
+                          fontFamily: "monospace",
+                          color: "var(--color-text-secondary)",
+                          background: "var(--color-bg-soft)",
+                          border: "1px solid var(--color-border)",
+                          borderRadius: "8px",
+                          padding: "12px 140px 12px 12px",
+                          margin: 0,
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-all",
+                          maxHeight: "420px",
+                          overflowY: "auto"
+                        },
+                        children: buildSnippet(trackingMethod, snippetCtx(), trackOpts)
+                      }
+                    )
+                  ] }),
+                  (trackingMethod === "countdown" || trackingMethod === "exit_intent") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => setShowWidgetPreview(!showWidgetPreview),
+                        className: "btn btn-secondary btn-icon",
+                        style: { display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 12px" },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "w-4 h-4" }),
+                          showWidgetPreview ? t("tracking.hidePreview", "Hide preview") : t("tracking.previewWidget", "Preview widget")
+                        ]
+                      }
+                    ),
+                    showWidgetPreview && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-2xl p-4", style: { border: "1px dashed var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: trackingMethod === "countdown" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      CountdownPreview,
+                      {
+                        hours: trackOpts.hours,
+                        minutes: trackOpts.minutes,
+                        headerText: trackOpts.headerText,
+                        buttonText: trackOpts.buttonText,
+                        theme: trackOpts.theme,
+                        expireAction: trackOpts.expireAction
+                      }
+                    ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      ExitIntentPreview,
+                      {
+                        heading: trackOpts.heading,
+                        text: trackOpts.text,
+                        buttonText: trackOpts.popupButtonText,
+                        buttonColor: trackOpts.buttonColor
+                      }
+                    ) })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl p-3 flex items-start gap-2", style: { border: "1px solid var(--color-border)", backgroundColor: "color-mix(in srgb, var(--color-primary) 6%, transparent)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Info, { className: "w-4 h-4 flex-shrink-0", style: { color: "var(--color-primary)", marginTop: "1px" } }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)", marginBottom: "2px" }, children: t("tracking.howToInstall", "How to install") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: t(METHOD_INSTALL_HINTS[trackingMethod] || "tracking.instWidgets") })
                     ] })
                   ] })
                 ] })
-              ] }),
-              trackingMethod === "kclient_php" && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "a",
-                {
-                  href: `${trackerUrl}/kclient.php?download=1`,
-                  target: "_blank",
-                  rel: "noopener noreferrer",
-                  className: "btn btn-secondary",
-                  style: { display: "inline-flex", alignItems: "center", gap: "6px" },
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-4 h-4" }),
-                    t("tracking.downloadKclient", "Download kclient.php")
-                  ]
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: () => copyIntegrationSnippet(buildSnippet(trackingMethod, snippetCtx(), trackOpts)),
-                    className: "btn btn-secondary btn-icon",
-                    style: { position: "absolute", top: "8px", right: "8px", zIndex: 1 },
-                    title: t("common.copy"),
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "pre",
-                  {
-                    className: "text-xs",
-                    style: {
-                      fontFamily: "monospace",
-                      color: "var(--color-text-secondary)",
-                      background: "var(--color-bg-soft)",
-                      border: "1px solid var(--color-border)",
-                      borderRadius: "8px",
-                      padding: "12px 48px 12px 12px",
-                      margin: 0,
-                      whiteSpace: "pre-wrap",
-                      wordBreak: "break-all",
-                      maxHeight: "420px",
-                      overflowY: "auto"
-                    },
-                    children: buildSnippet(trackingMethod, snippetCtx(), trackOpts)
-                  }
-                )
               ] })
             ] }),
             activeTab === "postbacks" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
