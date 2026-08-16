@@ -1182,6 +1182,17 @@ export default {
         "deleteError": "Ошибка удаления"
     },
     "users": {
+        "roleTemplate": "Шаблон роли",
+        "templateAdmin": "Админ (полный доступ)",
+        "templateMediaBuyer": "Медиабаер",
+        "templateVideoEditor": "Видеомонтажёр / Дизайнер",
+        "templateDeveloper": "Разработчик",
+        "templateCustom": "Свои права",
+        "financeData": "Финансовые данные",
+        "financeCosts": "Показывать расходы (Cost, CPC, CPA)",
+        "financeRevenue": "Показывать доход (Revenue, Profit, ROI)",
+        "financePayout": "Показывать выплаты (пейменты офферов)",
+        "resourceLogs": "Логи",
         "mcpTitle": "Подключить ИИ-ассистента (MCP)",
         "mcpDesc": "Сгенерируйте ключ выше, затем вставьте это в конфиг Claude Desktop. Замените путь на абсолютный путь к mcp/src/index.js, а ORBITRA_API_KEY — на ваш ключ. Полная инструкция: mcp/README.md.",
         "mcpCopyConfig": "Скопировать конфиг",

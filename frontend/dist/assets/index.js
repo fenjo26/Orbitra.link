@@ -17191,6 +17191,17 @@ const ru = {
     "deleteError": "Ошибка удаления"
   },
   "users": {
+    "roleTemplate": "Шаблон роли",
+    "templateAdmin": "Админ (полный доступ)",
+    "templateMediaBuyer": "Медиабаер",
+    "templateVideoEditor": "Видеомонтажёр / Дизайнер",
+    "templateDeveloper": "Разработчик",
+    "templateCustom": "Свои права",
+    "financeData": "Финансовые данные",
+    "financeCosts": "Показывать расходы (Cost, CPC, CPA)",
+    "financeRevenue": "Показывать доход (Revenue, Profit, ROI)",
+    "financePayout": "Показывать выплаты (пейменты офферов)",
+    "resourceLogs": "Логи",
     "mcpTitle": "Подключить ИИ-ассистента (MCP)",
     "mcpDesc": "Сгенерируйте ключ выше, затем вставьте это в конфиг Claude Desktop. Замените путь на абсолютный путь к mcp/src/index.js, а ORBITRA_API_KEY — на ваш ключ. Полная инструкция: mcp/README.md.",
     "mcpCopyConfig": "Скопировать конфиг",
@@ -19874,6 +19885,17 @@ const en = {
     "deleteError": "Delete error"
   },
   "users": {
+    "roleTemplate": "Role template",
+    "templateAdmin": "Admin (full access)",
+    "templateMediaBuyer": "Media Buyer",
+    "templateVideoEditor": "Video Editor / Designer",
+    "templateDeveloper": "Developer",
+    "templateCustom": "Custom permissions",
+    "financeData": "Financial data",
+    "financeCosts": "Show costs (Cost, CPC, CPA)",
+    "financeRevenue": "Show revenue (Revenue, Profit, ROI)",
+    "financePayout": "Show payouts (offer payouts)",
+    "resourceLogs": "Logs",
     "mcpTitle": "Connect an AI assistant (MCP)",
     "mcpDesc": "Generate a key above, then paste this into your Claude Desktop config. Replace the path with the absolute path to mcp/src/index.js and ORBITRA_API_KEY with your key. Full guide: mcp/README.md.",
     "mcpCopyConfig": "Copy config",
@@ -22557,6 +22579,17 @@ const uk = {
     "deleteError": "Видалити помилку"
   },
   "users": {
+    "roleTemplate": "Шаблон ролі",
+    "templateAdmin": "Адмін (повний доступ)",
+    "templateMediaBuyer": "Медіабаєр",
+    "templateVideoEditor": "Відеомонтажер / Дизайнер",
+    "templateDeveloper": "Розробник",
+    "templateCustom": "Свої права",
+    "financeData": "Фінансові дані",
+    "financeCosts": "Показувати витрати (Cost, CPC, CPA)",
+    "financeRevenue": "Показувати дохід (Revenue, Profit, ROI)",
+    "financePayout": "Показувати виплати (пейменти офферів)",
+    "resourceLogs": "Логи",
     "mcpTitle": "Підключити ІІ-асистента (MCP)",
     "mcpDesc": "Згенеруйте ключ вище, потім вставте це в конфіг Claude Desktop. Замініть шлях на абсолютний шлях до mcp/src/index.js, а ORBITRA_API_KEY — на ваш ключ. Повна інструкція: mcp/README.md.",
     "mcpCopyConfig": "Скопіювати конфіг",
@@ -25240,6 +25273,17 @@ const es = {
     "deleteError": "Eliminar error"
   },
   "users": {
+    "roleTemplate": "Plantilla de rol",
+    "templateAdmin": "Admin (acceso total)",
+    "templateMediaBuyer": "Media Buyer",
+    "templateVideoEditor": "Editor de vídeo / Diseñador",
+    "templateDeveloper": "Desarrollador",
+    "templateCustom": "Permisos personalizados",
+    "financeData": "Datos financieros",
+    "financeCosts": "Mostrar gastos (Cost, CPC, CPA)",
+    "financeRevenue": "Mostrar ingresos (Revenue, Profit, ROI)",
+    "financePayout": "Mostrar pagos (payouts de ofertas)",
+    "resourceLogs": "Registros",
     "mcpTitle": "Conectar un asistente de IA (MCP)",
     "mcpDesc": "Genere una clave arriba y pegue esto en la configuración de Claude Desktop. Reemplace la ruta por la ruta absoluta a mcp/src/index.js y ORBITRA_API_KEY por su clave. Guía completa: mcp/README.md.",
     "mcpCopyConfig": "Copiar configuración",
@@ -27923,6 +27967,17 @@ const zh = {
     "deleteError": "删除错误"
   },
   "users": {
+    "roleTemplate": "角色模板",
+    "templateAdmin": "管理员（完全访问）",
+    "templateMediaBuyer": "媒介采买",
+    "templateVideoEditor": "视频剪辑 / 设计师",
+    "templateDeveloper": "开发者",
+    "templateCustom": "自定义权限",
+    "financeData": "财务数据",
+    "financeCosts": "显示花费（Cost、CPC、CPA）",
+    "financeRevenue": "显示收入（Revenue、Profit、ROI）",
+    "financePayout": "显示分成（Offer 分成）",
+    "resourceLogs": "日志",
     "mcpTitle": "连接 AI 助手（MCP）",
     "mcpDesc": "先在上方生成密钥，然后将此内容粘贴到 Claude Desktop 配置中。将路径替换为 mcp/src/index.js 的绝对路径，并将 ORBITRA_API_KEY 替换为你的密钥。完整指南：mcp/README.md。",
     "mcpCopyConfig": "复制配置",
@@ -30606,6 +30661,17 @@ const fr = {
     "deleteError": "Erreur de suppression"
   },
   "users": {
+    "roleTemplate": "Modèle de rôle",
+    "templateAdmin": "Admin (accès complet)",
+    "templateMediaBuyer": "Media Buyer",
+    "templateVideoEditor": "Monteur vidéo / Designer",
+    "templateDeveloper": "Développeur",
+    "templateCustom": "Droits personnalisés",
+    "financeData": "Données financières",
+    "financeCosts": "Afficher les dépenses (Cost, CPC, CPA)",
+    "financeRevenue": "Afficher les revenus (Revenue, Profit, ROI)",
+    "financePayout": "Afficher les paiements (payouts des offres)",
+    "resourceLogs": "Journaux",
     "mcpTitle": "Connecter un assistant IA (MCP)",
     "mcpDesc": "Générez une clé ci-dessus, puis collez ceci dans la configuration de Claude Desktop. Remplacez le chemin par le chemin absolu vers mcp/src/index.js et ORBITRA_API_KEY par votre clé. Guide complet : mcp/README.md.",
     "mcpCopyConfig": "Copier la configuration",
@@ -33291,6 +33357,17 @@ const de = {
     "deleteError": "Löschfehler"
   },
   "users": {
+    "roleTemplate": "Rollenvorlage",
+    "templateAdmin": "Admin (voller Zugriff)",
+    "templateMediaBuyer": "Media Buyer",
+    "templateVideoEditor": "Videoeditor / Designer",
+    "templateDeveloper": "Entwickler",
+    "templateCustom": "Eigene Rechte",
+    "financeData": "Finanzdaten",
+    "financeCosts": "Kosten anzeigen (Cost, CPC, CPA)",
+    "financeRevenue": "Umsatz anzeigen (Revenue, Profit, ROI)",
+    "financePayout": "Auszahlungen anzeigen (Offer-Payouts)",
+    "resourceLogs": "Logs",
     "mcpTitle": "KI-Assistenten verbinden (MCP)",
     "mcpDesc": "Erzeugen Sie oben einen Schlüssel und fügen Sie dies in die Claude-Desktop-Konfiguration ein. Ersetzen Sie den Pfad durch den absoluten Pfad zu mcp/src/index.js und ORBITRA_API_KEY durch Ihren Schlüssel. Vollständige Anleitung: mcp/README.md.",
     "mcpCopyConfig": "Konfiguration kopieren",
@@ -34881,14 +34958,15 @@ const TAB_PERMISSION_KEYS = {
   landings: "landings",
   offers: "offers",
   networks: "networks",
-  sources: "sources"
+  sources: "sources",
+  domains: "domains"
 };
 const USER_GEAR_TABS = {
   admin_branding: null,
   // theme personalization (save_settings)
   admin_feedback: null,
   // static contact/support info
-  admin_logs: null,
+  admin_logs: "logs",
   // click-debugging log viewer (action=logs)
   postback: "campaigns",
   // postback settings (settings/save_settings)
@@ -34924,7 +35002,37 @@ const canAccessTab = (user, tab) => {
   if (!permKey) return true;
   return hasResourceAccess(user, permKey);
 };
-const firstAllowedTab = (user) => ["campaigns", "offers", "landings", "sources", "networks", "dashboard"].find((tab) => canAccessTab(user, tab)) || "dashboard";
+const firstAllowedTab = (user) => ["campaigns", "offers", "landings", "sources", "networks", "domains", "dashboard"].find((tab) => canAccessTab(user, tab)) || "dashboard";
+const FINANCE_SEGMENTS = {
+  costs: [/^cost/, "cpc", "cpa", "cps", "spend"],
+  revenue: [/^profit/, "revenue", "roi", "epc", "uepc"],
+  payout: [/^payout/]
+};
+const financeHiddenMetric = (id, visibility) => {
+  if (!id || !visibility) return false;
+  const segments = String(id).toLowerCase().split("_");
+  for (const [family, matchers] of Object.entries(FINANCE_SEGMENTS)) {
+    if (visibility[family]) continue;
+    if (segments.some((seg) => matchers.some((m) => m instanceof RegExp ? m.test(seg) : seg === m))) {
+      return true;
+    }
+  }
+  return false;
+};
+const financeVisibility = (user) => {
+  if (isAdminUser(user)) {
+    return { costs: true, revenue: true, payout: true };
+  }
+  const finance = parsePermissions(user).finance;
+  if (!finance || typeof finance !== "object") {
+    return { costs: true, revenue: true, payout: true };
+  }
+  return {
+    costs: finance.show_costs !== false,
+    revenue: finance.show_revenue !== false,
+    payout: finance.show_payout !== false
+  };
+};
 const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
   const { t } = useLanguage();
   const [adminMenuOpen, setAdminMenuOpen] = reactExports.useState(false);
@@ -35022,7 +35130,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
           canAccessTab(user, "networks") && /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 18 }), label: t("nav.networks"), active: activeTab === "networks", onClick: () => setActiveTab("networks") }),
           canAccessTab(user, "sources") && /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 18 }), label: t("nav.sources"), active: activeTab === "sources", onClick: () => setActiveTab("sources") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { size: 18 }), label: t("nav.analytics"), active: activeTab === "trends", onClick: () => setActiveTab("trends") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t("nav.domains"), active: activeTab === "domains", onClick: () => setActiveTab("domains") }),
+          canAccessTab(user, "domains") && /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t("nav.domains"), active: activeTab === "domains", onClick: () => setActiveTab("domains") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 18 }), label: t("nav.backorder"), active: activeTab === "backorder", onClick: () => setActiveTab("backorder") })
         ] })
       ] }),
@@ -35793,9 +35901,11 @@ const formatCurrency = (num) => {
   if (num === null || num === void 0) return "$0.00";
   return "$" + new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
 };
-const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics }) => {
+const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics, user }) => {
   const { t } = useLanguage();
+  const financeVis = financeVisibility(user);
   const isVisible = (metric) => !preferences || !preferences.visible_metrics || preferences.visible_metrics.includes(metric);
+  const showCard = (metric) => isVisible(metric) && !financeHiddenMetric(metric, financeVis);
   const toggleMetric = (metricName) => {
     if (!setActiveMetrics) return;
     setActiveMetrics(
@@ -35808,16 +35918,16 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics 
       className: "flex overflow-x-auto no-scrollbar gap-4 mt-6 mb-2 pt-5 pb-7 px-4 md:px-6 -mx-4 md:-mx-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)]",
       style: { WebkitOverflowScrolling: "touch" },
       children: [
-        isVisible("clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.clicks"), value: formatNum(metrics?.clicks), isActive: activeMetrics.includes("clicks"), onClick: () => toggleMetric("clicks"), colorVar: "--color-primary" }),
-        isVisible("unique_clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.uniqueClicks"), value: formatNum(metrics?.unique_clicks), isActive: activeMetrics.includes("unique_clicks"), onClick: () => toggleMetric("unique_clicks"), colorVar: "--color-accent-turquoise" }),
-        isVisible("conversions") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.conversions"), value: formatNum(metrics?.conversions), isActive: activeMetrics.includes("conversions"), onClick: () => toggleMetric("conversions"), colorVar: "--color-success" }),
-        isVisible("cost") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.cost"), value: formatCurrency(metrics?.cost), isActive: activeMetrics.includes("cost"), onClick: () => toggleMetric("cost"), colorVar: "--color-danger" }),
-        isVisible("revenue") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.revenue"), value: formatCurrency(metrics?.revenue), isActive: activeMetrics.includes("revenue"), onClick: () => toggleMetric("revenue"), colorVar: "--color-warning" }),
-        isVisible("profit") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.profit"), value: formatCurrency(metrics?.profit), isActive: activeMetrics.includes("profit"), onClick: () => toggleMetric("profit"), colorVar: "--color-info" }),
-        isVisible("roi") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.roi"), value: `${formatNum(metrics?.roi ?? 0)}%`, isActive: activeMetrics.includes("roi"), onClick: () => toggleMetric("roi"), colorVar: "--color-accent-purple" }),
-        isVisible("real_revenue") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.realRevenue") || "Real Rev", value: formatCurrency(metrics?.real_revenue), isActive: activeMetrics.includes("real_revenue"), onClick: () => toggleMetric("real_revenue"), colorVar: "--color-real-rev" }),
-        isVisible("real_roi") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.realRoi") || "Real ROI", value: `${formatNum(metrics?.real_roi ?? 0)}%`, isActive: activeMetrics.includes("real_roi"), onClick: () => toggleMetric("real_roi"), colorVar: "--color-real-roi" }),
-        isVisible("ctr") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.ctr") || "CTR", value: `${formatNum(metrics?.ctr ?? 0)}%`, isActive: activeMetrics.includes("ctr"), onClick: () => toggleMetric("ctr"), colorVar: "--color-ctr" })
+        showCard("clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.clicks"), value: formatNum(metrics?.clicks), isActive: activeMetrics.includes("clicks"), onClick: () => toggleMetric("clicks"), colorVar: "--color-primary" }),
+        showCard("unique_clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.uniqueClicks"), value: formatNum(metrics?.unique_clicks), isActive: activeMetrics.includes("unique_clicks"), onClick: () => toggleMetric("unique_clicks"), colorVar: "--color-accent-turquoise" }),
+        showCard("conversions") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.conversions"), value: formatNum(metrics?.conversions), isActive: activeMetrics.includes("conversions"), onClick: () => toggleMetric("conversions"), colorVar: "--color-success" }),
+        showCard("cost") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.cost"), value: formatCurrency(metrics?.cost), isActive: activeMetrics.includes("cost"), onClick: () => toggleMetric("cost"), colorVar: "--color-danger" }),
+        showCard("revenue") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.revenue"), value: formatCurrency(metrics?.revenue), isActive: activeMetrics.includes("revenue"), onClick: () => toggleMetric("revenue"), colorVar: "--color-warning" }),
+        showCard("profit") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.profit"), value: formatCurrency(metrics?.profit), isActive: activeMetrics.includes("profit"), onClick: () => toggleMetric("profit"), colorVar: "--color-info" }),
+        showCard("roi") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.roi"), value: `${formatNum(metrics?.roi ?? 0)}%`, isActive: activeMetrics.includes("roi"), onClick: () => toggleMetric("roi"), colorVar: "--color-accent-purple" }),
+        showCard("real_revenue") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.realRevenue") || "Real Rev", value: formatCurrency(metrics?.real_revenue), isActive: activeMetrics.includes("real_revenue"), onClick: () => toggleMetric("real_revenue"), colorVar: "--color-real-rev" }),
+        showCard("real_roi") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.realRoi") || "Real ROI", value: `${formatNum(metrics?.real_roi ?? 0)}%`, isActive: activeMetrics.includes("real_roi"), onClick: () => toggleMetric("real_roi"), colorVar: "--color-real-roi" }),
+        showCard("ctr") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.ctr") || "CTR", value: `${formatNum(metrics?.ctr ?? 0)}%`, isActive: activeMetrics.includes("ctr"), onClick: () => toggleMetric("ctr"), colorVar: "--color-ctr" })
       ]
     }
   );
@@ -51487,7 +51597,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   ] });
 };
 const API_URL$w = "/api.php";
-const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, setEditingCampaignId }) => {
+const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, setEditingCampaignId, user }) => {
   const { t } = useLanguage();
   const [actionModal, setActionModal] = reactExports.useState({ type: null, campaignId: null });
   const [selectedCampaignIds, setSelectedCampaignIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
@@ -51515,6 +51625,11 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     return [...PRESETS.best];
   });
   const [thDragIdx, setThDragIdx] = reactExports.useState(null);
+  const financeVis = reactExports.useMemo(() => financeVisibility(user), [user]);
+  const visibleColumns = reactExports.useMemo(
+    () => chosenColumns.filter((id) => !financeHiddenMetric(id, financeVis)),
+    [chosenColumns, financeVis]
+  );
   const fetchGroups = () => {
     axios.get(`${API_URL$w}?action=campaign_groups`).then((res) => {
       if (res.data.status === "success") {
@@ -52080,7 +52195,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "id", label: "ID", defaultDir: "desc" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "name", label: t("campaigns.campaign"), defaultDir: "asc" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "group_name", label: t("campaigns.group"), defaultDir: "asc" }),
-        chosenColumns.map((colId, colIdx) => {
+        visibleColumns.map((colId, colIdx) => {
           const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
             SortableTh,
@@ -52100,7 +52215,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", style: { textAlign: "right" }, children: t("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleCampaigns.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 5 + chosenColumns.length, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleCampaigns.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 5 + visibleColumns.length, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("campaigns.noCampaignsCreated") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("campaigns.createFirstCampaign") })
       ] }) }) }) : visibleCampaigns.map((camp) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -52128,7 +52243,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontSize: "11px" }, children: camp.alias })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: camp.group_name || "-" }),
-        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(colId, camp) }, colId)),
+        visibleColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(colId, camp) }, colId)),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons justify-end", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(camp.id), className: "action-btn text-blue", title: t("common.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: "update_costs", campaignId: camp.id }), className: "action-btn text-green", title: t("campaigns.updateCosts"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-3.5 h-3.5" }) }),
@@ -52146,7 +52261,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
           ")"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "-" }),
-        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(colId, grandTotals) }, colId)),
+        visibleColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(colId, grandTotals) }, colId)),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
       ] }) })
     ] }) }),
@@ -57999,7 +58114,112 @@ const AffiliateNetworks = () => {
     ] }) })
   ] });
 };
+const buildPermissions = (accessByResource, finance) => {
+  const permissions = {};
+  Object.entries(accessByResource).forEach(([resource, access]) => {
+    permissions[resource] = { access, items: [] };
+  });
+  permissions.finance = { ...finance };
+  return permissions;
+};
+const ROLE_TEMPLATES = {
+  admin: {
+    id: "admin",
+    role: "admin",
+    // Admins bypass permissions entirely — the backend ignores the field.
+    permissions: null
+  },
+  media_buyer: {
+    id: "media_buyer",
+    role: "user",
+    permissions: buildPermissions(
+      {
+        campaigns: "full",
+        offers: "full",
+        landings: "full",
+        sources: "full",
+        networks: "full",
+        domains: "read",
+        logs: "read"
+      },
+      { show_costs: true, show_revenue: true, show_payout: true }
+    )
+  },
+  video_editor: {
+    id: "video_editor",
+    role: "user",
+    permissions: buildPermissions(
+      {
+        campaigns: "none",
+        offers: "none",
+        landings: "full",
+        sources: "none",
+        networks: "none",
+        domains: "read",
+        logs: "none"
+      },
+      { show_costs: false, show_revenue: false, show_payout: false }
+    )
+  },
+  developer: {
+    id: "developer",
+    role: "user",
+    permissions: buildPermissions(
+      {
+        campaigns: "read",
+        offers: "read",
+        landings: "full",
+        sources: "read",
+        networks: "read",
+        domains: "read",
+        logs: "full"
+      },
+      { show_costs: false, show_revenue: false, show_payout: false }
+    )
+  }
+};
+const templatePermissions = (templateId) => {
+  const template = ROLE_TEMPLATES[templateId];
+  if (!template || !template.permissions) return null;
+  return JSON.parse(JSON.stringify(template.permissions));
+};
+const detectTemplate = (role, permissions) => {
+  if (role === "admin") return "admin";
+  const accessOf = (perms) => {
+    const map2 = {};
+    Object.entries(perms || {}).forEach(([resource, value]) => {
+      if (resource !== "finance" && value && typeof value === "object") {
+        map2[resource] = value.access;
+      }
+    });
+    return map2;
+  };
+  const financeOf = (perms) => {
+    const finance = perms && typeof perms === "object" ? perms.finance : null;
+    if (!finance || typeof finance !== "object") return "default";
+    return ["show_costs", "show_revenue", "show_payout"].map((key) => finance[key] === false ? "0" : "1").join("");
+  };
+  const userAccess = JSON.stringify(accessOf(permissions));
+  const userFinance = financeOf(permissions);
+  for (const template of Object.values(ROLE_TEMPLATES)) {
+    if (template.role !== "user") continue;
+    if (JSON.stringify(accessOf(template.permissions)) !== userAccess) continue;
+    if (financeOf(template.permissions) !== userFinance) continue;
+    return template.id;
+  }
+  return "custom";
+};
 const API_URL$k = "/api.php";
+const DEFAULT_PERMISSIONS = () => ({
+  campaigns: { access: "full", items: [] },
+  offers: { access: "full", items: [] },
+  landings: { access: "full", items: [] },
+  sources: { access: "full", items: [] },
+  networks: { access: "full", items: [] },
+  domains: { access: "full", items: [] },
+  logs: { access: "full", items: [] },
+  finance: { show_costs: true, show_revenue: true, show_payout: true }
+});
 const UsersPage = () => {
   const { t, setLanguage: setContextLanguage, language: currentLanguage } = useLanguage();
   const [users, setUsers] = reactExports.useState([]);
@@ -58020,14 +58240,8 @@ const UsersPage = () => {
     language: currentLanguage,
     is_active: 1
   });
-  const [permissions, setPermissions] = reactExports.useState({
-    campaigns: { access: "full", items: [] },
-    offers: { access: "full", items: [] },
-    landings: { access: "full", items: [] },
-    sources: { access: "full", items: [] },
-    networks: { access: "full", items: [] },
-    reports: { metrics: true, costs: false, conversions: true }
-  });
+  const [permissions, setPermissions] = reactExports.useState(DEFAULT_PERMISSIONS());
+  const [selectedTemplate, setSelectedTemplate] = reactExports.useState("custom");
   reactExports.useEffect(() => {
     fetchUsers();
   }, []);
@@ -58089,6 +58303,8 @@ const UsersPage = () => {
     });
     setCredentialFieldReady({ username: false, password: false });
     setError("");
+    setSelectedTemplate("custom");
+    setPermissions(DEFAULT_PERMISSIONS());
     setShowModal(true);
   };
   const openEditModal = (user) => {
@@ -58102,18 +58318,24 @@ const UsersPage = () => {
     });
     setCredentialFieldReady({ username: true, password: false });
     setError("");
+    setSelectedTemplate(detectTemplate(user.role, user.permissions));
+    setPermissions(
+      user.permissions && typeof user.permissions === "object" && !Array.isArray(user.permissions) ? user.permissions : DEFAULT_PERMISSIONS()
+    );
     setShowModal(true);
+  };
+  const handleTemplateChange = (templateId) => {
+    setSelectedTemplate(templateId);
+    const template = ROLE_TEMPLATES[templateId];
+    if (!template) return;
+    setFormData((prev) => ({ ...prev, role: template.role }));
+    setPermissions(template.permissions ? templatePermissions(templateId) : DEFAULT_PERMISSIONS());
   };
   const openPermissionsModal = (user) => {
     setCurrentUser(user);
-    setPermissions(user.permissions || {
-      campaigns: { access: "full", items: [] },
-      offers: { access: "full", items: [] },
-      landings: { access: "full", items: [] },
-      sources: { access: "full", items: [] },
-      networks: { access: "full", items: [] },
-      reports: { metrics: true, costs: false, conversions: true }
-    });
+    setPermissions(
+      user.permissions && typeof user.permissions === "object" && !Array.isArray(user.permissions) ? { ...DEFAULT_PERMISSIONS(), ...user.permissions } : DEFAULT_PERMISSIONS()
+    );
     setShowPermissionsModal(true);
   };
   const openApiKeysModal = async (user) => {
@@ -58143,6 +58365,7 @@ const UsersPage = () => {
       if (currentUser) {
         data.id = currentUser.id;
       }
+      data.permissions = data.role === "admin" ? {} : permissions;
       const res = await axios.post(`${API_URL$k}?action=save_user`, data);
       if (res.data.status === "success") {
         showSuccess(currentUser ? t("common.success") : t("common.success"));
@@ -58245,7 +58468,9 @@ const UsersPage = () => {
     { key: "offers", label: t("nav.offers") },
     { key: "landings", label: t("nav.landings") },
     { key: "sources", label: t("nav.sources") },
-    { key: "networks", label: t("nav.networks") }
+    { key: "networks", label: t("nav.networks") },
+    { key: "domains", label: t("nav.domains") },
+    { key: "logs", label: t("users.resourceLogs") }
   ];
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("users.loading") }) });
@@ -58438,6 +58663,24 @@ const UsersPage = () => {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("users.roleTemplate") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: selectedTemplate,
+              onChange: (e) => handleTemplateChange(e.target.value),
+              className: "form-select",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "admin", children: t("users.templateAdmin") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "media_buyer", children: t("users.templateMediaBuyer") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "video_editor", children: t("users.templateVideoEditor") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "developer", children: t("users.templateDeveloper") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "custom", children: t("users.templateCustom") })
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("users.role") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
@@ -58485,31 +58728,54 @@ const UsersPage = () => {
         ": ",
         currentUser.username
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, marginBottom: "12px" }, children: t("users.permissions") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: resources.map((res) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", style: { padding: "8px 0", borderBottom: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: res.label }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "select",
-            {
-              value: permissions[res.key]?.access || "full",
-              onChange: (e) => setPermissions({
-                ...permissions,
-                [res.key]: { ...permissions[res.key], access: e.target.value }
-              }),
-              className: "form-select",
-              style: { width: "auto" },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "full", children: "Full" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "read", children: "Read only" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "selected", children: "Selected" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "own", children: "Own + Selected" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "none", children: "None" })
-              ]
-            }
-          )
-        ] }, res.key)) })
-      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, marginBottom: "12px" }, children: t("users.permissions") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: resources.map((res) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", style: { padding: "8px 0", borderBottom: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: res.label }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                value: permissions[res.key]?.access || "full",
+                onChange: (e) => setPermissions({
+                  ...permissions,
+                  [res.key]: { ...permissions[res.key], access: e.target.value }
+                }),
+                className: "form-select",
+                style: { width: "auto" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "full", children: "Full" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "read", children: "Read only" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "selected", children: "Selected" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "own", children: "Own + Selected" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "none", children: "None" })
+                ]
+              }
+            )
+          ] }, res.key)) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, marginBottom: "12px" }, children: t("users.financeData") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: [
+            { key: "show_costs", label: t("users.financeCosts") },
+            { key: "show_revenue", label: t("users.financeRevenue") },
+            { key: "show_payout", label: t("users.financePayout") }
+          ].map((f) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", style: { padding: "8px 0", borderBottom: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: f.label }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: permissions.finance?.[f.key] !== false,
+                onChange: (e) => setPermissions((prev) => ({
+                  ...prev,
+                  finance: { ...prev.finance, [f.key]: e.target.checked }
+                }))
+              }
+            )
+          ] }, f.key)) })
+        ] })
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
@@ -83284,7 +83550,7 @@ function App() {
             onOpenSettings: () => setShowSettingsModal(true)
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(StatCards, { metrics, preferences: dashboardPreferences, activeMetrics, setActiveMetrics }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(StatCards, { metrics, preferences: dashboardPreferences, activeMetrics, setActiveMetrics, user }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(MainChart, { chartData, activeMetrics, currency: globalSettings.currency || "USD" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           DataTables,
@@ -83321,7 +83587,8 @@ function App() {
           campaigns,
           refreshData: fetchData,
           setActiveTab,
-          setEditingCampaignId
+          setEditingCampaignId,
+          user
         }
       ),
       activeTab === "landings" && /* @__PURE__ */ jsxRuntimeExports.jsx(Landings, { landings, refreshData: fetchData }),

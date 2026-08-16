@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { financeVisibility, financeHiddenMetric } from '../utils/permissions';
 
 const formatNum = (num) => {
     if (num === null || num === undefined) return '0';
@@ -11,9 +12,15 @@ const formatCurrency = (num) => {
     return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
 }
 
-const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics }) => {
+const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics, user }) => {
     const { t } = useLanguage();
-    const isVisible = (metric) => !preferences || !preferences.visible_metrics || preferences.visible_metrics.includes(metric);
+    const financeVis = financeVisibility(user);
+    const isVisible = (metric) =>
+        !preferences || !preferences.visible_metrics || preferences.visible_metrics.includes(metric);
+
+    // Card-level gate for finance-restricted users — the backend already
+    // nulls the values, this hides the cards entirely.
+    const showCard = (metric) => isVisible(metric) && !financeHiddenMetric(metric, financeVis);
 
     const toggleMetric = (metricName) => {
         if (!setActiveMetrics) return;
@@ -29,16 +36,16 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics 
             className="flex overflow-x-auto no-scrollbar gap-4 mt-6 mb-2 pt-5 pb-7 px-4 md:px-6 -mx-4 md:-mx-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)]"
             style={{ WebkitOverflowScrolling: 'touch' }}
         >
-            {isVisible('clicks') && <Card title={t('metrics.clicks')} value={formatNum(metrics?.clicks)} isActive={activeMetrics.includes('clicks')} onClick={() => toggleMetric('clicks')} colorVar="--color-primary" />}
-            {isVisible('unique_clicks') && <Card title={t('metrics.uniqueClicks')} value={formatNum(metrics?.unique_clicks)} isActive={activeMetrics.includes('unique_clicks')} onClick={() => toggleMetric('unique_clicks')} colorVar="--color-accent-turquoise" />}
-            {isVisible('conversions') && <Card title={t('metrics.conversions')} value={formatNum(metrics?.conversions)} isActive={activeMetrics.includes('conversions')} onClick={() => toggleMetric('conversions')} colorVar="--color-success" />}
-            {isVisible('cost') && <Card title={t('metrics.cost')} value={formatCurrency(metrics?.cost)} isActive={activeMetrics.includes('cost')} onClick={() => toggleMetric('cost')} colorVar="--color-danger" />}
-            {isVisible('revenue') && <Card title={t('metrics.revenue')} value={formatCurrency(metrics?.revenue)} isActive={activeMetrics.includes('revenue')} onClick={() => toggleMetric('revenue')} colorVar="--color-warning" />}
-            {isVisible('profit') && <Card title={t('metrics.profit')} value={formatCurrency(metrics?.profit)} isActive={activeMetrics.includes('profit')} onClick={() => toggleMetric('profit')} colorVar="--color-info" />}
-            {isVisible('roi') && <Card title={t('metrics.roi')} value={`${formatNum(metrics?.roi ?? 0)}%`} isActive={activeMetrics.includes('roi')} onClick={() => toggleMetric('roi')} colorVar="--color-accent-purple" />}
-            {isVisible('real_revenue') && <Card title={t('metrics.realRevenue') || 'Real Rev'} value={formatCurrency(metrics?.real_revenue)} isActive={activeMetrics.includes('real_revenue')} onClick={() => toggleMetric('real_revenue')} colorVar="--color-real-rev" />}
-            {isVisible('real_roi') && <Card title={t('metrics.realRoi') || 'Real ROI'} value={`${formatNum(metrics?.real_roi ?? 0)}%`} isActive={activeMetrics.includes('real_roi')} onClick={() => toggleMetric('real_roi')} colorVar="--color-real-roi" />}
-            {isVisible('ctr') && <Card title={t('metrics.ctr') || 'CTR'} value={`${formatNum(metrics?.ctr ?? 0)}%`} isActive={activeMetrics.includes('ctr')} onClick={() => toggleMetric('ctr')} colorVar="--color-ctr" />}
+            {showCard('clicks') && <Card title={t('metrics.clicks')} value={formatNum(metrics?.clicks)} isActive={activeMetrics.includes('clicks')} onClick={() => toggleMetric('clicks')} colorVar="--color-primary" />}
+            {showCard('unique_clicks') && <Card title={t('metrics.uniqueClicks')} value={formatNum(metrics?.unique_clicks)} isActive={activeMetrics.includes('unique_clicks')} onClick={() => toggleMetric('unique_clicks')} colorVar="--color-accent-turquoise" />}
+            {showCard('conversions') && <Card title={t('metrics.conversions')} value={formatNum(metrics?.conversions)} isActive={activeMetrics.includes('conversions')} onClick={() => toggleMetric('conversions')} colorVar="--color-success" />}
+            {showCard('cost') && <Card title={t('metrics.cost')} value={formatCurrency(metrics?.cost)} isActive={activeMetrics.includes('cost')} onClick={() => toggleMetric('cost')} colorVar="--color-danger" />}
+            {showCard('revenue') && <Card title={t('metrics.revenue')} value={formatCurrency(metrics?.revenue)} isActive={activeMetrics.includes('revenue')} onClick={() => toggleMetric('revenue')} colorVar="--color-warning" />}
+            {showCard('profit') && <Card title={t('metrics.profit')} value={formatCurrency(metrics?.profit)} isActive={activeMetrics.includes('profit')} onClick={() => toggleMetric('profit')} colorVar="--color-info" />}
+            {showCard('roi') && <Card title={t('metrics.roi')} value={`${formatNum(metrics?.roi ?? 0)}%`} isActive={activeMetrics.includes('roi')} onClick={() => toggleMetric('roi')} colorVar="--color-accent-purple" />}
+            {showCard('real_revenue') && <Card title={t('metrics.realRevenue') || 'Real Rev'} value={formatCurrency(metrics?.real_revenue)} isActive={activeMetrics.includes('real_revenue')} onClick={() => toggleMetric('real_revenue')} colorVar="--color-real-rev" />}
+            {showCard('real_roi') && <Card title={t('metrics.realRoi') || 'Real ROI'} value={`${formatNum(metrics?.real_roi ?? 0)}%`} isActive={activeMetrics.includes('real_roi')} onClick={() => toggleMetric('real_roi')} colorVar="--color-real-roi" />}
+            {showCard('ctr') && <Card title={t('metrics.ctr') || 'CTR'} value={`${formatNum(metrics?.ctr ?? 0)}%`} isActive={activeMetrics.includes('ctr')} onClick={() => toggleMetric('ctr')} colorVar="--color-ctr" />}
         </div>
     );
 };

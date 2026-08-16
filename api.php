@@ -390,6 +390,25 @@ if ($apiKeyProvided !== '' && !isset($_SESSION['user_id'])) {
 // to the listed addresses. First-time setup (no users yet) is exempt, so an
 // operator cannot lock themselves out before creating the first account.
 require_once __DIR__ . '/core/ip_access.php';
+
+require_once __DIR__ . '/core/finance_masking.php';
+
+/**
+ * Finance visibility flags for whoever is making this request (session user
+ * or API-key owner). Static-cached — several endpoints may ask per request.
+ */
+function orbitraRequestFinanceFlags(): array
+{
+    static $flags = null;
+    if ($flags === null) {
+        global $pdo;
+        $role = $_SESSION['role'] ?? null;
+        $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
+        $flags = orbitraFinanceFlagsForRequest($pdo, $role, $userId);
+    }
+    return $flags;
+}
+
 $orbitraSetupInProgress = false;
 try {
     $orbitraSetupInProgress = ((int) $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn()) === 0;
@@ -1171,6 +1190,11 @@ try {
             // CTR Placeholder
             $metrics['ctr'] = 100; // Simplified, typically needs impressions
 
+            $financeFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($financeFlags)) {
+                $metrics = orbitraMaskFinance($metrics, $financeFlags);
+            }
+
             echo json_encode(['status' => 'success', 'data' => $metrics, 'server_time' => date('H:i:s')]);
             break;
 
@@ -1447,22 +1471,35 @@ try {
                 }
             }
 
+            // Chart datasets are keyed by 'label', not by row key, so the
+            // finance masker runs over the labels and nulls the data arrays.
+            $chartDatasets = [
+                ['label' => 'clicks', 'data' => $clicks],
+                ['label' => 'unique_clicks', 'data' => $unique_clicks],
+                ['label' => 'conversions', 'data' => $conversions],
+                ['label' => 'cost', 'data' => $cost],
+                ['label' => 'revenue', 'data' => $revenue],
+                ['label' => 'profit', 'data' => $profit],
+                ['label' => 'roi', 'data' => $roi],
+                ['label' => 'real_revenue', 'data' => $real_revenue],
+                ['label' => 'real_roi', 'data' => $real_roi],
+                ['label' => 'ctr', 'data' => $ctr],
+            ];
+            $financeFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($financeFlags)) {
+                foreach ($chartDatasets as &$ds) {
+                    if (isset($ds['label']) && orbitraFinanceKeyMasked($ds['label'], $financeFlags)) {
+                        $ds['data'] = array_fill(0, count($ds['data']), null);
+                    }
+                }
+                unset($ds);
+            }
+
             echo json_encode([
                 'status' => 'success',
                 'data' => [
                     'labels' => $labels,
-                    'datasets' => [
-                        ['label' => 'clicks', 'data' => $clicks],
-                        ['label' => 'unique_clicks', 'data' => $unique_clicks],
-                        ['label' => 'conversions', 'data' => $conversions],
-                        ['label' => 'cost', 'data' => $cost],
-                        ['label' => 'revenue', 'data' => $revenue],
-                        ['label' => 'profit', 'data' => $profit],
-                        ['label' => 'roi', 'data' => $roi],
-                        ['label' => 'real_revenue', 'data' => $real_revenue],
-                        ['label' => 'real_roi', 'data' => $real_roi],
-                        ['label' => 'ctr', 'data' => $ctr],
-                    ]
+                    'datasets' => $chartDatasets
                 ]
             ]);
             break;
@@ -1562,6 +1599,11 @@ try {
                 $formattedCampaigns[] = array_merge($r, orbitraComputeDerivedMetrics($r));
             }
 
+            $financeFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($financeFlags)) {
+                $formattedCampaigns = orbitraMaskFinance($formattedCampaigns, $financeFlags);
+            }
+
             echo json_encode(['status' => 'success', 'data' => $formattedCampaigns]);
             break;
 
@@ -1592,7 +1634,12 @@ try {
                 WHERE o.is_archived = 0
                 ORDER BY o.name ASC
             ");
-            echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+            $offersSimple = $stmt->fetchAll();
+            $financeFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($financeFlags)) {
+                $offersSimple = orbitraMaskFinance($offersSimple, $financeFlags);
+            }
+            echo json_encode(['status' => 'success', 'data' => $offersSimple]);
             break;
 
         case 'get_campaign':
@@ -1628,6 +1675,11 @@ try {
                 }
             }
             unset($campaign['parameters_json']);
+
+            $financeFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($financeFlags)) {
+                $campaign = orbitraMaskFinance($campaign, $financeFlags);
+            }
 
             echo json_encode(['status' => 'success', 'data' => $campaign]);
             break;
@@ -1676,6 +1728,11 @@ try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
+                // A restricted editor loads a masked (null) cost_value; saving
+                // that back must not wipe the stored amount.
+                if ($id) {
+                    $data = orbitraPreserveHiddenFinanceFields($pdo, 'campaigns', $id, $data, orbitraRequestFinanceFlags(), ['cost_value' => 'costs']);
+                }
                 $name = $data['name'] ?? '';
                 $alias = $data['alias'] ?? '';
                 $domainId = !empty($data['domain_id']) ? (int) $data['domain_id'] : null;
@@ -3603,7 +3660,12 @@ try {
                 WHERE o.state = 'active'
                 ORDER BY o.name ASC
             ");
-            echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+            $offersList = $stmt->fetchAll();
+            $financeFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($financeFlags)) {
+                $offersList = orbitraMaskFinance($offersList, $financeFlags);
+            }
+            echo json_encode(['status' => 'success', 'data' => $offersList]);
             break;
 
         case 'get_offer':
@@ -3621,6 +3683,10 @@ try {
             }
             // Parse values_json
             $offer['values'] = !empty($offer['values_json']) ? json_decode($offer['values_json'], true) : [];
+            $financeFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($financeFlags)) {
+                $offer = orbitraMaskFinance($offer, $financeFlags);
+            }
             echo json_encode(['status' => 'success', 'data' => $offer]);
             break;
 
@@ -3628,6 +3694,10 @@ try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
+                // Same masked-load trap as save_campaign, for payout_value.
+                if ($id) {
+                    $data = orbitraPreserveHiddenFinanceFields($pdo, 'offers', $id, $data, orbitraRequestFinanceFlags(), ['payout_value' => 'payout']);
+                }
                 $name = $data['name'] ?? '';
                 $groupId = !empty($data['group_id']) ? (int) $data['group_id'] : null;
                 $affiliateNetworkId = !empty($data['affiliate_network_id']) ? (int) $data['affiliate_network_id'] : null;
@@ -7245,6 +7315,10 @@ try {
                 $out[] = array_merge(['dims' => $dims], orbitraComputeDerivedMetrics($r));
             }
 
+            $financeFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($financeFlags)) {
+                $out = orbitraMaskFinance($out, $financeFlags);
+            }
             echo json_encode(['status' => 'success', 'data' => ['layers' => $layers, 'rows' => $out]]);
             break;
 
@@ -8629,6 +8703,10 @@ try {
             break;
 
         case 'users':
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
             $stmt = $pdo->query("
                 SELECT id, username, email, role, language, permissions_json, is_active, last_login, created_at 
                 FROM users 
@@ -8643,6 +8721,10 @@ try {
             break;
 
         case 'get_user':
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
             $id = $_GET['id'] ?? null;
             if (!$id) {
                 echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
@@ -8668,6 +8750,10 @@ try {
 
         case 'save_user':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                    echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                    break;
+                }
                 $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $username = $data['username'] ?? '';
@@ -8675,7 +8761,24 @@ try {
                 $email = $data['email'] ?? '';
                 $role = $data['role'] ?? 'user';
                 $language = $data['language'] ?? 'en';
-                $permissions = $data['permissions'] ?? [];
+                // A request without the permissions key (the plain user edit
+                // modal) must not wipe stored rights — round-trip them.
+                if (!array_key_exists('permissions', $data) || $data['permissions'] === null) {
+                    $permissions = [];
+                    if ($id) {
+                        try {
+                            $stmtPerms = $pdo->prepare("SELECT permissions_json FROM users WHERE id = ?");
+                            $stmtPerms->execute([$id]);
+                            $storedPerms = $stmtPerms->fetchColumn();
+                            $decodedPerms = is_string($storedPerms) && $storedPerms !== '' ? json_decode($storedPerms, true) : [];
+                            $permissions = is_array($decodedPerms) ? $decodedPerms : [];
+                        } catch (Throwable $e) {
+                            $permissions = [];
+                        }
+                    }
+                } else {
+                    $permissions = is_array($data['permissions']) ? $data['permissions'] : [];
+                }
                 $isActive = !empty($data['is_active']) ? 1 : 1;
 
                 if (!$username) {
@@ -8729,6 +8832,10 @@ try {
 
         case 'delete_user':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                    echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                    break;
+                }
                 $data = json_decode(orbitraRequestBody(), true);
                 $id = $data['id'] ?? null;
                 if (!$id) {

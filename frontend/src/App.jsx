@@ -496,7 +496,7 @@ function App() {
                   campaigns={campaigns}
                   onOpenSettings={() => setShowSettingsModal(true)}
                 />
-                <StatCards metrics={metrics} preferences={dashboardPreferences} activeMetrics={activeMetrics} setActiveMetrics={setActiveMetrics} />
+                <StatCards metrics={metrics} preferences={dashboardPreferences} activeMetrics={activeMetrics} setActiveMetrics={setActiveMetrics} user={user} />
                 <MainChart chartData={chartData} activeMetrics={activeMetrics} currency={globalSettings.currency || 'USD'} />
                 <DataTables
                   campaigns={campaigns.slice(0, 10)}
@@ -532,6 +532,7 @@ function App() {
                 refreshData={fetchData}
                 setActiveTab={setActiveTab}
                 setEditingCampaignId={setEditingCampaignId}
+                user={user}
               />
             )}
 

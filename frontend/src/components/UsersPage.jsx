@@ -2,8 +2,23 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Plus, Edit2, Trash2, Key, Copy, Shield, User, Globe, Lock, Link2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { ROLE_TEMPLATES, templatePermissions, detectTemplate } from '../utils/roleTemplates';
 
 const API_URL = '/api.php';
+
+// Full-access defaults in the real permission structure; templates overwrite
+// these. 'finance' rides inside permissions_json — the backend masking reads
+// it from there.
+const DEFAULT_PERMISSIONS = () => ({
+    campaigns: { access: 'full', items: [] },
+    offers: { access: 'full', items: [] },
+    landings: { access: 'full', items: [] },
+    sources: { access: 'full', items: [] },
+    networks: { access: 'full', items: [] },
+    domains: { access: 'full', items: [] },
+    logs: { access: 'full', items: [] },
+    finance: { show_costs: true, show_revenue: true, show_payout: true },
+});
 
 const UsersPage = () => {
     const { t, setLanguage: setContextLanguage, language: currentLanguage } = useLanguage();
@@ -27,14 +42,8 @@ const UsersPage = () => {
         is_active: 1
     });
 
-    const [permissions, setPermissions] = useState({
-        campaigns: { access: 'full', items: [] },
-        offers: { access: 'full', items: [] },
-        landings: { access: 'full', items: [] },
-        sources: { access: 'full', items: [] },
-        networks: { access: 'full', items: [] },
-        reports: { metrics: true, costs: false, conversions: true }
-    });
+    const [permissions, setPermissions] = useState(DEFAULT_PERMISSIONS());
+    const [selectedTemplate, setSelectedTemplate] = useState('custom');
 
     useEffect(() => {
         fetchUsers();
@@ -105,6 +114,8 @@ const UsersPage = () => {
         });
         setCredentialFieldReady({ username: false, password: false });
         setError('');
+        setSelectedTemplate('custom');
+        setPermissions(DEFAULT_PERMISSIONS());
         setShowModal(true);
     };
 
@@ -119,19 +130,32 @@ const UsersPage = () => {
         });
         setCredentialFieldReady({ username: true, password: false });
         setError('');
+        setSelectedTemplate(detectTemplate(user.role, user.permissions));
+        setPermissions(
+            user.permissions && typeof user.permissions === 'object' && !Array.isArray(user.permissions)
+                ? user.permissions
+                : DEFAULT_PERMISSIONS()
+        );
         setShowModal(true);
+    };
+
+    // Templates fill role + the permission matrix in one click; 'custom' keeps
+    // whatever is currently set for manual tuning via the permissions dialog.
+    const handleTemplateChange = (templateId) => {
+        setSelectedTemplate(templateId);
+        const template = ROLE_TEMPLATES[templateId];
+        if (!template) return;
+        setFormData(prev => ({ ...prev, role: template.role }));
+        setPermissions(template.permissions ? templatePermissions(templateId) : DEFAULT_PERMISSIONS());
     };
 
     const openPermissionsModal = (user) => {
         setCurrentUser(user);
-        setPermissions(user.permissions || {
-            campaigns: { access: 'full', items: [] },
-            offers: { access: 'full', items: [] },
-            landings: { access: 'full', items: [] },
-            sources: { access: 'full', items: [] },
-            networks: { access: 'full', items: [] },
-            reports: { metrics: true, costs: false, conversions: true }
-        });
+        setPermissions(
+            user.permissions && typeof user.permissions === 'object' && !Array.isArray(user.permissions)
+                ? { ...DEFAULT_PERMISSIONS(), ...user.permissions }
+                : DEFAULT_PERMISSIONS()
+        );
         setShowPermissionsModal(true);
     };
 
@@ -165,6 +189,9 @@ const UsersPage = () => {
             if (currentUser) {
                 data.id = currentUser.id;
             }
+            // Always send the permission matrix: templates apply it on save,
+            // custom edits round-trip it. The backend ignores it for admins.
+            data.permissions = data.role === 'admin' ? {} : permissions;
             const res = await axios.post(`${API_URL}?action=save_user`, data);
             if (res.data.status === 'success') {
                 showSuccess(currentUser ? t('common.success') : t('common.success'));
@@ -278,7 +305,9 @@ const UsersPage = () => {
         { key: 'offers', label: t('nav.offers') },
         { key: 'landings', label: t('nav.landings') },
         { key: 'sources', label: t('nav.sources') },
-        { key: 'networks', label: t('nav.networks') }
+        { key: 'networks', label: t('nav.networks') },
+        { key: 'domains', label: t('nav.domains') },
+        { key: 'logs', label: t('users.resourceLogs') }
     ];
 
     if (loading) {
@@ -497,6 +526,20 @@ const UsersPage = () => {
                                     </div>
                                 </div>
                                 <div>
+                                    <label className="form-label">{t('users.roleTemplate')}</label>
+                                    <select
+                                        value={selectedTemplate}
+                                        onChange={(e) => handleTemplateChange(e.target.value)}
+                                        className="form-select"
+                                    >
+                                        <option value="admin">{t('users.templateAdmin')}</option>
+                                        <option value="media_buyer">{t('users.templateMediaBuyer')}</option>
+                                        <option value="video_editor">{t('users.templateVideoEditor')}</option>
+                                        <option value="developer">{t('users.templateDeveloper')}</option>
+                                        <option value="custom">{t('users.templateCustom')}</option>
+                                    </select>
+                                </div>
+                                <div>
                                     <label className="form-label">{t('users.role')}</label>
                                     <select
                                         value={formData.role}
@@ -569,6 +612,31 @@ const UsersPage = () => {
                                                     <option value="own">Own + Selected</option>
                                                     <option value="none">None</option>
                                                 </select>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Financial data visibility — the backend masks
+                                    the hidden families in every report endpoint. */}
+                                <div>
+                                    <h4 style={{ fontWeight: 500, marginBottom: '12px' }}>{t('users.financeData')}</h4>
+                                    <div className="space-y-3">
+                                        {[
+                                            { key: 'show_costs', label: t('users.financeCosts') },
+                                            { key: 'show_revenue', label: t('users.financeRevenue') },
+                                            { key: 'show_payout', label: t('users.financePayout') }
+                                        ].map(f => (
+                                            <div key={f.key} className="flex items-center justify-between" style={{ padding: '8px 0', borderBottom: '1px solid var(--color-border)' }}>
+                                                <span>{f.label}</span>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={permissions.finance?.[f.key] !== false}
+                                                    onChange={(e) => setPermissions(prev => ({
+                                                        ...prev,
+                                                        finance: { ...prev.finance, [f.key]: e.target.checked }
+                                                    }))}
+                                                />
                                             </div>
                                         ))}
                                     </div>

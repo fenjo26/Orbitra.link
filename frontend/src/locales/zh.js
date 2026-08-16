@@ -1182,6 +1182,17 @@ export default {
         "deleteError": "删除错误"
     },
     "users": {
+        "roleTemplate": "角色模板",
+        "templateAdmin": "管理员（完全访问）",
+        "templateMediaBuyer": "媒介采买",
+        "templateVideoEditor": "视频剪辑 / 设计师",
+        "templateDeveloper": "开发者",
+        "templateCustom": "自定义权限",
+        "financeData": "财务数据",
+        "financeCosts": "显示花费（Cost、CPC、CPA）",
+        "financeRevenue": "显示收入（Revenue、Profit、ROI）",
+        "financePayout": "显示分成（Offer 分成）",
+        "resourceLogs": "日志",
         "mcpTitle": "连接 AI 助手（MCP）",
         "mcpDesc": "先在上方生成密钥，然后将此内容粘贴到 Claude Desktop 配置中。将路径替换为 mcp/src/index.js 的绝对路径，并将 ORBITRA_API_KEY 替换为你的密钥。完整指南：mcp/README.md。",
         "mcpCopyConfig": "复制配置",

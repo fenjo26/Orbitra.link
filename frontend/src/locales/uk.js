@@ -1182,6 +1182,17 @@ export default {
         "deleteError": "Видалити помилку"
     },
     "users": {
+        "roleTemplate": "Шаблон ролі",
+        "templateAdmin": "Адмін (повний доступ)",
+        "templateMediaBuyer": "Медіабаєр",
+        "templateVideoEditor": "Відеомонтажер / Дизайнер",
+        "templateDeveloper": "Розробник",
+        "templateCustom": "Свої права",
+        "financeData": "Фінансові дані",
+        "financeCosts": "Показувати витрати (Cost, CPC, CPA)",
+        "financeRevenue": "Показувати дохід (Revenue, Profit, ROI)",
+        "financePayout": "Показувати виплати (пейменти офферів)",
+        "resourceLogs": "Логи",
         "mcpTitle": "Підключити ІІ-асистента (MCP)",
         "mcpDesc": "Згенеруйте ключ вище, потім вставте це в конфіг Claude Desktop. Замініть шлях на абсолютний шлях до mcp/src/index.js, а ORBITRA_API_KEY — на ваш ключ. Повна інструкція: mcp/README.md.",
         "mcpCopyConfig": "Скопіювати конфіг",

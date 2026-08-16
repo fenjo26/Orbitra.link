@@ -7,10 +7,11 @@ import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS } from './ReportCustomizerModal';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
+import { financeVisibility, financeHiddenMetric } from '../utils/permissions';
 
 const API_URL = '/api.php';
 
-const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, setEditingCampaignId }) => {
+const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, setEditingCampaignId, user }) => {
     const { t } = useLanguage();
     const [actionModal, setActionModal] = useState({ type: null, campaignId: null });
     const [selectedCampaignIds, setSelectedCampaignIds] = useState(() => new Set());
@@ -47,6 +48,14 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
 
     // Header Drag-and-Drop state
     const [thDragIdx, setThDragIdx] = useState(null);
+
+    // Finance-restricted users never see money columns, whatever the
+    // customizer says — the backend already nulls the values.
+    const financeVis = useMemo(() => financeVisibility(user), [user]);
+    const visibleColumns = useMemo(
+        () => chosenColumns.filter(id => !financeHiddenMetric(id, financeVis)),
+        [chosenColumns, financeVis]
+    );
 
     // Fetch groups on mount
     const fetchGroups = () => {
@@ -674,7 +683,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                             <SortableTh colKey="group_name" label={t('campaigns.group')} defaultDir="asc" />
 
                             {/* Dynamically configured metric columns */}
-                            {chosenColumns.map((colId, colIdx) => {
+                            {visibleColumns.map((colId, colIdx) => {
                                 const def = ALL_REPORT_METRICS.find(m => m.id === colId);
                                 return (
                                     <SortableTh
@@ -698,7 +707,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                     <tbody>
                         {visibleCampaigns.length === 0 ? (
                             <tr>
-                                <td colSpan={5 + chosenColumns.length} className="text-center py-12">
+                                <td colSpan={5 + visibleColumns.length} className="text-center py-12">
                                     <div className="empty-state">
                                         <p className="empty-state-title">{t('campaigns.noCampaignsCreated')}</p>
                                         <p className="empty-state-text">{t('campaigns.createFirstCampaign')}</p>
@@ -735,7 +744,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                     <td style={{ color: 'var(--color-text-secondary)' }}>{camp.group_name || '-'}</td>
 
                                     {/* Render dynamic metric cells */}
-                                    {chosenColumns.map((colId) => (
+                                    {visibleColumns.map((colId) => (
                                         <td key={colId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
                                             {formatMetricCell(colId, camp)}
                                         </td>
@@ -770,7 +779,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                 <td>Σ</td>
                                 <td>{t('campaignReports.total', 'Totals')} ({visibleCampaigns.length})</td>
                                 <td>-</td>
-                                {chosenColumns.map(colId => (
+                                {visibleColumns.map(colId => (
                                     <td key={colId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
                                         {formatMetricCell(colId, grandTotals)}
                                     </td>

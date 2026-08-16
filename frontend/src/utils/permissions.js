@@ -9,6 +9,7 @@ const TAB_PERMISSION_KEYS = {
     offers: 'offers',
     networks: 'networks',
     sources: 'sources',
+    domains: 'domains',
 };
 
 // Gear-menu (⚙️) tabs a non-admin may open. Value = required permission
@@ -19,7 +20,7 @@ const TAB_PERMISSION_KEYS = {
 const USER_GEAR_TABS = {
     admin_branding: null,   // theme personalization (save_settings)
     admin_feedback: null,   // static contact/support info
-    admin_logs: null,       // click-debugging log viewer (action=logs)
+    admin_logs: 'logs',     // click-debugging log viewer (action=logs)
     postback: 'campaigns',  // postback settings (settings/save_settings)
     conversions: 'campaigns'
 };
@@ -66,5 +67,47 @@ export const canAccessTab = (user, tab) => {
 };
 
 export const firstAllowedTab = (user) =>
-    ['campaigns', 'offers', 'landings', 'sources', 'networks', 'dashboard']
+    ['campaigns', 'offers', 'landings', 'sources', 'networks', 'domains', 'dashboard']
         .find((tab) => canAccessTab(user, tab)) || 'dashboard';
+
+// Report-metric id → finance family, mirroring the backend masker
+// (core/finance_masking.php). An id belongs to a family when any of its
+// underscore segments matches a finance word: revenue_confirmed, uepc_hold,
+// cost_value, roi, profitability, ... Count-style ids (deposits, sales) stay
+// visible — only money families hide.
+const FINANCE_SEGMENTS = {
+    costs: [/^cost/, 'cpc', 'cpa', 'cps', 'spend'],
+    revenue: [/^profit/, 'revenue', 'roi', 'epc', 'uepc'],
+    payout: [/^payout/],
+};
+
+export const financeHiddenMetric = (id, visibility) => {
+    if (!id || !visibility) return false;
+    const segments = String(id).toLowerCase().split('_');
+    for (const [family, matchers] of Object.entries(FINANCE_SEGMENTS)) {
+        if (visibility[family]) continue;
+        if (segments.some(seg => matchers.some(m => (m instanceof RegExp ? m.test(seg) : seg === m)))) {
+            return true;
+        }
+    }
+    return false;
+};
+
+// Financial visibility mirrors the backend masking (core/finance_masking.php):
+// permissions.finance.{show_costs, show_revenue, show_payout}, where anything
+// missing means "allowed" — pre-existing users keep seeing everything. Admins
+// are never masked.
+export const financeVisibility = (user) => {
+    if (isAdminUser(user)) {
+        return { costs: true, revenue: true, payout: true };
+    }
+    const finance = parsePermissions(user).finance;
+    if (!finance || typeof finance !== 'object') {
+        return { costs: true, revenue: true, payout: true };
+    }
+    return {
+        costs: finance.show_costs !== false,
+        revenue: finance.show_revenue !== false,
+        payout: finance.show_payout !== false,
+    };
+};

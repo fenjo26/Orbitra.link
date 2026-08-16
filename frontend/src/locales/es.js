@@ -1182,6 +1182,17 @@ export default {
         "deleteError": "Eliminar error"
     },
     "users": {
+        "roleTemplate": "Plantilla de rol",
+        "templateAdmin": "Admin (acceso total)",
+        "templateMediaBuyer": "Media Buyer",
+        "templateVideoEditor": "Editor de vídeo / Diseñador",
+        "templateDeveloper": "Desarrollador",
+        "templateCustom": "Permisos personalizados",
+        "financeData": "Datos financieros",
+        "financeCosts": "Mostrar gastos (Cost, CPC, CPA)",
+        "financeRevenue": "Mostrar ingresos (Revenue, Profit, ROI)",
+        "financePayout": "Mostrar pagos (payouts de ofertas)",
+        "resourceLogs": "Registros",
         "mcpTitle": "Conectar un asistente de IA (MCP)",
         "mcpDesc": "Genere una clave arriba y pegue esto en la configuración de Claude Desktop. Reemplace la ruta por la ruta absoluta a mcp/src/index.js y ORBITRA_API_KEY por su clave. Guía completa: mcp/README.md.",
         "mcpCopyConfig": "Copiar configuración",

@@ -1182,6 +1182,17 @@ export default {
         "deleteError": "Löschfehler"
     },
     "users": {
+        "roleTemplate": "Rollenvorlage",
+        "templateAdmin": "Admin (voller Zugriff)",
+        "templateMediaBuyer": "Media Buyer",
+        "templateVideoEditor": "Videoeditor / Designer",
+        "templateDeveloper": "Entwickler",
+        "templateCustom": "Eigene Rechte",
+        "financeData": "Finanzdaten",
+        "financeCosts": "Kosten anzeigen (Cost, CPC, CPA)",
+        "financeRevenue": "Umsatz anzeigen (Revenue, Profit, ROI)",
+        "financePayout": "Auszahlungen anzeigen (Offer-Payouts)",
+        "resourceLogs": "Logs",
         "mcpTitle": "KI-Assistenten verbinden (MCP)",
         "mcpDesc": "Erzeugen Sie oben einen Schlüssel und fügen Sie dies in die Claude-Desktop-Konfiguration ein. Ersetzen Sie den Pfad durch den absoluten Pfad zu mcp/src/index.js und ORBITRA_API_KEY durch Ihren Schlüssel. Vollständige Anleitung: mcp/README.md.",
         "mcpCopyConfig": "Konfiguration kopieren",
