@@ -164,22 +164,21 @@ const ReportCustomizerModal = ({
 
     const handleDrop = (e, targetMetricId) => {
         e.preventDefault();
-        try {
-            const droppedId = draggedId || e.dataTransfer.getData('text/plain');
-            if (droppedId && droppedId !== targetMetricId) {
-                const currentOrder = [...orderedMetricIds];
-                const fromIndex = currentOrder.indexOf(droppedId);
-                const toIndex = currentOrder.indexOf(targetMetricId);
+        const droppedId = draggedId || e.dataTransfer.getData('text/plain');
+        if (droppedId && droppedId !== targetMetricId) {
+            setOrderedMetricIds(prev => {
+                const next = [...prev];
+                const fromIndex = next.indexOf(droppedId);
+                const toIndex = next.indexOf(targetMetricId);
                 if (fromIndex !== -1 && toIndex !== -1) {
-                    currentOrder.splice(fromIndex, 1);
-                    currentOrder.splice(toIndex, 0, droppedId);
-                    setOrderedMetricIds(currentOrder);
+                    next.splice(fromIndex, 1);
+                    next.splice(toIndex, 0, droppedId);
                 }
-            }
-        } finally {
-            setDraggedId(null);
-            setDragOverId(null);
+                return next;
+            });
         }
+        setDraggedId(null);
+        setDragOverId(null);
     };
 
     const handleDragEnd = () => {
@@ -190,7 +189,11 @@ const ReportCustomizerModal = ({
     const handleSave = () => {
         // Return only the selected columns in the user's customized drag order
         const result = orderedMetricIds.filter(id => selectedSet.has(id));
-        onSaveColumns(result.length > 0 ? result : ['clicks']);
+        const finalColumns = result.length > 0 ? result : ['clicks'];
+
+        if (onSaveColumns) {
+            onSaveColumns(finalColumns);
+        }
 
         if (onSaveLayers && mode === 'report') {
             onSaveLayers(layers);
@@ -354,7 +357,7 @@ const ReportCustomizerModal = ({
 
                         {/* Reorderable Columns List */}
                         <div
-                            className="flex-1 overflow-y-auto space-y-0.5 pr-1"
+                            className="flex-1 overflow-y-auto space-y-1 pr-1"
                             style={{ scrollbarWidth: 'thin' }}
                             onDragLeave={() => setDragOverId(null)}
                         >
@@ -367,44 +370,48 @@ const ReportCustomizerModal = ({
                                         key={metric.id}
                                         onDragOver={(e) => handleDragOver(e, metric.id)}
                                         onDrop={(e) => handleDrop(e, metric.id)}
-                                        onClick={() => handleToggleMetric(metric.id)}
-                                        className="flex items-center gap-3 px-2 py-2 rounded-lg text-xs cursor-pointer select-none transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                                        className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs select-none transition-all"
                                         style={{
-                                            opacity: isDragging ? 0.4 : 1,
+                                            backgroundColor: isChecked ? 'var(--color-bg-soft)' : 'transparent',
+                                            opacity: isDragging ? 0.35 : 1,
                                             // Insert-before highlight; inset shadow instead of a
                                             // border so the rows don't jump while dragging.
                                             boxShadow: isOver ? 'inset 0 2px 0 var(--color-primary)' : 'none'
                                         }}
                                     >
-                                        {/* Drag handle — the only draggable element, so row
-                                            clicks keep reaching the checkbox toggle */}
+                                        {/* Drag handle — the only draggable element; the icon
+                                            is pointer-events-none so the drag bitmap and drop
+                                            target stay on the handle, never on the svg */}
                                         <div
                                             draggable
                                             onDragStart={(e) => handleDragStart(e, metric.id)}
                                             onDragEnd={handleDragEnd}
-                                            className="cursor-grab active:cursor-grabbing p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                                            onClick={(e) => e.stopPropagation()}
+                                            className="cursor-grab active:cursor-grabbing p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors flex-shrink-0"
+                                            title="Drag to reorder"
                                         >
-                                            <GripVertical className="w-3.5 h-3.5 opacity-60" />
+                                            <GripVertical className="w-4 h-4 pointer-events-none" />
                                         </div>
 
-                                        <input
-                                            type="checkbox"
-                                            checked={isChecked}
-                                            onChange={() => handleToggleMetric(metric.id)}
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="w-4 h-4 rounded cursor-pointer"
-                                            style={{ accentColor: 'var(--color-primary)' }}
-                                        />
-
-                                        <span
-                                            className="flex-1 font-normal"
-                                            style={{
-                                                color: isChecked ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'
-                                            }}
-                                        >
-                                            {metric.label}
-                                        </span>
+                                        {/* Semantic label: clicking anywhere on the row (except
+                                            the drag handle) toggles the checkbox natively — no
+                                            onClick/onChange stopPropagation juggling */}
+                                        <label className="flex items-center gap-3 flex-1 cursor-pointer min-w-0 py-0.5">
+                                            <input
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                onChange={() => handleToggleMetric(metric.id)}
+                                                className="w-4 h-4 rounded cursor-pointer flex-shrink-0"
+                                                style={{ accentColor: 'var(--color-primary)' }}
+                                            />
+                                            <span
+                                                className="truncate font-medium"
+                                                style={{
+                                                    color: isChecked ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'
+                                                }}
+                                            >
+                                                {metric.label}
+                                            </span>
+                                        </label>
                                     </div>
                                 );
                             })}

@@ -1121,10 +1121,6 @@
     max-width: var(--container-2xl);
   }
 
-  .max-w-4xl {
-    max-width: var(--container-4xl);
-  }
-
   .max-w-5xl {
     max-width: var(--container-5xl);
   }
@@ -1584,10 +1580,6 @@
 
   .border-amber-200 {
     border-color: var(--color-amber-200);
-  }
-
-  .border-blue-300 {
-    border-color: var(--color-blue-300);
   }
 
   .border-blue-600 {
@@ -2281,10 +2273,6 @@
     color: var(--color-blue-600);
   }
 
-  .text-blue-800 {
-    color: var(--color-blue-800);
-  }
-
   .text-gray-300 {
     color: var(--color-gray-300);
   }
@@ -2804,10 +2792,6 @@
 
     .hover\:bg-indigo-700:hover {
       background-color: var(--color-indigo-700);
-    }
-
-    .hover\:bg-red-50:hover {
-      background-color: var(--color-red-50);
     }
 
     .hover\:bg-red-50\/10:hover {

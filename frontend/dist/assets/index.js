@@ -49271,22 +49271,21 @@ const ReportCustomizerModal = ({
   };
   const handleDrop = (e, targetMetricId) => {
     e.preventDefault();
-    try {
-      const droppedId = draggedId || e.dataTransfer.getData("text/plain");
-      if (droppedId && droppedId !== targetMetricId) {
-        const currentOrder = [...orderedMetricIds];
-        const fromIndex = currentOrder.indexOf(droppedId);
-        const toIndex = currentOrder.indexOf(targetMetricId);
+    const droppedId = draggedId || e.dataTransfer.getData("text/plain");
+    if (droppedId && droppedId !== targetMetricId) {
+      setOrderedMetricIds((prev) => {
+        const next = [...prev];
+        const fromIndex = next.indexOf(droppedId);
+        const toIndex = next.indexOf(targetMetricId);
         if (fromIndex !== -1 && toIndex !== -1) {
-          currentOrder.splice(fromIndex, 1);
-          currentOrder.splice(toIndex, 0, droppedId);
-          setOrderedMetricIds(currentOrder);
+          next.splice(fromIndex, 1);
+          next.splice(toIndex, 0, droppedId);
         }
-      }
-    } finally {
-      setDraggedId(null);
-      setDragOverId(null);
+        return next;
+      });
     }
+    setDraggedId(null);
+    setDragOverId(null);
   };
   const handleDragEnd = () => {
     setDraggedId(null);
@@ -49294,7 +49293,10 @@ const ReportCustomizerModal = ({
   };
   const handleSave = () => {
     const result = orderedMetricIds.filter((id) => selectedSet.has(id));
-    onSaveColumns(result.length > 0 ? result : ["clicks"]);
+    const finalColumns = result.length > 0 ? result : ["clicks"];
+    if (onSaveColumns) {
+      onSaveColumns(finalColumns);
+    }
     if (onSaveLayers && mode === "report") {
       onSaveLayers(layers);
     }
@@ -49431,7 +49433,7 @@ const ReportCustomizerModal = ({
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "div",
             {
-              className: "flex-1 overflow-y-auto space-y-0.5 pr-1",
+              className: "flex-1 overflow-y-auto space-y-1 pr-1",
               style: { scrollbarWidth: "thin" },
               onDragLeave: () => setDragOverId(null),
               children: displayMetrics.map((metric) => {
@@ -49443,10 +49445,10 @@ const ReportCustomizerModal = ({
                   {
                     onDragOver: (e) => handleDragOver(e, metric.id),
                     onDrop: (e) => handleDrop(e, metric.id),
-                    onClick: () => handleToggleMetric(metric.id),
-                    className: "flex items-center gap-3 px-2 py-2 rounded-lg text-xs cursor-pointer select-none transition-colors hover:bg-black/5 dark:hover:bg-white/5",
+                    className: "flex items-center gap-3 px-3 py-2 rounded-xl text-xs select-none transition-all",
                     style: {
-                      opacity: isDragging ? 0.4 : 1,
+                      backgroundColor: isChecked ? "var(--color-bg-soft)" : "transparent",
+                      opacity: isDragging ? 0.35 : 1,
                       // Insert-before highlight; inset shadow instead of a
                       // border so the rows don't jump while dragging.
                       boxShadow: isOver ? "inset 0 2px 0 var(--color-primary)" : "none"
@@ -49458,32 +49460,33 @@ const ReportCustomizerModal = ({
                           draggable: true,
                           onDragStart: (e) => handleDragStart(e, metric.id),
                           onDragEnd: handleDragEnd,
-                          className: "cursor-grab active:cursor-grabbing p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200",
-                          onClick: (e) => e.stopPropagation(),
-                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3.5 h-3.5 opacity-60" })
+                          className: "cursor-grab active:cursor-grabbing p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors flex-shrink-0",
+                          title: "Drag to reorder",
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-4 h-4 pointer-events-none" })
                         }
                       ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "input",
-                        {
-                          type: "checkbox",
-                          checked: isChecked,
-                          onChange: () => handleToggleMetric(metric.id),
-                          onClick: (e) => e.stopPropagation(),
-                          className: "w-4 h-4 rounded cursor-pointer",
-                          style: { accentColor: "var(--color-primary)" }
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "span",
-                        {
-                          className: "flex-1 font-normal",
-                          style: {
-                            color: isChecked ? "var(--color-text-primary)" : "var(--color-text-secondary)"
-                          },
-                          children: metric.label
-                        }
-                      )
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-3 flex-1 cursor-pointer min-w-0 py-0.5", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "input",
+                          {
+                            type: "checkbox",
+                            checked: isChecked,
+                            onChange: () => handleToggleMetric(metric.id),
+                            className: "w-4 h-4 rounded cursor-pointer flex-shrink-0",
+                            style: { accentColor: "var(--color-primary)" }
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "span",
+                          {
+                            className: "truncate font-medium",
+                            style: {
+                              color: isChecked ? "var(--color-text-primary)" : "var(--color-text-secondary)"
+                            },
+                            children: metric.label
+                          }
+                        )
+                      ] })
                     ]
                   },
                   metric.id
