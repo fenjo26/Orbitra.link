@@ -28,7 +28,10 @@ if (!function_exists('orbitraConversionStatusGroups')) {
     function orbitraConversionAggregateSql(?string $valueColumn): string
     {
         $value = $valueColumn !== null ? $valueColumn : '0';
-        $parts = ["SUM($value) AS rev_all"];
+        // COUNT(*) = conversion EVENTS. clicks.is_conversion is a per-click flag
+        // (0/1), so it undercounts every click with several conversions and
+        // capped CR at 100% — Keitaro's CR may exceed it, and ours now may too.
+        $parts = ["COUNT(*) AS cnt_any", "SUM($value) AS rev_all"];
         foreach (orbitraConversionStatusGroups() as $group => $statuses) {
             $list = "'" . implode("', '", $statuses) . "'";
             $parts[] = "SUM(CASE WHEN status IN ($list) THEN $value ELSE 0 END) AS rev_$group";
@@ -60,6 +63,9 @@ if (!function_exists('orbitraConversionStatusGroups')) {
 
         $prelander       = (int) ($raw['prelander_clicks'] ?? $raw['lp_views'] ?? 0);
         $offerClicks     = (int) ($raw['offer_clicks'] ?? $raw['lp_clicks'] ?? 0);
+        // LP CTR counts landing → offer transitions (both ids set). A click that
+        // went straight to the offer without a landing inflated the rate.
+        $lpClicks        = (int) ($raw['lp_clicks'] ?? 0);
 
         $conversions     = (int) ($raw['conversions'] ?? 0);
         $purchases       = (int) ($raw['purchases'] ?? $raw['sales'] ?? 0);
@@ -110,9 +116,9 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             // Landing Pages
             'lp_views'                => $prelander,
             'prelander_clicks'        => $prelander,
-            'lp_clicks'               => $offerClicks,
+            'lp_clicks'               => $lpClicks > 0 ? $lpClicks : $offerClicks,
             'offer_clicks'            => $offerClicks,
-            'lp_ctr'                  => $prelander > 0 ? round(($offerClicks / $prelander) * 100, 2) : 0,
+            'lp_ctr'                  => $prelander > 0 ? round((($lpClicks > 0 ? $lpClicks : $offerClicks) / $prelander) * 100, 2) : 0,
             'time_since_lp_click'     => (string) ($raw['time_since_lp_click'] ?? '0s'),
 
             // Conversions & Events
