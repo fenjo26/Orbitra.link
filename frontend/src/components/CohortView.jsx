@@ -342,7 +342,7 @@ const CohortView = () => {
                         <button key={m.key}
                             onClick={() => setMetric(m.key)}
                             className={`btn btn-sm ${metric === m.key ? '' : 'btn-secondary'}`}
-                            style={metric === m.key ? { backgroundColor: 'var(--color-primary)', color: 'white' } : {}}>
+                            style={metric === m.key ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-text-inverse)' } : {}}>
                             {m.label}
                         </button>
                     ))}
@@ -355,13 +355,13 @@ const CohortView = () => {
                     <button
                         onClick={() => setViewMode('absolute')}
                         className={`btn btn-sm ${viewMode === 'absolute' ? '' : 'btn-secondary'}`}
-                        style={viewMode === 'absolute' ? { backgroundColor: 'var(--color-primary)', color: 'white' } : {}}>
+                        style={viewMode === 'absolute' ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-text-inverse)' } : {}}>
                         {t('cohort.absolute')}
                     </button>
                     <button
                         onClick={() => setViewMode('retention')}
                         className={`btn btn-sm ${viewMode === 'retention' ? '' : 'btn-secondary'}`}
-                        style={viewMode === 'retention' ? { backgroundColor: 'var(--color-primary)', color: 'white' } : {}}>
+                        style={viewMode === 'retention' ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-text-inverse)' } : {}}>
                         {t('cohort.retention')}
                     </button>
                 </div>

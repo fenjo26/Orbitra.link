@@ -73,7 +73,10 @@
   --color-text-primary: #F5F5F5;
   --color-text-secondary: #A1A5AB;
   --color-text-muted: #6C7178;
-  --color-text-inverse: #111111;
+  /* On the primary accent this theme inherits coral from :root, so text on
+     primary stays white — the value existed but had no consumers until
+     .btn-primary started using it. */
+  --color-text-inverse: #ffffff;
 
   --color-primary-shadow: rgba(240, 90, 62, 0.15);
   --color-primary-light: rgba(240, 90, 62, 0.15);
@@ -232,7 +235,9 @@ button.btn {
 
 .btn-primary {
   background: var(--color-primary);
-  color: white;
+  /* white text vanished into light primaries (neon's lime) — each theme
+     declares the contrasting inverse color */
+  color: var(--color-text-inverse, white);
   border: none;
   padding: 14px 26px;
   border-radius: 18px !important;

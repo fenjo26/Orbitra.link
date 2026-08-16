@@ -144,7 +144,7 @@ const TrendsPage = () => {
                 onClick={() => handleSetView('trend')}
                 className="btn btn-sm"
                 style={view === 'trend'
-                    ? { backgroundColor: 'var(--color-primary)', color: 'white' }
+                    ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-text-inverse)' }
                     : { background: 'transparent', color: 'var(--color-text-secondary)', boxShadow: 'none' }}>
                 <TrendingUp className="w-4 h-4" />{t('analytics.trends')}
             </button>
@@ -152,7 +152,7 @@ const TrendsPage = () => {
                 onClick={() => handleSetView('cohort')}
                 className="btn btn-sm"
                 style={view === 'cohort'
-                    ? { backgroundColor: 'var(--color-primary)', color: 'white' }
+                    ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-text-inverse)' }
                     : { background: 'transparent', color: 'var(--color-text-secondary)', boxShadow: 'none' }}>
                 <Grid3x3 className="w-4 h-4" />{t('analytics.cohort')}
             </button>

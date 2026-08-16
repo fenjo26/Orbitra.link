@@ -3183,7 +3183,7 @@
   --color-text-primary: #f5f5f5;
   --color-text-secondary: #a1a5ab;
   --color-text-muted: #6c7178;
-  --color-text-inverse: #111;
+  --color-text-inverse: #fff;
   --color-primary-shadow: #f05a3e26;
   --color-primary-light: #f05a3e26;
   --color-border: #2a2e34;
@@ -3310,7 +3310,7 @@ h2 {
 
 .btn-primary {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-text-inverse, white);
   cursor: pointer;
   box-shadow: 0 8px 20px var(--color-primary-shadow);
   border: none;

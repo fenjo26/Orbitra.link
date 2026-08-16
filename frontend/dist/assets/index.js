@@ -65442,7 +65442,7 @@ const CohortView = () => {
           {
             onClick: () => setMetric(m.key),
             className: `btn btn-sm ${metric === m.key ? "" : "btn-secondary"}`,
-            style: metric === m.key ? { backgroundColor: "var(--color-primary)", color: "white" } : {},
+            style: metric === m.key ? { backgroundColor: "var(--color-primary)", color: "var(--color-text-inverse)" } : {},
             children: m.label
           },
           m.key
@@ -65455,7 +65455,7 @@ const CohortView = () => {
           {
             onClick: () => setViewMode("absolute"),
             className: `btn btn-sm ${viewMode === "absolute" ? "" : "btn-secondary"}`,
-            style: viewMode === "absolute" ? { backgroundColor: "var(--color-primary)", color: "white" } : {},
+            style: viewMode === "absolute" ? { backgroundColor: "var(--color-primary)", color: "var(--color-text-inverse)" } : {},
             children: t("cohort.absolute")
           }
         ),
@@ -65464,7 +65464,7 @@ const CohortView = () => {
           {
             onClick: () => setViewMode("retention"),
             className: `btn btn-sm ${viewMode === "retention" ? "" : "btn-secondary"}`,
-            style: viewMode === "retention" ? { backgroundColor: "var(--color-primary)", color: "white" } : {},
+            style: viewMode === "retention" ? { backgroundColor: "var(--color-primary)", color: "var(--color-text-inverse)" } : {},
             children: t("cohort.retention")
           }
         )
@@ -65741,7 +65741,7 @@ const TrendsPage = () => {
           {
             onClick: () => handleSetView("trend"),
             className: "btn btn-sm",
-            style: view === "trend" ? { backgroundColor: "var(--color-primary)", color: "white" } : { background: "transparent", color: "var(--color-text-secondary)", boxShadow: "none" },
+            style: view === "trend" ? { backgroundColor: "var(--color-primary)", color: "var(--color-text-inverse)" } : { background: "transparent", color: "var(--color-text-secondary)", boxShadow: "none" },
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "w-4 h-4" }),
               t("analytics.trends")
@@ -65753,7 +65753,7 @@ const TrendsPage = () => {
           {
             onClick: () => handleSetView("cohort"),
             className: "btn btn-sm",
-            style: view === "cohort" ? { backgroundColor: "var(--color-primary)", color: "white" } : { background: "transparent", color: "var(--color-text-secondary)", boxShadow: "none" },
+            style: view === "cohort" ? { backgroundColor: "var(--color-primary)", color: "var(--color-text-inverse)" } : { background: "transparent", color: "var(--color-text-secondary)", boxShadow: "none" },
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Grid3x3, { className: "w-4 h-4" }),
               t("analytics.cohort")
