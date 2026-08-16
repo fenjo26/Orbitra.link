@@ -49,7 +49,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 18;
+    $LATEST_SCHEMA_VERSION = 19;
 
     $schemaVersion = 0;
     try {
@@ -1254,6 +1254,27 @@ try {
                     $pdo->exec("ALTER TABLE campaigns ADD COLUMN parameters_json TEXT");
                 } catch (\Throwable $e) {
                     // Column already present on a half-migrated DB.
+                }
+            }
+
+            if ($schemaVersion < 19) {
+                // Migration 19: report indexes.
+                //
+                // Every report metric is derived from conversions joined on click id,
+                // and the campaigns list joins clicks by campaign. Neither had an
+                // index, so a dashboard load scanned both tables end to end for each
+                // campaign. These three turn that into lookups.
+                foreach ([
+                    "CREATE INDEX IF NOT EXISTS idx_conversions_click ON conversions(click_id)",
+                    "CREATE INDEX IF NOT EXISTS idx_conversions_click_status ON conversions(click_id, status)",
+                    "CREATE INDEX IF NOT EXISTS idx_clicks_campaign_created ON clicks(campaign_id, created_at)",
+                    "CREATE INDEX IF NOT EXISTS idx_revenue_records_click ON revenue_records(click_id)",
+                ] as $sql) {
+                    try {
+                        $pdo->exec($sql);
+                    } catch (\Throwable $e) {
+                        // Table absent on an older install; the reports fall back to 0.
+                    }
                 }
             }
 

@@ -1,270 +1,567 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { X, Download, Filter, BarChart3, Plus, Trash2 } from 'lucide-react';
+import { X, Download, Filter, BarChart3, Plus, Trash2, SlidersHorizontal, GripVertical, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
+import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS } from './ReportCustomizerModal';
 
 const API_URL = '/api.php';
 
-// Layered reporting (Keitaro-style): stack up to 3 group-by dimensions —
-// e.g. Country → Campaign → adset_id — and read sales/profit down the tree.
-// campaignId may be null, which means "all campaigns" (campaign is then a
-// useful layer).
 const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const { t } = useLanguage();
     const [loading, setLoading] = useState(true);
     const [rows, setRows] = useState([]);
     const [layerKeys, setLayerKeys] = useState([]);
+
     const defaultLayers = campaignId ? ['country', 'adset_id'] : ['country', 'campaign_id', 'adset_id'];
     const [layers, setLayers] = useState(defaultLayers);
-    const [dateFrom, setDateFrom] = useState(() => {
-        const d = new Date(); d.setDate(d.getDate() - 7);
-        return d.toISOString().split('T')[0];
-    });
-    const [dateTo, setDateTo] = useState(() => new Date().toISOString().split('T')[0]);
+    const [filters, setFilters] = useState([]);
 
-    const dimensions = [
-        { value: 'country', label: t('campaignReports.geoCountry') },
-        { value: 'campaign_id', label: t('campaignReports.campaign') },
-        { value: 'adset_id', label: t('campaignReports.adsetId', 'Adset ID') },
-        { value: 'ad_id', label: t('campaignReports.adId', 'Ad ID') },
-        { value: 'ad_campaign_id', label: t('campaignReports.adCampaignId', 'Ad Campaign ID') },
-        { value: 'offer_id', label: t('campaignReports.offer', 'Offer') },
-        { value: 'landing_id', label: t('campaignReports.landing', 'Landing') },
-        { value: 'stream_id', label: t('campaignReports.stream') },
-        { value: 'source_id', label: t('campaignReports.source') },
-        { value: 'device_type', label: t('campaignReports.deviceType') },
-        { value: 'os', label: 'OS' },
-        { value: 'browser', label: t('campaignReports.browser', 'Browser') },
-        { value: 'language', label: t('campaignReports.language') },
-        { value: 'day', label: t('campaignReports.day', 'Day') },
-        ...Array.from({ length: 10 }, (_, i) => ({ value: 'sub_id_' + (i + 1), label: 'Sub ID ' + (i + 1) })),
-    ];
-    const dimLabel = (v) => dimensions.find(d => d.value === v)?.label || v;
+    // Date & Timezone Picker
+    const todayPreset = getPresetDates('last7Days') || getPresetDates('today');
+    const [dateFrom, setDateFrom] = useState(todayPreset?.from || formatDate(new Date()));
+    const [dateTo, setDateTo] = useState(todayPreset?.to || formatDate(new Date()));
+    const [timezone, setTimezone] = useState(() => localStorage.getItem('orbitra_tz') || 'UTC');
+
+    // Column customizer state
+    const [customizerOpen, setCustomizerOpen] = useState(false);
+    const [chosenColumns, setChosenColumns] = useState(() => {
+        try {
+            const saved = localStorage.getItem('orbitra_report_columns');
+            if (saved) return JSON.parse(saved);
+        } catch (e) {}
+        return [...PRESETS.best];
+    });
+
+    // Drag-and-drop column state
+    const [thDragIdx, setThDragIdx] = useState(null);
+
+    const handleThDragStart = (idx) => {
+        setThDragIdx(idx);
+    };
+
+    const handleThDragOver = (e, idx) => {
+        e.preventDefault();
+        if (thDragIdx === null || thDragIdx === idx) return;
+        const copy = [...chosenColumns];
+        const item = copy.splice(thDragIdx, 1)[0];
+        copy.splice(idx, 0, item);
+        setThDragIdx(idx);
+        setChosenColumns(copy);
+        localStorage.setItem('orbitra_report_columns', JSON.stringify(copy));
+    };
+
+    const handleThDragEnd = () => {
+        setThDragIdx(null);
+    };
+
+    const handleSaveColumns = (cols) => {
+        setChosenColumns(cols);
+        localStorage.setItem('orbitra_report_columns', JSON.stringify(cols));
+    };
+
+    const handleSaveLayers = (newLayers) => {
+        setLayers(newLayers.length > 0 ? newLayers : ['country']);
+    };
+
+    const handleSaveFilters = (newFilters) => {
+        setFilters(newFilters);
+    };
 
     const fetchReport = async () => {
         setLoading(true);
         try {
-            const params = { group_by: layers.join(','), date_from: dateFrom, date_to: dateTo };
+            const params = {
+                group_by: layers.join(','),
+                date_from: dateFrom,
+                date_to: dateTo
+            };
             if (campaignId) params.campaign_id = campaignId;
+            // The picker's timezone decides which day a click belongs to — send it.
+            const tz = localStorage.getItem('orbitra_tz');
+            if (tz) params.timezone = tz;
+            if (filters.length > 0) {
+                params.filters = JSON.stringify(filters);
+            }
             const res = await axios.get(`${API_URL}?action=campaign_report`, { params });
             if (res.data.status === 'success') {
                 setRows(res.data.data.rows || []);
                 setLayerKeys(res.data.data.layers || layers);
             } else {
-                alert(t('campaignReports.loadError') + res.data.message);
+                alert(t('campaignReports.loadError') + (res.data.message || ''));
             }
         } catch (e) {
             console.error(e);
             alert(t('campaignReports.networkError'));
-        } finally { setLoading(false); }
+        } finally {
+            setLoading(false);
+        }
     };
 
-    useEffect(() => { fetchReport(); }, [campaignId, layers.join(','), dateFrom, dateTo]);
+    useEffect(() => {
+        fetchReport();
+    }, [campaignId, layers.join(','), dateFrom, dateTo, JSON.stringify(filters)]);
 
-    // Build the layered tree from flat rows, then flatten it back into display
-    // rows with subtotals per level — the totals are aggregated from the leaves,
-    // so they always match what the SQL returned.
+    // Build the hierarchical tree from flat rows, then flatten into display rows
     const displayRows = useMemo(() => {
-        const agg = { clicks: 0, unique_clicks: 0, conversions: 0, cost: 0, revenue: 0, real_revenue: 0 };
-        const add = (node, row) => {
-            node.clicks += row.clicks; node.unique_clicks += row.unique_clicks; node.conversions += row.conversions;
-            node.cost += row.cost; node.revenue += row.revenue; node.real_revenue += row.real_revenue;
+        const createEmptyAgg = () => ({
+            clicks: 0,
+            unique_clicks: 0,
+            prelander_clicks: 0,
+            offer_clicks: 0,
+            conversions: 0,
+            purchases: 0,
+            holds: 0,
+            rejected: 0,
+            trash: 0,
+            cost: 0,
+            revenue: 0,
+            revenue_confirmed: 0,
+            revenue_hold: 0,
+            revenue_rejected: 0,
+            revenue_trash: 0,
+            profit: 0,
+            real_revenue: 0,
+            real_profit: 0,
+        });
+
+        const addRow = (node, row) => {
+            node.clicks += Number(row.clicks) || 0;
+            node.unique_clicks += Number(row.unique_clicks) || 0;
+            node.prelander_clicks += Number(row.prelander_clicks) || 0;
+            node.offer_clicks += Number(row.offer_clicks) || 0;
+            node.conversions += Number(row.conversions) || 0;
+            node.purchases += Number(row.purchases) || 0;
+            node.holds += Number(row.holds) || 0;
+            node.rejected += Number(row.rejected) || 0;
+            node.trash += Number(row.trash) || 0;
+            node.cost += Number(row.cost) || 0;
+            node.revenue += Number(row.revenue) || 0;
+            node.revenue_confirmed += Number(row.revenue_confirmed) || 0;
+            node.revenue_hold += Number(row.revenue_hold) || 0;
+            node.revenue_rejected += Number(row.revenue_rejected) || 0;
+            node.revenue_trash += Number(row.revenue_trash) || 0;
+            node.profit += Number(row.profit) || (Number(row.revenue || 0) - Number(row.cost || 0));
+            node.real_revenue += Number(row.real_revenue) || 0;
+            node.real_profit += Number(row.real_profit) || 0;
         };
-        const root = { ...agg, children: new Map() };
+
+        const computeDerived = (node) => {
+            node.uc_rate = node.clicks > 0 ? (node.unique_clicks / node.clicks) * 100 : 0;
+            node.lp_ctr = node.clicks > 0 ? (node.offer_clicks / node.clicks) * 100 : 0;
+            node.cr = node.clicks > 0 ? (node.conversions / node.clicks) * 100 : 0;
+            node.cr_sales = node.clicks > 0 ? (node.purchases / node.clicks) * 100 : 0;
+            node.cr_holds = node.clicks > 0 ? (node.holds / node.clicks) * 100 : 0;
+            node.approve_rate = node.conversions > 0 ? (node.purchases / node.conversions) * 100 : 0;
+            const nonTrash = node.purchases + node.holds + node.rejected;
+            node.approve_rate_excl_trash = nonTrash > 0 ? (node.purchases / nonTrash) * 100 : 0;
+            node.roi = node.cost > 0 ? (node.profit / node.cost) * 100 : 0;
+            node.real_roi = node.cost > 0 ? (node.real_profit / node.cost) * 100 : 0;
+            node.epc = node.clicks > 0 ? node.revenue / node.clicks : 0;
+            node.uepc = node.unique_clicks > 0 ? node.revenue / node.unique_clicks : 0;
+            node.cpc = node.clicks > 0 ? node.cost / node.clicks : 0;
+            node.ucpc = node.unique_clicks > 0 ? node.cost / node.unique_clicks : 0;
+            node.cpa = node.conversions > 0 ? node.cost / node.conversions : 0;
+            node.earnings_per_conv = node.conversions > 0 ? node.revenue / node.conversions : 0;
+        };
+
+        const root = { ...createEmptyAgg(), children: new Map() };
         rows.forEach(row => {
             let node = root;
-            add(root, row);
-            row.dims.forEach((dimValue, depth) => {
-                if (!node.children.has(dimValue)) {
-                    node.children.set(dimValue, { ...agg, children: new Map() });
+            addRow(root, row);
+            const dims = row.dims || [];
+            dims.forEach((dimValue) => {
+                const key = dimValue !== undefined && dimValue !== null && dimValue !== '' ? String(dimValue) : 'none';
+                if (!node.children.has(key)) {
+                    node.children.set(key, { ...createEmptyAgg(), children: new Map() });
                 }
-                node = node.children.get(dimValue);
-                add(node, row);
+                node = node.children.get(key);
+                addRow(node, row);
             });
         });
+
         const out = [];
         const walk = (node, depth, name) => {
+            computeDerived(node);
             const children = [...node.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks);
-            out.push({ name, depth, subtotal: depth < layers.length - 1 || children.length > 0, ...node, childrenCount: children.length });
+            out.push({
+                name,
+                depth,
+                subtotal: depth < layers.length - 1 || children.length > 0,
+                ...node,
+                childrenCount: children.length
+            });
             children.forEach(([childName, child]) => walk(child, depth + 1, childName));
         };
+
         [...root.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks).forEach(([name, child]) => walk(child, 0, name));
         return out;
     }, [rows, layers.length]);
 
     const grandTotal = useMemo(() => {
-        const t0 = { clicks: 0, unique_clicks: 0, conversions: 0, cost: 0, revenue: 0, real_revenue: 0 };
+        const t0 = {
+            clicks: 0,
+            unique_clicks: 0,
+            prelander_clicks: 0,
+            offer_clicks: 0,
+            conversions: 0,
+            purchases: 0,
+            holds: 0,
+            rejected: 0,
+            trash: 0,
+            cost: 0,
+            revenue: 0,
+            revenue_confirmed: 0,
+            revenue_hold: 0,
+            revenue_rejected: 0,
+            revenue_trash: 0,
+            profit: 0,
+            real_revenue: 0,
+            real_profit: 0,
+        };
+
         rows.forEach(r => {
-            t0.clicks += r.clicks; t0.unique_clicks += r.unique_clicks; t0.conversions += r.conversions;
-            t0.cost += r.cost; t0.revenue += r.revenue; t0.real_revenue += r.real_revenue;
+            t0.clicks += Number(r.clicks) || 0;
+            t0.unique_clicks += Number(r.unique_clicks) || 0;
+            t0.prelander_clicks += Number(r.prelander_clicks) || 0;
+            t0.offer_clicks += Number(r.offer_clicks) || 0;
+            t0.conversions += Number(r.conversions) || 0;
+            t0.purchases += Number(r.purchases) || 0;
+            t0.holds += Number(r.holds) || 0;
+            t0.rejected += Number(r.rejected) || 0;
+            t0.trash += Number(r.trash) || 0;
+            t0.cost += Number(r.cost) || 0;
+            t0.revenue += Number(r.revenue) || 0;
+            t0.revenue_confirmed += Number(r.revenue_confirmed) || 0;
+            t0.revenue_hold += Number(r.revenue_hold) || 0;
+            t0.revenue_rejected += Number(r.revenue_rejected) || 0;
+            t0.revenue_trash += Number(r.revenue_trash) || 0;
+            t0.profit += Number(r.profit) || (Number(r.revenue || 0) - Number(r.cost || 0));
+            t0.real_revenue += Number(r.real_revenue) || 0;
+            t0.real_profit += Number(r.real_profit) || 0;
         });
-        return t0;
+
+        const uc_rate = t0.clicks > 0 ? (t0.unique_clicks / t0.clicks) * 100 : 0;
+        const lp_ctr = t0.clicks > 0 ? (t0.offer_clicks / t0.clicks) * 100 : 0;
+        const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;
+        const cr_sales = t0.clicks > 0 ? (t0.purchases / t0.clicks) * 100 : 0;
+        const cr_holds = t0.clicks > 0 ? (t0.holds / t0.clicks) * 100 : 0;
+        const approve_rate = t0.conversions > 0 ? (t0.purchases / t0.conversions) * 100 : 0;
+        const nonTrash = t0.purchases + t0.holds + t0.rejected;
+        const approve_rate_excl_trash = nonTrash > 0 ? (t0.purchases / nonTrash) * 100 : 0;
+        const roi = t0.cost > 0 ? (t0.profit / t0.cost) * 100 : 0;
+        const real_roi = t0.cost > 0 ? (t0.real_profit / t0.cost) * 100 : 0;
+        const epc = t0.clicks > 0 ? t0.revenue / t0.clicks : 0;
+        const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
+        const cpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+        const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
+        const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
+        const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
+
+        return {
+            ...t0,
+            uc_rate,
+            lp_ctr,
+            cr,
+            cr_sales,
+            cr_holds,
+            approve_rate,
+            approve_rate_excl_trash,
+            roi,
+            real_roi,
+            epc,
+            uepc,
+            cpc,
+            ucpc,
+            cpa,
+            earnings_per_conv
+        };
     }, [rows]);
 
-    const setLayer = (idx, value) => {
-        setLayers(prev => {
-            const next = [...prev.slice(0, idx), value, ...prev.slice(idx + 1)].filter(Boolean);
-            return next.slice(0, 3);
-        });
+    const formatMetricCell = (metricId, row, strong = false) => {
+        const val = row[metricId];
+        const num = Number(val) || 0;
+
+        switch (metricId) {
+            case 'clicks':
+            case 'unique_clicks':
+            case 'prelander_clicks':
+            case 'offer_clicks':
+            case 'purchases':
+            case 'holds':
+            case 'rejected':
+            case 'trash':
+                return num.toLocaleString();
+            case 'conversions':
+                return num > 0 ? <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span> : '0';
+            case 'uc_rate':
+            case 'lp_ctr':
+            case 'cr':
+            case 'cr_sales':
+            case 'cr_holds':
+            case 'approve_rate':
+            case 'approve_rate_excl_trash':
+                return `${num.toFixed(2)}%`;
+            case 'cost':
+            case 'revenue':
+            case 'revenue_confirmed':
+            case 'revenue_hold':
+            case 'revenue_rejected':
+            case 'revenue_trash':
+            case 'real_revenue':
+            case 'epc':
+            case 'uepc':
+            case 'cpc':
+            case 'ucpc':
+            case 'cpa':
+            case 'earnings_per_conv':
+                return `$${num.toFixed(2)}`;
+            case 'profit':
+            case 'real_profit': {
+                const isPos = num >= 0;
+                return (
+                    <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: strong ? 700 : 600 }}>
+                        {isPos ? '+' : ''}${num.toFixed(2)}
+                    </span>
+                );
+            }
+            case 'roi':
+            case 'real_roi': {
+                const isPos = num >= 0;
+                return (
+                    <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: strong ? 700 : 600 }}>
+                        {isPos ? '+' : ''}{num.toFixed(2)}%
+                    </span>
+                );
+            }
+            default:
+                return val !== undefined && val !== null ? String(val) : '-';
+        }
     };
 
     const exportToCSV = () => {
         if (!displayRows.length) return;
         const headers = [
-            ...layerKeys.map(dimLabel),
-            t('campaignReports.clicks'), t('campaignReports.unique'), t('campaignReports.conversions'),
-            'CR (%)', t('campaignReports.cost'), t('campaignReports.revenue'), 'Real Rev',
-            t('campaignReports.profit'), 'ROI (%)'
+            layerKeys.join(' > '),
+            ...chosenColumns.map(cId => {
+                const def = ALL_REPORT_METRICS.find(m => m.id === cId);
+                return def ? t(def.labelKey, def.defaultLabel) : cId;
+            })
         ];
+
         const csvContent = [
             headers.join(','),
             ...displayRows.map(r => [
                 `"${'  '.repeat(r.depth)}${String(r.name).replace(/"/g, '""')}"`,
-                r.clicks, r.unique_clicks, r.conversions,
-                r.clicks > 0 ? ((r.conversions / r.clicks) * 100).toFixed(2) : '0',
-                r.cost.toFixed(2), r.revenue.toFixed(2), r.real_revenue.toFixed(2),
-                (r.revenue - r.cost).toFixed(2),
-                r.cost > 0 ? (((r.revenue - r.cost) / r.cost) * 100).toFixed(2) : '0'
+                ...chosenColumns.map(cId => {
+                    const v = r[cId];
+                    return typeof v === 'number' ? v.toFixed(2) : String(v || '');
+                })
             ].join(','))
         ].join('\n');
+
         const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
         const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.setAttribute('href', URL.createObjectURL(blob));
         link.setAttribute('download', `report_${campaignId || 'all'}_${layerKeys.join('_by_')}_${dateFrom}_to_${dateTo}.csv`);
         link.style.visibility = 'hidden';
-        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
-    const num = (v) => Number(v || 0).toLocaleString('ru-RU');
-    const money = (v) => Number(v || 0).toFixed(2);
-    const profitColor = (p) => p > 0 ? 'var(--color-success)' : p < 0 ? 'var(--color-danger)' : 'inherit';
-
-    const thStyle = { textAlign: 'right', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' };
-    const tdStyle = { textAlign: 'right', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' };
-
-    const renderMetrics = (r, strong) => (
-        <>
-            <td style={tdStyle} className={strong ? 'font-semibold' : ''}>{num(r.clicks)}</td>
-            <td style={tdStyle} className={strong ? 'font-semibold' : ''} >{num(r.unique_clicks)}</td>
-            <td style={tdStyle} className={strong ? 'font-semibold' : ''}>{r.conversions > 0 ? <span style={{ color: 'var(--color-success)' }}>{num(r.conversions)}</span> : '0'}</td>
-            <td style={tdStyle} className={strong ? 'font-semibold' : ''} >{r.clicks > 0 ? ((r.conversions / r.clicks) * 100).toFixed(2) : '0'}%</td>
-            <td style={tdStyle} className={strong ? 'font-semibold' : ''}>{money(r.cost)}</td>
-            <td style={tdStyle} className={strong ? 'font-semibold' : ''}>{money(r.revenue)}</td>
-            <td style={tdStyle} className={strong ? 'font-semibold' : ''}>{money(r.real_revenue)}</td>
-            <td style={{ ...tdStyle, color: profitColor(r.revenue - r.cost) }} className={strong ? 'font-semibold' : 'font-medium'}>
-                {r.revenue - r.cost > 0 ? '+' : ''}{money(r.revenue - r.cost)}
-            </td>
-            <td style={tdStyle} className={strong ? 'font-semibold' : ''}>
-                {r.cost > 0 ? (((r.revenue - r.cost) / r.cost) * 100).toFixed(2) + '%' : '—'}
-            </td>
-        </>
-    );
-
     return (
-        <div className="fixed top-[88px] left-0 right-0 bottom-0 z-[1100] flex bg-black bg-opacity-50">
-            <div className="flex flex-col w-full h-full bg-[var(--color-bg-main)]">
-                <div className="flex justify-between items-center px-6 py-4 border-b shadow-sm" style={{ background: 'var(--color-bg-header)', color: 'var(--color-text-header)', borderColor: 'var(--color-border)' }}>
+        <div className="fixed top-[88px] left-0 right-0 bottom-0 z-[1100] flex bg-black/60 backdrop-blur-sm">
+            <div className="flex flex-col w-full h-full" style={{ backgroundColor: 'var(--color-bg-main)', color: 'var(--color-text-primary)' }}>
+                {/* Header Toolbar */}
+                <div
+                    className="flex justify-between items-center px-6 py-3.5 border-b shadow-sm"
+                    style={{
+                        backgroundColor: 'var(--color-bg-header)',
+                        color: 'var(--color-text-header)',
+                        borderColor: 'var(--color-border)'
+                    }}
+                >
                     <div className="flex items-center gap-3">
-                        <BarChart3 size={20} />
-                        <div><h2 className="text-xl font-semibold">{t('campaignReports.report')} {campaignName || t('campaignReports.allCampaigns', 'Все кампании')}</h2></div>
+                        <BarChart3 className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
+                        <h2 className="text-base font-bold">
+                            {t('campaignReports.report')} — {campaignName || t('campaignReports.allCampaigns', 'All Campaigns')}
+                        </h2>
                     </div>
-                    <div className="flex gap-3">
-                        <button onClick={exportToCSV} className="btn btn-success flex items-center gap-2 text-sm font-medium">
-                            <Download size={16} /> {t('campaignReports.exportCsv')}
+
+                    <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={exportToCSV}
+                            className="btn btn-success text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium"
+                        >
+                            <Download className="w-3.5 h-3.5" />
+                            {t('campaignReports.exportCsv')}
                         </button>
-                        <button onClick={onClose} className="btn btn-ghost btn-icon" title={t('campaignReports.close')}>
-                            <X size={24} />
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="btn-icon"
+                            title={t('campaignReports.close')}
+                        >
+                            <X className="w-5 h-5" />
                         </button>
                     </div>
                 </div>
 
-                <div className="p-4 bg-[var(--color-bg-card)] border-b shadow-sm flex flex-wrap gap-4 items-center" style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <Filter size={16} style={{ color: 'var(--color-text-muted)' }} />
-                        <span className="text-sm font-medium">{t('campaignReports.layers', 'Слои группировки')}:</span>
-                        {layers.map((layer, idx) => (
-                            <div key={idx} className="flex items-center gap-1">
-                                <select value={layer} onChange={(e) => setLayer(idx, e.target.value)} className="form-select" style={{ minWidth: '140px' }}>
-                                    {dimensions.filter(d => !layers.includes(d.value) || d.value === layer).map(d => (
-                                        <option key={d.value} value={d.value}>{idx + 1}. {d.label}</option>
-                                    ))}
-                                </select>
-                                {layers.length > 1 && (
-                                    <button type="button" className="btn btn-ghost btn-icon" style={{ padding: '2px' }}
-                                        onClick={() => setLayers(prev => prev.filter((_, i) => i !== idx))}
-                                        title={t('common.delete')}>
-                                        <Trash2 size={14} />
-                                    </button>
-                                )}
-                            </div>
+                {/* Sub-Header: Layers Pills, Columns Customizer Button [ ☵ ], DateRangePicker */}
+                <div
+                    className="p-3 px-6 flex flex-wrap gap-4 items-center justify-between border-b shadow-sm"
+                    style={{
+                        backgroundColor: 'var(--color-bg-card)',
+                        borderColor: 'var(--color-border)'
+                    }}
+                >
+                    {/* Active Layers and Columns Customizer Button */}
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                        {/* Columns [ ☵ ] Button */}
+                        <button
+                            type="button"
+                            onClick={() => setCustomizerOpen(true)}
+                            className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-semibold"
+                            style={{
+                                backgroundColor: 'var(--color-bg-soft)',
+                                border: '1px solid var(--color-border)',
+                                color: 'var(--color-text-primary)'
+                            }}
+                        >
+                            <SlidersHorizontal className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
+                            <span>{t('reportCustomizer.columns')}</span>
+                            <span className="text-[10px] px-1.5 py-0.2 rounded-full" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
+                                {chosenColumns.length}
+                            </span>
+                        </button>
+
+                        <div className="h-4 w-[1px]" style={{ backgroundColor: 'var(--color-border)' }}></div>
+
+                        <span className="text-xs font-semibold uppercase" style={{ color: 'var(--color-text-muted)' }}>
+                            {t('reportCustomizer.groupBy')}:
+                        </span>
+                        {layers.map((lName, idx) => (
+                            <span
+                                key={idx}
+                                className="text-xs px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1"
+                                style={{
+                                    backgroundColor: 'var(--color-bg-soft)',
+                                    borderColor: 'var(--color-border)',
+                                    color: 'var(--color-text-primary)'
+                                }}
+                            >
+                                <span className="text-[10px] font-bold text-blue-500">{idx + 1}.</span>
+                                <span>{lName}</span>
+                            </span>
                         ))}
-                        {layers.length < 3 && (
-                            <button type="button" className="btn btn-secondary" style={{ padding: '4px 10px' }}
-                                onClick={() => setLayers(prev => {
-                                    const unused = dimensions.find(d => !prev.includes(d.value));
-                                    return [...prev, unused ? unused.value : 'ad_id'];
-                                })}
-                                title={t('campaignReports.addLayer', 'Добавить слой')}>
-                                <Plus size={14} />
-                            </button>
-                        )}
                     </div>
-                    <div className="flex items-center gap-2 ml-auto">
-                        <span className="text-sm font-medium">{t('campaignReports.period')}</span>
-                        <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="form-input" />
-                        <span>-</span>
-                        <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="form-input" />
+
+                    {/* Right Side: DateRangePicker */}
+                    <div className="flex items-center gap-2">
+                        <DateRangePicker
+                            dateFrom={dateFrom}
+                            dateTo={dateTo}
+                            onChange={(from, to) => {
+                                setDateFrom(from);
+                                setDateTo(to);
+                            }}
+                            selectedTimezone={timezone}
+                            onTimezoneChange={setTimezone}
+                        />
                     </div>
                 </div>
 
+                {/* Table Content */}
                 <div className="flex-1 overflow-auto p-6" style={{ color: 'var(--color-text-primary)' }}>
                     {loading ? (
                         <div className="flex justify-center items-center h-64">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--color-primary)' }}></div>
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: 'var(--color-primary)' }}></div>
                         </div>
                     ) : (
                         <div className="page-card" style={{ padding: 0, overflow: 'hidden' }}>
                             <table className="page-table" style={{ fontVariantNumeric: 'tabular-nums' }}>
                                 <thead>
                                     <tr>
-                                        <th style={{ minWidth: '260px' }}>{layerKeys.map(dimLabel).join(' → ')}</th>
-                                        <th style={thStyle}>{t('campaignReports.clicks')}</th>
-                                        <th style={thStyle}>{t('campaignReports.unique')}</th>
-                                        <th style={thStyle}>{t('campaignReports.conversions')}</th>
-                                        <th style={thStyle}>CR</th>
-                                        <th style={thStyle}>{t('campaignReports.cost')}</th>
-                                        <th style={thStyle}>{t('campaignReports.revenue')}</th>
-                                        <th style={thStyle}>Real Rev</th>
-                                        <th style={thStyle}>{t('campaignReports.profit')}</th>
-                                        <th style={thStyle}>ROI</th>
+                                        <th style={{ minWidth: '240px', textAlign: 'left' }}>
+                                            {layerKeys.join(' → ')}
+                                        </th>
+                                        {chosenColumns.map((colId, colIdx) => {
+                                            const def = ALL_REPORT_METRICS.find(m => m.id === colId);
+                                            const label = def ? t(def.labelKey, def.defaultLabel) : colId;
+                                            return (
+                                                <th
+                                                    key={colId}
+                                                    draggable
+                                                    onDragStart={() => handleThDragStart(colIdx)}
+                                                    onDragOver={(e) => handleThDragOver(e, colIdx)}
+                                                    onDragEnd={handleThDragEnd}
+                                                    style={{
+                                                        textAlign: 'right',
+                                                        cursor: 'grab',
+                                                        userSelect: 'none'
+                                                    }}
+                                                >
+                                                    <div className="inline-flex items-center justify-end gap-1 w-full">
+                                                        <GripVertical className="w-3 h-3 opacity-30 -ml-1" />
+                                                        <span>{label}</span>
+                                                    </div>
+                                                </th>
+                                            );
+                                        })}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {rows.length === 0 ? (
-                                        <tr><td colSpan="10" className="text-center p-8" style={{ color: 'var(--color-text-muted)' }}>{t('campaignReports.noDataFilters')}</td></tr>
+                                        <tr>
+                                            <td colSpan={1 + chosenColumns.length} className="text-center p-8" style={{ color: 'var(--color-text-muted)' }}>
+                                                {t('campaignReports.noDataFilters', 'No report data found for this period and grouping.')}
+                                            </td>
+                                        </tr>
                                     ) : (
                                         <>
-                                            <tr className="text-sm" style={{ background: 'var(--color-bg-soft)', position: 'sticky', top: 0 }}>
-                                                <td className="font-bold">{t('campaignReports.total', 'Итого')}</td>
-                                                {renderMetrics(grandTotal, true)}
+                                            {/* Sticky Summary Header Row */}
+                                            <tr className="text-xs" style={{ backgroundColor: 'var(--color-bg-soft)', position: 'sticky', top: 0, fontWeight: 700, borderBottom: '2px solid var(--color-border)' }}>
+                                                <td className="font-bold">{t('campaignReports.total', 'Totals')}</td>
+                                                {chosenColumns.map(cId => (
+                                                    <td key={cId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                                                        {formatMetricCell(cId, grandTotal, true)}
+                                                    </td>
+                                                ))}
                                             </tr>
+
+                                            {/* Hierarchical Breakdown Rows */}
                                             {displayRows.map((r, idx) => {
                                                 const isSubtotal = r.depth < layers.length - 1;
                                                 return (
-                                                    <tr key={idx} className="text-sm" style={{ background: isSubtotal ? 'color-mix(in srgb, var(--color-bg-soft) 55%, transparent)' : undefined }}>
+                                                    <tr
+                                                        key={idx}
+                                                        className="text-xs transition-colors hover:bg-blue-50/5"
+                                                        style={{
+                                                            backgroundColor: isSubtotal ? 'color-mix(in srgb, var(--color-bg-soft) 40%, transparent)' : undefined
+                                                        }}
+                                                    >
                                                         <td style={{
-                                                            paddingLeft: (12 + r.depth * 22) + 'px',
+                                                            paddingLeft: `${12 + r.depth * 20}px`,
                                                             fontWeight: isSubtotal ? 600 : 400,
                                                             color: isSubtotal ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
                                                             whiteSpace: 'nowrap'
                                                         }}>
-                                                            {r.name}
-                                                            {isSubtotal && r.childrenCount > 0 && (
-                                                                <span style={{ color: 'var(--color-text-muted)', marginLeft: '6px', fontSize: '12px' }}>({r.childrenCount})</span>
-                                                            )}
+                                                            <div className="inline-flex items-center gap-1.5">
+                                                                {isSubtotal && <ChevronRight className="w-3 h-3 text-blue-500 inline" />}
+                                                                <span>{r.name}</span>
+                                                                {isSubtotal && r.childrenCount > 0 && (
+                                                                    <span style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>({r.childrenCount})</span>
+                                                                )}
+                                                            </div>
                                                         </td>
-                                                        {renderMetrics(r, isSubtotal)}
+                                                        {chosenColumns.map(cId => (
+                                                            <td key={cId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                                                                {formatMetricCell(cId, r, isSubtotal)}
+                                                            </td>
+                                                        ))}
                                                     </tr>
                                                 );
                                             })}
@@ -276,6 +573,19 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                     )}
                 </div>
             </div>
+
+            {/* Columns, GroupBy & Filter Customizer Modal */}
+            <ReportCustomizerModal
+                isOpen={customizerOpen}
+                onClose={() => setCustomizerOpen(false)}
+                selectedColumns={chosenColumns}
+                onSaveColumns={handleSaveColumns}
+                mode="report"
+                currentLayers={layers}
+                onSaveLayers={handleSaveLayers}
+                currentFilters={filters}
+                onSaveFilters={handleSaveFilters}
+            />
         </div>
     );
 };

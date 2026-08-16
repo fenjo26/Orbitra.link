@@ -1,0 +1,8109 @@
+[
+ {
+  "name": "50onredcom",
+  "display_name": "50onred.com",
+  "postback_url": "https://www.trkjmp.com/conv?v=XXXXXX&c={external_id}&r={revenue}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{domain_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creative_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{keyword}"
+   }
+  ]
+ },
+ {
+  "name": "7searchcom",
+  "display_name": "7search.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "###AFFID###"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "###KEYWORD###"
+   }
+  ]
+ },
+ {
+  "name": "actionteaserru",
+  "display_name": "actionteaser.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "actionteaser.ru"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SID]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[ID]"
+   }
+  ]
+ },
+ {
+  "name": "activerevenue_com",
+  "display_name": "ActiveRevenue.com",
+  "postback_url": "http://xml.activerevenue.com/conversion?c={external_id}&count=1&value={payout}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{banner}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{conversion}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source_subid}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{query}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{bid}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{search_referrer_domain}"
+   }
+  ]
+ },
+ {
+  "name": "ad_maven_com",
+  "display_name": "ad-maven.com",
+  "postback_url": "http://pop.rtb-passthrough.com/conversion?c={sub_id_1}&count=1&value={payout}",
+  "parameters": [
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{keyword}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{bid}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{banner}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "conversion",
+    "macro": "{conversion}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "device",
+    "macro": "{ifa}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "os",
+    "macro": "{os}"
+   }
+  ]
+ },
+ {
+  "name": "adcmcmcomcheetahad",
+  "display_name": "Ad.cmcm.com (Cheetah ad)",
+  "postback_url": "http://XXXXX.adkmob.com/postback/ds/?tid={external_id}",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{CREATIVE_ID}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{CAMPAIGN_ID}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{TRANSACTION_ID}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{AD_SET_ID}"
+   }
+  ]
+ },
+ {
+  "name": "adamoadscom",
+  "display_name": "adamoads.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{ad_id}"
+   }
+  ]
+ },
+ {
+  "name": "dsp_adavice_com",
+  "display_name": "AdaviceDSP",
+  "postback_url": "http://rtb.adx1.com/log?action=conversion&key={external_id}&price={payout}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[CLICK_ID]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[CAMPAIGN_ID]"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "[SUB_LIST_ID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[CREATIVE_ID]"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[CAMPAIGN_NAME]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[BID_PRICE]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "[USER_ID]"
+   }
+  ]
+ },
+ {
+  "name": "adcashcom",
+  "display_name": "adcash.com",
+  "postback_url": "https://www.pixelhere.com/et/event.php?advertiser=yourvalue&cid={external_id}&id=yourvalue&campagne=yourvalue&type=CPAtarget",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[zone]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[campaign]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[clickid]"
+   }
+  ]
+ },
+ {
+  "name": "adhubcom",
+  "display_name": "adhub.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{site_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{camp_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{ad_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   }
+  ]
+ },
+ {
+  "name": "adinchcom",
+  "display_name": "adinch.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{APP_ID}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{BANNER_ID}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{CLICK_ID}"
+   }
+  ]
+ },
+ {
+  "name": "adkeeper_ru",
+  "display_name": "adkeeper.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[+SID+]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[+CID+]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[+ID+]"
+   }
+  ]
+ },
+ {
+  "name": "adlabsru",
+  "display_name": "adlabs.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "%source_id%"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "%campaign_id%"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "%tizer_id%"
+   }
+  ]
+ },
+ {
+  "name": "admodacom",
+  "display_name": "admoda.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "%pubid%"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "%campaignid%"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "%adid%"
+   }
+  ]
+ },
+ {
+  "name": "adoperator_com",
+  "display_name": "AdOperator.com",
+  "postback_url": "https://s2s.adoperator.com/conversion?c={conversion}&value={payout}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign}"
+   },
+   {
+    "alias": "external_id",
+    "param": "conversion",
+    "macro": "{conversion}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{bid}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "publisher_id",
+    "macro": "{subid}"
+   }
+  ]
+ },
+ {
+  "name": "adprofex_com",
+  "display_name": "adprofex.com",
+  "postback_url": "https://postback.ads2.bid/api/postback/?tracker_id=1&event_id={sub_id_1}&click_id={external_id}&cpa={payout}&status={status}&goal_category_id=1&user_id={sub_id_2}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[CLICK_ID]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "SID",
+    "macro": "[SID]"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "TID",
+    "macro": "[TID]"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "CAMPAIGN",
+    "macro": "[CAMPAIGN]"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "TRAFFIC_GROUP",
+    "macro": "[TRAFFIC_GROUP]"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "TRAFFIC_TYPE",
+    "macro": "[TRAFFIC_TYPE]"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "DAYSUBS",
+    "macro": "[DAYSUBS]"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "IDSUBS",
+    "macro": "[IDSUBS]"
+   }
+  ]
+ },
+ {
+  "name": "adprofycom",
+  "display_name": "adprofy.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[ab]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[at]"
+   }
+  ]
+ },
+ {
+  "name": "ads_red",
+  "display_name": "ADS.RED",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[pid]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[cid]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[tid]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[price]"
+   }
+  ]
+ },
+ {
+  "name": "ads2bid",
+  "display_name": "Ads2bid",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[CAMPAIGN]"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[TID]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[CPCP]"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   }
+  ]
+ },
+ {
+  "name": "adsbigo_app",
+  "display_name": "adsbigo.com (app)",
+  "postback_url": "https://attr.img-static.tech/attribution/apply/v2?appId={sub_id_4}&appKey=your-parameter&sid={external_id}&mappedIae=app_install&ad_ext={sub_id_14}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "__SID__"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "__ACCOUNT_ID__"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "__CAMPAIGN_ID__"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "app_id",
+    "macro": "__APPID__"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "campaign_name",
+    "macro": "__CAMPAIGN_NAME__"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "ad_group_id",
+    "macro": "__AD_GROUP_ID__"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "group_name",
+    "macro": "__GROUP_NAME__"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "ad_id",
+    "macro": "__AD_ID__"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "ad_name",
+    "macro": "__AD_NAME__"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "idfa",
+    "macro": "__IDFA__"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "gaid",
+    "macro": "__GAID__"
+   },
+   {
+    "alias": "sub_id_12",
+    "param": "ip",
+    "macro": "__IP__"
+   },
+   {
+    "alias": "sub_id_13",
+    "param": "os",
+    "macro": "__OS__"
+   },
+   {
+    "alias": "sub_id_14",
+    "param": "ad_ext",
+    "macro": "__AD_EXT__"
+   }
+  ]
+ },
+ {
+  "name": "adsbigo_web",
+  "display_name": "adsbigo.com (web)",
+  "postback_url": "https://api.bytegle.site/bigoad/trackingevent/v2?bbg=xxx&pixel_id=xxx&event_id=[YOUR_AD_GROUP_CONVERSION_EVENT_ID]",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "__ACCOUNT_ID__"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "__CAMPAIGN_ID__"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "campaign_name",
+    "macro": "__CAMPAIGN_NAME__"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "ad_group_id",
+    "macro": "__AD_GROUP_ID__"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "group_name",
+    "macro": "__GROUP_NAME__"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "ad_id",
+    "macro": "__AD_ID__"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "ad_name",
+    "macro": "__AD_NAME__"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "idfa",
+    "macro": "__IDFA__"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "gaid",
+    "macro": "__GAID__"
+   },
+   {
+    "alias": "sub_id_12",
+    "param": "bbg",
+    "macro": "__BBG__"
+   },
+   {
+    "alias": "sub_id_13",
+    "param": "os",
+    "macro": "__OS__"
+   },
+   {
+    "alias": "sub_id_14",
+    "param": "pixelid",
+    "macro": "__PIXEL_ID__"
+   }
+  ]
+ },
+ {
+  "name": "adscompass_com",
+  "display_name": "Adscompass.com",
+  "postback_url": "https://clickco.net/sst?clickid={external_id}&price={payout}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{CAMPAIGN_ID}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{CREATIVE_ID}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{CLICK_ID}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{PRICE}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{SOURCE_ID}"
+   }
+  ]
+ },
+ {
+  "name": "adset_tools",
+  "display_name": "adset.tools",
+  "postback_url": "https://app.adset.tools/api/postbacks?uid={uid}&status={status}&payout={payout}",
+  "parameters": [
+   {
+    "alias": "sub_id_1",
+    "param": "campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "adset_id",
+    "macro": "{adset_id}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "placement",
+    "macro": "{placement}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "ad_source",
+    "macro": "{ad_source}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "pixel_id",
+    "macro": "{pixel_id}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "adset_name",
+    "macro": "{adset_name}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "ad_name",
+    "macro": "{ad_name}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "campaign_name",
+    "macro": "{campaign_name}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "ad_id",
+    "macro": "{ad_id}"
+   }
+  ]
+ },
+ {
+  "name": "adsgram_ai",
+  "display_name": "adsgram.ai",
+  "postback_url": "https://api.adsgram.ai/postback/common?type=install&click_id={click_id}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "click_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "banner_id",
+    "macro": "{banner_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "publisher_id",
+    "macro": "{publisher_id}"
+   }
+  ]
+ },
+ {
+  "name": "adskeeper_co_uk",
+  "display_name": "adskeeper.co.uk",
+  "postback_url": "https://a.adskeeper.co.uk/postback?c={click_id}&e=replace",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{teaser_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{teaser_id}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{click_price}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "widget_id",
+    "macro": "{widget_id}"
+   }
+  ]
+ },
+ {
+  "name": "adsmain_com",
+  "display_name": "adsmain.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[AD]"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SITE]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[BID]"
+   }
+  ]
+ },
+ {
+  "name": "adsterra_com",
+  "display_name": "Adsterra.com",
+  "postback_url": "https://www.pbterra.com/name/NAMEOFADVERTISER/at?subid_short={external_id}&atpay={payout}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "##CAMPAIGN_ID##"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "##BANNER_ID##"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "##SUB_ID_SHORT(action)##"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "##PLACEMENT_ID##"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "placement_id",
+    "macro": "##PLACEMENT_ID##"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "publisher_id",
+    "macro": "##PUBLISHER_ID##"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "landing_id",
+    "macro": "##LANDING_ID##"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "ZONE_ID",
+    "macro": "##ZONE_ID##"
+   }
+  ]
+ },
+ {
+  "name": "adsupply_com",
+  "display_name": "AdSupply.com",
+  "postback_url": "https://engine.4dsply.com/conversion.engine?s2sParam={external_id}",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{bid}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{siteid}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaignid}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{placementid}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{s2sparam}"
+   }
+  ]
+ },
+ {
+  "name": "adtonic_ru",
+  "display_name": "adtonic.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{publisher}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "%campaign_id%"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{adid}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cpc}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{userid}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{app}"
+   }
+  ]
+ },
+ {
+  "name": "adultmodacom",
+  "display_name": "adultmoda.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "%pubid%"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "%campaignid%"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "%adid%"
+   }
+  ]
+ },
+ {
+  "name": "advertlinkru",
+  "display_name": "advertlink.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SID]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[CID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[TID]"
+   }
+  ]
+ },
+ {
+  "name": "adwile_com",
+  "display_name": "Adwile.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "%CAMP_ID%"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": " %AD_ID%"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "%SITE_ID%"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "%TEASER_CPC%"
+   }
+  ]
+ },
+ {
+  "name": "adxad_com",
+  "display_name": "Adxad.com",
+  "postback_url": "http://conv.adxadserv.com/?clickid={external_id}&payout={payout}&type={status: lead=1 sale=2}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaignId}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creativeId}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{clickid}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{siteId}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "user",
+    "macro": "{userId}"
+   }
+  ]
+ },
+ {
+  "name": "adxpansion_com",
+  "display_name": "adxpansion.com",
+  "postback_url": "https://api.adxpansion.com/v1/conversions/log?token=XXXXXXX&id={external_id}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{transactionID}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaignID}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{keyword}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creativeID}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{zone}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{country}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{adgroupID}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{connectiontype}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{carrier}"
+   }
+  ]
+ },
+ {
+  "name": "airpush",
+  "display_name": "AirPush",
+  "postback_url": "http://api.airpush.com/track/?guid={external_id}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "%guid%"
+   }
+  ]
+ },
+ {
+  "name": "alium_one",
+  "display_name": "alium.one",
+  "postback_url": "https://alium.one/trackingpostback/?token=UNIQUE_TOKEN&click_id={external_id}&payout={payout}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[CLICK_ID]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[PRICING_MODEL]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "deviceua",
+    "macro": "[DEVICEUA]"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "countryisocode",
+    "macro": "[COUNTRY_ISO_CODE]"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "browserfamily",
+    "macro": "[BROWSER_FAMILY]"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "mobilebrand",
+    "macro": "[MOBILE_BRAND]"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "domain",
+    "macro": "[DOMAIN]"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "instreamdomain",
+    "macro": "[IN_STREAM_DOMAIN]"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "ostype",
+    "macro": "[OS_TYPE]"
+   }
+  ]
+ },
+ {
+  "name": "appdelivery",
+  "display_name": "AppDelivery",
+  "postback_url": "https://data.appinfo.dev/stat/postback?u_id={external_id}&type={status: lead=reg sale=dep}&sum={revenue}&currency=usd",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{u_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "bundle",
+    "macro": "{app_id}"
+   }
+  ]
+ },
+ {
+  "name": "appsheroes_com",
+  "display_name": "appsheroes.com",
+  "postback_url": "https://appsheroes.com/api/public?clickid={clickid}&sum={revenue}&event={status}",
+  "parameters": [
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{t1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{t2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{t3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{t4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{t5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{t6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub_id_7",
+    "macro": "{t7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "clickid",
+    "macro": "{clickid}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "userid",
+    "macro": "{t10}"
+   }
+  ]
+ },
+ {
+  "name": "appsolution",
+  "display_name": "AppSolution",
+  "postback_url": "https://newtds.com/533dca7/postback?payout={payout}&status={status}&subid={sub_id_8}&currency=usd&from=1",
+  "parameters": [
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{sub_id_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{sub_id_2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{sub_id_3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{sub_id_4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{sub_id_5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{sub_id_6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub_id_7",
+    "macro": "{sub_id_7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub_id_8",
+    "macro": "{subid}"
+   }
+  ]
+ },
+ {
+  "name": "avazu_com",
+  "display_name": "Avazu.com",
+  "postback_url": "http://mdsp.avazutracking.net/tracking/s2s.php?subid={external_id}",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creative_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source_name}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_name}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{ad_size}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{carrier}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{category}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{exchange}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{media}"
+   }
+  ]
+ },
+ {
+  "name": "bandaapps_com",
+  "display_name": "BandaApps.com",
+  "postback_url": "https://banda-rent-apps.com/618037b/postback?subid={external_id}&status={status}&from=BandaApps",
+  "parameters": [
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub_id_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub_id_2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub_id_3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub_id_4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub_id_5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub_id_6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub7",
+    "macro": "{sub_id_7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub8",
+    "macro": "{sub_id_8}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "sub9",
+    "macro": "{sub_id_9}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "sub10",
+    "macro": "{sub_id_10}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "sub11",
+    "macro": "{sub_id_11}"
+   },
+   {
+    "alias": "sub_id_12",
+    "param": "sub12",
+    "macro": "{sub_id_12}"
+   },
+   {
+    "alias": "sub_id_13",
+    "param": "sub13",
+    "macro": "{sub_id_13}"
+   },
+   {
+    "alias": "sub_id_14",
+    "param": "sub14",
+    "macro": "{sub_id_14}"
+   },
+   {
+    "alias": "sub_id_15",
+    "param": "sub15",
+    "macro": "{sub_id_15}"
+   }
+  ]
+ },
+ {
+  "name": "bannerbookcom",
+  "display_name": "bannerbook.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{TEASER_ID}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{site_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{CAMP_ID}"
+   }
+  ]
+ },
+ {
+  "name": "bidvertiser_com",
+  "display_name": "bidvertiser.com",
+  "postback_url": "http://secure.bidvertiser.com/performance/pc.dbm?ver=1.0&AID={AID-FROM-DASHBOARD}&CLICKID={BV_CLICKID}&revenue={REVENUE}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{BV_CLICKID}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{BV_ADNAME}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{BV_KEYWORD}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{REVENUE}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{BV_SRCID}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "category",
+    "macro": "{BV_CATEGORY}"
+   }
+  ]
+ },
+ {
+  "name": "bing_com",
+  "display_name": "Bing.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{CampaignId}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{OrderItemId}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{AdGroupId}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{AdId}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{BidMatchType}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{TargetId}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{QueryString}"
+   }
+  ]
+ },
+ {
+  "name": "bitmedia_io",
+  "display_name": "Bitmedia.io",
+  "postback_url": "https://api.bitmediacdn.com/conversion?eventName=fmtbt&eventValue={payout}&conversionID=679650bcf7ab02f6b4c8ab9b&clickID={external_id}",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{bid}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   }
+  ]
+ },
+ {
+  "name": "blackapp_dev",
+  "display_name": "BlackApp.dev",
+  "postback_url": "https://black-api.dev/?status={status}&external_id={external_id}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{external_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{sub_id_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{sub_id_2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{sub_id_3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{sub_id_4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{sub_id_5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{sub_id_6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub_id_7",
+    "macro": "{sub_id_7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub_id_8",
+    "macro": "{sub_id_8}"
+   }
+  ]
+ },
+ {
+  "name": "bodyclick_ru",
+  "display_name": "bodyclick.ru",
+  "postback_url": "https://bodyclick.net/postback/other.php?k=XXXXXXX&t=XXXXXXXX&sid={source}&uid={external_id}&money={revenue}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[ID]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[CID]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[UID]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[PRICE]"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "rub"
+   }
+  ]
+ },
+ {
+  "name": "buymedia_biz",
+  "display_name": "buymedia.biz",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{PRICE_CLICK}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "{CURRENCY}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{CAMPAIGN}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{BANNER}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{SITE}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "SECTION",
+    "macro": "{SECTION}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "BLOCK",
+    "macro": "{BLOCK}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "CATEGORY",
+    "macro": "{CATEGORY}"
+   }
+  ]
+ },
+ {
+  "name": "bymyads_com",
+  "display_name": "Bymyads.com",
+  "postback_url": "http://pb.bymyads.com/conversion/?click_id={external_id}&receipt={payout}&status={status}&status_hold=lead&status_approved=sale&status_rejected=rejected",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{bma_source}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{bma_campaign_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{bma_click_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{bma_source_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{bma_source_2}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{bma_cpc}"
+   }
+  ]
+ },
+ {
+  "name": "cashpromru",
+  "display_name": "cashprom.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{%CASHPROM_PLACE_ID%}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{%CASHPROM_CAMPAIGN_ID%}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{%CASHPROM_ADV_ID%}"
+   }
+  ]
+ },
+ {
+  "name": "clickadilla_com",
+  "display_name": "Clickadilla.com",
+  "postback_url": "https://tracking.clickadilla.com/in/postbacks/?token=REPLACE&campaign_id={ad_campaign_id}&click_id={external_id}&payout={payout}&trc=Keitaro",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[CAMPAIGN_ID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[BANNER_CREATIVE_ID]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[CLICK_ID]"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[DOMAIN]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[PRICE]"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   }
+  ]
+ },
+ {
+  "name": "clickadu_com",
+  "display_name": "clickadu.com",
+  "postback_url": "http://sconvtrk.com/conversion/REPLACE_PERSONAL_HASH/?visitor_id={external_id}&aid=REPLACE_AID",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaignid}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{bannerid}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "${SUBID}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{zoneid}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "{currency}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cost}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "cohort",
+    "macro": "{cohort}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "pn_type",
+    "macro": "{pn_type}"
+   }
+  ]
+ },
+ {
+  "name": "clickaine_com",
+  "display_name": "Clickaine.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{clickid}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaignId}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creativeId}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{siteId}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cost}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{category}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{connectionType}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{deviceType}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{host}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{isp}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{publisherId}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub_id_7",
+    "macro": "{referer}"
+   }
+  ]
+ },
+ {
+  "name": "clicklead_network",
+  "display_name": "Clicklead.network",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{sub_id_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{sub_id_2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{sub_id_3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{sub_id_4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{sub_id_5}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "clicklead_click_id",
+    "macro": "{clicklead_click_id}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "partner_tracker_id",
+    "macro": "{partner_tracker_id}"
+   }
+  ]
+ },
+ {
+  "name": "clickscloud_net",
+  "display_name": "clickscloud.net",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[CAMPAIGN_ID]"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[LANDING_ID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[TEASER_ID]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[COST]"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "rub"
+   }
+  ]
+ },
+ {
+  "name": "dao_ad",
+  "display_name": "Dao.ad",
+  "postback_url": "http://api.daopush-api.info/api/postback/campaign?key={REPLACE}&sum={payout}&click-id={external_id}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creative_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source_id}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cpc}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "model_price",
+    "macro": "{model_price}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "price",
+    "macro": "{price}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   }
+  ]
+ },
+ {
+  "name": "dapps",
+  "display_name": "DApps",
+  "postback_url": "https://pb.deeplink.agency/{external_id}/event/?status={status}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{external_id}"
+   }
+  ]
+ },
+ {
+  "name": "datspush_com",
+  "display_name": "DatsPush.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{CAMPAIGN_ID}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{CREATIVE_ID}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{CLICK_ID}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{DEVICE_ID}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{SITE_ID}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{CPC}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   }
+  ]
+ },
+ {
+  "name": "devilspwa_com",
+  "display_name": "devilspwa.com",
+  "postback_url": "https://devilspwa.com/api/v2/events?clid={external_id}&ev={status}&val={status:lead=0 sale=1}&uid={creative_id}",
+  "parameters": [
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{_sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{_sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{_sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{_sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{_sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "webname",
+    "macro": "{_webname}"
+   }
+  ]
+ },
+ {
+  "name": "directadvertru",
+  "display_name": "directadvert.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "%SITE_ID%"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "%AD_ID%"
+   }
+  ]
+ },
+ {
+  "name": "dntx_com",
+  "display_name": "dntx.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[sourceid]"
+   }
+  ]
+ },
+ {
+  "name": "elonpartners_apps",
+  "display_name": "ElonPartners.Apps",
+  "postback_url": "https://combotds.com/dc83340/postback?subid={external_id}&status={status}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub7",
+    "macro": "{sub7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub8",
+    "macro": "{sub8}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "sub9",
+    "macro": "{sub9}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "sub10",
+    "macro": "{sub10}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "bundle",
+    "macro": "{bundle}"
+   },
+   {
+    "alias": "sub_id_12",
+    "param": "offername",
+    "macro": "{offername}"
+   }
+  ]
+ },
+ {
+  "name": "epicads_net",
+  "display_name": "EpicAds.Net",
+  "postback_url": "https://epicapi.net/api/postback?click_id={external_id}&amount={payout}",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cost}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creative_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "zone_id",
+    "macro": "{zone_id}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "format",
+    "macro": "{format}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_period",
+    "macro": "{sub_period}"
+   }
+  ]
+ },
+ {
+  "name": "eroadvertising_com",
+  "display_name": "ero-advertising.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[domainid]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[campaignid]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[adid]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[tracking]"
+   }
+  ]
+ },
+ {
+  "name": "evadav_com",
+  "display_name": "Evadav.com",
+  "postback_url": "https://evadav.com/phpb?click_id={external_id}&payout={payout}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{CAMPAIGN_ID}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{CREATIVE_ID}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{CLICKID}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{SOURCE_ID}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{CPC}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "Country",
+    "macro": "{COUNTRY}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "Browser",
+    "macro": "{BROWSER}"
+   }
+  ]
+ },
+ {
+  "name": "explorads_media",
+  "display_name": "ExplorAds.media",
+  "postback_url": "http://xml.leoyard.com/conversion?c={external_id}&count=1&value={payout}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{conversion}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   }
+  ]
+ },
+ {
+  "name": "ezmobdsp",
+  "display_name": "EzmobDSP",
+  "postback_url": "https://xml.qualiclicks.com/conversion?c={external_id}&value={revenue}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{banner}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{keyword}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{conversion}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{bid}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "request_id",
+    "macro": "{request_id}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "pubfeed",
+    "macro": "{pubfeed}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "source_subid",
+    "macro": "{subid}"
+   }
+  ]
+ },
+ {
+  "name": "fatads_co",
+  "display_name": "Fatads.co",
+  "postback_url": "https://us.getclear.online/fatconv?id={external_id}&action=conversion",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[click_cost]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[click_id]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[creative_id]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[campaign_id]"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[site_id]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "pub_id",
+    "macro": "[pub_id]"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "campaign_name",
+    "macro": "[campaign_name]"
+   }
+  ]
+ },
+ {
+  "name": "galaksion_com",
+  "display_name": "galaksion.com",
+  "postback_url": "http://postback.report/postback?cid=######&click_id={external_id}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{zoneid}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creative_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{cid}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cost}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "country",
+    "macro": "{geo}"
+   }
+  ]
+ },
+ {
+  "name": "gambeat_io",
+  "display_name": "gambeat.io",
+  "postback_url": "https://tds.gambeat.io/p?click_id={external_id}&event={status: lead=Registration sale=FirstDeposit}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub7",
+    "macro": "{sub7}"
+   }
+  ]
+ },
+ {
+  "name": "geozo_com",
+  "display_name": "Geozo.com",
+  "postback_url": "https://postbacks.geozo.com/click/postback/keitaro?click_uuid={external_id}&money={payout}&status={status: lead=lead sale=dep rejected=cancel}",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[BID]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[CLICK_ID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[AD_ID]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[AD_GROUP_ID]"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SITE_ID]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "category",
+    "macro": "[CATEGORY_ID]"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "block",
+    "macro": "[BLOCK_ID]"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "template",
+    "macro": "[TEMPLATE_ID]"
+   }
+  ]
+ },
+ {
+  "name": "gipsy_mba",
+  "display_name": "gipsy.mba",
+  "postback_url": "https://gipsy-dev.space/pb/appsflyer.php?appsflyer_id={external_id}&advertising_id={sub_id_8}&app_id={sub_id_7}&authentication={sub_id_9}&offer={offer_id}&eventCurrency={currency}&eventValue={payout}&status={status}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "uid",
+    "macro": "{uid}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "bundle",
+    "macro": "{bundle}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "gadid",
+    "macro": "{gadid}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "appstoken",
+    "macro": "{appstoken}"
+   }
+  ]
+ },
+ {
+  "name": "globalnetwork_pro",
+  "display_name": "Globalnetwork.pro",
+  "postback_url": "http://blue.globalnetwork.pro/cr?clickId={external_id}&payout={payout}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[CAMPAIGN_ID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[CREATIVE_ID]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[CLICK_ID]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[CPC]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "country",
+    "macro": "[GEO]"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "platform",
+    "macro": "[PLATFORM]"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "language",
+    "macro": "[LANG]"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   }
+  ]
+ },
+ {
+  "name": "globalteaserru",
+  "display_name": "globalteaser.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{tid}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{sid}"
+   }
+  ]
+ },
+ {
+  "name": "go2mobi_com",
+  "display_name": "go2mobi.com",
+  "postback_url": "http://pb.g2trk.com/pb/?api_key=API_KEY&clickid={external_id}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{crid}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{clickid}"
+   }
+  ]
+ },
+ {
+  "name": "hilltopads_com",
+  "display_name": "hilltopads.com",
+  "postback_url": "https://postback.hilltopads.com/close/?token={external_id}&price={payout}&currency=replace&advertiserId=REPLACE",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{{price}}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{{ctoken}}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{{zoneid}}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{{campaignid}}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{{adid}}"
+   }
+  ]
+ },
+ {
+  "name": "inmobi_com",
+  "display_name": "inmobi.com",
+  "postback_url": "http://advertiser.inmobiapis.com/tpce/v1/events/download?trackingPartner=keitaro&propertyId=PROPERTY_ID&impId={external_id}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{__si__cb}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{BANNER_ID}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{$IMP_ID}"
+   }
+  ]
+ },
+ {
+  "name": "irentmarket_pro",
+  "display_name": "irentmarket.pro",
+  "postback_url": "https://irentmarket.app/pb/?action={status: lead=reg sale=dep}&tracking_id={external_id}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{tracking_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creative_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{sub4}"
+   }
+  ]
+ },
+ {
+  "name": "juicyads_com",
+  "display_name": "Juicyads.com",
+  "postback_url": "https://ck.juicyads.com/ilikeitjuicy.php?c=21519&s2s={external_id}&amount={payout}&token={replace}&data={replace}&goal={replace}",
+  "parameters": [
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{keyword}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{dynamicBID}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{dynamicS2S}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{dynamicIMG}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{dynamicCMP}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{dynamicSITE}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "publisher_id",
+    "macro": "{dynamicPUB}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "ad_zone",
+    "macro": "{dynamicZNE}"
+   }
+  ]
+ },
+ {
+  "name": "jumptap_com",
+  "display_name": "jumptap.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "JT_ADBUNDLE"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "JT_KEYWORD"
+   }
+  ]
+ },
+ {
+  "name": "kadam_net",
+  "display_name": "kadam.net",
+  "postback_url": "https://kdtrk.net/ru/postback/?data={external_id}&cost={revenue}&status={status}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{site_id}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cpc}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{ad_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "division",
+    "macro": "{division}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "page_cat_id",
+    "macro": "{page_cat_id}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "price_model",
+    "macro": "{price_model}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "age",
+    "macro": "{sub_age}"
+   }
+  ]
+ },
+ {
+  "name": "keitaro",
+  "display_name": "Keitaro",
+  "postback_url": "http://DOMAIN/POSTBACK_KEY/postback?status={status}&revenue={revenue}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{ad_campaign_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creative_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{sub_id_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{sub_id_2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{sub_id_3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{sub_id_4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{sub_id_5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{sub_id_6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub_id_7",
+    "macro": "{sub_id_7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub_id_8",
+    "macro": "{sub_id_8}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "sub_id_9",
+    "macro": "{sub_id_9}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "sub_id_10",
+    "macro": "{sub_id_10}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "sub_id_11",
+    "macro": "{sub_id_11}"
+   },
+   {
+    "alias": "sub_id_12",
+    "param": "sub_id_12",
+    "macro": "{sub_id_12}"
+   },
+   {
+    "alias": "sub_id_13",
+    "param": "sub_id_13",
+    "macro": "{sub_id_13}"
+   },
+   {
+    "alias": "sub_id_14",
+    "param": "sub_id_14",
+    "macro": "{sub_id_14}"
+   },
+   {
+    "alias": "sub_id_15",
+    "param": "sub_id_15",
+    "macro": "{sub_id_15}"
+   },
+   {
+    "alias": "sub_id_16",
+    "param": "sub_id_16",
+    "macro": "{sub_id_16}"
+   },
+   {
+    "alias": "sub_id_17",
+    "param": "sub_id_17",
+    "macro": "{sub_id_17}"
+   },
+   {
+    "alias": "sub_id_18",
+    "param": "sub_id_18",
+    "macro": "{sub_id_18}"
+   },
+   {
+    "alias": "sub_id_19",
+    "param": "sub_id_19",
+    "macro": "{sub_id_19}"
+   },
+   {
+    "alias": "sub_id_20",
+    "param": "sub_id_20",
+    "macro": "{sub_id_20}"
+   },
+   {
+    "alias": "sub_id_21",
+    "param": "sub_id_21",
+    "macro": "{sub_id_21}"
+   },
+   {
+    "alias": "sub_id_22",
+    "param": "sub_id_22",
+    "macro": "{sub_id_22}"
+   },
+   {
+    "alias": "sub_id_23",
+    "param": "sub_id_23",
+    "macro": "{sub_id_23}"
+   },
+   {
+    "alias": "sub_id_24",
+    "param": "sub_id_24",
+    "macro": "{sub_id_24}"
+   },
+   {
+    "alias": "sub_id_25",
+    "param": "sub_id_25",
+    "macro": "{sub_id_25}"
+   },
+   {
+    "alias": "sub_id_26",
+    "param": "sub_id_26",
+    "macro": "{sub_id_26}"
+   },
+   {
+    "alias": "sub_id_27",
+    "param": "sub_id_27",
+    "macro": "{sub_id_27}"
+   },
+   {
+    "alias": "sub_id_28",
+    "param": "sub_id_28",
+    "macro": "{sub_id_28}"
+   },
+   {
+    "alias": "sub_id_29",
+    "param": "sub_id_29",
+    "macro": "{sub_id_29}"
+   },
+   {
+    "alias": "sub_id_30",
+    "param": "sub_id_30",
+    "macro": "{sub_id_30}"
+   }
+  ]
+ },
+ {
+  "name": "kwai_com",
+  "display_name": "Kwai.com",
+  "postback_url": "http://www.adsnebula.com/log/common/api?clickid={external_id}&event_name={event_name}&pixelId={pixelId}&access_token={access_token}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   }
+  ]
+ },
+ {
+  "name": "leadbolt_com",
+  "display_name": "leadbolt.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[PUB_ID]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[CAMP_ID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[AD_ID]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[CLK_ID]"
+   }
+  ]
+ },
+ {
+  "name": "leadimpact_com",
+  "display_name": "leadimpact.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "%KEYWORD%"
+   }
+  ]
+ },
+ {
+  "name": "linki_group",
+  "display_name": "Linki.group",
+  "postback_url": "https://pb.linki.group/postback?client_id={external_id}&event={status: rejected=-1 lead=reg sale=dep}&amount={payout}&currency=usd",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{client_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub7",
+    "macro": "{sub7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub8",
+    "macro": "{sub8}"
+   }
+  ]
+ },
+ {
+  "name": "liteapp_rent",
+  "display_name": "Liteapp.rent",
+  "postback_url": "https://e4.trackmenoweigt.club/wh_global/?goal={status}&click_id={sub_id_1}&param4=TEAM_ID",
+  "parameters": [
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{sub6}"
+   }
+  ]
+ },
+ {
+  "name": "luckyads_com",
+  "display_name": "LuckyAds.pro",
+  "postback_url": "https://kipyn.com/v1/click/postback/?click_uuid={external_id}&money={payout}&status={status}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[AD_GROUP_ID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[AD_ID]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[CLICK_ID]"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SITE_ID]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[BID]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "block",
+    "macro": "[BLOCK_ID]"
+   }
+  ]
+ },
+ {
+  "name": "mail_ru_target",
+  "display_name": "Mail.ru Target",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "utm_content",
+    "macro": "{{banner_id}}"
+   },
+   {
+    "alias": "source",
+    "param": "utm_source",
+    "macro": "{{advertiser_id}}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "utm_campaign",
+    "macro": "{{campaign_id}}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{{search_phrase}}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{{geo}}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{{gender}}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{{age}}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{{campaign_name}}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{{user_timezone}}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{{random}}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub_id_7",
+    "macro": "{{impression_weekday}}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub_id_8",
+    "macro": "{{impression_hour}}"
+   }
+  ]
+ },
+ {
+  "name": "marketgid_com",
+  "display_name": "marketgid.com",
+  "postback_url": "http://a.marketgid.com/postback?c={external_id}&e={status}&r={payout}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{widget_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{teaser_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{category_id}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{click_price}"
+   }
+  ]
+ },
+ {
+  "name": "mediatarget_ru",
+  "display_name": "mediatarget.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[TEASER_ID]"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SITE_ID]"
+   }
+  ]
+ },
+ {
+  "name": "megapu_sh",
+  "display_name": "Megapu.sh",
+  "postback_url": "https://megapu.sh/pb?cid={external_id}&p={payout}&f={source}&currency={currency}&source_id={sub_id_1}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{clickid}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{camp_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{feedid}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{bid}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "{cur}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{feedsourceid}"
+   }
+  ]
+ },
+ {
+  "name": "mira",
+  "display_name": "Mira",
+  "postback_url": "http://opti.mirarentapps.com?miclid={sub_id_12}&status={status}&from=TeamName",
+  "parameters": [
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{sub6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub_id_7",
+    "macro": "{sub7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub_id_8",
+    "macro": "{sub8}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "sub_id_9",
+    "macro": "{sub9}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "sub_id_10",
+    "macro": "{sub10}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "sub_id_11",
+    "macro": "MIRA"
+   },
+   {
+    "alias": "sub_id_12",
+    "param": "sub_id_12",
+    "macro": "{miraclid}"
+   },
+   {
+    "alias": "sub_id_13",
+    "param": "sub_id_13",
+    "macro": "{app_id}"
+   }
+  ]
+ },
+ {
+  "name": "mmedia_com",
+  "display_name": "mmedia.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[:_jv_apid:]"
+   }
+  ]
+ },
+ {
+  "name": "mobfox_com",
+  "display_name": "mobfox.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "${MFOXPUBID}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "${MFOXCAID}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "${MFOXADID}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "${MFOXCLICKID}"
+   }
+  ]
+ },
+ {
+  "name": "mobiads_ru",
+  "display_name": "mobiads.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[place_id]"
+   }
+  ]
+ },
+ {
+  "name": "mobivion_com",
+  "display_name": "mobivion.com",
+  "postback_url": "https://postback.mobivion.com/?clickid={externa_id}&moneyusd={payout}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{CAMPAIGN_ID}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{CLICK_ID}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{COST}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{SOURCE_ID}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "zone_id",
+    "macro": "{ZONE_ID}"
+   }
+  ]
+ },
+ {
+  "name": "mondiad",
+  "display_name": "Mondiad.com",
+  "postback_url": "https://postback.mondiad.com/track?uid=replace&clickid={external_id}&payout={payout}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[zoneid]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[campaignid]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[creativeid]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[clickid]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "[subscriptionage]"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "[adformat]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[bid]"
+   }
+  ]
+ },
+ {
+  "name": "mpay69_biz",
+  "display_name": "mpay69.biz",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{COMPANY}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{AD}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{PRICE}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{SITE}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{CATEGORY}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{OPERATOR}"
+   }
+  ]
+ },
+ {
+  "name": "mybid_io",
+  "display_name": "mybid.io",
+  "postback_url": "https://postback.mb-d.com/api/v1/postback?click_id={external_id}&cost={payout}&goal_id=REPLACE",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cost}"
+   },
+   {
+    "alias": "external_id",
+    "param": "click_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creative_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source_id",
+    "macro": "{source_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "ad_type",
+    "macro": "{ad_type}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "country",
+    "macro": "{country}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "spot_id",
+    "macro": "{spot_id}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "auction_id",
+    "macro": "{auction_id}"
+   }
+  ]
+ },
+ {
+  "name": "noviclick_com",
+  "display_name": "Noviclick.com",
+  "postback_url": "https://panel.noviclick.com/postback?cid={external_id}&payout={payout}&key=[REPLACE-WITH-KEY]",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{site_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{banner_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{clickid}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{age}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cost}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   }
+  ]
+ },
+ {
+  "name": "novostimiracom",
+  "display_name": "novostimira.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{nm_inf_g}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{nm_g}"
+   }
+  ]
+ },
+ {
+  "name": "oblivki_biz",
+  "display_name": "oblivki.biz",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[TID]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[CID]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[PRICE]"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "rub"
+   }
+  ]
+ },
+ {
+  "name": "octobird_com",
+  "display_name": "octobird.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{OB_SITE_ID}"
+   }
+  ]
+ },
+ {
+  "name": "octoclick",
+  "display_name": "octoclick.com",
+  "postback_url": "https://s2s.octoclick.com/postback?uuid={external_id}&cost={payout}&status=approved&currency=USD&a_s=approved&p_s=process&c_s=canceled",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{SID}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{CID}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{TID}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{UUID}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{SPENT}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "browser",
+    "macro": "{BROWSER}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "browser_version",
+    "macro": "{BROWSER_VERSION}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "os",
+    "macro": "{OS}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "os_version",
+    "macro": "{OS_VERSION}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "country",
+    "macro": "{COUNTRY}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "city",
+    "macro": "{CITY}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "operator",
+    "macro": "{OPERATOR}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "devide_type",
+    "macro": "{DEVICE_TYPE}"
+   },
+   {
+    "alias": "sub_id_12",
+    "param": "device",
+    "macro": "{DEVICE}"
+   },
+   {
+    "alias": "sub_id_13",
+    "param": "browser_language",
+    "macro": "{LANG}"
+   }
+  ]
+ },
+ {
+  "name": "onclicka_com",
+  "display_name": "Onclicka.com",
+  "postback_url": "https://tracking.onclicka.com/in/postbacks/?token=REPLACE&campaign_id={campaign_id}&click_id={external_id}&payout={payout}&trc=Keitaro",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "price",
+    "macro": "[PRICE]"
+   },
+   {
+    "alias": "external_id",
+    "param": "click_id",
+    "macro": "[CLICK_ID]"
+   },
+   {
+    "alias": "source",
+    "param": "site",
+    "macro": "[DOMAIN]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "campaign_id",
+    "macro": "[CAMPAIGN_ID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "banner_creative_id",
+    "macro": "[BANNER_CREATIVE_ID]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "pm",
+    "macro": "[PRICING_MODEL]"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "country",
+    "macro": "[COUNTRY_ISO_CODE]"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "browser",
+    "macro": "[BROWSER_FAMILY]"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "os",
+    "macro": "[OS_TYPE]"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "mobile_brand",
+    "macro": "[MOBILE_BRAND]"
+   }
+  ]
+ },
+ {
+  "name": "oneapps",
+  "display_name": "OneApps",
+  "postback_url": "https://chezup.pro/fb2007f/postback?subid={external_id}&status={status}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub7",
+    "macro": "{sub7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "bundle",
+    "macro": "{bundle}"
+   }
+  ]
+ },
+ {
+  "name": "onetraff_com",
+  "display_name": "onetraff.com",
+  "postback_url": "https://my.onetraff.com/postback?status={status: lead=reg sale=dep}&external_id={external_id}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{external_id}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{sub_id_2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{sub_id_3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{sub_id_4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{sub_id_5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{sub_id_6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub_id_7",
+    "macro": "{sub_id_7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub_id_8",
+    "macro": "{sub_id_8}"
+   }
+  ]
+ },
+ {
+  "name": "phoenix_app_store",
+  "display_name": "Phoenix-app.store",
+  "postback_url": "https://combotds.com/dc83340/postback?subid={external_id}&status={status}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub7",
+    "macro": "{sub7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub8",
+    "macro": "{sub8}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "sub9",
+    "macro": "{sub9}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "sub10",
+    "macro": "{sub10}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "bundle",
+    "macro": "{bundle}"
+   },
+   {
+    "alias": "sub_id_12",
+    "param": "offername",
+    "macro": "{offername}"
+   }
+  ]
+ },
+ {
+  "name": "platform_inhousead_net",
+  "display_name": "platform.inhousead.net",
+  "postback_url": "http://feed.inhousead.net/postback?click_id={external_id}&status={status}&cost={cost}&currency={currency}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "campaign_id",
+    "macro": "{CAMPAIGN_ID}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{CLICK_ID}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{OFFER_ID}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{SUB_ID}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{PRICE_PAID}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "country",
+    "macro": "{COUNTRY}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "browser",
+    "macro": "{BROWSER}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "language",
+    "macro": "{LANGUAGE}"
+   }
+  ]
+ },
+ {
+  "name": "play_partners",
+  "display_name": "play.partners",
+  "postback_url": "https://play-partners.online/fbacaa1/postback?subid={external_id}&status={status: lead=reg sale=dep}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{sub_id_21}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{sub_id_22}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{sub_id_23}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{sub_id_24}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{sub_id_25}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{sub_id_26}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub_id_7",
+    "macro": "{af_channel}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub_id_8",
+    "macro": "{af_status}"
+   }
+  ]
+ },
+ {
+  "name": "playbuy_agency",
+  "display_name": "Playbuy.agency",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{PID}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{CLICKID}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "ad block id",
+    "macro": "{AID}"
+   }
+  ]
+ },
+ {
+  "name": "plugrush_com",
+  "display_name": "plugrush.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{$cpv}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{$campaign_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{$creative_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{$source_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{$click_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "browser",
+    "macro": "{$browser}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "country_code",
+    "macro": "{$country_code}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "domain",
+    "macro": "{$domain_id}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "orientation",
+    "macro": "{$orientation}"
+   }
+  ]
+ },
+ {
+  "name": "popads_net",
+  "display_name": "popads.net",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[WEBSITEID]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[CAMPAIGNID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[FORMFACTORID]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[IMPRESSIONID]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[BID]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "[CAMPAIGNNAME]"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "[CATEGORYID]"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "[CATEGORYNAME]"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "[QUALITY]"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "[SCREENRESOLUTION]"
+   }
+  ]
+ },
+ {
+  "name": "popcash_net",
+  "display_name": "popcash.net",
+  "postback_url": "https://ct.popcash.net/click?aid=[put_userID]&clickid=[your_clickid_token]&payout=[your_payout_token]",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[siteid]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[campaignid]"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "[category]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[bid]"
+   }
+  ]
+ },
+ {
+  "name": "popunder_ru",
+  "display_name": "popunder.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{wm_site_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{banner_id}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{kwlist}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{wm_account_id}"
+   }
+  ]
+ },
+ {
+  "name": "popvertising_com",
+  "display_name": "popvertising.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "-source-"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "-catname-"
+   }
+  ]
+ },
+ {
+  "name": "privatteaser_ru",
+  "display_name": "privatteaser.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "privatteaser.ru"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{REF}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{ID}"
+   }
+  ]
+ },
+ {
+  "name": "push_house",
+  "display_name": "Push.house",
+  "postback_url": "http://api.push.house/v1/postback?click_id={external_id}&cost={payout}",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{camp}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{site}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{price}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "uid",
+    "macro": "{uid}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "publisher_id",
+    "macro": "{feed}"
+   }
+  ]
+ },
+ {
+  "name": "pushads_biz",
+  "display_name": "Pushads.biz",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[BID]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[CLICK_ID]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[CID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[AID]"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SID]"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   }
+  ]
+ },
+ {
+  "name": "pushground",
+  "display_name": "Pushground.com",
+  "postback_url": "https://lupush.com/conversion?click_id={your_extenal_id_paramater}&amount={payout}",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{bid}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creativity_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "click_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "supply_id",
+    "macro": "{supply_id}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "deviceName",
+    "macro": "{deviceName}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "city",
+    "macro": "{city}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "language",
+    "macro": "{language}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "bidcpm",
+    "macro": "{bidcpm}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "userAge",
+    "macro": "{userAge}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "country",
+    "macro": "{country}"
+   }
+  ]
+ },
+ {
+  "name": "pushsender_com",
+  "display_name": "Pushsender.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{ad_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{stream_id}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cpc}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "category",
+    "macro": "{category_id}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "quality",
+    "macro": "{quality}"
+   }
+  ]
+ },
+ {
+  "name": "putin_gold",
+  "display_name": "putin.gold",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[pid]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[cid]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[tid]"
+   }
+  ]
+ },
+ {
+  "name": "pwa_builder_com",
+  "display_name": "pwa-builder.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "lead_id",
+    "macro": "{lead_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub6}"
+   }
+  ]
+ },
+ {
+  "name": "pwa_market",
+  "display_name": "pwa.market",
+  "postback_url": "https://pwa.market/pwa-pb/?action={status: lead=reg sale=dep}&tracking_id={external_id}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{tracking_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creative_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{sub4}"
+   }
+  ]
+ },
+ {
+  "name": "pwabot",
+  "display_name": "PWAbot",
+  "postback_url": "https://api.pwa.bot/postback?user_id={external_id}&event={status: lead=reg sale=dep}&value={payout}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{user_id}"
+   }
+  ]
+ },
+ {
+  "name": "pwadelivery_shop",
+  "display_name": "pwadelivery.shop",
+  "postback_url": "https://traffic.pwadelivery.shop/stat/postback?u_id={external_id}&type={status: lead=reg sale=dep}&sum={revenue}&currency=usd",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{u_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "bundle",
+    "macro": "{app_id}"
+   }
+  ]
+ },
+ {
+  "name": "q3apps",
+  "display_name": "q3Apps",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub7",
+    "macro": "{sub7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub8",
+    "macro": "{sub8}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "idfa",
+    "macro": "{idfa}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "d",
+    "macro": "{d}"
+   },
+   {
+    "alias": "sub_id_12",
+    "param": "campid",
+    "macro": "{campid}"
+   },
+   {
+    "alias": "sub_id_13",
+    "param": "adsetid",
+    "macro": "{adsetid}"
+   },
+   {
+    "alias": "sub_id_14",
+    "param": "adset",
+    "macro": "{adset}"
+   },
+   {
+    "alias": "sub_id_15",
+    "param": "app_id",
+    "macro": "{app_id}"
+   }
+  ]
+ },
+ {
+  "name": "reacheffect_com",
+  "display_name": "ReachEffect.com",
+  "postback_url": "https://go1.reacheffecti.work/conversion.go?pid=[YourUserID]&cid={external_id}&conv_type=b",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{tracking}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{paid}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "pubid",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "timestamp",
+    "macro": "{timestamp}"
+   }
+  ]
+ },
+ {
+  "name": "realpush_net",
+  "display_name": "Realpush.net",
+  "postback_url": "https://click-adc.realsh.xyz/sst?clickid={external_id}&price={payout}",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{PRICE}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{CLICK_ID}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{CREATIVE_ID}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{CAMPAIGN_ID}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{SOURCE_ID}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "USER_AGENT",
+    "macro": "{USER_AGENT}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "IP",
+    "macro": "{IP}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "REFERRER",
+    "macro": "{REFERRER}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "AGE",
+    "macro": "{AGE}"
+   }
+  ]
+ },
+ {
+  "name": "redclick_ru",
+  "display_name": "redclick.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "%source_id%"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "%tizer_id%"
+   }
+  ]
+ },
+ {
+  "name": "redirect_com",
+  "display_name": "redirect.com",
+  "postback_url": "http://tracted.net/cp/?c={subid}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "#SOURCE#"
+   }
+  ]
+ },
+ {
+  "name": "redtram_com",
+  "display_name": "redtram.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{SITE_NAME}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{GOOD_ID}"
+   }
+  ]
+ },
+ {
+  "name": "reklamstore_dsp",
+  "display_name": "reklamstore.com/dsp (ReklamStore DSP)",
+  "postback_url": "http://pxl.reklamselfie.com/log?action=conversion&key={external_id}&price={revenue}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SITE_ID]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[CAMPAIGN_ID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[CREATIVE_ID]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[CLICK_ID]"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "[KEYWORD]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "[DOMAIN] "
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "[PUBLISHER_ID]"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "[PLACEMENT_ID]"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "[IFA]"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "[USER_ID] "
+   }
+  ]
+ },
+ {
+  "name": "reporo_com",
+  "display_name": "reporo.com",
+  "postback_url": "http://rad.reporo.net/conversion?rcid={external_id}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{rcid}"
+   }
+  ]
+ },
+ {
+  "name": "revcontent_com",
+  "display_name": "revcontent.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{content_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{boost_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{widget_id}"
+   }
+  ]
+ },
+ {
+  "name": "revmobmobileadnetworkcom",
+  "display_name": "revmobmobileadnetwork.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "%{app_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "%{campaign_id}"
+   }
+  ]
+ },
+ {
+  "name": "richadspop",
+  "display_name": "RichAds-Pop",
+  "postback_url": "http://xml.auxml.com/log?action=conversion&key={external_id}&price={payout}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[CAMPAIGN_ID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[CREATIVE_ID]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[CLICK_ID]"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SITE_ID]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[CPV_PRICE]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "zone_id",
+    "macro": "[ZONE_ID]"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "publisher_id",
+    "macro": "[PUBLISHER_ID]"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "region",
+    "macro": "[REGION]"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   }
+  ]
+ },
+ {
+  "name": "richadspush",
+  "display_name": "RichAds-Push",
+  "postback_url": "http://xml.auxml.com/log?action=conversion&key={external_id}&price={payout}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[CAMPAIGN_ID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[CREATIVE_ID]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[CLICK_ID]"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SITE_ID]"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "[BID_PRICE]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_list",
+    "macro": "[SUB_LIST_ID]"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "publisher_id",
+    "macro": "[PUBLISHER_ID]"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "region",
+    "macro": "[REGION]"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   }
+  ]
+ },
+ {
+  "name": "rivertraffic_com",
+  "display_name": "rivertraffic.com",
+  "postback_url": "https://callback.rivertraffic.com/callback/ACCOUNT_NAME?click_id={external_id}",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{price}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{zone_id}"
+   }
+  ]
+ },
+ {
+  "name": "roiads_co",
+  "display_name": "roiads.co",
+  "postback_url": "https://us.roiapp.net/roiconv?action=conversion&id={external_id}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creative_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{site_id}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{bid_price}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "campaign_name",
+    "macro": "{campaign_name}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "publisher_id",
+    "macro": "{publisher_id}"
+   }
+  ]
+ },
+ {
+  "name": "rollerads_com",
+  "display_name": "Rollerads.com",
+  "postback_url": "https://trk.roller.ad/conversion/aid/[account_number]/[tracking_key]?click_id={clickid}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "campaignid",
+    "macro": "{campaignid}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creativeid",
+    "macro": "{creativeid}"
+   },
+   {
+    "alias": "external_id",
+    "param": "clickid",
+    "macro": "{clickid}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{accid}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cost}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "zoneid",
+    "macro": "{zoneid}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "device",
+    "macro": "{device}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "feedid",
+    "macro": "{feedid}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "carrier",
+    "macro": "{carrier}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "agegroup",
+    "macro": "{agegroup}"
+   }
+  ]
+ },
+ {
+  "name": "sitescoutcom",
+  "display_name": "sitescout.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{siteId}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaignId}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{adId}"
+   }
+  ]
+ },
+ {
+  "name": "skakapp_com",
+  "display_name": "skakapp.com",
+  "postback_url": "https://uclient.skakapp.com/postback?subid={external_id}&tid={tid}&status={status}&payout={payout}&sale_status=sale,dep,ftd,deposit,approved&lead_status=lead,reg&currency=usd&from=client_ID_SKAK",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{clickId}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{networkSource}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaignId}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sn_sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sn_sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sn_sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sn_sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sn_sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "split_id",
+    "macro": "{splitId}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "campaign_name",
+    "macro": "{campaignName}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "app_num",
+    "macro": "{appNum}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "app_bundle",
+    "macro": "{appBundle}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "adset_id",
+    "macro": "{adsetId}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "adset_name",
+    "macro": "{adsetName}"
+   },
+   {
+    "alias": "sub_id_12",
+    "param": "ad_id",
+    "macro": "{adId}"
+   },
+   {
+    "alias": "sub_id_13",
+    "param": "ad_name",
+    "macro": "{adName}"
+   },
+   {
+    "alias": "sub_id_14",
+    "param": "network_channel",
+    "macro": "{networkChannel}"
+   },
+   {
+    "alias": "sub_id_15",
+    "param": "is_organic",
+    "macro": "{isOrganic}"
+   },
+   {
+    "alias": "sub_id_16",
+    "param": "gaid",
+    "macro": "{gaid}"
+   },
+   {
+    "alias": "sub_id_17",
+    "param": "isBackUrl",
+    "macro": "0"
+   },
+   {
+    "alias": "sub_id_18",
+    "param": "fbp",
+    "macro": "{sn_fbp}"
+   },
+   {
+    "alias": "sub_id_19",
+    "param": "ttp",
+    "macro": "{sn_ttp}"
+   },
+   {
+    "alias": "sub_id_20",
+    "param": "bgp",
+    "macro": "{sn_bgp}"
+   },
+   {
+    "alias": "sub_id_21",
+    "param": "os_name",
+    "macro": "{osName}"
+   },
+   {
+    "alias": "sub_id_22",
+    "param": "os_ver",
+    "macro": "{osVer}"
+   },
+   {
+    "alias": "sub_id_23",
+    "param": "language",
+    "macro": "{language}"
+   },
+   {
+    "alias": "sub_id_24",
+    "param": "country",
+    "macro": "{country}"
+   },
+   {
+    "alias": "sub_id_25",
+    "param": "push_id",
+    "macro": "{pushId}"
+   },
+   {
+    "alias": "sub_id_26",
+    "param": "push_name",
+    "macro": "{pushName}"
+   },
+   {
+    "alias": "sub_id_27",
+    "param": "push_open",
+    "macro": "{isPush}"
+   },
+   {
+    "alias": "sub_id_28",
+    "param": "fbclid",
+    "macro": "{sn_fbclid}"
+   },
+   {
+    "alias": "sub_id_29",
+    "param": "push_sub",
+    "macro": "{isPushSub}"
+   },
+   {
+    "alias": "sub_id_30",
+    "param": "first_open",
+    "macro": "{isFirstOpen}"
+   }
+  ]
+ },
+ {
+  "name": "sourceknowledge_com",
+  "display_name": "SourceKnowledge.com",
+  "postback_url": "https://upx.provenpixel.com/postback.php?clk={external_id}&order_amount={payout}&upx={status}&currency=usd",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{clickid}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{adv_price}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaignid}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "deeplink",
+    "macro": "{oadest}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "publisher",
+    "macro": "{sub_id}"
+   }
+  ]
+ },
+ {
+  "name": "sparrow_ru",
+  "display_name": "sparrow.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{sparrow-price}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "utm_campaign",
+    "macro": "{sparrow-campaignid}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "utm_content",
+    "macro": "{sparrow-adid}"
+   },
+   {
+    "alias": "source",
+    "param": "utm_medium",
+    "macro": "{sparrow-sourceid}"
+   }
+  ]
+ },
+ {
+  "name": "splicky_com",
+  "display_name": "splicky.com",
+  "postback_url": "http://t.splicky.com/transaction?p=5&clickid={external_id}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "(S_SOURCE)"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "(S_CAMPAIGN_NAME)"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "(S_AD_NAME)"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "(S_CLICK_ID)"
+   }
+  ]
+ },
+ {
+  "name": "startappcom",
+  "display_name": "startapp.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "startapp_pub_id"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "campaign_id"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "creative_name"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "startapp_click_id_placeholder"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "bid_cost"
+   }
+  ]
+ },
+ {
+  "name": "t_direct",
+  "display_name": "T.Direct",
+  "postback_url": "http://pb.advertiser.t.direct/conversion/?click_id={external_id}&receipt={payout}&status={status}&status_hold=lead&status_approved=sale&status_rejected=rejected",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{t_click_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{t_campaign_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{t_source}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{t_cpc}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{t_source_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{t_source_2}"
+   }
+  ]
+ },
+ {
+  "name": "tacolo_co",
+  "display_name": "Tacolo.co",
+  "postback_url": "https://postback.tacolo.co/conversion?user=replace&cid={external_id}&sum={payout}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{camp_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creative_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{platform}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cost}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "zone_id",
+    "macro": "{zone_id}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   }
+  ]
+ },
+ {
+  "name": "tapgagecom",
+  "display_name": "tapgage.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "TAPGAGE_VAR_SITEID"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "TAPGAGE_VAR_CLICKID"
+   }
+  ]
+ },
+ {
+  "name": "tapitcom",
+  "display_name": "tapit.com",
+  "postback_url": "http://a.tapit.com/adconvert.php?xid={external_id}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[site]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[channel]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[creative]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[transaction_id]"
+   }
+  ]
+ },
+ {
+  "name": "targeleon_com",
+  "display_name": "Targeleon.com",
+  "postback_url": "https://clickco.net/sst?clickid={external_id}&price={payout}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{CAMPAIGN_ID}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{CREATIVE_ID}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{CLICK_ID}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{SOURCE_ID}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{PRICE}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "age",
+    "macro": "{AGE}"
+   }
+  ]
+ },
+ {
+  "name": "tdrentapps_com",
+  "display_name": "tdrentapps.com",
+  "postback_url": "http://trafficdevilsopti.website/api/opti/?p={app_id}&a={ad_id}&d={deviceID}&e={status: sale=dep lead=reg}&c={status: sale=30 lead=0}&w=TeamName",
+  "parameters": [
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{sub6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "ad_id",
+    "macro": "{ad_id}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "deviceID",
+    "macro": "{deviceID}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "app_id",
+    "macro": "{app_id}"
+   }
+  ]
+ },
+ {
+  "name": "teasermedianet",
+  "display_name": "teasermedia.net",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{{tid}}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{{domain}}"
+   }
+  ]
+ },
+ {
+  "name": "teasernetcom",
+  "display_name": "teasernet.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[TEASER_ID]"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SITE_ID]"
+   }
+  ]
+ },
+ {
+  "name": "tgtracker_io",
+  "display_name": "tgtracker.io",
+  "postback_url": "https://s2s.tgtracker.io/?external_id={external_id}&event={status:lead=reg sale=dep}&currency={currency}&amount={revenue}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{external_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub7",
+    "macro": "{sub7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub8",
+    "macro": "{sub8}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "sub9",
+    "macro": "{sub9}"
+   }
+  ]
+ },
+ {
+  "name": "titanpwa_com",
+  "display_name": "titanpwa.com",
+  "postback_url": "https://backend.titanpwa.com/api/postback?status={status}&subid={external_id}&fbc={visitor_fbc}&fbp={visitor_fbp}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{USER_ID}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub7",
+    "macro": "{sub7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub8",
+    "macro": "{sub8}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "sub9",
+    "macro": "{sub9}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "fbclid",
+    "macro": "{fbclid}"
+   },
+   {
+    "alias": "sub_id_15",
+    "param": "visitor_fbp",
+    "macro": "{visitor_fbp}"
+   },
+   {
+    "alias": "sub_id_16",
+    "param": "visitor_fbc",
+    "macro": "{visitor_fbc}"
+   }
+  ]
+ },
+ {
+  "name": "tovarro_com",
+  "display_name": "tovarro.com",
+  "postback_url": "http://a.tovarro.com/postback?c={external_id}&e={status}&r={payout}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{widget_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{teaser_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{category_id}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{click_price}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   }
+  ]
+ },
+ {
+  "name": "trafficavenuenet",
+  "display_name": "trafficavenue.net",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{zone}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{clicid}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cost}"
+   }
+  ]
+ },
+ {
+  "name": "trafficfactory_biz",
+  "display_name": "trafficfactory.biz",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{SiteName}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign.id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{banner.name}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{categories}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{goal_tracking}"
+   },
+   {
+    "alias": "currency",
+    "param": "currency",
+    "macro": "usd"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": " {target.bid}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{carrier}"
+   }
+  ]
+ },
+ {
+  "name": "trafficforcecom",
+  "display_name": "trafficforce.com",
+  "postback_url": "http://delivery.trafficforce.com/conv.php?click_id={external_id}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{site_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{ad_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{CLICK_ID}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{keywords}"
+   }
+  ]
+ },
+ {
+  "name": "traffichunt_com",
+  "display_name": "traffichunt.com",
+  "postback_url": "http://ads.traffichunt.com/adx-dir-d/servlet/WebF_AdManager.AdActionManager?nid=YOUR_ID&txn_id={external_id}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[site]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[camp_id]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[banner]"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[txn_id]"
+   }
+  ]
+ },
+ {
+  "name": "trafficjunky_com",
+  "display_name": "trafficjunky.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{SiteName}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{CampaignID}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{BanID}"
+   }
+  ]
+ },
+ {
+  "name": "trafficnomads_com",
+  "display_name": "trafficnomads.com",
+  "postback_url": "https://node2.trafficnomads.com/conv/?clickid={external_id}&payout={payout}&pubid={pubid}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaignid}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creativeid}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{clickid}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{pubid}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{payout}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "zone",
+    "macro": "{zone}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "device",
+    "macro": "{device}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "country",
+    "macro": "{country}"
+   }
+  ]
+ },
+ {
+  "name": "trafficshop_com",
+  "display_name": "Trafficshop.com",
+  "postback_url": "https://ad.trafficshop.com/track.php?track_id=__REPLACE_TRACK_ID__&ts_subid={external_id}&atpay={payout}",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cost}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{s2s_token}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "site",
+    "param": "site",
+    "macro": "{site}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "site_id",
+    "macro": "{site_id}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "campaign_cpm",
+    "macro": "{cpm}"
+   }
+  ]
+ },
+ {
+  "name": "trafficstars_com",
+  "display_name": "trafficstars.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{adspot_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creative_id}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cost}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{keywords}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{format}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{pricing_model}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{adspot_name}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{carrier}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{site_host}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{category}"
+   }
+  ]
+ },
+ {
+  "name": "trafficvance_com",
+  "display_name": "trafficvance.com",
+  "postback_url": "https://tracking.trafficvance.com/?id=YOUR_ID&value={revenue}&token={external_id}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{token}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{keyword}"
+   }
+  ]
+ },
+ {
+  "name": "traforama_com",
+  "display_name": "traforama.com",
+  "postback_url": "https://p.pa5ka.com/api/click/{external_id}?subid=REPLACE&c=1&cpa={coversion_revenue}",
+  "parameters": [
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "%KW%"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "%CREATIVEID%"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "%ID%"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "%SPOTID%"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "%CAMPAIGNID%"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "%AUCTIONPRICE%"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "ip",
+    "macro": "%IP%"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "ref",
+    "macro": "%REF%"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "ref-domain",
+    "macro": "%REFDOMAIN%"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "server node",
+    "macro": "%NODEID%"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "user agent",
+    "macro": "%UA%"
+   }
+  ]
+ },
+ {
+  "name": "trending_bid",
+  "display_name": "Trending.bid",
+  "postback_url": "http://passfiss.com/lead/dspsl/lead1?trkId=${trackid}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "${campaign}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "${creative}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "${trackid}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "${sourceid}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "${click_cost}"
+   }
+  ]
+ },
+ {
+  "name": "trident_media_agency",
+  "display_name": "Trident-media.agency",
+  "postback_url": "https://trident.website/62f6bc7/postback?subid={external_id}&status={status}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "app_campaign",
+    "macro": "{app_campaign}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "app_name",
+    "macro": "{app_name}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "bundle",
+    "macro": "{bundle}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "adgroup",
+    "macro": "{adgroup}"
+   }
+  ]
+ },
+ {
+  "name": "trident_media_agency_android_fb",
+  "display_name": "Trident-media.agency | Android - FB",
+  "postback_url": "https://trident.website/62f6bc7/postback?subid={external_id}&status={status}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "ad_group_id",
+    "macro": "{ad_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub_id_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub_id_2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub_id_3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub_id_4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub_id_5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub_id_6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "app_campaign",
+    "macro": "{sub_id_7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "adset",
+    "macro": "{sub_id_8}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "ad_group_name",
+    "macro": "{sub_id_9}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "sub7",
+    "macro": "{sub_id_10}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "sub8",
+    "macro": "{sub_id_11}"
+   },
+   {
+    "alias": "sub_id_13",
+    "param": "app_name",
+    "macro": "{sub_id_13}"
+   },
+   {
+    "alias": "sub_id_17",
+    "param": "hosting",
+    "macro": "{sub_id_17}"
+   },
+   {
+    "alias": "sub_id_19",
+    "param": "adset_id",
+    "macro": "{sub_id_19}"
+   },
+   {
+    "alias": "sub_id_20",
+    "param": "acc_id",
+    "macro": "{sub_id_20}"
+   },
+   {
+    "alias": "sub_id_22",
+    "param": "fb_adset_id",
+    "macro": "{sub_id_22}"
+   },
+   {
+    "alias": "sub_id_24",
+    "param": "sub9",
+    "macro": "{sub_id_24}"
+   },
+   {
+    "alias": "sub_id_25",
+    "param": "sub10",
+    "macro": "{sub_id_25}"
+   },
+   {
+    "alias": "sub_id_27",
+    "param": "design_type",
+    "macro": "{sub_id_27}"
+   },
+   {
+    "alias": "sub_id_29",
+    "param": "fb_app_id",
+    "macro": "{sub_id_29}"
+   }
+  ]
+ },
+ {
+  "name": "trident_media_agency_android_meta_pixel",
+  "display_name": "Trident-media.agency | Android - Meta (Pixel)",
+  "postback_url": "https://trident.website/62f6bc7/postback?subid={external_id}&status={status}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub_id_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub_id_2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub_id_3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub_id_4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub_id_5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub_id_6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "app_campaign",
+    "macro": "{sub_id_7}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "sub7",
+    "macro": "{sub_id_10}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "sub8",
+    "macro": "{sub_id_11}"
+   },
+   {
+    "alias": "sub_id_13",
+    "param": "app_name",
+    "macro": "{sub_id_13}"
+   },
+   {
+    "alias": "sub_id_19",
+    "param": "pixel_token",
+    "macro": "{sub_id_19}"
+   },
+   {
+    "alias": "sub_id_20",
+    "param": "pixel_id",
+    "macro": "{sub_id_20}"
+   },
+   {
+    "alias": "sub_id_21",
+    "param": "pixel_test_key",
+    "macro": "{sub_id_21}"
+   },
+   {
+    "alias": "sub_id_22",
+    "param": "fb_clid",
+    "macro": "{sub_id_22}"
+   },
+   {
+    "alias": "sub_id_24",
+    "param": "sub9",
+    "macro": "{sub_id_24}"
+   },
+   {
+    "alias": "sub_id_25",
+    "param": "sub10",
+    "macro": "{sub_id_25}"
+   },
+   {
+    "alias": "sub_id_27",
+    "param": "design_type",
+    "macro": "{sub_id_27}"
+   }
+  ]
+ },
+ {
+  "name": "trident_media_agency_android_tenjin_moloko",
+  "display_name": "Trident-media.agency | Android - Tenjin (Moloko)",
+  "postback_url": "https://trident.website/62f6bc7/postback?subid={external_id}&status={status}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub_id_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub_id_2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub_id_3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub_id_4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub_id_5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub_id_6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "app_campaign",
+    "macro": "{sub_id_7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "adset",
+    "macro": "{sub_id_8}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "sub7",
+    "macro": "{sub_id_10}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "sub8",
+    "macro": "{sub_id_11}"
+   },
+   {
+    "alias": "sub_id_13",
+    "param": "app_name",
+    "macro": "{sub_id_13}"
+   },
+   {
+    "alias": "sub_id_17",
+    "param": "hosting",
+    "macro": "{sub_id_17}"
+   },
+   {
+    "alias": "sub_id_22",
+    "param": "site_id",
+    "macro": "{sub_id_22}"
+   },
+   {
+    "alias": "sub_id_24",
+    "param": "sub9",
+    "macro": "{sub_id_24}"
+   },
+   {
+    "alias": "sub_id_25",
+    "param": "sub10",
+    "macro": "{sub_id_25}"
+   },
+   {
+    "alias": "sub_id_27",
+    "param": "design_type",
+    "macro": "{sub_id_27}"
+   }
+  ]
+ },
+ {
+  "name": "trident_media_agency_android_uac",
+  "display_name": "Trident-media.agency | Android - UAC",
+  "postback_url": "https://trident.website/62f6bc7/postback?subid={external_id}&status={status}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "ad_group_id",
+    "macro": "{ad_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub_id_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub_id_2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub_id_3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub_id_4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub_id_5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub_id_6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "app_campaign",
+    "macro": "{sub_id_7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "adset",
+    "macro": "{sub_id_8}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "network_type",
+    "macro": "{sub_id_9}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "sub7",
+    "macro": "{sub_id_10}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "sub8",
+    "macro": "{sub_id_11}"
+   },
+   {
+    "alias": "sub_id_13",
+    "param": "app_name",
+    "macro": "{sub_id_13}"
+   },
+   {
+    "alias": "sub_id_17",
+    "param": "hosting",
+    "macro": "{sub_id_17}"
+   },
+   {
+    "alias": "sub_id_20",
+    "param": "campaign_id",
+    "macro": "{sub_id_20}"
+   },
+   {
+    "alias": "sub_id_21",
+    "param": "gclid",
+    "macro": "{sub_id_21}"
+   },
+   {
+    "alias": "sub_id_22",
+    "param": "network_subtype",
+    "macro": "{sub_id_22}"
+   },
+   {
+    "alias": "sub_id_24",
+    "param": "sub9",
+    "macro": "{sub_id_24}"
+   },
+   {
+    "alias": "sub_id_25",
+    "param": "sub10",
+    "macro": "{sub_id_25}"
+   },
+   {
+    "alias": "sub_id_27",
+    "param": "design_type",
+    "macro": "{sub_id_27}"
+   },
+   {
+    "alias": "sub_id_29",
+    "param": "gclid",
+    "macro": "{sub_id_29}"
+   }
+  ]
+ },
+ {
+  "name": "trident_media_agency_android_unity",
+  "display_name": "Trident-media.agency | Android - Unity",
+  "postback_url": "https://trident.website/62f6bc7/postback?subid={external_id}&status={status}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "ad_group_id",
+    "macro": "{ad_group_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub_id_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub_id_2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub_id_3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub_id_4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub_id_5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub_id_6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "app_campaign",
+    "macro": "{sub_id_7}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "adgroup",
+    "macro": "{sub_id_9}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "sub7",
+    "macro": "{sub_id_10}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "sub8",
+    "macro": "{sub_id_11}"
+   },
+   {
+    "alias": "sub_id_13",
+    "param": "app_name",
+    "macro": "{sub_id_13}"
+   },
+   {
+    "alias": "sub_id_17",
+    "param": "hosting",
+    "macro": "{sub_id_17}"
+   },
+   {
+    "alias": "sub_id_22",
+    "param": "unity_site_id",
+    "macro": "{sub_id_22}"
+   },
+   {
+    "alias": "sub_id_24",
+    "param": "sub9",
+    "macro": "{sub_id_24}"
+   },
+   {
+    "alias": "sub_id_25",
+    "param": "sub10",
+    "macro": "{sub_id_25}"
+   },
+   {
+    "alias": "sub_id_27",
+    "param": "design_type",
+    "macro": "{sub_id_27}"
+   }
+  ]
+ },
+ {
+  "name": "trident_media_agency_ios_fb",
+  "display_name": "Trident-media.agency | iOS - FB",
+  "postback_url": "https://trident.website/62f6bc7/postback?subid={external_id}&status={status}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub_id_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub_id_2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub_id_3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub_id_4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub_id_5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub_id_6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "app_campaign",
+    "macro": "{sub_id_7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub7",
+    "macro": "{sub_id_8}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "sub8",
+    "macro": "{sub_id_9}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "sub9",
+    "macro": "{sub_id_10}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "sub10",
+    "macro": "{sub_id_11}"
+   },
+   {
+    "alias": "sub_id_16",
+    "param": "app_name",
+    "macro": "{sub_id_16}"
+   },
+   {
+    "alias": "sub_id_18",
+    "param": "domain",
+    "macro": "{sub_id_18}"
+   },
+   {
+    "alias": "sub_id_19",
+    "param": "pixel_token",
+    "macro": "{sub_id_19}"
+   },
+   {
+    "alias": "sub_id_20",
+    "param": "pixel_id",
+    "macro": "{sub_id_20}"
+   },
+   {
+    "alias": "sub_id_21",
+    "param": "pixel_test_key",
+    "macro": "{sub_id_21}"
+   },
+   {
+    "alias": "sub_id_22",
+    "param": "fb_clid",
+    "macro": "{sub_id_22}"
+   }
+  ]
+ },
+ {
+  "name": "trident_media_agency_ios_unity",
+  "display_name": "Trident-media.agency | iOS - Unity",
+  "postback_url": "https://trident.website/62f6bc7/postback?subid={external_id}&status={status}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub_id_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub_id_2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub_id_3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub_id_4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub_id_5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub_id_6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "app_campaign",
+    "macro": "{sub_id_7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub7",
+    "macro": "{sub_id_8}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "sub8",
+    "macro": "{sub_id_9}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "sub9",
+    "macro": "{sub_id_10}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "sub10",
+    "macro": "{sub_id_11}"
+   },
+   {
+    "alias": "sub_id_16",
+    "param": "app_name",
+    "macro": "{sub_id_16}"
+   },
+   {
+    "alias": "sub_id_18",
+    "param": "domain",
+    "macro": "{sub_id_18}"
+   }
+  ]
+ },
+ {
+  "name": "trident_media_agency_pwa",
+  "display_name": "Trident-media.agency | PWA",
+  "postback_url": "https://trident.website/62f6bc7/postback?subid={external_id}&status={status}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub_id_1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub_id_2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub_id_3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub_id_4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub_id_5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub_id_6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "app_campaign",
+    "macro": "{sub_id_7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub7",
+    "macro": "{sub_id_8}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "sub8",
+    "macro": "{sub_id_9}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "sub9",
+    "macro": "{sub_id_10}"
+   },
+   {
+    "alias": "sub_id_11",
+    "param": "sub10",
+    "macro": "{sub_id_11}"
+   },
+   {
+    "alias": "sub_id_16",
+    "param": "app_name",
+    "macro": "{sub_id_16}"
+   },
+   {
+    "alias": "sub_id_18",
+    "param": "domain",
+    "macro": "{sub_id_18}"
+   },
+   {
+    "alias": "sub_id_19",
+    "param": "fbt",
+    "macro": "{sub_id_19}"
+   },
+   {
+    "alias": "sub_id_20",
+    "param": "pixel",
+    "macro": "{sub_id_20}"
+   },
+   {
+    "alias": "sub_id_22",
+    "param": "fbclid",
+    "macro": "{sub_id_22}"
+   }
+  ]
+ },
+ {
+  "name": "tsl_apps",
+  "display_name": "TSL.apps",
+  "postback_url": "https://api.tsl-apps.com/v1/postbacks?subid={external_id}&tid={tid}&status={status}&payout={payout}&currency=usd",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{user_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{site_source_name}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "fbp",
+    "macro": "{fbp}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "adset_id",
+    "macro": "{{adset.id}}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "adset_name",
+    "macro": "{{adset.name}}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "campaign_name",
+    "macro": "{{campaign.name}}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "ad_id",
+    "macro": "{{ad.id}}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "ad_name",
+    "macro": "{{ad.name}}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "placement",
+    "macro": "{{placement}}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "sub8",
+    "macro": "{sub8}"
+   },
+   {
+    "alias": "sub_id_9",
+    "param": "sub9",
+    "macro": "{sub9}"
+   },
+   {
+    "alias": "sub_id_10",
+    "param": "sub10",
+    "macro": "{sub10}"
+   }
+  ]
+ },
+ {
+  "name": "tsquadapps",
+  "display_name": "TSquad Apps",
+  "postback_url": "https://tsquad-apps.com/56db31d/postback?status={status}&subid={external_id}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub1",
+    "macro": "{sub1}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub6",
+    "macro": "{sub6}"
+   },
+   {
+    "alias": "sub_id_7",
+    "param": "sub7",
+    "macro": "{sub7}"
+   },
+   {
+    "alias": "sub_id_8",
+    "param": "bundle",
+    "macro": "{bundle}"
+   }
+  ]
+ },
+ {
+  "name": "twinred_com",
+  "display_name": "twinred.com",
+  "postback_url": "https://ad.twinrdengine.com/conversion/UNIQUE_TRACKER_NAME?id={external_id}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{transactionID}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaignID}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "{keywords}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creativeID}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cost}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{country}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{domain}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{browser}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{carrier}"
+   }
+  ]
+ },
+ {
+  "name": "ungads_com",
+  "display_name": "UngAds.com",
+  "postback_url": "https://ungads-postback.com/c/REPLACE?subid={external_id}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{site}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaignid}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creativeid}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "[KEYWORD]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{pricemodel}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{campaigntype}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{language}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{carrier}"
+   }
+  ]
+ },
+ {
+  "name": "vimmy_com",
+  "display_name": "Vimmy.com",
+  "postback_url": "https://vmmpb.com/ic?id={external_id}&payout={payout}",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creative_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{site_id}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{bid}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "placement_id",
+    "macro": "{placement_id}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "age",
+    "macro": "{age}"
+   }
+  ]
+ },
+ {
+  "name": "visitweb_com",
+  "display_name": "visitweb.com",
+  "postback_url": "http://c.visitweb.com/c?l&uid={external_id}&m={revenue}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{UID}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{HSITE2}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{CAMP}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{AD}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{REAL_COST}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{FORMAT}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{OPERATOR}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{SITE}"
+   }
+  ]
+ },
+ {
+  "name": "viztrom_com",
+  "display_name": "Viztrom.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaign_id}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{site_id}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{price_click}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "teaser_id",
+    "macro": "{teaser_id}"
+   }
+  ]
+ },
+ {
+  "name": "vkcom",
+  "display_name": "Vk.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "creative_id",
+    "param": "utm_creative",
+    "macro": "{ad_id}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "utm_campaign",
+    "macro": "{campaign_id}"
+   }
+  ]
+ },
+ {
+  "name": "wapstartru",
+  "display_name": "wapstart.ru",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "%SITE_ID%"
+   }
+  ]
+ },
+ {
+  "name": "wigetmediacom",
+  "display_name": "wigetmedia.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{advertiserId}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "{campaignId}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{adId}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{transactionId}"
+   },
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cost}"
+   }
+  ]
+ },
+ {
+  "name": "wildwildapps_ios",
+  "display_name": "wildwildapps.ios",
+  "postback_url": "https://servapi.wwa-ios.com/event/?event={status}&payout={revenue}&tds_clickid={external_id}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{tds_clickid}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{sub6}"
+   }
+  ]
+ },
+ {
+  "name": "wildwildapps_moloco_ios",
+  "display_name": "wildwildapps.moloco.ios",
+  "postback_url": "https://iossetupwe.pics/events-api/moloco/?event={status}&payout={revenue}&tds_clickid={external_id}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{tds_clickid}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{sub6}"
+   }
+  ]
+ },
+ {
+  "name": "wildwildapps_net",
+  "display_name": "Wildwildapps.net",
+  "postback_url": "http://wwapostback.com/postback/subid={sub_id_1}&status={status}&from=partner_name",
+  "parameters": [
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "{subid}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "{sub2}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "{sub3}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "{sub4}"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "{sub5}"
+   },
+   {
+    "alias": "sub_id_6",
+    "param": "sub_id_6",
+    "macro": "{sub6}"
+   }
+  ]
+ },
+ {
+  "name": "yottoscom",
+  "display_name": "yottos.com",
+  "postback_url": "",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{source}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{content}"
+   }
+  ]
+ },
+ {
+  "name": "youtarget_com",
+  "display_name": "Youtarget.com",
+  "postback_url": "https://postback.events/?postback_id=##postback_id##&click_id={external_id}&event_type=accept&cur={currency}&payout={revenue}",
+  "parameters": [
+   {
+    "alias": "cost",
+    "param": "cost",
+    "macro": "{cpc}"
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{click_id}"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "{creative}"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "campaign_id",
+    "macro": "{campaign}"
+   },
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "{zone_id}"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "language",
+    "macro": "{language}"
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "device",
+    "macro": "{device}"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "browser",
+    "macro": "{browser}"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "platform",
+    "macro": "{platform}"
+   }
+  ]
+ },
+ {
+  "name": "zm_app",
+  "display_name": "Zm.app",
+  "postback_url": "https://tools.zm.app/pb/?action={status: lead=reg sale=dep}&exid={external_id}",
+  "parameters": [
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "{exid}"
+   }
+  ]
+ },
+ {
+  "name": "zoolley_com",
+  "display_name": "zoolley.com",
+  "postback_url": "http://rtb.adx1.com/log?action=conversion&key={external_id}&price={revenue}",
+  "parameters": [
+   {
+    "alias": "source",
+    "param": "source",
+    "macro": "[SITE_ID]"
+   },
+   {
+    "alias": "ad_campaign_id",
+    "param": "ad_campaign_id",
+    "macro": "[CAMPAIGN_ID]"
+   },
+   {
+    "alias": "creative_id",
+    "param": "creative_id",
+    "macro": "[CREATIVE_ID] "
+   },
+   {
+    "alias": "external_id",
+    "param": "external_id",
+    "macro": "[CLICK_ID]"
+   },
+   {
+    "alias": "keyword",
+    "param": "keyword",
+    "macro": "[KEYWORD]"
+   },
+   {
+    "alias": "sub_id_1",
+    "param": "sub_id_1",
+    "macro": "[DOMAIN] "
+   },
+   {
+    "alias": "sub_id_2",
+    "param": "sub_id_2",
+    "macro": "[PUBLISHER_ID]"
+   },
+   {
+    "alias": "sub_id_3",
+    "param": "sub_id_3",
+    "macro": "[PLACEMENT_ID]"
+   },
+   {
+    "alias": "sub_id_4",
+    "param": "sub_id_4",
+    "macro": "[IFA]"
+   },
+   {
+    "alias": "sub_id_5",
+    "param": "sub_id_5",
+    "macro": "[USER_ID] "
+   }
+  ]
+ }
+]

@@ -2455,22 +2455,41 @@ if ($selectedStream) {
             }
         }
     } else { // redirect
-        $selectedOffer = selectWeightedItem($customSchema['offers'] ?? []);
-
-        // Fallback to legacy offer_id if no weighted array is provided
-        if ($selectedOffer) {
-            $offerIdToLog = $selectedOffer['id'] ?? 0;
-        } else {
-            $offerIdToLog = $selectedStream['offer_id'] ?? 0;
+        if (!empty($customSchema['direct_url']) || ($customSchema['redirect_mode'] ?? '') === 'direct_url') {
+            $directUrl = trim((string) ($customSchema['direct_url'] ?? ''));
+            if ($directUrl !== '') {
+                $finalUrl = $directUrl;
+                $offerUrl = $directUrl;
+                $offerRedirectType = $customSchema['redirect_type'] ?? 'redirect';
+            }
         }
 
-        $stmt = $pdo->prepare("SELECT url, redirect_type FROM offers WHERE id = ?");
-        $stmt->execute([$offerIdToLog]);
-        $offer = $stmt->fetch();
-        if ($offer) {
-            $finalUrl = $offer['url'];
-            $offerUrl = $offer['url'];
-            $offerRedirectType = $offer['redirect_type'] ?? 'redirect';
+        if (empty($finalUrl)) {
+            $selectedOffer = selectWeightedItem($customSchema['offers'] ?? []);
+
+            // Support direct URL inside offers array or lookup from offers table
+            if ($selectedOffer) {
+                if (!empty($selectedOffer['url'])) {
+                    $finalUrl = $selectedOffer['url'];
+                    $offerUrl = $selectedOffer['url'];
+                    $offerRedirectType = $selectedOffer['redirect_type'] ?? 'redirect';
+                } else {
+                    $offerIdToLog = $selectedOffer['id'] ?? 0;
+                }
+            } else {
+                $offerIdToLog = $selectedStream['offer_id'] ?? 0;
+            }
+
+            if ($offerIdToLog && empty($finalUrl)) {
+                $stmt = $pdo->prepare("SELECT url, redirect_type FROM offers WHERE id = ?");
+                $stmt->execute([$offerIdToLog]);
+                $offer = $stmt->fetch();
+                if ($offer) {
+                    $finalUrl = $offer['url'];
+                    $offerUrl = $offer['url'];
+                    $offerRedirectType = $offer['redirect_type'] ?? 'redirect';
+                }
+            }
         }
     }
 }
@@ -2678,9 +2697,17 @@ if ($actionToPerfrom) {
         die("URL not found.");
     }
 
-    // Подстановка макросов
-    // Подстановка макросов
-    $finalUrl = str_replace('{clickid}', $clickId, $finalUrl);
+    // Подстановка макросов.
+    //
+    // Direct-URL macros: the stream editor tells the user that {subid}, {clickid},
+    // {country}, {ip} and {sub_id_1}..{sub_id_30} work in a direct destination URL,
+    // so all of them have to be substituted here — {subid} used to travel to the
+    // affiliate network as the literal string.
+    $finalUrl = str_replace(
+        ['{clickid}', '{subid}', '{ip}', '{country}'],
+        [$clickId, $clickId, urlencode((string) $ip), urlencode((string) $country)],
+        $finalUrl
+    );
 
     // Replace all extracted tracking parameters (e.g. {sub_id_1}, {keyword})
     if (!empty($clickParams)) {

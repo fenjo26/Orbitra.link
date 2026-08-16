@@ -20,6 +20,7 @@ if (!is_dir(__DIR__ . '/var/logs')) {
 
 // api.php - JSON API для React Dashboard
 require_once 'config.php';
+require_once __DIR__ . '/core/ReportMetrics.php';
 require_once 'version.php';
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
@@ -358,6 +359,14 @@ try {
 
 date_default_timezone_set($userTimezone);
 
+// A report can ask for another timezone (the date-range picker sends one); every
+// query below shifts dates by $dbTzOffset, so this is what makes that selection
+// change the numbers instead of only the label.
+if (!empty($_GET['timezone']) && in_array((string) $_GET['timezone'], DateTimeZone::listIdentifiers(), true)) {
+    $userTimezone = (string) $_GET['timezone'];
+    date_default_timezone_set($userTimezone);
+}
+
 // Calculate SQLite offset string for the current timezone
 $dz = new DateTimeZone($userTimezone);
 $dt = new DateTime('now', $dz);
@@ -466,6 +475,72 @@ function orbitraLandingEditableExtensions(): array
  * shapes are accepted now so an older built frontend keeps working after an
  * update that only replaces the PHP files.
  */
+/**
+ * Template packs shipped as data files (data/keitaro_*.json).
+ *
+ * These are generated from the Keitaro exports rather than typed by hand: a macro
+ * or postback URL invented from memory looks right in the dropdown and silently
+ * tracks nothing. Regenerate the files instead of editing entries here.
+ */
+function orbitraLoadTemplatePack(string $file): array
+{
+    static $cache = [];
+    if (isset($cache[$file])) {
+        return $cache[$file];
+    }
+    $path = __DIR__ . '/data/' . $file;
+    $rows = [];
+    if (is_file($path) && is_readable($path)) {
+        $decoded = json_decode((string) file_get_contents($path), true);
+        if (is_array($decoded)) {
+            $rows = $decoded;
+        }
+    }
+    $cache[$file] = $rows;
+    return $rows;
+}
+
+/**
+ * Append a pack to the built-in list, skipping anything already shipped inline
+ * (by name or display name) and keeping the "Custom ..." entry last.
+ */
+function orbitraMergeTemplates(array $builtin, array $pack): array
+{
+    $seen = [];
+    foreach ($builtin as $tpl) {
+        if (!empty($tpl['name'])) {
+            $seen['n:' . mb_strtolower((string) $tpl['name'])] = true;
+        }
+        if (!empty($tpl['display_name'])) {
+            $seen['d:' . mb_strtolower((string) $tpl['display_name'])] = true;
+        }
+    }
+    foreach ($pack as $tpl) {
+        if (!is_array($tpl) || empty($tpl['name'])) {
+            continue;
+        }
+        $nKey = 'n:' . mb_strtolower((string) $tpl['name']);
+        $dKey = 'd:' . mb_strtolower((string) ($tpl['display_name'] ?? ''));
+        if (isset($seen[$nKey]) || (!empty($tpl['display_name']) && isset($seen[$dKey]))) {
+            continue;
+        }
+        $seen[$nKey] = true;
+        $seen[$dKey] = true;
+        $builtin[] = $tpl;
+    }
+    // "Custom source" / "Custom network" stay at the bottom of the dropdown.
+    $custom = [];
+    $rest = [];
+    foreach ($builtin as $tpl) {
+        if (in_array((string) ($tpl['name'] ?? ''), ['custom', 'custom_network'], true)) {
+            $custom[] = $tpl;
+        } else {
+            $rest[] = $tpl;
+        }
+    }
+    return array_merge($rest, $custom);
+}
+
 function orbitraBotListEndpoint($pdo, $table, $column, $payloadKey)
 {
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -548,6 +623,7 @@ function orbitraBotListEndpoint($pdo, $table, $column, $payloadKey)
     }
 
     // Add. Accept either an array of entries or one newline-separated string.
+    @set_time_limit(300);
     $raw = $data['items'] ?? $data[$payloadKey] ?? [];
     if (is_string($raw)) {
         $raw = preg_split('/\r\n|\r|\n/', $raw);
@@ -556,9 +632,7 @@ function orbitraBotListEndpoint($pdo, $table, $column, $payloadKey)
         $raw = [];
     }
 
-    $stmt = $pdo->prepare("INSERT OR IGNORE INTO {$table} ({$column}) VALUES (?)");
-    $added = 0;
-    $skipped = 0;
+    $entries = [];
     foreach ($raw as $entry) {
         if (!is_scalar($entry)) {
             continue;
@@ -567,15 +641,33 @@ function orbitraBotListEndpoint($pdo, $table, $column, $payloadKey)
         if ($entry === '') {
             continue;
         }
-        $stmt->execute([$entry]);
-        // INSERT OR IGNORE swallows duplicates; report them so the panel can say
-        // how many entries actually landed instead of echoing the input count.
-        if ($stmt->rowCount() > 0) {
-            $added++;
-        } else {
-            $skipped++;
-        }
+        $entries[] = $entry;
     }
+
+    $totalBefore = (int) $pdo->query("SELECT COUNT(*) AS c FROM {$table}")->fetch()['c'];
+    
+    // Perform insertions inside a single transaction with chunking for instant execution (100k+ rows)
+    $pdo->beginTransaction();
+    try {
+        $chunks = array_chunk($entries, 500);
+        foreach ($chunks as $chunk) {
+            $placeholders = implode(',', array_fill(0, count($chunk), '(?)'));
+            $st = $pdo->prepare("INSERT OR IGNORE INTO {$table} ({$column}) VALUES {$placeholders}");
+            $st->execute($chunk);
+        }
+        $pdo->commit();
+    } catch (\Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Failed to save bot entries: ' . $e->getMessage()]);
+        return;
+    }
+
+    $totalAfter = (int) $pdo->query("SELECT COUNT(*) AS c FROM {$table}")->fetch()['c'];
+    $added = max(0, $totalAfter - $totalBefore);
+    $skipped = max(0, count($entries) - $added);
 
     echo json_encode([
         'status' => 'success',
@@ -1278,9 +1370,44 @@ try {
             break;
 
         case 'campaigns':
-            list($whereCl, $paramsCl) = getDashboardFilters('cl.');
-            // Add AND condition if WHERE already exists, else start with WHERE
-            $joinCondition = !empty($whereCl) ? str_replace("WHERE ", "AND ", $whereCl) : "";
+            $date_from = $_GET['date_from'] ?? null;
+            $date_to = $_GET['date_to'] ?? null;
+            $group_id = isset($_GET['group_id']) && $_GET['group_id'] !== '' ? (int) $_GET['group_id'] : null;
+
+            // Clicks are filtered inside the JOIN so campaigns without traffic still
+            // appear in the list. Dates are compared in the report timezone, the same
+            // way getDashboardFilters() does it.
+            $paramsCl = [];
+            $joinConds = [];
+            if ($date_from) {
+                $joinConds[] = "date(cl.created_at, '$dbTzOffset') >= date(?)";
+                $paramsCl[] = $date_from;
+            }
+            if ($date_to) {
+                $joinConds[] = "date(cl.created_at, '$dbTzOffset') <= date(?)";
+                $paramsCl[] = $date_to;
+            }
+
+            if (empty($date_from) && empty($date_to)) {
+                // No explicit range: fall back to the dashboard's own filter set.
+                list($whereCl, $dashboardParams) = getDashboardFilters('cl.');
+                $joinCondition = !empty($whereCl) ? str_replace('WHERE ', 'AND ', $whereCl) : '';
+                $paramsCl = $dashboardParams;
+            } else {
+                $joinCondition = $joinConds ? 'AND ' . implode(' AND ', $joinConds) : '';
+            }
+
+            // Cast to int and inlined rather than bound: the branch above owns the
+            // parameter list, and a stray placeholder here used to make the whole
+            // endpoint fail with "number of bound variables does not match".
+            $groupWhere = ($group_id !== null && $group_id > 0) ? " AND c.group_id = $group_id" : '';
+
+            $convAggSql = orbitraConversionAggregateSql(getConversionsValueColumn($pdo));
+            $revRecordsCol = getRevenueRecordsValueColumn($pdo);
+            $realJoin = $revRecordsCol !== null
+                ? 'LEFT JOIN ' . orbitraRevenueRecordsAggregateSql($revRecordsCol) . ' rr ON rr.click_id = cl.id'
+                : '';
+            $realRevSelect = $revRecordsCol !== null ? 'COALESCE(SUM(rr.real_rev), 0)' : '0';
 
             $limitClause = isset($_GET['limit']) ? "LIMIT " . (int) $_GET['limit'] : "";
             $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
@@ -1291,19 +1418,40 @@ try {
                        ts.name as source_name,
                        COUNT(cl.id) as clicks, 
                        COUNT(DISTINCT cl.ip) as unique_clicks,
-                       COALESCE(SUM(cl.is_conversion), 0) as conversions
+                       SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END) as prelander_clicks,
+                       SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END) as offer_clicks,
+                       COALESCE(SUM(cl.is_conversion), 0) as conversions,
+                       COALESCE(SUM(cv.cnt_sale), 0) as purchases,
+                       COALESCE(SUM(cv.cnt_hold), 0) as holds,
+                       COALESCE(SUM(cv.cnt_rejected), 0) as rejected,
+                       COALESCE(SUM(cv.cnt_trash), 0) as trash,
+                       COALESCE(SUM(cl.cost), 0) as cost,
+                       COALESCE(SUM(cv.rev_all), 0) as revenue,
+                       COALESCE(SUM(cv.rev_sale), 0) as revenue_confirmed,
+                       COALESCE(SUM(cv.rev_hold), 0) as revenue_hold,
+                       COALESCE(SUM(cv.rev_rejected), 0) as revenue_rejected,
+                       COALESCE(SUM(cv.rev_trash), 0) as revenue_trash,
+                       $realRevSelect as real_revenue
                 FROM campaigns c
                 LEFT JOIN campaign_groups cg ON c.group_id = cg.id
                 LEFT JOIN traffic_sources ts ON c.source_id = ts.id
                 LEFT JOIN clicks cl ON c.id = cl.campaign_id $joinCondition
-                WHERE c.is_archived = 0
+                LEFT JOIN $convAggSql cv ON cv.click_id = cl.id
+                $realJoin
+                WHERE c.is_archived = 0 $groupWhere
                 GROUP BY c.id
                 $havingClause
                 ORDER BY clicks DESC, c.created_at DESC
                 $limitClause
             ");
             $stmt->execute($paramsCl);
-            echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+
+            $formattedCampaigns = [];
+            foreach ($stmt->fetchAll() as $r) {
+                $formattedCampaigns[] = array_merge($r, orbitraComputeDerivedMetrics($r));
+            }
+
+            echo json_encode(['status' => 'success', 'data' => $formattedCampaigns]);
             break;
 
         // Optimized campaigns list without heavy clicks JOIN (for dropdowns/quick loading)
@@ -2136,7 +2284,7 @@ try {
             break;
 
         case 'traffic_source_templates':
-            // Pre-defined templates for popular traffic sources
+            // Pre-defined templates for popular traffic sources from Keitaro
             $templates = [
                 [
                     'name' => 'facebook',
@@ -2164,6 +2312,19 @@ try {
                         ['alias' => 'adgroup', 'param' => 'adgroup', 'macro' => '{adgroupid}'],
                         ['alias' => 'device', 'param' => 'device', 'macro' => '{device}'],
                         ['alias' => 'loc_physical', 'param' => 'loc_physical', 'macro' => '{loc_physical_ms}'],
+                    ]
+                ],
+                [
+                    'name' => 'tiktok',
+                    'display_name' => 'TikTok Ads',
+                    'postback_url' => '',
+                    'parameters' => [
+                        ['alias' => 'campaign_id', 'param' => 'campaign_id', 'macro' => '__CAMPAIGN_ID__'],
+                        ['alias' => 'adgroup_id', 'param' => 'adgroup_id', 'macro' => '__AID__'],
+                        ['alias' => 'ad_id', 'param' => 'ad_id', 'macro' => '__CID__'],
+                        ['alias' => 'creative', 'param' => 'creative', 'macro' => '__CREATIVE_ID__'],
+                        ['alias' => 'pixel', 'param' => 'pixel', 'macro' => '__PIXEL__'],
+                        ['alias' => 'ttclid', 'param' => 'ttclid', 'macro' => '__CLICKID__'],
                     ]
                 ],
                 [
@@ -2238,19 +2399,6 @@ try {
                     ]
                 ],
                 [
-                    'name' => 'tiktok',
-                    'display_name' => 'TikTok Ads',
-                    'postback_url' => '',
-                    'parameters' => [
-                        ['alias' => 'campaign_id', 'param' => 'campaign_id', 'macro' => '__CAMPAIGN_ID__'],
-                        ['alias' => 'adgroup_id', 'param' => 'adgroup_id', 'macro' => '__AID__'],
-                        ['alias' => 'ad_id', 'param' => 'ad_id', 'macro' => '__CID__'],
-                        ['alias' => 'creative', 'param' => 'creative', 'macro' => '__CREATIVE_ID__'],
-                        ['alias' => 'pixel', 'param' => 'pixel', 'macro' => '__PIXEL__'],
-                        ['alias' => 'ttclid', 'param' => 'ttclid', 'macro' => '__CLICKID__'],
-                    ]
-                ],
-                [
                     'name' => 'zeropark',
                     'display_name' => 'Zeropark',
                     'postback_url' => 'https://postback.zeropark.com/2eb72633-c33f-4f9d-9e73-d29b40604b48?clickid={external_id}&sum={payout}',
@@ -2290,6 +2438,7 @@ try {
                     'parameters' => []
                 ],
             ];
+            $templates = orbitraMergeTemplates($templates, orbitraLoadTemplatePack('keitaro_traffic_sources.json'));
             echo json_encode(['status' => 'success', 'data' => $templates]);
             break;
 
@@ -4004,6 +4153,7 @@ try {
                     'postback_url_template' => ''
                 ],
             ];
+            $templates = orbitraMergeTemplates($templates, orbitraLoadTemplatePack('keitaro_affiliate_networks.json'));
             echo json_encode(['status' => 'success', 'data' => $templates]);
             break;
 
@@ -6466,31 +6616,44 @@ try {
             $group_by_raw = (string) ($_GET['group_by'] ?? 'country');
 
             $allowed_dimensions = [
-                'country'     => 'clicks.country',
-                'device_type' => 'clicks.device_type',
-                'os'          => 'clicks.os',
-                'browser'     => 'clicks.browser',
-                'language'    => 'clicks.language',
-                'stream_id'   => 'clicks.stream_id',
-                'source_id'   => 'clicks.source_id',
-                'offer_id'    => 'clicks.offer_id',
-                'landing_id'  => 'clicks.landing_id',
-                'campaign_id' => 'clicks.campaign_id',
-                'day'         => "date(clicks.created_at)",
-                'ad_id'       => "json_extract(clicks.parameters_json, '\$.ad_id')",
-                'adset_id'    => "json_extract(clicks.parameters_json, '\$.adset_id')",
+                'country'        => 'clicks.country',
+                'region'         => 'clicks.region',
+                'city'           => 'clicks.city',
+                'device_type'    => 'clicks.device_type',
+                'os'             => 'clicks.os',
+                'browser'        => 'clicks.browser',
+                'language'       => 'clicks.language',
+                'stream_id'      => 'clicks.stream_id',
+                'source_id'      => 'clicks.source_id',
+                'offer_id'       => 'clicks.offer_id',
+                'landing_id'     => 'clicks.landing_id',
+                'campaign_id'    => 'clicks.campaign_id',
+                'day'            => "date(clicks.created_at, '$dbTzOffset')",
+                'hour'           => "strftime('%Y-%m-%d %H:00', clicks.created_at, '$dbTzOffset')",
+                'ad_id'          => "json_extract(clicks.parameters_json, '\$.ad_id')",
+                'adset_id'       => "json_extract(clicks.parameters_json, '\$.adset_id')",
                 'ad_campaign_id' => "json_extract(clicks.parameters_json, '\$.campaign_id')",
+                'keyword'        => "json_extract(clicks.parameters_json, '\$.keyword')",
+                'creative_id'    => "json_extract(clicks.parameters_json, '\$.creative')",
+                'external_id'    => "json_extract(clicks.parameters_json, '\$.external_id')",
             ];
-            for ($i = 1; $i <= 10; $i++) {
+            for ($i = 1; $i <= 30; $i++) {
                 $allowed_dimensions["sub_id_$i"] = "json_extract(clicks.parameters_json, '\$.sub_id_$i')";
             }
 
-            $layers = array_values(array_slice(array_filter(array_map('trim', explode(',', $group_by_raw)), fn($d) => $d !== ''), 0, 3));
+            $layers = array_values(array_slice(array_filter(array_map('trim', explode(',', $group_by_raw)), fn($d) => $d !== ''), 0, 5));
             if (empty($layers)) {
                 $layers = ['country'];
             }
             foreach ($layers as $layer) {
                 if (!array_key_exists($layer, $allowed_dimensions)) {
+                    if (str_starts_with($layer, 'param_') || str_starts_with($layer, 'custom_')) {
+                        $paramName = preg_replace('/^(param_|custom_)/', '', $layer);
+                        if (preg_match('/^[a-zA-Z0-9_\-]+$/', $paramName)) {
+                            $allowed_dimensions[$layer] = "json_extract(clicks.parameters_json, '\$." . addslashes($paramName) . "')";
+                            continue;
+                        }
+                    }
                     echo json_encode(['status' => 'error', 'message' => 'Invalid group_by parameter: ' . htmlspecialchars($layer)]);
                     break 2;
                 }
@@ -6503,53 +6666,101 @@ try {
                 $params[] = $campaign_id;
             }
             if ($date_from) {
-                $conds[] = 'date(clicks.created_at) >= date(?)';
+                $conds[] = "date(clicks.created_at, '$dbTzOffset') >= date(?)";
                 $params[] = $date_from;
             }
             if ($date_to) {
-                $conds[] = 'date(clicks.created_at) <= date(?)';
+                $conds[] = "date(clicks.created_at, '$dbTzOffset') <= date(?)";
                 $params[] = $date_to;
             }
+
+            // Optional filters (JSON array of {field, op, value})
+            if (!empty($_GET['filters'])) {
+                $filtersRaw = is_string($_GET['filters']) ? json_decode($_GET['filters'], true) : $_GET['filters'];
+                if (is_array($filtersRaw)) {
+                    foreach ($filtersRaw as $flt) {
+                        $field = $flt['field'] ?? '';
+                        $op = $flt['op'] ?? 'eq';
+                        $val = $flt['value'] ?? '';
+                        if ($field === '' || $val === '') continue;
+
+                        $sqlExpr = null;
+                        if (isset($allowed_dimensions[$field])) {
+                            $sqlExpr = $allowed_dimensions[$field];
+                        } else if (preg_match('/^[a-zA-Z0-9_\-]+$/', $field)) {
+                            $sqlExpr = "json_extract(clicks.parameters_json, '\$." . addslashes($field) . "')";
+                        }
+
+                        if ($sqlExpr) {
+                            if ($op === 'eq') {
+                                $conds[] = "$sqlExpr = ?";
+                                $params[] = $val;
+                            } else if ($op === 'neq') {
+                                $conds[] = "$sqlExpr != ?";
+                                $params[] = $val;
+                            } else if ($op === 'contains') {
+                                $conds[] = "$sqlExpr LIKE ?";
+                                $params[] = "%$val%";
+                            } else if ($op === 'not_contains') {
+                                $conds[] = "$sqlExpr NOT LIKE ?";
+                                $params[] = "%$val%";
+                            }
+                        }
+                    }
+                }
+            }
+
             $where = $conds ? implode(' AND ', $conds) : '1=1';
 
-            $conversionsValueColumn = getConversionsValueColumn($pdo);
-            $campaignRevenueExpression = '0';
-            if ($conversionsValueColumn !== null) {
-                $campaignRevenueExpression = "COALESCE((SELECT SUM($conversionsValueColumn) FROM conversions WHERE click_id = clicks.id), 0)";
-            }
+            // One pass over conversions / revenue_records, joined on click id — the
+            // previous version ran ten correlated subqueries per click row.
+            $convAggSql = orbitraConversionAggregateSql(getConversionsValueColumn($pdo));
             $revenueRecordsValueColumn = getRevenueRecordsValueColumn($pdo);
-            $campaignRealRevenueExpression = '0';
-            if ($revenueRecordsValueColumn !== null) {
-                $campaignRealRevenueExpression = "COALESCE((SELECT SUM($revenueRecordsValueColumn) FROM revenue_records WHERE click_id = clicks.id), 0)";
-            }
-
-            $dimInner = [];
-            $dimOuter = [];
-            $dimGroupBy = [];
-            foreach ($layers as $i => $layer) {
-                $dimInner[] = "COALESCE({$allowed_dimensions[$layer]}, 'Unknown') as dim_" . ($i + 1);
-                $dimOuter[] = 'dim_' . ($i + 1);
-                $dimGroupBy[] = 'dim_' . ($i + 1);
-            }
+            $realJoin = $revenueRecordsValueColumn !== null
+                ? 'LEFT JOIN ' . orbitraRevenueRecordsAggregateSql($revenueRecordsValueColumn) . ' rr ON rr.click_id = clicks.id'
+                : '';
+            $realRevSelect = $revenueRecordsValueColumn !== null ? 'COALESCE(rr.real_rev, 0)' : '0';
 
             $sql = "
                 SELECT
                     " . implode(', ', $dimOuter) . ",
                     COUNT(click_id) as clicks,
                     COUNT(DISTINCT click_ip) as unique_clicks,
-                    SUM(is_conversion) as conversions,
-                    SUM(click_cost) as cost,
-                    SUM(click_revenue) as revenue,
-                    SUM(click_real_revenue) as real_revenue
+                    SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 THEN 1 ELSE 0 END) as prelander_clicks,
+                    SUM(CASE WHEN offer_id IS NOT NULL AND offer_id > 0 THEN 1 ELSE 0 END) as offer_clicks,
+                    COALESCE(SUM(is_conversion), 0) as conversions,
+                    COALESCE(SUM(cnt_sale), 0) as purchases,
+                    COALESCE(SUM(cnt_hold), 0) as holds,
+                    COALESCE(SUM(cnt_rejected), 0) as rejected,
+                    COALESCE(SUM(cnt_trash), 0) as trash,
+                    COALESCE(SUM(click_cost), 0) as cost,
+                    COALESCE(SUM(click_revenue), 0) as revenue,
+                    COALESCE(SUM(click_sale_revenue), 0) as revenue_confirmed,
+                    COALESCE(SUM(click_hold_revenue), 0) as revenue_hold,
+                    COALESCE(SUM(click_rej_revenue), 0) as revenue_rejected,
+                    COALESCE(SUM(click_trash_revenue), 0) as revenue_trash,
+                    COALESCE(SUM(click_real_revenue), 0) as real_revenue
                 FROM (
                     SELECT clicks.id as click_id,
                            clicks.ip as click_ip,
+                           clicks.landing_id,
+                           clicks.offer_id,
                            clicks.is_conversion,
                            clicks.cost as click_cost,
-                           $campaignRevenueExpression as click_revenue,
-                           $campaignRealRevenueExpression as click_real_revenue,
+                           COALESCE(cv.rev_all, 0) as click_revenue,
+                           COALESCE(cv.rev_sale, 0) as click_sale_revenue,
+                           COALESCE(cv.rev_hold, 0) as click_hold_revenue,
+                           COALESCE(cv.rev_rejected, 0) as click_rej_revenue,
+                           COALESCE(cv.rev_trash, 0) as click_trash_revenue,
+                           $realRevSelect as click_real_revenue,
+                           COALESCE(cv.cnt_sale, 0) as cnt_sale,
+                           COALESCE(cv.cnt_hold, 0) as cnt_hold,
+                           COALESCE(cv.cnt_rejected, 0) as cnt_rejected,
+                           COALESCE(cv.cnt_trash, 0) as cnt_trash,
                            " . implode(', ', $dimInner) . "
                     FROM clicks
+                    LEFT JOIN $convAggSql cv ON cv.click_id = clicks.id
+                    $realJoin
                     WHERE $where
                 )
                 GROUP BY " . implode(', ', $dimGroupBy) . "
@@ -6595,25 +6806,7 @@ try {
                     }
                     $dims[] = $v;
                 }
-                $clicks = (int) $r['clicks'];
-                $cost = (float) $r['cost'];
-                $revenue = (float) $r['revenue'];
-                $realRevenue = (float) $r['real_revenue'];
-                $out[] = [
-                    'dims' => $dims,
-                    'clicks' => $clicks,
-                    'unique_clicks' => (int) $r['unique_clicks'],
-                    'conversions' => (int) $r['conversions'],
-                    'cost' => round($cost, 2),
-                    'revenue' => round($revenue, 2),
-                    'real_revenue' => round($realRevenue, 2),
-                    'profit' => round($revenue - $cost, 2),
-                    'real_profit' => round($realRevenue - $cost, 2),
-                    'cr' => $clicks > 0 ? round(((int) $r['conversions'] / $clicks) * 100, 2) : 0,
-                    'epc' => $clicks > 0 ? round($revenue / $clicks, 4) : 0,
-                    'roi' => $cost > 0 ? round((($revenue - $cost) / $cost) * 100, 2) : ($revenue > $cost ? 100 : 0),
-                    'real_roi' => $cost > 0 ? round((($realRevenue - $cost) / $cost) * 100, 2) : ($realRevenue > $cost ? 100 : 0),
-                ];
+                $out[] = array_merge(['dims' => $dims], orbitraComputeDerivedMetrics($r));
             }
 
             echo json_encode(['status' => 'success', 'data' => ['layers' => $layers, 'rows' => $out]]);
@@ -7136,6 +7329,12 @@ try {
             $releaseNotes = '';
             $downloadUrl = '';
             $releasedAt = null;
+            // A failed GitHub fetch must not masquerade as "you are up to date":
+            // raw.githubusercontent is unreachable from a fair share of hosting
+            // networks, and silently answering latest=current sent users away
+            // from updates that existed. The panel shows the check_failed hint
+            // and points at the manual git pull instead.
+            $checkFailedReason = null;
 
             // Try to fetch latest version from remote server
             if (function_exists('curl_init')) {
@@ -7158,8 +7357,14 @@ try {
                         $releaseNotes = $data['release_notes'] ?? '';
                         $downloadUrl = $data['download_url'] ?? '';
                         $releasedAt = $data['released_at'] ?? null;
+                    } else {
+                        $checkFailedReason = 'Unreadable version.json (HTTP ' . $httpCode . ')';
                     }
+                } else {
+                    $checkFailedReason = 'GitHub unreachable (HTTP ' . $httpCode . ', curl error: ' . curl_error($ch) . ')';
                 }
+            } else {
+                $checkFailedReason = 'curl is not available on this server';
             }
 
             // Compare versions
@@ -7173,6 +7378,9 @@ try {
                 'download_url' => $downloadUrl,
                 'released_at' => $releasedAt,
                 'dependency_bootstrap' => $dependencyBootstrap,
+                // null when the fetch worked; otherwise the panel explains that
+                // "no update" here means "could not check", not "up to date".
+                'check_failed' => $checkFailedReason,
             ];
 
             echo json_encode(['status' => 'success', 'data' => $updateInfo]);

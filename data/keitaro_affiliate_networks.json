@@ -1,0 +1,2372 @@
+[
+ {
+  "name": "12monkiss_com",
+  "display_name": "12Monkiss",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=reg,dep,lead,approve,reject,rebill&lead_status=reg,dep,lead&sale_status=approve,rebill&rejected_status=reject&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=rub,usd,eur&from=12Monkiss"
+ },
+ {
+  "name": "1casino_partners",
+  "display_name": "1casino.partners",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={{clickid}}&status=REPLACE&payout={{income}}&currency=usd&from=1casino.partners"
+ },
+ {
+  "name": "1clickflowcom",
+  "display_name": "1clickflow.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={money}&status={action}&lead_status=0&sale_status=subscribe,rebill&from=1clickflow.com"
+ },
+ {
+  "name": "21st_gold",
+  "display_name": "21st.gold",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status=[REPLACE]&payout={payout}&currency=usd&from=21st.gold"
+ },
+ {
+  "name": "3snet_co",
+  "display_name": "3SNet.co",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&tid={transactionid}&status={status}&lead_status=2&sale_status=1&rejected_status=3&currency={currency}&from=3SNet.co"
+ },
+ {
+  "name": "7_aff",
+  "display_name": "7-aff",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=reg,dep,lead,approve,reject,rebill&lead_status=reg,dep,lead&sale_status=approve,rebill&rejected_status=reject&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=##CURRENCY##&from=7-aff"
+ },
+ {
+  "name": "7000_partners",
+  "display_name": "7000.partners",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&status=[REPLACE]&payout=##CPA_AMOUNT##&currency=USD&from=7000.partners"
+ },
+ {
+  "name": "7bitpartners_com",
+  "display_name": "7bitpartners.com",
+  "offer_params_template": "&visit_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=${visit_id}&status=REPLACE&payout=amount&currency=eur&from=7bitpartners.com"
+ },
+ {
+  "name": "7leads_biz_cpa",
+  "display_name": "7leads.biz(CPA)",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={payout}&status={status_alias}&lead_status=answerphone&sale_status=success&rejected_status=failure,trash&currency={payout_currency}&from=7leads.biz(CPA)"
+ },
+ {
+  "name": "7leads_biz_drop",
+  "display_name": "7leads.biz(Drop)",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={payout}&status={status_alias}&lead_status=answerphone,success,sending&sale_status=finish&rejected_status=failure,return,trash,not_available_off&currency={payout_currency}&from=7leads.biz(Drop)"
+ },
+ {
+  "name": "7offersru",
+  "display_name": "7offers.ru",
+  "offer_params_template": "&subid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={{subid}}&sub_id_2={{subid2}}&sub_id_3={{subid3}}&sub_id_4={{subid4}}&sub_id_5={{subid5}}&status={{action_status}}&payout={{goal_value}}&lead_status=0&sale_status=1&rejected_status=2&currency={{currency}}&offer_id={{offer_id}}&offer_title={{offer_title}}&goal_type={{goal_type}}&goal_title={{goal_title}}&from=7offers.ru"
+ },
+ {
+  "name": "abebet_partners",
+  "display_name": "AbeBet.Partners",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=reg,dep,lead,approve,reject,rebill&lead_status=reg,dep,lead&sale_status=approve,rebill&rejected_status=reject&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=##CURRENCY##&from=AbeBet.Partners"
+ },
+ {
+  "name": "ace_pa",
+  "display_name": "Ace.pa",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status={status}&payout={payout}&currency={payout_currency}&lead_status=new&sale_status=holded&from=Ace.pa"
+ },
+ {
+  "name": "achiva_network",
+  "display_name": "achiva.network",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&tid={transactionid}&payout={sum}&status={status}&lead_status=0,2&sale_status=1&rejected_status=3&currency={currency}&from=achiva.network"
+ },
+ {
+  "name": "acpa_vip",
+  "display_name": "ACPA.vip",
+  "offer_params_template": "&ref_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={ref_id}&status={status}&payout={sum}&currency=usd&lead_status=2&sale_status=1&rejected_status=3&tid={transactionid}&from=ACPA.vip"
+ },
+ {
+  "name": "actionads",
+  "display_name": "actionads.ru",
+  "offer_params_template": "/{subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_sub}&payout={payout}&from=actionads.ru"
+ },
+ {
+  "name": "actionpay",
+  "display_name": "actionpay.ru",
+  "offer_params_template": "/{subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid2}&status={event}&lead_status=accepted&sale_status=paid&rejected_status=rejected&payout={payment}&currency={currency}&from=actionpay.ru"
+ },
+ {
+  "name": "ad_x",
+  "display_name": "AD-x.ru",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&tid={transactionid}&payout={sum}&status={status}&lead_status=2&sale_status=1&rejected_status=3&currency={currency}&from=AD-x.ru"
+ },
+ {
+  "name": "ad2games",
+  "display_name": "ad2games.com",
+  "offer_params_template": "&s2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=#s2#&tid=#tid#&payout=#price#&affid=#affid#&leadid=#leadid#&oid=#oid#&campid=#campid#&cid=#cid#&from=ad2games.com"
+ },
+ {
+  "name": "adbid_biz",
+  "display_name": "Adbid.Biz",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status={status}&from=Adbid.Biz"
+ },
+ {
+  "name": "adexico_com",
+  "display_name": "Adexico.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status=REPLACE&payout={payout_amount}&currency={offer_currency}&from=Adexico.com"
+ },
+ {
+  "name": "adinfo_ru",
+  "display_name": "adinfo.ru",
+  "offer_params_template": "&sub_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id}&status={status}&payout={commission}&lead_time={lead_time}&order_id={order_id}&offer_id={offer_id}&from=adinfo.ru"
+ },
+ {
+  "name": "adleadpro_com",
+  "display_name": "Adleadpro.com",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={payout}&status={conv_status}&lead_status=pending&sale_status=approved&rejected_status=rejected,trash&from=Adleadpro.com"
+ },
+ {
+  "name": "admatix_com",
+  "display_name": "admatix.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status={status}&payout={profit}&currency=RUB&from=admatix.com"
+ },
+ {
+  "name": "admitad",
+  "display_name": "admitad.com",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=[[[subid]]]&status=[[[payment_status]]]&payout=[[[payment_sum]]]&from=admitad.com"
+ },
+ {
+  "name": "admusketeer_com",
+  "display_name": "Admusketeer.com",
+  "offer_params_template": "&extra1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={extra1}&status={conversion_status}&payout={payout}&offerid={offerid}&pubid={pubid}&currency={currency}&referral={referral}&from=Admusketeer.com"
+ },
+ {
+  "name": "adpump_ru",
+  "display_name": "Adpump.ru",
+  "offer_params_template": "&apsubid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid1}&payout={payment}&currency={currency2}&status={status}&lead_status=1,300&sale_status=310&rejected_status=400&from=Adpump.ru"
+ },
+ {
+  "name": "adsellerator_ru",
+  "display_name": "adsellerator.ru",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={status}&currency={currency}&lead_status=2,5&sale_status=1&rejected_status=3,rejected,trash&from=adsellerator.ru"
+ },
+ {
+  "name": "adsempire_com",
+  "display_name": "AdsEmpire.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&payout={payout}&status={conversionType}&lead_status=lead,install&sale_status=sale,confirm&currency={currency}&tid={tds_cid}&from=AdsEmpire.com"
+ },
+ {
+  "name": "adtrafico",
+  "display_name": "adtrafico.com",
+  "offer_params_template": "&aff_sub={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_sub}&payout={payout}&tid={transaction_id}&currency={currency}&sub_id_2={aff_sub5}&from=adtrafico.com"
+ },
+ {
+  "name": "advada_net",
+  "display_name": "advada.net",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status={goal}&lead_status=1&sale_status=2&payout={sum}&currency={currency}&from=advada.net"
+ },
+ {
+  "name": "advendor_net",
+  "display_name": "advendor.net",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&currency={currency}&status={status}&from=advendor.net"
+ },
+ {
+  "name": "adverten_com",
+  "display_name": "adverten.com",
+  "offer_params_template": "&utm_content={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={utm_content}&payout={amount}&ip={ip}&country_name={country}&currency=USD&from=adverten.com"
+ },
+ {
+  "name": "advgame",
+  "display_name": "AdvGame.ru",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&tid={conversion_id}&payout={cost}&status={status}&lead_status=NEW&sale_status=CONFIRMED&rejected_status=REJECTED&currency={currency}&from=AdvGame.ru"
+ },
+ {
+  "name": "advidi_com",
+  "display_name": "advidi.com",
+  "offer_params_template": "&s2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=#s2#&tid=#tid#&status=sale&from=advidi.com"
+ },
+ {
+  "name": "adwad",
+  "display_name": "adwad.ru",
+  "offer_params_template": "&aff_sub={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={payout}&txid={goal_id}&from=adwad.ru"
+ },
+ {
+  "name": "adworkmedia_com",
+  "display_name": "adworkmedia.com",
+  "offer_params_template": "&sid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sid}&tid={leadID}&payout={amount}&status={status}&offer_id={offer_id}&offer_name={offer_name}&from=adworkmedia.com"
+ },
+ {
+  "name": "aff_lucky_com",
+  "display_name": "aff-lucky.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status=[REPLACE]&payout={amount}&currency=[REPLACE]&from=aff-lucky.com"
+ },
+ {
+  "name": "aff_f5stat_com",
+  "display_name": "aff.f5stat.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={status}&tid={transactionid}&currency=usd&from=aff.f5stat.com"
+ },
+ {
+  "name": "aff1_com",
+  "display_name": "aff1.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&status={type}&lead_status=lead_add,lead&sale_status=lead_approve&rejected_status=lead_cancel&payout={payout}&currency=USD&from=aff1.com"
+ },
+ {
+  "name": "affi_co",
+  "display_name": "Affi.co",
+  "offer_params_template": "&refid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={refid}&payout={sum}&status={status}&currency={currency}&lead_status=2,5&sale_status=1&rejected_status=3,rejected,trash&from=Affi.co"
+ },
+ {
+  "name": "affiliate_ownrwallet_com",
+  "display_name": "affiliate.ownrwallet.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&status={status}&payout={sum}&currency=usd&sale_status=1&lead_status=2,5&rejected_status=3&from=affiliate.ownrwallet.com"
+ },
+ {
+  "name": "affiliatecube_com",
+  "display_name": "affiliatecube.com",
+  "offer_params_template": "&sid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={{sid1}}&tid={{action_id}}&payout={{payout}}&promo_tool={{promo_tool}}&promo_id={{promo_id}}&from=affiliatecube.com"
+ },
+ {
+  "name": "affiliatedragons",
+  "display_name": "AffiliateDragons.com",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&payout={price}&status={status}&sale_status=approve&currency=USD&from=AffiliateDragons.com"
+ },
+ {
+  "name": "affimob_com",
+  "display_name": "affimob.com",
+  "offer_params_template": "&pt_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={pt_id}&status={status}&lead_status=SUBSCRIBE&sale_status=BILLING&payout={income}&currency=usd&msisdn_masked={msisdn_masked}&from=affimob.com"
+ },
+ {
+  "name": "affise_com",
+  "display_name": "Affise.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={status}&currency={currency}&lead_status=2%2C5&sale_status=1&rejected_status=3%2Crejected%2Ctrash&from=Affise.com"
+ },
+ {
+  "name": "affmamba_com",
+  "display_name": "Affmamba.com",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&status={goal}&lead_status=lead&sale_status=sale,kval&from=Affmamba.com"
+ },
+ {
+  "name": "affmy_com",
+  "display_name": "affmy.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&currency={currency}&status={status}&lead_status=1,2&sale_status=5&rejected_status=3&from=affmy.com"
+ },
+ {
+  "name": "affprimeiros_com",
+  "display_name": "Affprimeiros.com",
+  "offer_params_template": "&visit_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=${visit_id}&status=REPLACE&currency=${currency}&from=Affprimeiros.com"
+ },
+ {
+  "name": "affpro_com",
+  "display_name": "Affpro.com",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={payout}&status=[REPLACE]&currency={offer_currency}&tid={transaction_id}&from=Affpro.com"
+ },
+ {
+  "name": "affscale_com",
+  "display_name": "Affscale.com",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status={conv_status}&lead_status=pending&sale_status=approved&rejected_status=rejected,trash&payout={payout}&currency=usd&from=Affscale.com"
+ },
+ {
+  "name": "affshark_com",
+  "display_name": "Affshark.com",
+  "offer_params_template": "&sub5={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub5}&payout={sum}&status={status}&currency={currency}&lead_status=2,5&sale_status=1&rejected_status=3,rejected,trash&from=Affshark.com"
+ },
+ {
+  "name": "affstar_com",
+  "display_name": "Affstar.com",
+  "offer_params_template": "&sub_id1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id1}&payout={amount}&currency={currency}&status={status}&lead_status=new&sale_status=approved&rejected_status=rejected,trash&from=Affstar.com"
+ },
+ {
+  "name": "affstream",
+  "display_name": "Affstream",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={amount}&status=REPLACE&tid={conversion_id}&currency={currency}&from=Affstream"
+ },
+ {
+  "name": "affsub2_com",
+  "display_name": "Affsub2.com",
+  "offer_params_template": "&sub2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub2}&payout={sum}&currency=usd&status={status}&sub_id_1={sub4}&from=Affsub2.com"
+ },
+ {
+  "name": "affter_com",
+  "display_name": "Affter.com",
+  "offer_params_template": "&anid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={source_id1}&status=REPLACE&payout={payout}&currency=usd&from=Affter.com"
+ },
+ {
+  "name": "affvibe_com",
+  "display_name": "affvibe.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&currency={currency}&status={status}&sub_id_15={goal}&tid={transactionid}&from=affvibe.com"
+ },
+ {
+  "name": "affzen_club",
+  "display_name": "affzen.club",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status={status}&lead_status=2&sale_status=1,5&rejected_status=3&payout={sum}&currency={currency}&from=affzen.club"
+ },
+ {
+  "name": "alanbase_com",
+  "display_name": "Alanbase.com",
+  "offer_params_template": "&sub_id1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id1}&payout={revenue}&currency={currency}&status={status}&lead_status=pending,hold&sale_status=confirmed&from=Alanbase.com"
+ },
+ {
+  "name": "altercpa_pro",
+  "display_name": "altercpa.pro",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&tid={id}&payout={cash}&currency={currency}&status={stage}&lead_status=wait,hold&sale_status=approve&reject_status=cancel,trash&from=altercpa.pro"
+ },
+ {
+  "name": "amileads",
+  "display_name": "Amileads.site",
+  "offer_params_template": "&sub5={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub5}&status={goal}&lead_status=1&sale_status=2&rejected_status=3&payout={sum}&currency={currency}&tid={transactionid}&from=Amileads.site"
+ },
+ {
+  "name": "angryleads_net",
+  "display_name": "angryleads.net",
+  "offer_params_template": "&tracker_click={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={tracker_click}&payout={amount}&status={status}&lead_status=lead_hold&sale_status=conversion_accepted&rejected_status=lead_trash,lead_rejected,conversion_rejected&currency={currency}&from=angryleads.net"
+ },
+ {
+  "name": "aray_com",
+  "display_name": "Aray.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&payout={revenue}&status={status}&tid={trans_id}&lead_status=lead,hold&sale_status=confirmed&rejected_status=cancelled,rejected,trash&from=Aray.com"
+ },
+ {
+  "name": "asol_pro",
+  "display_name": "Asol.pro",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&status={stage}&payout={cash}&currency=usd&lead_status=wait,hold&sale_status=approve&rejected_status=trash,cancel&from=Asol.pro"
+ },
+ {
+  "name": "atlas_network",
+  "display_name": "atlas.affise.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&payout={sum}&status={status}&lead_status=2&sale_status=1&rejected_status=3&currency=currency&tid={transactionid}&sub_id_13={offer_name}&sub_id_14={ios_idfa}&sub_id_15={android_id}&from=atlas.affise.com"
+ },
+ {
+  "name": "auron_partners",
+  "display_name": "Auron.partners",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status={conv_status}&payout={payout}&currency=usd&lead_status=pending&sale_status=approved&rejected_status=rejected,trash&from=Auron.partners"
+ },
+ {
+  "name": "badboys_network",
+  "display_name": "Badboys.network",
+  "offer_params_template": "&h_2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={id}&payout={payout}&currency=USD&from=Badboys.network"
+ },
+ {
+  "name": "banzai_partners_cpa",
+  "display_name": "banzai.partners(cpa)",
+  "offer_params_template": "&sub3={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub3}&status=[REPLACE]&payout={payout}&currency={currency}&from=banzai.partners(cpa)"
+ },
+ {
+  "name": "banzai_partners_revshare",
+  "display_name": "banzai.partners(revshare)",
+  "offer_params_template": "&sub3={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub3}&status=[REPLACE]&payout={rs_profit}&currency=usd&sub_id_12={dep_count}&sub_id_13={dep_sum}&sub_id_14={bid_win}&tid={id}&sub_id_16={bid_loss}&sub_id_17={bid_win}&sub_id_18={gambler}&from=banzai.partners(revshare)"
+ },
+ {
+  "name": "bazar_media",
+  "display_name": "bazar.media",
+  "offer_params_template": "&keitaro_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={keitaro_id}&payout={payout}&status={status}&lead_status=new,pending&sale_status=approved&currency=rub&from=bazar.media"
+ },
+ {
+  "name": "betwin_partners",
+  "display_name": "betwin.partners",
+  "offer_params_template": "&anid={subid}_{replace_ID}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={anid}_{replace_ID}&status=REPLACE&payout={payout}&currency=usd&from=betwin.partners"
+ },
+ {
+  "name": "big_bang_ads_com",
+  "display_name": "big-bang-ads.com",
+  "offer_params_template": "&aff_sub_2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_sub_2}&from=big-bang-ads.com"
+ },
+ {
+  "name": "btterstrawberrycom",
+  "display_name": "bitterstrawberry.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&tid={transaction_id}&status={status}&payout={payout}&currency={currency}&from=bitterstrawberry.com"
+ },
+ {
+  "name": "blackaff_pro",
+  "display_name": "blackaff.pro",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&status={kt_status}&payout={revenue}&currency=usd&from=blackaff.pro"
+ },
+ {
+  "name": "bongacash",
+  "display_name": "BongaCash.com",
+  "offer_params_template": "&subid2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid2}&currency={currency}&status={type}&payout={commission}&lead_status=initial&sale_status=rebill,refund,chargeback&from=BongaCash.com"
+ },
+ {
+  "name": "braip_com",
+  "display_name": "braip.com",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": ""
+ },
+ {
+  "name": "brazpartners_com",
+  "display_name": "brazpartners.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&payout={paymentAmount}&currency=usd&status=replace&from=brazpartners.com"
+ },
+ {
+  "name": "broleads_com",
+  "display_name": "Broleads.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&status={status}&lead_status=created&sale_status=confirmed,valid&rejected_status=trashed,canceled&payout={pay_sum}&currency=usd&from=Broleads.com"
+ },
+ {
+  "name": "bromedia_top",
+  "display_name": "bromedia.top",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={{subid}}&tid={{click_id}}&status={{status}}&payout={{profit}}&from=bromedia.top"
+ },
+ {
+  "name": "bropush_com",
+  "display_name": "bropush.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status=lead&from=bropush.com"
+ },
+ {
+  "name": "bunny_partners",
+  "display_name": "bunny.partners",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status=REPLACE&payout={payout}&currency=usd&from=bunny.partners"
+ },
+ {
+  "name": "cake",
+  "display_name": "cake",
+  "offer_params_template": "&s2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=#s2#&tid=#tid#&payout=#price#&affid=#affid#&leadid=#leadid#&oid=#oid#&campid=#campid#&cid=#cid#&from=cake"
+ },
+ {
+  "name": "cartpanda_com",
+  "display_name": "cartpanda.com",
+  "offer_params_template": "&utm_term={subid}",
+  "postback_url_template": ""
+ },
+ {
+  "name": "cashberry_cc",
+  "display_name": "cashberry.cc",
+  "offer_params_template": "&cb_name={cb_name}&cb_last={cb_last}&cb_index={cb_index}&cb_city={cb_city}&cb_state={cb_state}&cb_address={cb_address}&cb_phone={cb_phone}&cb_email={cb_email}&cb_text={cb_text}&cb_img={cb_img}&subid={subid}&utm_term={utm_term}&utm_campaign={utm_campaign}&utm_source={utm_source}&utm_medium={utm_medium}&utm_content={utm_content}&fb={fb}&fbclid={fbclid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&status={stage}&tid={id}&payout={cash}&currency={currency}&lead_status=wait&sale_status=hold,approve&rejected_status=cancel&trash_status=trash&from=cashberry.cc"
+ },
+ {
+  "name": "cashcrew_club",
+  "display_name": "cashcrew.club",
+  "offer_params_template": "&sub_id1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id1}&status=REPLACE&payout={revenue}&currency={currency}&from=cashcrew.club"
+ },
+ {
+  "name": "cashfactories_com",
+  "display_name": "CashFactories.com",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&status={stage}&tid={id}&payout={cash}&currency=usd&lead_status=wait,hold&sale_status=approve&rejected_status=trash,cancel&from=CashFactories.com"
+ },
+ {
+  "name": "cashplanet_org",
+  "display_name": "cashplanet.org",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&status={status}&currency=USD&from=cashplanet.org"
+ },
+ {
+  "name": "cell_expert",
+  "display_name": "Cell.expert",
+  "offer_params_template": "&afp1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=[afp1]&status=[REPLACE]&payout=[CommissionAmount]&currency=eur&from=Cell.expert"
+ },
+ {
+  "name": "ci_mobile_com",
+  "display_name": "Ci-mobile.com",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status=REPLACE&payout={payout}&currency=usd&from=Ci-mobile.com"
+ },
+ {
+  "name": "cityads",
+  "display_name": "cityads.ru",
+  "offer_params_template": "&sa={subid}",
+  "postback_url_template": ""
+ },
+ {
+  "name": "cj_com",
+  "display_name": "cj.com",
+  "offer_params_template": "&SID={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={url(sid)}&sub_id_2={commission}&tid={url(oid)}&payout=[PAYOUT]&from=cj.com"
+ },
+ {
+  "name": "click2_money",
+  "display_name": "Click2.money",
+  "offer_params_template": "&subid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid1}&payout={payout}&status={action_type}&currency={currency}&lead_status=hold&sale_status=payout&rejected_status=rejected&from=Click2.money"
+ },
+ {
+  "name": "clickbank_com",
+  "display_name": "Clickbank.com",
+  "offer_params_template": "&tid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={tid}&payout={affiliate_earnings}&status={event_type}&currency=usd&lead_status=ORDER_IMPRESSION&sale_status=PURCHASE,UPSELL&tid={event_id}&from=Clickbank.com"
+ },
+ {
+  "name": "clickdealer",
+  "display_name": "clickdealer.com",
+  "offer_params_template": "&s2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=#s2#&payout=#price#&s3=#s3#&s4=#s4#&s5=#s5#&s6=#s6#&affid=#affid#&iod=#oid#&campid=#campid#&leadid=#leadid#&from=clickdealer.com"
+ },
+ {
+  "name": "clickengine_net",
+  "display_name": "clickengine.net",
+  "offer_params_template": "&tracker_click={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={tracker_click}&payout={amount}&status={status}&currency={currency}&lead_status=lead_hold&sale_status=conversion_accepted&rejected_status=lead_trash,lead_rejected,conversion_rejected&from=clickengine.net"
+ },
+ {
+  "name": "clickhub_in",
+  "display_name": "clickhub",
+  "offer_params_template": "&custom1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={custom1}&status=REPLACE&payout={payout}&currency={currency}&from=clickhub"
+ },
+ {
+  "name": "clickid_network",
+  "display_name": "Clickid.network",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={payout}&status={conv_status}&lead_status=pending&sale_status=approved&rejected_status=rejected,trash&currency={offer_currency}&tid={transaction_id}&from=Clickid.network"
+ },
+ {
+  "name": "clicklead_network",
+  "display_name": "clicklead.network",
+  "offer_params_template": "&sub_id_1={subid}",
+  "postback_url_template": ""
+ },
+ {
+  "name": "clickpay_money",
+  "display_name": "Clickpay.money",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={amount}&currency={currency}&sub_id_9={pay_type}&sub_id_10={event}&sub_id_11={thread_id}&from=Clickpay.money"
+ },
+ {
+  "name": "clicktimesru",
+  "display_name": "clicktimes.ru",
+  "offer_params_template": "&utm_term={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={utm_term}&tid={date}&operator={operator}&status={event}&payout={sum}&lead_status=subscribe&sale_status=billed,buyout&from=clicktimes.ru"
+ },
+ {
+  "name": "cmaffs_com",
+  "display_name": "Cmaffs.com",
+  "offer_params_template": "&custom2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={custom2}&payout={payout}&status=[REPLACE]&from=Cmaffs.com"
+ },
+ {
+  "name": "con_fluence_agency",
+  "display_name": "con-fluence.agency",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status=REPLACE&payout={sum}&currency={currency}&from=con-fluence.agency"
+ },
+ {
+  "name": "convertingteam",
+  "display_name": "ConvertingTeam",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={{S}}&status={status}&lead_status=lead&sale_status=sale&payout={payment}&from=ConvertingTeam"
+ },
+ {
+  "name": "converto_force_com",
+  "display_name": "converto-force.com",
+  "offer_params_template": "&c={subid}",
+  "postback_url_template": ""
+ },
+ {
+  "name": "cosmolot",
+  "display_name": "Cosmolot",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=${clickid}&status=REPLACE&payout=[CommissionAmount]&currency=usd&from=Cosmolot"
+ },
+ {
+  "name": "cpa_1_ru",
+  "display_name": "cpa-1.ru",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={status}&currency={currency}&lead_status=5&sale_status=1&rejected_status=3&from=cpa-1.ru"
+ },
+ {
+  "name": "cpa_bingo",
+  "display_name": "Cpa.bingo",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={status}&currency={currency}&lead_status=2,5&sale_status=1&rejected_status=3,rejected,trash&from=Cpa.bingo"
+ },
+ {
+  "name": "cpa_house",
+  "display_name": "Cpa.house",
+  "offer_params_template": "&sub_id_1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id_1}&payout={amount_commission}&status={status}&lead_status=new,in_processing&sale_status=accepted&currency={currency_code}&sub_id_2={id_offer}&from=Cpa.house"
+ },
+ {
+  "name": "cpa_ru",
+  "display_name": "cpa.ru",
+  "offer_params_template": "&subacc4={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subacc4}&payout={revenue}&status={status}&tid={trans_id}&from=cpa.ru"
+ },
+ {
+  "name": "cpaband_io",
+  "display_name": "CPABAND",
+  "offer_params_template": "&MPC_1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={MPC_1}&payout={payout}&status=REPLACE&currency=usd&tid={transaction_id}&from=CPABAND"
+ },
+ {
+  "name": "cpabazuka_com",
+  "display_name": "Cpabazuka.com",
+  "offer_params_template": "&sub_id3={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id3}&payout={payout}&status={conv_status}&lead_status=pending&sale_status=approved&rejected_status=trash,rejected&currency={replace}&tid={transaction_id}&from=Cpabazuka.com"
+ },
+ {
+  "name": "cpacash_pro",
+  "display_name": "Cpacash.pro",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={status}&currency={currency}&lead_status=2,5&sale_status=1&rejected_status=3,rejected,trash&from=Cpacash.pro"
+ },
+ {
+  "name": "cpacrew_pro",
+  "display_name": "cpacrew.pro",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status=[REPLACE]&payout={payout}&currency={offer_currency}&from=cpacrew.pro"
+ },
+ {
+  "name": "cpaecom_com",
+  "display_name": "Cpaecom.com",
+  "offer_params_template": "&sub_id={subid}&pixel={sub_id_1}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id}&payout={payment}&status={status}&currency=usd&lead_status=accept&sale_status=confirm&rejected_status=reject,trash,fail,duplicate&from=Cpaecom.com"
+ },
+ {
+  "name": "cpaelectro_com",
+  "display_name": "cpaelectro.com",
+  "offer_params_template": "&sub={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={p:sub}&status={status}&currency=rub&lead_status=new&sale_status=confirmed,payed&rejected_status=denied,not_redeemed&payment_status={payment_status}&from=cpaelectro.com"
+ },
+ {
+  "name": "cpaexchange",
+  "display_name": "cpaexchange.ru",
+  "offer_params_template": "&data={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=[SUB_ID]&sub_id_2=[SUB_ID2]&sub_id_3=[SUB_ID3]&offer_id=[OFFER_ID]&transaction_id=[TRANSACTION_ID]&payout=[PAYOUT]&from=cpaexchange.ru"
+ },
+ {
+  "name": "cpagen_biz",
+  "display_name": "Cpagen.biz",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status=REPLACE&tid={transactionid}&payout={sum}&currency={currency}&from=Cpagen.biz"
+ },
+ {
+  "name": "cpagetti",
+  "display_name": "cpagetti.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status={status}&payout={money}&ip={ip}&offer={offer}&landing={landing}&layer={layer}&convid={convid}&lead_status=new,wait,valid&sale_status=accept,confirmed,hold&rejected_status=invalid,trash,declined&currency=usd&from=cpagetti.com"
+ },
+ {
+  "name": "cpaheaven_com",
+  "display_name": "CPAheaven.com",
+  "offer_params_template": "&sub_id1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id1}&status=REPLACE&payout={payout}&currency=usd&from=CPAheaven.com"
+ },
+ {
+  "name": "cpaikon_com",
+  "display_name": "cpaikon.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status={status}&payout={payout_webmaster}&convid={convid}&lead_status=create&sale_status=approved&rejected_status=cancel,duplicate&currency={currency}&from=cpaikon.com"
+ },
+ {
+  "name": "cpa_lab",
+  "display_name": "cpalab.biz",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={status}&currency={currency}&lead_status=2,5&sale_status=1&rejected_status=3,rejected,trash&from=cpalab.biz"
+ },
+ {
+  "name": "cpaleadcom",
+  "display_name": "cpalead.com",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&tid={lead_id}&payout={payout}&from=cpalead.com"
+ },
+ {
+  "name": "cpamatica_com",
+  "display_name": "cpamatica.com",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&payout={payout}&status={status}&offer_name={offer_name}&tid={transaction_id}&currency={currency}&from=cpamatica.com"
+ },
+ {
+  "name": "cpaomni_com",
+  "display_name": "Cpaomni.com",
+  "offer_params_template": "&pbid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={pbid}&payout={reward}&product_id={product_id}&traffic_flow_id={traffic_flow_id}&status={order_status}&tid={transaction_id}&currency=usd&lead_status=created&rejected_status=refused&sale_status=sent,confirmed,paid&from=Cpaomni.com"
+ },
+ {
+  "name": "cpapolicebiz",
+  "display_name": "cpapolice.biz",
+  "offer_params_template": "/{subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={data1}&payout={profit}&status={status}&ip={ip}&offer={offer}&flow_id={flow_id}&lead_id={lead_id}&goal_id={goal_id}&goal_name={goal_name}&offer_id={offer_id}&offer_name={offer_name}&from=cpapolice.biz"
+ },
+ {
+  "name": "cparkly",
+  "display_name": "CPArkly",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&tid={transaction_id}&status=lead&payout={payout}&currency={offer_currency}&from=CPArkly"
+ },
+ {
+  "name": "cpascanner_partners",
+  "display_name": "Cpascanner.partners",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={payout}&status=[REPLACE]&currency=usd&from=Cpascanner.partners"
+ },
+ {
+  "name": "cpatify_com",
+  "display_name": "CPATify.com",
+  "offer_params_template": "&sub_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id}&status={status}&lead_status=create&sale_status=confirm&rejected_status=rejected,trash&payout={payment}&currency=usd&from=CPATify.com"
+ },
+ {
+  "name": "cpatoday_biz",
+  "display_name": "Cpatoday.biz",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={status}&lead_status=2&sale_status=1&rejected_status=3&currency={currency}&from=Cpatoday.biz"
+ },
+ {
+  "name": "cpaway_com",
+  "display_name": "cpaway.com",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=#subid#&payout=#rate#&currency=usd&campid=#cid#&from=cpaway.com"
+ },
+ {
+  "name": "cpicash_com",
+  "display_name": "cpicash.com",
+  "offer_params_template": "&pub_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=#{click.publisher.clickId}&payout=#{payout.theyGetInDollars}&currency=usd&status=#{eventType.name}&from=cpicash.com"
+ },
+ {
+  "name": "crm_stepmode_ba",
+  "display_name": "crm.stepmode.ba",
+  "offer_params_template": "&additional1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={additional1}&status={status}&payout={payout}&currency=usd&lead_status=Processing&sale_status=Accepted&rejected_status=Cancelled,Spam,Double,PotentionalDouble&from=crm.stepmode.ba"
+ },
+ {
+  "name": "cryp_im",
+  "display_name": "Cryp.im",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&payout={payout}&status={status}&lead_status=pending&sale_status=paid&rejected_status=rejected&tid={conversionId}&currency=USD&from=Cryp.im"
+ },
+ {
+  "name": "ctr_ru",
+  "display_name": "ctr.ru",
+  "offer_params_template": "&sub_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id}&payout={payment}&status={status_name}&currency=rub&from=ctr.ru"
+ },
+ {
+  "name": "dancewithbender_com",
+  "display_name": "dancewithbender.com",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=%click_id%&status=%action%&payout=%sum_rub%&date=%date%&from=dancewithbender.com"
+ },
+ {
+  "name": "daopush_com",
+  "display_name": "Daopush.com",
+  "offer_params_template": "&utm_term={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={utm_term}&status={mode}&lead_status=subs&sale_status=cpc,cpm&payout={sum}&currency={currency}&from=Daopush.com"
+ },
+ {
+  "name": "darkleads_pro",
+  "display_name": "Darkleads.pro",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={get.sub1}&payout={payout}&status={order_status}&lead_status=new,proc&sale_status=accept,sended,dost,vr&rejected_status=reject,return&currency={currency}&from=Darkleads.pro"
+ },
+ {
+  "name": "dateyard_com",
+  "display_name": "dateyard.com",
+  "offer_params_template": "&utm_term={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={utm_term}&tid={id_user}&payout={amout}&currency=usd&sale_status=reg_confirmed&from=dateyard.com"
+ },
+ {
+  "name": "datify_link",
+  "display_name": "datify.link",
+  "offer_params_template": "&s1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={s1}&payout={revenue}&status=sale&currency=usd&from=datify.link"
+ },
+ {
+  "name": "datspush_com",
+  "display_name": "datspush.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=[SUB1]&payout=[PAYOUT]&tid=[CLICK_ID]&currency=usd&from=datspush.com"
+ },
+ {
+  "name": "dephouse_club",
+  "display_name": "dephouse.club",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status=[REPLACE]&payout={payout}&currency={currency}&from=dephouse.club"
+ },
+ {
+  "name": "deplab_net",
+  "display_name": "Deplab.net",
+  "offer_params_template": "&ref_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={ref_id}&payout={sum}&currency={currency}&status={goal}&lead_status=1&sale_status=2&rejected_status=3&from=Deplab.net"
+ },
+ {
+  "name": "directaffiliate_com",
+  "display_name": "Directaffiliate.com",
+  "offer_params_template": "&custom1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={custom1}&payout={payout}&currency=USD&status={status}&lead_status=hold&sale_status=approve&rejected_status=reject&from=Directaffiliate.com"
+ },
+ {
+  "name": "doctor_mailer_com",
+  "display_name": "doctor-mailer.com",
+  "offer_params_template": "&clkid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clkid}&status=REPLACE&payout={payout}&currency=USD&from=doctor-mailer.com"
+ },
+ {
+  "name": "dott_pro",
+  "display_name": "dott.pro",
+  "offer_params_template": "&data1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={data1}&goal_name={goal_name}&tid={lead_id}&status={status}&payout={profit}&currency=rub&offer_name={offer_name}&lead_status=waiting&sale_status=approved&rejected_status=decline&from=dott.pro"
+ },
+ {
+  "name": "dspartners_pro",
+  "display_name": "dspartners.pro",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status=[REPLACE]&payout={payout}&currency={offer_currency}&from=dspartners.pro"
+ },
+ {
+  "name": "dugwap_ru",
+  "display_name": "dugwap.ru",
+  "offer_params_template": "&utm_term={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={utm_term}&payour={sum}&operator={operator}&status={event}&sale_status=billed,buyout&lead_status=subscribe&landing={landing}&from=dugwap.ru"
+ },
+ {
+  "name": "easylab_network",
+  "display_name": "Easylab.network",
+  "offer_params_template": "&cid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&payout={payout}&currency=usd&status={conversion_status}&from=Easylab.network"
+ },
+ {
+  "name": "edem_partners",
+  "display_name": "edem.partners",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status={status}&lead_status=pending&sale_status=approved&rejected_status=rejected,trash&payout={payout}&tid={transaction_id}&currency=usd&from=edem.partners"
+ },
+ {
+  "name": "edu_money_com",
+  "display_name": "edu-money.com",
+  "offer_params_template": "&sub_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id}&status={status}&payout={payout}&tid={tid}&currency=usd&from=edu-money.com"
+ },
+ {
+  "name": "eduzz_com",
+  "display_name": "eduzz.com",
+  "offer_params_template": "&utm_term={subid}",
+  "postback_url_template": ""
+ },
+ {
+  "name": "eliziym_com",
+  "display_name": "Eliziym.com",
+  "offer_params_template": "&subid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid1}&payout={payout}&currency={currency}&status={status}&tid={tid}&from=Eliziym.com"
+ },
+ {
+  "name": "epicads_net",
+  "display_name": "EpicAds.Net",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={user_click_id}&payout={cost}&status=sale&from=EpicAds.Net"
+ },
+ {
+  "name": "evadav_com",
+  "display_name": "evadav.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&from=evadav.com"
+ },
+ {
+  "name": "everad_com",
+  "display_name": "Everad.com",
+  "offer_params_template": "&sid5={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sid5}&status={status}&payout={payout}&lead_status=pending&sale_status=approved&rejected_status=rejected,trash&currency={currency}&from=Everad.com"
+ },
+ {
+  "name": "everest_media",
+  "display_name": "Everest.media",
+  "offer_params_template": "&sub2={subid}&sub3={pixel}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub2}&status=sale&payout={payout_amount}&currency=usd&from=Everest.media"
+ },
+ {
+  "name": "excel_rent",
+  "display_name": "Excel.rent",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&payout={payout}&status={event}&lead_status=reg&sale_status=first_dep,dep&from=Excel.rent"
+ },
+ {
+  "name": "exgaming_partners",
+  "display_name": "Exgaming.partners",
+  "offer_params_template": "&sub_id1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id1}&status={goal}&payout={revenue}&currency=usd&from=Exgaming.partners"
+ },
+ {
+  "name": "exnessaffiliates_com",
+  "display_name": "Exnessaffiliates.com",
+  "offer_params_template": "&cid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={cid}&payout={aff_value}&status=REPLACE&currency=usd&lead_status=registration&sale_status=aggregated_deposit,qualification&from=Exnessaffiliates.com"
+ },
+ {
+  "name": "expertmobi_com",
+  "display_name": "expertmobi.com",
+  "offer_params_template": "&subid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={{subid1}}&tid={{action_id}}&payout={{goal_value}}&from=expertmobi.com"
+ },
+ {
+  "name": "expertoption_com",
+  "display_name": "expertoption.com",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&tid={transaction_id}&payout={payout}&sale_status=real&from=expertoption.com"
+ },
+ {
+  "name": "ezaff_com",
+  "display_name": "ezaff.com",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&status=REPLACE&payout={payout}&lead_status=new&sale_status=approve&rejected_status=cancel&from=ezaff.com"
+ },
+ {
+  "name": "fame_space",
+  "display_name": "fame.space",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status={goal}&payout={sum}&currency={currency}&lead_status=reg&sale_status=ftd&from=fame.space"
+ },
+ {
+  "name": "finkort_ru",
+  "display_name": "Finkort.ru",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&status={status}&lead_status=pending&sale_status=approved&rejected_status=rejected,repeat,double&payout={sumPostback}&tid={transaction_id}&currency=rub&sub_id_1={action}&sub_id_2={wm_id}&from=Finkort.ru"
+ },
+ {
+  "name": "foxoffers",
+  "display_name": "Foxoffers.com",
+  "offer_params_template": "&MPC_1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={MPC_1}&status={status}&payout={payout}&currency=usd&lead_status=registration&sale_status=deposit&rejected_status=canceled,fake,failure,fail&from=Foxoffers.com"
+ },
+ {
+  "name": "foxyads_ru",
+  "display_name": "foxyads.ru",
+  "offer_params_template": "&subid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid1}&tid={uniqueid}&status={status}&payout={payment}&lead_status=wait,hold&sale_status=approved&rejected_status=rejected&currency=rub&from=foxyads.ru"
+ },
+ {
+  "name": "franklinaffiliates_com",
+  "display_name": "Franklinaffiliates.com",
+  "offer_params_template": "&custom1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={custom1}&payout={payout}&currency=usd&status=[REPLACE]&from=Franklinaffiliates.com"
+ },
+ {
+  "name": "ftd_pro",
+  "display_name": "ftd.pro",
+  "offer_params_template": "&sub_id1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id1}&status=REPLACE&payout={revenue}&currency={currency}&from=ftd.pro"
+ },
+ {
+  "name": "funcpa_ru",
+  "display_name": "funcpa.ru",
+  "offer_params_template": "&subid2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid2}&tid={id}&status={status}&payout={profit}&lead_status=waiting&sale_status=approved&rejected_status=decline&currency=rub&from=funcpa.ru"
+ },
+ {
+  "name": "gagarin_partners",
+  "display_name": "Gagarin.partners",
+  "offer_params_template": "/{subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid1}&status={event}&payout={payment}&currency={currency}&lead_status=created,accepted&sale_status=paid&rejected_status=rejected&from=Gagarin.partners"
+ },
+ {
+  "name": "gambeat_io",
+  "display_name": "Gambeat.io",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status=REPLACE&payout={payout}&currency={currency}&from=Gambeat.io"
+ },
+ {
+  "name": "gambling_sharklink_org",
+  "display_name": "Gambling.sharklink.org",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status={goal}&tid={transactionid}_{goal}&payout={sum}&currency={currency}&lead_status=reg&sale_status=ftd&from=Gambling.sharklink.org"
+ },
+ {
+  "name": "gamesport_partners",
+  "display_name": "gamesport.partners",
+  "offer_params_template": "&cid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&tid={transaction_id}&payout={payout}&status={status}&lead_status=registration&sale_status=subscribe,rebill&rejected_status=unsubscribe&from=gamesport.partners"
+ },
+ {
+  "name": "gasmobi_com",
+  "display_name": "gasmobi.com",
+  "offer_params_template": "&externalid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={externalid}&payout={payout}&status=sale&currency={currency}&from=gasmobi.com"
+ },
+ {
+  "name": "gembl_hub_com",
+  "display_name": "Gembl-hub.com",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status=[REPLACE]&payout={payout}&currency={offer_currency}&from=Gembl-hub.com"
+ },
+ {
+  "name": "gemified_net",
+  "display_name": "gemified.net",
+  "offer_params_template": "&clickId={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickId}&payout={commission}&status=REPLACE&from=gemified.net"
+ },
+ {
+  "name": "gg_agency",
+  "display_name": "gg.agency",
+  "offer_params_template": "&p1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={p1}&payout={profit}&currency={profit_currency_alfa}&status=sale&from=gg.agency"
+ },
+ {
+  "name": "glosspartners_com",
+  "display_name": "Glosspartners.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&status=REPLACE&payout=REPLACE&currency=eur&from=Glosspartners.com"
+ },
+ {
+  "name": "gmbl_ng",
+  "display_name": "gmbl.ng",
+  "offer_params_template": "/{subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&status={status}&payout={summ_approved}&currency=RUB&time={time}&uagent={uagent}&uip={uip}&rid={rid}&goal_id={goal_id}&goal_title={goal_title}&offer_id={offer_id}&offer_name={offer_name}&sale_status=approved&lead_status=waiting&rejected_status=declined&from=gmbl.ng"
+ },
+ {
+  "name": "godlike_partners",
+  "display_name": "godlike.partners",
+  "offer_params_template": "&visit_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=${visit_id}&status=REPLACE&from=godlike.partners"
+ },
+ {
+  "name": "goldlead",
+  "display_name": "GoldLead.com",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&payout={payout}&status={conversion_type}&from=GoldLead.com"
+ },
+ {
+  "name": "graaffiliates_com",
+  "display_name": "Graaffiliates.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&payout={paysum}&status=[REPLACE]&currency=usd&from=Graaffiliates.com"
+ },
+ {
+  "name": "grosspartners_pro",
+  "display_name": "Grosspartners.pro",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&payout={cash}&status={stage}&lead_status=wait&sale_status=approve&rejected_status=cancel,trash&currency=usd&tid={id}&from=Grosspartners.pro"
+ },
+ {
+  "name": "guruleads_ru",
+  "display_name": "Guruleads.ru",
+  "offer_params_template": "&sub6={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub6}&payout={sum}&currency={currency}&status={status}&lead_status=2&sale_status=1&rejected_status=3&from=Guruleads.ru"
+ },
+ {
+  "name": "ha9_ru",
+  "display_name": "ha9.ru",
+  "offer_params_template": "&utm_term={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={utm_term}&status={status}&lead_status=P&sale_status=A&rejected_status=D&payout={sum}&currency={currency}&from=ha9.ru"
+ },
+ {
+  "name": "hamsters_run",
+  "display_name": "hamsters.run",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&payout={payment}&currency=USD&status={status}&lead_status=new,hold&sale_status=approved,boughtout&rejected_status=rejected,trash&from=hamsters.run"
+ },
+ {
+  "name": "himba",
+  "display_name": "himba.ru",
+  "offer_params_template": "&sub_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id}&status={status}&payout={amount}&from=himba.ru"
+ },
+ {
+  "name": "hotmart_com",
+  "display_name": "hotmart.com",
+  "offer_params_template": "&sck={subid}",
+  "postback_url_template": ""
+ },
+ {
+  "name": "hotpartner",
+  "display_name": "hotpartner.biz",
+  "offer_params_template": "&subid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid1}&payout={summ_approved}&status={status}&currency=rub&time={time}&offer_name={offer_name}&teaser_id={teaser_id}&partner_id={partner_id}&order_id={order_id}&pl_id={pl_id}&gate={gate}&shop_name={shop_name}&from=hotpartner.biz"
+ },
+ {
+  "name": "hotstuffcash_com",
+  "display_name": "hotstuffcash.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={payout}&currency=usd&source={source}&from=hotstuffcash.com"
+ },
+ {
+  "name": "huffson_com",
+  "display_name": "Huffson.com",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&status={replace}&from=Huffson.com"
+ },
+ {
+  "name": "huge_partners",
+  "display_name": "huge.partners",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&tid={transactionid}&status={status}&lead_status=2&sale_status=1&rejected_status=3&currency={currency}&from=huge.partners"
+ },
+ {
+  "name": "hugeoffers_com",
+  "display_name": "hugeoffers.com",
+  "offer_params_template": "&sub_id1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={{sub_id1}}&status=lead&payout={{commission}}&from=hugeoffers.com"
+ },
+ {
+  "name": "hypeoffers_com",
+  "display_name": "Hypeoffers.com",
+  "offer_params_template": "&subids.1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subids.1}&status={status}&payout={revenue}&lead_status=in_progress&sale_status=confirmed&rejected_status=cancelled,invalid&currency={currency}&from=Hypeoffers.com"
+ },
+ {
+  "name": "imonetizeit_com",
+  "display_name": "imonetizeit.com",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=<click_id>&payout=<payout>&traffic_type=<traffic_type>&connection_type=<connection_type>&from=imonetizeit.com"
+ },
+ {
+  "name": "impact_com",
+  "display_name": "impact.com",
+  "offer_params_template": "&subId1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subId1}&payout={payout}&status={ActionTrackerName}&currency=usd&lead_status=lead,free trial&from=impact.com"
+ },
+ {
+  "name": "indoleads_com",
+  "display_name": "indoleads.com",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&status={status}&payout={payout}&currency={currency}&tid={txn_id}&from=indoleads.com"
+ },
+ {
+  "name": "informpay_com",
+  "display_name": "InformPay.com",
+  "offer_params_template": "&partner_key={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={partner_key}&status={status}&payout={original_sum}&sub_id_4={event}&sub_id_5={phone}&tid={hash}&lead_status=subscribeOn&sale_status=prolongOk,buy&from=InformPay.com"
+ },
+ {
+  "name": "inside_one",
+  "display_name": "inside.one",
+  "offer_params_template": "&sub_id1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id1}&payout={revenue}&currency={currency}&status=REPLACE&from=inside.one"
+ },
+ {
+  "name": "instal_com",
+  "display_name": "instal.com",
+  "offer_params_template": "&custom1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={custom1}&appid={appid}&campaign_id={campaign_id}&from=instal.com"
+ },
+ {
+  "name": "invictusmedia_co",
+  "display_name": "invictusmedia.co",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={status}&currency={currency}&lead_status=5&sale_status=1&rejected_status=3&from=invictusmedia.co"
+ },
+ {
+  "name": "ipartners_pro",
+  "display_name": "iPartners.pro",
+  "offer_params_template": "&sub_id1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id1}&payout={revenue}&currency={currency}&status={status}&from=iPartners.pro"
+ },
+ {
+  "name": "iqoption",
+  "display_name": "iqoption.com",
+  "offer_params_template": "&clickid={subid:true}",
+  "postback_url_template": ""
+ },
+ {
+  "name": "jacklead_com",
+  "display_name": "jacklead.com",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status=REPLACE&payout={payout}&currency={offer_currency}&from=jacklead.com"
+ },
+ {
+  "name": "jbo_marketing",
+  "display_name": "JBO.marketing",
+  "offer_params_template": "&sub_1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_1}&payout={price}&status={status}&currency={currency}&lead_status=pending&sale_status=approved&rejected_status=declined&from=JBO.marketing"
+ },
+ {
+  "name": "juddybiz",
+  "display_name": "juddy.biz",
+  "offer_params_template": "&sub_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id}&status={type}&payout={income}&phone={phone}&device_brand={device_brand}&device_model={device_model}&tid={payment_id}&operator={operator_id}&lead_status=subscribe&sale_status=redem,redeem,rebill&from=juddy.biz"
+ },
+ {
+  "name": "jumbleberry_com",
+  "display_name": "jumbleberry.com",
+  "offer_params_template": "&xxc1xx={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=xxc1xx&payout=xxpayoutxx&status=sale&currency=USD&from=jumbleberry.com"
+ },
+ {
+  "name": "kaizencpa_io",
+  "display_name": "kaizencpa.io",
+  "offer_params_template": "&sub_id1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id1}&status={status}&lead_status=hold&sale_status=confirmed&payout={revenue}&currency={currency}&tid={tid}&from=kaizencpa.io"
+ },
+ {
+  "name": "keitaro",
+  "display_name": "Keitaro",
+  "offer_params_template": "&external_id={subid}&source={source}&ad_campaign_id={ad_campaign_id}&creative_id={creative_id}&sub_id_1={sub_id_1}&sub_id_2={sub_id_2}&sub_id_3={sub_id_3}&sub_id_4={sub_id_4}&sub_id_5={sub_id_5}&sub_id_6={sub_id_6}&sub_id_7={sub_id_7}&sub_id_8={sub_id_8}&sub_id_9={sub_id_9}&sub_id_10={sub_id_10}&sub_id_11={sub_id_11}&sub_id_12={sub_id_12}&sub_id_13={sub_id_13}&sub_id_14={sub_id_14}&sub_id_15={sub_id_15}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={external_id}&revenue={revenue}&tid={tid}&status={status}&from=Keitaro"
+ },
+ {
+  "name": "kimia_mobi",
+  "display_name": "Kimia.mobi",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&country={cou}&offer_carrier={car}&platform={pla}&tid={kimia_id}&payout={am}&currency=usd&from=Kimia.mobi"
+ },
+ {
+  "name": "kingfin",
+  "display_name": "kingfin.com",
+  "offer_params_template": "&subid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid1}&payout={pay.amount}&currency=usd&from=kingfin.com"
+ },
+ {
+  "name": "kingmobs_com",
+  "display_name": "KingMobs.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": ""
+ },
+ {
+  "name": "kiwify_com_br",
+  "display_name": "kiwify.com.br",
+  "offer_params_template": "&sck={subid}",
+  "postback_url_template": ""
+ },
+ {
+  "name": "kma_biz",
+  "display_name": "kma.biz",
+  "offer_params_template": "&data1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={data1}&payout={sum}&status={status}&stream={stream}&orderid={orderid}&bannerid={bannerid}&campaignid={campaignid}&currency={currency}&lead_status=P&sale_status=A&rejected_status=D,F&from=kma.biz"
+ },
+ {
+  "name": "ku_partners",
+  "display_name": "ku.partners",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status=REPLACE&payout={payout}&currency=usd&from=ku.partners"
+ },
+ {
+  "name": "lagoon_me",
+  "display_name": "lagoon.me",
+  "offer_params_template": "&data1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={amount}&status={status}&lead_status=hold&sale_status=submit&rejected_status=decline,double,trash&currency=rub&from=lagoon.me"
+ },
+ {
+  "name": "lead_cash_com",
+  "display_name": "lead-cash.com",
+  "offer_params_template": "&sub8={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub8}&status={status}&payout={sum}&currency={currency}&lead_status=pending%2Chold&sale_status=approved&rejected_status=declined&from=lead-cash.com"
+ },
+ {
+  "name": "leadbeans",
+  "display_name": "leadbeans.net",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&status=REPLACE&payout={cost}&currency=usd&from=leadbeans.net"
+ },
+ {
+  "name": "leadbusters_club",
+  "display_name": "Leadbusters.club",
+  "offer_params_template": "&cid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&payout={payout}&status={status}&lead_status=hold&sale_status=accepted&currency=replace&from=Leadbusters.club"
+ },
+ {
+  "name": "leadcraft_ru",
+  "display_name": "Leadcraft.ru",
+  "offer_params_template": "&sub2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={{sub2}}&status={{status}}&payout={{price}}&currency=rub&lead_status=pending&sale_status=approved&rejected_status=cancelled&from=Leadcraft.ru"
+ },
+ {
+  "name": "leaddealer_net",
+  "display_name": "leaddealer.net",
+  "offer_params_template": "&call-id={sub_id}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={call-id}&order_id={order-id}&offer_id={offer-id}&goal_id={aim-id}&offer_landing_id={landing-id}&tid={clickid}&sub_id_1={sub-id}&sub_id_2={sub-id2}&sub_id_3={sub-id3}&sub_id_4={sub-id4}&sub_id_5={sub-id5}&sub_id_6={lead-id}&payout={income}&status={type}&uip={ip}&time={timestamp}&currency=USD&from=leaddealer.net"
+ },
+ {
+  "name": "leadgenerals_com",
+  "display_name": "leadgenerals.com",
+  "offer_params_template": "&aff_click_id={subid}&sub_id1={sub_id_1}&sub_id2={sub_id_2}&sub_id3={sub_id_3}&sub_id4={sub_id_4}&sub_id5={sub_id_5}&sub_id6={sub_id_6}&sub_id7={sub_id_7}&sub_id8={sub_id_8}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status={conv_status}&payout={payout}&currency={offer_currency}&lead_status=pending&sale_status=approved&from=leadgenerals.com"
+ },
+ {
+  "name": "leadgid_ru",
+  "display_name": "leadgid.ru",
+  "offer_params_template": "&aff_sub={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_sub1}&payout={payout}&tid={lead_id}&status={status}&from=leadgid.ru"
+ },
+ {
+  "name": "leadmagnet_ru",
+  "display_name": "leadmagnet.ru",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={status}&currency={currency}&lead_status=2%2C5&sale_status=1&rejected_status=3%2Crejected%2Ctrash&from=leadmagnet.ru"
+ },
+ {
+  "name": "leadprofit",
+  "display_name": "Leadprofit.biz",
+  "offer_params_template": "&subid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={get.subid1}&status={status}&accept=paid&from=Leadprofit.biz"
+ },
+ {
+  "name": "leadreaktor_com",
+  "display_name": "leadreaktor.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&tid={lead_id}&payout={profit}&status={status}&lead_status=waiting&sale_status=approved&rejected_status=canceled&currency=usd&goal_id={goal_id}&goal_name={goal_name}&offer_id={offer_id}&offer_name={offer_name}&from=leadreaktor.com"
+ },
+ {
+  "name": "leadrock_com",
+  "display_name": "leadrock.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={lead_price}&status={status}&currency=usd&from=leadrock.com"
+ },
+ {
+  "name": "leads_su",
+  "display_name": "Leads.su",
+  "offer_params_template": "&aff_sub={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_sub}&status={status}&payout={payout}&from=Leads.su"
+ },
+ {
+  "name": "leads_tech",
+  "display_name": "Leads.tech",
+  "offer_params_template": "&sub6={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub6}&status={status}&payout={sum}&currency={currency}&lead_status=0&sale_status=1&rejected_status=2&from=Leads.tech"
+ },
+ {
+  "name": "leadsalecom",
+  "display_name": "Leadsale.com",
+  "offer_params_template": "&aff_sub={aff_sub}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subaccount1}&payout={aff_sub}&tid={conversion_id}&status={status}&from=Leadsale.com"
+ },
+ {
+  "name": "leadshub_pro",
+  "display_name": "leadshub.pro",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={status}&lead_status=1&sale_status=2&rejected_status=3&currency={currency}&from=leadshub.pro"
+ },
+ {
+  "name": "leadtraderu",
+  "display_name": "Leadtrade.ru",
+  "offer_params_template": "/{subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid1}&offer_sale_id={offer_sale_id}&offer={offer}&payout={payment}&currency=usd&status=[REPLACE]&from=Leadtrade.ru"
+ },
+ {
+  "name": "leadvertexru",
+  "display_name": "leadvertex.ru",
+  "offer_params_template": "&utm_term={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={{utm_term}}&payout={{payment_sum}}&status={{payment_status}}&offer_domain={{domain}}&lead_status=0&sale_status=1&rejected_status=-1&from=leadvertex.ru"
+ },
+ {
+  "name": "lemons_biz",
+  "display_name": "lemons.biz",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={status}&currency={currency}&lead_status=2,5&sale_status=1&rejected_status=3,rejected,trash&from=lemons.biz"
+ },
+ {
+  "name": "leo_partners_com",
+  "display_name": "Leo-partners.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={goal}&lead_status=1&sale_status=2&currency={currency}&from=Leo-partners.com"
+ },
+ {
+  "name": "letit_cash",
+  "display_name": "Letit.Cash",
+  "offer_params_template": "&subid6={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid6}&payout={payout}&status={action_type}&lead_status=Registration&sale_status=CPA&rejected_status=rejected&currency={currency}&from=Letit.Cash"
+ },
+ {
+  "name": "letscpa",
+  "display_name": "letscpa.com",
+  "offer_params_template": "&sub2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub2}&payout={sum}&currency=usd&from=letscpa.com"
+ },
+ {
+  "name": "levelup_affiliates_com",
+  "display_name": "levelup-affiliates.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&status=REPLACE&payout={payout}&currency=eur&from=levelup-affiliates.com"
+ },
+ {
+  "name": "lgaming_com",
+  "display_name": "lgaming.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={payout}&currency=usd&status=[REPLACE]&from=lgaming.com"
+ },
+ {
+  "name": "libertypartners_net",
+  "display_name": "libertypartners.net",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={payout}&status=[REPLACE]&from=libertypartners.net"
+ },
+ {
+  "name": "lifemeet_biz",
+  "display_name": "lifemeet.biz",
+  "offer_params_template": "&pid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={pid}&status={action}&payout={income}&from=lifemeet.biz"
+ },
+ {
+  "name": "liknot_ru",
+  "display_name": "Liknot.ru",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={payout}&status={status}&lead_status=pending&sale_status=approved&rejected_status=rejected&currency=rub&from=Liknot.ru"
+ },
+ {
+  "name": "limonbucks_com",
+  "display_name": "Limonbucks.com",
+  "offer_params_template": "&subid={subid}&postback_data={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={data}&currency=rub&status={phin}&lead_status=0&sale_status=1&from=Limonbucks.com"
+ },
+ {
+  "name": "limonwap_com",
+  "display_name": "Limonwap.com",
+  "offer_params_template": "&sid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sid}&id_flow={id_flow}&status={event}&lead_status=subscribe&sale_status=rebill,sell&from=Limonwap.com"
+ },
+ {
+  "name": "lospollos_com",
+  "display_name": "LosPollos.com",
+  "offer_params_template": "&cid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={cid}&payout={sum}&currency=usd&from=LosPollos.com"
+ },
+ {
+  "name": "luckyshop_ru",
+  "display_name": "Lucky.online",
+  "offer_params_template": "&subid={subid}&subid1={creative_id}&subid2={ad_campaign_id}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={get.subid}&payout={amount}&currency={currency}&status={status}&lead_status=new&sale_status=confirmed&rejected_status=rejected,trash&from=Lucky.online"
+ },
+ {
+  "name": "luckyfeed_pro",
+  "display_name": "Luckyfeed.pro",
+  "offer_params_template": "&subid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid1}&payout={payout}&status={status}&currency={currency}&lead_status=added&sale_status=confirmed&rejected_status=rejected,trashed&from=Luckyfeed.pro"
+ },
+ {
+  "name": "m3dcashcom",
+  "display_name": "M3dcash.com",
+  "offer_params_template": "&adv_sub={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={adv_sub}&payout={payout}&currency={currency}&from=M3dcash.com"
+ },
+ {
+  "name": "magicclick_partners",
+  "display_name": "magicclick.partners",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status={goal_alias}&payout={payout}&tid={transaction_id}&currency=usd&from=magicclick.partners"
+ },
+ {
+  "name": "maxbounty_com",
+  "display_name": "Maxbounty.com",
+  "offer_params_template": "&s2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=#S2#&payout=#RATE#&currency=usd&offer_id=#OFFID#&from=Maxbounty.com"
+ },
+ {
+  "name": "mcwapru",
+  "display_name": "McWap.ru",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": ""
+ },
+ {
+  "name": "metacpa_ru",
+  "display_name": "metacpa.ru",
+  "offer_params_template": "&sub5={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub5}&payout={payout}&status={status}&currency={currency}&lead_status=0&sale_status=1&rejected_status=3&sub_id_1={offer_id}&sub_id_2={landing_id}&from=metacpa.ru"
+ },
+ {
+  "name": "mixtraff_com",
+  "display_name": "Mixtraff.com",
+  "offer_params_template": "&ref_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={ref_id}&payout={sum}&status={goal}&lead_status=1&sale_status=9&currency={currency}&from=Mixtraff.com"
+ },
+ {
+  "name": "mk_partners",
+  "display_name": "mk.partners",
+  "offer_params_template": "&subid5={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid5}&status={keitaro}&payout={sum}&currency=usd&from=mk.partners"
+ },
+ {
+  "name": "mobalfa_com",
+  "display_name": "Mobalfa.com",
+  "offer_params_template": "&sub1={subid}&utm_campaign={ad_campaign_id}&utm_term={keyword}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&currency=rub&status={event}&lead_status=sms,pseudo&sale_status=mt_approved,mt_autosell,rebill,wap_approved,wap_autosell,wap_rebill&rejected_status=mt_canceled,wap_canceled&subscription_id={subscription_id}&from=Mobalfa.com"
+ },
+ {
+  "name": "mobidea_com",
+  "display_name": "mobidea.com",
+  "offer_params_template": "&pub_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={{EXTERNAL_ID}}&payout={{MONEY}}&currency=USD&from=mobidea.com"
+ },
+ {
+  "name": "mobilecashout_com",
+  "display_name": "Mobilecashout.com",
+  "offer_params_template": "&tracker={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=%TRACKER%&status=%TYPE%&payout=%REVENUE%&tid=%ID%&currency=%CURRENCY%&carrier=%CARRIER%&offer_site_id=%SITE_ID%&phone_number=%PHONE_NUMBER%&user_id=%USER_ID%&country=%COUNTRY%&from=Mobilecashout.com"
+ },
+ {
+  "name": "mobionetworkme",
+  "display_name": "Mobionetwork.me",
+  "offer_params_template": "&aff_sub={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_sub}&payout={payout}&currency=usd&offer_ref={offer_ref}&goal_id={goal_id}&mobile_carrier={mobile_carrier}&from=Mobionetwork.me"
+ },
+ {
+  "name": "mobplus_net",
+  "display_name": "mobplus.net",
+  "offer_params_template": "&cid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={cid}&status=REPLACE&payout={PAYOUT}&currency=usd&from=mobplus.net"
+ },
+ {
+  "name": "mobstra",
+  "display_name": "mobstra.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={payout}&currency=eur&from=mobstra.com"
+ },
+ {
+  "name": "mobytize_com",
+  "display_name": "Mobytize.com",
+  "offer_params_template": "&dp={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={dp}&payout={payout}&currency={currency}&status={status}&tid={transaction_id}&from=Mobytize.com"
+ },
+ {
+  "name": "moneysyst_biz",
+  "display_name": "Moneysyst.biz",
+  "offer_params_template": "&source={subid}&utm_medium={source}&key={keyword}&",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={source}&status={type}&payout={money}&project={project}&bigdata={bigdata}&return=OK&sale_status=rebill,sms,autosell,birj&from=Moneysyst.biz"
+ },
+ {
+  "name": "monsteradscom_com",
+  "display_name": "Monsterads.com",
+  "offer_params_template": "&XID1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=[=XID1=]&payout=[=Payout=]&tid=[=TransID=]&currency=USD&from=Monsterads.com"
+ },
+ {
+  "name": "monsterleads",
+  "display_name": "Monsterleads.pro",
+  "offer_params_template": "/{subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&lead_key={lead_key}&currency=RUB&status={status}&payout={profit}&from=Monsterleads.pro"
+ },
+ {
+  "name": "mosbill_ru",
+  "display_name": "mosbill.ru",
+  "offer_params_template": "&ext_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=ext_id&status={action}&rejected_status=FAIL&sale_status=SUBSCRIBE,PROLONG&tid=notify_id&payout={partner_share}&subscription_id=subscription_id&service_id=service_id&stream_id=stream_id&msisdn=msisdn&operator_group=operator_group&from=mosbill.ru"
+ },
+ {
+  "name": "mtraf_io",
+  "display_name": "mtraf.io",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status={conv_status}&payout={payout}&currency=usd&lead_status=pending&sale_status=approved&rejected_status=rejected&trash_status=trash&from=mtraf.io"
+ },
+ {
+  "name": "mylead_global",
+  "display_name": "Mylead.global",
+  "offer_params_template": "&ml_sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=[ml_sub1]&payout=[payout]&status=[status]&currency=[currency]&lead_status=pending,pre_approved&sale_status=approved&sub_id_10=[player_id]&sub_id_11=[virtual_amount]&sub_id_12=[destination_program_id]&sub_id_13=[destination_program_name]&tid=[transaction_id]&from=Mylead.global"
+ },
+ {
+  "name": "natifico_com",
+  "display_name": "Natifico.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={status}&currency={currency}&lead_status=2,5&sale_status=1&rejected_status=3,rejected,trash&from=Natifico.com"
+ },
+ {
+  "name": "neogara_com",
+  "display_name": "neogara.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={{sub1}}&payout={{payoutSum}}&status={{status}}&currency=usd&lead_status=reg&sale_status=dep&from=neogara.com"
+ },
+ {
+  "name": "netopartners_com",
+  "display_name": "Netopartners.com",
+  "offer_params_template": "&cid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={cid}&status=REPLACE&lead_status=reg&sale_status=dep&from=Netopartners.com"
+ },
+ {
+  "name": "ngr_partners",
+  "display_name": "Ngr.partners",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status=REPLACE&payout={payout}&currency={offer_currency}&from=Ngr.partners"
+ },
+ {
+  "name": "njordaffiliates_com",
+  "display_name": "Njordaffiliates.com",
+  "offer_params_template": "&payload={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={payload}&from=Njordaffiliates.com"
+ },
+ {
+  "name": "offergate_pro",
+  "display_name": "offergate.pro",
+  "offer_params_template": "&subid_7={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={{subid_7}}&goal={{goalid}}&status={{goalstatus}}&currency={{currency}}&payout={{priceinRub}}&from=offergate.pro"
+ },
+ {
+  "name": "offerleader_com",
+  "display_name": "OfferLeader.com",
+  "offer_params_template": "&sub_id={subid}&pixel={sub_id_1}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id}&payout={payment}&status={status}&currency=usd&lead_status=accept&sale_status=confirm&rejected_status=reject,trash,fail,duplicate&from=OfferLeader.com"
+ },
+ {
+  "name": "offerum_com",
+  "display_name": "Offerrum.com",
+  "offer_params_template": "&subid1={subid}&utm_content={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid1}&status={status}&payout={summ_approved}&currency={currency}&lead_status=waiting&sale_status=approved&rejected_status=declined,trash&from=Offerrum.com"
+ },
+ {
+  "name": "offersboard_ru",
+  "display_name": "offersboard.ru",
+  "offer_params_template": "&aff_sub={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_sub}&status=&payout={payout}&currency={currency}&unid={unid}&offer_name={offer_name}&goal_id={goal_id}&from=offersboard.ru"
+ },
+ {
+  "name": "offerstore",
+  "display_name": "OfferStore",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&payout={cash}&status={stage}&lead_status=wait&sale_status=approve&rejected_status=cancel,trash&currency=usd&from=OfferStore"
+ },
+ {
+  "name": "olimob_com",
+  "display_name": "Olimob.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={revenue}&currency=usd&status={status}&from=Olimob.com"
+ },
+ {
+  "name": "onepartners_io",
+  "display_name": "Onepartners.io",
+  "offer_params_template": "&aff_click_id={subid}&sub_id1={YOUR_ID}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={payout}&currency={offer_currency}&status=[REPLACE]&from=Onepartners.io"
+ },
+ {
+  "name": "oneprofit_net",
+  "display_name": "OneProfit.net",
+  "offer_params_template": "&subid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid1}&status={status}&payout={amount}&currency=rub&lead_status=hold&sale_status=confirmed&rejected_status=declined,trash&from=OneProfit.net"
+ },
+ {
+  "name": "openaff_com",
+  "display_name": "OpenAFF.com",
+  "offer_params_template": "&aff_sub={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_sub}&payout={cost}&status=lead&sale_status=approved&currency={currency}&from=OpenAFF.com"
+ },
+ {
+  "name": "orangear_com",
+  "display_name": "Orangear.com",
+  "offer_params_template": "&aff_sub={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_sub}&status={payout}&currency={currency}&tid={transaction_id}&mac_address={mac_address}&android_id={android_id}&idfa={idfa}&from=Orangear.com"
+ },
+ {
+  "name": "orangephone_me",
+  "display_name": "orangephone.me",
+  "offer_params_template": "&partner_data={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={partner_data}&status={type}&sale_status=subscribe,pay&payout={sum}&currency=RUB&landing_id={landing_id}&landing_name={landing_name}&operator={operator}&from=orangephone.me"
+ },
+ {
+  "name": "orionpartners_pro",
+  "display_name": "Orionpartners.pro",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status=REPLACE&payout={payout}&currency={offer_currency}&from=Orionpartners.pro"
+ },
+ {
+  "name": "default",
+  "display_name": "other",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&status={status}&tid={trans_id}&payout={revenue}&currency={currency}&lead_status=install,visit,registered,new&sale_status=sale,confirm,confirmed&rejected_status=reject,rejected,trash,cancelled&from=other"
+ },
+ {
+  "name": "outbidco_com",
+  "display_name": "Outbidco.com",
+  "offer_params_template": "&sub2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub2}&payout={payout_amount}&currency={offer_currency}&from=Outbidco.com"
+ },
+ {
+  "name": "pampadu_ru",
+  "display_name": "pampadu.ru",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status={status}&payout={cost}&currency=rub&lead_status=check,pending&sale_status=approved&rejected_status=declined&from=pampadu.ru"
+ },
+ {
+  "name": "papadrop_com_ua",
+  "display_name": "Papadrop.com.ua",
+  "offer_params_template": "&utm_sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={utm_sub1}&status={status}&payout={cost}&currency=uah&lead_status=New&sale_status=Closed&rejected_status=Rejected,Trash,Blacklist&return=OK&from=Papadrop.com.ua"
+ },
+ {
+  "name": "partner_ads2bets_com",
+  "display_name": "partner.ads2bets.com",
+  "offer_params_template": "&sub_id1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id1}&status={status}&payout={revenue}&currency={currency}&lead_status=pending,hold&sale_status=confirmed&from=partner.ads2bets.com"
+ },
+ {
+  "name": "partnerize_com",
+  "display_name": "partnerize.com (iherb)",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": ""
+ },
+ {
+  "name": "partners_house",
+  "display_name": "partners.house",
+  "offer_params_template": "&p1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={p1}&status={status}&lead_status=subscribed,tblead&sale_status=revshare&payout={money}&from=partners.house"
+ },
+ {
+  "name": "paysale_com",
+  "display_name": "PaySale.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&payout={profit}&status={status}&lead_status=waiting&sale_status=approved&rejected_status=rejected&from=PaySale.com"
+ },
+ {
+  "name": "pd_partners",
+  "display_name": "pd.partners",
+  "offer_params_template": "/{subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid1}&status=REPLACE&payout={payment}&currency={currency}&from=pd.partners"
+ },
+ {
+  "name": "pdl_profit",
+  "display_name": "Pdl-profit.com",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&status={lead_status}&lead_status=pending&sale_status=approve&rejected_status=rejected&payout={aff_rev}&currency={currency}&from=Pdl-profit.com"
+ },
+ {
+  "name": "peerfly_com",
+  "display_name": "Peerfly.com",
+  "offer_params_template": "&s1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=%subid1%&payout=%commission%&offer=%offer%&status=sale&currency=usd&from=Peerfly.com"
+ },
+ {
+  "name": "pelicanpartners_org",
+  "display_name": "pelicanpartners.org",
+  "offer_params_template": "&utm_term={subid}&utm_medium={campaign_id}&utm_source={campaign_source}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={utm_term}&status=REPLACE&payout=REPLACE&currency=usd&from=pelicanpartners.org"
+ },
+ {
+  "name": "pepper_partners",
+  "display_name": "Pepper.partners",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={payout}&status=replace&currency=usd&from=Pepper.partners"
+ },
+ {
+  "name": "perestroika_team",
+  "display_name": "Perestroika.team",
+  "offer_params_template": "&param1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={param1}&payout={commission_total}&currency={postback_currency}&status={conversion_status}&lead_status=new&sale_status=confirmed&rejected_status=rejected&from=Perestroika.team"
+ },
+ {
+  "name": "perfectpay_com_br",
+  "display_name": "perfectpay.com.br",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&tid={transacao}&payout={comissaoAfiliado}&status={statusPagamento}&currency=brl&from=perfectpay.com.br"
+ },
+ {
+  "name": "phantom_partners_pro",
+  "display_name": "Phantom-partners.pro",
+  "offer_params_template": "&ref_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={ref_id}&status={status}&payout={sum}&currency={currency}&lead_status=2&sale_status=1&rejected_status=3&from=Phantom-partners.pro"
+ },
+ {
+  "name": "play_partners",
+  "display_name": "play.partners",
+  "offer_params_template": "&aff_sub={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_sub}&status=REPLACE&payout={payout}&from=play.partners"
+ },
+ {
+  "name": "playamopartners",
+  "display_name": "Playamopartners.com",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&status={status}&lead_status=reg&from=Playamopartners.com"
+ },
+ {
+  "name": "playcash_network",
+  "display_name": "Playcash.network",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status={goal}x{status}&lead_status=1x5%2C1x1&sale_status=2x5%2C2x2&rejected_status=2x3&payout={sum}&currency={currency}&from=Playcash.network"
+ },
+ {
+  "name": "pmaffiliates_com",
+  "display_name": "PMaffiliates.com",
+  "offer_params_template": "&anid={subid}_{replace_ID}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={source_id1}&payout={payout}&currency=usd&status=[replace]&from=PMaffiliates.com"
+ },
+ {
+  "name": "profitpay_one",
+  "display_name": "Profitpay.one",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&tid={id}&payout={cash}&currency={currency}&status={stage}&lead_status=wait,hold&sale_status=approve&reject_status=cancel,trash&from=Profitpay.one"
+ },
+ {
+  "name": "profitpeak_com",
+  "display_name": "profitpeak.com",
+  "offer_params_template": "&[afp1]={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=[afp1]&status=REPLACE&payout=[CommissionAmount]&currency=eur&from=profitpeak.com"
+ },
+ {
+  "name": "profitsocial_com",
+  "display_name": "profitsocial.com",
+  "offer_params_template": "&data2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={hit.data2}&payout={event.s1}&currency=usd&from=profitsocial.com"
+ },
+ {
+  "name": "pushads_biz",
+  "display_name": "pushads.biz",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=[SUB1]&status=[TYPE]&payout=[PROFIT]&tid=[TID]&currency=usd&lead_status=subscribe&sale_status=redeem,revshare&from=pushads.biz"
+ },
+ {
+  "name": "pushadvert_biz",
+  "display_name": "pushadvert.biz",
+  "offer_params_template": "&subid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid1}&payout={payout}&status=lead&from=pushadvert.biz"
+ },
+ {
+  "name": "r2d_partners",
+  "display_name": "r2d.partners",
+  "offer_params_template": "&anid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={source_id1}&status=REPLACE&payout={cpa_profit}&currency=usd&from=r2d.partners"
+ },
+ {
+  "name": "rainmaker",
+  "display_name": "Rainmaker",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={payout}&status=REPLACE&currency={currency}&from=Rainmaker"
+ },
+ {
+  "name": "rebel_cab",
+  "display_name": "Rebel.cab",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status={status}&lead_status=pending&sale_status=approved&rejected_status=rejected,trash&payout={payout}&tid={transaction_id}&currency=usd&from=Rebel.cab"
+ },
+ {
+  "name": "rekl_pro",
+  "display_name": "rekl.pro",
+  "offer_params_template": "&data2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={data2}&payout={profit}&status={status}&currency=rub&from=rekl.pro"
+ },
+ {
+  "name": "revbooster_pro",
+  "display_name": "Revbooster.pro",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&status={stage}&lead_status=new,wait&sale_status=approve,hold&rejected_status=cancel,trash&payout={cash}&currency={currency}&from=Revbooster.pro"
+ },
+ {
+  "name": "revenuelab_biz",
+  "display_name": "Revenuelab.biz",
+  "offer_params_template": "&s2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={s2}&payout={sum}&status={status}&lead_status=hold&sale_status=approve&rejected_status=declined&currency={currency}&from=Revenuelab.biz"
+ },
+ {
+  "name": "richwap_ru",
+  "display_name": "Richwap.ru",
+  "offer_params_template": "&partner_data={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=[PARTNER_DATA]&status=[TYPE]&payout=[SUM]&currency=RUB&sale_status=subscribe,pay,sell_subscribe&offer_landing_id=[LANDING_ID]&offer_landing_name=[LANDING_NAME]&operator=[OPERATOR]&from=Richwap.ru"
+ },
+ {
+  "name": "rocketprofit_com",
+  "display_name": "Rocketprofit.com",
+  "offer_params_template": "&sid5={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sid5}&status={status}&payout={payout}&lead_status=pending&sale_status=approved&rejected_status=rejected,trash&currency={currency}&from=Rocketprofit.com"
+ },
+ {
+  "name": "ryumka_biz",
+  "display_name": "ryumka.biz",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&payout={partner_payment}&status={status}&lead_status=new,processing&sale_status=confirmed,payed&rejected_status=denied,not_redeemed,trash&from=ryumka.biz"
+ },
+ {
+  "name": "saleads_pro",
+  "display_name": "saleads.pro",
+  "offer_params_template": "&t_click={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={t_click}&payout={profit}&status=REPLACE&currency=rub&sale_status=0&rejected_status=2&lead_status=1&from=saleads.pro"
+ },
+ {
+  "name": "salesdoubler_com_ua",
+  "display_name": "Salesdoubler.com.ua",
+  "offer_params_template": "&transaction_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={TRANS_ID}&payout={AFF_REV}&currency=UAH&lead_status=pending&sale_status=approve&rejected_status=rejected&from=Salesdoubler.com.ua"
+ },
+ {
+  "name": "salid_ru",
+  "display_name": "Salid.ru",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={order_sum}&status={status}&lead_status=hold,pending&sale_status=approved&rejected_status=rejected&currency=rub&from=Salid.ru"
+ },
+ {
+  "name": "scaleo_io",
+  "display_name": "scaleo.io",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status={conv_status}&payout={payout}&currency={currency}&lead_status=pending&sale_status=approved&rejected_status=rejected&trash_status=trash&from=scaleo.io"
+ },
+ {
+  "name": "sell_action",
+  "display_name": "sellaction.net",
+  "offer_params_template": "&SubID3={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub3}&payout={sum}&status={status}&currency={currency}&from=sellaction.net"
+ },
+ {
+  "name": "serious_partners",
+  "display_name": "Serious.partners",
+  "offer_params_template": "&sub_id10={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id10}&status={goal}&lead_status=registration,reg&sale_status=qualification,first_dep,bs,dep,ftd&payout={revenue}&currency={currency}&tid={id}&from=Serious.partners"
+ },
+ {
+  "name": "servicelead_ru",
+  "display_name": "Servicelead.ru",
+  "offer_params_template": "&subid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid1}&status={status}&lead_status=pending&sale_status=approved&rejected_status=rejected&payout={comission}&currency=rub&from=Servicelead.ru"
+ },
+ {
+  "name": "shakes_pro",
+  "display_name": "shakes.pro",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={cost}&status={status}&stream={stream}&source_id={source}&offer={offer}&currency={currency}&sale_status=confirm,approved&rejected_status=reject,decline&lead_status=none&from=shakes.pro"
+ },
+ {
+  "name": "sigmapartners_io",
+  "display_name": "sigmapartners.io",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&status={event}&payout={payout_partner}&currency={currency}&from=sigmapartners.io"
+ },
+ {
+  "name": "sincity",
+  "display_name": "SinCity",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=reg,dep,lead,approve,reject,rebill&lead_status=reg,dep,lead&sale_status=approve,rebill&rejected_status=reject&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=rub,usd,eur&from=SinCity"
+ },
+ {
+  "name": "skacpa_ru",
+  "display_name": "Skacpa.ru",
+  "offer_params_template": "&sub_id1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id1}&payout={payout}&status={conv_status}&lead_status=pending&sale_status=approved&rejected_status=rejected,trash&currency={offer_currency}&tid={transaction_id}&from=Skacpa.ru"
+ },
+ {
+  "name": "skylead_pro",
+  "display_name": "Skylead.pro",
+  "offer_params_template": "&subid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={subid}&status={phase}&payout={cash}&currency={currency}&lead_status=1&sale_status=3&rejected_status=4,5&from=Skylead.pro"
+ },
+ {
+  "name": "sonarclick_com",
+  "display_name": "sonarclick.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&tid={transactionid}&payout={sum}&status={status}&lead_status=2&sale_status=1&rejected_status=3&currency={currency}&from=sonarclick.com"
+ },
+ {
+  "name": "span_partners",
+  "display_name": "Spanpartners",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=reg,dep,lead,approve,reject,rebill&lead_status=reg,dep,lead&sale_status=approve,rebill&rejected_status=reject&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=rub,usd,eur&from=Spanpartners"
+ },
+ {
+  "name": "stable_money_biz",
+  "display_name": "Stable-money.biz",
+  "offer_params_template": "&cid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={cid}&payout={profit}&status={status}&service={service}&phone={phone}&host={host}&currency=rub&from=Stable-money.biz"
+ },
+ {
+  "name": "starway_pro",
+  "display_name": "starway.pro",
+  "offer_params_template": "&data1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={data1}&status={status}&payout={profit}&currency=RUB&from=starway.pro"
+ },
+ {
+  "name": "suprememedia",
+  "display_name": "suprememedia.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status={event_name}&payout={payout_amount}&sub_id_1={sale_amount}&sub_id_2={revenue_amount}&tid={transaction_id}&sub_id_3={event_id}&lead_status=lead&sale_status=FTD&currency=usd&from=suprememedia.com"
+ },
+ {
+  "name": "surflink_io",
+  "display_name": "surflink.io",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status=sale&payout={payout_amount}&currency={offer_currency}&from=surflink.io"
+ },
+ {
+  "name": "sweeply_pro",
+  "display_name": "Sweeply.pro",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status=lead&payout={payout}&currency={offer_currency}&from=Sweeply.pro"
+ },
+ {
+  "name": "teoads_com",
+  "display_name": "teoads.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&currency={currency}&status=REPLACE&from=teoads.com"
+ },
+ {
+  "name": "terraleads",
+  "display_name": "Terraleads.com",
+  "offer_params_template": "&sub_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id}&status={status}&tid={lead_id}&payout={payment}&offer_id={offer_id}&lead_status=accept,expect&sale_status=confirm&rejected_status=reject,fail,trash,error&return=OK&from=Terraleads.com"
+ },
+ {
+  "name": "theaff_io",
+  "display_name": "Theaff.io",
+  "offer_params_template": "&sid1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sid1}&payout={amount}&currency={currency}&status={event}&lead_status=reg&sale_status=first_dep&rejected_status=rejected&from=Theaff.io"
+ },
+ {
+  "name": "thelimited_club",
+  "display_name": "Thelimited.club",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status={status}&payout={sum}&currency={currency}&from=Thelimited.club"
+ },
+ {
+  "name": "thor_cpa_com",
+  "display_name": "thor-cpa.com",
+  "offer_params_template": "&sub_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id}&payout={summ_approved}&order_id={order_id}&status={status}&from=thor-cpa.com"
+ },
+ {
+  "name": "top_partners",
+  "display_name": "Top.partners",
+  "offer_params_template": "&track_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={track_id}&status={type}&payout={payout}&lead_status=subscribe,web_subscribe&sale_status=rebill,autosell,web_rebill,web_autosell&from=Top.partners"
+ },
+ {
+  "name": "trafee_com",
+  "display_name": "Trafee.com",
+  "offer_params_template": "&ext_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={ext_click_id}&payout={sum}&currency=usd&from=Trafee.com"
+ },
+ {
+  "name": "traff_team",
+  "display_name": "Traff.team",
+  "offer_params_template": "&sub_id_2={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_id_2}&status={replace}&from=Traff.team"
+ },
+ {
+  "name": "traffborne_com",
+  "display_name": "traffborne.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status=REPLACE&payout={payout}&currency={currency}&from=traffborne.com"
+ },
+ {
+  "name": "traffcore",
+  "display_name": "TraffCore.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&status={goal}&payout={sum}&from=TraffCore.com"
+ },
+ {
+  "name": "traffic_partners",
+  "display_name": "Traffic.Partners",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={payout}&status={status}&lead_status=pending&sale_status=approved&rejected_status=trash&currency=usd&tid={transaction_id}&from=Traffic.Partners"
+ },
+ {
+  "name": "trafficcake",
+  "display_name": "TrafficCake",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=reg,dep,lead,approve,reject,rebill&lead_status=reg,dep,lead&sale_status=approve,rebill&rejected_status=reject&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=##CURRENCY##&from=TrafficCake"
+ },
+ {
+  "name": "traffic_family",
+  "display_name": "TrafficFamily",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=reg,dep,lead,approve,reject,rebill&lead_status=reg,dep,lead&sale_status=approve,rebill&rejected_status=reject&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=##CURRENCY##&from=TrafficFamily"
+ },
+ {
+  "name": "trafficpartner",
+  "display_name": "TrafficPartner",
+  "offer_params_template": "&clicktag={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clicktag}&payout={payout}&status={status}&lead_status=lead&sale_status=sale&rebill_status=rebill&rejected_status=rejected&currency={currency}&from=TrafficPartner"
+ },
+ {
+  "name": "trafficradar_media",
+  "display_name": "trafficradar.media",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status=REPLACE&payout={sum}&currency={currency}&from=trafficradar.media"
+ },
+ {
+  "name": "traffikongs_com",
+  "display_name": "traffikongs.com",
+  "offer_params_template": "&clickid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={clickid}&payout={payout}&currency=eur&status=REPLACE&from=traffikongs.com"
+ },
+ {
+  "name": "trafflab_io",
+  "display_name": "trafflab.io",
+  "offer_params_template": "&ext_cid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={ext_cid}&status=[REPLACE]&payout={sum}&currency={currency}&from=trafflab.io"
+ },
+ {
+  "name": "trafflow_io",
+  "display_name": "trafflow.io",
+  "offer_params_template": "&ext_cid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={ext_cid}&payout={sum}&currency={currency}&status=REPLACE&from=trafflow.io"
+ },
+ {
+  "name": "traffury_in",
+  "display_name": "traffury.in",
+  "offer_params_template": "&Sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={lead.Sub1}&payout={lead.Payout}&status={lead.Status}&lead_status=Pending&sale_status=Approved&rejected_status=Cancel,Spam,Duplicate&currency={lead.Sub10}&from=traffury.in"
+ },
+ {
+  "name": "traforce_com",
+  "display_name": "traforce.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&tid={transactionid}&status={status}&payout={sum}&currency={currency}&offer_name={offer_name}&lead_status=2%2C5&sale_status=1&rejected_status=3%2C4&ios_idfa={ios_idfa}&android_id={android_id}&from=traforce.com"
+ },
+ {
+  "name": "trinity_mx",
+  "display_name": "trinity.mx",
+  "offer_params_template": "&sub1={subid}&sub2=YOUR_SOURCE_ID&sub3=YOUR_SUBSOURCE_ID",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status=REPLACE&payout={payout_amount}&currency={offer_currency}&from=trinity.mx"
+ },
+ {
+  "name": "trinity_mx_igaming",
+  "display_name": "trinity.mx(iGaming)",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={amount}&currency={offer_currency}&status=REPLACE&from=trinity.mx(iGaming)"
+ },
+ {
+  "name": "trumpyourads_com",
+  "display_name": "TrumpYourAds.com",
+  "offer_params_template": "&custom1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={custom1}&payout={payout}&status={approved}&from=TrumpYourAds.com"
+ },
+ {
+  "name": "trustdice_win",
+  "display_name": "Trustdice.win",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&payout={amount}&status={status}&tid={tid}&currency=usd&from=Trustdice.win"
+ },
+ {
+  "name": "tune",
+  "display_name": "Tune.com",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={payout}&currency={currency}&tid={transaction_id}&affiliate_id={affiliate_id}&offer_name={offer_name}&from=Tune.com"
+ },
+ {
+  "name": "ubtcpa",
+  "display_name": "ubtcpa",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={payout}&status={conv_status}&lead_status=pending&sale_status=approved&rejected_status=rejected,trash&tid={transaction_id}&from=ubtcpa"
+ },
+ {
+  "name": "uffiliates_me",
+  "display_name": "uffiliates.me",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&status=REPLACE&payout={payout}&currency={offer_currency}&from=uffiliates.me"
+ },
+ {
+  "name": "unicom24",
+  "display_name": "unicom24.ru",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&payout={payment_sum}&status={conv_status}&lead_status=pending&sale_status=approved&rejected_status=declined&currency=rub&from=unicom24.ru"
+ },
+ {
+  "name": "unilead_network_com",
+  "display_name": "unileadnetwork.com",
+  "offer_params_template": "&aff_sub={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_sub}&payout={payout}&from=unileadnetwork.com"
+ },
+ {
+  "name": "univer_mag_com",
+  "display_name": "Univer-mag.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&currency=rub&payout={webtotal}&status={status}&from=Univer-mag.com"
+ },
+ {
+  "name": "valor_partners",
+  "display_name": "valor.partners.com",
+  "offer_params_template": "&partner_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={partner_click_id}&status={action}&payout={payout}&currency=usd&sub_id_1={payload.amount_usd}&from=valor.partners.com"
+ },
+ {
+  "name": "vbaffs",
+  "display_name": "VbAffs",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=reg,dep,lead,approve,reject,rebill&lead_status=reg,dep,lead&sale_status=approve,rebill&rejected_status=reject&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=rub,usd,eur&from=VbAffs"
+ },
+ {
+  "name": "vipaff_com",
+  "display_name": "vipaff.com",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={click_id}&status=REPLACE&payout={rate}&currency=usd&from=vipaff.com"
+ },
+ {
+  "name": "vlk_partners",
+  "display_name": "vlk.partners",
+  "offer_params_template": "&cid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={url.cid}&tid={url.tid}&payout={payment.sum}&sub_id_2={url.pid}&sub_id_3={url.cid}&sub_id_4={payment.id}&sub_id_5={user.id}&sub_id_6={traffic.source}&sub_id_7={sub_affiliate.id}&from=vlk.partners"
+ },
+ {
+  "name": "vortexads_com",
+  "display_name": "Vortexads.com",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={payout}&status={goal}&lead_status=reg&currency=usd&from=Vortexads.com"
+ },
+ {
+  "name": "vpartners",
+  "display_name": "VPartners",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=reg,dep,lead,approve,reject,rebill&lead_status=reg,dep,lead&sale_status=approve,rebill&rejected_status=reject&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=##CURRENCY##&from=VPartners"
+ },
+ {
+  "name": "vulkan777_aff",
+  "display_name": "Vulkan777aff",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=reg,dep,lead,approve,reject,rebill&lead_status=reg,dep,lead&sale_status=approve,rebill&rejected_status=reject&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=rub,usd,eur&from=Vulkan777aff"
+ },
+ {
+  "name": "vulkancasinoagency",
+  "display_name": "VulkanCasinoAgency",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=##CLICK_ID##&tid=##POSTBACK_ID##&status=reg,dep,lead,approve,reject,rebill&lead_status=reg,dep,lead&sale_status=approve,rebill&rejected_status=reject&payout=##CPA_AMOUNT##,##RS_AMOUNT##&currency=rub,usd,eur&from=VulkanCasinoAgency"
+ },
+ {
+  "name": "wap_capital",
+  "display_name": "Wap.capital",
+  "offer_params_template": "/{source}/{subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={track_id}&payout={payout}&currency=rub&status={type}&sale_status=rebill,autosell,web_rebill,web_autosell&rejected_status=ic&from=Wap.capital"
+ },
+ {
+  "name": "wapcash",
+  "display_name": "Wap.Cash",
+  "offer_params_template": "&l1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={label1}&status={type}&subscription_id={subscription_id}&rebill_id={rebill_id}&stream_id={stream_id}&link_id={link_id}&payout={sum_rub}&currency=RUB&lead_status=on&sale_status=onetime,rebill,sell&from=Wap.Cash"
+ },
+ {
+  "name": "wapclick_click",
+  "display_name": "Wap.click",
+  "offer_params_template": "&p1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={label1}&status={type}&payout={sum_rub}&currency=rub&tid={rebill_id}&operator={operator_id}&stream_id={stream_id}&lead_status=on&sale_status=onetime,sell,rebill&from=Wap.click"
+ },
+ {
+  "name": "wap_men",
+  "display_name": "Wap.Men",
+  "offer_params_template": "&extra_param={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={extra_param}&status={action}&payout={income}&operator={operator}&phone={msisdn}&stream_id={stream_id}&landing_id={landing_id}&currency=rub&from=Wap.Men"
+ },
+ {
+  "name": "wapmoneysyst_biz",
+  "display_name": "Wap.MoneySyst.biz",
+  "offer_params_template": "&trackID={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={trackID}&status={status}&payout={money}&project={project}&query={query}&data1={data1}&data2={data2}&data3={data3}&bigdata={bigdata}&lead_status=subscribe&sale_status=autosell&currency=rub&from=Wap.MoneySyst.biz"
+ },
+ {
+  "name": "wapcombine_com",
+  "display_name": "WapCombine.com",
+  "offer_params_template": "&param1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={param1}&payout={sum_rub}&status={status}&tid={trans_id}&operator_id={operator_id}&link_name={link_name}&from=WapCombine.com"
+ },
+ {
+  "name": "wapconvert_com",
+  "display_name": "Wapconvert.com",
+  "offer_params_template": "&l1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={label1}&status={type}&tid={rebill_id}&payout={sum_rub}&subscription_id={subscription_id}&stream_id={stream_id}&landing_id={landing_id}&currency=rub&lead_status=on&sale_status=rebill,onetime,sell&from=Wapconvert.com"
+ },
+ {
+  "name": "wapempire_com",
+  "display_name": "wapempire.com",
+  "offer_params_template": "&aff_sub5={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_sub5}&tid={transaction_id}&currency={currency}&payout={payout}&status={type}&lead_status=APPROVED&sale_status=APPROVED_BILLING,SALE,BUYOUT&from=wapempire.com"
+ },
+ {
+  "name": "webvork_com",
+  "display_name": "webvork.com",
+  "offer_params_template": "&utm_medium={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={utm_medium}&status={status_lead}&payout={money}&currency={currency}&from=webvork.com"
+ },
+ {
+  "name": "whale_biz",
+  "display_name": "Whale.biz",
+  "offer_params_template": "&aff_click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={aff_click_id}&payout={payout}&status=sale&tid={conversion_id}&currency=usd&from=Whale.biz"
+ },
+ {
+  "name": "whocpa_asia",
+  "display_name": "whocpa.asia",
+  "offer_params_template": "&click_id={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={{click_id}}&currency={{currency}}&payout={{goal_value}}&status={{action_status}}&lead_status=pending&sale_status=approved&rejected_status=rejected,spam&from=whocpa.asia"
+ },
+ {
+  "name": "wildo_click",
+  "display_name": "Wildo.click",
+  "offer_params_template": "&label1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={label1}&status={type}&payout={sum_rub}&currency=usd&lead_status=on&sale_status=rebill,onetime,sell&landing_id={landing_id}&link_name={link_name}&from=Wildo.click"
+ },
+ {
+  "name": "xmob_biz",
+  "display_name": "xmob.biz",
+  "offer_params_template": "&sub_1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub_1}&msisdn={msisdn}&status={type}&payout={amount}&currency={currency}&tid={request_id}&lead_status=APPROVED&sale_status=APPROVED_BILLING,SALE,BUYOUT&from=xmob.biz"
+ },
+ {
+  "name": "yellana_co",
+  "display_name": "yellana.co",
+  "offer_params_template": "&cid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=[CLICK_ID]&status=REPLACE&payout=[PAYOUT]&sub_id_15=[SUB1]&from=yellana.co"
+ },
+ {
+  "name": "yesplayaffiliates_com",
+  "display_name": "Yesplayaffiliates.com",
+  "offer_params_template": "&click_id={subid}&webid={sub_id_№}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=${click_id}&payout=1&status=REPLACE&currency=usd&from=Yesplayaffiliates.com"
+ },
+ {
+  "name": "yoda_partners",
+  "display_name": "yoda.partners",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&status={status}&payout={profit}&currency=usd&lead_status=processing&sale_status=approved&rejected_status=canceled&tid={lead_id}&sub_id_1={offer_name}&from=yoda.partners"
+ },
+ {
+  "name": "ytz_com",
+  "display_name": "ytz.com",
+  "offer_params_template": "&s1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={SUB1}&payout={REVENUE}&currency=usd&from=ytz.com"
+ },
+ {
+  "name": "zcpa_ru",
+  "display_name": "Zcpa.ru",
+  "offer_params_template": "&sub_id1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid=[sub_id1]&tid=[transaction_id]&currency=[currency]&payout=[price]&status=[status]&lead_status=10&sale_status=11&rejected_status=12,13&from=Zcpa.ru"
+ },
+ {
+  "name": "zeydoo",
+  "display_name": "zeydoo.com",
+  "offer_params_template": "&ymid={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={ymid}&payout={amount}&currency=usd&status=replace&from=zeydoo.com"
+ },
+ {
+  "name": "my_zorkanetwork_com",
+  "display_name": "Zorka.Network",
+  "offer_params_template": "&sub1={subid}",
+  "postback_url_template": "http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&currency={currency}&from=Zorka.Network"
+ }
+]

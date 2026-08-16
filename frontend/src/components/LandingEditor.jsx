@@ -448,21 +448,37 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                                 </div>
                             )}
 
-                            {/* Redirect method for a redirect landing — an offer can
-                                already pick HTTP/JS/meta; a landing that simply
-                                forwards should be able to do the same. */}
+                            {/* Redirect method for a redirect landing — support full set matching OfferEditor */}
                             {landing.type === 'redirect' && (
-                                <div>
+                                <div className="space-y-1.5">
                                     <label className="form-label">{t('landingEditor.redirectMethodLabel')}</label>
                                     <select
                                         value={landing.redirect_type || 'redirect'}
                                         onChange={e => setLanding({ ...landing, redirect_type: e.target.value })}
                                         className="form-select"
                                     >
-                                        <option value="redirect">{t('landingEditor.redirectHttp')}</option>
-                                        <option value="js">{t('landingEditor.redirectJs')}</option>
-                                        <option value="meta_refresh">{t('landingEditor.redirectMeta')}</option>
+                                        <option value="redirect">{t('offerEditor.httpRedirect', 'HTTP 302 Redirect')}</option>
+                                        <option value="js">{t('redirectTypes.jsName', 'JS Redirect')}</option>
+                                        <option value="meta_refresh">{t('redirectTypes.metaName', 'Meta Refresh')}</option>
+                                        <option value="frame">{t('redirectTypes.iframeName', 'Iframe / Frame')}</option>
+                                        <option value="form_submit">{t('redirectTypes.formName', 'Form Submit / POST')}</option>
+                                        <option value="preload">{t('offerEditor.preloadCurl', 'Preload (cURL)')}</option>
+                                        <option value="curl_proxy">{t('redirectTypes.curlProxyName', 'cURL Proxy (Reverse Proxy)')}</option>
                                     </select>
+                                    {(() => {
+                                        const descKey = ({
+                                            redirect: 'redirectTypes.redirectDesc',
+                                            js: 'redirectTypes.jsDesc',
+                                            meta_refresh: 'redirectTypes.metaDesc',
+                                            frame: 'redirectTypes.iframeDesc',
+                                            form_submit: 'redirectTypes.formDesc',
+                                            preload: 'redirectTypes.preloadDesc',
+                                            curl_proxy: 'redirectTypes.curlProxyDesc',
+                                        })[landing.redirect_type || 'redirect'];
+                                        return descKey ? (
+                                            <div className="form-hint" style={{ fontSize: '11.5px', color: 'var(--color-text-muted)' }}>{t(descKey)}</div>
+                                        ) : null;
+                                    })()}
                                 </div>
                             )}
 

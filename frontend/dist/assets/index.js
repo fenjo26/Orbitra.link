@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1D = [
+const __iconNode$1H = [
   [
     "path",
     {
@@ -15120,31 +15120,41 @@ const __iconNode$1D = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1D);
-const __iconNode$1C = [
+const Activity = createLucideIcon("activity", __iconNode$1H);
+const __iconNode$1G = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1C);
-const __iconNode$1B = [
+const Archive = createLucideIcon("archive", __iconNode$1G);
+const __iconNode$1F = [
+  ["path", { d: "M12 5v14", key: "s699le" }],
+  ["path", { d: "m19 12-7 7-7-7", key: "1idqje" }]
+];
+const ArrowDown = createLucideIcon("arrow-down", __iconNode$1F);
+const __iconNode$1E = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1B);
-const __iconNode$1A = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1E);
+const __iconNode$1D = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1A);
-const __iconNode$1z = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1D);
+const __iconNode$1C = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1z);
-const __iconNode$1y = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1C);
+const __iconNode$1B = [
+  ["path", { d: "m5 12 7-7 7 7", key: "hav0vg" }],
+  ["path", { d: "M12 19V5", key: "x0mq9r" }]
+];
+const ArrowUp = createLucideIcon("arrow-up", __iconNode$1B);
+const __iconNode$1A = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15166,8 @@ const __iconNode$1y = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1y);
-const __iconNode$1x = [
+const BellOff = createLucideIcon("bell-off", __iconNode$1A);
+const __iconNode$1z = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15177,28 @@ const __iconNode$1x = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1x);
-const __iconNode$1w = [
+const Bell = createLucideIcon("bell", __iconNode$1z);
+const __iconNode$1y = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1w);
-const __iconNode$1v = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$1y);
+const __iconNode$1x = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1v);
-const __iconNode$1u = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1x);
+const __iconNode$1w = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1u);
-const __iconNode$1t = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1w);
+const __iconNode$1v = [
   [
     "path",
     {
@@ -15198,39 +15208,39 @@ const __iconNode$1t = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1t);
-const __iconNode$1s = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1s);
-const __iconNode$1r = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1r);
-const __iconNode$1q = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1q);
-const __iconNode$1p = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1p);
-const __iconNode$1o = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1o);
-const __iconNode$1n = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1v);
+const __iconNode$1u = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1u);
+const __iconNode$1t = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1t);
+const __iconNode$1s = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1s);
+const __iconNode$1r = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1r);
+const __iconNode$1q = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1q);
+const __iconNode$1p = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1n);
-const __iconNode$1m = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1p);
+const __iconNode$1o = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1m);
-const __iconNode$1l = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1o);
+const __iconNode$1n = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1l);
-const __iconNode$1k = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1n);
+const __iconNode$1m = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1k);
-const __iconNode$1j = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1m);
+const __iconNode$1l = [
   [
     "path",
     {
@@ -15240,39 +15250,39 @@ const __iconNode$1j = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1j);
-const __iconNode$1i = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1l);
+const __iconNode$1k = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1i);
-const __iconNode$1h = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1k);
+const __iconNode$1j = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1h);
-const __iconNode$1g = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1j);
+const __iconNode$1i = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1g);
-const __iconNode$1f = [
+const Clock = createLucideIcon("clock", __iconNode$1i);
+const __iconNode$1h = [
   ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1f);
-const __iconNode$1e = [
+const Cloud = createLucideIcon("cloud", __iconNode$1h);
+const __iconNode$1g = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1e);
-const __iconNode$1d = [
+const Code = createLucideIcon("code", __iconNode$1g);
+const __iconNode$1f = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1d);
-const __iconNode$1c = [
+const Copy = createLucideIcon("copy", __iconNode$1f);
+const __iconNode$1e = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15288,25 +15298,25 @@ const __iconNode$1c = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1c);
-const __iconNode$1b = [
+const Cpu = createLucideIcon("cpu", __iconNode$1e);
+const __iconNode$1d = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1b);
-const __iconNode$1a = [
+const Database = createLucideIcon("database", __iconNode$1d);
+const __iconNode$1c = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$1a);
-const __iconNode$19 = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1c);
+const __iconNode$1b = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$19);
-const __iconNode$18 = [
+const Download = createLucideIcon("download", __iconNode$1b);
+const __iconNode$1a = [
   [
     "path",
     {
@@ -15315,20 +15325,20 @@ const __iconNode$18 = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$18);
-const __iconNode$17 = [
+const Droplet = createLucideIcon("droplet", __iconNode$1a);
+const __iconNode$19 = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$17);
-const __iconNode$16 = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$19);
+const __iconNode$18 = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$16);
-const __iconNode$15 = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$18);
+const __iconNode$17 = [
   [
     "path",
     {
@@ -15346,8 +15356,8 @@ const __iconNode$15 = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$15);
-const __iconNode$14 = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$17);
+const __iconNode$16 = [
   [
     "path",
     {
@@ -15357,8 +15367,8 @@ const __iconNode$14 = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$14);
-const __iconNode$13 = [
+const Eye = createLucideIcon("eye", __iconNode$16);
+const __iconNode$15 = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15369,8 +15379,8 @@ const __iconNode$13 = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$13);
-const __iconNode$12 = [
+const FileStack = createLucideIcon("file-stack", __iconNode$15);
+const __iconNode$14 = [
   [
     "path",
     {
@@ -15383,8 +15393,8 @@ const __iconNode$12 = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$12);
-const __iconNode$11 = [
+const FileText = createLucideIcon("file-text", __iconNode$14);
+const __iconNode$13 = [
   [
     "path",
     {
@@ -15393,22 +15403,31 @@ const __iconNode$11 = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$11);
-const __iconNode$10 = [
+const Funnel = createLucideIcon("funnel", __iconNode$13);
+const __iconNode$12 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$10);
-const __iconNode$$ = [
+const Globe = createLucideIcon("globe", __iconNode$12);
+const __iconNode$11 = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }],
   ["path", { d: "M9 3v18", key: "fh3hqa" }],
   ["path", { d: "M15 3v18", key: "14nvp0" }]
 ];
-const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$$);
-const __iconNode$_ = [
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$11);
+const __iconNode$10 = [
+  ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
+  ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
+  ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
+  ["circle", { cx: "15", cy: "12", r: "1", key: "1tmaij" }],
+  ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
+  ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
+];
+const GripVertical = createLucideIcon("grip-vertical", __iconNode$10);
+const __iconNode$$ = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15420,8 +15439,8 @@ const __iconNode$_ = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$_);
-const __iconNode$Z = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$$);
+const __iconNode$_ = [
   [
     "path",
     {
@@ -15430,20 +15449,20 @@ const __iconNode$Z = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$Z);
-const __iconNode$Y = [
+const Heart = createLucideIcon("heart", __iconNode$_);
+const __iconNode$Z = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$Y);
-const __iconNode$X = [
+const Image = createLucideIcon("image", __iconNode$Z);
+const __iconNode$Y = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$X);
-const __iconNode$W = [
+const Info = createLucideIcon("info", __iconNode$Y);
+const __iconNode$X = [
   [
     "path",
     {
@@ -15453,21 +15472,21 @@ const __iconNode$W = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$W);
-const __iconNode$V = [
+const KeyRound = createLucideIcon("key-round", __iconNode$X);
+const __iconNode$W = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$V);
-const __iconNode$U = [
+const Key = createLucideIcon("key", __iconNode$W);
+const __iconNode$V = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$U);
-const __iconNode$T = [
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$V);
+const __iconNode$U = [
   [
     "path",
     {
@@ -15478,19 +15497,19 @@ const __iconNode$T = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$T);
-const __iconNode$S = [
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$U);
+const __iconNode$T = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-const Link2 = createLucideIcon("link-2", __iconNode$S);
-const __iconNode$R = [
+const Link2 = createLucideIcon("link-2", __iconNode$T);
+const __iconNode$S = [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ];
-const Link = createLucideIcon("link", __iconNode$R);
-const __iconNode$Q = [
+const Link = createLucideIcon("link", __iconNode$S);
+const __iconNode$R = [
   ["path", { d: "M12 2v4", key: "3427ic" }],
   ["path", { d: "m16.2 7.8 2.9-2.9", key: "r700ao" }],
   ["path", { d: "M18 12h4", key: "wj9ykh" }],
@@ -15500,24 +15519,24 @@ const __iconNode$Q = [
   ["path", { d: "M2 12h4", key: "j09sii" }],
   ["path", { d: "m4.9 4.9 2.9 2.9", key: "giyufr" }]
 ];
-const Loader = createLucideIcon("loader", __iconNode$Q);
-const __iconNode$P = [
+const Loader = createLucideIcon("loader", __iconNode$R);
+const __iconNode$Q = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$P);
-const __iconNode$O = [
+const Lock = createLucideIcon("lock", __iconNode$Q);
+const __iconNode$P = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$O);
-const __iconNode$N = [
+const LogOut = createLucideIcon("log-out", __iconNode$P);
+const __iconNode$O = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Mail = createLucideIcon("mail", __iconNode$N);
-const __iconNode$M = [
+const Mail = createLucideIcon("mail", __iconNode$O);
+const __iconNode$N = [
   [
     "path",
     {
@@ -15527,8 +15546,8 @@ const __iconNode$M = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$M);
-const __iconNode$L = [
+const MapPin = createLucideIcon("map-pin", __iconNode$N);
+const __iconNode$M = [
   [
     "path",
     {
@@ -15539,14 +15558,14 @@ const __iconNode$L = [
   ["path", { d: "M15 5.764v15", key: "1pn4in" }],
   ["path", { d: "M9 3.236v15", key: "1uimfh" }]
 ];
-const Map$1 = createLucideIcon("map", __iconNode$L);
-const __iconNode$K = [
+const Map$1 = createLucideIcon("map", __iconNode$M);
+const __iconNode$L = [
   ["path", { d: "M4 5h16", key: "1tepv9" }],
   ["path", { d: "M4 12h16", key: "1lakjw" }],
   ["path", { d: "M4 19h16", key: "1djgab" }]
 ];
-const Menu = createLucideIcon("menu", __iconNode$K);
-const __iconNode$J = [
+const Menu = createLucideIcon("menu", __iconNode$L);
+const __iconNode$K = [
   [
     "path",
     {
@@ -15555,8 +15574,8 @@ const __iconNode$J = [
     }
   ]
 ];
-const MessageCircle = createLucideIcon("message-circle", __iconNode$J);
-const __iconNode$I = [
+const MessageCircle = createLucideIcon("message-circle", __iconNode$K);
+const __iconNode$J = [
   [
     "path",
     {
@@ -15565,14 +15584,14 @@ const __iconNode$I = [
     }
   ]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$I);
-const __iconNode$H = [
+const MessageSquare = createLucideIcon("message-square", __iconNode$J);
+const __iconNode$I = [
   ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
   ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
   ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
 ];
-const Monitor = createLucideIcon("monitor", __iconNode$H);
-const __iconNode$G = [
+const Monitor = createLucideIcon("monitor", __iconNode$I);
+const __iconNode$H = [
   [
     "path",
     {
@@ -15581,8 +15600,8 @@ const __iconNode$G = [
     }
   ]
 ];
-const Moon = createLucideIcon("moon", __iconNode$G);
-const __iconNode$F = [
+const Moon = createLucideIcon("moon", __iconNode$H);
+const __iconNode$G = [
   [
     "path",
     {
@@ -15595,8 +15614,8 @@ const __iconNode$F = [
   ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
   ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
 ];
-const Palette = createLucideIcon("palette", __iconNode$F);
-const __iconNode$E = [
+const Palette = createLucideIcon("palette", __iconNode$G);
+const __iconNode$F = [
   ["path", { d: "M13 21h8", key: "1jsn5i" }],
   [
     "path",
@@ -15606,8 +15625,8 @@ const __iconNode$E = [
     }
   ]
 ];
-const PenLine = createLucideIcon("pen-line", __iconNode$E);
-const __iconNode$D = [
+const PenLine = createLucideIcon("pen-line", __iconNode$F);
+const __iconNode$E = [
   [
     "path",
     {
@@ -15616,8 +15635,8 @@ const __iconNode$D = [
     }
   ]
 ];
-const Pen = createLucideIcon("pen", __iconNode$D);
-const __iconNode$C = [
+const Pen = createLucideIcon("pen", __iconNode$E);
+const __iconNode$D = [
   [
     "path",
     {
@@ -15626,8 +15645,8 @@ const __iconNode$C = [
     }
   ]
 ];
-const Play = createLucideIcon("play", __iconNode$C);
-const __iconNode$B = [
+const Play = createLucideIcon("play", __iconNode$D);
+const __iconNode$C = [
   ["path", { d: "M12 22v-5", key: "1ega77" }],
   ["path", { d: "M15 8V2", key: "18g5xt" }],
   [
@@ -15636,30 +15655,30 @@ const __iconNode$B = [
   ],
   ["path", { d: "M9 8V2", key: "14iosj" }]
 ];
-const Plug = createLucideIcon("plug", __iconNode$B);
-const __iconNode$A = [
+const Plug = createLucideIcon("plug", __iconNode$C);
+const __iconNode$B = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ];
-const Plus = createLucideIcon("plus", __iconNode$A);
-const __iconNode$z = [
+const Plus = createLucideIcon("plus", __iconNode$B);
+const __iconNode$A = [
   ["path", { d: "M12 2v10", key: "mnfbl" }],
   ["path", { d: "M18.4 6.6a9 9 0 1 1-12.77.04", key: "obofu9" }]
 ];
-const Power = createLucideIcon("power", __iconNode$z);
-const __iconNode$y = [
+const Power = createLucideIcon("power", __iconNode$A);
+const __iconNode$z = [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
   ["path", { d: "M8 16H3v5", key: "1cv678" }]
 ];
-const RefreshCw = createLucideIcon("refresh-cw", __iconNode$y);
-const __iconNode$x = [
+const RefreshCw = createLucideIcon("refresh-cw", __iconNode$z);
+const __iconNode$y = [
   ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
   ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
 ];
-const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$x);
-const __iconNode$w = [
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$y);
+const __iconNode$x = [
   [
     "path",
     {
@@ -15670,13 +15689,13 @@ const __iconNode$w = [
   ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
   ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
 ];
-const Save = createLucideIcon("save", __iconNode$w);
-const __iconNode$v = [
+const Save = createLucideIcon("save", __iconNode$x);
+const __iconNode$w = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
-const Search = createLucideIcon("search", __iconNode$v);
-const __iconNode$u = [
+const Search = createLucideIcon("search", __iconNode$w);
+const __iconNode$v = [
   [
     "path",
     {
@@ -15686,8 +15705,8 @@ const __iconNode$u = [
   ],
   ["path", { d: "m21.854 2.147-10.94 10.939", key: "12cjpa" }]
 ];
-const Send = createLucideIcon("send", __iconNode$u);
-const __iconNode$t = [
+const Send = createLucideIcon("send", __iconNode$v);
+const __iconNode$u = [
   [
     "path",
     {
@@ -15706,22 +15725,22 @@ const __iconNode$t = [
   ["path", { d: "M6 18h.01", key: "uhywen" }],
   ["path", { d: "m13 6-4 6h6l-4 6", key: "14hqih" }]
 ];
-const ServerCrash = createLucideIcon("server-crash", __iconNode$t);
-const __iconNode$s = [
+const ServerCrash = createLucideIcon("server-crash", __iconNode$u);
+const __iconNode$t = [
   ["rect", { width: "20", height: "8", x: "2", y: "2", rx: "2", ry: "2", key: "ngkwjq" }],
   ["rect", { width: "20", height: "8", x: "2", y: "14", rx: "2", ry: "2", key: "iecqi9" }],
   ["line", { x1: "6", x2: "6.01", y1: "6", y2: "6", key: "16zg32" }],
   ["line", { x1: "6", x2: "6.01", y1: "18", y2: "18", key: "nzw8ys" }]
 ];
-const Server = createLucideIcon("server", __iconNode$s);
-const __iconNode$r = [
+const Server = createLucideIcon("server", __iconNode$t);
+const __iconNode$s = [
   ["path", { d: "M14 17H5", key: "gfn3mx" }],
   ["path", { d: "M19 7h-9", key: "6i9tg" }],
   ["circle", { cx: "17", cy: "17", r: "3", key: "18b49y" }],
   ["circle", { cx: "7", cy: "7", r: "3", key: "dfmy0x" }]
 ];
-const Settings2 = createLucideIcon("settings-2", __iconNode$r);
-const __iconNode$q = [
+const Settings2 = createLucideIcon("settings-2", __iconNode$s);
+const __iconNode$r = [
   [
     "path",
     {
@@ -15731,8 +15750,8 @@ const __iconNode$q = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Settings$1 = createLucideIcon("settings", __iconNode$q);
-const __iconNode$p = [
+const Settings$1 = createLucideIcon("settings", __iconNode$r);
+const __iconNode$q = [
   [
     "path",
     {
@@ -15743,8 +15762,8 @@ const __iconNode$p = [
   ["path", { d: "M12 8v4", key: "1got3b" }],
   ["path", { d: "M12 16h.01", key: "1drbdi" }]
 ];
-const ShieldAlert = createLucideIcon("shield-alert", __iconNode$p);
-const __iconNode$o = [
+const ShieldAlert = createLucideIcon("shield-alert", __iconNode$q);
+const __iconNode$p = [
   [
     "path",
     {
@@ -15754,8 +15773,8 @@ const __iconNode$o = [
   ],
   ["path", { d: "m4.243 5.21 14.39 12.472", key: "1c9a7c" }]
 ];
-const ShieldBan = createLucideIcon("shield-ban", __iconNode$o);
-const __iconNode$n = [
+const ShieldBan = createLucideIcon("shield-ban", __iconNode$p);
+const __iconNode$o = [
   [
     "path",
     {
@@ -15764,7 +15783,19 @@ const __iconNode$n = [
     }
   ]
 ];
-const Shield = createLucideIcon("shield", __iconNode$n);
+const Shield = createLucideIcon("shield", __iconNode$o);
+const __iconNode$n = [
+  ["path", { d: "M10 5H3", key: "1qgfaw" }],
+  ["path", { d: "M12 19H3", key: "yhmn1j" }],
+  ["path", { d: "M14 3v4", key: "1sua03" }],
+  ["path", { d: "M16 17v4", key: "1q0r14" }],
+  ["path", { d: "M21 12h-9", key: "1o4lsq" }],
+  ["path", { d: "M21 19h-5", key: "1rlt1p" }],
+  ["path", { d: "M21 5h-7", key: "1oszz2" }],
+  ["path", { d: "M8 10v4", key: "tgpxqk" }],
+  ["path", { d: "M8 12H3", key: "a7s4jb" }]
+];
+const SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode$n);
 const __iconNode$m = [
   ["rect", { width: "14", height: "20", x: "5", y: "2", rx: "2", ry: "2", key: "1yt0o3" }],
   ["path", { d: "M12 18h.01", key: "mhygvu" }]
@@ -16346,6 +16377,7 @@ const ru = {
     "realRoi": "Реальный ROI"
   },
   "campaigns": {
+    "allGroups": "Все группы",
     "groups": "Группы",
     "sources": "Источники",
     "campaign": "Кампания",
@@ -17356,6 +17388,7 @@ const ru = {
     "notes": "Заметки"
   },
   "botSettings": {
+    "noItems": "Пока пусто",
     "searchPlaceholder": "Поиск по списку…",
     "showing": "показано",
     "of": "из",
@@ -17828,6 +17861,7 @@ const ru = {
     "copied": "Скопировано!"
   },
   "update": {
+    "checkFailed": "Не удалось проверить обновления на GitHub — «актуальная версия» может быть устаревшей. Обновитесь вручную: SSH → cd /var/www/orbitra && git pull",
     "checkingUpdates": "Проверка обновлений...",
     "versionInfo": "Информация о версии",
     "checkUpdates": "Проверить обновления",
@@ -17867,6 +17901,11 @@ const ru = {
     "checkError": "Не удалось проверить обновления"
   },
   "integrations": {
+    "groupAds": "Рекламные сети",
+    "groupDomains": "Домены и SSL",
+    "groupSites": "Сайты и лендинги",
+    "groupTools": "Инструменты",
+    "groupOther": "Другое",
     "howItWorks": "Как работают интеграции",
     "introText": "Это различные способы подключения трекера к сторонним сайтам, используя внутренние скрипты Orbitra. Скрипты передают трекеру информацию и выполняют функции трекера на сторонних сайтах.",
     "usageExamples": "Примеры использования:",
@@ -18329,6 +18368,114 @@ const ru = {
     "browserOnly": "Только браузерный пиксель",
     "defaultMapping": "по умолчанию",
     "noAccounts": "Ни одна кампания пока не отправляет конверсии в Meta."
+  },
+  "reportCustomizer": {
+    "groupByHint": "До 5 уровней группировки; размеры «URL-параметр» берутся из того, что захватывает источник трафика.",
+    "filtersHint": "Сужайте отчёт до группировки — условия применяются к сырым кликам.",
+    "addFilter": "+ Добавить фильтр",
+    "noFilters": "Фильтры не заданы. Нажмите «+ Добавить фильтр», чтобы добавить условие.",
+    "fCity": "Город",
+    "opEq": "Равно (=)",
+    "opNeq": "Не равно (!=)",
+    "opContains": "Содержит",
+    "opNotContains": "Не содержит",
+    "fValue": "Значение...",
+    "title": "Настройка колонок отчёта",
+    "campaignColumnsTitle": "Настройка колонок кампаний",
+    "presets": "Пресеты",
+    "presetCod": "COD (Оплата при доставке)",
+    "presetLanderToOffer": "Лендинг → Оффер (Lander to Offer)",
+    "presetBest": "Лучшие метрики (Best)",
+    "presetFinance": "Финансы и ROI (Finance)",
+    "presetCustom": "Пользовательский (Custom)",
+    "presetAll": "Все колонки",
+    "searchMetrics": "Поиск колонок...",
+    "selectAll": "Выбрать все",
+    "deselectAll": "Снять все",
+    "selected": "Выбрано",
+    "columns": "Колонки",
+    "metrics": "Метрики",
+    "filters": "Фильтры",
+    "groupBy": "Группировка",
+    "addDimension": "+ Разрез",
+    "addUrlParam": "+ URL Param",
+    "urlParamPrompt": "Введите имя URL параметра (например, adset_id, utm_source, custom_id):",
+    "dragReorderHint": "Перетаскивайте элементы или шапки таблицы для смены порядка",
+    "catTraffic": "Трафик",
+    "catConversions": "Конверсии и Статусы",
+    "catFinancial": "Финансы",
+    "catRates": "Коэффициенты и Метрики",
+    "apply": "Применить",
+    "saveAsPreset": "Сохранить как пресет",
+    "reset": "Сбросить",
+    "colClicks": "Клики",
+    "colUniqueClicks": "Уник. клики",
+    "colUcRate": "U/C (%)",
+    "colPrelanderClicks": "Клики на преленд",
+    "colOfferClicks": "Клики на оффер",
+    "colLpCtr": "LP CTR (%)",
+    "colConversions": "Конверсии (CV)",
+    "colPurchases": "Продажи (Confirmed)",
+    "colHolds": "Холд (Pending)",
+    "colRejected": "Отклонено (Rejected)",
+    "colTrash": "Трэш (Trash)",
+    "colCrAll": "CR (Все) (%)",
+    "colCrSales": "CR (Продажи) (%)",
+    "colCrHolds": "CR (Холд) (%)",
+    "colApproveRate": "Approve Rate (%)",
+    "colApproveRateExclTrash": "Approve (без трэша) (%)",
+    "colCost": "Расход (Cost)",
+    "colRevenue": "Доход (Revenue)",
+    "colRevenueConfirmed": "Доход подтвержденный",
+    "colRevenueHold": "Доход в холде",
+    "colRevenueRejected": "Доход отклоненный",
+    "colRevenueTrash": "Доход трэш",
+    "colProfit": "Прибыль (Profit)",
+    "colRoi": "ROI (%)",
+    "colRealRevenue": "Real Revenue",
+    "colRealProfit": "Real Profit",
+    "colRealRoi": "Real ROI (%)",
+    "colEpc": "EPC",
+    "colUepc": "uEPC",
+    "colCpc": "CPC",
+    "colUcpc": "uCPC",
+    "colCpa": "CPA",
+    "colEarningsPerConv": "Доход на конверсию"
+  },
+  "dateRangePicker": {
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "thisWeek": "Текущая неделя",
+    "last7Days": "Последние 7 дней",
+    "thisMonth": "Текущий месяц",
+    "last30Days": "Последние 30 дней",
+    "previousMonth": "Прошлый месяц",
+    "custom": "Произвольный период",
+    "apply": "Применить",
+    "cancel": "Отмена",
+    "timezone": "Часовой пояс",
+    "savedTimezone": "Сохранено как часовой пояс по умолчанию",
+    "startDate": "Дата начала",
+    "endDate": "Дата конца",
+    "days": ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+    "months": ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"]
+  },
+  "streamRefine": {
+    "directMode": "Тип назначения",
+    "trackerOffer": "Оффер из трекера",
+    "directUrl": "Прямой URL",
+    "directUrlPlaceholder": "https://affiliate-offer.com/?subid={subid}&clickid={clickid}",
+    "directUrlHelp": "Трафик перенаправляется напрямую на указанную ссылку без необходимости создания оффера в каталоге. Поддерживаются макросы {subid}, {clickid}, {country}, {ip}, {sub_id_1}..{sub_id_30}.",
+    "detectionLayers": "Слои детекции ботов",
+    "safePageTitle": "Белая страница (Safe Page — для ботов и модераторов)",
+    "moneyPageTitle": "Страница оффера (Money Page — для реальных посетителей)",
+    "tabLanding": "Лендинг из трекера",
+    "tabUrl": "Внешний URL",
+    "tabHtml": "Встроенный HTML",
+    "addCostConnection": "+ Подключить Cost Sync",
+    "updateCostsManually": "Обновить расход вручную",
+    "costSyncTitle": "Синхронизация расходов (Cost Sync)",
+    "manualCostTitle": "Ручной ввод расходов"
   }
 };
 const en = {
@@ -18727,6 +18874,7 @@ const en = {
     "realRoi": "Real ROI"
   },
   "campaigns": {
+    "allGroups": "All groups",
     "groups": "Groups",
     "sources": "Sources",
     "campaign": "Campaign",
@@ -19737,6 +19885,7 @@ const en = {
     "notes": "Notes"
   },
   "botSettings": {
+    "noItems": "No entries yet",
     "searchPlaceholder": "Search the list…",
     "showing": "showing",
     "of": "of",
@@ -20272,6 +20421,11 @@ const en = {
     "saveSettings": "Save Settings"
   },
   "integrations": {
+    "groupAds": "Ad networks",
+    "groupDomains": "Domains & SSL",
+    "groupSites": "Sites & landings",
+    "groupTools": "Tools",
+    "groupOther": "Other",
     "howItWorks": "How Integrations Work",
     "introText": "Integrate Orbitra with your external landing pages or apps using one of these methods. This allows you to track traffic outside standard tracking links while centralizing data in your Orbitra database.",
     "usageExamples": "Usage Examples:",
@@ -20404,6 +20558,7 @@ const en = {
     "copied": "Copied!"
   },
   "update": {
+    "checkFailed": 'Could not reach GitHub to check for updates — "latest version" may be stale. Update manually: SSH → cd /var/www/orbitra && git pull',
     "checkingUpdates": "Checking for updates...",
     "versionInfo": "Version Information",
     "checkUpdates": "Check for Updates",
@@ -20710,6 +20865,114 @@ const en = {
     "browserOnly": "Browser pixel only",
     "defaultMapping": "default",
     "noAccounts": "No campaigns are sending conversions to Meta yet."
+  },
+  "reportCustomizer": {
+    "groupByHint": "Stack up to 5 grouping levels; URL-param dimensions come from what your traffic source captures.",
+    "filtersHint": "Narrow the report before grouping — conditions apply to the raw click rows.",
+    "addFilter": "+ Add Filter",
+    "noFilters": 'No filters configured. Click "+ Add Filter" to add a condition.',
+    "fCity": "City",
+    "opEq": "Equal (=)",
+    "opNeq": "Not equal (!=)",
+    "opContains": "Contains",
+    "opNotContains": "Not contains",
+    "fValue": "Value...",
+    "title": "Customize Report Columns",
+    "campaignColumnsTitle": "Customize Campaign Columns",
+    "presets": "Presets",
+    "presetCod": "COD",
+    "presetLanderToOffer": "Lander to Offer via Link",
+    "presetBest": "Best",
+    "presetFinance": "Finance",
+    "presetCustom": "Custom",
+    "presetAll": "All Columns",
+    "searchMetrics": "Search columns...",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "selected": "Selected",
+    "columns": "Columns",
+    "metrics": "Metrics",
+    "filters": "Filters",
+    "groupBy": "Group By",
+    "addDimension": "+ Dimension",
+    "addUrlParam": "+ URL Param",
+    "urlParamPrompt": "Enter URL parameter name (e.g. adset_id, utm_source, custom_id):",
+    "dragReorderHint": "Drag items or table headers to reorder",
+    "catTraffic": "Traffic",
+    "catConversions": "Conversions & Statuses",
+    "catFinancial": "Financial",
+    "catRates": "Rates & Unit Economics",
+    "apply": "Apply",
+    "saveAsPreset": "Save as preset",
+    "reset": "Reset",
+    "colClicks": "Clicks",
+    "colUniqueClicks": "Unique clicks",
+    "colUcRate": "U/C (%)",
+    "colPrelanderClicks": "Prelander clicks",
+    "colOfferClicks": "Offer clicks",
+    "colLpCtr": "LP CTR (%)",
+    "colConversions": "Conversions (CV)",
+    "colPurchases": "Purchases (Sales)",
+    "colHolds": "Holds (Leads)",
+    "colRejected": "Rejected",
+    "colTrash": "Trash",
+    "colCrAll": "CR (all) (%)",
+    "colCrSales": "CR (sales) (%)",
+    "colCrHolds": "CR (holds) (%)",
+    "colApproveRate": "Approve rate (%)",
+    "colApproveRateExclTrash": "Approve rate (excl. trash) (%)",
+    "colCost": "Cost",
+    "colRevenue": "Revenue",
+    "colRevenueConfirmed": "Revenue (confirmed)",
+    "colRevenueHold": "Revenue (hold)",
+    "colRevenueRejected": "Revenue (rejected)",
+    "colRevenueTrash": "Revenue (trash)",
+    "colProfit": "Profit",
+    "colRoi": "ROI (%)",
+    "colRealRevenue": "Real Revenue",
+    "colRealProfit": "Real Profit",
+    "colRealRoi": "Real ROI (%)",
+    "colEpc": "EPC",
+    "colUepc": "uEPC",
+    "colCpc": "CPC",
+    "colUcpc": "uCPC",
+    "colCpa": "CPA",
+    "colEarningsPerConv": "Earnings / Conv"
+  },
+  "dateRangePicker": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This week",
+    "last7Days": "Last 7 days",
+    "thisMonth": "This month",
+    "last30Days": "Last 30 days",
+    "previousMonth": "Previous month",
+    "custom": "Custom range",
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "timezone": "Timezone",
+    "savedTimezone": "Saved as default timezone",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "days": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+    "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+  },
+  "streamRefine": {
+    "directMode": "Destination Type",
+    "trackerOffer": "Tracker Offer",
+    "directUrl": "Direct URL",
+    "directUrlPlaceholder": "https://affiliate-offer.com/?subid={subid}&clickid={clickid}",
+    "directUrlHelp": "Traffic will be redirected directly to this URL without having to create an offer in the tracker. Macros like {subid}, {clickid}, {country}, {ip}, {sub_id_1}..{sub_id_30} are supported.",
+    "detectionLayers": "Detection Layers",
+    "safePageTitle": "Safe Page (For Bots & Moderators)",
+    "moneyPageTitle": "Money Page (For Real Visitors)",
+    "tabLanding": "Tracker Landing",
+    "tabUrl": "External URL",
+    "tabHtml": "Inline HTML",
+    "addCostConnection": "+ Add Cost Connection",
+    "updateCostsManually": "Update Costs Manually",
+    "costSyncTitle": "Cost Synchronization",
+    "manualCostTitle": "Manual Cost Entry"
   }
 };
 const uk = {
@@ -21108,6 +21371,7 @@ const uk = {
     "realRoi": "Реальний ROI"
   },
   "campaigns": {
+    "allGroups": "Усі групи",
     "groups": "Групи",
     "sources": "Джерела",
     "campaign": "Кампанія",
@@ -22118,6 +22382,7 @@ const uk = {
     "notes": "Примітки"
   },
   "botSettings": {
+    "noItems": "Ще немає записів",
     "searchPlaceholder": "Пошук у списку…",
     "showing": "показано",
     "of": "з",
@@ -22653,6 +22918,11 @@ const uk = {
     "saveSettings": "Зберегти налаштування"
   },
   "integrations": {
+    "groupAds": "Рекламні мережі",
+    "groupDomains": "Домени та SSL",
+    "groupSites": "Сайти та лендінги",
+    "groupTools": "Інструменти",
+    "groupOther": "Інше",
     "howItWorks": "Як працюють інтеграції",
     "introText": "Інтегруйте Orbitra зі своїми зовнішніми цільовими сторінками або програмами за допомогою одного з цих методів. Це дозволяє відстежувати трафік поза стандартними посиланнями відстеження, централізуючи дані у вашій базі даних Orbitra.",
     "usageExamples": "Приклади використання:",
@@ -22785,6 +23055,7 @@ const uk = {
     "copied": "Скопійовано!"
   },
   "update": {
+    "checkFailed": "Не вдалося перевірити оновлення на GitHub — «актуальна версія» може бути застарілою. Оновіть вручну: SSH → cd /var/www/orbitra && git pull",
     "checkingUpdates": "Перевірка оновлень...",
     "versionInfo": "Інформація про версію",
     "checkUpdates": "Перевірте наявність оновлень",
@@ -23091,6 +23362,114 @@ const uk = {
     "browserOnly": "Лише браузерний піксель",
     "defaultMapping": "за замовчуванням",
     "noAccounts": "Жодна кампанія поки не надсилає конверсії в Meta."
+  },
+  "reportCustomizer": {
+    "groupByHint": "До 5 рівнів групування; виміри «URL-параметр» беруться з того, що захоплює джерело трафіку.",
+    "filtersHint": "Звужуйте звіт до групування — умови застосовуються до сирих кліків.",
+    "addFilter": "+ Додати фільтр",
+    "noFilters": "Фільтри не задані. Натисніть «+ Додати фільтр», щоб додати умову.",
+    "fCity": "Місто",
+    "opEq": "Дорівнює (=)",
+    "opNeq": "Не дорівнює (!=)",
+    "opContains": "Містить",
+    "opNotContains": "Не містить",
+    "fValue": "Значення…",
+    "title": "Налаштування колонок звіту",
+    "campaignColumnsTitle": "Налаштування колонок кампаній",
+    "presets": "Пресети",
+    "presetCod": "COD (Оплата при отриманні)",
+    "presetLanderToOffer": "Лендінг → Оффер (Lander to Offer)",
+    "presetBest": "Кращі метрики (Best)",
+    "presetFinance": "Фінанси та ROI (Finance)",
+    "presetCustom": "Користувацький (Custom)",
+    "presetAll": "Усі колонки",
+    "searchMetrics": "Пошук колонок...",
+    "selectAll": "Вибрати всі",
+    "deselectAll": "Зняти всі",
+    "selected": "Вибрано",
+    "columns": "Колонки",
+    "metrics": "Метрики",
+    "filters": "Фільтри",
+    "groupBy": "Групування",
+    "addDimension": "+ Розріз",
+    "addUrlParam": "+ URL Param",
+    "urlParamPrompt": "Введіть ім'я URL параметра (наприклад, adset_id, utm_source, custom_id):",
+    "dragReorderHint": "Перетягуйте елементи або заголовки таблиці для зміни порядку",
+    "catTraffic": "Трафік",
+    "catConversions": "Конверсії та Статуси",
+    "catFinancial": "Фінанси",
+    "catRates": "Коефіцієнти та Метрики",
+    "apply": "Застосувати",
+    "saveAsPreset": "Зберегти як пресет",
+    "reset": "Скинути",
+    "colClicks": "Кліки",
+    "colUniqueClicks": "Унік. кліки",
+    "colUcRate": "U/C (%)",
+    "colPrelanderClicks": "Кліки на преленд",
+    "colOfferClicks": "Кліки на оффер",
+    "colLpCtr": "LP CTR (%)",
+    "colConversions": "Конверсії (CV)",
+    "colPurchases": "Продажі (Confirmed)",
+    "colHolds": "Холд (Pending)",
+    "colRejected": "Відхилено (Rejected)",
+    "colTrash": "Треш (Trash)",
+    "colCrAll": "CR (Всі) (%)",
+    "colCrSales": "CR (Продажі) (%)",
+    "colCrHolds": "CR (Холд) (%)",
+    "colApproveRate": "Approve Rate (%)",
+    "colApproveRateExclTrash": "Approve (без трешу) (%)",
+    "colCost": "Витрати (Cost)",
+    "colRevenue": "Дохід (Revenue)",
+    "colRevenueConfirmed": "Дохід підтверджений",
+    "colRevenueHold": "Дохід у холді",
+    "colRevenueRejected": "Дохід відхилений",
+    "colRevenueTrash": "Дохід треш",
+    "colProfit": "Прибуток (Profit)",
+    "colRoi": "ROI (%)",
+    "colRealRevenue": "Real Revenue",
+    "colRealProfit": "Real Profit",
+    "colRealRoi": "Real ROI (%)",
+    "colEpc": "EPC",
+    "colUepc": "uEPC",
+    "colCpc": "CPC",
+    "colUcpc": "uCPC",
+    "colCpa": "CPA",
+    "colEarningsPerConv": "Дохід на конверсію"
+  },
+  "dateRangePicker": {
+    "today": "Сьогодні",
+    "yesterday": "Вчора",
+    "thisWeek": "Поточний тиждень",
+    "last7Days": "Останні 7 днів",
+    "thisMonth": "Поточний місяць",
+    "last30Days": "Останні 30 днів",
+    "previousMonth": "Минулий місяць",
+    "custom": "Довільний період",
+    "apply": "Застосувати",
+    "cancel": "Скасувати",
+    "timezone": "Часовий пояс",
+    "savedTimezone": "Збережено як часовий пояс за замовчуванням",
+    "startDate": "Дата початку",
+    "endDate": "Дата кінця",
+    "days": ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+    "months": ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"]
+  },
+  "streamRefine": {
+    "directMode": "Тип призначення",
+    "trackerOffer": "Оффер з трекера",
+    "directUrl": "Прямий URL",
+    "directUrlPlaceholder": "https://affiliate-offer.com/?subid={subid}&clickid={clickid}",
+    "directUrlHelp": "Трафік перенаправляється напряму на вказане посилання без необхідності створення оффера в каталозі. Підтримуються макроси {subid}, {clickid}, {country}, {ip}, {sub_id_1}..{sub_id_30}.",
+    "detectionLayers": "Шари детекції ботів",
+    "safePageTitle": "Біла сторінка (Safe Page — для ботів і модераторів)",
+    "moneyPageTitle": "Сторінка оффера (Money Page — для реальних відвідувачів)",
+    "tabLanding": "Лендінг з трекера",
+    "tabUrl": "Зовнішній URL",
+    "tabHtml": "Вбудований HTML",
+    "addCostConnection": "+ Підключити Cost Sync",
+    "updateCostsManually": "Оновити витрати вручну",
+    "costSyncTitle": "Синхронізація витрат (Cost Sync)",
+    "manualCostTitle": "Ручне введення витрат"
   }
 };
 const es = {
@@ -23489,6 +23868,7 @@ const es = {
     "realRoi": "Retorno de la inversión real"
   },
   "campaigns": {
+    "allGroups": "Todos los grupos",
     "groups": "Grupos",
     "sources": "Fuentes",
     "campaign": "Campaña",
@@ -24499,6 +24879,7 @@ const es = {
     "notes": "Notas"
   },
   "botSettings": {
+    "noItems": "Aún no hay entradas",
     "searchPlaceholder": "Buscar en la lista…",
     "showing": "mostrando",
     "of": "de",
@@ -25034,6 +25415,11 @@ const es = {
     "saveSettings": "Guardar configuración"
   },
   "integrations": {
+    "groupAds": "Redes de anuncios",
+    "groupDomains": "Dominios y SSL",
+    "groupSites": "Sitios y landings",
+    "groupTools": "Herramientas",
+    "groupOther": "Otros",
     "howItWorks": "Cómo funcionan las integraciones",
     "introText": "Integre Orbitra con sus páginas de destino o aplicaciones externas utilizando uno de estos métodos. Esto le permite rastrear el tráfico fuera de los enlaces de seguimiento estándar mientras centraliza los datos en su base de datos de Orbitra.",
     "usageExamples": "Ejemplos de uso:",
@@ -25166,6 +25552,7 @@ const es = {
     "copied": "¡Copiado!"
   },
   "update": {
+    "checkFailed": "No se pudo acceder a GitHub para buscar actualizaciones — la «última versión» puede estar desactualizada. Actualiza manualmente: SSH → cd /var/www/orbitra && git pull",
     "checkingUpdates": "Buscando actualizaciones...",
     "versionInfo": "Información de versión",
     "checkUpdates": "Buscar actualizaciones",
@@ -25470,8 +25857,116 @@ const es = {
     "editMapping": "Mapeo",
     "serverSideOn": "Lado del servidor activo",
     "browserOnly": "Solo píxel de navegador",
-    "defaultMapping": "por defecto",
-    "noAccounts": "Ninguna campaña envía todavía conversiones a Meta."
+    "defaultMapping": "predeterminado",
+    "noAccounts": "Ninguna campaña está enviando conversiones a Meta todavía."
+  },
+  "reportCustomizer": {
+    "groupByHint": "Hasta 5 niveles de agrupación; las dimensiones de parámetro URL vienen de lo que captura tu fuente de tráfico.",
+    "filtersHint": "Acota el informe antes de agrupar: las condiciones se aplican a las filas de clics en bruto.",
+    "addFilter": "+ Añadir filtro",
+    "noFilters": "Sin filtros. Pulsa «+ Añadir filtro» para crear una condición.",
+    "fCity": "Ciudad",
+    "opEq": "Igual (=)",
+    "opNeq": "Distinto (!=)",
+    "opContains": "Contiene",
+    "opNotContains": "No contiene",
+    "fValue": "Valor…",
+    "title": "Personalizar columnas de informe",
+    "campaignColumnsTitle": "Personalizar columnas de campañas",
+    "presets": "Plantillas",
+    "presetCod": "COD (Pago contra entrega)",
+    "presetLanderToOffer": "Lander a Oferta (Lander to Offer)",
+    "presetBest": "Mejores métricas (Best)",
+    "presetFinance": "Finanzas y ROI (Finance)",
+    "presetCustom": "Personalizado (Custom)",
+    "presetAll": "Todas las columnas",
+    "searchMetrics": "Buscar columnas...",
+    "selectAll": "Seleccionar todo",
+    "deselectAll": "Deseleccionar todo",
+    "selected": "Seleccionado",
+    "columns": "Columnas",
+    "metrics": "Métricas",
+    "filters": "Filtros",
+    "groupBy": "Agrupar por",
+    "addDimension": "+ Dimensión",
+    "addUrlParam": "+ Parámetro URL",
+    "urlParamPrompt": "Ingrese el nombre del parámetro URL (p. ej.: adset_id, utm_source, custom_id):",
+    "dragReorderHint": "Arrastre elementos o encabezados de tabla para reordenar",
+    "catTraffic": "Tráfico",
+    "catConversions": "Conversiones y Estados",
+    "catFinancial": "Financiero",
+    "catRates": "Tasas y Métricas unitarias",
+    "apply": "Aplicar",
+    "saveAsPreset": "Guardar como plantilla",
+    "reset": "Restablecer",
+    "colClicks": "Clics",
+    "colUniqueClicks": "Clics únicos",
+    "colUcRate": "U/C (%)",
+    "colPrelanderClicks": "Clics en prelanding",
+    "colOfferClicks": "Clics en oferta",
+    "colLpCtr": "LP CTR (%)",
+    "colConversions": "Conversiones (CV)",
+    "colPurchases": "Ventas (Confirmed)",
+    "colHolds": "En espera (Pending)",
+    "colRejected": "Rechazado (Rejected)",
+    "colTrash": "Basura (Trash)",
+    "colCrAll": "CR (Total) (%)",
+    "colCrSales": "CR (Ventas) (%)",
+    "colCrHolds": "CR (En espera) (%)",
+    "colApproveRate": "Tasa de aprobación (%)",
+    "colApproveRateExclTrash": "Aprobación (sin basura) (%)",
+    "colCost": "Costo (Cost)",
+    "colRevenue": "Ingresos (Revenue)",
+    "colRevenueConfirmed": "Ingresos confirmados",
+    "colRevenueHold": "Ingresos retenidos",
+    "colRevenueRejected": "Ingresos rechazados",
+    "colRevenueTrash": "Ingresos basura",
+    "colProfit": "Ganancia (Profit)",
+    "colRoi": "ROI (%)",
+    "colRealRevenue": "Real Revenue",
+    "colRealProfit": "Real Profit",
+    "colRealRoi": "Real ROI (%)",
+    "colEpc": "EPC",
+    "colUepc": "uEPC",
+    "colCpc": "CPC",
+    "colUcpc": "uCPC",
+    "colCpa": "CPA",
+    "colEarningsPerConv": "Ingresos por conversión"
+  },
+  "dateRangePicker": {
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "thisWeek": "Esta semana",
+    "last7Days": "Últimos 7 días",
+    "thisMonth": "Este mes",
+    "last30Days": "Últimos 30 días",
+    "previousMonth": "Mes anterior",
+    "custom": "Rango personalizado",
+    "apply": "Aplicar",
+    "cancel": "Cancelar",
+    "timezone": "Zona horaria",
+    "savedTimezone": "Guardada como zona horaria predeterminada",
+    "startDate": "Fecha de inicio",
+    "endDate": "Fecha final",
+    "days": ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"],
+    "months": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+  },
+  "streamRefine": {
+    "directMode": "Tipo de destino",
+    "trackerOffer": "Oferta del tracker",
+    "directUrl": "URL directa",
+    "directUrlPlaceholder": "https://affiliate-offer.com/?subid={subid}&clickid={clickid}",
+    "directUrlHelp": "El tráfico se redirigirá directamente a esta URL sin necesidad de crear una oferta en el tracker. Se admiten macros como {subid}, {clickid}, {country}, {ip}, {sub_id_1}..{sub_id_30}.",
+    "detectionLayers": "Capas de detección de bots",
+    "safePageTitle": "Página segura (Safe Page — para bots y revisores)",
+    "moneyPageTitle": "Página de oferta (Money Page — para visitantes reales)",
+    "tabLanding": "Landing del tracker",
+    "tabUrl": "URL externa",
+    "tabHtml": "HTML integrado",
+    "addCostConnection": "+ Conectar Cost Sync",
+    "updateCostsManually": "Actualizar costos manualmente",
+    "costSyncTitle": "Sincronización de costos",
+    "manualCostTitle": "Entrada manual de costos"
   }
 };
 const zh = {
@@ -25870,6 +26365,7 @@ const zh = {
     "realRoi": "真正的投资回报率"
   },
   "campaigns": {
+    "allGroups": "所有分组",
     "groups": "团体",
     "sources": "来源",
     "campaign": "活动",
@@ -26880,6 +27376,7 @@ const zh = {
     "notes": "注释"
   },
   "botSettings": {
+    "noItems": "暂无条目",
     "searchPlaceholder": "搜索列表…",
     "showing": "已显示",
     "of": "/",
@@ -27415,6 +27912,11 @@ const zh = {
     "saveSettings": "保存设置"
   },
   "integrations": {
+    "groupAds": "广告网络",
+    "groupDomains": "域名与 SSL",
+    "groupSites": "网站与落地页",
+    "groupTools": "工具",
+    "groupOther": "其他",
     "howItWorks": "集成如何运作",
     "introText": "使用以下方法之一将 Orbitra 与您的外部登录页面或应用程序集成。这使您可以跟踪标准跟踪链接之外的流量，同时将数据集中在 Orbitra 数据库中。",
     "usageExamples": "用法示例：",
@@ -27547,6 +28049,7 @@ const zh = {
     "copied": "复制了！"
   },
   "update": {
+    "checkFailed": "无法访问 GitHub 检查更新 —「最新版本」可能已过时。请手动更新：SSH → cd /var/www/orbitra && git pull",
     "checkingUpdates": "正在检查更新...",
     "versionInfo": "版本信息",
     "checkUpdates": "检查更新",
@@ -27853,6 +28356,114 @@ const zh = {
     "browserOnly": "仅浏览器像素",
     "defaultMapping": "默认",
     "noAccounts": "还没有广告系列向 Meta 发送转化。"
+  },
+  "reportCustomizer": {
+    "groupByHint": "最多 5 层分组；「URL 参数」维度来自流量源实际捕获的内容。",
+    "filtersHint": "在分组前收窄报告 — 条件作用于原始点击行。",
+    "addFilter": "+ 添加筛选",
+    "noFilters": "未设置筛选。点击「+ 添加筛选」创建条件。",
+    "fCity": "城市",
+    "opEq": "等于 (=)",
+    "opNeq": "不等于 (!=)",
+    "opContains": "包含",
+    "opNotContains": "不包含",
+    "fValue": "值…",
+    "title": "自定义报表列",
+    "campaignColumnsTitle": "自定义广告系列列",
+    "presets": "预设模板",
+    "presetCod": "COD (货到付款)",
+    "presetLanderToOffer": "着陆页至优惠 (Lander to Offer)",
+    "presetBest": "最佳指标 (Best)",
+    "presetFinance": "财务与ROI (Finance)",
+    "presetCustom": "自定义 (Custom)",
+    "presetAll": "所有列",
+    "searchMetrics": "搜索列...",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
+    "selected": "已选择",
+    "columns": "列",
+    "metrics": "指标",
+    "filters": "过滤器",
+    "groupBy": "分组维度",
+    "addDimension": "+ 维度",
+    "addUrlParam": "+ URL参数",
+    "urlParamPrompt": "输入URL参数名称 (例如 adset_id, utm_source, custom_id):",
+    "dragReorderHint": "拖动项目或表头调整顺序",
+    "catTraffic": "流量",
+    "catConversions": "转化与状态",
+    "catFinancial": "财务",
+    "catRates": "比率与单体经济",
+    "apply": "应用",
+    "saveAsPreset": "保存为预设",
+    "reset": "重置",
+    "colClicks": "点击量",
+    "colUniqueClicks": "独立点击",
+    "colUcRate": "U/C (%)",
+    "colPrelanderClicks": "预着陆页点击",
+    "colOfferClicks": "优惠点击",
+    "colLpCtr": "LP CTR (%)",
+    "colConversions": "转化数 (CV)",
+    "colPurchases": "销售/确认 (Sales)",
+    "colHolds": "待处理 (Leads/Hold)",
+    "colRejected": "已拒绝 (Rejected)",
+    "colTrash": "无效/废弃 (Trash)",
+    "colCrAll": "CR (全部) (%)",
+    "colCrSales": "CR (销售) (%)",
+    "colCrHolds": "CR (待处理) (%)",
+    "colApproveRate": "批准率 (%)",
+    "colApproveRateExclTrash": "批准率 (排除无效) (%)",
+    "colCost": "花费 (Cost)",
+    "colRevenue": "收入 (Revenue)",
+    "colRevenueConfirmed": "已确认收入",
+    "colRevenueHold": "待确认收入",
+    "colRevenueRejected": "已拒绝收入",
+    "colRevenueTrash": "无效收入",
+    "colProfit": "利润 (Profit)",
+    "colRoi": "ROI (%)",
+    "colRealRevenue": "Real Revenue",
+    "colRealProfit": "Real Profit",
+    "colRealRoi": "Real ROI (%)",
+    "colEpc": "EPC",
+    "colUepc": "uEPC",
+    "colCpc": "CPC",
+    "colUcpc": "uCPC",
+    "colCpa": "CPA",
+    "colEarningsPerConv": "单次转化收益"
+  },
+  "dateRangePicker": {
+    "today": "今天",
+    "yesterday": "昨天",
+    "thisWeek": "本周",
+    "last7Days": "近 7 天",
+    "thisMonth": "本月",
+    "last30Days": "近 30 天",
+    "previousMonth": "上个月",
+    "custom": "自定义范围",
+    "apply": "应用",
+    "cancel": "取消",
+    "timezone": "时区",
+    "savedTimezone": "已保存为默认时区",
+    "startDate": "开始日期",
+    "endDate": "结束日期",
+    "days": ["日", "一", "二", "三", "四", "五", "六"],
+    "months": ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
+  },
+  "streamRefine": {
+    "directMode": "目标类型",
+    "trackerOffer": "追踪器优惠",
+    "directUrl": "直接 URL",
+    "directUrlPlaceholder": "https://affiliate-offer.com/?subid={subid}&clickid={clickid}",
+    "directUrlHelp": "流量将直接重定向至此链接，无需事先在追踪器中创建优惠。支持宏，例如 {subid}, {clickid}, {country}, {ip}, {sub_id_1}..{sub_id_30}。",
+    "detectionLayers": "Bot 拦截检测层",
+    "safePageTitle": "安全页 (Safe Page — 针对审核与Bot)",
+    "moneyPageTitle": "盈利页 (Money Page — 针对真实访客)",
+    "tabLanding": "追踪器着陆页",
+    "tabUrl": "外部 URL",
+    "tabHtml": "嵌入 HTML",
+    "addCostConnection": "+ 连接 Cost Sync",
+    "updateCostsManually": "手动更新花费",
+    "costSyncTitle": "花费同步",
+    "manualCostTitle": "手动录入花费"
   }
 };
 const fr = {
@@ -28251,6 +28862,7 @@ const fr = {
     "realRoi": "ROI réel"
   },
   "campaigns": {
+    "allGroups": "Tous les groupes",
     "groups": "Groupes",
     "sources": "Sources",
     "campaign": "Campagne",
@@ -29261,6 +29873,7 @@ const fr = {
     "notes": "Remarques"
   },
   "botSettings": {
+    "noItems": "Aucune entrée pour l’instant",
     "searchPlaceholder": "Rechercher dans la liste…",
     "showing": "affichés",
     "of": "sur",
@@ -29796,6 +30409,11 @@ const fr = {
     "saveSettings": "Enregistrer les paramètres"
   },
   "integrations": {
+    "groupAds": "Réseaux publicitaires",
+    "groupDomains": "Domaines & SSL",
+    "groupSites": "Sites & landings",
+    "groupTools": "Outils",
+    "groupOther": "Autres",
     "howItWorks": "Fonctionnement des intégrations",
     "introText": "Intégrez Orbitra à vos pages de destination ou applications externes en utilisant l'une de ces méthodes. Cela vous permet de suivre le trafic en dehors des liens de suivi standard tout en centralisant les données dans votre base de données Orbitra.",
     "usageExamples": "Exemples d'utilisation :",
@@ -29928,6 +30546,7 @@ const fr = {
     "copied": "Copié !"
   },
   "update": {
+    "checkFailed": "Impossible de joindre GitHub pour vérifier les mises à jour — la « dernière version » peut être obsolète. Mettez à jour manuellement : SSH → cd /var/www/orbitra && git pull",
     "checkingUpdates": "Vérification des mises à jour...",
     "versionInfo": "Informations sur la version",
     "checkUpdates": "Rechercher les mises à jour",
@@ -30236,6 +30855,114 @@ const fr = {
     "browserOnly": "Pixel navigateur uniquement",
     "defaultMapping": "par défaut",
     "noAccounts": "Aucune campagne n’envoie encore de conversions à Meta."
+  },
+  "reportCustomizer": {
+    "groupByHint": "Jusqu’à 5 niveaux de regroupement ; les dimensions « paramètre URL » viennent de ce que votre source capture.",
+    "filtersHint": "Restreignez le rapport avant le regroupement — les conditions s’appliquent aux lignes de clics brutes.",
+    "addFilter": "+ Ajouter un filtre",
+    "noFilters": "Aucun filtre. Cliquez sur « + Ajouter un filtre » pour créer une condition.",
+    "fCity": "Ville",
+    "opEq": "Égal (=)",
+    "opNeq": "Différent (!=)",
+    "opContains": "Contient",
+    "opNotContains": "Ne contient pas",
+    "fValue": "Valeur…",
+    "title": "Personnaliser les colonnes du rapport",
+    "campaignColumnsTitle": "Personnaliser les colonnes des campagnes",
+    "presets": "Modèles",
+    "presetCod": "COD (Paiement à la livraison)",
+    "presetLanderToOffer": "Lander vers Offre (Lander to Offer)",
+    "presetBest": "Meilleures métriques (Best)",
+    "presetFinance": "Finances & ROI (Finance)",
+    "presetCustom": "Personnalisé (Custom)",
+    "presetAll": "Toutes les colonnes",
+    "searchMetrics": "Rechercher des colonnes...",
+    "selectAll": "Tout sélectionner",
+    "deselectAll": "Tout désélectionner",
+    "selected": "Sélectionné",
+    "columns": "Colonnes",
+    "metrics": "Métriques",
+    "filters": "Filtres",
+    "groupBy": "Grouper par",
+    "addDimension": "+ Dimension",
+    "addUrlParam": "+ Paramètre URL",
+    "urlParamPrompt": "Entrez le nom du paramètre URL (ex: adset_id, utm_source, custom_id) :",
+    "dragReorderHint": "Glissez les éléments ou les en-têtes du tableau pour réorganiser",
+    "catTraffic": "Trafic",
+    "catConversions": "Conversions & Statuts",
+    "catFinancial": "Finances",
+    "catRates": "Taux & Économie unitaire",
+    "apply": "Appliquer",
+    "saveAsPreset": "Enregistrer comme modèle",
+    "reset": "Réinitialiser",
+    "colClicks": "Clics",
+    "colUniqueClicks": "Clics uniques",
+    "colUcRate": "U/C (%)",
+    "colPrelanderClicks": "Clics prélanding",
+    "colOfferClicks": "Clics offre",
+    "colLpCtr": "LP CTR (%)",
+    "colConversions": "Conversions (CV)",
+    "colPurchases": "Ventes (Confirmed)",
+    "colHolds": "En attente (Pending)",
+    "colRejected": "Rejeté (Rejected)",
+    "colTrash": "Rebut (Trash)",
+    "colCrAll": "CR (Total) (%)",
+    "colCrSales": "CR (Ventes) (%)",
+    "colCrHolds": "CR (En attente) (%)",
+    "colApproveRate": "Taux d'approbation (%)",
+    "colApproveRateExclTrash": "Approbation (hors rebut) (%)",
+    "colCost": "Coût (Cost)",
+    "colRevenue": "Revenu (Revenue)",
+    "colRevenueConfirmed": "Revenu confirmé",
+    "colRevenueHold": "Revenu en attente",
+    "colRevenueRejected": "Revenu rejeté",
+    "colRevenueTrash": "Revenu rebut",
+    "colProfit": "Bénéfice (Profit)",
+    "colRoi": "ROI (%)",
+    "colRealRevenue": "Real Revenue",
+    "colRealProfit": "Real Profit",
+    "colRealRoi": "Real ROI (%)",
+    "colEpc": "EPC",
+    "colUepc": "uEPC",
+    "colCpc": "CPC",
+    "colUcpc": "uCPC",
+    "colCpa": "CPA",
+    "colEarningsPerConv": "Revenu par conversion"
+  },
+  "dateRangePicker": {
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "thisWeek": "Cette semaine",
+    "last7Days": "7 derniers jours",
+    "thisMonth": "Ce mois-ci",
+    "last30Days": "30 derniers jours",
+    "previousMonth": "Mois précédent",
+    "custom": "Période personnalisée",
+    "apply": "Appliquer",
+    "cancel": "Annuler",
+    "timezone": "Fuseau horaire",
+    "savedTimezone": "Enregistré comme fuseau par défaut",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "days": ["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"],
+    "months": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
+  },
+  "streamRefine": {
+    "directMode": "Type de destination",
+    "trackerOffer": "Offre du tracker",
+    "directUrl": "URL directe",
+    "directUrlPlaceholder": "https://affiliate-offer.com/?subid={subid}&clickid={clickid}",
+    "directUrlHelp": "Le trafic sera redirigé directement vers cette URL sans avoir besoin de créer une offre dans le catalogue. Les macros {subid}, {clickid}, {country}, {ip}, {sub_id_1}..{sub_id_30} sont prises en charge.",
+    "detectionLayers": "Couches de détection de bots",
+    "safePageTitle": "Page sécurisée (Safe Page — pour bots et modérateurs)",
+    "moneyPageTitle": "Page d'offre (Money Page — pour vrais visiteurs)",
+    "tabLanding": "Landing du tracker",
+    "tabUrl": "URL externe",
+    "tabHtml": "HTML intégré",
+    "addCostConnection": "+ Connecter Cost Sync",
+    "updateCostsManually": "Mettre à jour les coûts manuellement",
+    "costSyncTitle": "Synchronisation des coûts",
+    "manualCostTitle": "Saisie manuelle des coûts"
   }
 };
 const de = {
@@ -30634,6 +31361,7 @@ const de = {
     "realRoi": "Echter ROI"
   },
   "campaigns": {
+    "allGroups": "Alle Gruppen",
     "groups": "Gruppen",
     "sources": "Quellen",
     "campaign": "Kampagne",
@@ -31644,6 +32372,7 @@ const de = {
     "notes": "Notizen"
   },
   "botSettings": {
+    "noItems": "Noch keine Einträge",
     "searchPlaceholder": "Liste durchsuchen…",
     "showing": "angezeigt",
     "of": "von",
@@ -32179,6 +32908,11 @@ const de = {
     "saveSettings": "Einstellungen speichern"
   },
   "integrations": {
+    "groupAds": "Werbenetzwerke",
+    "groupDomains": "Domains & SSL",
+    "groupSites": "Websites & Landings",
+    "groupTools": "Tools",
+    "groupOther": "Weitere",
     "howItWorks": "So funktionieren Integrationen",
     "introText": "Integrieren Sie Orbitra mit Ihren externen Landingpages oder Apps mit einer dieser Methoden. Dadurch können Sie den Datenverkehr außerhalb von Standard-Tracking-Links verfolgen und gleichzeitig die Daten in Ihrer Orbitra-Datenbank zentralisieren.",
     "usageExamples": "Verwendungsbeispiele:",
@@ -32311,6 +33045,7 @@ const de = {
     "copied": "Kopiert!"
   },
   "update": {
+    "checkFailed": "GitHub ist für die Update-Prüfung nicht erreichbar — „Neueste Version“ kann veraltet sein. Manuell aktualisieren: SSH → cd /var/www/orbitra && git pull",
     "checkingUpdates": "Nach Updates suchen...",
     "versionInfo": "Version Informationen",
     "checkUpdates": "Nach Updates suchen",
@@ -32617,6 +33352,114 @@ const de = {
     "browserOnly": "Nur Browser-Pixel",
     "defaultMapping": "Standard",
     "noAccounts": "Noch sendet keine Kampagne Conversions an Meta."
+  },
+  "reportCustomizer": {
+    "groupByHint": "Bis zu 5 Gruppierungsebenen; URL-Parameter-Dimensionen stammen aus dem, was deine Traffic-Quelle erfasst.",
+    "filtersHint": "Den Report vor der Gruppierung einschränken — Bedingungen wirken auf die rohen Klick-Zeilen.",
+    "addFilter": "+ Filter hinzufügen",
+    "noFilters": "Keine Filter gesetzt. Klicke „+ Filter hinzufügen“, um eine Bedingung anzulegen.",
+    "fCity": "Stadt",
+    "opEq": "Gleich (=)",
+    "opNeq": "Ungleich (!=)",
+    "opContains": "Enthält",
+    "opNotContains": "Enthält nicht",
+    "fValue": "Wert…",
+    "title": "Berichtsspalten anpassen",
+    "campaignColumnsTitle": "Kampagnenspalten anpassen",
+    "presets": "Vorlagen",
+    "presetCod": "COD (Nachnahme)",
+    "presetLanderToOffer": "Lander zu Offer (Lander to Offer)",
+    "presetBest": "Beste Metriken (Best)",
+    "presetFinance": "Finanzen & ROI (Finance)",
+    "presetCustom": "Benutzerdefiniert (Custom)",
+    "presetAll": "Alle Spalten",
+    "searchMetrics": "Spalten suchen...",
+    "selectAll": "Alle auswählen",
+    "deselectAll": "Alle abwählen",
+    "selected": "Ausgewählt",
+    "columns": "Spalten",
+    "metrics": "Metriken",
+    "filters": "Filter",
+    "groupBy": "Gruppierung",
+    "addDimension": "+ Dimension",
+    "addUrlParam": "+ URL-Parameter",
+    "urlParamPrompt": "URL-Parameternamen eingeben (z. B. adset_id, utm_source, custom_id):",
+    "dragReorderHint": "Elemente oder Tabellenkopfzeilen ziehen, um die Reihenfolge zu ändern",
+    "catTraffic": "Traffic",
+    "catConversions": "Conversions & Status",
+    "catFinancial": "Finanzen",
+    "catRates": "Raten & Kennzahlen",
+    "apply": "Anwenden",
+    "saveAsPreset": "Als Vorlage speichern",
+    "reset": "Zurücksetzen",
+    "colClicks": "Klicks",
+    "colUniqueClicks": "Eindeutige Klicks",
+    "colUcRate": "U/C (%)",
+    "colPrelanderClicks": "Prelander-Klicks",
+    "colOfferClicks": "Offer-Klicks",
+    "colLpCtr": "LP CTR (%)",
+    "colConversions": "Conversions (CV)",
+    "colPurchases": "Verkäufe (Confirmed)",
+    "colHolds": "Ausstehend (Pending)",
+    "colRejected": "Abgelehnt (Rejected)",
+    "colTrash": "Trash",
+    "colCrAll": "CR (Alle) (%)",
+    "colCrSales": "CR (Verkäufe) (%)",
+    "colCrHolds": "CR (Ausstehend) (%)",
+    "colApproveRate": "Approve-Rate (%)",
+    "colApproveRateExclTrash": "Approve (ohne Trash) (%)",
+    "colCost": "Kosten (Cost)",
+    "colRevenue": "Umsatz (Revenue)",
+    "colRevenueConfirmed": "Bestätigter Umsatz",
+    "colRevenueHold": "Ausstehender Umsatz",
+    "colRevenueRejected": "Abgelehnter Umsatz",
+    "colRevenueTrash": "Trash Umsatz",
+    "colProfit": "Gewinn (Profit)",
+    "colRoi": "ROI (%)",
+    "colRealRevenue": "Real Revenue",
+    "colRealProfit": "Real Profit",
+    "colRealRoi": "Real ROI (%)",
+    "colEpc": "EPC",
+    "colUepc": "uEPC",
+    "colCpc": "CPC",
+    "colUcpc": "uCPC",
+    "colCpa": "CPA",
+    "colEarningsPerConv": "Umsatz pro Conversion"
+  },
+  "dateRangePicker": {
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "thisWeek": "Diese Woche",
+    "last7Days": "Letzte 7 Tage",
+    "thisMonth": "Dieser Monat",
+    "last30Days": "Letzte 30 Tage",
+    "previousMonth": "Vorheriger Monat",
+    "custom": "Benutzerdefinierter Zeitraum",
+    "apply": "Anwenden",
+    "cancel": "Abbrechen",
+    "timezone": "Zeitzone",
+    "savedTimezone": "Als Standardzeitzone gespeichert",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum",
+    "days": ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+    "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
+  },
+  "streamRefine": {
+    "directMode": "Zieltyp",
+    "trackerOffer": "Tracker-Angebot",
+    "directUrl": "Direkte URL",
+    "directUrlPlaceholder": "https://affiliate-offer.com/?subid={subid}&clickid={clickid}",
+    "directUrlHelp": "Traffic wird direkt an diese URL weitergeleitet, ohne ein Angebot im Tracker erstellen zu müssen. Makros wie {subid}, {clickid}, {country}, {ip}, {sub_id_1}..{sub_id_30} werden unterstützt.",
+    "detectionLayers": "Bot-Erkennungsschichten",
+    "safePageTitle": "Safe Page (Für Bots & Moderatoren)",
+    "moneyPageTitle": "Money Page (Für echte Besucher)",
+    "tabLanding": "Tracker-Landingpage",
+    "tabUrl": "Externe URL",
+    "tabHtml": "Inline-HTML",
+    "addCostConnection": "+ Cost Sync verbinden",
+    "updateCostsManually": "Kosten manuell aktualisieren",
+    "costSyncTitle": "Kostensynchronisation",
+    "manualCostTitle": "Manuelle Kostenerfassung"
   }
 };
 const translations = { ru, en, uk, es, zh, fr, de };
@@ -45607,20 +46450,20 @@ const TableWidget = ({ title, data, t }) => {
         t("dataTables.records")
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-y-auto flex-1 h-full", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left text-sm whitespace-nowrap", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-y-auto flex-1 h-full", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-sm whitespace-nowrap", style: { tableLayout: "fixed" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "sticky top-0 z-10 shadow-sm", style: { backgroundColor: "var(--color-bg-hover)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b", style: { color: "var(--color-text-secondary)", borderColor: "var(--color-border)" }, children: t("dashboard.tableName") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b text-right", style: { color: "var(--color-text-secondary)", borderColor: "var(--color-border)" }, children: t("metrics.clicks") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b text-right", style: { color: "var(--color-text-secondary)", borderColor: "var(--color-border)" }, children: t("dashboard.tableUnique") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b text-right", style: { color: "var(--color-text-secondary)", borderColor: "var(--color-border)" }, children: t("dashboard.tableConv") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b text-left", style: { width: "46%", color: "var(--color-text-secondary)", borderColor: "var(--color-border)", textAlign: "left" }, children: t("dashboard.tableName") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b text-right", style: { width: "18%", color: "var(--color-text-secondary)", borderColor: "var(--color-border)", textAlign: "right" }, children: t("metrics.clicks") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b text-right", style: { width: "18%", color: "var(--color-text-secondary)", borderColor: "var(--color-border)", textAlign: "right" }, children: t("dashboard.tableUnique") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-2.5 text-xs font-semibold border-b text-right", style: { width: "18%", color: "var(--color-text-secondary)", borderColor: "var(--color-border)", textAlign: "right" }, children: t("dashboard.tableConv") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { style: { divideColor: "var(--color-border)" }, children: [
         (!data || data.length === 0) && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "4", className: "px-4 py-8 text-center", style: { color: "var(--color-text-muted)" }, children: t("dashboard.noData") }) }),
         data && data.slice(0, 10).map((row, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-blue-50/10 transition duration-150 group", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-2.5 font-medium group-hover:text-blue-600 cursor-pointer truncate max-w-[200px]", style: { color: "var(--color-text-primary)" }, children: row.name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-2.5 text-right", style: { color: "var(--color-text-secondary)" }, children: row.clicks || 0 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-2.5 text-right", style: { color: "var(--color-text-secondary)" }, children: row.unique_clicks || 0 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-2.5 font-medium text-right", style: { color: "var(--color-success)" }, children: row.conversions || 0 })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-2.5 font-medium group-hover:text-blue-600 cursor-pointer truncate text-left", style: { width: "46%", color: "var(--color-text-primary)", textAlign: "left" }, children: row.name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-2.5 text-right", style: { width: "18%", color: "var(--color-text-secondary)", textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: row.clicks || 0 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-2.5 text-right", style: { width: "18%", color: "var(--color-text-secondary)", textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: row.unique_clicks || 0 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-2.5 font-medium text-right", style: { width: "18%", color: "var(--color-success)", textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: row.conversions || 0 })
         ] }, row.id || idx))
       ] })
     ] }) })
@@ -47421,6 +48264,992 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t flex justify-end", style: { borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("groupsModal.close") }) })
   ] }) });
 };
+const TIMEZONES = [
+  { value: "UTC", label: "UTC (UTC+00:00)" },
+  { value: "Europe/London", label: "London (UTC+01:00 / +00:00)" },
+  { value: "Europe/Berlin", label: "Berlin / Paris (UTC+02:00 / +01:00)" },
+  { value: "Europe/Kyiv", label: "Kyiv (UTC+03:00 / +02:00)" },
+  { value: "Europe/Moscow", label: "Moscow (UTC+03:00)" },
+  { value: "Asia/Dubai", label: "Dubai (UTC+04:00)" },
+  { value: "Asia/Bangkok", label: "Bangkok (UTC+07:00)" },
+  { value: "Asia/Singapore", label: "Singapore (UTC+08:00)" },
+  { value: "Asia/Tokyo", label: "Tokyo (UTC+09:00)" },
+  { value: "America/New_York", label: "New York (UTC-04:00 / -05:00)" },
+  { value: "America/Chicago", label: "Chicago (UTC-05:00 / -06:00)" },
+  { value: "America/Los_Angeles", label: "Los Angeles (UTC-07:00 / -08:00)" },
+  { value: "America/Sao_Paulo", label: "São Paulo (UTC-03:00)" }
+];
+const formatDate$1 = (d) => {
+  if (!d) return "";
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+const parseDate$2 = (str) => {
+  if (!str) return null;
+  const parts = str.split("-");
+  if (parts.length !== 3) return null;
+  return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+};
+const getPresetDates = (presetKey) => {
+  const now = /* @__PURE__ */ new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  switch (presetKey) {
+    case "today":
+      return { from: formatDate$1(today), to: formatDate$1(today) };
+    case "yesterday": {
+      const y = new Date(today);
+      y.setDate(y.getDate() - 1);
+      return { from: formatDate$1(y), to: formatDate$1(y) };
+    }
+    case "thisWeek": {
+      const dayOfWeek = today.getDay();
+      const startOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+      const startOfWeek2 = new Date(today);
+      startOfWeek2.setDate(today.getDate() + startOffset);
+      return { from: formatDate$1(startOfWeek2), to: formatDate$1(today) };
+    }
+    case "last7Days": {
+      const start = new Date(today);
+      start.setDate(today.getDate() - 6);
+      return { from: formatDate$1(start), to: formatDate$1(today) };
+    }
+    case "thisMonth": {
+      const startOfMonth2 = new Date(today.getFullYear(), today.getMonth(), 1);
+      return { from: formatDate$1(startOfMonth2), to: formatDate$1(today) };
+    }
+    case "last30Days": {
+      const start = new Date(today);
+      start.setDate(today.getDate() - 29);
+      return { from: formatDate$1(start), to: formatDate$1(today) };
+    }
+    case "previousMonth": {
+      const startOfPrevMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const endOfPrevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+      return { from: formatDate$1(startOfPrevMonth), to: formatDate$1(endOfPrevMonth) };
+    }
+    default:
+      return null;
+  }
+};
+const DateRangePicker = ({
+  dateFrom,
+  dateTo,
+  onChange,
+  selectedTimezone,
+  onTimezoneChange,
+  className = "",
+  compact = false
+}) => {
+  const { t } = useLanguage();
+  const [isOpen, setIsOpen] = reactExports.useState(false);
+  const [activePreset, setActivePreset] = reactExports.useState("today");
+  const [viewDate, setViewDate] = reactExports.useState(() => {
+    const initial = parseDate$2(dateTo) || /* @__PURE__ */ new Date();
+    return new Date(initial.getFullYear(), initial.getMonth(), 1);
+  });
+  const [tempFrom, setTempFrom] = reactExports.useState(dateFrom || formatDate$1(/* @__PURE__ */ new Date()));
+  const [tempTo, setTempTo] = reactExports.useState(dateTo || formatDate$1(/* @__PURE__ */ new Date()));
+  const [hoverDate, setHoverDate] = reactExports.useState(null);
+  const [selectionStep, setSelectionStep] = reactExports.useState(0);
+  const [timezone, setTimezone] = reactExports.useState(selectedTimezone || localStorage.getItem("orbitra_tz") || "UTC");
+  const containerRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    if (dateFrom) setTempFrom(dateFrom);
+    if (dateTo) setTempTo(dateTo);
+  }, [dateFrom, dateTo]);
+  reactExports.useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    }
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [isOpen]);
+  const presets = [
+    { id: "today", label: t("dateRangePicker.today") },
+    { id: "yesterday", label: t("dateRangePicker.yesterday") },
+    { id: "thisWeek", label: t("dateRangePicker.thisWeek") },
+    { id: "last7Days", label: t("dateRangePicker.last7Days") },
+    { id: "thisMonth", label: t("dateRangePicker.thisMonth") },
+    { id: "last30Days", label: t("dateRangePicker.last30Days") },
+    { id: "previousMonth", label: t("dateRangePicker.previousMonth") },
+    { id: "custom", label: t("dateRangePicker.custom") }
+  ];
+  const handleSelectPreset = (pId) => {
+    setActivePreset(pId);
+    if (pId !== "custom") {
+      const range = getPresetDates(pId);
+      if (range) {
+        setTempFrom(range.from);
+        setTempTo(range.to);
+        const d = parseDate$2(range.to);
+        if (d) setViewDate(new Date(d.getFullYear(), d.getMonth(), 1));
+      }
+    }
+  };
+  const handleDayClick = (dayStr) => {
+    setActivePreset("custom");
+    if (selectionStep === 0 || !tempFrom || tempFrom && tempTo && tempFrom !== tempTo) {
+      setTempFrom(dayStr);
+      setTempTo(dayStr);
+      setSelectionStep(1);
+    } else {
+      if (dayStr < tempFrom) {
+        setTempTo(tempFrom);
+        setTempFrom(dayStr);
+      } else {
+        setTempTo(dayStr);
+      }
+      setSelectionStep(0);
+    }
+  };
+  const handleApply = () => {
+    onChange(tempFrom, tempTo);
+    if (onTimezoneChange) {
+      onTimezoneChange(timezone);
+      localStorage.setItem("orbitra_tz", timezone);
+    }
+    setIsOpen(false);
+  };
+  const handlePrevMonth = () => {
+    setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
+  };
+  const handleNextMonth = () => {
+    setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
+  };
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const firstDayIndex = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+  const monthNames = [
+    t("dateRangePicker.months.0", "January"),
+    t("dateRangePicker.months.1", "February"),
+    t("dateRangePicker.months.2", "March"),
+    t("dateRangePicker.months.3", "April"),
+    t("dateRangePicker.months.4", "May"),
+    t("dateRangePicker.months.5", "June"),
+    t("dateRangePicker.months.6", "July"),
+    t("dateRangePicker.months.7", "August"),
+    t("dateRangePicker.months.8", "September"),
+    t("dateRangePicker.months.9", "October"),
+    t("dateRangePicker.months.10", "November"),
+    t("dateRangePicker.months.11", "December")
+  ];
+  const weekDayHeaders = [
+    t("dateRangePicker.days.0", "Su"),
+    t("dateRangePicker.days.1", "Mo"),
+    t("dateRangePicker.days.2", "Tu"),
+    t("dateRangePicker.days.3", "We"),
+    t("dateRangePicker.days.4", "Th"),
+    t("dateRangePicker.days.5", "Fr"),
+    t("dateRangePicker.days.6", "Sa")
+  ];
+  const calendarCells = [];
+  for (let i = firstDayIndex - 1; i >= 0; i--) {
+    const d = daysInPrevMonth - i;
+    const prevMonth = month === 0 ? 11 : month - 1;
+    const prevYear = month === 0 ? year - 1 : year;
+    const str = formatDate$1(new Date(prevYear, prevMonth, d));
+    calendarCells.push({ dayNumber: d, dateStr: str, isCurrentMonth: false });
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const str = formatDate$1(new Date(year, month, d));
+    calendarCells.push({ dayNumber: d, dateStr: str, isCurrentMonth: true });
+  }
+  const totalCells = calendarCells.length <= 35 ? 35 : 42;
+  const remaining = totalCells - calendarCells.length;
+  for (let d = 1; d <= remaining; d++) {
+    const nextMonth = month === 11 ? 0 : month + 1;
+    const nextYear = month === 11 ? year + 1 : year;
+    const str = formatDate$1(new Date(nextYear, nextMonth, d));
+    calendarCells.push({ dayNumber: d, dateStr: str, isCurrentMonth: false });
+  }
+  const formatDisplay = () => {
+    if (!dateFrom && !dateTo) return t("dateRangePicker.today");
+    if (dateFrom === dateTo) return dateFrom;
+    return `${dateFrom} - ${dateTo}`;
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `relative inline-block ${className}`, ref: containerRef, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: () => setIsOpen(!isOpen),
+        className: "btn btn-secondary flex items-center gap-2 text-xs py-1.5 px-3 rounded-xl",
+        style: {
+          backgroundColor: "var(--color-bg-card)",
+          border: "1px solid var(--color-border)",
+          color: "var(--color-text-primary)"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar$1, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatDisplay() }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs px-1.5 py-0.5 rounded", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: timezone.split("/")[1] || timezone }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "▾" })
+        ]
+      }
+    ),
+    isOpen && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "absolute right-0 top-full mt-2 z-50 rounded-2xl shadow-2xl p-4 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150",
+        style: {
+          backgroundColor: "var(--color-bg-card)",
+          border: "1px solid var(--color-border)",
+          color: "var(--color-text-primary)",
+          minWidth: "540px"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "flex flex-col gap-1 pr-3",
+                style: {
+                  width: "160px",
+                  borderRight: "1px solid var(--color-border)"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold uppercase px-2 mb-1", style: { color: "var(--color-text-muted)" }, children: t("reportCustomizer.presets") }),
+                  presets.map((p) => {
+                    const isSelected = activePreset === p.id;
+                    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => handleSelectPreset(p.id),
+                        className: "text-left text-xs px-2.5 py-1.5 rounded-lg transition-colors flex items-center justify-between",
+                        style: {
+                          backgroundColor: isSelected ? "var(--color-primary-light)" : "transparent",
+                          color: isSelected ? "var(--color-primary)" : "var(--color-text-secondary)",
+                          fontWeight: isSelected ? 600 : 400
+                        },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: p.label }),
+                          isSelected && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-3.5 h-3.5" })
+                        ]
+                      },
+                      p.id
+                    );
+                  })
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: handlePrevMonth,
+                    className: "p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors",
+                    style: { color: "var(--color-text-secondary)" },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "w-4 h-4" })
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: [
+                  monthNames[month],
+                  " ",
+                  year
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: handleNextMonth,
+                    className: "p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors",
+                    style: { color: "var(--color-text-secondary)" },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-4 h-4" })
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-7 gap-1 text-center", children: weekDayHeaders.map((dh, idx) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-muted)" }, children: dh }, idx)) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-7 gap-1", children: calendarCells.map((cell, idx) => {
+                const isStart = cell.dateStr === tempFrom;
+                const isEnd = cell.dateStr === tempTo;
+                const effectiveEnd = selectionStep === 1 && hoverDate ? hoverDate : tempTo;
+                const isInRange = tempFrom && effectiveEnd && (cell.dateStr >= tempFrom && cell.dateStr <= effectiveEnd || cell.dateStr >= effectiveEnd && cell.dateStr <= tempFrom);
+                let bg = "transparent";
+                let textColor = cell.isCurrentMonth ? "var(--color-text-primary)" : "var(--color-text-muted)";
+                let borderRadius = "6px";
+                if (isStart || isEnd) {
+                  bg = "var(--color-primary)";
+                  textColor = "#ffffff";
+                } else if (isInRange) {
+                  bg = "var(--color-primary-light)";
+                  textColor = "var(--color-primary)";
+                }
+                return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => handleDayClick(cell.dateStr),
+                    onMouseEnter: () => {
+                      if (selectionStep === 1) setHoverDate(cell.dateStr);
+                    },
+                    className: "h-8 text-xs font-medium flex items-center justify-center transition-all",
+                    style: {
+                      backgroundColor: bg,
+                      color: textColor,
+                      borderRadius,
+                      opacity: cell.isCurrentMonth ? 1 : 0.4
+                    },
+                    children: cell.dayNumber
+                  },
+                  idx
+                );
+              }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "date",
+                    value: tempFrom,
+                    onChange: (e) => {
+                      setTempFrom(e.target.value);
+                      setActivePreset("custom");
+                    },
+                    className: "form-input text-xs py-1 px-2 flex-1 rounded-lg"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "—" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "date",
+                    value: tempTo,
+                    onChange: (e) => {
+                      setTempTo(e.target.value);
+                      setActivePreset("custom");
+                    },
+                    className: "form-input text-xs py-1 px-2 flex-1 rounded-lg"
+                  }
+                )
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "flex items-center justify-between pt-3",
+              style: { borderTop: "1px solid var(--color-border)" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "w-3.5 h-3.5", style: { color: "var(--color-text-muted)" } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "select",
+                    {
+                      value: timezone,
+                      onChange: (e) => setTimezone(e.target.value),
+                      className: "form-select text-xs py-1 px-2 rounded-lg",
+                      style: { width: "200px" },
+                      children: TIMEZONES.map((tz) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tz.value, children: tz.label }, tz.value))
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => setIsOpen(false),
+                      className: "btn btn-ghost text-xs py-1.5 px-3 rounded-xl",
+                      children: t("dateRangePicker.cancel")
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: handleApply,
+                      className: "btn btn-primary text-xs py-1.5 px-4 rounded-xl font-medium",
+                      children: t("dateRangePicker.apply")
+                    }
+                  )
+                ] })
+              ]
+            }
+          )
+        ]
+      }
+    )
+  ] });
+};
+const ALL_REPORT_METRICS = [
+  // Traffic
+  { id: "clicks", labelKey: "reportCustomizer.colClicks", defaultLabel: "Clicks", category: "catTraffic" },
+  { id: "unique_clicks", labelKey: "reportCustomizer.colUniqueClicks", defaultLabel: "Unique clicks", category: "catTraffic" },
+  { id: "uc_rate", labelKey: "reportCustomizer.colUcRate", defaultLabel: "U/C (%)", category: "catTraffic" },
+  { id: "prelander_clicks", labelKey: "reportCustomizer.colPrelanderClicks", defaultLabel: "Prelander clicks", category: "catTraffic" },
+  { id: "offer_clicks", labelKey: "reportCustomizer.colOfferClicks", defaultLabel: "Offer clicks", category: "catTraffic" },
+  { id: "lp_ctr", labelKey: "reportCustomizer.colLpCtr", defaultLabel: "LP CTR (%)", category: "catTraffic" },
+  // Conversions & Statuses
+  { id: "conversions", labelKey: "reportCustomizer.colConversions", defaultLabel: "Conversions (CV)", category: "catConversions" },
+  { id: "purchases", labelKey: "reportCustomizer.colPurchases", defaultLabel: "Purchases (Sales)", category: "catConversions" },
+  { id: "holds", labelKey: "reportCustomizer.colHolds", defaultLabel: "Holds (Leads)", category: "catConversions" },
+  { id: "rejected", labelKey: "reportCustomizer.colRejected", defaultLabel: "Rejected", category: "catConversions" },
+  { id: "trash", labelKey: "reportCustomizer.colTrash", defaultLabel: "Trash", category: "catConversions" },
+  { id: "cr", labelKey: "reportCustomizer.colCrAll", defaultLabel: "CR (all) (%)", category: "catConversions" },
+  { id: "cr_sales", labelKey: "reportCustomizer.colCrSales", defaultLabel: "CR (sales) (%)", category: "catConversions" },
+  { id: "cr_holds", labelKey: "reportCustomizer.colCrHolds", defaultLabel: "CR (holds) (%)", category: "catConversions" },
+  { id: "approve_rate", labelKey: "reportCustomizer.colApproveRate", defaultLabel: "Approve rate (%)", category: "catConversions" },
+  { id: "approve_rate_excl_trash", labelKey: "reportCustomizer.colApproveRateExclTrash", defaultLabel: "Approve (excl. trash) (%)", category: "catConversions" },
+  // Financial
+  { id: "cost", labelKey: "reportCustomizer.colCost", defaultLabel: "Cost", category: "catFinancial" },
+  { id: "revenue", labelKey: "reportCustomizer.colRevenue", defaultLabel: "Revenue", category: "catFinancial" },
+  { id: "revenue_confirmed", labelKey: "reportCustomizer.colRevenueConfirmed", defaultLabel: "Revenue (confirmed)", category: "catFinancial" },
+  { id: "revenue_hold", labelKey: "reportCustomizer.colRevenueHold", defaultLabel: "Revenue (hold)", category: "catFinancial" },
+  { id: "revenue_rejected", labelKey: "reportCustomizer.colRevenueRejected", defaultLabel: "Revenue (rejected)", category: "catFinancial" },
+  { id: "revenue_trash", labelKey: "reportCustomizer.colRevenueTrash", defaultLabel: "Revenue (trash)", category: "catFinancial" },
+  { id: "profit", labelKey: "reportCustomizer.colProfit", defaultLabel: "Profit", category: "catFinancial" },
+  { id: "roi", labelKey: "reportCustomizer.colRoi", defaultLabel: "ROI (%)", category: "catFinancial" },
+  { id: "real_revenue", labelKey: "reportCustomizer.colRealRevenue", defaultLabel: "Real Revenue", category: "catFinancial" },
+  { id: "real_profit", labelKey: "reportCustomizer.colRealProfit", defaultLabel: "Real Profit", category: "catFinancial" },
+  { id: "real_roi", labelKey: "reportCustomizer.colRealRoi", defaultLabel: "Real ROI (%)", category: "catFinancial" },
+  // Rates & Unit Economics
+  { id: "epc", labelKey: "reportCustomizer.colEpc", defaultLabel: "EPC", category: "catRates" },
+  { id: "uepc", labelKey: "reportCustomizer.colUepc", defaultLabel: "uEPC", category: "catRates" },
+  { id: "cpc", labelKey: "reportCustomizer.colCpc", defaultLabel: "CPC", category: "catRates" },
+  { id: "ucpc", labelKey: "reportCustomizer.colUcpc", defaultLabel: "uCPC", category: "catRates" },
+  { id: "cpa", labelKey: "reportCustomizer.colCpa", defaultLabel: "CPA", category: "catRates" },
+  { id: "earnings_per_conv", labelKey: "reportCustomizer.colEarningsPerConv", defaultLabel: "Earnings / Conv", category: "catRates" }
+];
+const PRESETS = {
+  best: ["clicks", "unique_clicks", "conversions", "cr", "cost", "revenue", "profit", "roi", "cpc", "cpa", "epc"],
+  cod: ["clicks", "unique_clicks", "conversions", "purchases", "holds", "rejected", "trash", "approve_rate", "cost", "revenue_confirmed", "profit", "roi", "cpa"],
+  lander_to_offer: ["clicks", "unique_clicks", "prelander_clicks", "offer_clicks", "lp_ctr", "conversions", "cr", "cost", "revenue", "profit", "roi", "epc", "cpc"],
+  finance: ["cost", "revenue", "revenue_confirmed", "revenue_hold", "revenue_rejected", "profit", "roi", "real_revenue", "real_profit", "real_roi", "cpa", "epc"],
+  all: ALL_REPORT_METRICS.map((m) => m.id)
+};
+const ReportCustomizerModal = ({
+  isOpen,
+  onClose,
+  selectedColumns = [],
+  onSaveColumns,
+  mode = "report",
+  // 'report' or 'campaigns'
+  availableDimensions = [],
+  currentLayers = [],
+  onSaveLayers,
+  currentFilters = [],
+  onSaveFilters
+}) => {
+  const { t } = useLanguage();
+  const [activeTab, setActiveTab] = reactExports.useState("columns");
+  const [chosenColumns, setChosenColumns] = reactExports.useState([]);
+  const [searchQuery, setSearchQuery] = reactExports.useState("");
+  const [activePreset, setActivePreset] = reactExports.useState("custom");
+  const [layers, setLayers] = reactExports.useState([]);
+  const [filters, setFilters] = reactExports.useState([]);
+  const [dragIndex, setDragIndex] = reactExports.useState(null);
+  reactExports.useEffect(() => {
+    if (isOpen) {
+      setChosenColumns(selectedColumns.length > 0 ? [...selectedColumns] : [...PRESETS.best]);
+      if (currentLayers) setLayers([...currentLayers]);
+      if (currentFilters) setFilters([...currentFilters]);
+    }
+  }, [isOpen, selectedColumns, currentLayers, currentFilters]);
+  if (!isOpen) return null;
+  const handleApplyPreset = (presetKey) => {
+    setActivePreset(presetKey);
+    if (PRESETS[presetKey]) {
+      setChosenColumns([...PRESETS[presetKey]]);
+    }
+  };
+  const handleToggleColumn = (colId) => {
+    setActivePreset("custom");
+    if (chosenColumns.includes(colId)) {
+      setChosenColumns(chosenColumns.filter((c) => c !== colId));
+    } else {
+      setChosenColumns([...chosenColumns, colId]);
+    }
+  };
+  const handleSelectAll = () => {
+    setActivePreset("all");
+    setChosenColumns(ALL_REPORT_METRICS.map((m) => m.id));
+  };
+  const handleDeselectAll = () => {
+    setActivePreset("custom");
+    setChosenColumns(["clicks"]);
+  };
+  const handleMoveColumn = (index2, direction) => {
+    const newIndex = index2 + direction;
+    if (newIndex < 0 || newIndex >= chosenColumns.length) return;
+    const copy = [...chosenColumns];
+    const item = copy.splice(index2, 1)[0];
+    copy.splice(newIndex, 0, item);
+    setChosenColumns(copy);
+  };
+  const handleDragStart = (idx) => {
+    setDragIndex(idx);
+  };
+  const handleDragOver = (e, idx) => {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === idx) return;
+    const copy = [...chosenColumns];
+    const item = copy.splice(dragIndex, 1)[0];
+    copy.splice(idx, 0, item);
+    setDragIndex(idx);
+    setChosenColumns(copy);
+  };
+  const handleDragEnd = () => {
+    setDragIndex(null);
+  };
+  const handleAddUrlParam = () => {
+    const param = window.prompt(t("reportCustomizer.urlParamPrompt", "Enter URL parameter name (e.g. adset_id, utm_source, custom_id):"));
+    if (param) {
+      const clean = param.trim().replace(/[^a-zA-Z0-9_\-]/g, "");
+      if (clean && !layers.includes(`param_${clean}`)) {
+        setLayers([...layers, `param_${clean}`]);
+      }
+    }
+  };
+  const handleAddFilter = () => {
+    setFilters([...filters, { field: "country", op: "eq", value: "" }]);
+  };
+  const handleRemoveFilter = (index2) => {
+    setFilters(filters.filter((_, idx) => idx !== index2));
+  };
+  const handleUpdateFilter = (index2, key, val) => {
+    const copy = [...filters];
+    copy[index2] = { ...copy[index2], [key]: val };
+    setFilters(copy);
+  };
+  const handleSave = () => {
+    onSaveColumns(chosenColumns);
+    if (onSaveLayers && mode === "report") {
+      onSaveLayers(layers);
+    }
+    if (onSaveFilters && mode === "report") {
+      onSaveFilters(filters);
+    }
+    onClose();
+  };
+  const filteredMetrics = ALL_REPORT_METRICS.filter((m) => {
+    const name = t(m.labelKey, m.defaultLabel).toLowerCase();
+    return name.includes(searchQuery.toLowerCase()) || m.id.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+  const categories = [
+    { id: "catTraffic", label: t("reportCustomizer.catTraffic", "Traffic") },
+    { id: "catConversions", label: t("reportCustomizer.catConversions", "Conversions & Statuses") },
+    { id: "catFinancial", label: t("reportCustomizer.catFinancial", "Financial") },
+    { id: "catRates", label: t("reportCustomizer.catRates", "Rates & Unit Economics") }
+  ];
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "modal-content max-w-4xl w-full rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150",
+      style: {
+        backgroundColor: "var(--color-bg-card)",
+        border: "1px solid var(--color-border)",
+        color: "var(--color-text-primary)"
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header flex items-center justify-between p-4", style: { borderBottom: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SlidersHorizontal, { className: "w-5 h-5", style: { color: "var(--color-primary)" } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-base font-bold", children: mode === "campaigns" ? t("reportCustomizer.campaignColumnsTitle") : t("reportCustomizer.title") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+        ] }),
+        mode === "report" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 px-6 pt-3", style: { borderBottom: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => setActiveTab("columns"),
+              className: `pb-2 text-xs font-semibold uppercase tracking-wider transition-colors ${activeTab === "columns" ? "text-blue-500 border-b-2 border-blue-500" : "text-zinc-400 hover:text-zinc-200"}`,
+              children: [
+                t("reportCustomizer.columns"),
+                " (",
+                chosenColumns.length,
+                ")"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => setActiveTab("layers"),
+              className: `pb-2 text-xs font-semibold uppercase tracking-wider transition-colors ${activeTab === "layers" ? "text-blue-500 border-b-2 border-blue-500" : "text-zinc-400 hover:text-zinc-200"}`,
+              children: [
+                t("reportCustomizer.groupBy"),
+                " (",
+                layers.length,
+                ")"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => setActiveTab("filters"),
+              className: `pb-2 text-xs font-semibold uppercase tracking-wider transition-colors ${activeTab === "filters" ? "text-blue-500 border-b-2 border-blue-500" : "text-zinc-400 hover:text-zinc-200"}`,
+              children: [
+                t("reportCustomizer.filters"),
+                " (",
+                filters.length,
+                ")"
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-6", children: [
+          activeTab === "columns" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-6", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold uppercase mr-1", style: { color: "var(--color-text-muted)" }, children: [
+                t("reportCustomizer.presets"),
+                ":"
+              ] }),
+              [
+                ["best", t("reportCustomizer.presetBest")],
+                ["cod", t("reportCustomizer.presetCod")],
+                ["lander_to_offer", t("reportCustomizer.presetLanderToOffer")],
+                ["finance", t("reportCustomizer.presetFinance")],
+                ["all", t("reportCustomizer.presetAll")]
+              ].map(([pKey, pLabel]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => handleApplyPreset(pKey),
+                  className: "text-xs px-3 py-1.5 rounded-lg border transition-all",
+                  style: {
+                    backgroundColor: activePreset === pKey ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                    borderColor: activePreset === pKey ? "var(--color-primary)" : "var(--color-border)",
+                    color: activePreset === pKey ? "var(--color-primary)" : "var(--color-text-primary)",
+                    fontWeight: activePreset === pKey ? 600 : 400
+                  },
+                  children: pLabel
+                },
+                pKey
+              ))
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative flex-1 max-w-sm", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "w-4 h-4 absolute left-3 top-2.5", style: { color: "var(--color-text-muted)" } }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    value: searchQuery,
+                    onChange: (e) => setSearchQuery(e.target.value),
+                    placeholder: t("reportCustomizer.searchMetrics"),
+                    className: "form-input text-xs pl-9 py-1.5 rounded-xl w-full"
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: handleSelectAll,
+                    className: "btn btn-ghost text-xs py-1 px-2.5 rounded-lg",
+                    children: t("reportCustomizer.selectAll")
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: handleDeselectAll,
+                    className: "btn btn-ghost text-xs py-1 px-2.5 rounded-lg text-red",
+                    children: t("reportCustomizer.deselectAll")
+                  }
+                )
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-3 gap-6", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "md:col-span-2 space-y-6", children: categories.map((cat) => {
+                const catMetrics = filteredMetrics.filter((m) => m.category === cat.id);
+                if (catMetrics.length === 0) return null;
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-xs font-bold uppercase tracking-wider", style: { color: "var(--color-text-muted)" }, children: cat.label }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: catMetrics.map((m) => {
+                    const isChecked = chosenColumns.includes(m.id);
+                    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "label",
+                      {
+                        className: "flex items-center gap-2.5 p-2 rounded-xl border cursor-pointer select-none transition-all",
+                        style: {
+                          backgroundColor: isChecked ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                          borderColor: isChecked ? "var(--color-primary)" : "var(--color-border)",
+                          color: "var(--color-text-primary)"
+                        },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "input",
+                            {
+                              type: "checkbox",
+                              checked: isChecked,
+                              onChange: () => handleToggleColumn(m.id),
+                              className: "w-4 h-4 rounded",
+                              style: { accentColor: "var(--color-primary)" }
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium", children: t(m.labelKey, m.defaultLabel) })
+                        ]
+                      },
+                      m.id
+                    );
+                  }) })
+                ] }, cat.id);
+              }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  className: "p-3 rounded-2xl flex flex-col gap-2",
+                  style: {
+                    backgroundColor: "var(--color-bg-soft)",
+                    border: "1px solid var(--color-border)"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between pb-2", style: { borderBottom: "1px solid var(--color-border)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold uppercase", style: { color: "var(--color-text-primary)" }, children: [
+                        t("reportCustomizer.selected"),
+                        " (",
+                        chosenColumns.length,
+                        ")"
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px]", style: { color: "var(--color-text-muted)" }, children: t("reportCustomizer.dragReorderHint") })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto space-y-1.5 max-h-[360px] pr-1", children: chosenColumns.map((cId, idx) => {
+                      const def = ALL_REPORT_METRICS.find((m) => m.id === cId);
+                      const label = def ? t(def.labelKey, def.defaultLabel) : cId;
+                      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "div",
+                        {
+                          draggable: true,
+                          onDragStart: () => handleDragStart(idx),
+                          onDragOver: (e) => handleDragOver(e, idx),
+                          onDragEnd: handleDragEnd,
+                          className: "flex items-center justify-between p-2 rounded-lg text-xs transition-colors cursor-grab active:cursor-grabbing",
+                          style: {
+                            backgroundColor: "var(--color-bg-card)",
+                            border: "1px solid var(--color-border)",
+                            opacity: dragIndex === idx ? 0.5 : 1
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3.5 h-3.5", style: { color: "var(--color-text-muted)" } }),
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: label })
+                            ] }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                "button",
+                                {
+                                  type: "button",
+                                  disabled: idx === 0,
+                                  onClick: () => handleMoveColumn(idx, -1),
+                                  className: "p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-30",
+                                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowUp, { className: "w-3 h-3" })
+                                }
+                              ),
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                "button",
+                                {
+                                  type: "button",
+                                  disabled: idx === chosenColumns.length - 1,
+                                  onClick: () => handleMoveColumn(idx, 1),
+                                  className: "p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-30",
+                                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowDown, { className: "w-3 h-3" })
+                                }
+                              ),
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                "button",
+                                {
+                                  type: "button",
+                                  onClick: () => handleToggleColumn(cId),
+                                  className: "p-0.5 rounded text-red hover:bg-red/10 ml-1",
+                                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3 h-3" })
+                                }
+                              )
+                            ] })
+                          ]
+                        },
+                        cId
+                      );
+                    }) })
+                  ]
+                }
+              )
+            ] })
+          ] }),
+          activeTab === "layers" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("reportCustomizer.groupByHint", "Select up to 5 dimensions for multi-level hierarchical breakdown") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: handleAddUrlParam,
+                  className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
+                    t("reportCustomizer.addUrlParam")
+                  ]
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 md:grid-cols-3 gap-2", children: [
+              "country",
+              "city",
+              "region",
+              "device_type",
+              "os",
+              "browser",
+              "language",
+              "day",
+              "hour",
+              "campaign_id",
+              "source_id",
+              "stream_id",
+              "landing_id",
+              "offer_id",
+              "ad_id",
+              "adset_id",
+              "keyword",
+              "creative_id",
+              "external_id",
+              "sub_id_1",
+              "sub_id_2",
+              "sub_id_3",
+              "sub_id_4",
+              "sub_id_5"
+            ].map((dim) => {
+              const isChosen = layers.includes(dim);
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => {
+                    if (isChosen) {
+                      setLayers(layers.filter((l) => l !== dim));
+                    } else if (layers.length < 5) {
+                      setLayers([...layers, dim]);
+                    }
+                  },
+                  className: "p-2.5 rounded-xl border text-xs text-left flex items-center justify-between transition-all",
+                  style: {
+                    backgroundColor: isChosen ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                    borderColor: isChosen ? "var(--color-primary)" : "var(--color-border)",
+                    color: isChosen ? "var(--color-primary)" : "var(--color-text-primary)"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: dim }),
+                    isChosen && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500 text-white font-bold", children: layers.indexOf(dim) + 1 })
+                  ]
+                },
+                dim
+              );
+            }) })
+          ] }),
+          activeTab === "filters" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("reportCustomizer.filtersHint", "Apply exact or partial match filters") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: handleAddFilter,
+                  className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
+                    t("reportCustomizer.addFilter", "+ Add Filter")
+                  ]
+                }
+              )
+            ] }),
+            filters.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-center py-8", style: { color: "var(--color-text-muted)" }, children: t("reportCustomizer.noFilters", 'No filters configured. Click "+ Add Filter" to add a condition.') }),
+            filters.map((f, fIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
+                {
+                  value: f.field,
+                  onChange: (e) => handleUpdateFilter(fIdx, "field", e.target.value),
+                  className: "form-select text-xs py-1.5 rounded-xl w-40",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "country", children: t("campaignReports.geoCountry") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "city", children: t("reportCustomizer.fCity", "City") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "device_type", children: t("campaignReports.deviceType") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "os", children: "OS" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "browser", children: t("campaignReports.browser", "Browser") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sub_id_1", children: "Sub ID 1" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sub_id_2", children: "Sub ID 2" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "adset_id", children: t("campaignReports.adsetId", "Adset ID") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "ad_id", children: t("campaignReports.adId", "Ad ID") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "keyword", children: t("parameters.keyword") })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
+                {
+                  value: f.op,
+                  onChange: (e) => handleUpdateFilter(fIdx, "op", e.target.value),
+                  className: "form-select text-xs py-1.5 rounded-xl w-32",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "eq", children: t("reportCustomizer.opEq", "Equal (=)") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "neq", children: t("reportCustomizer.opNeq", "Not equal (!=)") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "contains", children: t("reportCustomizer.opContains", "Contains") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "not_contains", children: t("reportCustomizer.opNotContains", "Not contains") })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  value: f.value,
+                  onChange: (e) => handleUpdateFilter(fIdx, "value", e.target.value),
+                  placeholder: t("reportCustomizer.fValue", "Value..."),
+                  className: "form-input text-xs py-1.5 px-3 rounded-xl flex-1"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => handleRemoveFilter(fIdx),
+                  className: "btn-icon text-red",
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
+                }
+              )
+            ] }, fIdx))
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer flex items-center justify-between p-4", style: { borderTop: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: onClose,
+              className: "btn btn-ghost text-xs py-2 px-4 rounded-xl",
+              children: t("common.cancel", "Cancel")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: handleSave,
+              className: "btn btn-primary text-xs py-2 px-6 rounded-xl font-semibold",
+              children: t("reportCustomizer.apply", "Apply")
+            }
+          )
+        ] })
+      ]
+    }
+  ) });
+};
 const API_URL$x = "/api.php";
 const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   const { t } = useLanguage();
@@ -47429,41 +49258,67 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   const [layerKeys, setLayerKeys] = reactExports.useState([]);
   const defaultLayers = campaignId ? ["country", "adset_id"] : ["country", "campaign_id", "adset_id"];
   const [layers, setLayers] = reactExports.useState(defaultLayers);
-  const [dateFrom, setDateFrom] = reactExports.useState(() => {
-    const d = /* @__PURE__ */ new Date();
-    d.setDate(d.getDate() - 7);
-    return d.toISOString().split("T")[0];
+  const [filters, setFilters] = reactExports.useState([]);
+  const todayPreset = getPresetDates("last7Days") || getPresetDates("today");
+  const [dateFrom, setDateFrom] = reactExports.useState(todayPreset?.from || formatDate$1(/* @__PURE__ */ new Date()));
+  const [dateTo, setDateTo] = reactExports.useState(todayPreset?.to || formatDate$1(/* @__PURE__ */ new Date()));
+  const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
+  const [customizerOpen, setCustomizerOpen] = reactExports.useState(false);
+  const [chosenColumns, setChosenColumns] = reactExports.useState(() => {
+    try {
+      const saved = localStorage.getItem("orbitra_report_columns");
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+    }
+    return [...PRESETS.best];
   });
-  const [dateTo, setDateTo] = reactExports.useState(() => (/* @__PURE__ */ new Date()).toISOString().split("T")[0]);
-  const dimensions = [
-    { value: "country", label: t("campaignReports.geoCountry") },
-    { value: "campaign_id", label: t("campaignReports.campaign") },
-    { value: "adset_id", label: t("campaignReports.adsetId", "Adset ID") },
-    { value: "ad_id", label: t("campaignReports.adId", "Ad ID") },
-    { value: "ad_campaign_id", label: t("campaignReports.adCampaignId", "Ad Campaign ID") },
-    { value: "offer_id", label: t("campaignReports.offer", "Offer") },
-    { value: "landing_id", label: t("campaignReports.landing", "Landing") },
-    { value: "stream_id", label: t("campaignReports.stream") },
-    { value: "source_id", label: t("campaignReports.source") },
-    { value: "device_type", label: t("campaignReports.deviceType") },
-    { value: "os", label: "OS" },
-    { value: "browser", label: t("campaignReports.browser", "Browser") },
-    { value: "language", label: t("campaignReports.language") },
-    { value: "day", label: t("campaignReports.day", "Day") },
-    ...Array.from({ length: 10 }, (_, i) => ({ value: "sub_id_" + (i + 1), label: "Sub ID " + (i + 1) }))
-  ];
-  const dimLabel = (v) => dimensions.find((d) => d.value === v)?.label || v;
+  const [thDragIdx, setThDragIdx] = reactExports.useState(null);
+  const handleThDragStart = (idx) => {
+    setThDragIdx(idx);
+  };
+  const handleThDragOver = (e, idx) => {
+    e.preventDefault();
+    if (thDragIdx === null || thDragIdx === idx) return;
+    const copy = [...chosenColumns];
+    const item = copy.splice(thDragIdx, 1)[0];
+    copy.splice(idx, 0, item);
+    setThDragIdx(idx);
+    setChosenColumns(copy);
+    localStorage.setItem("orbitra_report_columns", JSON.stringify(copy));
+  };
+  const handleThDragEnd = () => {
+    setThDragIdx(null);
+  };
+  const handleSaveColumns = (cols) => {
+    setChosenColumns(cols);
+    localStorage.setItem("orbitra_report_columns", JSON.stringify(cols));
+  };
+  const handleSaveLayers = (newLayers) => {
+    setLayers(newLayers.length > 0 ? newLayers : ["country"]);
+  };
+  const handleSaveFilters = (newFilters) => {
+    setFilters(newFilters);
+  };
   const fetchReport = async () => {
     setLoading(true);
     try {
-      const params = { group_by: layers.join(","), date_from: dateFrom, date_to: dateTo };
+      const params = {
+        group_by: layers.join(","),
+        date_from: dateFrom,
+        date_to: dateTo
+      };
       if (campaignId) params.campaign_id = campaignId;
+      const tz = localStorage.getItem("orbitra_tz");
+      if (tz) params.timezone = tz;
+      if (filters.length > 0) {
+        params.filters = JSON.stringify(filters);
+      }
       const res = await axios.get(`${API_URL$x}?action=campaign_report`, { params });
       if (res.data.status === "success") {
         setRows(res.data.data.rows || []);
         setLayerKeys(res.data.data.layers || layers);
       } else {
-        alert(t("campaignReports.loadError") + res.data.message);
+        alert(t("campaignReports.loadError") + (res.data.message || ""));
       }
     } catch (e) {
       console.error(e);
@@ -47474,83 +49329,248 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   };
   reactExports.useEffect(() => {
     fetchReport();
-  }, [campaignId, layers.join(","), dateFrom, dateTo]);
+  }, [campaignId, layers.join(","), dateFrom, dateTo, JSON.stringify(filters)]);
   const displayRows = reactExports.useMemo(() => {
-    const agg = { clicks: 0, unique_clicks: 0, conversions: 0, cost: 0, revenue: 0, real_revenue: 0 };
-    const add = (node, row) => {
-      node.clicks += row.clicks;
-      node.unique_clicks += row.unique_clicks;
-      node.conversions += row.conversions;
-      node.cost += row.cost;
-      node.revenue += row.revenue;
-      node.real_revenue += row.real_revenue;
+    const createEmptyAgg = () => ({
+      clicks: 0,
+      unique_clicks: 0,
+      prelander_clicks: 0,
+      offer_clicks: 0,
+      conversions: 0,
+      purchases: 0,
+      holds: 0,
+      rejected: 0,
+      trash: 0,
+      cost: 0,
+      revenue: 0,
+      revenue_confirmed: 0,
+      revenue_hold: 0,
+      revenue_rejected: 0,
+      revenue_trash: 0,
+      profit: 0,
+      real_revenue: 0,
+      real_profit: 0
+    });
+    const addRow = (node, row) => {
+      node.clicks += Number(row.clicks) || 0;
+      node.unique_clicks += Number(row.unique_clicks) || 0;
+      node.prelander_clicks += Number(row.prelander_clicks) || 0;
+      node.offer_clicks += Number(row.offer_clicks) || 0;
+      node.conversions += Number(row.conversions) || 0;
+      node.purchases += Number(row.purchases) || 0;
+      node.holds += Number(row.holds) || 0;
+      node.rejected += Number(row.rejected) || 0;
+      node.trash += Number(row.trash) || 0;
+      node.cost += Number(row.cost) || 0;
+      node.revenue += Number(row.revenue) || 0;
+      node.revenue_confirmed += Number(row.revenue_confirmed) || 0;
+      node.revenue_hold += Number(row.revenue_hold) || 0;
+      node.revenue_rejected += Number(row.revenue_rejected) || 0;
+      node.revenue_trash += Number(row.revenue_trash) || 0;
+      node.profit += Number(row.profit) || Number(row.revenue || 0) - Number(row.cost || 0);
+      node.real_revenue += Number(row.real_revenue) || 0;
+      node.real_profit += Number(row.real_profit) || 0;
     };
-    const root = { ...agg, children: /* @__PURE__ */ new Map() };
+    const computeDerived = (node) => {
+      node.uc_rate = node.clicks > 0 ? node.unique_clicks / node.clicks * 100 : 0;
+      node.lp_ctr = node.clicks > 0 ? node.offer_clicks / node.clicks * 100 : 0;
+      node.cr = node.clicks > 0 ? node.conversions / node.clicks * 100 : 0;
+      node.cr_sales = node.clicks > 0 ? node.purchases / node.clicks * 100 : 0;
+      node.cr_holds = node.clicks > 0 ? node.holds / node.clicks * 100 : 0;
+      node.approve_rate = node.conversions > 0 ? node.purchases / node.conversions * 100 : 0;
+      const nonTrash = node.purchases + node.holds + node.rejected;
+      node.approve_rate_excl_trash = nonTrash > 0 ? node.purchases / nonTrash * 100 : 0;
+      node.roi = node.cost > 0 ? node.profit / node.cost * 100 : 0;
+      node.real_roi = node.cost > 0 ? node.real_profit / node.cost * 100 : 0;
+      node.epc = node.clicks > 0 ? node.revenue / node.clicks : 0;
+      node.uepc = node.unique_clicks > 0 ? node.revenue / node.unique_clicks : 0;
+      node.cpc = node.clicks > 0 ? node.cost / node.clicks : 0;
+      node.ucpc = node.unique_clicks > 0 ? node.cost / node.unique_clicks : 0;
+      node.cpa = node.conversions > 0 ? node.cost / node.conversions : 0;
+      node.earnings_per_conv = node.conversions > 0 ? node.revenue / node.conversions : 0;
+    };
+    const root = { ...createEmptyAgg(), children: /* @__PURE__ */ new Map() };
     rows.forEach((row) => {
       let node = root;
-      add(root, row);
-      row.dims.forEach((dimValue, depth) => {
-        if (!node.children.has(dimValue)) {
-          node.children.set(dimValue, { ...agg, children: /* @__PURE__ */ new Map() });
+      addRow(root, row);
+      const dims = row.dims || [];
+      dims.forEach((dimValue) => {
+        const key = dimValue !== void 0 && dimValue !== null && dimValue !== "" ? String(dimValue) : "none";
+        if (!node.children.has(key)) {
+          node.children.set(key, { ...createEmptyAgg(), children: /* @__PURE__ */ new Map() });
         }
-        node = node.children.get(dimValue);
-        add(node, row);
+        node = node.children.get(key);
+        addRow(node, row);
       });
     });
     const out = [];
     const walk = (node, depth, name) => {
+      computeDerived(node);
       const children = [...node.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks);
-      out.push({ name, depth, subtotal: depth < layers.length - 1 || children.length > 0, ...node, childrenCount: children.length });
+      out.push({
+        name,
+        depth,
+        subtotal: depth < layers.length - 1 || children.length > 0,
+        ...node,
+        childrenCount: children.length
+      });
       children.forEach(([childName, child]) => walk(child, depth + 1, childName));
     };
     [...root.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks).forEach(([name, child]) => walk(child, 0, name));
     return out;
   }, [rows, layers.length]);
   const grandTotal = reactExports.useMemo(() => {
-    const t0 = { clicks: 0, unique_clicks: 0, conversions: 0, cost: 0, revenue: 0, real_revenue: 0 };
+    const t0 = {
+      clicks: 0,
+      unique_clicks: 0,
+      prelander_clicks: 0,
+      offer_clicks: 0,
+      conversions: 0,
+      purchases: 0,
+      holds: 0,
+      rejected: 0,
+      trash: 0,
+      cost: 0,
+      revenue: 0,
+      revenue_confirmed: 0,
+      revenue_hold: 0,
+      revenue_rejected: 0,
+      revenue_trash: 0,
+      profit: 0,
+      real_revenue: 0,
+      real_profit: 0
+    };
     rows.forEach((r2) => {
-      t0.clicks += r2.clicks;
-      t0.unique_clicks += r2.unique_clicks;
-      t0.conversions += r2.conversions;
-      t0.cost += r2.cost;
-      t0.revenue += r2.revenue;
-      t0.real_revenue += r2.real_revenue;
+      t0.clicks += Number(r2.clicks) || 0;
+      t0.unique_clicks += Number(r2.unique_clicks) || 0;
+      t0.prelander_clicks += Number(r2.prelander_clicks) || 0;
+      t0.offer_clicks += Number(r2.offer_clicks) || 0;
+      t0.conversions += Number(r2.conversions) || 0;
+      t0.purchases += Number(r2.purchases) || 0;
+      t0.holds += Number(r2.holds) || 0;
+      t0.rejected += Number(r2.rejected) || 0;
+      t0.trash += Number(r2.trash) || 0;
+      t0.cost += Number(r2.cost) || 0;
+      t0.revenue += Number(r2.revenue) || 0;
+      t0.revenue_confirmed += Number(r2.revenue_confirmed) || 0;
+      t0.revenue_hold += Number(r2.revenue_hold) || 0;
+      t0.revenue_rejected += Number(r2.revenue_rejected) || 0;
+      t0.revenue_trash += Number(r2.revenue_trash) || 0;
+      t0.profit += Number(r2.profit) || Number(r2.revenue || 0) - Number(r2.cost || 0);
+      t0.real_revenue += Number(r2.real_revenue) || 0;
+      t0.real_profit += Number(r2.real_profit) || 0;
     });
-    return t0;
+    const uc_rate = t0.clicks > 0 ? t0.unique_clicks / t0.clicks * 100 : 0;
+    const lp_ctr = t0.clicks > 0 ? t0.offer_clicks / t0.clicks * 100 : 0;
+    const cr = t0.clicks > 0 ? t0.conversions / t0.clicks * 100 : 0;
+    const cr_sales = t0.clicks > 0 ? t0.purchases / t0.clicks * 100 : 0;
+    const cr_holds = t0.clicks > 0 ? t0.holds / t0.clicks * 100 : 0;
+    const approve_rate = t0.conversions > 0 ? t0.purchases / t0.conversions * 100 : 0;
+    const nonTrash = t0.purchases + t0.holds + t0.rejected;
+    const approve_rate_excl_trash = nonTrash > 0 ? t0.purchases / nonTrash * 100 : 0;
+    const roi = t0.cost > 0 ? t0.profit / t0.cost * 100 : 0;
+    const real_roi = t0.cost > 0 ? t0.real_profit / t0.cost * 100 : 0;
+    const epc = t0.clicks > 0 ? t0.revenue / t0.clicks : 0;
+    const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
+    const cpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+    const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
+    const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
+    const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
+    return {
+      ...t0,
+      uc_rate,
+      lp_ctr,
+      cr,
+      cr_sales,
+      cr_holds,
+      approve_rate,
+      approve_rate_excl_trash,
+      roi,
+      real_roi,
+      epc,
+      uepc,
+      cpc,
+      ucpc,
+      cpa,
+      earnings_per_conv
+    };
   }, [rows]);
-  const setLayer = (idx, value) => {
-    setLayers((prev) => {
-      const next = [...prev.slice(0, idx), value, ...prev.slice(idx + 1)].filter(Boolean);
-      return next.slice(0, 3);
-    });
+  const formatMetricCell = (metricId, row, strong = false) => {
+    const val = row[metricId];
+    const num = Number(val) || 0;
+    switch (metricId) {
+      case "clicks":
+      case "unique_clicks":
+      case "prelander_clicks":
+      case "offer_clicks":
+      case "purchases":
+      case "holds":
+      case "rejected":
+      case "trash":
+        return num.toLocaleString();
+      case "conversions":
+        return num > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-success)" }, children: num.toLocaleString() }) : "0";
+      case "uc_rate":
+      case "lp_ctr":
+      case "cr":
+      case "cr_sales":
+      case "cr_holds":
+      case "approve_rate":
+      case "approve_rate_excl_trash":
+        return `${num.toFixed(2)}%`;
+      case "cost":
+      case "revenue":
+      case "revenue_confirmed":
+      case "revenue_hold":
+      case "revenue_rejected":
+      case "revenue_trash":
+      case "real_revenue":
+      case "epc":
+      case "uepc":
+      case "cpc":
+      case "ucpc":
+      case "cpa":
+      case "earnings_per_conv":
+        return `$${num.toFixed(2)}`;
+      case "profit":
+      case "real_profit": {
+        const isPos = num >= 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: strong ? 700 : 600 }, children: [
+          isPos ? "+" : "",
+          "$",
+          num.toFixed(2)
+        ] });
+      }
+      case "roi":
+      case "real_roi": {
+        const isPos = num >= 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: strong ? 700 : 600 }, children: [
+          isPos ? "+" : "",
+          num.toFixed(2),
+          "%"
+        ] });
+      }
+      default:
+        return val !== void 0 && val !== null ? String(val) : "-";
+    }
   };
   const exportToCSV = () => {
     if (!displayRows.length) return;
     const headers = [
-      ...layerKeys.map(dimLabel),
-      t("campaignReports.clicks"),
-      t("campaignReports.unique"),
-      t("campaignReports.conversions"),
-      "CR (%)",
-      t("campaignReports.cost"),
-      t("campaignReports.revenue"),
-      "Real Rev",
-      t("campaignReports.profit"),
-      "ROI (%)"
+      layerKeys.join(" > "),
+      ...chosenColumns.map((cId) => {
+        const def = ALL_REPORT_METRICS.find((m) => m.id === cId);
+        return def ? t(def.labelKey, def.defaultLabel) : cId;
+      })
     ];
     const csvContent = [
       headers.join(","),
       ...displayRows.map((r2) => [
         `"${"  ".repeat(r2.depth)}${String(r2.name).replace(/"/g, '""')}"`,
-        r2.clicks,
-        r2.unique_clicks,
-        r2.conversions,
-        r2.clicks > 0 ? (r2.conversions / r2.clicks * 100).toFixed(2) : "0",
-        r2.cost.toFixed(2),
-        r2.revenue.toFixed(2),
-        r2.real_revenue.toFixed(2),
-        (r2.revenue - r2.cost).toFixed(2),
-        r2.cost > 0 ? ((r2.revenue - r2.cost) / r2.cost * 100).toFixed(2) : "0"
+        ...chosenColumns.map((cId) => {
+          const v = r2[cId];
+          return typeof v === "number" ? v.toFixed(2) : String(v || "");
+        })
       ].join(","))
     ].join("\n");
     const bom = new Uint8Array([239, 187, 191]);
@@ -47563,137 +49583,205 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     link.click();
     document.body.removeChild(link);
   };
-  const num = (v) => Number(v || 0).toLocaleString("ru-RU");
-  const money = (v) => Number(v || 0).toFixed(2);
-  const profitColor = (p) => p > 0 ? "var(--color-success)" : p < 0 ? "var(--color-danger)" : "inherit";
-  const thStyle = { textAlign: "right", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" };
-  const tdStyle = { textAlign: "right", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" };
-  const renderMetrics = (r2, strong) => /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: tdStyle, className: strong ? "font-semibold" : "", children: num(r2.clicks) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: tdStyle, className: strong ? "font-semibold" : "", children: num(r2.unique_clicks) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: tdStyle, className: strong ? "font-semibold" : "", children: r2.conversions > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-success)" }, children: num(r2.conversions) }) : "0" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: tdStyle, className: strong ? "font-semibold" : "", children: [
-      r2.clicks > 0 ? (r2.conversions / r2.clicks * 100).toFixed(2) : "0",
-      "%"
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: tdStyle, className: strong ? "font-semibold" : "", children: money(r2.cost) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: tdStyle, className: strong ? "font-semibold" : "", children: money(r2.revenue) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: tdStyle, className: strong ? "font-semibold" : "", children: money(r2.real_revenue) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { ...tdStyle, color: profitColor(r2.revenue - r2.cost) }, className: strong ? "font-semibold" : "font-medium", children: [
-      r2.revenue - r2.cost > 0 ? "+" : "",
-      money(r2.revenue - r2.cost)
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: tdStyle, className: strong ? "font-semibold" : "", children: r2.cost > 0 ? ((r2.revenue - r2.cost) / r2.cost * 100).toFixed(2) + "%" : "—" })
-  ] });
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed top-[88px] left-0 right-0 bottom-0 z-[1100] flex bg-black bg-opacity-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col w-full h-full bg-[var(--color-bg-main)]", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-6 py-4 border-b shadow-sm", style: { background: "var(--color-bg-header)", color: "var(--color-text-header)", borderColor: "var(--color-border)" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 20 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-xl font-semibold", children: [
-          t("campaignReports.report"),
-          " ",
-          campaignName || t("campaignReports.allCampaigns", "Все кампании")
-        ] }) })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: exportToCSV, className: "btn btn-success flex items-center gap-2 text-sm font-medium", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16 }),
-          " ",
-          t("campaignReports.exportCsv")
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "btn btn-ghost btn-icon", title: t("campaignReports.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 24 }) })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 bg-[var(--color-bg-card)] border-b shadow-sm flex flex-wrap gap-4 items-center", style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { size: 16, style: { color: "var(--color-text-muted)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-medium", children: [
-          t("campaignReports.layers", "Слои группировки"),
-          ":"
-        ] }),
-        layers.map((layer, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("select", { value: layer, onChange: (e) => setLayer(idx, e.target.value), className: "form-select", style: { minWidth: "140px" }, children: dimensions.filter((d) => !layers.includes(d.value) || d.value === layer).map((d) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: d.value, children: [
-            idx + 1,
-            ". ",
-            d.label
-          ] }, d.value)) }),
-          layers.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              type: "button",
-              className: "btn btn-ghost btn-icon",
-              style: { padding: "2px" },
-              onClick: () => setLayers((prev) => prev.filter((_, i) => i !== idx)),
-              title: t("common.delete"),
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 })
-            }
-          )
-        ] }, idx)),
-        layers.length < 3 && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            type: "button",
-            className: "btn btn-secondary",
-            style: { padding: "4px 10px" },
-            onClick: () => setLayers((prev) => {
-              const unused = dimensions.find((d) => !prev.includes(d.value));
-              return [...prev, unused ? unused.value : "ad_id"];
-            }),
-            title: t("campaignReports.addLayer", "Добавить слой"),
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 })
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 ml-auto", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", children: t("campaignReports.period") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", value: dateFrom, onChange: (e) => setDateFrom(e.target.value), className: "form-input" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "-" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", value: dateTo, onChange: (e) => setDateTo(e.target.value), className: "form-input" })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-auto p-6", style: { color: "var(--color-text-primary)" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center h-64", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { padding: 0, overflow: "hidden" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", style: { fontVariantNumeric: "tabular-nums" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { minWidth: "260px" }, children: layerKeys.map(dimLabel).join(" → ") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: thStyle, children: t("campaignReports.clicks") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: thStyle, children: t("campaignReports.unique") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: thStyle, children: t("campaignReports.conversions") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: thStyle, children: "CR" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: thStyle, children: t("campaignReports.cost") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: thStyle, children: t("campaignReports.revenue") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: thStyle, children: "Real Rev" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: thStyle, children: t("campaignReports.profit") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: thStyle, children: "ROI" })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: rows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "10", className: "text-center p-8", style: { color: "var(--color-text-muted)" }, children: t("campaignReports.noDataFilters") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "text-sm", style: { background: "var(--color-bg-soft)", position: "sticky", top: 0 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-bold", children: t("campaignReports.total", "Итого") }),
-          renderMetrics(grandTotal, true)
-        ] }),
-        displayRows.map((r2, idx) => {
-          const isSubtotal = r2.depth < layers.length - 1;
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "text-sm", style: { background: isSubtotal ? "color-mix(in srgb, var(--color-bg-soft) 55%, transparent)" : void 0 }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: {
-              paddingLeft: 12 + r2.depth * 22 + "px",
-              fontWeight: isSubtotal ? 600 : 400,
-              color: isSubtotal ? "var(--color-text-primary)" : "var(--color-text-secondary)",
-              whiteSpace: "nowrap"
-            }, children: [
-              r2.name,
-              isSubtotal && r2.childrenCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)", marginLeft: "6px", fontSize: "12px" }, children: [
-                "(",
-                r2.childrenCount,
-                ")"
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed top-[88px] left-0 right-0 bottom-0 z-[1100] flex bg-black/60 backdrop-blur-sm", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col w-full h-full", style: { backgroundColor: "var(--color-bg-main)", color: "var(--color-text-primary)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: "flex justify-between items-center px-6 py-3.5 border-b shadow-sm",
+          style: {
+            backgroundColor: "var(--color-bg-header)",
+            color: "var(--color-text-header)",
+            borderColor: "var(--color-border)"
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { className: "w-5 h-5", style: { color: "var(--color-primary)" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-base font-bold", children: [
+                t("campaignReports.report"),
+                " — ",
+                campaignName || t("campaignReports.allCampaigns", "All Campaigns")
               ] })
             ] }),
-            renderMetrics(r2, isSubtotal)
-          ] }, idx);
-        })
-      ] }) })
-    ] }) }) })
-  ] }) });
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: exportToCSV,
+                  className: "btn btn-success text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "w-3.5 h-3.5" }),
+                    t("campaignReports.exportCsv")
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: onClose,
+                  className: "btn-icon",
+                  title: t("campaignReports.close"),
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" })
+                }
+              )
+            ] })
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: "p-3 px-6 flex flex-wrap gap-4 items-center justify-between border-b shadow-sm",
+          style: {
+            backgroundColor: "var(--color-bg-card)",
+            borderColor: "var(--color-border)"
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5 flex-wrap", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setCustomizerOpen(true),
+                  className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-semibold",
+                  style: {
+                    backgroundColor: "var(--color-bg-soft)",
+                    border: "1px solid var(--color-border)",
+                    color: "var(--color-text-primary)"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(SlidersHorizontal, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("reportCustomizer.columns") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 py-0.2 rounded-full", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: chosenColumns.length })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-4 w-[1px]", style: { backgroundColor: "var(--color-border)" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: [
+                t("reportCustomizer.groupBy"),
+                ":"
+              ] }),
+              layers.map((lName, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "span",
+                {
+                  className: "text-xs px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1",
+                  style: {
+                    backgroundColor: "var(--color-bg-soft)",
+                    borderColor: "var(--color-border)",
+                    color: "var(--color-text-primary)"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[10px] font-bold text-blue-500", children: [
+                      idx + 1,
+                      "."
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: lName })
+                  ]
+                },
+                idx
+              ))
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              DateRangePicker,
+              {
+                dateFrom,
+                dateTo,
+                onChange: (from2, to2) => {
+                  setDateFrom(from2);
+                  setDateTo(to2);
+                },
+                selectedTimezone: timezone,
+                onTimezoneChange: setTimezone
+              }
+            ) })
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-auto p-6", style: { color: "var(--color-text-primary)" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center h-64", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-10 w-10 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { padding: 0, overflow: "hidden" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", style: { fontVariantNumeric: "tabular-nums" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { minWidth: "240px", textAlign: "left" }, children: layerKeys.join(" → ") }),
+          chosenColumns.map((colId, colIdx) => {
+            const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
+            const label = def ? t(def.labelKey, def.defaultLabel) : colId;
+            return /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "th",
+              {
+                draggable: true,
+                onDragStart: () => handleThDragStart(colIdx),
+                onDragOver: (e) => handleThDragOver(e, colIdx),
+                onDragEnd: handleThDragEnd,
+                style: {
+                  textAlign: "right",
+                  cursor: "grab",
+                  userSelect: "none"
+                },
+                children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center justify-end gap-1 w-full", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-30 -ml-1" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
+                ] })
+              },
+              colId
+            );
+          })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: rows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 1 + chosenColumns.length, className: "text-center p-8", style: { color: "var(--color-text-muted)" }, children: t("campaignReports.noDataFilters", "No report data found for this period and grouping.") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "text-xs", style: { backgroundColor: "var(--color-bg-soft)", position: "sticky", top: 0, fontWeight: 700, borderBottom: "2px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-bold", children: t("campaignReports.total", "Totals") }),
+            chosenColumns.map((cId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(cId, grandTotal, true) }, cId))
+          ] }),
+          displayRows.map((r2, idx) => {
+            const isSubtotal = r2.depth < layers.length - 1;
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "tr",
+              {
+                className: "text-xs transition-colors hover:bg-blue-50/5",
+                style: {
+                  backgroundColor: isSubtotal ? "color-mix(in srgb, var(--color-bg-soft) 40%, transparent)" : void 0
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: {
+                    paddingLeft: `${12 + r2.depth * 20}px`,
+                    fontWeight: isSubtotal ? 600 : 400,
+                    color: isSubtotal ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+                    whiteSpace: "nowrap"
+                  }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center gap-1.5", children: [
+                    isSubtotal && /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-3 h-3 text-blue-500 inline" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: r2.name }),
+                    isSubtotal && r2.childrenCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)", fontSize: "11px" }, children: [
+                      "(",
+                      r2.childrenCount,
+                      ")"
+                    ] })
+                  ] }) }),
+                  chosenColumns.map((cId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(cId, r2, isSubtotal) }, cId))
+                ]
+              },
+              idx
+            );
+          })
+        ] }) })
+      ] }) }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ReportCustomizerModal,
+      {
+        isOpen: customizerOpen,
+        onClose: () => setCustomizerOpen(false),
+        selectedColumns: chosenColumns,
+        onSaveColumns: handleSaveColumns,
+        mode: "report",
+        currentLayers: layers,
+        onSaveLayers: handleSaveLayers,
+        currentFilters: filters,
+        onSaveFilters: handleSaveFilters
+      }
+    )
+  ] });
 };
 const API_URL$w = "/api.php";
-const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId }) => {
+const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, setEditingCampaignId }) => {
   const { t } = useLanguage();
   const [actionModal, setActionModal] = reactExports.useState({ type: null, campaignId: null });
   const [selectedCampaignIds, setSelectedCampaignIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
@@ -47704,6 +49792,76 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   const [refreshing, setRefreshing] = reactExports.useState(false);
   const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
   const [showGlobalReports, setShowGlobalReports] = reactExports.useState(false);
+  const todayPreset = getPresetDates("today");
+  const [dateFrom, setDateFrom] = reactExports.useState(todayPreset?.from || formatDate$1(/* @__PURE__ */ new Date()));
+  const [dateTo, setDateTo] = reactExports.useState(todayPreset?.to || formatDate$1(/* @__PURE__ */ new Date()));
+  const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
+  const [groups, setGroups] = reactExports.useState([]);
+  const [selectedGroupId, setSelectedGroupId] = reactExports.useState("");
+  const [campaignList, setCampaignList] = reactExports.useState(initialCampaigns || []);
+  const [columnsFilterOpen, setColumnsFilterOpen] = reactExports.useState(false);
+  const [chosenColumns, setChosenColumns] = reactExports.useState(() => {
+    try {
+      const saved = localStorage.getItem("orbitra_campaign_columns");
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+    }
+    return [...PRESETS.best];
+  });
+  const [thDragIdx, setThDragIdx] = reactExports.useState(null);
+  reactExports.useEffect(() => {
+    axios.get(`${API_URL$w}?action=groups`).then((res) => {
+      if (res.data.status === "success") {
+        setGroups(res.data.data || []);
+      }
+    }).catch(() => {
+    });
+  }, []);
+  const fetchCampaigns = async () => {
+    setRefreshing(true);
+    try {
+      const params = {
+        date_from: dateFrom,
+        date_to: dateTo
+      };
+      if (selectedGroupId) params.group_id = selectedGroupId;
+      const res = await axios.get(`${API_URL$w}?action=campaigns`, { params });
+      if (res.data.status === "success") {
+        setCampaignList(res.data.data || []);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+  reactExports.useEffect(() => {
+    fetchCampaigns();
+  }, [dateFrom, dateTo, selectedGroupId]);
+  const handleDateChange = (from2, to2) => {
+    setDateFrom(from2);
+    setDateTo(to2);
+  };
+  const handleSaveColumns = (cols) => {
+    setChosenColumns(cols);
+    localStorage.setItem("orbitra_campaign_columns", JSON.stringify(cols));
+  };
+  const handleThDragStart = (idx) => {
+    setThDragIdx(idx);
+  };
+  const handleThDragOver = (e, idx) => {
+    e.preventDefault();
+    if (thDragIdx === null || thDragIdx === idx) return;
+    const copy = [...chosenColumns];
+    const item = copy.splice(thDragIdx, 1)[0];
+    copy.splice(idx, 0, item);
+    setThDragIdx(idx);
+    setChosenColumns(copy);
+    localStorage.setItem("orbitra_campaign_columns", JSON.stringify(copy));
+  };
+  const handleThDragEnd = () => {
+    setThDragIdx(null);
+  };
   const handleCreate = () => {
     setEditingCampaignId(null);
     setActiveTab("campaign_editor");
@@ -47716,7 +49874,8 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     if (window.confirm(t("campaigns.deleteConfirm"))) {
       try {
         await axios.post(`${API_URL$w}?action=delete_campaign`, { id });
-        refreshData();
+        fetchCampaigns();
+        if (refreshData) refreshData();
       } catch (err) {
         alert(t("common.deleteError"));
       }
@@ -47732,48 +49891,105 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   };
   const filteredCampaigns = reactExports.useMemo(() => {
     const q = String(search || "").trim().toLowerCase();
-    if (!q) return campaigns;
-    return campaigns.filter((c) => {
+    if (!q) return campaignList;
+    return campaignList.filter((c) => {
       const n = String(c.name || "").toLowerCase();
       const a = String(c.alias || "").toLowerCase();
       return n.includes(q) || a.includes(q);
     });
-  }, [campaigns, search]);
+  }, [campaignList, search]);
   const visibleCampaigns = reactExports.useMemo(() => {
     if (!sortBy.key) return filteredCampaigns;
     const dirMul = sortBy.dir === "asc" ? 1 : -1;
-    const getVal = (c) => {
-      switch (sortBy.key) {
-        case "id":
-          return Number(c.id) || 0;
-        case "name":
-          return String(c.name || "");
-        case "group_name":
-          return String(c.group_name || "");
-        case "clicks":
-          return Number(c.clicks) || 0;
-        case "unique_clicks":
-          return Number(c.unique_clicks) || 0;
-        case "conversions":
-          return Number(c.conversions) || 0;
-        default:
-          return "";
-      }
-    };
-    const isNumeric = ["id", "clicks", "unique_clicks", "conversions"].includes(sortBy.key);
     return filteredCampaigns.map((camp, idx) => ({ camp, idx })).sort((a, b) => {
-      const av = getVal(a.camp);
-      const bv = getVal(b.camp);
+      const av = a.camp[sortBy.key];
+      const bv = b.camp[sortBy.key];
       let cmp = 0;
-      if (isNumeric) {
+      if (typeof av === "number" || typeof bv === "number" || !isNaN(Number(av))) {
         cmp = (Number(av) || 0) - (Number(bv) || 0);
       } else {
-        cmp = String(av).localeCompare(String(bv), void 0, { sensitivity: "base" });
+        cmp = String(av || "").localeCompare(String(bv || ""), void 0, { sensitivity: "base" });
       }
       if (cmp !== 0) return cmp * dirMul;
       return a.idx - b.idx;
     }).map((x) => x.camp);
   }, [filteredCampaigns, sortBy]);
+  const grandTotals = reactExports.useMemo(() => {
+    const t0 = {
+      clicks: 0,
+      unique_clicks: 0,
+      prelander_clicks: 0,
+      offer_clicks: 0,
+      conversions: 0,
+      purchases: 0,
+      holds: 0,
+      rejected: 0,
+      trash: 0,
+      cost: 0,
+      revenue: 0,
+      revenue_confirmed: 0,
+      revenue_hold: 0,
+      revenue_rejected: 0,
+      revenue_trash: 0,
+      profit: 0,
+      real_revenue: 0,
+      real_profit: 0
+    };
+    visibleCampaigns.forEach((c) => {
+      t0.clicks += Number(c.clicks) || 0;
+      t0.unique_clicks += Number(c.unique_clicks) || 0;
+      t0.prelander_clicks += Number(c.prelander_clicks) || 0;
+      t0.offer_clicks += Number(c.offer_clicks) || 0;
+      t0.conversions += Number(c.conversions) || 0;
+      t0.purchases += Number(c.purchases) || 0;
+      t0.holds += Number(c.holds) || 0;
+      t0.rejected += Number(c.rejected) || 0;
+      t0.trash += Number(c.trash) || 0;
+      t0.cost += Number(c.cost) || 0;
+      t0.revenue += Number(c.revenue) || 0;
+      t0.revenue_confirmed += Number(c.revenue_confirmed) || 0;
+      t0.revenue_hold += Number(c.revenue_hold) || 0;
+      t0.revenue_rejected += Number(c.revenue_rejected) || 0;
+      t0.revenue_trash += Number(c.revenue_trash) || 0;
+      t0.profit += Number(c.profit) || Number(c.revenue || 0) - Number(c.cost || 0);
+      t0.real_revenue += Number(c.real_revenue) || 0;
+      t0.real_profit += Number(c.real_profit) || 0;
+    });
+    const uc_rate = t0.clicks > 0 ? t0.unique_clicks / t0.clicks * 100 : 0;
+    const lp_ctr = t0.clicks > 0 ? t0.offer_clicks / t0.clicks * 100 : 0;
+    const cr = t0.clicks > 0 ? t0.conversions / t0.clicks * 100 : 0;
+    const cr_sales = t0.clicks > 0 ? t0.purchases / t0.clicks * 100 : 0;
+    const cr_holds = t0.clicks > 0 ? t0.holds / t0.clicks * 100 : 0;
+    const approve_rate = t0.conversions > 0 ? t0.purchases / t0.conversions * 100 : 0;
+    const nonTrash = t0.purchases + t0.holds + t0.rejected;
+    const approve_rate_excl_trash = nonTrash > 0 ? t0.purchases / nonTrash * 100 : 0;
+    const roi = t0.cost > 0 ? t0.profit / t0.cost * 100 : 0;
+    const real_roi = t0.cost > 0 ? t0.real_profit / t0.cost * 100 : 0;
+    const epc = t0.clicks > 0 ? t0.revenue / t0.clicks : 0;
+    const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
+    const cpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+    const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
+    const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
+    const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
+    return {
+      ...t0,
+      uc_rate,
+      lp_ctr,
+      cr,
+      cr_sales,
+      cr_holds,
+      approve_rate,
+      approve_rate_excl_trash,
+      roi,
+      real_roi,
+      epc,
+      uepc,
+      cpc,
+      ucpc,
+      cpa,
+      earnings_per_conv
+    };
+  }, [visibleCampaigns]);
   const toggleSelected = (id, checked) => {
     setSelectedCampaignIds((prev) => {
       const next = new Set(prev);
@@ -47803,7 +50019,8 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     try {
       await axios.post(`${API_URL$w}?action=bulk_delete_campaigns`, { ids });
       setSelectedCampaignIds(/* @__PURE__ */ new Set());
-      refreshData();
+      fetchCampaigns();
+      if (refreshData) refreshData();
     } catch (err) {
       alert(t("common.deleteError"));
     }
@@ -47825,7 +50042,8 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     }
     if (successCount > 0) {
       alert(`${t("campaigns.copied")}: ${successCount}`);
-      refreshData();
+      fetchCampaigns();
+      if (refreshData) refreshData();
     }
     if (errorCount > 0) {
       alert(`${t("campaigns.copyErrors")}: ${errorCount}`);
@@ -47833,68 +50051,110 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     setSelectedCampaignIds(/* @__PURE__ */ new Set());
   };
   const SortIcon = ({ colKey }) => {
-    if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-60" });
-    return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5" });
+    if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
+    return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
   };
-  const SortableTh = ({ colKey, label, defaultDir = "asc", alignRight = false }) => {
+  const SortableTh = ({ colKey, label, defaultDir = "asc", alignRight = false, draggable = false, onDragStart, onDragOver, onDragEnd }) => {
     const isActive = sortBy.key === colKey;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: alignRight ? "text-right" : "", "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "button",
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "th",
       {
-        type: "button",
-        onClick: () => requestSort(colKey, defaultDir),
-        className: `inline-flex items-center gap-1 select-none ${alignRight ? "justify-end w-full" : ""}`,
-        style: { color: isActive ? "var(--color-text-primary)" : "var(--color-text-secondary)" },
-        title: t("common.sort", "Sort"),
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey })
-        ]
+        className: alignRight ? "text-right" : "text-left",
+        "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none",
+        draggable,
+        onDragStart,
+        onDragOver,
+        onDragEnd,
+        style: {
+          textAlign: alignRight ? "right" : "left",
+          cursor: draggable ? "grab" : "pointer",
+          userSelect: "none"
+        },
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => requestSort(colKey, defaultDir),
+            className: `inline-flex items-center gap-1 text-xs font-semibold ${alignRight ? "justify-end w-full" : ""}`,
+            style: {
+              color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
+              textAlign: alignRight ? "right" : "left"
+            },
+            title: t("common.sort", "Sort"),
+            children: [
+              draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-30 -ml-1 cursor-grab" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey })
+            ]
+          }
+        )
       }
-    ) });
+    );
   };
-  const exportVisibleCsv = () => {
-    const cols = [
-      { key: "id", label: "id" },
-      { key: "name", label: "name" },
-      { key: "alias", label: "alias" },
-      { key: "group_name", label: "group" },
-      { key: "source_name", label: "source" },
-      { key: "clicks", label: "clicks" },
-      { key: "unique_clicks", label: "unique_clicks" },
-      { key: "conversions", label: "conversions" }
-    ];
-    const escape = (v) => {
-      const s = v === null || v === void 0 ? "" : String(v);
-      if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
-      return s;
-    };
-    const header = cols.map((c) => escape(c.label)).join(",");
-    const lines = visibleCampaigns.map((c) => cols.map((col) => escape(c[col.key])).join(","));
-    const csv = [header, ...lines].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `campaigns_${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  };
-  const handleRefresh = async () => {
-    if (refreshing) return;
-    setRefreshing(true);
-    try {
-      await Promise.resolve(refreshData?.());
-    } finally {
-      setRefreshing(false);
+  const formatMetricCell = (metricId, row) => {
+    const val = row[metricId];
+    const num = Number(val) || 0;
+    switch (metricId) {
+      case "clicks":
+      case "unique_clicks":
+      case "prelander_clicks":
+      case "offer_clicks":
+      case "purchases":
+      case "holds":
+      case "rejected":
+      case "trash":
+        return num.toLocaleString();
+      case "conversions":
+        return num > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-success)" }, children: num.toLocaleString() }) : "0";
+      case "uc_rate":
+      case "lp_ctr":
+      case "cr":
+      case "cr_sales":
+      case "cr_holds":
+      case "approve_rate":
+      case "approve_rate_excl_trash":
+        return `${num.toFixed(2)}%`;
+      case "cost":
+      case "revenue":
+      case "revenue_confirmed":
+      case "revenue_hold":
+      case "revenue_rejected":
+      case "revenue_trash":
+      case "real_revenue":
+      case "epc":
+      case "uepc":
+      case "cpc":
+      case "ucpc":
+      case "cpa":
+      case "earnings_per_conv":
+        return `$${num.toFixed(2)}`;
+      case "profit":
+      case "real_profit": {
+        const isPos = num >= 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
+          isPos ? "+" : "",
+          "$",
+          num.toFixed(2)
+        ] });
+      }
+      case "roi":
+      case "real_roi": {
+        const isPos = num >= 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
+          isPos ? "+" : "",
+          num.toFixed(2),
+          "%"
+        ] });
+      }
+      default:
+        return val !== void 0 && val !== null ? String(val) : "-";
     }
   };
   const handleClearStats = async () => {
     try {
       await axios.post(`${API_URL$w}?action=clear_stats`, { campaign_id: actionModal.campaignId });
-      refreshData();
+      fetchCampaigns();
+      if (refreshData) refreshData();
       setActionModal({ type: null, campaignId: null });
     } catch (err) {
       alert(t("common.clearError"));
@@ -47914,7 +50174,8 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
       const res = await axios.post(`${API_URL$w}?action=update_costs`, data);
       if (res.data.status === "success") {
         alert(t("campaigns.updatedClicks").replace("{count}", res.data.updated_clicks));
-        refreshData();
+        fetchCampaigns();
+        if (refreshData) refreshData();
         setActionModal({ type: null, campaignId: null });
       } else {
         alert(res.data.message);
@@ -47925,28 +50186,47 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_campaigns", title: t("help.campaignBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.campaignBanner") }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleCreate, className: "btn btn-primary", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header flex-wrap gap-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2.5 items-center", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleCreate, className: "btn btn-primary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
           t("common.create")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setShowGlobalReports(true), className: "btn btn-secondary", title: t("campaignReports.report"), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ChartNoAxesColumn, { className: "w-4 h-4" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setShowGlobalReports(true), className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium", title: t("campaignReports.report"), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ChartNoAxesColumn, { className: "w-3.5 h-3.5" }),
           t("campaignReports.report")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowGroupsModal(true), className: "btn btn-secondary", children: t("campaigns.groups") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActiveTab("sources"), className: "btn btn-secondary", children: t("campaigns.sources") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowGroupsModal(true), className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", children: t("campaigns.groups") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActiveTab("sources"), className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", children: t("campaigns.sources") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setColumnsFilterOpen(true),
+            className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium",
+            title: t("reportCustomizer.campaignColumnsTitle"),
+            style: {
+              backgroundColor: "var(--color-bg-card)",
+              border: "1px solid var(--color-border)",
+              color: "var(--color-text-primary)"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SlidersHorizontal, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("reportCustomizer.columns") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 py-0.2 rounded-full", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: chosenColumns.length })
+            ]
+          }
+        ),
         selectedCampaignIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkCopySelected, className: "btn btn-success", title: t("campaigns.copySelected"), children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkCopySelected, className: "btn btn-success text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5", title: t("campaigns.copySelected"), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-3.5 h-3.5" }),
             t("campaigns.copySelected"),
             " (",
             selectedCampaignIds.size,
             ")"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t("common.deleteSelected"), children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5", title: t("common.deleteSelected"), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3.5 h-3.5" }),
             t("common.deleteSelected") || t("common.delete"),
             " (",
             selectedCampaignIds.size,
@@ -47954,18 +50234,40 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
           ] })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "select",
+          {
+            value: selectedGroupId,
+            onChange: (e) => setSelectedGroupId(e.target.value),
+            className: "form-select text-xs py-1.5 px-3 rounded-xl",
+            style: { width: "150px" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("campaigns.allGroups", "All groups") }),
+              groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          DateRangePicker,
+          {
+            dateFrom,
+            dateTo,
+            onChange: handleDateChange,
+            selectedTimezone: timezone,
+            onTimezoneChange: setTimezone
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
             type: "button",
             onClick: () => setShowFilters(!showFilters),
-            className: `btn btn-ghost ${showFilters ? "bg-[var(--color-primary-light)]" : ""}`,
+            className: `btn btn-ghost text-xs py-1.5 px-2.5 rounded-xl ${showFilters ? "bg-[var(--color-primary-light)]" : ""}`,
             style: showFilters ? { color: "var(--color-primary)" } : {},
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "w-4 h-4" }),
-              t("editor.filters"),
-              search ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full", children: "1" }) : null
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "w-3.5 h-3.5" }),
+              search ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-[10px] rounded-full", children: "1" }) : null
             ]
           }
         ),
@@ -47973,19 +50275,18 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
           "button",
           {
             type: "button",
-            onClick: handleRefresh,
-            className: "btn btn-ghost btn-icon",
+            onClick: fetchCampaigns,
+            className: "btn btn-ghost btn-icon p-1.5 rounded-xl",
             title: t("common.refresh"),
             disabled: refreshing,
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-5 h-5 ${refreshing ? "animate-spin" : ""}` })
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-4 h-4 ${refreshing ? "animate-spin" : ""}` })
           }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", title: t("common.settings", "Settings"), onClick: () => setSettingsOpen(true), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) })
+        )
       ] })
     ] }),
-    showFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-4 items-center py-4 mb-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
+    showFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-4 items-center py-3 px-4 mb-4 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-1 max-w-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: [
           t("common.search", "Search"),
           ":"
         ] }),
@@ -47994,20 +50295,19 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
           {
             value: search,
             onChange: (e) => setSearch(e.target.value),
-            className: "form-input",
-            style: { width: "auto", minWidth: "260px" },
-            placeholder: t("common.searchPlaceholder", "Name or alias")
+            className: "form-input text-xs py-1.5 px-3 rounded-xl flex-1",
+            placeholder: t("common.searchPlaceholder", "Name or alias...")
           }
         )
       ] }),
-      search && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => setSearch(""), className: "btn btn-ghost btn-sm", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }),
+      search && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => setSearch(""), className: "btn btn-ghost text-xs py-1 px-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }),
         t("common.clear")
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", style: { fontVariantNumeric: "tabular-nums" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-8", style: { textAlign: "left" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
             type: "checkbox",
@@ -48015,18 +50315,35 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
             ref: (el) => {
               if (el) el.indeterminate = !allSelected && someSelected;
             },
-            onChange: (e) => toggleSelectAll(e.target.checked)
+            onChange: (e) => toggleSelectAll(e.target.checked),
+            className: "w-3.5 h-3.5 rounded",
+            style: { accentColor: "var(--color-primary)" }
           }
         ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "id", label: "ID", defaultDir: "desc" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "name", label: t("campaigns.campaign"), defaultDir: "asc" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "group_name", label: t("campaigns.group"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "clicks", label: t("metrics.clicks"), defaultDir: "desc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "unique_clicks", label: t("campaigns.unique"), defaultDir: "desc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "conversions", label: t("metrics.conversions"), defaultDir: "desc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
+        chosenColumns.map((colId, colIdx) => {
+          const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
+          const label = def ? t(def.labelKey, def.defaultLabel) : colId;
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            SortableTh,
+            {
+              colKey: colId,
+              label,
+              defaultDir: "desc",
+              alignRight: true,
+              draggable: true,
+              onDragStart: () => handleThDragStart(colIdx),
+              onDragOver: (e) => handleThDragOver(e, colIdx),
+              onDragEnd: handleThDragEnd
+            },
+            colId
+          );
+        }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", style: { textAlign: "right" }, children: t("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleCampaigns.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "8", className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleCampaigns.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 5 + chosenColumns.length, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("campaigns.noCampaignsCreated") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("campaigns.createFirstCampaign") })
       ] }) }) }) : visibleCampaigns.map((camp) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -48035,7 +50352,9 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
           {
             type: "checkbox",
             checked: selectedCampaignIds.has(camp.id),
-            onChange: (e) => toggleSelected(camp.id, e.target.checked)
+            onChange: (e) => toggleSelected(camp.id, e.target.checked),
+            className: "w-3.5 h-3.5 rounded",
+            style: { accentColor: "var(--color-primary)" }
           }
         ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: camp.keitaro_id ? `Keitaro ID: ${camp.keitaro_id}` : "", children: camp.id }) }),
@@ -48049,81 +50368,92 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
               children: camp.name
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontSize: "12px" }, children: camp.alias })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontSize: "11px" }, children: camp.alias })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: camp.group_name || "-" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: camp.clicks }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: camp.unique_clicks }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: camp.conversions }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(camp.id), className: "action-btn text-blue", children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: "update_costs", campaignId: camp.id }), className: "action-btn text-green", title: t("campaigns.updateCosts"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-4 h-4" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: "clear_stats", campaignId: camp.id }), className: "action-btn text-orange", title: t("common.clearStats"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "w-4 h-4" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(camp.id), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
+        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(colId, camp) }, colId)),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons justify-end", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(camp.id), className: "action-btn text-blue", title: t("common.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: "update_costs", campaignId: camp.id }), className: "action-btn text-green", title: t("campaigns.updateCosts"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-3.5 h-3.5" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: "clear_stats", campaignId: camp.id }), className: "action-btn text-orange", title: t("common.clearStats"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "w-3.5 h-3.5" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(camp.id), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3.5 h-3.5" }) })
         ] }) })
-      ] }, camp.id)) })
+      ] }, camp.id)) }),
+      visibleCampaigns.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tfoot", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { style: { backgroundColor: "var(--color-bg-soft)", borderTop: "2px solid var(--color-border)", fontWeight: 700 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "Σ" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+          t("campaignReports.total", "Totals"),
+          " (",
+          visibleCampaigns.length,
+          ")"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "-" }),
+        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(colId, grandTotals) }, colId)),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
+      ] }) })
     ] }) }),
-    actionModal.type === "clear_stats" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ReportCustomizerModal,
+      {
+        isOpen: columnsFilterOpen,
+        onClose: () => setColumnsFilterOpen(false),
+        selectedColumns: chosenColumns,
+        onSaveColumns: handleSaveColumns,
+        mode: "campaigns"
+      }
+    ),
+    actionModal.type === "clear_stats" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content max-w-md w-full rounded-2xl p-6", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header pb-3 mb-4", style: { borderBottom: "1px solid var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title font-bold text-base", children: [
         t("common.clearStats"),
         "?"
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-secondary)", fontSize: "14px", marginBottom: "24px" }, children: t("campaigns.clearStatsWarning") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: null, campaignId: null }), className: "btn btn-secondary", children: t("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleClearStats, className: "btn btn-danger", children: t("common.clear") })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-secondary)", fontSize: "13px", marginBottom: "24px" }, children: t("campaigns.clearStatsWarning") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer flex justify-end gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: null, campaignId: null }), className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl", children: t("common.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleClearStats, className: "btn btn-danger text-xs py-1.5 px-4 rounded-xl", children: t("common.clear") })
       ] })
     ] }) }),
-    actionModal.type === "update_costs" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "520px" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("campaigns.updateCosts") }) }),
+    actionModal.type === "update_costs" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content max-w-md w-full rounded-2xl p-6", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header pb-3 mb-4", style: { borderBottom: "1px solid var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title font-bold text-base", children: t("campaigns.updateCosts") }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleUpdateCosts, className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("campaigns.costAmount") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", step: "0.01", name: "cost", required: true, className: "form-input", placeholder: "0.00" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label text-xs", children: t("campaigns.costAmount") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "number", step: "0.01", name: "cost", required: true, className: "form-input text-xs py-2 rounded-xl", placeholder: "0.00" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("campaigns.startDate") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", name: "start_date", required: true, className: "form-input" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label text-xs", children: t("campaigns.startDate") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", name: "start_date", required: true, defaultValue: dateFrom, className: "form-input text-xs py-2 rounded-xl" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("campaigns.endDate") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", name: "end_date", required: true, className: "form-input" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label text-xs", children: t("campaigns.endDate") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "date", name: "end_date", required: true, defaultValue: dateTo, className: "form-input text-xs py-2 rounded-xl" })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)", fontSize: "14px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", name: "unique_only" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs", style: { color: "var(--color-text-primary)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", name: "unique_only", className: "w-3.5 h-3.5 rounded", style: { accentColor: "var(--color-primary)" } }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("campaigns.distributeUniqueOnly") })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setActionModal({ type: null, campaignId: null }), className: "btn btn-secondary", children: t("common.cancel") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "submit", className: "btn btn-primary", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-4 h-4" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer flex justify-end gap-2 pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setActionModal({ type: null, campaignId: null }), className: "btn btn-ghost text-xs py-1.5 px-3 rounded-xl", children: t("common.cancel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "submit", className: "btn btn-primary text-xs py-1.5 px-4 rounded-xl flex items-center gap-1.5 font-medium", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-3.5 h-3.5" }),
             t("common.apply")
           ] })
         ] })
       ] })
     ] }) }),
-    settingsOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => setSettingsOpen(false), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", onClick: (e) => e.stopPropagation(), style: { maxWidth: "560px" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("common.settings", "Settings") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setSettingsOpen(false), title: t("common.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary w-full", onClick: () => {
-          setSortBy({ key: null, dir: "desc" });
-        }, children: t("common.resetSort", "Reset sorting") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary w-full", onClick: () => {
-          setSelectedCampaignIds(/* @__PURE__ */ new Set());
-        }, children: t("common.clearSelection", "Clear selection") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-primary w-full", onClick: exportVisibleCsv, children: t("common.exportCsv", "Export CSV") })
-      ] })
-    ] }) }),
     showGroupsModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
       GroupsModal,
       {
-        type: "campaign",
-        onClose: () => setShowGroupsModal(false)
+        isOpen: showGroupsModal,
+        onClose: () => {
+          setShowGroupsModal(false);
+          axios.get(`${API_URL$w}?action=groups`).then((r2) => {
+            if (r2.data.status === "success") setGroups(r2.data.data || []);
+          });
+        }
       }
     ),
     showGlobalReports && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -48723,7 +51053,7 @@ ${file}`)) return;
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.slugHint") })
         ] }),
-        landing.type === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        landing.type === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.redirectMethodLabel") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
@@ -48732,12 +51062,28 @@ ${file}`)) return;
               onChange: (e) => setLanding({ ...landing, redirect_type: e.target.value }),
               className: "form-select",
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("landingEditor.redirectHttp") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "js", children: t("landingEditor.redirectJs") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "meta_refresh", children: t("landingEditor.redirectMeta") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("offerEditor.httpRedirect", "HTTP 302 Redirect") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "js", children: t("redirectTypes.jsName", "JS Redirect") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "meta_refresh", children: t("redirectTypes.metaName", "Meta Refresh") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "frame", children: t("redirectTypes.iframeName", "Iframe / Frame") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "form_submit", children: t("redirectTypes.formName", "Form Submit / POST") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t("offerEditor.preloadCurl", "Preload (cURL)") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "curl_proxy", children: t("redirectTypes.curlProxyName", "cURL Proxy (Reverse Proxy)") })
               ]
             }
-          )
+          ),
+          (() => {
+            const descKey = {
+              redirect: "redirectTypes.redirectDesc",
+              js: "redirectTypes.jsDesc",
+              meta_refresh: "redirectTypes.metaDesc",
+              frame: "redirectTypes.iframeDesc",
+              form_submit: "redirectTypes.formDesc",
+              preload: "redirectTypes.preloadDesc",
+              curl_proxy: "redirectTypes.curlProxyDesc"
+            }[landing.redirect_type || "redirect"];
+            return descKey ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", style: { fontSize: "11.5px", color: "var(--color-text-muted)" }, children: t(descKey) }) : null;
+          })()
         ] }),
         (landing.type === "redirect" || landing.type === "preload") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.urlLabel") }),
@@ -54731,13 +57077,17 @@ const ProfileSettings = () => {
 };
 const API_URL$f = "/api.php";
 const PAGE_SIZE = 200;
+const BATCH_CHUNK_SIZE = 2e3;
 const BotSettings = () => {
   const { t } = useLanguage();
   const emptyList = { items: [], total: 0, filtered: 0, search: "", loading: true };
   const [lists, setLists] = reactExports.useState({ ip: { ...emptyList }, sig: { ...emptyList } });
   const [newIps, setNewIps] = reactExports.useState("");
   const [newSigs, setNewSigs] = reactExports.useState("");
+  const [importing, setImporting] = reactExports.useState({ active: false, type: null, current: 0, total: 0 });
   const searchTimers = reactExports.useRef({});
+  const fileInputIpRef = reactExports.useRef(null);
+  const fileInputSigRef = reactExports.useRef(null);
   const endpointOf = (type) => type === "ip" ? "bot_ips" : "bot_signatures";
   const load = reactExports.useCallback(async (type, { search = "", offset: offset2 = 0, append: append2 = false } = {}) => {
     setLists((prev) => ({ ...prev, [type]: { ...prev[type], loading: true } }));
@@ -54752,7 +57102,6 @@ const BotSettings = () => {
         [type]: {
           items: append2 ? [...prev[type].items, ...data.data || []] : data.data || [],
           total: data.total ?? 0,
-          // Older builds of the API answered without "filtered".
           filtered: data.filtered ?? data.total ?? 0,
           search,
           loading: false
@@ -54763,10 +57112,6 @@ const BotSettings = () => {
       alert(`${t("botSettings.loadError")}: ${e.message}`);
     }
   }, [t]);
-  reactExports.useCallback(() => {
-    load("ip", { search: lists.ip.search });
-    load("sig", { search: lists.sig.search });
-  }, [load, lists.ip.search, lists.sig.search]);
   reactExports.useEffect(() => {
     load("ip");
     load("sig");
@@ -54789,22 +57134,46 @@ const BotSettings = () => {
     }
     return data;
   };
-  const handleAdd = async (type) => {
-    const source = type === "ip" ? newIps : newSigs;
+  const handleAdd = async (type, rawText) => {
+    const source = rawText !== void 0 ? rawText : type === "ip" ? newIps : newSigs;
     if (!source.trim()) return;
-    const items = source.split("\n").map((s) => s.trim()).filter(Boolean);
+    const items = source.split(/[\r\n,]+/).map((s) => s.trim()).filter(Boolean);
+    if (items.length === 0) return;
+    let totalAdded = 0;
+    let totalSkipped = 0;
+    setImporting({ active: true, type, current: 0, total: items.length });
     try {
-      const data = await mutate(type, { items });
-      (type === "ip" ? setNewIps : setNewSigs)("");
+      for (let i = 0; i < items.length; i += BATCH_CHUNK_SIZE) {
+        const chunk = items.slice(i, i + BATCH_CHUNK_SIZE);
+        const data = await mutate(type, { items: chunk });
+        totalAdded += data.added || 0;
+        totalSkipped += data.skipped || 0;
+        setImporting({ active: true, type, current: Math.min(items.length, i + BATCH_CHUNK_SIZE), total: items.length });
+      }
+      if (rawText === void 0) {
+        (type === "ip" ? setNewIps : setNewSigs)("");
+      }
       load(type, { search: lists[type].search });
-      const skipped = data.skipped || 0;
-      alert(`${t("botSettings.addedCount")} ${data.added ?? 0}` + (skipped ? ` (${t("botSettings.skippedDuplicates")} ${skipped})` : ""));
+      alert(`${t("botSettings.addedCount")} ${totalAdded}` + (totalSkipped ? ` (${t("botSettings.skippedDuplicates")} ${totalSkipped})` : ""));
     } catch (e) {
       alert(`${t("botSettings.networkError")}: ${e.message}`);
+    } finally {
+      setImporting({ active: false, type: null, current: 0, total: 0 });
     }
   };
-  const handleAddIps = () => handleAdd("ip");
-  const handleAddSigs = () => handleAdd("sig");
+  const handleFileUpload = (type, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result;
+      if (typeof text === "string") {
+        handleAdd(type, text);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
   const handleDelete = async (type, id) => {
     try {
       await mutate(type, { action: "delete", id });
@@ -54845,14 +57214,13 @@ const BotSettings = () => {
             onChange: (e) => onSearch(type, e.target.value),
             placeholder: t("botSettings.searchPlaceholder"),
             className: "form-input",
-            style: { paddingLeft: "30px", fontFamily: "monospace", fontSize: "13px" }
+            style: { paddingLeft: "32px", fontSize: "13px" }
           }
         )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "10px", fontSize: "12px", color: "var(--color-text-muted)" }, children: list.loading ? t("botSettings.loading") : `${t("botSettings.showing")} ${list.items.length} ${t("botSettings.of")} ${list.filtered}` + (list.search ? ` (${t("botSettings.ofTotal")} ${list.total})` : "") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "8px", maxHeight: "340px", overflowY: "auto" }, children: list.items.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)", fontSize: "14px" }, children: t("botSettings.noRecords") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("table", { className: "page-table", children: /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: list.items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontFamily: "monospace", fontSize: "13px" }, children: item.value ?? item.ip_or_cidr ?? item.signature }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { width: "40px", textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(type, item.id), className: "btn btn-ghost btn-sm", style: { color: "var(--color-danger)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 }) }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "12px", maxHeight: "420px", overflowY: "auto", border: "1px solid var(--color-border)", borderRadius: "12px" }, children: list.loading && list.items.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px" }, children: t("common.loading") }) : list.items.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px" }, children: t("botSettings.noItems") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("table", { className: "page-table", style: { margin: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: list.items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontFamily: "monospace", fontSize: "12px" }, children: item.value ?? item.ip_or_cidr ?? item.signature }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { width: "40px", textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(type, item.id), className: "btn btn-ghost btn-sm", style: { color: "var(--color-danger)", padding: "2px 6px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 13 }) }) })
       ] }, item.id)) }) }) }),
       hasMore && /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
@@ -54876,12 +57244,13 @@ const BotSettings = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldBan, { size: 18, style: { color: "var(--color-primary)" } }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("botSettings.ipTitle") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("botSettings.ipTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-secondary", children: lists.ip.total })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleClear("ip"), className: "btn btn-ghost btn-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleClear("ip"), className: "btn btn-ghost btn-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { size: 14 }),
           t("botSettings.clearAll")
-        ] })
+        ] }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "16px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -54895,16 +57264,61 @@ const BotSettings = () => {
             style: { fontFamily: "monospace", fontSize: "13px" }
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleAddIps, className: "btn btn-primary btn-sm", style: { marginTop: "8px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
-          t("botSettings.addIp")
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2 mt-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => handleAdd("ip"),
+              disabled: importing.active,
+              className: "btn btn-primary btn-sm flex items-center gap-1.5",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
+                t("botSettings.addIp")
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "file",
+              ref: fileInputIpRef,
+              accept: ".txt,.csv",
+              style: { display: "none" },
+              onChange: (e) => handleFileUpload("ip", e)
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => fileInputIpRef.current?.click(),
+              disabled: importing.active,
+              className: "btn btn-secondary btn-sm flex items-center gap-1.5",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { size: 14 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Upload .txt / .csv" })
+              ]
+            }
+          ),
+          importing.active && importing.type === "ip" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-medium ml-2 text-blue-500 animate-pulse", children: [
+            "Importing ",
+            importing.current.toLocaleString(),
+            " / ",
+            importing.total.toLocaleString(),
+            "..."
+          ] })
         ] })
       ] }),
       renderList("ip")
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("botSettings.signaturesTitle") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldBan, { size: 18, style: { color: "var(--color-primary)" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("botSettings.signaturesTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-secondary", children: lists.sig.total })
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleClear("sig"), className: "btn btn-ghost btn-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { size: 14 }),
           t("botSettings.clearAll")
@@ -54922,9 +57336,50 @@ const BotSettings = () => {
             style: { fontFamily: "monospace", fontSize: "13px" }
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleAddSigs, className: "btn btn-primary btn-sm", style: { marginTop: "8px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
-          t("botSettings.addSignature")
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2 mt-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => handleAdd("sig"),
+              disabled: importing.active,
+              className: "btn btn-primary btn-sm flex items-center gap-1.5",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
+                t("botSettings.addSignature")
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "file",
+              ref: fileInputSigRef,
+              accept: ".txt,.csv",
+              style: { display: "none" },
+              onChange: (e) => handleFileUpload("sig", e)
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => fileInputSigRef.current?.click(),
+              disabled: importing.active,
+              className: "btn btn-secondary btn-sm flex items-center gap-1.5",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { size: 14 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Upload .txt / .csv" })
+              ]
+            }
+          ),
+          importing.active && importing.type === "sig" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-medium ml-2 text-blue-500 animate-pulse", children: [
+            "Importing ",
+            importing.current.toLocaleString(),
+            " / ",
+            importing.total.toLocaleString(),
+            "..."
+          ] })
         ] })
       ] }),
       renderList("sig")
@@ -60869,7 +63324,8 @@ const UpdatePage = () => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)", marginBottom: "4px" }, children: t("update.latestVersion") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "24px", fontWeight: 600, color: "var(--color-text-primary)" }, children: updateInfo?.latest_version || "—" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "24px", fontWeight: 600, color: "var(--color-text-primary)" }, children: updateInfo?.latest_version || "—" }),
+          updateInfo?.check_failed && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-warning)", maxWidth: "360px" }, children: t("update.checkFailed", "Не удалось проверить обновления на GitHub — «актуальная версия» может быть устаревшей. Обновитесь вручную: SSH → cd /var/www/orbitra && git pull") })
         ] })
       ] })
     ] }),
@@ -62724,54 +65180,40 @@ const CohortView = () => {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("cohort.cohortLabel") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.launched") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.campaignsActive") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.totalClicks") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.conversions") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.totalRevenue") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.totalProfit") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.avgRoi") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.firstSeen") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("cohort.lastSeen") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "left" }, children: t("cohort.cohortLabel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "right" }, children: t("cohort.launched") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "right" }, children: t("cohort.campaignsActive") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "right" }, children: t("cohort.totalClicks") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "right" }, children: t("cohort.conversions") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "right" }, children: t("cohort.totalRevenue") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "right" }, children: t("cohort.totalProfit") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "right" }, children: t("cohort.avgRoi") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "right" }, children: t("cohort.firstSeen") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "right" }, children: t("cohort.lastSeen") })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: summary.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: formatCohortLabel(s.label, granularity, language) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", style: { color: "var(--color-text-muted)" }, children: s.launched }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: s.campaignsActive }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: s.clicks.toLocaleString(LOCALE_TAGS[language] || "en-US") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: s.conversions }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "text-right", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500, textAlign: "left" }, children: formatCohortLabel(s.label, granularity, language) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", color: "var(--color-text-muted)" }, children: s.launched }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: s.campaignsActive }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: s.clicks.toLocaleString(LOCALE_TAGS[language] || "en-US") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: s.conversions }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: [
             "$",
             s.revenue.toFixed(2)
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "td",
-            {
-              className: "text-right",
-              style: { color: s.profit >= 0 ? "var(--color-success)" : "var(--color-danger)" },
-              children: [
-                "$",
-                s.profit.toFixed(2)
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "td",
-            {
-              className: "text-right",
-              style: { color: s.roi >= 0 ? "var(--color-success)" : "var(--color-danger)" },
-              children: [
-                s.roi.toFixed(2),
-                "%"
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "text-right", style: { color: "var(--color-text-muted)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", color: s.profit >= 0 ? "var(--color-success)" : "var(--color-danger)" }, children: [
+            "$",
+            s.profit.toFixed(2)
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", color: s.roi >= 0 ? "var(--color-success)" : "var(--color-danger)" }, children: [
+            s.roi.toFixed(2),
+            "%"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", color: "var(--color-text-muted)" }, children: [
             "M",
             s.firstIdx ?? 0
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "text-right", style: { color: "var(--color-text-muted)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", color: "var(--color-text-muted)" }, children: [
             "M",
             s.lastIdx ?? 0
           ] })
@@ -63353,6 +65795,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [costMatch, setCostMatch] = reactExports.useState(null);
   const [syncingConnId, setSyncingConnId] = reactExports.useState(null);
   const [syncResult, setSyncResult] = reactExports.useState(null);
+  const [showAddCostConnModal, setShowAddCostConnModal] = reactExports.useState(false);
+  const [costConnForm, setCostConnForm] = reactExports.useState({
+    engine: "facebook",
+    name: "",
+    account_id: "",
+    access_token: "",
+    proxy_url: ""
+  });
+  const [savingCostConn, setSavingCostConn] = reactExports.useState(false);
   const [allCampaigns, setAllCampaigns] = reactExports.useState([]);
   const [showTrafficSimModal, setShowTrafficSimModal] = reactExports.useState(false);
   const [trafficSimResult, setTrafficSimResult] = reactExports.useState(null);
@@ -63683,6 +66134,27 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       setSyncResult(`⚠ ${t("common.networkError")}`);
     } finally {
       setSyncingConnId(null);
+    }
+  };
+  const handleSaveCostConnection = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setSavingCostConn(true);
+    try {
+      const res = await axios.post("/api.php?action=save_aggregator_connection", costConnForm);
+      if (res.data.status === "success") {
+        setShowAddCostConnModal(false);
+        setCostConnForm({ engine: "facebook", name: "", account_id: "", access_token: "", proxy_url: "" });
+        const cRes = await axios.get("/api.php?action=aggregator_connections");
+        if (cRes.data.status === "success") {
+          setCostConns((cRes.data.data || []).filter((c) => ["facebook", "google_ads", "tiktok"].includes(c.engine)));
+        }
+      } else {
+        alert(res.data.message || "Error saving cost connection");
+      }
+    } catch (err) {
+      alert("Error saving cost connection");
+    } finally {
+      setSavingCostConn(false);
     }
   };
   const fetchPixels = async () => {
@@ -64610,7 +67082,35 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 padding: "14px 16px",
                 background: "var(--color-bg-card)"
               }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600, fontSize: "14px", color: "var(--color-text-primary)", marginBottom: "10px" }, children: t("costSync.title", "Cost Sync") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 mb-3", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600, fontSize: "14px", color: "var(--color-text-primary)" }, children: t("streamRefine.costSyncTitle", "Cost Sync") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => setShowAddCostConnModal(true),
+                        className: "btn btn-secondary text-xs py-1 px-2.5 rounded-xl flex items-center gap-1.5",
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
+                          t("streamRefine.addCostConnection", "+ Add Cost Connection")
+                        ]
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => setShowCostModal(true),
+                        className: "btn btn-secondary text-xs py-1 px-2.5 rounded-xl flex items-center gap-1.5",
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-3.5 h-3.5" }),
+                          t("streamRefine.updateCostsManually", "Update Costs Manually")
+                        ]
+                      }
+                    )
+                  ] })
+                ] }),
                 costMatch && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
                   padding: "10px 12px",
                   borderRadius: "8px",
@@ -65409,216 +67909,212 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               stream.schema_type === "cloak" && (() => {
                 const sc = stream.schema_custom || {};
                 const setCloakField = (field, value) => updateStream(idx, "schema_custom", { ...sc, [field]: value });
-                return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 rounded-2xl p-3", style: { border: "1px solid var(--color-border)", backgroundColor: "rgba(168, 85, 247, 0.05)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t("cloaking.description") }),
+                const safeMode = sc.safe_mode || (sc.safe_landing_id ? "landing" : sc.safe_html ? "html" : "url");
+                const setSafeMode = (mode) => updateStream(idx, "schema_custom", { ...sc, safe_mode: mode });
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 rounded-2xl p-4", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("cloaking.description") }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("cloaking.detectionLayers") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-3 mt-2", children: [
-                      ["detect_datacenter", t("cloaking.datacenter")],
-                      ["detect_vpn", t("cloaking.vpnProxy")],
-                      ["detect_bots", t("cloaking.bots")],
-                      ["detect_ua", t("cloaking.uaHeuristics")]
-                    ].map(([key, label]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-checkbox-label text-xs", style: { color: "var(--color-text-primary)" }, children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "input",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold uppercase tracking-wider block mb-2", style: { color: "var(--color-text-muted)" }, children: t("streamRefine.detectionLayers", "Bot Protection Layers") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 sm:grid-cols-4 gap-2", children: [
+                      ["detect_datacenter", t("cloaking.datacenter", "Datacenter / ASN")],
+                      ["detect_vpn", t("cloaking.vpnProxy", "VPN / Proxy")],
+                      ["detect_bots", t("cloaking.bots", "Known Bots / Crawlers")],
+                      ["detect_ua", t("cloaking.uaHeuristics", "UA Heuristics")]
+                    ].map(([key, label]) => {
+                      const isChecked = sc[key] !== false;
+                      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "label",
                         {
-                          type: "checkbox",
-                          checked: sc[key] !== false,
-                          onChange: (e) => setCloakField(key, e.target.checked)
-                        }
-                      ),
-                      label
-                    ] }, key)) })
+                          className: "flex items-center gap-2 p-2 rounded-xl border cursor-pointer select-none transition-all text-xs font-medium",
+                          style: {
+                            backgroundColor: isChecked ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                            borderColor: isChecked ? "var(--color-primary)" : "var(--color-border)",
+                            color: isChecked ? "var(--color-primary)" : "var(--color-text-primary)"
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "input",
+                              {
+                                type: "checkbox",
+                                checked: isChecked,
+                                onChange: (e) => setCloakField(key, e.target.checked),
+                                className: "w-3.5 h-3.5 rounded",
+                                style: { accentColor: "var(--color-primary)" }
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
+                          ]
+                        },
+                        key
+                      );
+                    }) })
                   ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-1 block", style: { color: "var(--color-text-muted)" }, children: t("cloaking.sensitivity") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "select",
-                      {
-                        value: sc.sensitivity || "medium",
-                        onChange: (e) => setCloakField("sensitivity", e.target.value),
-                        className: "form-select text-sm",
-                        children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "low", children: t("cloaking.sensitivityLow") }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "medium", children: t("cloaking.sensitivityMedium") }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "high", children: t("cloaking.sensitivityHigh") })
-                        ]
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t("cloaking.sensitivityHint") })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-checkbox-label text-xs", style: { color: "var(--color-text-primary)" }, children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "input",
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-1 block", style: { color: "var(--color-text-muted)" }, children: t("cloaking.sensitivity") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "select",
                         {
-                          type: "checkbox",
-                          checked: Boolean(sc.js_challenge),
-                          onChange: (e) => setCloakField("js_challenge", e.target.checked)
+                          value: sc.sensitivity || "medium",
+                          onChange: (e) => setCloakField("sensitivity", e.target.value),
+                          className: "form-select text-xs py-1.5 rounded-xl",
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "low", children: t("cloaking.sensitivityLow", "Low (Fewer false positives)") }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "medium", children: t("cloaking.sensitivityMedium", "Medium (Recommended balance)") }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "high", children: t("cloaking.sensitivityHigh", "High (Aggressive blocking)") })
+                          ]
                         }
-                      ),
-                      t("cloaking.jsChallenge")
+                      )
                     ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t("cloaking.jsChallengeHint") })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("cloaking.safePage") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t("cloaking.safePageHint") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2 mt-2", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("cloaking.safeLanding") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                          "select",
-                          {
-                            value: sc.safe_landing_id || "",
-                            onChange: (e) => setCloakField("safe_landing_id", e.target.value ? parseInt(e.target.value) : null),
-                            className: "form-select text-sm",
-                            children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("cloaking.safeLandingNone") }),
-                              allLandings.map((al) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: al.id, children: al.name }, al.id))
-                            ]
-                          }
-                        )
-                      ] }),
-                      !sc.safe_landing_id && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("cloaking.safeUrl") }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "input",
-                            {
-                              type: "url",
-                              value: sc.safe_url || "",
-                              onChange: (e) => setCloakField("safe_url", e.target.value),
-                              className: "form-input text-sm",
-                              placeholder: "https://safe-page.example.com"
-                            }
-                          )
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("cloaking.safeHtml") }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "textarea",
-                            {
-                              value: sc.safe_html || "",
-                              onChange: (e) => setCloakField("safe_html", e.target.value),
-                              className: "form-input text-sm",
-                              rows: 3,
-                              placeholder: "<html>...inline safe page HTML...</html>"
-                            }
-                          )
-                        ] })
-                      ] })
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-1 block", style: { color: "var(--color-text-muted)" }, children: t("cloaking.jsChallenge", "Active Browser Verification") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "label",
+                        {
+                          className: "flex items-center gap-2 p-1.5 rounded-xl border cursor-pointer select-none text-xs",
+                          style: {
+                            backgroundColor: Boolean(sc.js_challenge) ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                            borderColor: Boolean(sc.js_challenge) ? "var(--color-primary)" : "var(--color-border)",
+                            color: "var(--color-text-primary)"
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "input",
+                              {
+                                type: "checkbox",
+                                checked: Boolean(sc.js_challenge),
+                                onChange: (e) => setCloakField("js_challenge", e.target.checked),
+                                className: "w-3.5 h-3.5",
+                                style: { accentColor: "var(--color-primary)" }
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("cloaking.jsChallenge", "JS Fingerprint Challenge") })
+                          ]
+                        }
+                      )
                     ] })
                   ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("cloaking.moneyPage") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t("cloaking.moneyPageHint") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.landings") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "landings"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") })
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3.5 rounded-xl space-y-3", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold uppercase tracking-wider", style: { color: "var(--color-text-primary)" }, children: [
+                        "🛡️ ",
+                        t("streamRefine.safePageTitle", "Safe Page (For Reviewers & Bots)")
                       ] }),
-                      (stream.schema_custom?.landings || []).map((l, lIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mb-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex rounded-lg overflow-hidden border", style: { borderColor: "var(--color-border)" }, children: [
+                        ["url", t("streamRefine.tabUrl", "External URL")],
+                        ["landing", t("streamRefine.tabLanding", "Tracker Landing")],
+                        ["html", t("streamRefine.tabHtml", "Inline HTML")]
+                      ].map(([mode, label]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          onClick: () => setSafeMode(mode),
+                          className: "px-2.5 py-1 text-[11px] font-medium transition",
+                          style: {
+                            backgroundColor: safeMode === mode ? "var(--color-primary)" : "var(--color-bg-card)",
+                            color: safeMode === mode ? "#ffffff" : "var(--color-text-secondary)"
+                          },
+                          children: label
+                        },
+                        mode
+                      )) })
+                    ] }),
+                    safeMode === "url" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "url",
+                        value: sc.safe_url || "",
+                        onChange: (e) => setCloakField("safe_url", e.target.value),
+                        className: "form-input text-xs font-mono py-1.5 rounded-xl",
+                        placeholder: "https://safe-white-page.com"
+                      }
+                    ) }),
+                    safeMode === "landing" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "select",
+                      {
+                        value: sc.safe_landing_id || "",
+                        onChange: (e) => setCloakField("safe_landing_id", e.target.value ? parseInt(e.target.value) : null),
+                        className: "form-select text-xs py-1.5 rounded-xl",
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("cloaking.safeLandingNone", "Select a Safe Landing...") }),
+                          allLandings.map((al) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: al.id, children: al.name }, al.id))
+                        ]
+                      }
+                    ) }),
+                    safeMode === "html" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "textarea",
+                      {
+                        value: sc.safe_html || "",
+                        onChange: (e) => setCloakField("safe_html", e.target.value),
+                        className: "form-input text-xs font-mono py-1.5 rounded-xl",
+                        rows: 3,
+                        placeholder: "<!DOCTYPE html><html><body><h1>Welcome</h1></body></html>"
+                      }
+                    ) })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3.5 rounded-xl space-y-3", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold uppercase tracking-wider block", style: { color: "var(--color-text-primary)" }, children: [
+                      "💰 ",
+                      t("streamRefine.moneyPageTitle", "Money Page (For Real Visitors)")
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-1.5", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("editor.landings") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => addSchemaItem(idx, "landings"), className: "text-xs text-blue-500 hover:underline", children: [
+                          "+ ",
+                          t("editor.add")
+                        ] })
+                      ] }),
+                      (sc.landings || []).map((l, lIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-center mb-1.5", children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsxs(
                           "select",
                           {
                             value: l.id,
                             onChange: (e) => updateSchemaItem(idx, "landings", lIdx, "id", parseInt(e.target.value)),
-                            className: "form-select text-sm",
+                            className: "form-select text-xs flex-1 rounded-xl",
                             children: [
                               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.landingInfo") }),
                               allLandings.map((al) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: al.id, children: al.name }, al.id))
                             ]
                           }
                         ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "input",
-                            {
-                              type: "number",
-                              value: list.length === 1 ? 100 : l.weight,
-                              disabled: list.length === 1,
-                              onChange: (e) => updateSchemaItem(idx, "landings", lIdx, "weight", parseInt(e.target.value)),
-                              className: "w-16 text-center rounded-lg px-1 py-1 text-sm",
-                              style: { backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)", border: "1px solid var(--color-border)", color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)" },
-                              title: t("editor.weight")
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchemaItem(idx, "landings", lIdx), className: "action-btn text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }) })
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "input",
+                          {
+                            type: "number",
+                            value: list.length === 1 ? 100 : l.weight,
+                            disabled: list.length === 1,
+                            onChange: (e) => updateSchemaItem(idx, "landings", lIdx, "weight", parseInt(e.target.value)),
+                            className: "w-14 text-center rounded-xl px-1 py-1 text-xs",
+                            style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" },
+                            title: t("editor.weight")
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => removeSchemaItem(idx, "landings", lIdx), className: "btn-icon text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }) })
                       ] }, lIdx))
                     ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3 mt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "offers"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") })
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-1.5", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("editor.offers") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => addSchemaItem(idx, "offers"), className: "text-xs text-blue-500 hover:underline", children: [
+                          "+ ",
+                          t("editor.add")
+                        ] })
                       ] }),
-                      (stream.schema_custom?.offers || []).map((o, oIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mb-2", children: [
+                      (sc.offers || []).map((o, oIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-center mb-1.5", children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsxs(
                           "select",
                           {
                             value: o.id,
                             onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "id", parseInt(e.target.value)),
-                            className: "form-select text-sm",
+                            className: "form-select text-xs flex-1 rounded-xl",
                             children: [
                               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.offerInfo") }),
                               allOffers.map((ao) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: ao.id, children: ao.name }, ao.id))
                             ]
                           }
                         ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "input",
-                            {
-                              type: "number",
-                              value: list.length === 1 ? 100 : o.weight,
-                              disabled: list.length === 1,
-                              onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "weight", parseInt(e.target.value)),
-                              className: "w-16 text-center rounded-lg px-1 py-1 text-sm",
-                              style: { backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)", border: "1px solid var(--color-border)", color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)" },
-                              title: t("editor.weight")
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchemaItem(idx, "offers", oIdx), className: "action-btn text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }) })
-                      ] }, oIdx))
-                    ] })
-                  ] })
-                ] });
-              })(),
-              stream.schema_type === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-2xl p-3", style: { border: "1px solid var(--color-border)", backgroundColor: "rgba(59, 130, 246, 0.05)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2 items-center", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => addSchemaItem(idx, "offers"), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.add") })
-                ] }),
-                (() => {
-                  const offers = stream.schema_custom?.offers || [];
-                  const totalWeight = offers.reduce((sum, o) => sum + (parseInt(o.weight) || 0), 0);
-                  const isOverWeight = totalWeight > 100 && offers.length > 1;
-                  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    offers.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-center py-2", style: { color: "var(--color-text-muted)" }, children: t("editor.addOffersHelp") }),
-                    isOverWeight && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs rounded-lg p-2", style: { color: "var(--color-warning)", backgroundColor: "var(--color-warning-bg)", border: "1px solid var(--color-warning)" }, children: [
-                      t("editor.weightWarning"),
-                      " ",
-                      totalWeight,
-                      t("editor.weightWarningEnd")
-                    ] }),
-                    offers.map((o, oIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mb-2", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        "select",
-                        {
-                          value: o.id,
-                          onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "id", parseInt(e.target.value)),
-                          className: "form-select text-sm",
-                          children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.offerInfo") }),
-                            allOffers.map((ao) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: ao.id, children: ao.name }, ao.id))
-                          ]
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx(
                           "input",
                           {
@@ -65626,24 +68122,156 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             value: list.length === 1 ? 100 : o.weight,
                             disabled: list.length === 1,
                             onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "weight", parseInt(e.target.value)),
-                            className: "w-16 text-center rounded-lg px-1 py-1 text-sm",
-                            style: {
-                              backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)",
-                              border: `1px solid ${isOverWeight ? "var(--color-warning)" : "var(--color-border)"}`,
-                              color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)"
-                            },
-                            title: t("editor.weight"),
-                            max: "100",
-                            min: "1"
+                            className: "w-14 text-center rounded-xl px-1 py-1 text-xs",
+                            style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" },
+                            title: t("editor.weight")
                           }
                         ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
-                      ] }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeSchemaItem(idx, "offers", oIdx), className: "action-btn text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }) })
-                    ] }, oIdx))
-                  ] });
-                })()
-              ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => removeSchemaItem(idx, "offers", oIdx), className: "btn-icon text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }) })
+                      ] }, oIdx))
+                    ] })
+                  ] })
+                ] });
+              })(),
+              stream.schema_type === "redirect" && (() => {
+                const sc = stream.schema_custom || {};
+                const isDirectUrl = sc.redirect_mode === "direct_url" || !!sc.direct_url;
+                const setRedirectMode = (mode) => {
+                  updateStream(idx, "schema_custom", { ...sc, redirect_mode: mode });
+                };
+                const setDirectUrl = (url) => {
+                  updateStream(idx, "schema_custom", { ...sc, redirect_mode: "direct_url", direct_url: url });
+                };
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 rounded-2xl p-4", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-1.5 block", style: { color: "var(--color-text-muted)" }, children: t("streamRefine.directMode", "Destination Type") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex rounded-xl overflow-hidden max-w-sm", style: { border: "1px solid var(--color-border)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          onClick: () => setRedirectMode("offers"),
+                          className: "flex-1 px-3 py-1.5 text-xs font-medium transition",
+                          style: {
+                            backgroundColor: !isDirectUrl ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                            color: !isDirectUrl ? "var(--color-primary)" : "var(--color-text-secondary)",
+                            borderRight: "1px solid var(--color-border)"
+                          },
+                          children: t("streamRefine.trackerOffer", "Tracker Offer")
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          onClick: () => setRedirectMode("direct_url"),
+                          className: "flex-1 px-3 py-1.5 text-xs font-medium transition",
+                          style: {
+                            backgroundColor: isDirectUrl ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                            color: isDirectUrl ? "var(--color-primary)" : "var(--color-text-secondary)"
+                          },
+                          children: t("streamRefine.directUrl", "Direct URL")
+                        }
+                      )
+                    ] })
+                  ] }),
+                  isDirectUrl ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("streamRefine.directUrl", "Direct Target URL") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "url",
+                        value: sc.direct_url || "",
+                        onChange: (e) => setDirectUrl(e.target.value),
+                        placeholder: t("streamRefine.directUrlPlaceholder", "https://affiliate-offer.com/?subid={subid}&clickid={clickid}"),
+                        className: "form-input text-xs font-mono py-2 rounded-xl"
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("streamRefine.directUrlHelp") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5 pt-1", children: ["{subid}", "{clickid}", "{country}", "{ip}", "{sub_id_1}", "{sub_id_2}", "{sub_id_3}", "{cost}"].map((tag) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => setDirectUrl((sc.direct_url || "") + (sc.direct_url?.includes("?") ? "&" : "?") + `${tag.slice(1, -1)}=${tag}`),
+                        className: "text-[11px] px-2 py-0.5 rounded-lg border font-mono transition-colors hover:border-blue-400",
+                        style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-secondary)" },
+                        children: [
+                          "+ ",
+                          tag
+                        ]
+                      },
+                      tag
+                    )) })
+                  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "button",
+                        {
+                          type: "button",
+                          onClick: () => addSchemaItem(idx, "offers"),
+                          className: "btn btn-secondary text-xs py-1 px-2.5 rounded-xl flex items-center gap-1",
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3 h-3" }),
+                            t("editor.add")
+                          ]
+                        }
+                      )
+                    ] }),
+                    (() => {
+                      const offers = sc.offers || [];
+                      const totalWeight = offers.reduce((sum, o) => sum + (parseInt(o.weight) || 0), 0);
+                      const isOverWeight = totalWeight > 100 && offers.length > 1;
+                      return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                        offers.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-center py-4 rounded-xl border border-dashed", style: { color: "var(--color-text-muted)", borderColor: "var(--color-border)" }, children: t("editor.addOffersHelp") }),
+                        isOverWeight && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs rounded-lg p-2", style: { color: "var(--color-warning)", backgroundColor: "var(--color-warning-bg)", border: "1px solid var(--color-warning)" }, children: [
+                          t("editor.weightWarning"),
+                          " ",
+                          totalWeight,
+                          t("editor.weightWarningEnd")
+                        ] }),
+                        offers.map((o, oIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 items-center", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                            "select",
+                            {
+                              value: o.id,
+                              onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "id", parseInt(e.target.value)),
+                              className: "form-select text-xs flex-1 rounded-xl",
+                              children: [
+                                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.offerInfo") }),
+                                allOffers.map((ao) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: ao.id, children: ao.name }, ao.id))
+                              ]
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "input",
+                              {
+                                type: "number",
+                                value: list.length === 1 ? 100 : o.weight,
+                                disabled: list.length === 1,
+                                onChange: (e) => updateSchemaItem(idx, "offers", oIdx, "weight", parseInt(e.target.value)),
+                                className: "w-16 text-center rounded-xl px-1 py-1.5 text-xs font-semibold",
+                                style: {
+                                  backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)",
+                                  border: `1px solid ${isOverWeight ? "var(--color-warning)" : "var(--color-border)"}`,
+                                  color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)"
+                                },
+                                title: t("editor.weight"),
+                                max: "100",
+                                min: "1"
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
+                          ] }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => removeSchemaItem(idx, "offers", oIdx), className: "btn-icon text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
+                        ] }, oIdx))
+                      ] });
+                    })()
+                  ] })
+                ] });
+              })(),
               stream.type !== "fallback" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between mb-2", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: t("editor.filters") }),
@@ -65784,6 +68412,105 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-2", style: { color: "var(--color-text-secondary)" }, children: log.created_at }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "whitespace-pre-wrap", style: { color: "var(--color-text-primary)" }, children: log.log_text })
       ] }, idx)) }) })
+    ] }) }),
+    showAddCostConnModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content max-w-md w-full rounded-2xl shadow-2xl p-6", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between pb-3 mb-4", style: { borderBottom: "1px solid var(--color-border)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-bold", style: { color: "var(--color-text-primary)" }, children: t("streamRefine.addCostConnection", "+ Add Cost Connection") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowAddCostConnModal(false), className: "btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSaveCostConnection, className: "space-y-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label text-xs", children: t("editor.trafficSource", "Platform / Engine") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: costConnForm.engine,
+              onChange: (e) => setCostConnForm({ ...costConnForm, engine: e.target.value }),
+              className: "form-select text-xs py-2 rounded-xl",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "facebook", children: "Facebook Ads (Graph API / Marketing API)" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "google_ads", children: "Google Ads" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tiktok", children: "TikTok Ads" })
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label text-xs", children: t("editor.name", "Connection Name") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              required: true,
+              value: costConnForm.name,
+              onChange: (e) => setCostConnForm({ ...costConnForm, name: e.target.value }),
+              placeholder: "e.g. FB Ad Account Main",
+              className: "form-input text-xs py-2 rounded-xl"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label text-xs", children: "Ad Account ID" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              required: true,
+              value: costConnForm.account_id,
+              onChange: (e) => setCostConnForm({ ...costConnForm, account_id: e.target.value }),
+              placeholder: "act_1234567890",
+              className: "form-input text-xs font-mono py-2 rounded-xl"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label text-xs", children: "Access Token" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "password",
+              required: true,
+              value: costConnForm.access_token,
+              onChange: (e) => setCostConnForm({ ...costConnForm, access_token: e.target.value }),
+              placeholder: "EAA...",
+              className: "form-input text-xs font-mono py-2 rounded-xl"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label text-xs", children: "Proxy (Optional)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: costConnForm.proxy_url,
+              onChange: (e) => setCostConnForm({ ...costConnForm, proxy_url: e.target.value }),
+              placeholder: "http://user:pass@host:port",
+              className: "form-input text-xs font-mono py-2 rounded-xl"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2 pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: () => setShowAddCostConnModal(false),
+              className: "btn btn-ghost text-xs py-1.5 px-3 rounded-xl",
+              children: t("common.cancel")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "submit",
+              disabled: savingCostConn,
+              className: "btn btn-primary text-xs py-1.5 px-4 rounded-xl font-semibold",
+              children: savingCostConn ? t("common.saving") : t("common.save")
+            }
+          )
+        ] })
+      ] })
     ] }) }),
     showCostModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
@@ -76840,6 +79567,8 @@ function App() {
         params.append("custom_from", fDate(dashboardFilters.custom_from));
         params.append("custom_to", fDate(dashboardFilters.custom_to));
       }
+      const dashTz = localStorage.getItem("orbitra_tz");
+      if (dashTz) params.append("timezone", dashTz);
       const pStr = params.toString() ? `&${params.toString()}` : "";
       const [resMetrics, resChart, resCampaigns, resOffers, resLogs, resLandings, resSources] = await Promise.all([
         axios.get(`${API_URL}?action=metrics${pStr}`),

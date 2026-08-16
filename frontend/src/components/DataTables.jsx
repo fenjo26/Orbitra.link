@@ -24,13 +24,13 @@ const TableWidget = ({ title, data, t }) => {
                 <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{data?.length || 0} {t('dataTables.records')}</span>
             </div>
             <div className="overflow-y-auto flex-1 h-full">
-                <table className="w-full text-left text-sm whitespace-nowrap">
+                <table className="w-full text-sm whitespace-nowrap" style={{ tableLayout: 'fixed' }}>
                     <thead className="sticky top-0 z-10 shadow-sm" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
                         <tr>
-                            <th className="px-4 py-2.5 text-xs font-semibold border-b" style={{ color: 'var(--color-text-secondary)', borderColor: 'var(--color-border)' }}>{t('dashboard.tableName')}</th>
-                            <th className="px-4 py-2.5 text-xs font-semibold border-b text-right" style={{ color: 'var(--color-text-secondary)', borderColor: 'var(--color-border)' }}>{t('metrics.clicks')}</th>
-                            <th className="px-4 py-2.5 text-xs font-semibold border-b text-right" style={{ color: 'var(--color-text-secondary)', borderColor: 'var(--color-border)' }}>{t('dashboard.tableUnique')}</th>
-                            <th className="px-4 py-2.5 text-xs font-semibold border-b text-right" style={{ color: 'var(--color-text-secondary)', borderColor: 'var(--color-border)' }}>{t('dashboard.tableConv')}</th>
+                            <th className="px-4 py-2.5 text-xs font-semibold border-b text-left" style={{ width: '46%', color: 'var(--color-text-secondary)', borderColor: 'var(--color-border)', textAlign: 'left' }}>{t('dashboard.tableName')}</th>
+                            <th className="px-4 py-2.5 text-xs font-semibold border-b text-right" style={{ width: '18%', color: 'var(--color-text-secondary)', borderColor: 'var(--color-border)', textAlign: 'right' }}>{t('metrics.clicks')}</th>
+                            <th className="px-4 py-2.5 text-xs font-semibold border-b text-right" style={{ width: '18%', color: 'var(--color-text-secondary)', borderColor: 'var(--color-border)', textAlign: 'right' }}>{t('dashboard.tableUnique')}</th>
+                            <th className="px-4 py-2.5 text-xs font-semibold border-b text-right" style={{ width: '18%', color: 'var(--color-text-secondary)', borderColor: 'var(--color-border)', textAlign: 'right' }}>{t('dashboard.tableConv')}</th>
                         </tr>
                     </thead>
                     <tbody style={{ divideColor: 'var(--color-border)' }}>
@@ -41,10 +41,10 @@ const TableWidget = ({ title, data, t }) => {
                         )}
                         {data && data.slice(0, 10).map((row, idx) => (
                             <tr key={row.id || idx} className="hover:bg-blue-50/10 transition duration-150 group">
-                                <td className="px-4 py-2.5 font-medium group-hover:text-blue-600 cursor-pointer truncate max-w-[200px]" style={{ color: 'var(--color-text-primary)' }}>{row.name}</td>
-                                <td className="px-4 py-2.5 text-right" style={{ color: 'var(--color-text-secondary)' }}>{row.clicks || 0}</td>
-                                <td className="px-4 py-2.5 text-right" style={{ color: 'var(--color-text-secondary)' }}>{row.unique_clicks || 0}</td>
-                                <td className="px-4 py-2.5 font-medium text-right" style={{ color: 'var(--color-success)' }}>{row.conversions || 0}</td>
+                                <td className="px-4 py-2.5 font-medium group-hover:text-blue-600 cursor-pointer truncate text-left" style={{ width: '46%', color: 'var(--color-text-primary)', textAlign: 'left' }}>{row.name}</td>
+                                <td className="px-4 py-2.5 text-right" style={{ width: '18%', color: 'var(--color-text-secondary)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{row.clicks || 0}</td>
+                                <td className="px-4 py-2.5 text-right" style={{ width: '18%', color: 'var(--color-text-secondary)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{row.unique_clicks || 0}</td>
+                                <td className="px-4 py-2.5 font-medium text-right" style={{ width: '18%', color: 'var(--color-success)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{row.conversions || 0}</td>
                             </tr>
                         ))}
                     </tbody>

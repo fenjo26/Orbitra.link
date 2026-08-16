@@ -500,6 +500,10 @@ CREATE INDEX idx_affiliate_networks_is_archived ON affiliate_networks(is_archive
 CREATE INDEX idx_campaign_postbacks_campaign_id ON campaign_postbacks(campaign_id);
 CREATE INDEX idx_campaigns_is_archived ON campaigns(is_archived);
 CREATE INDEX idx_cost_records_conn ON cost_records(connection_id, external_id);
+CREATE INDEX idx_conversions_click ON conversions(click_id);
+CREATE INDEX idx_conversions_click_status ON conversions(click_id, status);
+CREATE INDEX idx_clicks_campaign_created ON clicks(campaign_id, created_at);
+CREATE INDEX idx_revenue_records_click ON revenue_records(click_id);
 CREATE INDEX idx_cost_records_date ON cost_records(click_date);
 CREATE INDEX idx_domains_dns_status ON domains(dns_status);
 CREATE UNIQUE INDEX idx_oauth_tokens_provider_conn ON oauth_tokens(provider, connection_id);

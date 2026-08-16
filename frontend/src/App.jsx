@@ -289,6 +289,10 @@ function App() {
         params.append('custom_from', fDate(dashboardFilters.custom_from));
         params.append('custom_to', fDate(dashboardFilters.custom_to));
       }
+      // The date-range picker persists its timezone here; the API shifts every
+      // date condition by it, so without this param the selector was decorative.
+      const dashTz = localStorage.getItem('orbitra_tz');
+      if (dashTz) params.append('timezone', dashTz);
 
       const pStr = params.toString() ? `&${params.toString()}` : '';
 

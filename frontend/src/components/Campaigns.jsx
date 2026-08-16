@@ -1,14 +1,16 @@
-import React, { useState, useMemo } from 'react';
-import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Filter, RefreshCw, X, Copy, BarChart2 } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Filter, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import GroupsModal from './GroupsModal';
 import CampaignReports from './CampaignReports';
+import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
+import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS } from './ReportCustomizerModal';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
 
-const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId }) => {
+const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, setEditingCampaignId }) => {
     const { t } = useLanguage();
     const [actionModal, setActionModal] = useState({ type: null, campaignId: null });
     const [selectedCampaignIds, setSelectedCampaignIds] = useState(() => new Set());
@@ -19,6 +21,96 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     const [refreshing, setRefreshing] = useState(false);
     const [showGroupsModal, setShowGroupsModal] = useState(false);
     const [showGlobalReports, setShowGlobalReports] = useState(false);
+
+    // Date & Timezone Range Picker State
+    const todayPreset = getPresetDates('today');
+    const [dateFrom, setDateFrom] = useState(todayPreset?.from || formatDate(new Date()));
+    const [dateTo, setDateTo] = useState(todayPreset?.to || formatDate(new Date()));
+    const [timezone, setTimezone] = useState(() => localStorage.getItem('orbitra_tz') || 'UTC');
+
+    // Group Filtering State
+    const [groups, setGroups] = useState([]);
+    const [selectedGroupId, setSelectedGroupId] = useState('');
+
+    // Active Campaign Data (fetched with date & group parameters)
+    const [campaignList, setCampaignList] = useState(initialCampaigns || []);
+
+    // Column Customizer State & Presets
+    const [columnsFilterOpen, setColumnsFilterOpen] = useState(false);
+    const [chosenColumns, setChosenColumns] = useState(() => {
+        try {
+            const saved = localStorage.getItem('orbitra_campaign_columns');
+            if (saved) return JSON.parse(saved);
+        } catch (e) {}
+        return [...PRESETS.best];
+    });
+
+    // Header Drag-and-Drop state
+    const [thDragIdx, setThDragIdx] = useState(null);
+
+    // Fetch groups on mount
+    useEffect(() => {
+        axios.get(`${API_URL}?action=groups`)
+            .then(res => {
+                if (res.data.status === 'success') {
+                    setGroups(res.data.data || []);
+                }
+            })
+            .catch(() => {});
+    }, []);
+
+    // Fetch campaigns with date_from, date_to, group_id
+    const fetchCampaigns = async () => {
+        setRefreshing(true);
+        try {
+            const params = {
+                date_from: dateFrom,
+                date_to: dateTo
+            };
+            if (selectedGroupId) params.group_id = selectedGroupId;
+            const res = await axios.get(`${API_URL}?action=campaigns`, { params });
+            if (res.data.status === 'success') {
+                setCampaignList(res.data.data || []);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCampaigns();
+    }, [dateFrom, dateTo, selectedGroupId]);
+
+    const handleDateChange = (from, to) => {
+        setDateFrom(from);
+        setDateTo(to);
+    };
+
+    const handleSaveColumns = (cols) => {
+        setChosenColumns(cols);
+        localStorage.setItem('orbitra_campaign_columns', JSON.stringify(cols));
+    };
+
+    const handleThDragStart = (idx) => {
+        setThDragIdx(idx);
+    };
+
+    const handleThDragOver = (e, idx) => {
+        e.preventDefault();
+        if (thDragIdx === null || thDragIdx === idx) return;
+        const copy = [...chosenColumns];
+        const item = copy.splice(thDragIdx, 1)[0];
+        copy.splice(idx, 0, item);
+        setThDragIdx(idx);
+        setChosenColumns(copy);
+        localStorage.setItem('orbitra_campaign_columns', JSON.stringify(copy));
+    };
+
+    const handleThDragEnd = () => {
+        setThDragIdx(null);
+    };
 
     const handleCreate = () => {
         setEditingCampaignId(null);
@@ -34,7 +126,8 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         if (window.confirm(t('campaigns.deleteConfirm'))) {
             try {
                 await axios.post(`${API_URL}?action=delete_campaign`, { id });
-                refreshData();
+                fetchCampaigns();
+                if (refreshData) refreshData();
             } catch (err) {
                 alert(t('common.deleteError'));
             }
@@ -52,48 +145,116 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
 
     const filteredCampaigns = useMemo(() => {
         const q = String(search || '').trim().toLowerCase();
-        if (!q) return campaigns;
-        return campaigns.filter(c => {
+        if (!q) return campaignList;
+        return campaignList.filter(c => {
             const n = String(c.name || '').toLowerCase();
             const a = String(c.alias || '').toLowerCase();
             return n.includes(q) || a.includes(q);
         });
-    }, [campaigns, search]);
+    }, [campaignList, search]);
 
     const visibleCampaigns = useMemo(() => {
         if (!sortBy.key) return filteredCampaigns;
         const dirMul = sortBy.dir === 'asc' ? 1 : -1;
 
-        const getVal = (c) => {
-            switch (sortBy.key) {
-                case 'id': return Number(c.id) || 0;
-                case 'name': return String(c.name || '');
-                case 'group_name': return String(c.group_name || '');
-                case 'clicks': return Number(c.clicks) || 0;
-                case 'unique_clicks': return Number(c.unique_clicks) || 0;
-                case 'conversions': return Number(c.conversions) || 0;
-                default: return '';
-            }
-        };
-
-        const isNumeric = ['id', 'clicks', 'unique_clicks', 'conversions'].includes(sortBy.key);
-
         return filteredCampaigns
             .map((camp, idx) => ({ camp, idx }))
             .sort((a, b) => {
-                const av = getVal(a.camp);
-                const bv = getVal(b.camp);
+                const av = a.camp[sortBy.key];
+                const bv = b.camp[sortBy.key];
                 let cmp = 0;
-                if (isNumeric) {
+                if (typeof av === 'number' || typeof bv === 'number' || !isNaN(Number(av))) {
                     cmp = (Number(av) || 0) - (Number(bv) || 0);
                 } else {
-                    cmp = String(av).localeCompare(String(bv), undefined, { sensitivity: 'base' });
+                    cmp = String(av || '').localeCompare(String(bv || ''), undefined, { sensitivity: 'base' });
                 }
                 if (cmp !== 0) return cmp * dirMul;
                 return a.idx - b.idx; // stable
             })
             .map(x => x.camp);
     }, [filteredCampaigns, sortBy]);
+
+    // Grand Totals Calculation across all visible campaigns
+    const grandTotals = useMemo(() => {
+        const t0 = {
+            clicks: 0,
+            unique_clicks: 0,
+            prelander_clicks: 0,
+            offer_clicks: 0,
+            conversions: 0,
+            purchases: 0,
+            holds: 0,
+            rejected: 0,
+            trash: 0,
+            cost: 0,
+            revenue: 0,
+            revenue_confirmed: 0,
+            revenue_hold: 0,
+            revenue_rejected: 0,
+            revenue_trash: 0,
+            profit: 0,
+            real_revenue: 0,
+            real_profit: 0,
+        };
+
+        visibleCampaigns.forEach(c => {
+            t0.clicks += Number(c.clicks) || 0;
+            t0.unique_clicks += Number(c.unique_clicks) || 0;
+            t0.prelander_clicks += Number(c.prelander_clicks) || 0;
+            t0.offer_clicks += Number(c.offer_clicks) || 0;
+            t0.conversions += Number(c.conversions) || 0;
+            t0.purchases += Number(c.purchases) || 0;
+            t0.holds += Number(c.holds) || 0;
+            t0.rejected += Number(c.rejected) || 0;
+            t0.trash += Number(c.trash) || 0;
+            t0.cost += Number(c.cost) || 0;
+            t0.revenue += Number(c.revenue) || 0;
+            t0.revenue_confirmed += Number(c.revenue_confirmed) || 0;
+            t0.revenue_hold += Number(c.revenue_hold) || 0;
+            t0.revenue_rejected += Number(c.revenue_rejected) || 0;
+            t0.revenue_trash += Number(c.revenue_trash) || 0;
+            t0.profit += Number(c.profit) || (Number(c.revenue || 0) - Number(c.cost || 0));
+            t0.real_revenue += Number(c.real_revenue) || 0;
+            t0.real_profit += Number(c.real_profit) || 0;
+        });
+
+        // Calculated composite metrics
+        const uc_rate = t0.clicks > 0 ? (t0.unique_clicks / t0.clicks) * 100 : 0;
+        const lp_ctr = t0.clicks > 0 ? (t0.offer_clicks / t0.clicks) * 100 : 0;
+        const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;
+        const cr_sales = t0.clicks > 0 ? (t0.purchases / t0.clicks) * 100 : 0;
+        const cr_holds = t0.clicks > 0 ? (t0.holds / t0.clicks) * 100 : 0;
+        const approve_rate = t0.conversions > 0 ? (t0.purchases / t0.conversions) * 100 : 0;
+        const nonTrash = t0.purchases + t0.holds + t0.rejected;
+        const approve_rate_excl_trash = nonTrash > 0 ? (t0.purchases / nonTrash) * 100 : 0;
+        const roi = t0.cost > 0 ? (t0.profit / t0.cost) * 100 : 0;
+        const real_roi = t0.cost > 0 ? (t0.real_profit / t0.cost) * 100 : 0;
+        const epc = t0.clicks > 0 ? t0.revenue / t0.clicks : 0;
+        const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
+        const cpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+        const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
+        const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
+        const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
+
+        return {
+            ...t0,
+            uc_rate,
+            lp_ctr,
+            cr,
+            cr_sales,
+            cr_holds,
+            approve_rate,
+            approve_rate_excl_trash,
+            roi,
+            real_roi,
+            epc,
+            uepc,
+            cpc,
+            ucpc,
+            cpa,
+            earnings_per_conv
+        };
+    }, [visibleCampaigns]);
 
     const toggleSelected = (id, checked) => {
         setSelectedCampaignIds(prev => {
@@ -127,7 +288,8 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         try {
             await axios.post(`${API_URL}?action=bulk_delete_campaigns`, { ids });
             setSelectedCampaignIds(new Set());
-            refreshData();
+            fetchCampaigns();
+            if (refreshData) refreshData();
         } catch (err) {
             alert(t('common.deleteError'));
         }
@@ -154,7 +316,8 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
 
         if (successCount > 0) {
             alert(`${t('campaigns.copied')}: ${successCount}`);
-            refreshData();
+            fetchCampaigns();
+            if (refreshData) refreshData();
         }
         if (errorCount > 0) {
             alert(`${t('campaigns.copyErrors')}: ${errorCount}`);
@@ -164,23 +327,39 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
     };
 
     const SortIcon = ({ colKey }) => {
-        if (sortBy.key !== colKey) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-60" />;
+        if (sortBy.key !== colKey) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-40" />;
         return sortBy.dir === 'asc'
-            ? <ChevronUp className="w-3.5 h-3.5" />
-            : <ChevronDown className="w-3.5 h-3.5" />;
+            ? <ChevronUp className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
+            : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />;
     };
 
-    const SortableTh = ({ colKey, label, defaultDir = 'asc', alignRight = false }) => {
+    const SortableTh = ({ colKey, label, defaultDir = 'asc', alignRight = false, draggable = false, onDragStart, onDragOver, onDragEnd }) => {
         const isActive = sortBy.key === colKey;
         return (
-            <th className={alignRight ? 'text-right' : ''} aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+            <th
+                className={alignRight ? 'text-right' : 'text-left'}
+                aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                draggable={draggable}
+                onDragStart={onDragStart}
+                onDragOver={onDragOver}
+                onDragEnd={onDragEnd}
+                style={{
+                    textAlign: alignRight ? 'right' : 'left',
+                    cursor: draggable ? 'grab' : 'pointer',
+                    userSelect: 'none'
+                }}
+            >
                 <button
                     type="button"
                     onClick={() => requestSort(colKey, defaultDir)}
-                    className={`inline-flex items-center gap-1 select-none ${alignRight ? 'justify-end w-full' : ''}`}
-                    style={{ color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }}
+                    className={`inline-flex items-center gap-1 text-xs font-semibold ${alignRight ? 'justify-end w-full' : ''}`}
+                    style={{
+                        color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                        textAlign: alignRight ? 'right' : 'left'
+                    }}
                     title={t('common.sort', 'Sort')}
                 >
+                    {draggable && <GripVertical className="w-3 h-3 opacity-30 -ml-1 cursor-grab" />}
                     <span>{label}</span>
                     <SortIcon colKey={colKey} />
                 </button>
@@ -188,53 +367,72 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
         );
     };
 
-    const exportVisibleCsv = () => {
-        const cols = [
-            { key: 'id', label: 'id' },
-            { key: 'name', label: 'name' },
-            { key: 'alias', label: 'alias' },
-            { key: 'group_name', label: 'group' },
-            { key: 'source_name', label: 'source' },
-            { key: 'clicks', label: 'clicks' },
-            { key: 'unique_clicks', label: 'unique_clicks' },
-            { key: 'conversions', label: 'conversions' },
-        ];
+    const formatMetricCell = (metricId, row) => {
+        const val = row[metricId];
+        const num = Number(val) || 0;
 
-        const escape = (v) => {
-            const s = v === null || v === undefined ? '' : String(v);
-            if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
-            return s;
-        };
-
-        const header = cols.map(c => escape(c.label)).join(',');
-        const lines = visibleCampaigns.map(c => cols.map(col => escape(c[col.key])).join(','));
-        const csv = [header, ...lines].join('\n');
-
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `campaigns_${new Date().toISOString().slice(0, 10)}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-    };
-
-    const handleRefresh = async () => {
-        if (refreshing) return;
-        setRefreshing(true);
-        try {
-            await Promise.resolve(refreshData?.());
-        } finally {
-            setRefreshing(false);
+        switch (metricId) {
+            case 'clicks':
+            case 'unique_clicks':
+            case 'prelander_clicks':
+            case 'offer_clicks':
+            case 'purchases':
+            case 'holds':
+            case 'rejected':
+            case 'trash':
+                return num.toLocaleString();
+            case 'conversions':
+                return num > 0 ? <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span> : '0';
+            case 'uc_rate':
+            case 'lp_ctr':
+            case 'cr':
+            case 'cr_sales':
+            case 'cr_holds':
+            case 'approve_rate':
+            case 'approve_rate_excl_trash':
+                return `${num.toFixed(2)}%`;
+            case 'cost':
+            case 'revenue':
+            case 'revenue_confirmed':
+            case 'revenue_hold':
+            case 'revenue_rejected':
+            case 'revenue_trash':
+            case 'real_revenue':
+            case 'epc':
+            case 'uepc':
+            case 'cpc':
+            case 'ucpc':
+            case 'cpa':
+            case 'earnings_per_conv':
+                return `$${num.toFixed(2)}`;
+            case 'profit':
+            case 'real_profit': {
+                const isPos = num >= 0;
+                return (
+                    <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
+                        {isPos ? '+' : ''}${num.toFixed(2)}
+                    </span>
+                );
+            }
+            case 'roi':
+            case 'real_roi': {
+                const isPos = num >= 0;
+                return (
+                    <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
+                        {isPos ? '+' : ''}{num.toFixed(2)}%
+                    </span>
+                );
+            }
+            default:
+                return val !== undefined && val !== null ? String(val) : '-';
         }
     };
 
     const handleClearStats = async () => {
         try {
             await axios.post(`${API_URL}?action=clear_stats`, { campaign_id: actionModal.campaignId });
-            refreshData();
+            fetchCampaigns();
+            if (refreshData) refreshData();
             setActionModal({ type: null, campaignId: null });
         } catch (err) {
             alert(t('common.clearError'));
@@ -255,7 +453,8 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
             const res = await axios.post(`${API_URL}?action=update_costs`, data);
             if (res.data.status === 'success') {
                 alert(t('campaigns.updatedClicks').replace('{count}', res.data.updated_clicks));
-                refreshData();
+                fetchCampaigns();
+                if (refreshData) refreshData();
                 setActionModal({ type: null, campaignId: null });
             } else {
                 alert(res.data.message);
@@ -270,89 +469,136 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
             <InfoBanner storageKey="help_campaigns" title={t('help.campaignBannerTitle')}>
                 <p>{t('help.campaignBanner')}</p>
             </InfoBanner>
-            <div className="page-header">
-                <div className="flex flex-wrap gap-3">
-                    <button onClick={handleCreate} className="btn btn-primary">
-                        <Plus className="w-4 h-4" />
+
+            {/* Toolbar Header */}
+            <div className="page-header flex-wrap gap-4">
+                {/* Left Side Action Buttons */}
+                <div className="flex flex-wrap gap-2.5 items-center">
+                    <button onClick={handleCreate} className="btn btn-primary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium">
+                        <Plus className="w-3.5 h-3.5" />
                         {t('common.create')}
                     </button>
-                    <button onClick={() => setShowGlobalReports(true)} className="btn btn-secondary" title={t('campaignReports.report')}>
-                        <BarChart2 className="w-4 h-4" />
+                    <button onClick={() => setShowGlobalReports(true)} className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium" title={t('campaignReports.report')}>
+                        <BarChart2 className="w-3.5 h-3.5" />
                         {t('campaignReports.report')}
                     </button>
-                    <button onClick={() => setShowGroupsModal(true)} className="btn btn-secondary">
+                    <button onClick={() => setShowGroupsModal(true)} className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium">
                         {t('campaigns.groups')}
                     </button>
-                    <button onClick={() => setActiveTab('sources')} className="btn btn-secondary">
+                    <button onClick={() => setActiveTab('sources')} className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium">
                         {t('campaigns.sources')}
                     </button>
+
+                    {/* Columns Customizer Button [ ☵ ] */}
+                    <button
+                        type="button"
+                        onClick={() => setColumnsFilterOpen(true)}
+                        className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium"
+                        title={t('reportCustomizer.campaignColumnsTitle')}
+                        style={{
+                            backgroundColor: 'var(--color-bg-card)',
+                            border: '1px solid var(--color-border)',
+                            color: 'var(--color-text-primary)'
+                        }}
+                    >
+                        <SlidersHorizontal className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
+                        <span>{t('reportCustomizer.columns')}</span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded-full" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
+                            {chosenColumns.length}
+                        </span>
+                    </button>
+
                     {selectedCampaignIds.size > 0 && (
                         <>
-                            <button onClick={handleBulkCopySelected} className="btn btn-success" title={t('campaigns.copySelected')}>
-                                <Copy className="w-4 h-4" />
+                            <button onClick={handleBulkCopySelected} className="btn btn-success text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5" title={t('campaigns.copySelected')}>
+                                <Copy className="w-3.5 h-3.5" />
                                 {(t('campaigns.copySelected'))} ({selectedCampaignIds.size})
                             </button>
-                            <button onClick={handleBulkDeleteSelected} className="btn btn-danger" title={t('common.deleteSelected')}>
-                                <Trash2 className="w-4 h-4" />
+                            <button onClick={handleBulkDeleteSelected} className="btn btn-danger text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5" title={t('common.deleteSelected')}>
+                                <Trash2 className="w-3.5 h-3.5" />
                                 {(t('common.deleteSelected') || t('common.delete'))} ({selectedCampaignIds.size})
                             </button>
                         </>
                     )}
                 </div>
-                <div className="flex gap-2">
+
+                {/* Right Side Filters, DateRangePicker, and Group Filter */}
+                <div className="flex flex-wrap items-center gap-2.5">
+                    {/* Group Filter Dropdown */}
+                    <select
+                        value={selectedGroupId}
+                        onChange={(e) => setSelectedGroupId(e.target.value)}
+                        className="form-select text-xs py-1.5 px-3 rounded-xl"
+                        style={{ width: '150px' }}
+                    >
+                        <option value="">{t('campaigns.allGroups', 'All groups')}</option>
+                        {groups.map(g => (
+                            <option key={g.id} value={g.id}>{g.name}</option>
+                        ))}
+                    </select>
+
+                    {/* Interactive DateRangePicker with Timezones */}
+                    <DateRangePicker
+                        dateFrom={dateFrom}
+                        dateTo={dateTo}
+                        onChange={handleDateChange}
+                        selectedTimezone={timezone}
+                        onTimezoneChange={setTimezone}
+                    />
+
+                    {/* Search / Filter Toggle */}
                     <button
                         type="button"
                         onClick={() => setShowFilters(!showFilters)}
-                        className={`btn btn-ghost ${showFilters ? 'bg-[var(--color-primary-light)]' : ''}`}
+                        className={`btn btn-ghost text-xs py-1.5 px-2.5 rounded-xl ${showFilters ? 'bg-[var(--color-primary-light)]' : ''}`}
                         style={showFilters ? { color: 'var(--color-primary)' } : {}}
                     >
-                        <Filter className="w-4 h-4" />
-                        {t('editor.filters')}
+                        <Filter className="w-3.5 h-3.5" />
                         {search ? (
-                            <span className="ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full">1</span>
+                            <span className="ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-[10px] rounded-full">1</span>
                         ) : null}
                     </button>
+
+                    {/* Refresh */}
                     <button
                         type="button"
-                        onClick={handleRefresh}
-                        className="btn btn-ghost btn-icon"
+                        onClick={fetchCampaigns}
+                        className="btn btn-ghost btn-icon p-1.5 rounded-xl"
                         title={t('common.refresh')}
                         disabled={refreshing}
                     >
-                        <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
-                    </button>
-                    <button type="button" className="btn btn-ghost btn-icon" title={t('common.settings', 'Settings')} onClick={() => setSettingsOpen(true)}>
-                        <Settings2 className="w-5 h-5" />
+                        <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                     </button>
                 </div>
             </div>
 
+            {/* Quick Filter Bar */}
             {showFilters && (
-                <div className="flex flex-wrap gap-4 items-center py-4 mb-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('common.search', 'Search')}:</label>
+                <div className="flex flex-wrap gap-4 items-center py-3 px-4 mb-4 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                    <div className="flex items-center gap-2 flex-1 max-w-sm">
+                        <label className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('common.search', 'Search')}:</label>
                         <input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="form-input"
-                            style={{ width: 'auto', minWidth: '260px' }}
-                            placeholder={t('common.searchPlaceholder', 'Name or alias')}
+                            className="form-input text-xs py-1.5 px-3 rounded-xl flex-1"
+                            placeholder={t('common.searchPlaceholder', 'Name or alias...')}
                         />
                     </div>
                     {search && (
-                        <button type="button" onClick={() => setSearch('')} className="btn btn-ghost btn-sm">
-                            <X className="w-4 h-4" />
+                        <button type="button" onClick={() => setSearch('')} className="btn btn-ghost text-xs py-1 px-2">
+                            <X className="w-3.5 h-3.5" />
                             {t('common.clear')}
                         </button>
                     )}
                 </div>
             )}
 
+            {/* Main Campaigns Data Table */}
             <div className="overflow-x-auto">
-                <table className="page-table">
+                <table className="page-table" style={{ fontVariantNumeric: 'tabular-nums' }}>
                     <thead>
                         <tr>
-                            <th className="w-10">
+                            <th className="w-8" style={{ textAlign: 'left' }}>
                                 <input
                                     type="checkbox"
                                     checked={allSelected}
@@ -360,21 +606,40 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                                         if (el) el.indeterminate = !allSelected && someSelected;
                                     }}
                                     onChange={(e) => toggleSelectAll(e.target.checked)}
+                                    className="w-3.5 h-3.5 rounded"
+                                    style={{ accentColor: 'var(--color-primary)' }}
                                 />
                             </th>
                             <SortableTh colKey="id" label="ID" defaultDir="desc" />
                             <SortableTh colKey="name" label={t('campaigns.campaign')} defaultDir="asc" />
                             <SortableTh colKey="group_name" label={t('campaigns.group')} defaultDir="asc" />
-                            <SortableTh colKey="clicks" label={t('metrics.clicks')} defaultDir="desc" />
-                            <SortableTh colKey="unique_clicks" label={t('campaigns.unique')} defaultDir="desc" />
-                            <SortableTh colKey="conversions" label={t('metrics.conversions')} defaultDir="desc" />
-                            <th className="text-right">{t('common.actions')}</th>
+
+                            {/* Dynamically configured metric columns */}
+                            {chosenColumns.map((colId, colIdx) => {
+                                const def = ALL_REPORT_METRICS.find(m => m.id === colId);
+                                const label = def ? t(def.labelKey, def.defaultLabel) : colId;
+                                return (
+                                    <SortableTh
+                                        key={colId}
+                                        colKey={colId}
+                                        label={label}
+                                        defaultDir="desc"
+                                        alignRight={true}
+                                        draggable={true}
+                                        onDragStart={() => handleThDragStart(colIdx)}
+                                        onDragOver={(e) => handleThDragOver(e, colIdx)}
+                                        onDragEnd={handleThDragEnd}
+                                    />
+                                );
+                            })}
+
+                            <th className="text-right" style={{ textAlign: 'right' }}>{t('common.actions')}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {visibleCampaigns.length === 0 ? (
                             <tr>
-                                <td colSpan="8" className="text-center py-12">
+                                <td colSpan={5 + chosenColumns.length} className="text-center py-12">
                                     <div className="empty-state">
                                         <p className="empty-state-title">{t('campaigns.noCampaignsCreated')}</p>
                                         <p className="empty-state-text">{t('campaigns.createFirstCampaign')}</p>
@@ -389,6 +654,8 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                                             type="checkbox"
                                             checked={selectedCampaignIds.has(camp.id)}
                                             onChange={(e) => toggleSelected(camp.id, e.target.checked)}
+                                            className="w-3.5 h-3.5 rounded"
+                                            style={{ accentColor: 'var(--color-primary)' }}
                                         />
                                     </td>
                                     <td className="font-medium">
@@ -403,26 +670,31 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                                             >
                                                 {camp.name}
                                             </span>
-                                            <span style={{ color: 'var(--color-text-muted)', fontSize: '12px' }}>{camp.alias}</span>
+                                            <span style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>{camp.alias}</span>
                                         </div>
                                     </td>
                                     <td style={{ color: 'var(--color-text-secondary)' }}>{camp.group_name || '-'}</td>
-                                    <td>{camp.clicks}</td>
-                                    <td>{camp.unique_clicks}</td>
-                                    <td>{camp.conversions}</td>
-                                    <td>
-                                        <div className="action-buttons">
-                                            <button onClick={() => handleEdit(camp.id)} className="action-btn text-blue">
-                                                <Edit3 className="w-4 h-4" />
+
+                                    {/* Render dynamic metric cells */}
+                                    {chosenColumns.map((colId) => (
+                                        <td key={colId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                                            {formatMetricCell(colId, camp)}
+                                        </td>
+                                    ))}
+
+                                    <td style={{ textAlign: 'right' }}>
+                                        <div className="action-buttons justify-end">
+                                            <button onClick={() => handleEdit(camp.id)} className="action-btn text-blue" title={t('common.edit')}>
+                                                <Edit3 className="w-3.5 h-3.5" />
                                             </button>
                                             <button onClick={() => setActionModal({ type: 'update_costs', campaignId: camp.id })} className="action-btn text-green" title={t('campaigns.updateCosts')}>
-                                                <DollarSign className="w-4 h-4" />
+                                                <DollarSign className="w-3.5 h-3.5" />
                                             </button>
                                             <button onClick={() => setActionModal({ type: 'clear_stats', campaignId: camp.id })} className="action-btn text-orange" title={t('common.clearStats')}>
-                                                <XCircle className="w-4 h-4" />
+                                                <XCircle className="w-3.5 h-3.5" />
                                             </button>
                                             <button onClick={() => handleDelete(camp.id)} className="action-btn text-red" title={t('common.delete')}>
-                                                <Trash2 className="w-4 h-4" />
+                                                <Trash2 className="w-3.5 h-3.5" />
                                             </button>
                                         </div>
                                     </td>
@@ -430,22 +702,49 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                             ))
                         )}
                     </tbody>
+
+                    {/* Sticky Grand Totals Footer */}
+                    {visibleCampaigns.length > 0 && (
+                        <tfoot>
+                            <tr style={{ backgroundColor: 'var(--color-bg-soft)', borderTop: '2px solid var(--color-border)', fontWeight: 700 }}>
+                                <td></td>
+                                <td>Σ</td>
+                                <td>{t('campaignReports.total', 'Totals')} ({visibleCampaigns.length})</td>
+                                <td>-</td>
+                                {chosenColumns.map(colId => (
+                                    <td key={colId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                                        {formatMetricCell(colId, grandTotals)}
+                                    </td>
+                                ))}
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    )}
                 </table>
             </div>
+
+            {/* Columns Customizer Modal [ ☵ ] */}
+            <ReportCustomizerModal
+                isOpen={columnsFilterOpen}
+                onClose={() => setColumnsFilterOpen(false)}
+                selectedColumns={chosenColumns}
+                onSaveColumns={handleSaveColumns}
+                mode="campaigns"
+            />
 
             {/* Clear Stats Modal */}
             {actionModal.type === 'clear_stats' && (
                 <div className="modal-overlay">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h3 className="modal-title">{t('common.clearStats')}?</h3>
+                    <div className="modal-content max-w-md w-full rounded-2xl p-6" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                        <div className="modal-header pb-3 mb-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                            <h3 className="modal-title font-bold text-base">{t('common.clearStats')}?</h3>
                         </div>
-                        <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px', marginBottom: '24px' }}>
+                        <p style={{ color: 'var(--color-text-secondary)', fontSize: '13px', marginBottom: '24px' }}>
                             {t('campaigns.clearStatsWarning')}
                         </p>
-                        <div className="modal-footer">
-                            <button onClick={() => setActionModal({ type: null, campaignId: null })} className="btn btn-secondary">{t('common.cancel')}</button>
-                            <button onClick={handleClearStats} className="btn btn-danger">{t('common.clear')}</button>
+                        <div className="modal-footer flex justify-end gap-2">
+                            <button onClick={() => setActionModal({ type: null, campaignId: null })} className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl">{t('common.cancel')}</button>
+                            <button onClick={handleClearStats} className="btn btn-danger text-xs py-1.5 px-4 rounded-xl">{t('common.clear')}</button>
                         </div>
                     </div>
                 </div>
@@ -454,35 +753,35 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
             {/* Update Costs Modal */}
             {actionModal.type === 'update_costs' && (
                 <div className="modal-overlay">
-                    <div className="modal-content" style={{ maxWidth: '520px' }}>
-                        <div className="modal-header">
-                            <h3 className="modal-title">{t('campaigns.updateCosts')}</h3>
+                    <div className="modal-content max-w-md w-full rounded-2xl p-6" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                        <div className="modal-header pb-3 mb-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                            <h3 className="modal-title font-bold text-base">{t('campaigns.updateCosts')}</h3>
                         </div>
                         <form onSubmit={handleUpdateCosts} className="space-y-4">
                             <div>
-                                <label className="form-label">{t('campaigns.costAmount')}</label>
-                                <input type="number" step="0.01" name="cost" required className="form-input" placeholder="0.00" />
+                                <label className="form-label text-xs">{t('campaigns.costAmount')}</label>
+                                <input type="number" step="0.01" name="cost" required className="form-input text-xs py-2 rounded-xl" placeholder="0.00" />
                             </div>
-                            <div className="flex gap-4">
+                            <div className="flex gap-3">
                                 <div className="flex-1">
-                                    <label className="form-label">{t('campaigns.startDate')}</label>
-                                    <input type="date" name="start_date" required className="form-input" />
+                                    <label className="form-label text-xs">{t('campaigns.startDate')}</label>
+                                    <input type="date" name="start_date" required defaultValue={dateFrom} className="form-input text-xs py-2 rounded-xl" />
                                 </div>
                                 <div className="flex-1">
-                                    <label className="form-label">{t('campaigns.endDate')}</label>
-                                    <input type="date" name="end_date" required className="form-input" />
+                                    <label className="form-label text-xs">{t('campaigns.endDate')}</label>
+                                    <input type="date" name="end_date" required defaultValue={dateTo} className="form-input text-xs py-2 rounded-xl" />
                                 </div>
                             </div>
                             <div>
-                                <label className="flex items-center gap-2" style={{ color: 'var(--color-text-primary)', fontSize: '14px' }}>
-                                    <input type="checkbox" name="unique_only" />
+                                <label className="flex items-center gap-2 text-xs" style={{ color: 'var(--color-text-primary)' }}>
+                                    <input type="checkbox" name="unique_only" className="w-3.5 h-3.5 rounded" style={{ accentColor: 'var(--color-primary)' }} />
                                     <span>{t('campaigns.distributeUniqueOnly')}</span>
                                 </label>
                             </div>
-                            <div className="modal-footer">
-                                <button type="button" onClick={() => setActionModal({ type: null, campaignId: null })} className="btn btn-secondary">{t('common.cancel')}</button>
-                                <button type="submit" className="btn btn-primary">
-                                    <DollarSign className="w-4 h-4" />
+                            <div className="modal-footer flex justify-end gap-2 pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                <button type="button" onClick={() => setActionModal({ type: null, campaignId: null })} className="btn btn-ghost text-xs py-1.5 px-3 rounded-xl">{t('common.cancel')}</button>
+                                <button type="submit" className="btn btn-primary text-xs py-1.5 px-4 rounded-xl flex items-center gap-1.5 font-medium">
+                                    <DollarSign className="w-3.5 h-3.5" />
                                     {t('common.apply')}
                                 </button>
                             </div>
@@ -491,37 +790,18 @@ const Campaigns = ({ campaigns, refreshData, setActiveTab, setEditingCampaignId 
                 </div>
             )}
 
-            {settingsOpen && (
-                <div className="modal-overlay" onClick={() => setSettingsOpen(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '560px' }}>
-                        <div className="modal-header">
-                            <h3 className="modal-title">{t('common.settings', 'Settings')}</h3>
-                            <button type="button" className="btn btn-ghost btn-icon" onClick={() => setSettingsOpen(false)} title={t('common.close')}>
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-                        <div className="space-y-3">
-                            <button type="button" className="btn btn-secondary w-full" onClick={() => { setSortBy({ key: null, dir: 'desc' }); }}>
-                                {t('common.resetSort', 'Reset sorting')}
-                            </button>
-                            <button type="button" className="btn btn-secondary w-full" onClick={() => { setSelectedCampaignIds(new Set()); }}>
-                                {t('common.clearSelection', 'Clear selection')}
-                            </button>
-                            <button type="button" className="btn btn-primary w-full" onClick={exportVisibleCsv}>
-                                {t('common.exportCsv', 'Export CSV')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
+            {/* Groups Modal */}
             {showGroupsModal && (
                 <GroupsModal
-                    type="campaign"
-                    onClose={() => setShowGroupsModal(false)}
+                    isOpen={showGroupsModal}
+                    onClose={() => {
+                        setShowGroupsModal(false);
+                        axios.get(`${API_URL}?action=groups`).then(r => { if (r.data.status === 'success') setGroups(r.data.data || []); });
+                    }}
                 />
             )}
 
+            {/* Global Report Modal */}
             {showGlobalReports && (
                 <CampaignReports
                     campaignId={null}

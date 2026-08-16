@@ -1,6 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'telegram_notify.php';
+require_once __DIR__ . '/core/PostbackMacros.php';
 
 function mapStatus($pdo, $status, $params)
 {
@@ -164,7 +165,7 @@ try {
 
         // Загружаем параметры исходного клика для подстановки макросов {sub_id_*}, {keyword} и т.д.
         $clickParams = [];
-        $cpStmt = $pdo->prepare("SELECT parameters_json, cost, revenue FROM clicks WHERE id = ?");
+        $cpStmt = $pdo->prepare("SELECT parameters_json, cost, revenue, offer_id FROM clicks WHERE id = ?");
         $cpStmt->execute([$clickId]);
         $cpRow = $cpStmt->fetch(PDO::FETCH_ASSOC);
         if ($cpRow && !empty($cpRow['parameters_json'])) {
@@ -175,6 +176,7 @@ try {
         }
         $clickCost = (float) ($cpRow['cost'] ?? 0);
         $clickRevenue = (float) ($cpRow['revenue'] ?? 0);
+        $clickOfferId = (string) ($cpRow['offer_id'] ?? '');
 
         // Определяем conversion_id для связи логов очереди с конверсией.
         $convId = null;
@@ -202,12 +204,17 @@ try {
             // Подстановка расширенного набора макросов.
             $macroValues = [
                 '{subid}'       => $clickId,
+                // Aliases the imported Keitaro source templates use.
+                '{clickid}'     => $clickId,
+                '{click_id}'    => $clickId,
                 '{status}'      => $internalStatus,
                 '{payout}'      => (string) $payout,
+                '{conversion_revenue}' => (string) $payout,
                 '{currency}'    => $currency,
                 '{external_id}' => (string) $tid,
                 '{tid}'         => (string) $tid,
                 '{campaign_id}' => (string) $campaignId,
+                '{offer_id}'    => $clickOfferId,
                 '{cost}'        => (string) $clickCost,
                 '{revenue}'     => (string) $clickRevenue,
                 '{profit}'      => (string) ($clickRevenue - $clickCost),
@@ -220,6 +227,10 @@ try {
             }
             // urldecode обратный: макро-значения urlencode'им, как и раньше, чтобы URL был корректным.
             $url = $pb['url'];
+
+            // Keitaro-style status transform: {status: lead=reg sale=dep}.
+            $url = orbitraApplyStatusTransform($url, $internalStatus);
+
             foreach ($macroValues as $macro => $value) {
                 $url = str_replace($macro, urlencode($value), $url);
             }

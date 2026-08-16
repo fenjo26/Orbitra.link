@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ShieldBan, Plus, Trash2, RotateCcw, Search } from 'lucide-react';
+import { ShieldBan, Plus, Trash2, RotateCcw, Search, Upload, FileText, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
 const PAGE_SIZE = 200;
+const BATCH_CHUNK_SIZE = 2000;
 
 const BotSettings = () => {
     const { t } = useLanguage();
@@ -14,7 +15,10 @@ const BotSettings = () => {
     const [lists, setLists] = useState({ ip: { ...emptyList }, sig: { ...emptyList } });
     const [newIps, setNewIps] = useState('');
     const [newSigs, setNewSigs] = useState('');
+    const [importing, setImporting] = useState({ active: false, type: null, current: 0, total: 0 });
     const searchTimers = useRef({});
+    const fileInputIpRef = useRef(null);
+    const fileInputSigRef = useRef(null);
 
     const endpointOf = (type) => (type === 'ip' ? 'bot_ips' : 'bot_signatures');
 
@@ -31,7 +35,6 @@ const BotSettings = () => {
                 [type]: {
                     items: append ? [...prev[type].items, ...(data.data || [])] : (data.data || []),
                     total: data.total ?? 0,
-                    // Older builds of the API answered without "filtered".
                     filtered: data.filtered ?? data.total ?? 0,
                     search,
                     loading: false,
@@ -43,26 +46,18 @@ const BotSettings = () => {
         }
     }, [t]);
 
-    const fetchData = useCallback(() => {
-        load('ip', { search: lists.ip.search });
-        load('sig', { search: lists.sig.search });
-    }, [load, lists.ip.search, lists.sig.search]);
-
     useEffect(() => {
         load('ip');
         load('sig');
     }, [load]);
 
-    // Debounced so typing an IP does not fire a query per keystroke.
+    // Debounced search
     const onSearch = (type, value) => {
         setLists(prev => ({ ...prev, [type]: { ...prev[type], search: value } }));
         clearTimeout(searchTimers.current[type]);
         searchTimers.current[type] = setTimeout(() => load(type, { search: value }), 300);
     };
 
-    // One place that speaks the API's contract, so a mismatch cannot creep back
-    // into three separate handlers. Anything but an explicit success is surfaced:
-    // these operations used to fail silently while still reporting success.
     const mutate = async (type, payload) => {
         const action = type === 'ip' ? 'bot_ips' : 'bot_signatures';
         const res = await fetch(`${API_URL}?action=${action}`, {
@@ -77,30 +72,59 @@ const BotSettings = () => {
         return data;
     };
 
-    const handleAdd = async (type) => {
-        const source = type === 'ip' ? newIps : newSigs;
+    const handleAdd = async (type, rawText) => {
+        const source = rawText !== undefined ? rawText : (type === 'ip' ? newIps : newSigs);
         if (!source.trim()) return;
-        const items = source.split('\n').map(s => s.trim()).filter(Boolean);
+        const items = source.split(/[\r\n,]+/).map(s => s.trim()).filter(Boolean);
+        if (items.length === 0) return;
+
+        let totalAdded = 0;
+        let totalSkipped = 0;
+
+        setImporting({ active: true, type, current: 0, total: items.length });
+
         try {
-            const data = await mutate(type, { items });
-            (type === 'ip' ? setNewIps : setNewSigs)('');
+            // Process in chunks to prevent HTTP payload size limits & timeouts
+            for (let i = 0; i < items.length; i += BATCH_CHUNK_SIZE) {
+                const chunk = items.slice(i, i + BATCH_CHUNK_SIZE);
+                const data = await mutate(type, { items: chunk });
+                totalAdded += (data.added || 0);
+                totalSkipped += (data.skipped || 0);
+                setImporting({ active: true, type, current: Math.min(items.length, i + BATCH_CHUNK_SIZE), total: items.length });
+            }
+
+            if (rawText === undefined) {
+                (type === 'ip' ? setNewIps : setNewSigs)('');
+            }
             load(type, { search: lists[type].search });
-            const skipped = data.skipped || 0;
-            alert(`${t('botSettings.addedCount')} ${data.added ?? 0}`
-                + (skipped ? ` (${t('botSettings.skippedDuplicates')} ${skipped})` : ''));
+
+            alert(`${t('botSettings.addedCount')} ${totalAdded}`
+                + (totalSkipped ? ` (${t('botSettings.skippedDuplicates')} ${totalSkipped})` : ''));
         } catch (e) {
             alert(`${t('botSettings.networkError')}: ${e.message}`);
+        } finally {
+            setImporting({ active: false, type: null, current: 0, total: 0 });
         }
     };
 
-    const handleAddIps = () => handleAdd('ip');
-    const handleAddSigs = () => handleAdd('sig');
+    const handleFileUpload = (type, e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const text = event.target?.result;
+            if (typeof text === 'string') {
+                handleAdd(type, text);
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = ''; // reset so same file can be chosen again
+    };
 
     const handleDelete = async (type, id) => {
         try {
             await mutate(type, { action: 'delete', id });
-            // Drop the row locally so a delete deep in a long list does not
-            // reset the reader's scroll position back to the first page.
             setLists(prev => ({
                 ...prev,
                 [type]: {
@@ -139,31 +163,30 @@ const BotSettings = () => {
                         onChange={(e) => onSearch(type, e.target.value)}
                         placeholder={t('botSettings.searchPlaceholder')}
                         className="form-input"
-                        style={{ paddingLeft: '30px', fontFamily: 'monospace', fontSize: '13px' }}
+                        style={{ paddingLeft: '32px', fontSize: '13px' }}
                     />
                 </div>
 
-                <div style={{ marginTop: '10px', fontSize: '12px', color: 'var(--color-text-muted)' }}>
-                    {list.loading
-                        ? t('botSettings.loading')
-                        : `${t('botSettings.showing')} ${list.items.length} ${t('botSettings.of')} ${list.filtered}`
-                          + (list.search ? ` (${t('botSettings.ofTotal')} ${list.total})` : '')}
-                </div>
-
-                <div style={{ marginTop: '8px', maxHeight: '340px', overflowY: 'auto' }}>
-                    {list.items.length === 0 ? (
-                        <p style={{ color: 'var(--color-text-muted)', fontSize: '14px' }}>{t('botSettings.noRecords')}</p>
+                <div style={{ marginTop: '12px', maxHeight: '420px', overflowY: 'auto', border: '1px solid var(--color-border)', borderRadius: '12px' }}>
+                    {list.loading && list.items.length === 0 ? (
+                        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '13px' }}>
+                            {t('common.loading')}
+                        </div>
+                    ) : list.items.length === 0 ? (
+                        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '13px' }}>
+                            {t('botSettings.noItems')}
+                        </div>
                     ) : (
-                        <table className="page-table">
+                        <table className="page-table" style={{ margin: 0 }}>
                             <tbody>
                                 {list.items.map(item => (
                                     <tr key={item.id}>
-                                        <td style={{ fontFamily: 'monospace', fontSize: '13px' }}>
+                                        <td style={{ fontFamily: 'monospace', fontSize: '12px' }}>
                                             {item.value ?? item.ip_or_cidr ?? item.signature}
                                         </td>
                                         <td style={{ width: '40px', textAlign: 'right' }}>
-                                            <button onClick={() => handleDelete(type, item.id)} className="btn btn-ghost btn-sm" style={{ color: 'var(--color-danger)' }}>
-                                                <Trash2 size={14} />
+                                            <button onClick={() => handleDelete(type, item.id)} className="btn btn-ghost btn-sm" style={{ color: 'var(--color-danger)', padding: '2px 6px' }}>
+                                                <Trash2 size={13} />
                                             </button>
                                         </td>
                                     </tr>
@@ -195,11 +218,14 @@ const BotSettings = () => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <ShieldBan size={18} style={{ color: 'var(--color-primary)' }} />
                         <h3 className="page-title" style={{ margin: 0 }}>{t('botSettings.ipTitle')}</h3>
+                        <span className="badge badge-secondary">{lists.ip.total}</span>
                     </div>
-                    <button onClick={() => handleClear('ip')} className="btn btn-ghost btn-sm">
-                        <RotateCcw size={14} />
-                        {t('botSettings.clearAll')}
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button onClick={() => handleClear('ip')} className="btn btn-ghost btn-sm">
+                            <RotateCcw size={14} />
+                            {t('botSettings.clearAll')}
+                        </button>
+                    </div>
                 </div>
 
                 <div style={{ marginTop: '16px' }}>
@@ -211,10 +237,40 @@ const BotSettings = () => {
                         className="form-input"
                         style={{ fontFamily: 'monospace', fontSize: '13px' }}
                     />
-                    <button onClick={handleAddIps} className="btn btn-primary btn-sm" style={{ marginTop: '8px' }}>
-                        <Plus size={14} />
-                        {t('botSettings.addIp')}
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                        <button
+                            type="button"
+                            onClick={() => handleAdd('ip')}
+                            disabled={importing.active}
+                            className="btn btn-primary btn-sm flex items-center gap-1.5"
+                        >
+                            <Plus size={14} />
+                            {t('botSettings.addIp')}
+                        </button>
+
+                        <input
+                            type="file"
+                            ref={fileInputIpRef}
+                            accept=".txt,.csv"
+                            style={{ display: 'none' }}
+                            onChange={(e) => handleFileUpload('ip', e)}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => fileInputIpRef.current?.click()}
+                            disabled={importing.active}
+                            className="btn btn-secondary btn-sm flex items-center gap-1.5"
+                        >
+                            <Upload size={14} />
+                            <span>Upload .txt / .csv</span>
+                        </button>
+
+                        {importing.active && importing.type === 'ip' && (
+                            <span className="text-xs font-medium ml-2 text-blue-500 animate-pulse">
+                                Importing {importing.current.toLocaleString()} / {importing.total.toLocaleString()}...
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 {renderList('ip')}
@@ -223,7 +279,11 @@ const BotSettings = () => {
             {/* Signatures Section */}
             <div className="page-card">
                 <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0 }}>
-                    <h3 className="page-title" style={{ margin: 0 }}>{t('botSettings.signaturesTitle')}</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <ShieldBan size={18} style={{ color: 'var(--color-primary)' }} />
+                        <h3 className="page-title" style={{ margin: 0 }}>{t('botSettings.signaturesTitle')}</h3>
+                        <span className="badge badge-secondary">{lists.sig.total}</span>
+                    </div>
                     <button onClick={() => handleClear('sig')} className="btn btn-ghost btn-sm">
                         <RotateCcw size={14} />
                         {t('botSettings.clearAll')}
@@ -239,10 +299,40 @@ const BotSettings = () => {
                         className="form-input"
                         style={{ fontFamily: 'monospace', fontSize: '13px' }}
                     />
-                    <button onClick={handleAddSigs} className="btn btn-primary btn-sm" style={{ marginTop: '8px' }}>
-                        <Plus size={14} />
-                        {t('botSettings.addSignature')}
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                        <button
+                            type="button"
+                            onClick={() => handleAdd('sig')}
+                            disabled={importing.active}
+                            className="btn btn-primary btn-sm flex items-center gap-1.5"
+                        >
+                            <Plus size={14} />
+                            {t('botSettings.addSignature')}
+                        </button>
+
+                        <input
+                            type="file"
+                            ref={fileInputSigRef}
+                            accept=".txt,.csv"
+                            style={{ display: 'none' }}
+                            onChange={(e) => handleFileUpload('sig', e)}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => fileInputSigRef.current?.click()}
+                            disabled={importing.active}
+                            className="btn btn-secondary btn-sm flex items-center gap-1.5"
+                        >
+                            <Upload size={14} />
+                            <span>Upload .txt / .csv</span>
+                        </button>
+
+                        {importing.active && importing.type === 'sig' && (
+                            <span className="text-xs font-medium ml-2 text-blue-500 animate-pulse">
+                                Importing {importing.current.toLocaleString()} / {importing.total.toLocaleString()}...
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 {renderList('sig')}

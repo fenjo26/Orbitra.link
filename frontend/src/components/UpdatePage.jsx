@@ -119,6 +119,11 @@ const UpdatePage = () => {
                         <p style={{ fontSize: '24px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
                             {updateInfo?.latest_version || '—'}
                         </p>
+                        {updateInfo?.check_failed && (
+                            <p className="text-xs" style={{ color: 'var(--color-warning)', maxWidth: '360px' }}>
+                                {t('update.checkFailed', 'Не удалось проверить обновления на GitHub — «актуальная версия» может быть устаревшей. Обновитесь вручную: SSH → cd /var/www/orbitra && git pull')}
+                            </p>
+                        )}
                     </div>
                 </div>
             </div>

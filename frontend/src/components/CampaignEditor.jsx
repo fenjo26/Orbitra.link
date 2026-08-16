@@ -68,6 +68,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [costMatch, setCostMatch] = useState(null);
     const [syncingConnId, setSyncingConnId] = useState(null);
     const [syncResult, setSyncResult] = useState(null);
+    const [showAddCostConnModal, setShowAddCostConnModal] = useState(false);
+    const [costConnForm, setCostConnForm] = useState({
+        engine: 'facebook',
+        name: '',
+        account_id: '',
+        access_token: '',
+        proxy_url: ''
+    });
+    const [savingCostConn, setSavingCostConn] = useState(false);
 
     // Campaign list — the "Send to campaign" stream action picks a target here.
     const [allCampaigns, setAllCampaigns] = useState([]);
@@ -455,6 +464,28 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             setSyncResult(`⚠ ${t('common.networkError')}`);
         } finally {
             setSyncingConnId(null);
+        }
+    };
+
+    const handleSaveCostConnection = async (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        setSavingCostConn(true);
+        try {
+            const res = await axios.post('/api.php?action=save_aggregator_connection', costConnForm);
+            if (res.data.status === 'success') {
+                setShowAddCostConnModal(false);
+                setCostConnForm({ engine: 'facebook', name: '', account_id: '', access_token: '', proxy_url: '' });
+                const cRes = await axios.get('/api.php?action=aggregator_connections');
+                if (cRes.data.status === 'success') {
+                    setCostConns((cRes.data.data || []).filter(c => ['facebook', 'google_ads', 'tiktok'].includes(c.engine)));
+                }
+            } else {
+                alert(res.data.message || 'Error saving cost connection');
+            }
+        } catch (err) {
+            alert('Error saving cost connection');
+        } finally {
+            setSavingCostConn(false);
         }
     };
 
@@ -1421,8 +1452,28 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 padding: '14px 16px',
                                                 background: 'var(--color-bg-card)'
                                             }}>
-                                                <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-text-primary)', marginBottom: '10px' }}>
-                                                    {t('costSync.title', 'Cost Sync')}
+                                                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                                                    <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-text-primary)' }}>
+                                                        {t('streamRefine.costSyncTitle', 'Cost Sync')}
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setShowAddCostConnModal(true)}
+                                                            className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl flex items-center gap-1.5"
+                                                        >
+                                                            <Plus className="w-3.5 h-3.5" />
+                                                            {t('streamRefine.addCostConnection', '+ Add Cost Connection')}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setShowCostModal(true)}
+                                                            className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl flex items-center gap-1.5"
+                                                        >
+                                                            <DollarSign className="w-3.5 h-3.5" />
+                                                            {t('streamRefine.updateCostsManually', 'Update Costs Manually')}
+                                                        </button>
+                                                    </div>
                                                 </div>
 
                                                 {/* Match diagnostics: do the clicks carry the ad IDs? */}
@@ -2251,169 +2302,229 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 {stream.schema_type === 'cloak' && (() => {
                                                     const sc = stream.schema_custom || {};
                                                     const setCloakField = (field, value) => updateStream(idx, 'schema_custom', { ...sc, [field]: value });
-                                                    return (
-                                                        <div className="space-y-4 rounded-2xl p-3" style={{ border: '1px solid var(--color-border)', backgroundColor: 'rgba(168, 85, 247, 0.05)' }}>
-                                                            <div className="form-hint">{t('cloaking.description')}</div>
+                                                    const safeMode = sc.safe_mode || (sc.safe_landing_id ? 'landing' : sc.safe_html ? 'html' : 'url');
+                                                    const setSafeMode = (mode) => updateStream(idx, 'schema_custom', { ...sc, safe_mode: mode });
 
-                                                            {/* Detection layers */}
+                                                    return (
+                                                        <div className="space-y-4 rounded-2xl p-4" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
+                                                            <div className="text-xs" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                                                                {t('cloaking.description')}
+                                                            </div>
+
+                                                            {/* Detection Layers Pills */}
                                                             <div>
-                                                                <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('cloaking.detectionLayers')}</span>
-                                                                <div className="flex flex-wrap gap-3 mt-2">
+                                                                <span className="text-xs font-semibold uppercase tracking-wider block mb-2" style={{ color: 'var(--color-text-muted)' }}>
+                                                                    {t('streamRefine.detectionLayers', 'Bot Protection Layers')}
+                                                                </span>
+                                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                                                     {[
-                                                                        ['detect_datacenter', t('cloaking.datacenter')],
-                                                                        ['detect_vpn', t('cloaking.vpnProxy')],
-                                                                        ['detect_bots', t('cloaking.bots')],
-                                                                        ['detect_ua', t('cloaking.uaHeuristics')],
-                                                                    ].map(([key, label]) => (
-                                                                        <label key={key} className="form-checkbox-label text-xs" style={{ color: 'var(--color-text-primary)' }}>
-                                                                            <input
-                                                                                type="checkbox"
-                                                                                checked={sc[key] !== false}
-                                                                                onChange={e => setCloakField(key, e.target.checked)}
-                                                                            />
-                                                                            {label}
-                                                                        </label>
-                                                                    ))}
+                                                                        ['detect_datacenter', t('cloaking.datacenter', 'Datacenter / ASN')],
+                                                                        ['detect_vpn', t('cloaking.vpnProxy', 'VPN / Proxy')],
+                                                                        ['detect_bots', t('cloaking.bots', 'Known Bots / Crawlers')],
+                                                                        ['detect_ua', t('cloaking.uaHeuristics', 'UA Heuristics')],
+                                                                    ].map(([key, label]) => {
+                                                                        const isChecked = sc[key] !== false;
+                                                                        return (
+                                                                            <label
+                                                                                key={key}
+                                                                                className="flex items-center gap-2 p-2 rounded-xl border cursor-pointer select-none transition-all text-xs font-medium"
+                                                                                style={{
+                                                                                    backgroundColor: isChecked ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
+                                                                                    borderColor: isChecked ? 'var(--color-primary)' : 'var(--color-border)',
+                                                                                    color: isChecked ? 'var(--color-primary)' : 'var(--color-text-primary)'
+                                                                                }}
+                                                                            >
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    checked={isChecked}
+                                                                                    onChange={e => setCloakField(key, e.target.checked)}
+                                                                                    className="w-3.5 h-3.5 rounded"
+                                                                                    style={{ accentColor: 'var(--color-primary)' }}
+                                                                                />
+                                                                                <span>{label}</span>
+                                                                            </label>
+                                                                        );
+                                                                    })}
                                                                 </div>
                                                             </div>
 
-                                                            {/* Sensitivity */}
-                                                            <div>
-                                                                <label className="text-xs font-semibold uppercase mb-1 block" style={{ color: 'var(--color-text-muted)' }}>{t('cloaking.sensitivity')}</label>
-                                                                <select
-                                                                    value={sc.sensitivity || 'medium'}
-                                                                    onChange={e => setCloakField('sensitivity', e.target.value)}
-                                                                    className="form-select text-sm"
-                                                                >
-                                                                    <option value="low">{t('cloaking.sensitivityLow')}</option>
-                                                                    <option value="medium">{t('cloaking.sensitivityMedium')}</option>
-                                                                    <option value="high">{t('cloaking.sensitivityHigh')}</option>
-                                                                </select>
-                                                                <div className="form-hint">{t('cloaking.sensitivityHint')}</div>
+                                                            {/* Sensitivity & JS Challenge row */}
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                                                <div>
+                                                                    <label className="text-xs font-semibold uppercase mb-1 block" style={{ color: 'var(--color-text-muted)' }}>
+                                                                        {t('cloaking.sensitivity')}
+                                                                    </label>
+                                                                    <select
+                                                                        value={sc.sensitivity || 'medium'}
+                                                                        onChange={e => setCloakField('sensitivity', e.target.value)}
+                                                                        className="form-select text-xs py-1.5 rounded-xl"
+                                                                    >
+                                                                        <option value="low">{t('cloaking.sensitivityLow', 'Low (Fewer false positives)')}</option>
+                                                                        <option value="medium">{t('cloaking.sensitivityMedium', 'Medium (Recommended balance)')}</option>
+                                                                        <option value="high">{t('cloaking.sensitivityHigh', 'High (Aggressive blocking)')}</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="text-xs font-semibold uppercase mb-1 block" style={{ color: 'var(--color-text-muted)' }}>
+                                                                        {t('cloaking.jsChallenge', 'Active Browser Verification')}
+                                                                    </label>
+                                                                    <label
+                                                                        className="flex items-center gap-2 p-1.5 rounded-xl border cursor-pointer select-none text-xs"
+                                                                        style={{
+                                                                            backgroundColor: Boolean(sc.js_challenge) ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
+                                                                            borderColor: Boolean(sc.js_challenge) ? 'var(--color-primary)' : 'var(--color-border)',
+                                                                            color: 'var(--color-text-primary)'
+                                                                        }}
+                                                                    >
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={Boolean(sc.js_challenge)}
+                                                                            onChange={e => setCloakField('js_challenge', e.target.checked)}
+                                                                            className="w-3.5 h-3.5"
+                                                                            style={{ accentColor: 'var(--color-primary)' }}
+                                                                        />
+                                                                        <span>{t('cloaking.jsChallenge', 'JS Fingerprint Challenge')}</span>
+                                                                    </label>
+                                                                </div>
                                                             </div>
 
-                                                            {/* Active JS check */}
-                                                            <div>
-                                                                <label className="form-checkbox-label text-xs" style={{ color: 'var(--color-text-primary)' }}>
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        checked={Boolean(sc.js_challenge)}
-                                                                        onChange={e => setCloakField('js_challenge', e.target.checked)}
-                                                                    />
-                                                                    {t('cloaking.jsChallenge')}
-                                                                </label>
-                                                                <div className="form-hint">{t('cloaking.jsChallengeHint')}</div>
-                                                            </div>
+                                                            {/* Safe Page Section */}
+                                                            <div className="p-3.5 rounded-xl space-y-3" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                                                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                                                    <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>
+                                                                        🛡️ {t('streamRefine.safePageTitle', 'Safe Page (For Reviewers & Bots)')}
+                                                                    </span>
+                                                                    <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--color-border)' }}>
+                                                                        {[
+                                                                            ['url', t('streamRefine.tabUrl', 'External URL')],
+                                                                            ['landing', t('streamRefine.tabLanding', 'Tracker Landing')],
+                                                                            ['html', t('streamRefine.tabHtml', 'Inline HTML')]
+                                                                        ].map(([mode, label]) => (
+                                                                            <button
+                                                                                key={mode}
+                                                                                type="button"
+                                                                                onClick={() => setSafeMode(mode)}
+                                                                                className="px-2.5 py-1 text-[11px] font-medium transition"
+                                                                                style={{
+                                                                                    backgroundColor: safeMode === mode ? 'var(--color-primary)' : 'var(--color-bg-card)',
+                                                                                    color: safeMode === mode ? '#ffffff' : 'var(--color-text-secondary)'
+                                                                                }}
+                                                                            >
+                                                                                {label}
+                                                                            </button>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
 
-                                                            {/* Safe page */}
-                                                            <div className="pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
-                                                                <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('cloaking.safePage')}</span>
-                                                                <div className="form-hint">{t('cloaking.safePageHint')}</div>
-                                                                <div className="space-y-2 mt-2">
+                                                                {safeMode === 'url' && (
                                                                     <div>
-                                                                        <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('cloaking.safeLanding')}</label>
+                                                                        <input
+                                                                            type="url"
+                                                                            value={sc.safe_url || ''}
+                                                                            onChange={e => setCloakField('safe_url', e.target.value)}
+                                                                            className="form-input text-xs font-mono py-1.5 rounded-xl"
+                                                                            placeholder="https://safe-white-page.com"
+                                                                        />
+                                                                    </div>
+                                                                )}
+
+                                                                {safeMode === 'landing' && (
+                                                                    <div>
                                                                         <select
                                                                             value={sc.safe_landing_id || ''}
                                                                             onChange={e => setCloakField('safe_landing_id', e.target.value ? parseInt(e.target.value) : null)}
-                                                                            className="form-select text-sm"
+                                                                            className="form-select text-xs py-1.5 rounded-xl"
                                                                         >
-                                                                            <option value="">{t('cloaking.safeLandingNone')}</option>
+                                                                            <option value="">{t('cloaking.safeLandingNone', 'Select a Safe Landing...')}</option>
                                                                             {allLandings.map(al => <option key={al.id} value={al.id}>{al.name}</option>)}
                                                                         </select>
                                                                     </div>
-                                                                    {!sc.safe_landing_id && (
-                                                                        <>
-                                                                            <div>
-                                                                                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('cloaking.safeUrl')}</label>
-                                                                                <input
-                                                                                    type="url"
-                                                                                    value={sc.safe_url || ''}
-                                                                                    onChange={e => setCloakField('safe_url', e.target.value)}
-                                                                                    className="form-input text-sm"
-                                                                                    placeholder="https://safe-page.example.com"
-                                                                                />
-                                                                            </div>
-                                                                            <div>
-                                                                                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('cloaking.safeHtml')}</label>
-                                                                                <textarea
-                                                                                    value={sc.safe_html || ''}
-                                                                                    onChange={e => setCloakField('safe_html', e.target.value)}
-                                                                                    className="form-input text-sm"
-                                                                                    rows={3}
-                                                                                    placeholder="<html>...inline safe page HTML...</html>"
-                                                                                />
-                                                                            </div>
-                                                                        </>
-                                                                    )}
-                                                                </div>
+                                                                )}
+
+                                                                {safeMode === 'html' && (
+                                                                    <div>
+                                                                        <textarea
+                                                                            value={sc.safe_html || ''}
+                                                                            onChange={e => setCloakField('safe_html', e.target.value)}
+                                                                            className="form-input text-xs font-mono py-1.5 rounded-xl"
+                                                                            rows={3}
+                                                                            placeholder="<!DOCTYPE html><html><body><h1>Welcome</h1></body></html>"
+                                                                        />
+                                                                    </div>
+                                                                )}
                                                             </div>
 
-                                                            {/* Money page — reuse the same landing + offer pickers */}
-                                                            <div className="pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
-                                                                <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('cloaking.moneyPage')}</span>
-                                                                <div className="form-hint">{t('cloaking.moneyPageHint')}</div>
-                                                                <div className="mt-2">
-                                                                    <div className="flex justify-between mb-2">
-                                                                        <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.landings')}</span>
-                                                                        <button onClick={() => addSchemaItem(idx, 'landings')} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.add')}</button>
+                                                            {/* Money Page Section */}
+                                                            <div className="p-3.5 rounded-xl space-y-3" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                                                                <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: 'var(--color-text-primary)' }}>
+                                                                    💰 {t('streamRefine.moneyPageTitle', 'Money Page (For Real Visitors)')}
+                                                                </span>
+
+                                                                {/* Money Landings */}
+                                                                <div>
+                                                                    <div className="flex justify-between items-center mb-1.5">
+                                                                        <span className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('editor.landings')}</span>
+                                                                        <button type="button" onClick={() => addSchemaItem(idx, 'landings')} className="text-xs text-blue-500 hover:underline">
+                                                                            + {t('editor.add')}
+                                                                        </button>
                                                                     </div>
-                                                                    {(stream.schema_custom?.landings || []).map((l, lIdx, list) => (
-                                                                        <div key={lIdx} className="flex gap-2 mb-2">
+                                                                    {(sc.landings || []).map((l, lIdx, list) => (
+                                                                        <div key={lIdx} className="flex gap-2 items-center mb-1.5">
                                                                             <select
                                                                                 value={l.id}
                                                                                 onChange={e => updateSchemaItem(idx, 'landings', lIdx, 'id', parseInt(e.target.value))}
-                                                                                className="form-select text-sm"
+                                                                                className="form-select text-xs flex-1 rounded-xl"
                                                                             >
                                                                                 <option value="">{t('editor.landingInfo')}</option>
                                                                                 {allLandings.map(al => <option key={al.id} value={al.id}>{al.name}</option>)}
                                                                             </select>
-                                                                            <div className="flex items-center gap-1">
-                                                                                <input
-                                                                                    type="number"
-                                                                                    value={list.length === 1 ? 100 : l.weight}
-                                                                                    disabled={list.length === 1}
-                                                                                    onChange={e => updateSchemaItem(idx, 'landings', lIdx, 'weight', parseInt(e.target.value))}
-                                                                                    className="w-16 text-center rounded-lg px-1 py-1 text-sm"
-                                                                                    style={{ backgroundColor: list.length === 1 ? 'var(--color-bg-soft)' : 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: list.length === 1 ? 'var(--color-text-muted)' : 'var(--color-text-primary)' }}
-                                                                                    title={t('editor.weight')}
-                                                                                />
-                                                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
-                                                                            </div>
-                                                                            <button onClick={() => removeSchemaItem(idx, 'landings', lIdx)} className="action-btn text-red">
-                                                                                <X className="w-4 h-4" />
+                                                                            <input
+                                                                                type="number"
+                                                                                value={list.length === 1 ? 100 : l.weight}
+                                                                                disabled={list.length === 1}
+                                                                                onChange={e => updateSchemaItem(idx, 'landings', lIdx, 'weight', parseInt(e.target.value))}
+                                                                                className="w-14 text-center rounded-xl px-1 py-1 text-xs"
+                                                                                style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}
+                                                                                title={t('editor.weight')}
+                                                                            />
+                                                                            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
+                                                                            <button type="button" onClick={() => removeSchemaItem(idx, 'landings', lIdx)} className="btn-icon text-red">
+                                                                                <X className="w-3.5 h-3.5" />
                                                                             </button>
                                                                         </div>
                                                                     ))}
                                                                 </div>
-                                                                <div className="pt-3 mt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
-                                                                    <div className="flex justify-between mb-2">
-                                                                        <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offers')}</span>
-                                                                        <button onClick={() => addSchemaItem(idx, 'offers')} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.add')}</button>
+
+                                                                {/* Money Offers */}
+                                                                <div className="pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                                                    <div className="flex justify-between items-center mb-1.5">
+                                                                        <span className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('editor.offers')}</span>
+                                                                        <button type="button" onClick={() => addSchemaItem(idx, 'offers')} className="text-xs text-blue-500 hover:underline">
+                                                                            + {t('editor.add')}
+                                                                        </button>
                                                                     </div>
-                                                                    {(stream.schema_custom?.offers || []).map((o, oIdx, list) => (
-                                                                        <div key={oIdx} className="flex gap-2 mb-2">
+                                                                    {(sc.offers || []).map((o, oIdx, list) => (
+                                                                        <div key={oIdx} className="flex gap-2 items-center mb-1.5">
                                                                             <select
                                                                                 value={o.id}
                                                                                 onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'id', parseInt(e.target.value))}
-                                                                                className="form-select text-sm"
+                                                                                className="form-select text-xs flex-1 rounded-xl"
                                                                             >
                                                                                 <option value="">{t('editor.offerInfo')}</option>
                                                                                 {allOffers.map(ao => <option key={ao.id} value={ao.id}>{ao.name}</option>)}
                                                                             </select>
-                                                                            <div className="flex items-center gap-1">
-                                                                                <input
-                                                                                    type="number"
-                                                                                    value={list.length === 1 ? 100 : o.weight}
-                                                                                    disabled={list.length === 1}
-                                                                                    onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'weight', parseInt(e.target.value))}
-                                                                                    className="w-16 text-center rounded-lg px-1 py-1 text-sm"
-                                                                                    style={{ backgroundColor: list.length === 1 ? 'var(--color-bg-soft)' : 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: list.length === 1 ? 'var(--color-text-muted)' : 'var(--color-text-primary)' }}
-                                                                                    title={t('editor.weight')}
-                                                                                />
-                                                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
-                                                                            </div>
-                                                                            <button onClick={() => removeSchemaItem(idx, 'offers', oIdx)} className="action-btn text-red">
-                                                                                <X className="w-4 h-4" />
+                                                                            <input
+                                                                                type="number"
+                                                                                value={list.length === 1 ? 100 : o.weight}
+                                                                                disabled={list.length === 1}
+                                                                                onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'weight', parseInt(e.target.value))}
+                                                                                className="w-14 text-center rounded-xl px-1 py-1 text-xs"
+                                                                                style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}
+                                                                                title={t('editor.weight')}
+                                                                            />
+                                                                            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
+                                                                            <button type="button" onClick={() => removeSchemaItem(idx, 'offers', oIdx)} className="btn-icon text-red">
+                                                                                <X className="w-3.5 h-3.5" />
                                                                             </button>
                                                                         </div>
                                                                     ))}
@@ -2423,66 +2534,152 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                     );
                                                 })()}
 
-                                                {stream.schema_type === 'redirect' && (
-                                                    <div className="space-y-3 rounded-2xl p-3" style={{ border: '1px solid var(--color-border)', backgroundColor: 'rgba(59, 130, 246, 0.05)' }}>
-                                                        <div className="flex justify-between mb-2 items-center">
-                                                            <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offers')}</span>
-                                                            <button onClick={() => addSchemaItem(idx, 'offers')} className="text-xs" style={{ color: 'var(--color-primary)' }}>{t('editor.add')}</button>
-                                                        </div>
+                                                {stream.schema_type === 'redirect' && (() => {
+                                                    const sc = stream.schema_custom || {};
+                                                    const isDirectUrl = sc.redirect_mode === 'direct_url' || !!sc.direct_url;
+                                                    const setRedirectMode = (mode) => {
+                                                        updateStream(idx, 'schema_custom', { ...sc, redirect_mode: mode });
+                                                    };
+                                                    const setDirectUrl = (url) => {
+                                                        updateStream(idx, 'schema_custom', { ...sc, redirect_mode: 'direct_url', direct_url: url });
+                                                    };
 
-                                                        {(() => {
-                                                            const offers = stream.schema_custom?.offers || [];
-                                                            const totalWeight = offers.reduce((sum, o) => sum + (parseInt(o.weight) || 0), 0);
-                                                            const isOverWeight = totalWeight > 100 && offers.length > 1;
+                                                    return (
+                                                        <div className="space-y-4 rounded-2xl p-4" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
+                                                            {/* Segmented Destination Mode Selector: Tracker Offer vs Direct URL */}
+                                                            <div>
+                                                                <label className="text-xs font-semibold uppercase mb-1.5 block" style={{ color: 'var(--color-text-muted)' }}>
+                                                                    {t('streamRefine.directMode', 'Destination Type')}
+                                                                </label>
+                                                                <div className="flex rounded-xl overflow-hidden max-w-sm" style={{ border: '1px solid var(--color-border)' }}>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => setRedirectMode('offers')}
+                                                                        className="flex-1 px-3 py-1.5 text-xs font-medium transition"
+                                                                        style={{
+                                                                            backgroundColor: !isDirectUrl ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
+                                                                            color: !isDirectUrl ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                                                                            borderRight: '1px solid var(--color-border)'
+                                                                        }}
+                                                                    >
+                                                                        {t('streamRefine.trackerOffer', 'Tracker Offer')}
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => setRedirectMode('direct_url')}
+                                                                        className="flex-1 px-3 py-1.5 text-xs font-medium transition"
+                                                                        style={{
+                                                                            backgroundColor: isDirectUrl ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
+                                                                            color: isDirectUrl ? 'var(--color-primary)' : 'var(--color-text-secondary)'
+                                                                        }}
+                                                                    >
+                                                                        {t('streamRefine.directUrl', 'Direct URL')}
+                                                                    </button>
+                                                                </div>
+                                                            </div>
 
-                                                            return (
-                                                                <>
-                                                                    {offers.length === 0 && (
-                                                                        <div className="text-xs text-center py-2" style={{ color: 'var(--color-text-muted)' }}>{t('editor.addOffersHelp')}</div>
-                                                                    )}
-                                                                    {isOverWeight && (
-                                                                        <div className="text-xs rounded-lg p-2" style={{ color: 'var(--color-warning)', backgroundColor: 'var(--color-warning-bg)', border: '1px solid var(--color-warning)' }}>
-                                                                            {t('editor.weightWarning')} {totalWeight}{t('editor.weightWarningEnd')}
-                                                                        </div>
-                                                                    )}
-                                                                    {offers.map((o, oIdx, list) => (
-                                                                        <div key={oIdx} className="flex gap-2 mb-2">
-                                                                            <select
-                                                                                value={o.id}
-                                                                                onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'id', parseInt(e.target.value))}
-                                                                                className="form-select text-sm"
+                                                            {isDirectUrl ? (
+                                                                <div className="space-y-2">
+                                                                    <label className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                                                        {t('streamRefine.directUrl', 'Direct Target URL')}
+                                                                    </label>
+                                                                    <input
+                                                                        type="url"
+                                                                        value={sc.direct_url || ''}
+                                                                        onChange={e => setDirectUrl(e.target.value)}
+                                                                        placeholder={t('streamRefine.directUrlPlaceholder', 'https://affiliate-offer.com/?subid={subid}&clickid={clickid}')}
+                                                                        className="form-input text-xs font-mono py-2 rounded-xl"
+                                                                    />
+                                                                    <p className="text-xs" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                                                                        {t('streamRefine.directUrlHelp')}
+                                                                    </p>
+                                                                    {/* Macro Helper Tags */}
+                                                                    <div className="flex flex-wrap gap-1.5 pt-1">
+                                                                        {['{subid}', '{clickid}', '{country}', '{ip}', '{sub_id_1}', '{sub_id_2}', '{sub_id_3}', '{cost}'].map(tag => (
+                                                                            <button
+                                                                                key={tag}
+                                                                                type="button"
+                                                                                onClick={() => setDirectUrl((sc.direct_url || '') + (sc.direct_url?.includes('?') ? '&' : '?') + `${tag.slice(1,-1)}=${tag}`)}
+                                                                                className="text-[11px] px-2 py-0.5 rounded-lg border font-mono transition-colors hover:border-blue-400"
+                                                                                style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}
                                                                             >
-                                                                                <option value="">{t('editor.offerInfo')}</option>
-                                                                                {allOffers.map(ao => <option key={ao.id} value={ao.id}>{ao.name}</option>)}
-                                                                            </select>
-                                                                            <div className="flex items-center gap-1">
-                                                                                <input
-                                                                                    type="number"
-                                                                                    value={list.length === 1 ? 100 : o.weight}
-                                                                                    disabled={list.length === 1}
-                                                                                    onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'weight', parseInt(e.target.value))}
-                                                                                    className="w-16 text-center rounded-lg px-1 py-1 text-sm"
-                                                                                    style={{
-                                                                                        backgroundColor: list.length === 1 ? 'var(--color-bg-soft)' : 'var(--color-bg-card)',
-                                                                                        border: `1px solid ${isOverWeight ? 'var(--color-warning)' : 'var(--color-border)'}`,
-                                                                                        color: list.length === 1 ? 'var(--color-text-muted)' : 'var(--color-text-primary)'
-                                                                                    }}
-                                                                                    title={t('editor.weight')}
-                                                                                    max="100"
-                                                                                    min="1"
-                                                                                />
-                                                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
-                                                                            </div>
-                                                                            <button onClick={() => removeSchemaItem(idx, 'offers', oIdx)} className="action-btn text-red">
-                                                                                <X className="w-4 h-4" />
+                                                                                + {tag}
                                                                             </button>
-                                                                        </div>
-                                                                    ))}
-                                                                </>
-                                                            );
-                                                        })()}
-                                                    </div>
-                                                )}
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="space-y-3">
+                                                                    <div className="flex justify-between items-center">
+                                                                        <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offers')}</span>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => addSchemaItem(idx, 'offers')}
+                                                                            className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl flex items-center gap-1"
+                                                                        >
+                                                                            <Plus className="w-3 h-3" />
+                                                                            {t('editor.add')}
+                                                                        </button>
+                                                                    </div>
+
+                                                                    {(() => {
+                                                                        const offers = sc.offers || [];
+                                                                        const totalWeight = offers.reduce((sum, o) => sum + (parseInt(o.weight) || 0), 0);
+                                                                        const isOverWeight = totalWeight > 100 && offers.length > 1;
+
+                                                                        return (
+                                                                            <>
+                                                                                {offers.length === 0 && (
+                                                                                    <div className="text-xs text-center py-4 rounded-xl border border-dashed" style={{ color: 'var(--color-text-muted)', borderColor: 'var(--color-border)' }}>
+                                                                                        {t('editor.addOffersHelp')}
+                                                                                    </div>
+                                                                                )}
+                                                                                {isOverWeight && (
+                                                                                    <div className="text-xs rounded-lg p-2" style={{ color: 'var(--color-warning)', backgroundColor: 'var(--color-warning-bg)', border: '1px solid var(--color-warning)' }}>
+                                                                                        {t('editor.weightWarning')} {totalWeight}{t('editor.weightWarningEnd')}
+                                                                                    </div>
+                                                                                )}
+                                                                                {offers.map((o, oIdx, list) => (
+                                                                                    <div key={oIdx} className="flex gap-2 items-center">
+                                                                                        <select
+                                                                                            value={o.id}
+                                                                                            onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'id', parseInt(e.target.value))}
+                                                                                            className="form-select text-xs flex-1 rounded-xl"
+                                                                                        >
+                                                                                            <option value="">{t('editor.offerInfo')}</option>
+                                                                                            {allOffers.map(ao => <option key={ao.id} value={ao.id}>{ao.name}</option>)}
+                                                                                        </select>
+                                                                                        <div className="flex items-center gap-1">
+                                                                                            <input
+                                                                                                type="number"
+                                                                                                value={list.length === 1 ? 100 : o.weight}
+                                                                                                disabled={list.length === 1}
+                                                                                                onChange={e => updateSchemaItem(idx, 'offers', oIdx, 'weight', parseInt(e.target.value))}
+                                                                                                className="w-16 text-center rounded-xl px-1 py-1.5 text-xs font-semibold"
+                                                                                                style={{
+                                                                                                    backgroundColor: list.length === 1 ? 'var(--color-bg-soft)' : 'var(--color-bg-card)',
+                                                                                                    border: `1px solid ${isOverWeight ? 'var(--color-warning)' : 'var(--color-border)'}`,
+                                                                                                    color: list.length === 1 ? 'var(--color-text-muted)' : 'var(--color-text-primary)'
+                                                                                                }}
+                                                                                                title={t('editor.weight')}
+                                                                                                max="100"
+                                                                                                min="1"
+                                                                                            />
+                                                                                            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
+                                                                                        </div>
+                                                                                        <button type="button" onClick={() => removeSchemaItem(idx, 'offers', oIdx)} className="btn-icon text-red">
+                                                                                            <Trash2 className="w-4 h-4" />
+                                                                                        </button>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </>
+                                                                        );
+                                                                    })()}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })()}
 
                                                 {/* Filters */}
                                                 {stream.type !== 'fallback' && (
@@ -2659,6 +2856,101 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                 </div>
                             )}
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Cost Connection Modal */}
+            {showAddCostConnModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content max-w-md w-full rounded-2xl shadow-2xl p-6" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                        <div className="flex items-center justify-between pb-3 mb-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                            <h3 className="text-base font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                                {t('streamRefine.addCostConnection', '+ Add Cost Connection')}
+                            </h3>
+                            <button onClick={() => setShowAddCostConnModal(false)} className="btn-icon">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSaveCostConnection} className="space-y-4">
+                            <div>
+                                <label className="form-label text-xs">{t('editor.trafficSource', 'Platform / Engine')}</label>
+                                <select
+                                    value={costConnForm.engine}
+                                    onChange={e => setCostConnForm({ ...costConnForm, engine: e.target.value })}
+                                    className="form-select text-xs py-2 rounded-xl"
+                                >
+                                    <option value="facebook">Facebook Ads (Graph API / Marketing API)</option>
+                                    <option value="google_ads">Google Ads</option>
+                                    <option value="tiktok">TikTok Ads</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="form-label text-xs">{t('editor.name', 'Connection Name')}</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={costConnForm.name}
+                                    onChange={e => setCostConnForm({ ...costConnForm, name: e.target.value })}
+                                    placeholder="e.g. FB Ad Account Main"
+                                    className="form-input text-xs py-2 rounded-xl"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="form-label text-xs">Ad Account ID</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={costConnForm.account_id}
+                                    onChange={e => setCostConnForm({ ...costConnForm, account_id: e.target.value })}
+                                    placeholder="act_1234567890"
+                                    className="form-input text-xs font-mono py-2 rounded-xl"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="form-label text-xs">Access Token</label>
+                                <input
+                                    type="password"
+                                    required
+                                    value={costConnForm.access_token}
+                                    onChange={e => setCostConnForm({ ...costConnForm, access_token: e.target.value })}
+                                    placeholder="EAA..."
+                                    className="form-input text-xs font-mono py-2 rounded-xl"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="form-label text-xs">Proxy (Optional)</label>
+                                <input
+                                    type="text"
+                                    value={costConnForm.proxy_url}
+                                    onChange={e => setCostConnForm({ ...costConnForm, proxy_url: e.target.value })}
+                                    placeholder="http://user:pass@host:port"
+                                    className="form-input text-xs font-mono py-2 rounded-xl"
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-2 pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowAddCostConnModal(false)}
+                                    className="btn btn-ghost text-xs py-1.5 px-3 rounded-xl"
+                                >
+                                    {t('common.cancel')}
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={savingCostConn}
+                                    className="btn btn-primary text-xs py-1.5 px-4 rounded-xl font-semibold"
+                                >
+                                    {savingCostConn ? t('common.saving') : t('common.save')}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

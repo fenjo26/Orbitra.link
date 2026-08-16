@@ -487,43 +487,41 @@ const CohortView = () => {
                         <table className="page-table">
                             <thead>
                                 <tr>
-                                    <th>{t('cohort.cohortLabel')}</th>
-                                    <th className="text-right">{t('cohort.launched')}</th>
-                                    <th className="text-right">{t('cohort.campaignsActive')}</th>
-                                    <th className="text-right">{t('cohort.totalClicks')}</th>
-                                    <th className="text-right">{t('cohort.conversions')}</th>
-                                    <th className="text-right">{t('cohort.totalRevenue')}</th>
-                                    <th className="text-right">{t('cohort.totalProfit')}</th>
-                                    <th className="text-right">{t('cohort.avgRoi')}</th>
-                                    <th className="text-right">{t('cohort.firstSeen')}</th>
-                                    <th className="text-right">{t('cohort.lastSeen')}</th>
+                                    <th style={{ textAlign: 'left' }}>{t('cohort.cohortLabel')}</th>
+                                    <th style={{ textAlign: 'right' }}>{t('cohort.launched')}</th>
+                                    <th style={{ textAlign: 'right' }}>{t('cohort.campaignsActive')}</th>
+                                    <th style={{ textAlign: 'right' }}>{t('cohort.totalClicks')}</th>
+                                    <th style={{ textAlign: 'right' }}>{t('cohort.conversions')}</th>
+                                    <th style={{ textAlign: 'right' }}>{t('cohort.totalRevenue')}</th>
+                                    <th style={{ textAlign: 'right' }}>{t('cohort.totalProfit')}</th>
+                                    <th style={{ textAlign: 'right' }}>{t('cohort.avgRoi')}</th>
+                                    <th style={{ textAlign: 'right' }}>{t('cohort.firstSeen')}</th>
+                                    <th style={{ textAlign: 'right' }}>{t('cohort.lastSeen')}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {summary.map(s => (
                                     <tr key={s.label}>
-                                        <td style={{ fontWeight: 500 }}>
+                                        <td style={{ fontWeight: 500, textAlign: 'left' }}>
                                             {formatCohortLabel(s.label, granularity, language)}
                                         </td>
-                                        <td className="text-right" style={{ color: 'var(--color-text-muted)' }}>
+                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-muted)' }}>
                                             {s.launched}
                                         </td>
-                                        <td className="text-right">{s.campaignsActive}</td>
-                                        <td className="text-right">{s.clicks.toLocaleString(LOCALE_TAGS[language] || 'en-US')}</td>
-                                        <td className="text-right">{s.conversions}</td>
-                                        <td className="text-right">${s.revenue.toFixed(2)}</td>
-                                        <td className="text-right"
-                                            style={{ color: s.profit >= 0 ? 'var(--color-success)' : 'var(--color-danger)' }}>
+                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{s.campaignsActive}</td>
+                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{s.clicks.toLocaleString(LOCALE_TAGS[language] || 'en-US')}</td>
+                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{s.conversions}</td>
+                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>${s.revenue.toFixed(2)}</td>
+                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: s.profit >= 0 ? 'var(--color-success)' : 'var(--color-danger)' }}>
                                             ${s.profit.toFixed(2)}
                                         </td>
-                                        <td className="text-right"
-                                            style={{ color: s.roi >= 0 ? 'var(--color-success)' : 'var(--color-danger)' }}>
+                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: s.roi >= 0 ? 'var(--color-success)' : 'var(--color-danger)' }}>
                                             {s.roi.toFixed(2)}%
                                         </td>
-                                        <td className="text-right" style={{ color: 'var(--color-text-muted)' }}>
+                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-muted)' }}>
                                             M{s.firstIdx ?? 0}
                                         </td>
-                                        <td className="text-right" style={{ color: 'var(--color-text-muted)' }}>
+                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-muted)' }}>
                                             M{s.lastIdx ?? 0}
                                         </td>
                                     </tr>
