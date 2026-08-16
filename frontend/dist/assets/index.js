@@ -53897,6 +53897,32 @@ const Landings = ({ landings, refreshData }) => {
     )
   ] });
 };
+const displayNamesCache = {};
+const getDisplayNames = (language) => {
+  const locales = [language || "en", "en"];
+  const cacheKey = locales.join("|");
+  if (!(cacheKey in displayNamesCache)) {
+    try {
+      displayNamesCache[cacheKey] = new Intl.DisplayNames(locales, { type: "region" });
+    } catch (e) {
+      displayNamesCache[cacheKey] = null;
+    }
+  }
+  return displayNamesCache[cacheKey];
+};
+const localizedCountryName = (code, language, fallbackName) => {
+  if (!code || code === "Unknown" || code === "??") return fallbackName || code;
+  const upper = String(code).toUpperCase();
+  const dn = getDisplayNames(language);
+  if (dn) {
+    try {
+      const name = dn.of(upper);
+      if (name && name !== upper) return name;
+    } catch (e) {
+    }
+  }
+  return fallbackName || code;
+};
 const API_URL$s = "/api.php";
 const getCountryFlag = (code) => {
   if (!code || code === "Unknown" || code === "??") return "🏳️";
@@ -53907,7 +53933,7 @@ const getCountryFlag = (code) => {
   );
 };
 const GeoSelector = ({ value = "", onChange, placeholder }) => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [mode, setMode] = reactExports.useState("select");
   const [isOpen, setIsOpen] = reactExports.useState(false);
   const [search, setSearch] = reactExports.useState("");
@@ -53989,10 +54015,10 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
   const getCountryName = (code) => {
     if (code === "Unknown") return t("geoSelector.unknown");
     const c = countries.find((x) => x.code === code);
-    return c ? c.name : code;
+    return localizedCountryName(code, language, c ? c.name : void 0);
   };
   const filteredCountries = countries.filter(
-    (c) => c.name.toLowerCase().includes(search.toLowerCase()) || c.code.toLowerCase().includes(search.toLowerCase())
+    (c) => localizedCountryName(c.code, language, c.name).toLowerCase().includes(search.toLowerCase()) || c.code.toLowerCase().includes(search.toLowerCase())
   );
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full relative", ref: wrapperRef, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-2 flex-wrap gap-y-1", children: [
@@ -54108,7 +54134,7 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-lg leading-none", children: getCountryFlag(country.code) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-primary)]", children: country.name }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-primary)]", children: getCountryName(country.code) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-[var(--color-text-muted)]", children: country.code })
           ] }),
           selectedCodes.includes(country.code) && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-[var(--color-primary)]" })
@@ -58914,7 +58940,7 @@ const BrandingPage = () => {
 };
 const API_URL$i = "/api.php";
 const GeoProfilesPage = () => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [profiles, setProfiles] = reactExports.useState([]);
   const [countries, setCountries] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
@@ -59011,10 +59037,10 @@ const GeoProfilesPage = () => {
   };
   const getCountryName = (code) => {
     const country = countries.find((c) => c.code === code);
-    return country ? country.name : code;
+    return localizedCountryName(code, language, country ? country.name : void 0);
   };
   const filteredCountries = countries.filter(
-    (c) => c.name.toLowerCase().includes(countrySearch.toLowerCase()) || c.code.toLowerCase().includes(countrySearch.toLowerCase())
+    (c) => localizedCountryName(c.code, language, c.name).toLowerCase().includes(countrySearch.toLowerCase()) || c.code.toLowerCase().includes(countrySearch.toLowerCase())
   );
   const filteredProfiles = profiles.filter(
     (p) => p.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -59187,7 +59213,7 @@ const GeoProfilesPage = () => {
               className: `flex items-center gap-1 px-2 py-1 rounded text-sm text-left transition-colors border ${formData.countries.includes(country.code) ? "bg-[var(--color-primary-light)] text-[var(--color-primary)] font-semibold border-[var(--color-primary)]" : "hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] border-transparent"}`,
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-base", children: getCountryFlag2(country.code) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: country.name }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: getCountryName(country.code) }),
                 formData.countries.includes(country.code) && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14, className: "ml-auto flex-shrink-0", style: { color: "var(--color-primary)" } })
               ]
             },

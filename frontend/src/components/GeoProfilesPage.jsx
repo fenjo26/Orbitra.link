@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Globe, Plus, Edit2, Trash2, X, Check, Search, MapPin } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { localizedCountryName } from '../utils/countryNames';
 
 const API_URL = '/api.php';
 
 const GeoProfilesPage = () => {
-    const { t } = useLanguage();
+    const { language, t } = useLanguage();
     const [profiles, setProfiles] = useState([]);
     const [countries, setCountries] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -118,11 +119,11 @@ const GeoProfilesPage = () => {
 
     const getCountryName = (code) => {
         const country = countries.find(c => c.code === code);
-        return country ? country.name : code;
+        return localizedCountryName(code, language, country ? country.name : undefined);
     };
 
     const filteredCountries = countries.filter(c =>
-        c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+        localizedCountryName(c.code, language, c.name).toLowerCase().includes(countrySearch.toLowerCase()) ||
         c.code.toLowerCase().includes(countrySearch.toLowerCase())
     );
 
@@ -322,7 +323,7 @@ const GeoProfilesPage = () => {
                                                     }`}
                                             >
                                                 <span className="text-base">{getCountryFlag(country.code)}</span>
-                                                <span className="truncate">{country.name}</span>
+                                                <span className="truncate">{getCountryName(country.code)}</span>
                                                 {formData.countries.includes(country.code) && (
                                                     <Check size={14} className="ml-auto flex-shrink-0" style={{ color: 'var(--color-primary)' }} />
                                                 )}

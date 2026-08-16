@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { X, ChevronDown, Check, Type, Plus, MapPin, Globe } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { localizedCountryName } from '../utils/countryNames';
 
 const API_URL = '/api.php';
 
@@ -14,7 +15,7 @@ const getCountryFlag = (code) => {
 };
 
 const GeoSelector = ({ value = '', onChange, placeholder }) => {
-    const { t } = useLanguage();
+    const { language, t } = useLanguage();
     const [mode, setMode] = useState('select');
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
@@ -110,11 +111,11 @@ const GeoSelector = ({ value = '', onChange, placeholder }) => {
     const getCountryName = (code) => {
         if (code === 'Unknown') return t('geoSelector.unknown');
         const c = countries.find(x => x.code === code);
-        return c ? c.name : code;
+        return localizedCountryName(code, language, c ? c.name : undefined);
     };
 
     const filteredCountries = countries.filter(c =>
-        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        localizedCountryName(c.code, language, c.name).toLowerCase().includes(search.toLowerCase()) ||
         c.code.toLowerCase().includes(search.toLowerCase())
     );
 
@@ -233,7 +234,7 @@ const GeoSelector = ({ value = '', onChange, placeholder }) => {
                             >
                                 <div className="flex items-center gap-2">
                                     <span className="text-lg leading-none">{getCountryFlag(country.code)}</span>
-                                    <span className="text-sm font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-primary)]">{country.name}</span>
+                                    <span className="text-sm font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-primary)]">{getCountryName(country.code)}</span>
                                     <span className="text-xs text-[var(--color-text-muted)]">{country.code}</span>
                                 </div>
                                 {selectedCodes.includes(country.code) && (
