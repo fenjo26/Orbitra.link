@@ -23,9 +23,9 @@ export const COUNTDOWN_THEMES = {
 
 /** Exit-intent CTA button presets. */
 export const EXIT_BUTTON_COLORS = [
-    { value: '#22c55e', id: 'green' },
-    { value: '#3b82f6', id: 'blue' },
-    { value: '#f05a3e', id: 'coral' },
+    { value: '#22c55e', labelKey: 'tracking.colorGreen' },
+    { value: '#3b82f6', labelKey: 'tracking.colorBlue' },
+    { value: '#f05a3e', labelKey: 'tracking.colorCoral' },
 ];
 
 /** method id => locale key with the "where do I paste this" instruction. */
@@ -51,9 +51,11 @@ const esc = (s) => String(s ?? '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-/** Keitaro-style pass-through of the page's referrer, title and query string. */
+/** Keitaro-style pass-through of the page's referrer, title and query string.
+ *  Emits a JS expression fragment; the trailing ` + '` re-opens the string
+ *  literal so callers can continue with their own query params / markup. */
 const pagePassthrough = () =>
-    `' + encodeURIComponent(document.referrer) + '&default_keyword=' + encodeURIComponent(document.title) + '&'+window.location.search.replace('?', '&')`;
+    `' + encodeURIComponent(document.referrer) + '&default_keyword=' + encodeURIComponent(document.title) + '&'+window.location.search.replace('?', '&') + '`;
 
 export const INTEGRATION_METHODS = [
     { id: 'kclient_js', group: 'site' },
@@ -126,7 +128,10 @@ function kclientPhp({ trackerUrl, campaign }, opts = {}) {
     if (mode === 'show_html') {
         execution = `// «Show as HTML»: контент потока прямо в тело страницы, URL не меняется\necho $client->getContent();`;
     } else if (mode === 'get_link') {
-        execution = `// «Get Offer Link»: ссылка на оффер в переменную — для своей кнопки\n<?php $offerLink = $client->getOffer(); ?>\n<!-- <a href="<?php echo $offerLink; ?>">BUY NOW</a> -->`;
+        // Plain PHP statements only: the outer template already opened the
+        // PHP block, and a closing tag inside a // comment would silently
+        // end PHP mode there.
+        execution = `// «Get Offer Link»: ссылка на оффер в переменную — для своей кнопки\n$offerLink = $client->getOffer();\n// echo $offerLink; — вывести ссылку на оффер в нужном месте страницы`;
     } else {
         execution = `$client->execute();\n// $client->executeAndBreak(); — останавливать страницу при редиректе`;
     }
@@ -214,10 +219,10 @@ function backButtonSnippet({ trackerUrl, campaign }, opts = {}) {
         ? `setTimeout(arm, ${delay * 1000});`
         : `arm();`;
     const trapBody = logClick
-        ? `var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + '&sub1=back_button&redirect=0';\n            fetch(clickUrl).finally(function() {\n                window.location.href = trapUrl;\n            });`
+        ? `var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + '&sub1=back_button&redirect=0';\n        fetch(clickUrl).finally(function() {\n            window.location.href = trapUrl;\n        });`
         : `window.location.href = trapUrl;`;
 
-    return `<!-- Orbitra Back Button Trap — вставьте перед закрывающим </body> лендинга -->\n<script>\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = '${campaign.id}';\n    var trapUrl = ${JSON.stringify(trapUrl)};\n\n    function arm() {\n        history.pushState({ trap: true }, '', location.href);\n    }\n\n    ${armLine}\n\n    window.addEventListener('popstate', function(e) {\n        if (e.state && e.state.trap) {\n            ${trapBody}\n        }\n    });\n})();\n</script>`;
+    return `<!-- Orbitra Back Button Trap — вставьте перед закрывающим </body> лендинга -->\n<script>\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = '${campaign.id}';\n    var trapUrl = ${JSON.stringify(trapUrl)};\n\n    function arm() {\n        history.pushState(null, '', location.href);\n    }\n\n    ${armLine}\n\n    window.addEventListener('popstate', function() {\n        // Любой popstate на этой странице — попытка уйти «назад»: pushState\n        // не даёт странице выгрузиться, уводим пользователя в ловушку.\n        ${trapBody}\n    });\n})();\n</script>`;
 }
 
 function exitIntentSnippet({ trackerUrl, campaign }, opts = {}) {

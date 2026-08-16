@@ -12,7 +12,7 @@ import TrafficSourceEditor from './TrafficSourceEditor';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
-import { buildSnippet, COUNTDOWN_THEMES, METHOD_INSTALL_HINTS } from '../utils/integrationSnippets';
+import { buildSnippet, COUNTDOWN_THEMES, EXIT_BUTTON_COLORS, METHOD_INSTALL_HINTS } from '../utils/integrationSnippets';
 
 /**
  * Keitaro-style split button: the main part opens the entity picker, the
@@ -2244,9 +2244,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             <div>
                                                                 <label className="form-label">{t('tracking.buttonColor', 'Button color')}</label>
                                                                 <select className="form-select" value={trackOpts.buttonColor} onChange={e => setTrackOpts({ ...trackOpts, buttonColor: e.target.value })}>
-                                                                    <option value="#22c55e">{t('tracking.colorGreen', 'Green')}</option>
-                                                                    <option value="#3b82f6">{t('tracking.colorBlue', 'Blue')}</option>
-                                                                    <option value="#f05a3e">{t('tracking.colorCoral', 'Coral')}</option>
+                                                                    {EXIT_BUTTON_COLORS.map(c => (
+                                                                        <option key={c.value} value={c.value}>{t(c.labelKey)}</option>
+                                                                    ))}
                                                                 </select>
                                                             </div>
                                                             <div>

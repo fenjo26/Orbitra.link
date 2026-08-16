@@ -67227,6 +67227,11 @@ const COUNTDOWN_THEMES = {
   fire: { gradient: "linear-gradient(135deg,#f97316 0%,#dc2626 100%)", cta: "#111827" },
   dark: { gradient: "linear-gradient(135deg,#374151 0%,#111827 100%)", cta: "#f05a3e" }
 };
+const EXIT_BUTTON_COLORS = [
+  { value: "#22c55e", labelKey: "tracking.colorGreen" },
+  { value: "#3b82f6", labelKey: "tracking.colorBlue" },
+  { value: "#f05a3e", labelKey: "tracking.colorCoral" }
+];
 const METHOD_INSTALL_HINTS = {
   kclient_js: "tracking.instKclientJs",
   kclient_php: "tracking.instKclientPhp",
@@ -67244,7 +67249,7 @@ const METHOD_INSTALL_HINTS = {
   wordpress: "tracking.instWordpress"
 };
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-const pagePassthrough = () => `' + encodeURIComponent(document.referrer) + '&default_keyword=' + encodeURIComponent(document.title) + '&'+window.location.search.replace('?', '&')`;
+const pagePassthrough = () => `' + encodeURIComponent(document.referrer) + '&default_keyword=' + encodeURIComponent(document.title) + '&'+window.location.search.replace('?', '&') + '`;
 function buildSnippet(methodId, ctx, opts = {}) {
   switch (methodId) {
     case "kclient_js":
@@ -67309,8 +67314,8 @@ function kclientPhp({ trackerUrl, campaign }, opts = {}) {
 echo $client->getContent();`;
   } else if (mode === "get_link") {
     execution = `// «Get Offer Link»: ссылка на оффер в переменную — для своей кнопки
-<?php $offerLink = $client->getOffer(); ?>
-<!-- <a href="<?php echo $offerLink; ?>">BUY NOW</a> -->`;
+$offerLink = $client->getOffer();
+// echo $offerLink; — вывести ссылку на оффер в нужном месте страницы`;
   } else {
     execution = `$client->execute();
 // $client->executeAndBreak(); — останавливать страницу при редиректе`;
@@ -67456,9 +67461,9 @@ function backButtonSnippet({ trackerUrl, campaign }, opts = {}) {
   const delay = Math.max(0, parseInt(opts.delay, 10) || 0);
   const armLine = delay > 0 ? `setTimeout(arm, ${delay * 1e3});` : `arm();`;
   const trapBody = logClick ? `var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + '&sub1=back_button&redirect=0';
-            fetch(clickUrl).finally(function() {
-                window.location.href = trapUrl;
-            });` : `window.location.href = trapUrl;`;
+        fetch(clickUrl).finally(function() {
+            window.location.href = trapUrl;
+        });` : `window.location.href = trapUrl;`;
   return `<!-- Orbitra Back Button Trap — вставьте перед закрывающим </body> лендинга -->
 <script>
 (function() {
@@ -67467,15 +67472,15 @@ function backButtonSnippet({ trackerUrl, campaign }, opts = {}) {
     var trapUrl = ${JSON.stringify(trapUrl)};
 
     function arm() {
-        history.pushState({ trap: true }, '', location.href);
+        history.pushState(null, '', location.href);
     }
 
     ${armLine}
 
-    window.addEventListener('popstate', function(e) {
-        if (e.state && e.state.trap) {
-            ${trapBody}
-        }
+    window.addEventListener('popstate', function() {
+        // Любой popstate на этой странице — попытка уйти «назад»: pushState
+        // не даёт странице выгрузиться, уводим пользователя в ловушку.
+        ${trapBody}
     });
 })();
 <\/script>`;
@@ -69639,11 +69644,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.buttonColor", "Button color") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "form-select", value: trackOpts.buttonColor, onChange: (e) => setTrackOpts({ ...trackOpts, buttonColor: e.target.value }), children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "#22c55e", children: t("tracking.colorGreen", "Green") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "#3b82f6", children: t("tracking.colorBlue", "Blue") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "#f05a3e", children: t("tracking.colorCoral", "Coral") })
-                      ] })
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("select", { className: "form-select", value: trackOpts.buttonColor, onChange: (e) => setTrackOpts({ ...trackOpts, buttonColor: e.target.value }), children: EXIT_BUTTON_COLORS.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: c.value, children: t(c.labelKey) }, c.value)) })
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.offerUrl", "Offer URL") }),
