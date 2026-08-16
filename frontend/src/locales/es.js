@@ -1386,7 +1386,7 @@ export default {
         "active": "Activo",
         "disabled": "Discapacitado",
         "postbackHint": "Agregue esta URL en el panel de la red de afiliados (Devolución de publicación global)",
-        "paramsToAdd": "Parámetros a agregar:",
+        "postbackMacros": "Macros de postback de Orbitra:",
         "offerParams": "Parámetros de oferta",
         "offerParamsDesc": "Parámetros que se agregan automáticamente para ofrecer URL para que esta red pase subid y otros datos.",
         "offerParamsLabel": "Parámetros (agregados a la URL de la oferta)",

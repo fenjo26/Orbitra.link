@@ -1386,7 +1386,7 @@ export default {
         "active": "Actif",
         "disabled": "Désactivé",
         "postbackHint": "Ajoutez cette URL dans le tableau de bord du réseau d'affiliation (Global Postback)",
-        "paramsToAdd": "Paramètres à ajouter :",
+        "postbackMacros": "Macros de postback Orbitra :",
         "offerParams": "Paramètres de l'offre",
         "offerParamsDesc": "Paramètres qui sont automatiquement ajoutés pour proposer des URL permettant à ce réseau de transmettre le subid et d'autres données.",
         "offerParamsLabel": "Paramètres (ajoutés à l'URL de l'offre)",

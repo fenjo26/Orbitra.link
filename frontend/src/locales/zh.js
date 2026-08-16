@@ -1386,7 +1386,7 @@ export default {
         "active": "活跃",
         "disabled": "残疾人",
         "postbackHint": "在联属网络仪表板中添加此 URL（全局回发）",
-        "paramsToAdd": "要添加的参数：",
+        "postbackMacros": "Orbitra postback 宏：",
         "offerParams": "报价参数",
         "offerParamsDesc": "自动添加的参数以为该网络提供 URL 以传递 subid 和其他数据。",
         "offerParamsLabel": "参数（添加到优惠 URL 中）",

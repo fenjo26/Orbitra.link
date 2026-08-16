@@ -1386,7 +1386,7 @@ export default {
         "active": "Активна",
         "disabled": "Отключена",
         "postbackHint": "Добавьте этот URL в личном кабинете партнерской сети (Глобальный Postback)",
-        "paramsToAdd": "Параметры для добавления:",
+        "postbackMacros": "Макросы постбека Orbitra:",
         "offerParams": "Параметры оффера",
         "offerParamsDesc": "Параметры, которые автоматически добавляются к URL офферов этой сети для передачи subid и других данных.",
         "offerParamsLabel": "Параметры (добавляются к URL оффера)",

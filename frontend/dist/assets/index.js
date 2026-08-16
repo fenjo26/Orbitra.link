@@ -17383,7 +17383,7 @@ const ru = {
     "active": "Активна",
     "disabled": "Отключена",
     "postbackHint": "Добавьте этот URL в личном кабинете партнерской сети (Глобальный Postback)",
-    "paramsToAdd": "Параметры для добавления:",
+    "postbackMacros": "Макросы постбека Orbitra:",
     "offerParams": "Параметры оффера",
     "offerParamsDesc": "Параметры, которые автоматически добавляются к URL офферов этой сети для передачи subid и других данных.",
     "offerParamsLabel": "Параметры (добавляются к URL оффера)",
@@ -19888,7 +19888,7 @@ const en = {
     "active": "Active",
     "disabled": "Disabled",
     "postbackHint": "Add this URL in the affiliate network dashboard (Global Postback)",
-    "paramsToAdd": "Parameters to add:",
+    "postbackMacros": "Orbitra postback macros:",
     "offerParams": "Offer Parameters",
     "offerParamsDesc": "Parameters that are automatically added to offer URLs for this network to pass subid and other data.",
     "offerParamsLabel": "Parameters (added to offer URL)",
@@ -22393,7 +22393,7 @@ const uk = {
     "active": "Активний",
     "disabled": "Вимкнено",
     "postbackHint": "Додайте цю URL-адресу на інформаційну панель партнерської мережі (Global Postback)",
-    "paramsToAdd": "Параметри для додавання:",
+    "postbackMacros": "Макроси постбеку Orbitra:",
     "offerParams": "Параметри пропозиції",
     "offerParamsDesc": "Параметри, які автоматично додаються, щоб запропонувати URL-адресам цієї мережі передавати subid та інші дані.",
     "offerParamsLabel": "Параметри (додано до URL-адреси пропозиції)",
@@ -24898,7 +24898,7 @@ const es = {
     "active": "Activo",
     "disabled": "Discapacitado",
     "postbackHint": "Agregue esta URL en el panel de la red de afiliados (Devolución de publicación global)",
-    "paramsToAdd": "Parámetros a agregar:",
+    "postbackMacros": "Macros de postback de Orbitra:",
     "offerParams": "Parámetros de oferta",
     "offerParamsDesc": "Parámetros que se agregan automáticamente para ofrecer URL para que esta red pase subid y otros datos.",
     "offerParamsLabel": "Parámetros (agregados a la URL de la oferta)",
@@ -27403,7 +27403,7 @@ const zh = {
     "active": "活跃",
     "disabled": "残疾人",
     "postbackHint": "在联属网络仪表板中添加此 URL（全局回发）",
-    "paramsToAdd": "要添加的参数：",
+    "postbackMacros": "Orbitra postback 宏：",
     "offerParams": "报价参数",
     "offerParamsDesc": "自动添加的参数以为该网络提供 URL 以传递 subid 和其他数据。",
     "offerParamsLabel": "参数（添加到优惠 URL 中）",
@@ -29908,7 +29908,7 @@ const fr = {
     "active": "Actif",
     "disabled": "Désactivé",
     "postbackHint": "Ajoutez cette URL dans le tableau de bord du réseau d'affiliation (Global Postback)",
-    "paramsToAdd": "Paramètres à ajouter :",
+    "postbackMacros": "Macros de postback Orbitra :",
     "offerParams": "Paramètres de l'offre",
     "offerParamsDesc": "Paramètres qui sont automatiquement ajoutés pour proposer des URL permettant à ce réseau de transmettre le subid et d'autres données.",
     "offerParamsLabel": "Paramètres (ajoutés à l'URL de l'offre)",
@@ -32415,7 +32415,7 @@ const de = {
     "active": "Aktiv",
     "disabled": "Deaktiviert",
     "postbackHint": "Diese URL im Affiliate-Netzwerk-Dashboard hinzufügen (Global Postback)",
-    "paramsToAdd": "Hinzuzufügende Parameter:",
+    "postbackMacros": "Orbitra-Postback-Makros:",
     "offerParams": "Angebotsparameter",
     "offerParamsDesc": "Parameter, die automatisch zu Angebots-URLs für dieses Netzwerk hinzugefügt werden, um Subid- und andere Daten weiterzugeben.",
     "offerParamsLabel": "Parameter (zur Angebots-URL hinzugefügt)",
@@ -52117,6 +52117,13 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
       fetchNetwork();
     }
   }, [networkId]);
+  reactExports.useEffect(() => {
+    if (loading || !postbackKey || !templates.length) return;
+    setFormData((prev) => prev.postback_url ? prev : {
+      ...prev,
+      postback_url: buildPostbackUrl(templates.find((t2) => t2.name === prev.template))
+    });
+  }, [templates, loading, postbackKey]);
   const fetchTemplates = async () => {
     try {
       const { data } = await cachedGet("affiliate_network_templates", {}, 6e4);
@@ -52147,19 +52154,24 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
       setLoading(false);
     }
   };
+  const buildPostbackUrl = (templateObj) => {
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    const key = postbackKey || "fd12e72";
+    const tpl = templateObj?.postback_url_template;
+    if (tpl) {
+      return tpl.replace("http://{domain}", `${protocol}//${host}`).replace(/\{domain\}/g, host).replace(/\{postback_key\}/g, key);
+    }
+    return `${protocol}//${host}/${key}/postback?subid={subid}&status={status}&payout={payout}&tid={tid}`;
+  };
   const handleTemplateChange = (templateName) => {
     const template = templates.find((t2) => t2.name === templateName);
     if (template) {
-      let postbackUrl = "";
-      if (template.postback_url_template) {
-        const host = window.location.host;
-        postbackUrl = template.postback_url_template.replace("{domain}", host).replace("{postback_key}", postbackKey);
-      }
       setFormData({
         ...formData,
         template: templateName,
         offer_params: template.offer_params_template || "",
-        postback_url: postbackUrl || formData.postback_url,
+        postback_url: buildPostbackUrl(template),
         notes: template.notes_template && template.notes_template.startsWith("tpl.") ? t(template.notes_template) : template.notes_template || ""
       });
     }
@@ -52272,21 +52284,26 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium", style: { color: "var(--color-primary)" }, children: "Postback URL" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("networkEditor.postbackHint") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "flex-1 px-3 py-2 rounded border text-sm", style: {
-            background: "var(--color-bg-card)",
-            borderColor: "var(--color-border)",
-            color: "var(--color-text-primary)"
-          }, children: getPostbackUrl() }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => copyToClipboard(getPostbackUrl()), className: "btn btn-secondary btn-icon", children: copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: formData.postback_url,
+              onChange: (e) => setFormData({ ...formData, postback_url: e.target.value }),
+              className: "form-input font-mono",
+              placeholder: getPostbackUrl(),
+              spellCheck: "false"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => copyToClipboard(formData.postback_url || getPostbackUrl()), className: "btn btn-secondary btn-icon", children: copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("networkEditor.paramsToAdd") }),
-          " ?subid=",
-          "{subid_macro}",
-          "&status=",
-          "{status_macro}",
-          "&payout=",
-          "{payout_macro}"
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("networkEditor.postbackMacros") }),
+          " ",
+          ["{subid}", "{status}", "{payout}", "{tid}", "{currency}"].map((m, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(React.Fragment, { children: [
+            i > 0 && " · ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { color: "var(--color-primary)" }, children: m })
+          ] }, m))
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded border space-y-4", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
@@ -55330,6 +55347,9 @@ const AffiliateNetworks = () => {
     if (refresh) fetchNetworks();
   };
   const getPostbackUrl = (network) => {
+    if (network?.postback_url) {
+      return network.postback_url;
+    }
     const protocol = window.location.protocol;
     const host = window.location.host;
     return `${protocol}//${host}/${postbackKey}/postback`;
@@ -55480,11 +55500,11 @@ const AffiliateNetworks = () => {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-xs px-2 py-1 rounded max-w-xs truncate", style: { background: "var(--color-bg-soft)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }, children: getPostbackUrl() }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-xs px-2 py-1 rounded max-w-xs truncate", style: { background: "var(--color-bg-soft)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }, children: getPostbackUrl(network) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
-              onClick: () => copyToClipboard(getPostbackUrl(), `pb-${network.id}`),
+              onClick: () => copyToClipboard(getPostbackUrl(network), `pb-${network.id}`),
               className: "hover:text-[var(--color-primary)] transition",
               style: { color: "var(--color-text-muted)" },
               title: t("common.copy"),

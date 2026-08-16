@@ -174,6 +174,9 @@ const AffiliateNetworks = () => {
     };
 
     const getPostbackUrl = (network) => {
+        if (network?.postback_url) {
+            return network.postback_url;
+        }
         const protocol = window.location.protocol;
         const host = window.location.host;
         return `${protocol}//${host}/${postbackKey}/postback`;

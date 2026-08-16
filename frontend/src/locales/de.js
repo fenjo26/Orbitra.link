@@ -1386,7 +1386,7 @@ export default {
         "active": "Aktiv",
         "disabled": "Deaktiviert",
         "postbackHint": "Diese URL im Affiliate-Netzwerk-Dashboard hinzufügen (Global Postback)",
-        "paramsToAdd": "Hinzuzufügende Parameter:",
+        "postbackMacros": "Orbitra-Postback-Makros:",
         "offerParams": "Angebotsparameter",
         "offerParamsDesc": "Parameter, die automatisch zu Angebots-URLs für dieses Netzwerk hinzugefügt werden, um Subid- und andere Daten weiterzugeben.",
         "offerParamsLabel": "Parameter (zur Angebots-URL hinzugefügt)",

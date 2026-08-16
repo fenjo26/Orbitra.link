@@ -1386,7 +1386,7 @@ export default {
         "active": "Активний",
         "disabled": "Вимкнено",
         "postbackHint": "Додайте цю URL-адресу на інформаційну панель партнерської мережі (Global Postback)",
-        "paramsToAdd": "Параметри для додавання:",
+        "postbackMacros": "Макроси постбеку Orbitra:",
         "offerParams": "Параметри пропозиції",
         "offerParamsDesc": "Параметри, які автоматично додаються, щоб запропонувати URL-адресам цієї мережі передавати subid та інші дані.",
         "offerParamsLabel": "Параметри (додано до URL-адреси пропозиції)",

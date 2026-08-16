@@ -25,6 +25,18 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
         }
     }, [networkId]);
 
+    // Prefill the postback URL once templates and the postback key are
+    // available: new networks get the recommended default, legacy networks
+    // with an empty stored URL get their template's URL. Waits for
+    // postbackKey so the fallback demo key is never silently baked in.
+    useEffect(() => {
+        if (loading || !postbackKey || !templates.length) return;
+        setFormData(prev => prev.postback_url ? prev : {
+            ...prev,
+            postback_url: buildPostbackUrl(templates.find(t => t.name === prev.template))
+        });
+    }, [templates, loading, postbackKey]);
+
     const fetchTemplates = async () => {
         try {
             const { data } = await cachedGet('affiliate_network_templates', {}, 60000); // Cache templates for 1 minute
@@ -57,22 +69,28 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
         }
     };
 
+    const buildPostbackUrl = (templateObj) => {
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        const key = postbackKey || 'fd12e72';
+        const tpl = templateObj?.postback_url_template;
+        if (tpl) {
+            return tpl
+                .replace('http://{domain}', `${protocol}//${host}`)
+                .replace(/\{domain\}/g, host)
+                .replace(/\{postback_key\}/g, key);
+        }
+        return `${protocol}//${host}/${key}/postback?subid={subid}&status={status}&payout={payout}&tid={tid}`;
+    };
+
     const handleTemplateChange = (templateName) => {
         const template = templates.find(t => t.name === templateName);
         if (template) {
-            let postbackUrl = '';
-            if (template.postback_url_template) {
-                const protocol = window.location.protocol;
-                const host = window.location.host;
-                postbackUrl = template.postback_url_template
-                    .replace('{domain}', host)
-                    .replace('{postback_key}', postbackKey);
-            }
             setFormData({
                 ...formData,
                 template: templateName,
                 offer_params: template.offer_params_template || '',
-                postback_url: postbackUrl || formData.postback_url,
+                postback_url: buildPostbackUrl(template),
                 notes: (template.notes_template && template.notes_template.startsWith('tpl.')) ? t(template.notes_template) : (template.notes_template || '')
             });
         }
@@ -212,19 +230,26 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                                     {t('networkEditor.postbackHint')}
                                 </p>
                                 <div className="flex items-center space-x-2">
-                                    <code className="flex-1 px-3 py-2 rounded border text-sm" style={{
-                                        background: 'var(--color-bg-card)',
-                                        borderColor: 'var(--color-border)',
-                                        color: 'var(--color-text-primary)'
-                                    }}>
-                                        {getPostbackUrl()}
-                                    </code>
-                                    <button onClick={() => copyToClipboard(getPostbackUrl())} className="btn btn-secondary btn-icon">
+                                    <input
+                                        type="text"
+                                        value={formData.postback_url}
+                                        onChange={(e) => setFormData({ ...formData, postback_url: e.target.value })}
+                                        className="form-input font-mono"
+                                        placeholder={getPostbackUrl()}
+                                        spellCheck="false"
+                                    />
+                                    <button onClick={() => copyToClipboard(formData.postback_url || getPostbackUrl())} className="btn btn-secondary btn-icon">
                                         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                                     </button>
                                 </div>
                                 <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                                    <strong>{t('networkEditor.paramsToAdd')}</strong> ?subid={'{subid_macro}'}&status={'{status_macro}'}&payout={'{payout_macro}'}
+                                    <strong>{t('networkEditor.postbackMacros')}</strong>{' '}
+                                    {['{subid}', '{status}', '{payout}', '{tid}', '{currency}'].map((m, i) => (
+                                        <React.Fragment key={m}>
+                                            {i > 0 && ' · '}
+                                            <code style={{ color: 'var(--color-primary)' }}>{m}</code>
+                                        </React.Fragment>
+                                    ))}
                                 </div>
                             </div>
 
