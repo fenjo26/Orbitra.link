@@ -1585,10 +1585,6 @@
     border-color: var(--color-amber-200);
   }
 
-  .border-blue-200 {
-    border-color: var(--color-blue-200);
-  }
-
   .border-blue-300 {
     border-color: var(--color-blue-300);
   }
@@ -1709,10 +1705,6 @@
     .bg-black\/60 {
       background-color: color-mix(in oklab, var(--color-black) 60%, transparent);
     }
-  }
-
-  .bg-blue-50 {
-    background-color: var(--color-blue-50);
   }
 
   .bg-blue-100 {

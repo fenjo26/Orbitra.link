@@ -69,6 +69,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   unreachable**: a failed fetch used to silently report latest=current ("no
   update"); the Update page now explains the check failed and gives the manual
   `git pull` command.
+- 🤖 **The placeholder metrics are real now** (migration 20): Bots and Bot %
+  come from the cloaker's UA signatures checked per click, Proxies from the
+  click's IP2Proxy verdict, unique clicks by campaign/flow/global and Visitors
+  from honest uniqueness probes (IP + UA per the campaign's method, within its
+  window), Empty referrers from SQL, and Time since LP click from the actual
+  landing→offer timestamps (`landing_at`/`offer_at`).
+- 🧮 **Conversions count events, not flagged clicks** — a click with three
+  conversions counted once and CR could never exceed 100%; LP CTR no longer
+  counts direct-linked offer clicks; **deposits stopped double-counting as
+  sales**; registrations/deposits/revenue-by-status were dead zeros because the
+  queries never selected them; eCPC lost its bogus ×1000.
+- 🖥 **Reports open flat by default** (one grouping level; deeper drill-down is
+  one "+" away) — the layered default made small reports look like duplicated
+  subtotal rows. Wide column sets scroll horizontally with the name column
+  pinned; the columns selector no longer blanks the screen (hooks order) and
+  its buttons no longer show a doubled "+".
+- 🎨 **AffiliateNetworkEditor theme-safe**: hardcoded light-only Tailwind
+  colors replaced with the design-system variables — the modal now follows all
+  five themes; the postback callout tints with the active theme's primary.
 
 ## [0.9.7.8] — 2026-08-15
 
