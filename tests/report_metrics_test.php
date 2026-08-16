@@ -50,6 +50,8 @@ $assert('rev_sale m1', $agg['rev_sale'], 45);
 // lp transitions 3, offer clicks 4 (one direct-linked).
 $m = orbitraComputeDerivedMetrics([
     'clicks' => 6, 'unique_clicks' => 5,
+    'unique_clicks_stream' => 5, 'unique_clicks_global' => 4, 'visitors' => 4,
+    'bots' => 1, 'proxies' => 2, 'empty_referrers' => 3, 'avg_lp_seconds' => 95,
     'prelander_clicks' => 3, 'offer_clicks' => 4, 'lp_clicks' => 3,
     'conversions' => 8, 'purchases' => 3, 'holds' => 1, 'rejected' => 1, 'trash' => 1,
     'registrations' => 1, 'deposits' => 1,
@@ -60,6 +62,9 @@ $m = orbitraComputeDerivedMetrics([
 
 $expected = [
     'clicks' => 6, 'unique_clicks' => 5, 'uc_rate' => 83.33,
+    'unique_clicks_stream' => 5, 'unique_clicks_global' => 4, 'visitors' => 4,
+    'bots' => 1, 'bot_rate' => 16.67, 'proxies' => 2, 'empty_referrers' => 3,
+    'time_since_lp_click' => '1m 35s',
     'conversions' => 8, 'sales' => 3, 'leads' => 1, 'registrations' => 1, 'deposits' => 1,
     'approve_rate' => 50.0,
     'revenue' => 83.5, 'revenue_confirmed' => 45, 'revenue_deposit' => 30, 'revenue_registration' => 1,
@@ -75,7 +80,8 @@ $expected = [
     'lp_views' => 3, 'lp_clicks' => 3, 'offer_clicks' => 4, 'lp_ctr' => 100,
 ];
 foreach ($expected as $k => $v) {
-    $assert($k, $m[$k] ?? null, $v, max(0.02, abs($v) * 0.005));
+    $tol = is_numeric($v) ? max(0.02, abs($v) * 0.005) : 0;
+    $assert($k, $m[$k] ?? null, $v, $tol);
 }
 
 // ROI at zero spend must be null (rendered as a dash), not a made-up 100%.

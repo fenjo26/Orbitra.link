@@ -4,6 +4,21 @@
 // Full Keitaro-compatible metric calculation set, shared by the campaigns list and the
 // layered campaign report.
 
+if (!function_exists('self_fmtLpSeconds')) {
+    /** "1m 12s" / "45s" / "—" for the LP→offer time metric. */
+    function self_fmtLpSeconds($seconds): string
+    {
+        if ($seconds === null || $seconds === '' || (float) $seconds <= 0) {
+            return '—';
+        }
+        $s = (int) round((float) $seconds);
+        if ($s < 60) {
+            return $s . 's';
+        }
+        return intdiv($s, 60) . 'm ' . ($s % 60) . 's';
+    }
+}
+
 if (!function_exists('orbitraConversionStatusGroups')) {
 
     /** Status vocabulary the tracker groups conversions by. */
@@ -119,7 +134,8 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             'lp_clicks'               => $lpClicks > 0 ? $lpClicks : $offerClicks,
             'offer_clicks'            => $offerClicks,
             'lp_ctr'                  => $prelander > 0 ? round((($lpClicks > 0 ? $lpClicks : $offerClicks) / $prelander) * 100, 2) : 0,
-            'time_since_lp_click'     => (string) ($raw['time_since_lp_click'] ?? '0s'),
+            // Average landing→offer time, human-formatted ("1m 12s").
+            'time_since_lp_click'     => self_fmtLpSeconds($raw['avg_lp_seconds'] ?? null),
 
             // Conversions & Events
             'conversions'             => $conversions,

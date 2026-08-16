@@ -489,6 +489,10 @@ if ($statsEnabled && !$isDebounced) {
         $acceptLanguageRaw,
         $parametersJson
     ]);
+
+    // Honesty flags for the report metrics — same helper the router uses.
+    require_once __DIR__ . '/core/ClickFlags.php';
+    orbitraWriteClickFlags($pdo, $clickId, $ip, $userAgent, $campaign ?? [], $streamId ?? 0, is_array($geoData ?? null) ? $geoData : []);
 }
 
 // Determine redirect behavior

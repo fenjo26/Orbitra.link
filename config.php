@@ -49,7 +49,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 19;
+    $LATEST_SCHEMA_VERSION = 20;
 
     $schemaVersion = 0;
     try {
@@ -1275,6 +1275,38 @@ try {
                     } catch (\Throwable $e) {
                         // Table absent on an older install; the reports fall back to 0.
                     }
+                }
+            }
+
+            if ($schemaVersion < 20) {
+                // Migration 20: honest report-metric flags on clicks.
+                //
+                // The Keitaro-parity metrics (Bots, Bot %, Proxies, unique clicks by
+                // campaign/flow/global, Visitors, Time since LP click) used to render
+                // plausible zeros: nothing recorded them. These columns are filled by
+                // core/ClickFlags.php right after every click INSERT. Old rows keep the
+                // defaults — bots/proxies 0 (unknowable retroactively) and uniqueness 1
+                // (period-unique semantics for historical data).
+                $alters = [
+                    "ALTER TABLE clicks ADD COLUMN is_bot INTEGER DEFAULT 0",
+                    "ALTER TABLE clicks ADD COLUMN is_proxy INTEGER DEFAULT 0",
+                    "ALTER TABLE clicks ADD COLUMN uniq_campaign INTEGER DEFAULT 1",
+                    "ALTER TABLE clicks ADD COLUMN uniq_stream INTEGER DEFAULT 1",
+                    "ALTER TABLE clicks ADD COLUMN uniq_global INTEGER DEFAULT 1",
+                    "ALTER TABLE clicks ADD COLUMN landing_at TEXT",
+                    "ALTER TABLE clicks ADD COLUMN offer_at TEXT",
+                ];
+                foreach ($alters as $sql) {
+                    try {
+                        $pdo->exec($sql);
+                    } catch (\Throwable $e) {
+                        // Column already present on a half-migrated DB.
+                    }
+                }
+                try {
+                    // The uniqueness lookups probe by ip within the window.
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_clicks_ip_created ON clicks(ip, created_at)");
+                } catch (\Throwable $e) {
                 }
             }
 

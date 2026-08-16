@@ -1520,6 +1520,9 @@ if ($uriPath === '/pixel.gif') {
                 $pxAcceptLanguage,
                 $pxParamsJson,
             ]);
+
+            require_once __DIR__ . '/core/ClickFlags.php';
+            orbitraWriteClickFlags($pdo, $pxClickId, $pxIp, $pxUa, $orbitraPixelCampaign ?? [], 0, is_array($pxGeo ?? null) ? $pxGeo : []);
         } catch (\Throwable $e) {
             // A duplicate/DB hiccup must not break the pixel — the image goes out.
         }
@@ -1695,6 +1698,13 @@ if (isset($_GET['_lp'])) {
         } catch (\Throwable $e) {
             // non-critical
         }
+    }
+
+    // The landing→offer transition completes the Time-since-LP-click pair.
+    try {
+        $pdo->prepare("UPDATE clicks SET offer_at = datetime('now') WHERE id = ? AND offer_at IS NULL")->execute([$lpClickId]);
+    } catch (\Throwable $e) {
+        // non-critical
     }
 
     $lpUrl = applyOfferMacros($lpOffer['url'], $lpClickId, $lpOfferId, $lpParams);
@@ -2547,6 +2557,11 @@ if ($statsEnabled && !$isDebounced) {
             $acceptLanguageRaw,
             $parametersJson
         ]);
+
+        // Honesty flags for the report metrics (bots/proxies/uniqueness) —
+        // one UPDATE, never allowed to break the click itself.
+        require_once __DIR__ . '/core/ClickFlags.php';
+        orbitraWriteClickFlags($pdo, $clickId, $ip, $userAgent, $campaign ?? [], $streamIdToLog ?? 0, is_array($geoData ?? null) ? $geoData : []);
     } catch (\Throwable $e) {
         // Never let click logging break the redirect/landing. Log and continue.
         error_log('Orbitra click logging failed: ' . $e->getMessage());
@@ -2584,6 +2599,12 @@ if ($actionToPerfrom) {
         // paths, which the browser will request from the domain root.
         if (($landingType ?? '') === 'local') {
             setcookie('orbitra_lp', (string) $landingIdToLog, $lpCookieOpts);
+            // Time-since-LP-click starts here: remember when the landing was shown.
+            try {
+                $pdo->prepare("UPDATE clicks SET landing_at = datetime('now') WHERE id = ? AND landing_at IS NULL")->execute([$clickId]);
+            } catch (\Throwable $e) {
+                // Timing is a nice-to-have.
+            }
             // The landing is the page in play now — a leftover offer cookie from
             // an earlier visit would steal its asset requests.
             setcookie('orbitra_lo', '', ['expires' => time() - 3600, 'path' => '/']);

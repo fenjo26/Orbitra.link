@@ -723,6 +723,10 @@ function orbitraClickApiV3(PDO $pdo): void
                 $acceptLanguageRaw,
                 $parametersJson,
             ]);
+
+            // Honesty flags for the report metrics — same helper the router uses.
+            require_once __DIR__ . '/ClickFlags.php';
+            orbitraWriteClickFlags($pdo, $clickId, $ip, $userAgent, $campaign, $streamId, $geoData);
         } catch (Throwable $e) {
             if ($wantLog) {
                 $log[] = "DB insert failed: " . $e->getMessage();

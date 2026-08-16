@@ -128,6 +128,15 @@ class CloakDetector
     }
 
     /**
+     * Public bot-UA verdict for click logging (report metric "Bots"): the same
+     * signature list the cloaker uses, without any of the heavier layers.
+     */
+    public static function isBotUserAgent(string $ua): bool
+    {
+        return self::classifyUa($ua) !== null;
+    }
+
+    /**
      * Classify a User-Agent.
      *
      * Returns a reason code or null. 'no_user_agent' and 'crawler_or_tool_ua' are
