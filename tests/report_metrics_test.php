@@ -40,9 +40,10 @@ $assert = function (string $label, $got, $expected, float $tol = 0.01) {
     }
 };
 
-// Aggregate per click m1: 3 conversion events, sale group = 2 events / 45.00.
+// Aggregate per click m1: 3 conversion events; the sale group swallows
+// 'confirmed' too (sale/confirmed/approved/purchase), so 3 events / 45.00.
 $assert('cnt_any m1', $agg['cnt_any'], 3, 0);
-$assert('cnt_sale m1', $agg['cnt_sale'], 2, 0);
+$assert('cnt_sale m1', $agg['cnt_sale'], 3, 0);
 $assert('rev_sale m1', $agg['rev_sale'], 45);
 
 // Whole-set derived metrics: clicks 6, uniques 5, cost 21, lp views 3,
