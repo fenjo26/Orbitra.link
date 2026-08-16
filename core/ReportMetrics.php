@@ -63,6 +63,56 @@ if (!function_exists('orbitraConversionStatusGroups')) {
     }
 
     /**
+     * Full offers list with per-status conversion counters, money and cost,
+     * ready to prepare/execute. The offers table page runs this and then feeds
+     * each row through orbitraComputeDerivedMetrics(), so its numbers are the
+     * verified 64-metric math by construction, not a near copy.
+     *
+     * Row extras after compute: cr, epc_confirmed, cpc, profit_confirmed,
+     * roi_confirmed (plus raw sales/leads/rejected/trash/revenue_confirmed/cost).
+     */
+    function orbitraOffersWithStatsSql(string $joinCondition, ?string $valueColumn): string
+    {
+        $agg = orbitraConversionAggregateSql($valueColumn);
+        return "
+            SELECT id, name, group_id, affiliate_network_id, url, redirect_type,
+                   is_local, geo, payout_type, payout_value, payout_auto,
+                   allow_rebills, capping_limit, capping_timezone, alt_offer_id,
+                   notes, state, created_at, group_name, affiliate_network_name,
+                   COUNT(click_id) as clicks,
+                   COUNT(DISTINCT click_ip) as unique_clicks,
+                   COALESCE(SUM(cnt_any), 0) as conversions,
+                   COALESCE(SUM(rev_all), 0) as revenue,
+                   COALESCE(SUM(rev_sale), 0) as revenue_confirmed,
+                   COALESCE(SUM(cnt_sale), 0) as sales,
+                   COALESCE(SUM(cnt_hold), 0) as leads,
+                   COALESCE(SUM(cnt_rejected), 0) as rejected,
+                   COALESCE(SUM(cnt_trash), 0) as trash,
+                   COALESCE(SUM(click_cost), 0) as cost
+            FROM (
+                SELECT o.id, o.name, o.group_id, o.affiliate_network_id, o.url, o.redirect_type,
+                       o.is_local, o.geo, o.payout_type, o.payout_value, o.payout_auto,
+                       o.allow_rebills, o.capping_limit, o.capping_timezone, o.alt_offer_id,
+                       o.notes, o.state, o.created_at,
+                       og.name as group_name,
+                       an.name as affiliate_network_name,
+                       cl.id as click_id,
+                       cl.ip as click_ip,
+                       cl.cost as click_cost,
+                       cva.cnt_any, cva.rev_all, cva.rev_sale,
+                       cva.cnt_sale, cva.cnt_hold, cva.cnt_rejected, cva.cnt_trash
+                FROM offers o
+                LEFT JOIN offer_groups og ON o.group_id = og.id
+                LEFT JOIN affiliate_networks an ON an.id = o.affiliate_network_id
+                LEFT JOIN clicks cl ON o.id = cl.offer_id $joinCondition
+                LEFT JOIN $agg cva ON cva.click_id = cl.id
+                WHERE o.is_archived = 0
+            )
+            GROUP BY id
+        ";
+    }
+
+    /**
      * Derive every Keitaro ratio and metric from the raw counters.
      */
     function orbitraComputeDerivedMetrics(array $raw): array

@@ -17334,6 +17334,26 @@ const ru = {
     "lastEvent": "Последнее событие",
     "never": "Никогда"
   },
+  "columnsOrder": {
+    "title": "Выбор и порядок колонок",
+    "required": "обязательная"
+  },
+  "offerColumns": {
+    "geo": "GEO",
+    "payout": "Выплата",
+    "allGeo": "Все GEO",
+    "payoutAuto": "Авто (по постбеку)",
+    "leads": "Лиды",
+    "sales": "Сейлы",
+    "rejected": "Отклонены",
+    "revenueConfirmed": "Доход (подтв.)",
+    "cost": "Расход",
+    "cr": "CR",
+    "epcConfirmed": "EPC (подтв.)",
+    "cpc": "CPC",
+    "profitConfirmed": "P/L (подтв.)",
+    "roiConfirmed": "ROI (подтв.)"
+  },
   "offerEditor": {
     "localArchive": "Файлы локального оффера",
     "uploadZip": "Загрузить ZIP",
@@ -19871,6 +19891,26 @@ const en = {
     "cr": "CR",
     "lastEvent": "Last Event",
     "never": "Never"
+  },
+  "columnsOrder": {
+    "title": "Select and Order Columns",
+    "required": "required"
+  },
+  "offerColumns": {
+    "geo": "GEO",
+    "payout": "Payout",
+    "allGeo": "All GEO",
+    "payoutAuto": "Auto (by postback)",
+    "leads": "Leads",
+    "sales": "Sales",
+    "rejected": "Rejected",
+    "revenueConfirmed": "Revenue (confirmed)",
+    "cost": "Cost",
+    "cr": "CR",
+    "epcConfirmed": "EPC (confirmed)",
+    "cpc": "CPC",
+    "profitConfirmed": "P/L (confirmed)",
+    "roiConfirmed": "ROI (confirmed)"
   },
   "offerEditor": {
     "localArchive": "Local offer files",
@@ -22410,6 +22450,26 @@ const uk = {
     "lastEvent": "Остання подія",
     "never": "Ніколи"
   },
+  "columnsOrder": {
+    "title": "Вибір і порядок колонок",
+    "required": "обов'язкова"
+  },
+  "offerColumns": {
+    "geo": "GEO",
+    "payout": "Виплата",
+    "allGeo": "Усі GEO",
+    "payoutAuto": "Авто (за постбеком)",
+    "leads": "Ліди",
+    "sales": "Сейли",
+    "rejected": "Відхилені",
+    "revenueConfirmed": "Дохід (підтв.)",
+    "cost": "Витрати",
+    "cr": "CR",
+    "epcConfirmed": "EPC (підтв.)",
+    "cpc": "CPC",
+    "profitConfirmed": "P/L (підтв.)",
+    "roiConfirmed": "ROI (підтв.)"
+  },
   "offerEditor": {
     "localArchive": "Файли локального оффера",
     "uploadZip": "Завантажити ZIP",
@@ -24947,6 +25007,26 @@ const es = {
     "cr": "CR",
     "lastEvent": "Último evento",
     "never": "Nunca"
+  },
+  "columnsOrder": {
+    "title": "Seleccionar y ordenar columnas",
+    "required": "obligatoria"
+  },
+  "offerColumns": {
+    "geo": "GEO",
+    "payout": "Pago",
+    "allGeo": "Todo GEO",
+    "payoutAuto": "Auto (por postback)",
+    "leads": "Leads",
+    "sales": "Ventas",
+    "rejected": "Rechazadas",
+    "revenueConfirmed": "Ingresos (confirmado)",
+    "cost": "Costo",
+    "cr": "CR",
+    "epcConfirmed": "EPC (confirmado)",
+    "cpc": "CPC",
+    "profitConfirmed": "P/G (confirmado)",
+    "roiConfirmed": "ROI (confirmado)"
   },
   "offerEditor": {
     "localArchive": "Archivos del offer local",
@@ -27486,6 +27566,26 @@ const zh = {
     "lastEvent": "最近事件",
     "never": "从未"
   },
+  "columnsOrder": {
+    "title": "选择并排序列",
+    "required": "必选"
+  },
+  "offerColumns": {
+    "geo": "GEO",
+    "payout": "佣金",
+    "allGeo": "全部 GEO",
+    "payoutAuto": "自动（按 postback）",
+    "leads": "线索",
+    "sales": "销售",
+    "rejected": "拒单",
+    "revenueConfirmed": "收入（已确认）",
+    "cost": "花费",
+    "cr": "CR",
+    "epcConfirmed": "EPC（已确认）",
+    "cpc": "CPC",
+    "profitConfirmed": "盈亏（已确认）",
+    "roiConfirmed": "ROI（已确认）"
+  },
   "offerEditor": {
     "localArchive": "本地 offer 文件",
     "uploadZip": "上传 ZIP",
@@ -30023,6 +30123,26 @@ const fr = {
     "cr": "CR",
     "lastEvent": "Dernier événement",
     "never": "Jamais"
+  },
+  "columnsOrder": {
+    "title": "Sélectionner et ordonner les colonnes",
+    "required": "obligatoire"
+  },
+  "offerColumns": {
+    "geo": "GEO",
+    "payout": "Paiement",
+    "allGeo": "Tous GEO",
+    "payoutAuto": "Auto (par postback)",
+    "leads": "Leads",
+    "sales": "Ventes",
+    "rejected": "Rejetées",
+    "revenueConfirmed": "Revenus (confirmés)",
+    "cost": "Coût",
+    "cr": "CR",
+    "epcConfirmed": "EPC (confirmé)",
+    "cpc": "CPC",
+    "profitConfirmed": "P/P (confirmé)",
+    "roiConfirmed": "ROI (confirmé)"
   },
   "offerEditor": {
     "localArchive": "Fichiers de l’offre locale",
@@ -32563,6 +32683,26 @@ const de = {
     "cr": "CR",
     "lastEvent": "Letztes Ereignis",
     "never": "Nie"
+  },
+  "columnsOrder": {
+    "title": "Spalten auswählen und sortieren",
+    "required": "erforderlich"
+  },
+  "offerColumns": {
+    "geo": "GEO",
+    "payout": "Auszahlung",
+    "allGeo": "Alle GEO",
+    "payoutAuto": "Auto (per Postback)",
+    "leads": "Leads",
+    "sales": "Verkäufe",
+    "rejected": "Abgelehnt",
+    "revenueConfirmed": "Umsatz (bestätigt)",
+    "cost": "Kosten",
+    "cr": "CR",
+    "epcConfirmed": "EPC (bestätigt)",
+    "cpc": "CPC",
+    "profitConfirmed": "G/V (bestätigt)",
+    "roiConfirmed": "ROI (bestätigt)"
   },
   "offerEditor": {
     "localArchive": "Dateien des lokalen Offers",
@@ -51928,7 +52068,7 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
       },
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-6 py-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-semibold", style: { color: "var(--color-text-primary)" }, children: t("landingColumns.title") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-semibold", style: { color: "var(--color-text-primary)" }, children: t("columnsOrder.title") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
@@ -52008,7 +52148,7 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
                         children: col.label
                       }
                     ),
-                    col.required && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10.5px] px-1.5 py-0.5 rounded-md", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: t("landingColumns.required") })
+                    col.required && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10.5px] px-1.5 py-0.5 rounded-md", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: t("columnsOrder.required") })
                   ]
                 },
                 id
@@ -53715,6 +53855,57 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
   ] });
 };
 const API_URL$q = "/api.php";
+const ALL_OFFER_COLUMNS = [
+  { id: "id", label: "ID" },
+  { id: "name", label: "Name", required: true },
+  { id: "state", label: "Status" },
+  { id: "affiliate_network_name", label: "Affiliate network" },
+  { id: "group_name", label: "Group" },
+  { id: "redirect_type", label: "Type" },
+  { id: "geo", label: "GEO" },
+  { id: "payout", label: "Payout" },
+  { id: "clicks", label: "Clicks", alignRight: true },
+  { id: "unique_clicks", label: "Uniques", alignRight: true },
+  { id: "conversions", label: "Conversions", alignRight: true },
+  { id: "leads", label: "Leads", alignRight: true },
+  { id: "sales", label: "Sales", alignRight: true },
+  { id: "rejected", label: "Rejected", alignRight: true },
+  { id: "revenue", label: "Revenue", alignRight: true },
+  { id: "revenue_confirmed", label: "Revenue (confirmed)", alignRight: true },
+  { id: "cost", label: "Cost", alignRight: true },
+  { id: "cr", label: "CR", alignRight: true },
+  { id: "epc_confirmed", label: "EPC (confirmed)", alignRight: true },
+  { id: "cpc", label: "CPC", alignRight: true },
+  { id: "profit_confirmed", label: "P/L (confirmed)", alignRight: true },
+  { id: "roi_confirmed", label: "ROI (confirmed)", alignRight: true }
+];
+const DEFAULT_OFFER_COLUMNS = [
+  "name",
+  "state",
+  "affiliate_network_name",
+  "clicks",
+  "leads",
+  "sales",
+  "rejected",
+  "cr",
+  "epc_confirmed",
+  "cpc",
+  "revenue_confirmed",
+  "cost",
+  "profit_confirmed"
+];
+const OFFER_COLUMNS_KEY = "orbitra_offer_columns";
+const loadOfferColumns = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(OFFER_COLUMNS_KEY) || "null");
+    if (Array.isArray(saved) && saved.length) {
+      const valid = saved.filter((id) => ALL_OFFER_COLUMNS.some((c) => c.id === id));
+      if (valid.includes("name")) return valid;
+    }
+  } catch (e) {
+  }
+  return [...DEFAULT_OFFER_COLUMNS];
+};
 const Offers = ({ offers, refreshData }) => {
   const { t } = useLanguage();
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
@@ -53728,6 +53919,8 @@ const Offers = ({ offers, refreshData }) => {
   const [sortBy, setSortBy] = reactExports.useState({ key: null, dir: "desc" });
   const [settingsOpen, setSettingsOpen] = reactExports.useState(false);
   const [refreshing, setRefreshing] = reactExports.useState(false);
+  const [columnsModalOpen, setColumnsModalOpen] = reactExports.useState(false);
+  const [chosenColumns, setChosenColumns] = reactExports.useState(() => loadOfferColumns());
   const groups = [...new Set(offers.map((o) => o.group_name).filter(Boolean))];
   const networks = [...new Set(offers.map((o) => o.affiliate_network_name).filter(Boolean))];
   const filteredOffers = offers.filter((o) => {
@@ -53761,19 +53954,60 @@ const Offers = ({ offers, refreshData }) => {
           return String(o.redirect_type || "");
         case "state":
           return String(o.state || "");
+        case "geo":
+          return String(o.geo || "");
+        case "payout":
+          return Number(o.payout_value) || 0;
         case "clicks":
           return Number(o.clicks) || 0;
         case "unique_clicks":
           return Number(o.unique_clicks) || 0;
         case "conversions":
           return Number(o.conversions) || 0;
+        case "leads":
+          return Number(o.leads) || 0;
+        case "sales":
+          return Number(o.sales) || 0;
+        case "rejected":
+          return Number(o.rejected) || 0;
         case "revenue":
           return Number(o.revenue) || 0;
+        case "revenue_confirmed":
+          return Number(o.revenue_confirmed) || 0;
+        case "cost":
+          return Number(o.cost) || 0;
+        case "cr":
+          return Number(o.cr) || 0;
+        case "epc_confirmed":
+          return Number(o.epc_confirmed) || 0;
+        case "cpc":
+          return Number(o.cpc) || 0;
+        case "profit_confirmed":
+          return Number(o.profit_confirmed) || 0;
+        case "roi_confirmed":
+          return Number(o.roi_confirmed) || 0;
         default:
           return "";
       }
     };
-    const isNumeric = ["id", "clicks", "unique_clicks", "conversions", "revenue"].includes(sortBy.key);
+    const isNumeric = [
+      "id",
+      "payout",
+      "clicks",
+      "unique_clicks",
+      "conversions",
+      "leads",
+      "sales",
+      "rejected",
+      "revenue",
+      "revenue_confirmed",
+      "cost",
+      "cr",
+      "epc_confirmed",
+      "cpc",
+      "profit_confirmed",
+      "roi_confirmed"
+    ].includes(sortBy.key);
     return filteredOffers.map((offer, idx) => ({ offer, idx })).sort((a, b) => {
       const av = getVal(a.offer);
       const bv = getVal(b.offer);
@@ -53879,9 +54113,133 @@ const Offers = ({ offers, refreshData }) => {
     acc.clicks += parseInt(o.clicks || 0);
     acc.unique_clicks += parseInt(o.unique_clicks || 0);
     acc.conversions += parseInt(o.conversions || 0);
+    acc.leads += parseInt(o.leads || 0);
+    acc.sales += parseInt(o.sales || 0);
+    acc.rejected += parseInt(o.rejected || 0);
     acc.revenue += parseFloat(o.revenue || 0);
+    acc.revenue_confirmed += parseFloat(o.revenue_confirmed || 0);
+    acc.cost += parseFloat(o.cost || 0);
     return acc;
-  }, { clicks: 0, unique_clicks: 0, conversions: 0, revenue: 0 });
+  }, { clicks: 0, unique_clicks: 0, conversions: 0, leads: 0, sales: 0, rejected: 0, revenue: 0, revenue_confirmed: 0, cost: 0 });
+  const totalsProfitConfirmed = totals.revenue_confirmed - totals.cost;
+  const renderTotalCell = (colId) => {
+    switch (colId) {
+      case "clicks":
+        return totals.clicks.toLocaleString();
+      case "unique_clicks":
+        return totals.unique_clicks.toLocaleString();
+      case "conversions":
+        return totals.conversions.toLocaleString();
+      case "leads":
+        return totals.leads.toLocaleString();
+      case "sales":
+        return totals.sales.toLocaleString();
+      case "rejected":
+        return totals.rejected.toLocaleString();
+      case "revenue":
+        return `$${totals.revenue.toFixed(2)}`;
+      case "revenue_confirmed":
+        return `$${totals.revenue_confirmed.toFixed(2)}`;
+      case "cost":
+        return `$${totals.cost.toFixed(2)}`;
+      case "profit_confirmed":
+        return `$${totalsProfitConfirmed.toFixed(2)}`;
+      case "cr":
+        return totals.clicks > 0 ? `${(totals.conversions / totals.clicks * 100).toFixed(2)}%` : "0%";
+      case "epc_confirmed":
+        return totals.clicks > 0 ? `$${(totals.revenue_confirmed / totals.clicks).toFixed(2)}` : "$0";
+      case "cpc":
+        return totals.clicks > 0 ? `$${(totals.cost / totals.clicks).toFixed(2)}` : "$0";
+      case "roi_confirmed":
+        return totals.cost > 0 ? `${(totalsProfitConfirmed / totals.cost * 100).toFixed(2)}%` : "—";
+      default:
+        return null;
+    }
+  };
+  const columnLabel = (colId) => ({
+    id: "ID",
+    name: t("editor.name"),
+    state: t("components.status"),
+    affiliate_network_name: t("offers.network"),
+    group_name: t("components.group"),
+    redirect_type: t("components.type"),
+    geo: t("offerColumns.geo"),
+    payout: t("offerColumns.payout"),
+    clicks: t("components.clicks"),
+    unique_clicks: t("components.uniques"),
+    conversions: t("metrics.conversions"),
+    leads: t("offerColumns.leads"),
+    sales: t("offerColumns.sales"),
+    rejected: t("offerColumns.rejected"),
+    revenue: t("metrics.revenue"),
+    revenue_confirmed: t("offerColumns.revenueConfirmed"),
+    cost: t("offerColumns.cost"),
+    cr: t("offerColumns.cr"),
+    epc_confirmed: t("offerColumns.epcConfirmed"),
+    cpc: t("offerColumns.cpc"),
+    profit_confirmed: t("offerColumns.profitConfirmed"),
+    roi_confirmed: t("offerColumns.roiConfirmed")
+  })[colId] || colId;
+  const localizedColumns = ALL_OFFER_COLUMNS.map((c) => ({ ...c, label: columnLabel(c.id) }));
+  const money = (v) => `$${(parseFloat(v) || 0).toFixed(2)}`;
+  const renderOfferCell = (offer, colId) => {
+    const tdCls = ALL_OFFER_COLUMNS.find((c) => c.id === colId)?.alignRight ? "text-right" : "";
+    switch (colId) {
+      case "id":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: offer.id }, colId);
+      case "name":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: "font-semibold cursor-pointer hover:underline",
+              style: { color: "var(--color-primary)" },
+              onClick: () => handleEdit(offer.id),
+              children: offer.name
+            }
+          ),
+          !offer.is_local && offer.url && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontSize: "12px" }, className: "truncate max-w-[200px]", title: offer.url, children: offer.url }),
+          offer.is_local && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-accent-purple)", fontSize: "12px" }, children: t("offers.localOffer") })
+        ] }) }, colId);
+      case "state":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center text-xs font-medium", style: { color: offer.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-2 h-2 rounded-full mr-1.5", style: { backgroundColor: offer.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" } }),
+          offer.state === "active" ? t("components.active") : t("components.archive")
+        ] }) }, colId);
+      case "affiliate_network_name":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, style: { color: "var(--color-text-secondary)" }, children: offer.affiliate_network_name || "-" }, colId);
+      case "group_name":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, style: { color: "var(--color-text-secondary)" }, children: offer.group_name || "-" }, colId);
+      case "geo":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-1 rounded text-xs font-semibold", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: offer.geo || t("offerColumns.allGeo") }) }, colId);
+      case "payout":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, style: { color: "var(--color-text-secondary)" }, children: offer.payout_auto ? t("offerColumns.payoutAuto") : `$${parseFloat(offer.payout_value || 0).toFixed(2)} (${String(offer.payout_type || "cpa").toUpperCase()})` }, colId);
+      case "redirect_type":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-1 rounded text-xs font-semibold", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: offer.redirect_type === "redirect" ? t("offers.redirect") : offer.redirect_type === "frame" ? t("offers.iframe") : offer.redirect_type === "local" ? t("offers.local") : offer.redirect_type === "js" ? t("redirectTypes.jsName") : offer.redirect_type === "meta_refresh" ? t("redirectTypes.metaName") : offer.redirect_type === "form_submit" ? t("redirectTypes.formName") : offer.redirect_type === "preload" ? t("offerEditor.preloadCurl") : offer.redirect_type === "curl_proxy" ? t("redirectTypes.curlProxyName") : offer.redirect_type }) }, colId);
+      case "clicks":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, children: offer.clicks || 0 }, colId);
+      case "conversions":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: "var(--color-success)" }, children: offer.conversions || 0 }, colId);
+      case "revenue":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: "var(--color-success)" }, children: money(offer.revenue) }, colId);
+      case "revenue_confirmed":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: "var(--color-success)" }, children: money(offer.revenue_confirmed) }, colId);
+      case "cost":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: money(offer.cost) }, colId);
+      case "profit_confirmed":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: (parseFloat(offer.profit_confirmed) || 0) > 0 ? "var(--color-success)" : (parseFloat(offer.profit_confirmed) || 0) < 0 ? "var(--color-danger)" : "var(--color-text-secondary)" }, children: money(offer.profit_confirmed) }, colId);
+      case "roi_confirmed":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: (parseFloat(offer.roi_confirmed) || 0) > 0 ? "var(--color-success)" : "var(--color-text-secondary)" }, children: offer.roi_confirmed !== null && offer.roi_confirmed !== void 0 ? `${offer.roi_confirmed}%` : "—" }, colId);
+      case "cr":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `${offer.cr || 0}%` }, colId);
+      case "epc_confirmed":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `$${(parseFloat(offer.epc_confirmed) || 0).toFixed(2)}` }, colId);
+      case "cpc":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `$${(parseFloat(offer.cpc) || 0).toFixed(2)}` }, colId);
+      default:
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: offer[colId] || 0 }, colId);
+    }
+  };
   const SortIcon = ({ colKey }) => {
     if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-60" });
     return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5" });
@@ -53971,6 +54329,25 @@ const Offers = ({ offers, refreshData }) => {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setColumnsModalOpen(true),
+            className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium",
+            title: t("columnsOrder.title"),
+            style: {
+              backgroundColor: "var(--color-bg-card)",
+              border: "1px solid var(--color-border)",
+              color: "var(--color-text-primary)"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SlidersHorizontal, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("reportCustomizer.columns") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 py-0.2 rounded-full", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: chosenColumns.length })
+            ]
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
@@ -54085,19 +54462,23 @@ const Offers = ({ offers, refreshData }) => {
             onChange: (e) => toggleSelectAllFiltered(e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "id", label: "ID", defaultDir: "desc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "name", label: t("editor.name"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "group_name", label: t("components.group"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "affiliate_network_name", label: t("offers.network"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "redirect_type", label: t("components.type"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "state", label: t("components.status"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "clicks", label: t("components.clicks"), defaultDir: "desc", alignRight: true }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "unique_clicks", label: t("components.uniques"), defaultDir: "desc", alignRight: true }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "conversions", label: t("metrics.conversions"), defaultDir: "desc", alignRight: true }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "revenue", label: t("metrics.revenue"), defaultDir: "desc", alignRight: true }),
+        chosenColumns.map((colId) => {
+          const col = ALL_OFFER_COLUMNS.find((c) => c.id === colId);
+          if (!col) return null;
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            SortableTh,
+            {
+              colKey: colId,
+              label: columnLabel(colId),
+              defaultDir: col.alignRight ? "desc" : "asc",
+              alignRight: col.alignRight
+            },
+            colId
+          );
+        }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleOffers.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "12", className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleOffers.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: chosenColumns.length + 2, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: offers.length === 0 ? t("offers.noOffers") : t("offers.noOffersFiltered") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: offers.length === 0 ? t("offers.noOffersDesc") : t("offers.changeFilters") })
       ] }) }) }) : visibleOffers.map((offer) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -54109,49 +54490,23 @@ const Offers = ({ offers, refreshData }) => {
             onChange: (e) => toggleSelected(offer.id, e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: offer.id }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "span",
-            {
-              className: "font-semibold cursor-pointer hover:underline",
-              style: { color: "var(--color-primary)" },
-              onClick: () => handleEdit(offer.id),
-              children: offer.name
-            }
-          ),
-          !offer.is_local && offer.url && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontSize: "12px" }, className: "truncate max-w-[200px]", title: offer.url, children: offer.url }),
-          offer.is_local && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-accent-purple)", fontSize: "12px" }, children: t("offers.localOffer") })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: offer.group_name || "-" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: offer.affiliate_network_name || "-" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `px-2 py-1 rounded text-xs font-semibold ${offer.redirect_type === "redirect" ? "bg-blue-100 text-blue-800" : offer.redirect_type === "frame" ? "bg-purple-100 text-purple-800" : offer.redirect_type === "local" ? "bg-indigo-100 text-indigo-800" : offer.redirect_type === "preload" || offer.redirect_type === "curl_proxy" ? "bg-teal-100 text-teal-800" : "bg-gray-100 text-gray-800"}`, children: offer.redirect_type === "redirect" ? t("offers.redirect") : offer.redirect_type === "frame" ? t("offers.iframe") : offer.redirect_type === "local" ? t("offers.local") : offer.redirect_type === "js" ? t("redirectTypes.jsName") : offer.redirect_type === "meta_refresh" ? t("redirectTypes.metaName") : offer.redirect_type === "form_submit" ? t("redirectTypes.formName") : offer.redirect_type === "preload" ? t("offerEditor.preloadCurl") : offer.redirect_type === "curl_proxy" ? t("redirectTypes.curlProxyName") : offer.redirect_type }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center text-xs font-medium", style: { color: offer.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `w-2 h-2 rounded-full mr-1.5`, style: { backgroundColor: offer.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" } }),
-          offer.state === "active" ? t("components.active") : t("components.archive")
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right font-medium", children: offer.clicks || 0 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: offer.unique_clicks || 0 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right font-medium", style: { color: "var(--color-success)" }, children: offer.conversions || 0 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "text-right font-medium", style: { color: "var(--color-success)" }, children: [
-          "$",
-          parseFloat(offer.revenue || 0).toFixed(2)
-        ] }),
+        chosenColumns.map((colId) => renderOfferCell(offer, colId)),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(offer.id), className: "action-btn text-blue", title: t("common.edit") || t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(offer.id), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
         ] }) })
       ] }, offer.id)) }),
       filteredOffers.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tfoot", { style: { background: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", colSpan: "7", children: t("offers.total").replace("{count}", filteredOffers.length) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-right", children: totals.clicks }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-right", children: totals.unique_clicks }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-right", style: { color: "var(--color-success)" }, children: totals.conversions }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3 text-right", style: { color: "var(--color-success)" }, children: [
-          "$",
-          totals.revenue.toFixed(2)
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3" }),
+        chosenColumns.map((colId) => {
+          if (colId === "name") {
+            return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: t("offers.total").replace("{count}", filteredOffers.length) }, colId);
+          }
+          const val = renderTotalCell(colId);
+          const alignRight = ALL_OFFER_COLUMNS.find((c) => c.id === colId)?.alignRight;
+          return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `px-4 py-3 ${alignRight ? "text-right" : ""}`, style: { color: colId === "profit_confirmed" && totalsProfitConfirmed < 0 ? "var(--color-danger)" : void 0 }, children: val ?? "" }, colId);
+        }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
       ] }) })
     ] }) }),
     isEditorOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -54166,6 +54521,20 @@ const Offers = ({ offers, refreshData }) => {
       {
         type: "offer",
         onClose: () => setIsGroupsModalOpen(false)
+      }
+    ),
+    columnsModalOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ColumnsOrderModal,
+      {
+        columns: localizedColumns,
+        selectedIds: chosenColumns,
+        defaultIds: DEFAULT_OFFER_COLUMNS,
+        onClose: () => setColumnsModalOpen(false),
+        onSave: (ids) => {
+          setChosenColumns(ids);
+          localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(ids));
+          setColumnsModalOpen(false);
+        }
       }
     ),
     settingsOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => setSettingsOpen(false), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", onClick: (e) => e.stopPropagation(), style: { maxWidth: "560px" }, children: [

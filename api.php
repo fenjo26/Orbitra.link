@@ -3442,45 +3442,27 @@ try {
             $orderBy = isset($_GET['limit']) ? "ORDER BY clicks DESC, created_at DESC" : "ORDER BY created_at DESC";
             $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
             $conversionsValueColumn = getConversionsValueColumn($pdo);
-            $offerClickRevenueExpression = "0";
-            if ($conversionsValueColumn !== null) {
-                $offerClickRevenueExpression = "COALESCE((SELECT SUM($conversionsValueColumn) FROM conversions cv WHERE cv.click_id = cl.id), 0)";
-            }
 
-            // Полный список офферов со статистикой
-            $stmt = $pdo->prepare("
-                SELECT id, name, group_id, affiliate_network_id, url, redirect_type, 
-                       is_local, geo, payout_type, payout_value, payout_auto, 
-                       allow_rebills, capping_limit, capping_timezone, alt_offer_id, 
-                       notes, state, created_at, group_name, affiliate_network_name,
-                       COUNT(click_id) as clicks, 
-                       COUNT(DISTINCT click_ip) as unique_clicks,
-                       COALESCE(SUM(is_conversion), 0) as conversions,
-                       SUM(click_revenue) as revenue
-                FROM (
-                    SELECT o.id, o.name, o.group_id, o.affiliate_network_id, o.url, o.redirect_type, 
-                           o.is_local, o.geo, o.payout_type, o.payout_value, o.payout_auto, 
-                           o.allow_rebills, o.capping_limit, o.capping_timezone, o.alt_offer_id, 
-                           o.notes, o.state, o.created_at,
-                           og.name as group_name,
-                           an.name as affiliate_network_name,
-                           cl.id as click_id,
-                           cl.ip as click_ip,
-                           cl.is_conversion as is_conversion,
-                           $offerClickRevenueExpression as click_revenue
-                    FROM offers o
-                    LEFT JOIN offer_groups og ON o.group_id = og.id
-                    LEFT JOIN affiliate_networks an ON o.affiliate_network_id = an.id
-                    LEFT JOIN clicks cl ON o.id = cl.offer_id $joinCondition
-                    WHERE o.is_archived = 0
-                )
-                GROUP BY id
-                $havingClause
-                $orderBy
-                $limitClause
-            ");
+            // Полный список офферов со статистикой. Status counters and money
+            // come from the same per-click conversion aggregate the report
+            // engine uses, and the ratios are derived by the same
+            // orbitraComputeDerivedMetrics() — so the offers table can never
+            // drift from the verified 64-metric math. The SQL lives in
+            // core/ReportMetrics.php so tests run the exact production query.
+            $stmt = $pdo->prepare(orbitraOffersWithStatsSql($joinCondition, $conversionsValueColumn)
+                . " $havingClause $orderBy $limitClause");
             $stmt->execute($paramsCl);
-            echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+            $offersData = $stmt->fetchAll();
+            foreach ($offersData as &$oRow) {
+                $m = orbitraComputeDerivedMetrics($oRow);
+                $oRow['cr'] = $m['cr'];
+                $oRow['epc_confirmed'] = $m['epc_confirmed'];
+                $oRow['cpc'] = $m['cpc'];
+                $oRow['profit_confirmed'] = $m['profit_confirmed'];
+                $oRow['roi_confirmed'] = $m['roi_confirmed'];
+            }
+            unset($oRow);
+            echo json_encode(['status' => 'success', 'data' => $offersData]);
             break;
 
         case 'all_offers':

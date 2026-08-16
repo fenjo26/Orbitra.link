@@ -124,7 +124,7 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
                     <h3 className="text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                        {t('landingColumns.title')}
+                        {t('columnsOrder.title')}
                     </h3>
                     <button
                         type="button"
@@ -203,7 +203,7 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
 
                                 {col.required && (
                                     <span className="text-[10.5px] px-1.5 py-0.5 rounded-md" style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
-                                        {t('landingColumns.required')}
+                                        {t('columnsOrder.required')}
                                     </span>
                                 )}
                             </div>
