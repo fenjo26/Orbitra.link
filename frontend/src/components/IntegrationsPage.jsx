@@ -75,6 +75,14 @@ const IntegrationsPage = () => {
     const [cfBusy, setCfBusy] = useState(false);
     const [cfMessage, setCfMessage] = useState(null);
 
+    // Namecheap state — one account in settings: zero-config DNS parking for
+    // domains from the account + purchasing new domains right from the panel.
+    const [ncForm, setNcForm] = useState({ username: '', api_key: '', sandbox: false, address_id: '', server_ip: '' });
+    const [ncStatus, setNcStatus] = useState(null);
+    const [ncBusy, setNcBusy] = useState(false);
+    const [ncMessage, setNcMessage] = useState(null);
+    const [ncAddresses, setNcAddresses] = useState([]);
+
     // reCAPTCHA state
     const [rcSaving, setRcSaving] = useState(false);
     const [rcMessage, setRcMessage] = useState(null);
@@ -454,6 +462,29 @@ const IntegrationsPage = () => {
                     if (res.data.status === 'success') {
                         setCfStatus(res.data.data);
                         setCfForm(f => ({ ...f, proxied: !!res.data.data.proxied, ssl_mode: res.data.data.ssl_mode || 'flexible', server_ip: res.data.data.server_ip || '' }));
+                    }
+                })
+                .catch(() => {});
+        }
+        if (activeTab === 'namecheap') {
+            const ncAddressRefresh = async () => {
+                try {
+                    const res = await axios.post(`${API_URL}?action=namecheap_addresses`, {});
+                    if (res.data.status === 'success') setNcAddresses(res.data.data.addresses || []);
+                } catch (err) { console.error(err); }
+            };
+            axios.get(`${API_URL}?action=namecheap_status`)
+                .then(res => {
+                    if (res.data.status === 'success') {
+                        setNcStatus(res.data.data);
+                        setNcForm(f => ({
+                            ...f,
+                            username: res.data.data.username || '',
+                            sandbox: !!res.data.data.sandbox,
+                            address_id: res.data.data.address_id || '',
+                            server_ip: res.data.data.server_ip || ''
+                        }));
+                        if (res.data.data.connected) ncAddressRefresh();
                     }
                 })
                 .catch(() => {});
@@ -1071,6 +1102,12 @@ const IntegrationsPage = () => {
             icon: <Cloud className="w-5 h-5" />,
             description: t('cloudflare.description', 'Управление DNS доменов трекера через Cloudflare API: A-записи прописываются сами, SSL — краем CF'),
             isCloudflare: true
+        },
+        namecheap: {
+            title: t('namecheap.title', 'Namecheap'),
+            icon: <Globe className="w-5 h-5" />,
+            description: t('namecheap.description', 'Автопарковка DNS доменов из аккаунта Namecheap, покупка новых доменов и выпуск SSL — прямо из трекера'),
+            isNamecheap: true
         },
         recaptcha: {
             title: t('recaptcha.tabTitle'),
@@ -2026,7 +2063,7 @@ global \$wpdb;
                                 // never silently disappear from the menu.
                                 const groups = [
                                     { label: t('integrations.groupAds', 'Ad networks'), ids: ['facebook_costs', 'facebook_conversions', 'dolphin_fbtool'] },
-                                    { label: t('integrations.groupDomains', 'Domains & SSL'), ids: ['cloudflare'] },
+                                    { label: t('integrations.groupDomains', 'Domains & SSL'), ids: ['cloudflare', 'namecheap'] },
                                     { label: t('integrations.groupSites', 'Sites & landings'), ids: ['kclient_php', 'kclient_js', 'tracking_pixel', 'js_banner', 'wordpress', 'wordpress_plugin', 'static_site', 'geo_redirect', 'device_redirect'] },
                                     { label: t('integrations.groupTools', 'Tools'), ids: ['countdown_timer', 'back_button_trap', 'exit_popup', 'app_config', 'recaptcha', 'telegram'] },
                                 ];
@@ -2265,6 +2302,180 @@ global \$wpdb;
                                             {t('cloudflare.managedDomains', 'Доменов под управлением Cloudflare')}: {cfStatus.managed_domains}
                                         </p>
                                     )}
+                                </div>
+                            </div>
+                        ) : activeObj.isNamecheap ? (
+                            <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
+                                <div style={{ maxWidth: '620px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    <div style={{ background: 'var(--color-bg-card)', borderRadius: '12px', padding: '24px', border: '1px solid var(--color-border)' }}>
+                                        <p className="text-xs" style={{ color: 'var(--color-text-secondary)', marginBottom: '16px', lineHeight: 1.6 }}>
+                                            {t('namecheap.howTo', 'Включите API-доступ: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access. Исходящий IP сервера добавьте в Whitelisted IPs. Домены, зарегистрированные в аккаунте, при парковке получают A-запись автоматически; SSL Let\'s Encrypt выпускается сразу после того, как DNS обновится.')}
+                                        </p>
+
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            <div>
+                                                <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                    {t('namecheap.username', 'Username')} {ncStatus?.connected ? '✓' : ''}
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className="form-input"
+                                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px' }}
+                                                    value={ncForm.username}
+                                                    onChange={e => setNcForm({ ...ncForm, username: e.target.value })}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                    API Key
+                                                </label>
+                                                <input
+                                                    type="password"
+                                                    className="form-input"
+                                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px', fontFamily: 'monospace' }}
+                                                    value={ncForm.api_key}
+                                                    onChange={e => setNcForm({ ...ncForm, api_key: e.target.value })}
+                                                    placeholder={ncStatus?.connected ? t('namecheap.keySaved', 'ключ сохранён — введите новый, чтобы заменить') : ''}
+                                                />
+                                            </div>
+
+                                            {/* Whitelisted IP: Namecheap rejects calls from unlisted IPs, and the
+                                                real outgoing address usually differs from what the admin expects. */}
+                                            <div style={{ padding: '12px', borderRadius: '8px', border: '1px dashed var(--color-border)', background: 'var(--color-bg-soft)' }}>
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <div>
+                                                        <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>
+                                                            {t('namecheap.whitelistIp', 'IP сервера для Whitelisted IPs')}
+                                                        </div>
+                                                        <div className="font-mono" style={{ fontSize: '15px', color: 'var(--color-text-primary)' }}>
+                                                            {ncStatus?.detected_ip || ncStatus?.server_ip || '—'}
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        className="btn btn-secondary btn-icon"
+                                                        onClick={() => copyToClipboard(ncStatus?.detected_ip || ncStatus?.server_ip || '', 'nc-ip')}
+                                                        title={t('common.copy')}
+                                                    >
+                                                        {copied === 'nc-ip' ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                                    </button>
+                                                </div>
+                                                <p className="text-xs" style={{ margin: '8px 0 0', color: 'var(--color-text-muted)' }}>
+                                                    {t('namecheap.whitelistHint', 'Добавьте этот IP в Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Если показан неверный адрес — нажмите «Проверить»: Namecheap сам назовёт IP, с которого пришли запросы.')}
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                    {t('namecheap.addressBook', 'Профиль контакта (Address Book) для новых доменов')}
+                                                </label>
+                                                <div className="flex gap-2">
+                                                    <select
+                                                        className="form-select"
+                                                        style={{ flex: 1, padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px' }}
+                                                        value={ncForm.address_id}
+                                                        onChange={e => setNcForm({ ...ncForm, address_id: e.target.value })}
+                                                    >
+                                                        <option value="">{t('namecheap.addressPlaceholder', '— не выбран —')}</option>
+                                                        {ncAddresses.map(a => (
+                                                            <option key={a.id} value={a.id}>{a.name}{a.is_default ? ' ✓' : ''}</option>
+                                                        ))}
+                                                    </select>
+                                                    <button
+                                                        className="btn btn-secondary btn-icon"
+                                                        disabled={ncBusy}
+                                                        onClick={async () => {
+                                                            setNcBusy(true);
+                                                            try {
+                                                                const res = await axios.post(`${API_URL}?action=namecheap_addresses`, {});
+                                                                if (res.data.status === 'success') {
+                                                                    setNcAddresses(res.data.data.addresses || []);
+                                                                    setNcMessage('✓ ' + t('namecheap.addressesLoaded', 'профили загружены'));
+                                                                } else setNcMessage('⚠ ' + (res.data.message || t('common.error')));
+                                                            } catch (err) { setNcMessage('⚠ ' + t('common.networkError')); }
+                                                            finally { setNcBusy(false); }
+                                                        }}
+                                                        title={t('namecheap.addressRefresh', 'Обновить список из Address Book')}
+                                                    >
+                                                        <RefreshCw className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                                {!ncAddresses.length && (
+                                                    <p className="text-xs" style={{ margin: '6px 0 0', color: 'var(--color-text-muted)' }}>
+                                                        {t('namecheap.addressHint', 'Профили подтягиваются из Namecheap Address Book — они нужны для регистрации новых доменов.')}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            <div>
+                                                <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                    {t('namecheap.environment', 'Окружение')}
+                                                </label>
+                                                <div className="flex gap-4">
+                                                    <label className="flex items-center gap-2" style={{ color: 'var(--color-text-primary)', fontSize: '14px' }}>
+                                                        <input type="radio" name="nc-env" checked={!ncForm.sandbox} onChange={() => setNcForm({ ...ncForm, sandbox: false })} />
+                                                        {t('namecheap.production', 'Production')}
+                                                    </label>
+                                                    <label className="flex items-center gap-2" style={{ color: 'var(--color-text-primary)', fontSize: '14px' }}>
+                                                        <input type="radio" name="nc-env" checked={ncForm.sandbox} onChange={() => setNcForm({ ...ncForm, sandbox: true })} />
+                                                        {t('namecheap.sandbox', 'Sandbox')}
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex gap-2" style={{ marginTop: '4px' }}>
+                                                <button
+                                                    className="btn btn-primary"
+                                                    disabled={ncBusy}
+                                                    onClick={async () => {
+                                                        setNcBusy(true); setNcMessage(null);
+                                                        try {
+                                                            const res = await axios.post(`${API_URL}?action=namecheap_save`, ncForm);
+                                                            if (res.data.status === 'success') {
+                                                                setNcMessage('✓ ' + t('namecheap.saved', 'Сохранено'));
+                                                                const st = await axios.get(`${API_URL}?action=namecheap_status`);
+                                                                if (st.data.status === 'success') setNcStatus(st.data.data);
+                                                                setNcForm(f => ({ ...f, api_key: '' }));
+                                                            } else if (res.data.message === 'namecheap_connection_failed') {
+                                                                setNcMessage('⚠ ' + t('namecheap.errConnection', 'Namecheap отклонил подключение') + (res.data.detail?.error ? `: ${res.data.detail.error}` : ''));
+                                                                if (res.data.detail?.ip) {
+                                                                    setNcStatus(s => s ? { ...s, detected_ip: res.data.detail.ip } : s);
+                                                                }
+                                                            } else {
+                                                                setNcMessage('⚠ ' + (res.data.message || t('common.error')));
+                                                            }
+                                                        } catch (err) { setNcMessage('⚠ ' + t('common.networkError')); }
+                                                        finally { setNcBusy(false); }
+                                                    }}
+                                                >
+                                                    {ncBusy ? t('common.saving') : t('common.save')}
+                                                </button>
+                                                {ncStatus?.connected && (
+                                                    <button
+                                                        className="btn btn-secondary"
+                                                        disabled={ncBusy}
+                                                        onClick={async () => {
+                                                            setNcBusy(true); setNcMessage(null);
+                                                            try {
+                                                                const res = await axios.post(`${API_URL}?action=namecheap_test`, {});
+                                                                if (res.data.status === 'success') {
+                                                                    setNcMessage('✓ ' + t('namecheap.connected', 'Подключено') + (res.data.data?.balance ? ` · ${t('namecheap.balance', 'баланс')}: ${res.data.data.balance}` : ''));
+                                                                } else {
+                                                                    const st = await axios.get(`${API_URL}?action=namecheap_status`);
+                                                                    if (st.data.status === 'success') setNcStatus(st.data.data);
+                                                                    setNcMessage('⚠ ' + (res.data.message || t('common.error')));
+                                                                }
+                                                            } catch (err) { setNcMessage('⚠ ' + t('common.networkError')); }
+                                                            finally { setNcBusy(false); }
+                                                        }}
+                                                    >
+                                                        <Zap className="w-4 h-4" />
+                                                        {t('namecheap.test', 'Проверить')}
+                                                    </button>
+                                                )}
+                                            </div>
+                                            {ncMessage && <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{ncMessage}</p>}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         ) : activeObj.isRecaptcha ? (

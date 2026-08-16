@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Clock, Cloud } from 'lucide-react';
+import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Clock, Cloud, ShoppingCart, Download } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import HelpTooltip from './HelpTooltip';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -37,6 +37,110 @@ const Domains = ({ campaigns }) => {
 
     // DNS Warning Modal State
     const [showDnsModal, setShowDnsModal] = useState(false);
+
+    // Namecheap integration: when connected, "Register Domain" and
+    // "Import from Namecheap" appear, and adding domains auto-parks their DNS.
+    const [ncConnected, setNcConnected] = useState(false);
+    const [showRegister, setShowRegister] = useState(false);
+    const [regDomain, setRegDomain] = useState('');
+    const [regChecking, setRegChecking] = useState(false);
+    const [regResult, setRegResult] = useState(null); // {domain, available, is_premium, price}
+    const [regBuying, setRegBuying] = useState(false);
+    const [regMessage, setRegMessage] = useState('');
+    const [showImport, setShowImport] = useState(false);
+    const [ncImport, setNcImport] = useState({ loading: false, domains: [], selected: {}, importing: false, message: '' });
+
+    useEffect(() => {
+        cachedGet('namecheap_status')
+            .then(({ data }) => { if (data.status === 'success') setNcConnected(!!data.data.connected); })
+            .catch(() => {});
+    }, []);
+
+    const checkNcDomain = async () => {
+        const domain = regDomain.trim().toLowerCase();
+        if (!domain) return;
+        setRegChecking(true); setRegResult(null); setRegMessage('');
+        try {
+            const { data } = await cachedPost('namecheap_check_domain', { domain });
+            if (data.status === 'success') {
+                setRegResult(data.data);
+            } else {
+                setRegMessage(data.message || t('common.error'));
+            }
+        } catch (e) {
+            setRegMessage(t('common.networkError'));
+        } finally {
+            setRegChecking(false);
+        }
+    };
+
+    const buyAndPark = async () => {
+        const domain = regResult?.domain || regDomain.trim().toLowerCase();
+        const priceNote = regResult?.price ? ` (${regResult.price})` : '';
+        if (!window.confirm(`${t('namecheap.buyConfirm')}: ${domain}${priceNote}?`)) return;
+        setRegBuying(true); setRegMessage('');
+        try {
+            const { data } = await cachedPost('namecheap_register_domain', { domain });
+            if (data.status === 'success') {
+                setShowRegister(false);
+                setRegDomain(''); setRegResult(null);
+                fetchDomains();
+                const lines = [`${t('namecheap.registeredOk')}: ${data.data.domain}`];
+                if (data.data.namecheap) lines.push(`✓ ${t('namecheap.parkedOk')}: ${data.data.namecheap}`);
+                lines.push(t('domains.sslQueued', 'SSL сертификат устанавливается в фоновом режиме (1-2 минуты)'));
+                alert(lines.join('\n'));
+            } else {
+                setRegMessage(data.message || t('common.error'));
+            }
+        } catch (e) {
+            setRegMessage(t('common.networkError'));
+        } finally {
+            setRegBuying(false);
+        }
+    };
+
+    const openImport = async () => {
+        setShowImport(true);
+        setNcImport({ loading: true, domains: [], selected: {}, importing: false, message: '' });
+        try {
+            const [{ data: listRes }] = await Promise.all([cachedPost('namecheap_domains', {})]);
+            if (listRes.status !== 'success') {
+                setNcImport(s => ({ ...s, loading: false, message: listRes.message || t('common.error') }));
+                return;
+            }
+            const have = new Set(domains.map(d => d.name.toLowerCase()));
+            const fresh = (listRes.data.domains || []).filter(d => !have.has(d));
+            const selected = {};
+            fresh.forEach(d => { selected[d] = true; });
+            setNcImport({ loading: false, domains: listRes.data.domains || [], selected, importing: false, message: '' });
+        } catch (e) {
+            setNcImport(s => ({ ...s, loading: false, message: t('common.networkError') }));
+        }
+    };
+
+    const importSelected = async () => {
+        const names = Object.keys(ncImport.selected).filter(k => ncImport.selected[k]);
+        if (!names.length) return;
+        setNcImport(s => ({ ...s, importing: true, message: '' }));
+        try {
+            const { data } = await cachedPost('save_domain', { name: names.join(', ') });
+            if (data.status === 'success') {
+                setShowImport(false);
+                fetchDomains();
+                const parked = (data.domains || []).filter(d => d.namecheap).map(d => `${d.name}: ${d.namecheap}`);
+                const warnings = data.warnings || [];
+                const lines = [`${t('namecheap.importedCount')}: ${(data.domains || []).length}`];
+                if (parked.length) lines.push('', `✓ ${t('namecheap.parkedOk')}:`, ...parked);
+                if (warnings.length) lines.push('', `⚠ ${warnings.join('; ')}`);
+                if (data.ssl) lines.push('', data.ssl);
+                alert(lines.join('\n'));
+            } else {
+                setNcImport(s => ({ ...s, importing: false, message: data.message || t('common.error') }));
+            }
+        } catch (e) {
+            setNcImport(s => ({ ...s, importing: false, message: t('common.networkError') }));
+        }
+    };
 
     useEffect(() => {
         fetchDomains();
@@ -248,6 +352,13 @@ const Domains = ({ campaigns }) => {
                 setShowModal(false);
                 setFormData({ id: null, name: '', index_campaign_id: '', catch_404: false, group_id: '', is_noindex: true, https_only: false });
                 fetchDomains();
+                // Zero-config parking report: when the Namecheap integration
+                // wrote the A records itself, say so — otherwise the operator
+                // goes looking for the DNS instructions that are no longer needed.
+                const parked = (res.data.domains || []).filter(d => d.namecheap).map(d => `${d.name}: ${d.namecheap}`);
+                if (parked.length) {
+                    alert(`✓ ${t('namecheap.parkedOk')}:\n${parked.join('\n')}`);
+                }
             } else {
                 setError(res.data.message || t('common.error'));
             }
@@ -322,6 +433,24 @@ const Domains = ({ campaigns }) => {
                         <ShieldAlert size={16} className={sslRunning ? 'animate-spin' : ''} />
                         {sslRunning ? t('domains.checkingShort') : t('domains.issueSsl')}
                     </button>
+                    {ncConnected && (
+                        <>
+                            <button
+                                onClick={() => { setShowRegister(true); setRegResult(null); setRegMessage(''); }}
+                                className="btn btn-secondary flex items-center gap-2"
+                                title={t('namecheap.registerHint', 'Купить домен через баланс Namecheap и припарковать его сюда одним кликом')}
+                            >
+                                <ShoppingCart size={16} /> {t('namecheap.registerBtn', 'Register Domain')}
+                            </button>
+                            <button
+                                onClick={openImport}
+                                className="btn btn-secondary flex items-center gap-2"
+                                title={t('namecheap.importHint', 'Выбрать домены из аккаунта Namecheap и добавить их в трекер')}
+                            >
+                                <Download size={16} /> {t('namecheap.importBtn', 'Import from Namecheap')}
+                            </button>
+                        </>
+                    )}
                     <button
                         onClick={() => {
                             setFormData({ id: null, name: '', index_campaign_id: '', catch_404: false, group_id: '', is_noindex: true, https_only: false });
@@ -524,6 +653,158 @@ const Domains = ({ campaigns }) => {
                                 <button type="submit" className="btn btn-primary">{t('common.save')}</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Namecheap: Register Domain */}
+            {showRegister && (
+                <div className="modal-overlay">
+                    <div className="modal-content w-full max-w-md" style={{ padding: '24px' }}>
+                        <div className="modal-header">
+                            <h3 className="modal-title flex items-center gap-2">
+                                <ShoppingCart size={18} /> {t('namecheap.registerTitle', 'Register Domain')}
+                            </h3>
+                            <button type="button" className="btn btn-ghost btn-icon" onClick={() => setShowRegister(false)}>
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                                {t('namecheap.registerHintLong', 'Домен регистрируется через баланс вашего аккаунта Namecheap: сразу после покупки A-запись указывает на этот сервер, и SSL Let\'s Encrypt выпускается автоматически.')}
+                            </p>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    style={{ flex: 1 }}
+                                    placeholder="my-new-domain.com"
+                                    value={regDomain}
+                                    onChange={e => { setRegDomain(e.target.value.toLowerCase()); setRegResult(null); }}
+                                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); checkNcDomain(); } }}
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    disabled={regChecking || !regDomain.trim()}
+                                    onClick={checkNcDomain}
+                                >
+                                    {regChecking ? t('domains.checkingShort') : t('namecheap.checkBtn', 'Check Availability')}
+                                </button>
+                            </div>
+
+                            {regResult && (
+                                <div className="rounded-2xl p-4" style={{ border: '1px solid var(--color-border)', background: 'var(--color-bg-soft)' }}>
+                                    {regResult.available ? (
+                                        <>
+                                            <div className="flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                                <Check size={16} className="text-green-500" />
+                                                <span className="font-medium">{regResult.domain}</span>
+                                                <span className="text-xs">— {t('namecheap.available', 'свободен')}</span>
+                                            </div>
+                                            {regResult.price && (
+                                                <div className="text-sm mt-1" style={{ color: 'var(--color-text-primary)' }}>
+                                                    {regResult.is_premium ? t('namecheap.premium', 'Premium-домен') + ': ' : t('namecheap.price', 'Цена') + ': '}
+                                                    <span className="font-semibold">${regResult.price}</span>
+                                                </div>
+                                            )}
+                                            <button
+                                                type="button"
+                                                className="btn btn-primary mt-3 w-full"
+                                                disabled={regBuying}
+                                                onClick={buyAndPark}
+                                            >
+                                                <ShoppingCart size={16} />
+                                                {regBuying ? t('namecheap.buying', 'Покупаем…') : t('namecheap.buyPark', 'Buy & Park Domain')}
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <div className="flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                            <X size={16} className="text-red-500" />
+                                            <span className="font-medium">{regResult.domain}</span>
+                                            <span className="text-xs">— {t('namecheap.taken', 'занят')}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {regMessage && (
+                                <div className="alert alert-danger flex items-center gap-2"><AlertCircle size={16} />{regMessage}</div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Namecheap: Import domains from the account */}
+            {showImport && (
+                <div className="modal-overlay">
+                    <div className="modal-content w-full max-w-lg" style={{ padding: '24px' }}>
+                        <div className="modal-header">
+                            <h3 className="modal-title flex items-center gap-2">
+                                <Download size={18} /> {t('namecheap.importTitle', 'Import from Namecheap')}
+                            </h3>
+                            <button type="button" className="btn btn-ghost btn-icon" onClick={() => setShowImport(false)}>
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                                {t('namecheap.importHintLong', 'Все домены аккаунта Namecheap. Отмеченные добавляются в трекер: A-запись и SSL настраиваются автоматически.')}
+                            </p>
+                            {ncImport.loading ? (
+                                <div className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
+                                    <RefreshCw size={20} className="animate-spin mx-auto mb-2" />
+                                    {t('common.loading')}
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="overflow-y-auto rounded-2xl" style={{ maxHeight: '320px', border: '1px solid var(--color-border)' }}>
+                                        {ncImport.domains.map(d => {
+                                            // Домены, которых нет в selected, уже были в трекере —
+                                            // при открытии модалки отмечаются только новые.
+                                            const inTracker = !Object.prototype.hasOwnProperty.call(ncImport.selected, d);
+                                            const isSel = !!ncImport.selected[d];
+                                            return (
+                                                <label key={d} className="flex items-center gap-3 px-4 py-2 cursor-pointer" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isSel}
+                                                        onChange={e => setNcImport(s => ({ ...s, selected: { ...s.selected, [d]: e.target.checked } }))}
+                                                    />
+                                                    <span className="font-mono text-sm" style={{ color: isSel ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }}>{d}</span>
+                                                    {inTracker && (
+                                                        <span className="badge badge-success ml-auto text-xs"><Check size={12} /> {t('namecheap.inTracker', 'уже в трекере')}</span>
+                                                    )}
+                                                </label>
+                                            );
+                                        })}
+                                        {!ncImport.domains.length && (
+                                            <div className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
+                                                {t('namecheap.noDomains', 'В аккаунте нет доменов')}
+                                            </div>
+                                        )}
+                                    </div>
+                                    {ncImport.message && (
+                                        <div className="alert alert-danger flex items-center gap-2"><AlertCircle size={16} />{ncImport.message}</div>
+                                    )}
+                                    <div className="modal-footer">
+                                        <button type="button" className="btn btn-secondary" onClick={() => setShowImport(false)}>{t('common.cancel')}</button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-primary"
+                                            disabled={ncImport.importing || !Object.values(ncImport.selected).some(Boolean)}
+                                            onClick={importSelected}
+                                        >
+                                            <Download size={16} />
+                                            {ncImport.importing
+                                                ? t('namecheap.importing', 'Импортируем…')
+                                                : `${t('namecheap.importBtn2', 'Импортировать')} (${Object.values(ncImport.selected).filter(Boolean).length})`}
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

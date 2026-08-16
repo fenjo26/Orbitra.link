@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1G = [
+const __iconNode$1H = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$1G = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1G);
-const __iconNode$1F = [
+const Activity = createLucideIcon("activity", __iconNode$1H);
+const __iconNode$1G = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1F);
-const __iconNode$1E = [
+const Archive = createLucideIcon("archive", __iconNode$1G);
+const __iconNode$1F = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1E);
-const __iconNode$1D = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1F);
+const __iconNode$1E = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1D);
-const __iconNode$1C = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1E);
+const __iconNode$1D = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1C);
-const __iconNode$1B = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1D);
+const __iconNode$1C = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$1B = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1B);
-const __iconNode$1A = [
+const BellOff = createLucideIcon("bell-off", __iconNode$1C);
+const __iconNode$1B = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$1A = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1A);
-const __iconNode$1z = [
+const Bell = createLucideIcon("bell", __iconNode$1B);
+const __iconNode$1A = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1z);
-const __iconNode$1y = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$1A);
+const __iconNode$1z = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1y);
-const __iconNode$1x = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1z);
+const __iconNode$1y = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1x);
-const __iconNode$1w = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1y);
+const __iconNode$1x = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$1w = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1w);
-const __iconNode$1v = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1v);
-const __iconNode$1u = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1u);
-const __iconNode$1t = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1t);
-const __iconNode$1s = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1s);
-const __iconNode$1r = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1r);
-const __iconNode$1q = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1x);
+const __iconNode$1w = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1w);
+const __iconNode$1v = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1v);
+const __iconNode$1u = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1u);
+const __iconNode$1t = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1t);
+const __iconNode$1s = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1s);
+const __iconNode$1r = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1q);
-const __iconNode$1p = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1r);
+const __iconNode$1q = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1p);
-const __iconNode$1o = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1q);
+const __iconNode$1p = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1o);
-const __iconNode$1n = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1p);
+const __iconNode$1o = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1n);
-const __iconNode$1m = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1o);
+const __iconNode$1n = [
   [
     "path",
     {
@@ -15240,39 +15240,39 @@ const __iconNode$1m = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1m);
-const __iconNode$1l = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1n);
+const __iconNode$1m = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1l);
-const __iconNode$1k = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1m);
+const __iconNode$1l = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1k);
-const __iconNode$1j = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1l);
+const __iconNode$1k = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1j);
-const __iconNode$1i = [
+const Clock = createLucideIcon("clock", __iconNode$1k);
+const __iconNode$1j = [
   ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1i);
-const __iconNode$1h = [
+const Cloud = createLucideIcon("cloud", __iconNode$1j);
+const __iconNode$1i = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1h);
-const __iconNode$1g = [
+const Code = createLucideIcon("code", __iconNode$1i);
+const __iconNode$1h = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1g);
-const __iconNode$1f = [
+const Copy = createLucideIcon("copy", __iconNode$1h);
+const __iconNode$1g = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15288,25 +15288,25 @@ const __iconNode$1f = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1f);
-const __iconNode$1e = [
+const Cpu = createLucideIcon("cpu", __iconNode$1g);
+const __iconNode$1f = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1e);
-const __iconNode$1d = [
+const Database = createLucideIcon("database", __iconNode$1f);
+const __iconNode$1e = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$1d);
-const __iconNode$1c = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1e);
+const __iconNode$1d = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$1c);
-const __iconNode$1b = [
+const Download = createLucideIcon("download", __iconNode$1d);
+const __iconNode$1c = [
   [
     "path",
     {
@@ -15315,20 +15315,20 @@ const __iconNode$1b = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$1b);
-const __iconNode$1a = [
+const Droplet = createLucideIcon("droplet", __iconNode$1c);
+const __iconNode$1b = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1a);
-const __iconNode$19 = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1b);
+const __iconNode$1a = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$19);
-const __iconNode$18 = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$1a);
+const __iconNode$19 = [
   [
     "path",
     {
@@ -15346,8 +15346,8 @@ const __iconNode$18 = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$18);
-const __iconNode$17 = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$19);
+const __iconNode$18 = [
   [
     "path",
     {
@@ -15357,8 +15357,8 @@ const __iconNode$17 = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$17);
-const __iconNode$16 = [
+const Eye = createLucideIcon("eye", __iconNode$18);
+const __iconNode$17 = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15369,8 +15369,8 @@ const __iconNode$16 = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$16);
-const __iconNode$15 = [
+const FileStack = createLucideIcon("file-stack", __iconNode$17);
+const __iconNode$16 = [
   [
     "path",
     {
@@ -15383,8 +15383,8 @@ const __iconNode$15 = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$15);
-const __iconNode$14 = [
+const FileText = createLucideIcon("file-text", __iconNode$16);
+const __iconNode$15 = [
   [
     "path",
     {
@@ -15393,22 +15393,22 @@ const __iconNode$14 = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$14);
-const __iconNode$13 = [
+const Funnel = createLucideIcon("funnel", __iconNode$15);
+const __iconNode$14 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$13);
-const __iconNode$12 = [
+const Globe = createLucideIcon("globe", __iconNode$14);
+const __iconNode$13 = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }],
   ["path", { d: "M9 3v18", key: "fh3hqa" }],
   ["path", { d: "M15 3v18", key: "14nvp0" }]
 ];
-const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$12);
-const __iconNode$11 = [
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$13);
+const __iconNode$12 = [
   ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
   ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
   ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
@@ -15416,8 +15416,8 @@ const __iconNode$11 = [
   ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
   ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
 ];
-const GripVertical = createLucideIcon("grip-vertical", __iconNode$11);
-const __iconNode$10 = [
+const GripVertical = createLucideIcon("grip-vertical", __iconNode$12);
+const __iconNode$11 = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15429,8 +15429,8 @@ const __iconNode$10 = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$10);
-const __iconNode$$ = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$11);
+const __iconNode$10 = [
   [
     "path",
     {
@@ -15439,20 +15439,20 @@ const __iconNode$$ = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$$);
-const __iconNode$_ = [
+const Heart = createLucideIcon("heart", __iconNode$10);
+const __iconNode$$ = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$_);
-const __iconNode$Z = [
+const Image = createLucideIcon("image", __iconNode$$);
+const __iconNode$_ = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$Z);
-const __iconNode$Y = [
+const Info = createLucideIcon("info", __iconNode$_);
+const __iconNode$Z = [
   [
     "path",
     {
@@ -15462,14 +15462,14 @@ const __iconNode$Y = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$Y);
-const __iconNode$X = [
+const KeyRound = createLucideIcon("key-round", __iconNode$Z);
+const __iconNode$Y = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$X);
-const __iconNode$W = [
+const Key = createLucideIcon("key", __iconNode$Y);
+const __iconNode$X = [
   [
     "path",
     {
@@ -15492,15 +15492,15 @@ const __iconNode$W = [
     }
   ]
 ];
-const Layers = createLucideIcon("layers", __iconNode$W);
-const __iconNode$V = [
+const Layers = createLucideIcon("layers", __iconNode$X);
+const __iconNode$W = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$V);
-const __iconNode$U = [
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$W);
+const __iconNode$V = [
   [
     "path",
     {
@@ -15511,19 +15511,19 @@ const __iconNode$U = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$U);
-const __iconNode$T = [
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$V);
+const __iconNode$U = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-const Link2 = createLucideIcon("link-2", __iconNode$T);
-const __iconNode$S = [
+const Link2 = createLucideIcon("link-2", __iconNode$U);
+const __iconNode$T = [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ];
-const Link = createLucideIcon("link", __iconNode$S);
-const __iconNode$R = [
+const Link = createLucideIcon("link", __iconNode$T);
+const __iconNode$S = [
   ["path", { d: "M12 2v4", key: "3427ic" }],
   ["path", { d: "m16.2 7.8 2.9-2.9", key: "r700ao" }],
   ["path", { d: "M18 12h4", key: "wj9ykh" }],
@@ -15533,24 +15533,24 @@ const __iconNode$R = [
   ["path", { d: "M2 12h4", key: "j09sii" }],
   ["path", { d: "m4.9 4.9 2.9 2.9", key: "giyufr" }]
 ];
-const Loader = createLucideIcon("loader", __iconNode$R);
-const __iconNode$Q = [
+const Loader = createLucideIcon("loader", __iconNode$S);
+const __iconNode$R = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$Q);
-const __iconNode$P = [
+const Lock = createLucideIcon("lock", __iconNode$R);
+const __iconNode$Q = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$P);
-const __iconNode$O = [
+const LogOut = createLucideIcon("log-out", __iconNode$Q);
+const __iconNode$P = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Mail = createLucideIcon("mail", __iconNode$O);
-const __iconNode$N = [
+const Mail = createLucideIcon("mail", __iconNode$P);
+const __iconNode$O = [
   [
     "path",
     {
@@ -15560,8 +15560,8 @@ const __iconNode$N = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$N);
-const __iconNode$M = [
+const MapPin = createLucideIcon("map-pin", __iconNode$O);
+const __iconNode$N = [
   [
     "path",
     {
@@ -15572,14 +15572,14 @@ const __iconNode$M = [
   ["path", { d: "M15 5.764v15", key: "1pn4in" }],
   ["path", { d: "M9 3.236v15", key: "1uimfh" }]
 ];
-const Map$1 = createLucideIcon("map", __iconNode$M);
-const __iconNode$L = [
+const Map$1 = createLucideIcon("map", __iconNode$N);
+const __iconNode$M = [
   ["path", { d: "M4 5h16", key: "1tepv9" }],
   ["path", { d: "M4 12h16", key: "1lakjw" }],
   ["path", { d: "M4 19h16", key: "1djgab" }]
 ];
-const Menu = createLucideIcon("menu", __iconNode$L);
-const __iconNode$K = [
+const Menu = createLucideIcon("menu", __iconNode$M);
+const __iconNode$L = [
   [
     "path",
     {
@@ -15588,8 +15588,8 @@ const __iconNode$K = [
     }
   ]
 ];
-const MessageCircle = createLucideIcon("message-circle", __iconNode$K);
-const __iconNode$J = [
+const MessageCircle = createLucideIcon("message-circle", __iconNode$L);
+const __iconNode$K = [
   [
     "path",
     {
@@ -15598,14 +15598,14 @@ const __iconNode$J = [
     }
   ]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$J);
-const __iconNode$I = [
+const MessageSquare = createLucideIcon("message-square", __iconNode$K);
+const __iconNode$J = [
   ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
   ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
   ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
 ];
-const Monitor = createLucideIcon("monitor", __iconNode$I);
-const __iconNode$H = [
+const Monitor = createLucideIcon("monitor", __iconNode$J);
+const __iconNode$I = [
   [
     "path",
     {
@@ -15614,8 +15614,8 @@ const __iconNode$H = [
     }
   ]
 ];
-const Moon = createLucideIcon("moon", __iconNode$H);
-const __iconNode$G = [
+const Moon = createLucideIcon("moon", __iconNode$I);
+const __iconNode$H = [
   [
     "path",
     {
@@ -15628,8 +15628,8 @@ const __iconNode$G = [
   ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
   ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
 ];
-const Palette = createLucideIcon("palette", __iconNode$G);
-const __iconNode$F = [
+const Palette = createLucideIcon("palette", __iconNode$H);
+const __iconNode$G = [
   ["path", { d: "M13 21h8", key: "1jsn5i" }],
   [
     "path",
@@ -15639,8 +15639,8 @@ const __iconNode$F = [
     }
   ]
 ];
-const PenLine = createLucideIcon("pen-line", __iconNode$F);
-const __iconNode$E = [
+const PenLine = createLucideIcon("pen-line", __iconNode$G);
+const __iconNode$F = [
   [
     "path",
     {
@@ -15649,8 +15649,8 @@ const __iconNode$E = [
     }
   ]
 ];
-const Pen = createLucideIcon("pen", __iconNode$E);
-const __iconNode$D = [
+const Pen = createLucideIcon("pen", __iconNode$F);
+const __iconNode$E = [
   [
     "path",
     {
@@ -15659,8 +15659,8 @@ const __iconNode$D = [
     }
   ]
 ];
-const Play = createLucideIcon("play", __iconNode$D);
-const __iconNode$C = [
+const Play = createLucideIcon("play", __iconNode$E);
+const __iconNode$D = [
   ["path", { d: "M12 22v-5", key: "1ega77" }],
   ["path", { d: "M15 8V2", key: "18g5xt" }],
   [
@@ -15669,30 +15669,30 @@ const __iconNode$C = [
   ],
   ["path", { d: "M9 8V2", key: "14iosj" }]
 ];
-const Plug = createLucideIcon("plug", __iconNode$C);
-const __iconNode$B = [
+const Plug = createLucideIcon("plug", __iconNode$D);
+const __iconNode$C = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ];
-const Plus = createLucideIcon("plus", __iconNode$B);
-const __iconNode$A = [
+const Plus = createLucideIcon("plus", __iconNode$C);
+const __iconNode$B = [
   ["path", { d: "M12 2v10", key: "mnfbl" }],
   ["path", { d: "M18.4 6.6a9 9 0 1 1-12.77.04", key: "obofu9" }]
 ];
-const Power = createLucideIcon("power", __iconNode$A);
-const __iconNode$z = [
+const Power = createLucideIcon("power", __iconNode$B);
+const __iconNode$A = [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
   ["path", { d: "M8 16H3v5", key: "1cv678" }]
 ];
-const RefreshCw = createLucideIcon("refresh-cw", __iconNode$z);
-const __iconNode$y = [
+const RefreshCw = createLucideIcon("refresh-cw", __iconNode$A);
+const __iconNode$z = [
   ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
   ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
 ];
-const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$y);
-const __iconNode$x = [
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$z);
+const __iconNode$y = [
   [
     "path",
     {
@@ -15703,13 +15703,13 @@ const __iconNode$x = [
   ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
   ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
 ];
-const Save = createLucideIcon("save", __iconNode$x);
-const __iconNode$w = [
+const Save = createLucideIcon("save", __iconNode$y);
+const __iconNode$x = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
-const Search = createLucideIcon("search", __iconNode$w);
-const __iconNode$v = [
+const Search = createLucideIcon("search", __iconNode$x);
+const __iconNode$w = [
   [
     "path",
     {
@@ -15719,8 +15719,8 @@ const __iconNode$v = [
   ],
   ["path", { d: "m21.854 2.147-10.94 10.939", key: "12cjpa" }]
 ];
-const Send = createLucideIcon("send", __iconNode$v);
-const __iconNode$u = [
+const Send = createLucideIcon("send", __iconNode$w);
+const __iconNode$v = [
   [
     "path",
     {
@@ -15739,22 +15739,22 @@ const __iconNode$u = [
   ["path", { d: "M6 18h.01", key: "uhywen" }],
   ["path", { d: "m13 6-4 6h6l-4 6", key: "14hqih" }]
 ];
-const ServerCrash = createLucideIcon("server-crash", __iconNode$u);
-const __iconNode$t = [
+const ServerCrash = createLucideIcon("server-crash", __iconNode$v);
+const __iconNode$u = [
   ["rect", { width: "20", height: "8", x: "2", y: "2", rx: "2", ry: "2", key: "ngkwjq" }],
   ["rect", { width: "20", height: "8", x: "2", y: "14", rx: "2", ry: "2", key: "iecqi9" }],
   ["line", { x1: "6", x2: "6.01", y1: "6", y2: "6", key: "16zg32" }],
   ["line", { x1: "6", x2: "6.01", y1: "18", y2: "18", key: "nzw8ys" }]
 ];
-const Server = createLucideIcon("server", __iconNode$t);
-const __iconNode$s = [
+const Server = createLucideIcon("server", __iconNode$u);
+const __iconNode$t = [
   ["path", { d: "M14 17H5", key: "gfn3mx" }],
   ["path", { d: "M19 7h-9", key: "6i9tg" }],
   ["circle", { cx: "17", cy: "17", r: "3", key: "18b49y" }],
   ["circle", { cx: "7", cy: "7", r: "3", key: "dfmy0x" }]
 ];
-const Settings2 = createLucideIcon("settings-2", __iconNode$s);
-const __iconNode$r = [
+const Settings2 = createLucideIcon("settings-2", __iconNode$t);
+const __iconNode$s = [
   [
     "path",
     {
@@ -15764,8 +15764,8 @@ const __iconNode$r = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Settings$1 = createLucideIcon("settings", __iconNode$r);
-const __iconNode$q = [
+const Settings$1 = createLucideIcon("settings", __iconNode$s);
+const __iconNode$r = [
   [
     "path",
     {
@@ -15776,8 +15776,8 @@ const __iconNode$q = [
   ["path", { d: "M12 8v4", key: "1got3b" }],
   ["path", { d: "M12 16h.01", key: "1drbdi" }]
 ];
-const ShieldAlert = createLucideIcon("shield-alert", __iconNode$q);
-const __iconNode$p = [
+const ShieldAlert = createLucideIcon("shield-alert", __iconNode$r);
+const __iconNode$q = [
   [
     "path",
     {
@@ -15787,8 +15787,8 @@ const __iconNode$p = [
   ],
   ["path", { d: "m4.243 5.21 14.39 12.472", key: "1c9a7c" }]
 ];
-const ShieldBan = createLucideIcon("shield-ban", __iconNode$p);
-const __iconNode$o = [
+const ShieldBan = createLucideIcon("shield-ban", __iconNode$q);
+const __iconNode$p = [
   [
     "path",
     {
@@ -15797,7 +15797,19 @@ const __iconNode$o = [
     }
   ]
 ];
-const Shield = createLucideIcon("shield", __iconNode$o);
+const Shield = createLucideIcon("shield", __iconNode$p);
+const __iconNode$o = [
+  ["circle", { cx: "8", cy: "21", r: "1", key: "jimo8o" }],
+  ["circle", { cx: "19", cy: "21", r: "1", key: "13723u" }],
+  [
+    "path",
+    {
+      d: "M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12",
+      key: "9zh506"
+    }
+  ]
+];
+const ShoppingCart = createLucideIcon("shopping-cart", __iconNode$o);
 const __iconNode$n = [
   ["path", { d: "M10 5H3", key: "1qgfaw" }],
   ["path", { d: "M12 19H3", key: "yhmn1j" }],
@@ -16701,6 +16713,7 @@ const ru = {
     "sslDnsSeen": "A-запись домена",
     "sslNoARecord": "A-записи нет",
     "sslPending": "Ожидает установки",
+    "sslQueued": "SSL-сертификат устанавливается в фоновом режиме (1–2 минуты)",
     "sslEnvTitle": "Автовыпуск SSL на этом сервере недоступен",
     "sslEnvNoShell": "PHP здесь не может запускать внешние команды — значит, ни certbot, ни планировщик отсюда не запустить. Домены так и будут висеть в ожидании сертификата.",
     "sslEnvNoCertbot": "На сервере не установлен certbot — выпускать сертификаты нечем. Установите его: apt install certbot",
@@ -18400,6 +18413,51 @@ const ru = {
     "zonesAvailable": "зон в аккаунте",
     "managedDomains": "Доменов под управлением Cloudflare"
   },
+  "namecheap": {
+    "title": "Namecheap",
+    "description": "Автопарковка DNS доменов из аккаунта Namecheap, покупка новых доменов и SSL Let's Encrypt — прямо из трекера",
+    "howTo": "Включите API-доступ: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access, и добавьте исходящий IP сервера в Whitelisted IPs. Домены, зарегистрированные в аккаунте, при парковке получают A-запись автоматически; сертификат Let's Encrypt выпускается, как только DNS обновится.",
+    "username": "Username",
+    "keySaved": "ключ сохранён — введите новый, чтобы заменить",
+    "whitelistIp": "IP сервера для Whitelisted IPs",
+    "whitelistHint": "Добавьте этот IP в Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Если показан неверный адрес — нажмите «Проверить»: Namecheap сам назовёт IP, с которого пришли запросы.",
+    "addressBook": "Профиль контакта (Address Book) для новых доменов",
+    "addressPlaceholder": "— не выбран —",
+    "addressRefresh": "Обновить список из Address Book",
+    "addressHint": "Профили подтягиваются из Namecheap Address Book — они нужны для регистрации новых доменов.",
+    "addressesLoaded": "профили загружены",
+    "environment": "Окружение",
+    "production": "Production",
+    "sandbox": "Sandbox",
+    "saved": "Сохранено",
+    "test": "Проверить",
+    "connected": "Подключено",
+    "balance": "баланс",
+    "errConnection": "Namecheap отклонил подключение",
+    "registerBtn": "Register Domain",
+    "registerHint": "Купить домен через баланс Namecheap и припарковать его сюда одним кликом",
+    "registerHintLong": "Домен регистрируется через баланс вашего аккаунта Namecheap: сразу после покупки A-запись указывает на этот сервер, и SSL Let's Encrypt выпускается автоматически.",
+    "registerTitle": "Register Domain",
+    "checkBtn": "Check Availability",
+    "available": "свободен",
+    "taken": "занят",
+    "premium": "Premium-домен",
+    "price": "Цена",
+    "buyPark": "Buy & Park Domain",
+    "buying": "Покупаем…",
+    "buyConfirm": "Купить и припарковать домен",
+    "registeredOk": "Домен зарегистрирован",
+    "parkedOk": "DNS настроен автоматически через Namecheap API",
+    "importBtn": "Import from Namecheap",
+    "importBtn2": "Импортировать",
+    "importHint": "Выбрать домены из аккаунта Namecheap и добавить их в трекер",
+    "importHintLong": "Все домены аккаунта Namecheap. Отмеченные добавляются в трекер: A-запись и SSL настраиваются автоматически.",
+    "importTitle": "Import from Namecheap",
+    "importing": "Импортируем…",
+    "importedCount": "Доменов добавлено",
+    "inTracker": "уже в трекере",
+    "noDomains": "В аккаунте нет доменов"
+  },
   "ipranges": {
     "title": "IP-диапазоны датацентров (клокинг)",
     "description": "Списки облаков и краулеров (AWS, Google, Meta, OpenAI…) обновляются ежедневно; клокер помечает посетителей с этих IP как датацентровых.",
@@ -19315,6 +19373,7 @@ const en = {
     "sslDnsSeen": "The domain's A record",
     "sslNoARecord": "no A record",
     "sslPending": "Awaiting installation",
+    "sslQueued": "SSL certificate is being installed in the background (1–2 minutes)",
     "sslEnvTitle": "Automatic SSL issuance is unavailable on this server",
     "sslEnvNoShell": "PHP cannot run external commands here, so neither Certbot nor the scheduler can be started. Domains will sit waiting for a certificate indefinitely.",
     "sslEnvNoCertbot": "Certbot is not installed on this server, so there is nothing to issue certificates with. Install it: apt install certbot",
@@ -21014,6 +21073,51 @@ const en = {
     "zonesAvailable": "zones in account",
     "managedDomains": "Domains managed by Cloudflare"
   },
+  "namecheap": {
+    "title": "Namecheap",
+    "description": "Auto-DNS parking for domains from your Namecheap account, domain purchasing and free Let's Encrypt SSL — right from the tracker",
+    "howTo": "Enable API access: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access, and add the server's outgoing IP to Whitelisted IPs. Domains registered in the account get their A record automatically on parking; the Let's Encrypt certificate is issued as soon as DNS propagates.",
+    "username": "Username",
+    "keySaved": "key saved — enter a new one to replace",
+    "whitelistIp": "Server IP for Whitelisted IPs",
+    "whitelistHint": "Add this IP in Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. If the shown address is wrong, press Test — Namecheap names the IP your requests actually came from.",
+    "addressBook": "Contact profile (Address Book) for new domains",
+    "addressPlaceholder": "— not selected —",
+    "addressRefresh": "Reload the Address Book list",
+    "addressHint": "Profiles are pulled from the Namecheap Address Book — they are required to register new domains.",
+    "addressesLoaded": "profiles loaded",
+    "environment": "Environment",
+    "production": "Production",
+    "sandbox": "Sandbox",
+    "saved": "Saved",
+    "test": "Test",
+    "connected": "Connected",
+    "balance": "balance",
+    "errConnection": "Namecheap rejected the connection",
+    "registerBtn": "Register Domain",
+    "registerHint": "Buy a domain with your Namecheap balance and park it here in one click",
+    "registerHintLong": "The domain is registered through your Namecheap account balance: right after the purchase its A record points at this server, and a Let's Encrypt certificate is issued automatically.",
+    "registerTitle": "Register Domain",
+    "checkBtn": "Check Availability",
+    "available": "available",
+    "taken": "taken",
+    "premium": "Premium domain",
+    "price": "Price",
+    "buyPark": "Buy & Park Domain",
+    "buying": "Purchasing…",
+    "buyConfirm": "Buy and park the domain",
+    "registeredOk": "Domain registered",
+    "parkedOk": "DNS configured automatically via the Namecheap API",
+    "importBtn": "Import from Namecheap",
+    "importBtn2": "Import",
+    "importHint": "Pick domains from your Namecheap account and add them to the tracker",
+    "importHintLong": "All domains of the Namecheap account. The checked ones are added to the tracker: their A record and SSL are configured automatically.",
+    "importTitle": "Import from Namecheap",
+    "importing": "Importing…",
+    "importedCount": "Domains added",
+    "inTracker": "already in the tracker",
+    "noDomains": "No domains in the account"
+  },
   "ipranges": {
     "title": "Datacenter IP ranges (cloaking)",
     "description": "Cloud & crawler lists (AWS, Google, Meta, OpenAI…) refresh daily; the cloaker flags visitors from these IPs as datacenter.",
@@ -21929,6 +22033,7 @@ const uk = {
     "sslDnsSeen": "A-запис домену",
     "sslNoARecord": "A-запису немає",
     "sslPending": "Awaiting installation",
+    "sslQueued": "SSL-сертифікат встановлюється у фоновому режимі (1–2 хвилини)",
     "sslEnvTitle": "Автовипуск SSL на цьому сервері недоступний",
     "sslEnvNoShell": "PHP тут не може запускати зовнішні команди — ні certbot, ні планувальник звідси не запустити. Домени так і чекатимуть на сертифікат.",
     "sslEnvNoCertbot": "На сервері не встановлено certbot — випускати сертифікати нічим. Встановіть: apt install certbot",
@@ -23628,6 +23733,51 @@ const uk = {
     "zonesAvailable": "зон в акаунті",
     "managedDomains": "Доменів під керуванням Cloudflare"
   },
+  "namecheap": {
+    "title": "Namecheap",
+    "description": "Автопаркування DNS доменів з акаунта Namecheap, купівля нових доменів і SSL Let's Encrypt — прямо з трекера",
+    "howTo": "Увімкніть API-доступ: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access і додайте вихідну IP сервера до Whitelisted IPs. Домени, зареєстровані в акаунті, при паркуванні отримують A-запис автоматично; сертифікат Let's Encrypt випускається, щойно DNS оновиться.",
+    "username": "Username",
+    "keySaved": "ключ збережено — введіть новий, щоб замінити",
+    "whitelistIp": "IP сервера для Whitelisted IPs",
+    "whitelistHint": "Додайте цю IP у Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Якщо показана хибна адреса — натисніть «Перевірити»: Namecheap сам назве IP, з якої прийшли запити.",
+    "addressBook": "Профіль контакту (Address Book) для нових доменів",
+    "addressPlaceholder": "— не обрано —",
+    "addressRefresh": "Оновити список з Address Book",
+    "addressHint": "Профілі підтягуються з Namecheap Address Book — вони потрібні для реєстрації нових доменів.",
+    "addressesLoaded": "профілі завантажено",
+    "environment": "Середовище",
+    "production": "Production",
+    "sandbox": "Sandbox",
+    "saved": "Збережено",
+    "test": "Перевірити",
+    "connected": "Підключено",
+    "balance": "баланс",
+    "errConnection": "Namecheap відхилив підключення",
+    "registerBtn": "Register Domain",
+    "registerHint": "Купити домен через баланс Namecheap і припаркувати його сюди одним кліком",
+    "registerHintLong": "Домен реєструється через баланс вашого акаунта Namecheap: одразу після покупки A-запис вказує на цей сервер, а SSL Let's Encrypt випускається автоматично.",
+    "registerTitle": "Register Domain",
+    "checkBtn": "Check Availability",
+    "available": "вільний",
+    "taken": "зайнятий",
+    "premium": "Premium-домен",
+    "price": "Ціна",
+    "buyPark": "Buy & Park Domain",
+    "buying": "Купуємо…",
+    "buyConfirm": "Купити і припаркувати домен",
+    "registeredOk": "Домен зареєстровано",
+    "parkedOk": "DNS налаштовано автоматично через Namecheap API",
+    "importBtn": "Import from Namecheap",
+    "importBtn2": "Імпортувати",
+    "importHint": "Обрати домени з акаунта Namecheap і додати їх у трекер",
+    "importHintLong": "Усі домени акаунта Namecheap. Позначені додаються в трекер: A-запис і SSL налаштовуються автоматично.",
+    "importTitle": "Import from Namecheap",
+    "importing": "Імпортуємо…",
+    "importedCount": "Доменів додано",
+    "inTracker": "вже в трекері",
+    "noDomains": "В акаунті немає доменів"
+  },
   "ipranges": {
     "title": "IP-діапазони датацентрів (клокінг)",
     "description": "Списки хмар і краулерів (AWS, Google, Meta, OpenAI…) оновлюються щодня; клокер позначає відвідувачів із цих IP як датацентрових.",
@@ -24543,6 +24693,7 @@ const es = {
     "sslDnsSeen": "Registro A del dominio",
     "sslNoARecord": "sin registro A",
     "sslPending": "Awaiting installation",
+    "sslQueued": "El certificado SSL se está instalando en segundo plano (1–2 minutos)",
     "sslEnvTitle": "La emisión automática de SSL no está disponible en este servidor",
     "sslEnvNoShell": "Aquí PHP no puede ejecutar comandos externos, así que no se puede iniciar ni Certbot ni el planificador. Los dominios quedarán esperando certificado indefinidamente.",
     "sslEnvNoCertbot": "Certbot no está instalado en este servidor, no hay con qué emitir certificados. Instálelo: apt install certbot",
@@ -26242,6 +26393,51 @@ const es = {
     "zonesAvailable": "zonas en la cuenta",
     "managedDomains": "Dominios gestionados por Cloudflare"
   },
+  "namecheap": {
+    "title": "Namecheap",
+    "description": "Aparcamiento DNS automático de dominios de su cuenta Namecheap, compra de dominios y SSL Let's Encrypt gratuito — directamente desde el tracker",
+    "howTo": "Active el acceso API: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access, y añada la IP saliente del servidor a Whitelisted IPs. Los dominios registrados en la cuenta reciben su registro A automáticamente al aparcarlos; el certificado Let's Encrypt se emite en cuanto el DNS se propague.",
+    "username": "Username",
+    "keySaved": "clave guardada — introduzca una nueva para reemplazarla",
+    "whitelistIp": "IP del servidor para Whitelisted IPs",
+    "whitelistHint": "Añada esta IP en Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Si la dirección mostrada es incorrecta, pulse Probar: Namecheap indicará la IP desde la que llegaron las peticiones.",
+    "addressBook": "Perfil de contacto (Address Book) para nuevos dominios",
+    "addressPlaceholder": "— sin seleccionar —",
+    "addressRefresh": "Recargar la lista del Address Book",
+    "addressHint": "Los perfiles se cargan del Address Book de Namecheap — son necesarios para registrar nuevos dominios.",
+    "addressesLoaded": "perfiles cargados",
+    "environment": "Entorno",
+    "production": "Production",
+    "sandbox": "Sandbox",
+    "saved": "Guardado",
+    "test": "Probar",
+    "connected": "Conectado",
+    "balance": "saldo",
+    "errConnection": "Namecheap rechazó la conexión",
+    "registerBtn": "Registrar dominio",
+    "registerHint": "Comprar un dominio con el saldo de Namecheap y aparcarlo aquí en un clic",
+    "registerHintLong": "El dominio se registra con el saldo de su cuenta Namecheap: justo después de la compra su registro A apunta a este servidor, y el certificado Let's Encrypt se emite automáticamente.",
+    "registerTitle": "Registrar dominio",
+    "checkBtn": "Comprobar disponibilidad",
+    "available": "disponible",
+    "taken": "ocupado",
+    "premium": "Dominio premium",
+    "price": "Precio",
+    "buyPark": "Comprar y aparcar",
+    "buying": "Comprando…",
+    "buyConfirm": "Comprar y aparcar el dominio",
+    "registeredOk": "Dominio registrado",
+    "parkedOk": "DNS configurado automáticamente vía la API de Namecheap",
+    "importBtn": "Importar de Namecheap",
+    "importBtn2": "Importar",
+    "importHint": "Elegir dominios de su cuenta Namecheap y añadirlos al tracker",
+    "importHintLong": "Todos los dominios de la cuenta Namecheap. Los marcados se añaden al tracker: su registro A y SSL se configuran automáticamente.",
+    "importTitle": "Importar de Namecheap",
+    "importing": "Importando…",
+    "importedCount": "Dominios añadidos",
+    "inTracker": "ya en el tracker",
+    "noDomains": "No hay dominios en la cuenta"
+  },
   "ipranges": {
     "title": "Rangos IP de datacenters (cloaking)",
     "description": "Las listas de nubes y crawlers (AWS, Google, Meta, OpenAI…) se actualizan a diario; el cloaker marca a los visitantes de estas IP como datacenter.",
@@ -27157,6 +27353,7 @@ const zh = {
     "sslDnsSeen": "域名的 A 记录",
     "sslNoARecord": "无 A 记录",
     "sslPending": "Awaiting installation",
+    "sslQueued": "SSL 证书正在后台安装（1–2 分钟）",
     "sslEnvTitle": "此服务器不支持自动签发 SSL",
     "sslEnvNoShell": "此处 PHP 无法执行外部命令，因此无法启动 Certbot 或计划任务。域名将一直处于等待证书状态。",
     "sslEnvNoCertbot": "服务器未安装 Certbot，没有工具可以签发证书。请安装：apt install certbot",
@@ -28856,6 +29053,51 @@ const zh = {
     "zonesAvailable": "账号中的区域",
     "managedDomains": "由 Cloudflare 管理的域名"
   },
+  "namecheap": {
+    "title": "Namecheap",
+    "description": "自动为 Namecheap 账户中的域名停放 DNS、直接从追踪器购买域名并免费签发 Let's Encrypt SSL",
+    "howTo": "启用 API 访问：Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access，并将服务器出口 IP 添加到 Whitelisted IPs。账户中注册的域名在停放时自动获得 A 记录；DNS 生效后自动签发 Let's Encrypt 证书。",
+    "username": "Username",
+    "keySaved": "密钥已保存 — 输入新密钥以替换",
+    "whitelistIp": "用于 Whitelisted IPs 的服务器 IP",
+    "whitelistHint": "在 Namecheap 中添加此 IP：Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs。如果显示的地址不对，点击「测试」— Namecheap 会指出请求实际来源 IP。",
+    "addressBook": "新域名的联系人资料（Address Book）",
+    "addressPlaceholder": "— 未选择 —",
+    "addressRefresh": "重新加载 Address Book 列表",
+    "addressHint": "资料从 Namecheap Address Book 拉取 — 注册新域名时必需。",
+    "addressesLoaded": "资料已加载",
+    "environment": "环境",
+    "production": "Production",
+    "sandbox": "Sandbox",
+    "saved": "已保存",
+    "test": "测试",
+    "connected": "已连接",
+    "balance": "余额",
+    "errConnection": "Namecheap 拒绝了连接",
+    "registerBtn": "注册域名",
+    "registerHint": "用 Namecheap 余额购买域名并一键停放到这里",
+    "registerHintLong": "域名通过您的 Namecheap 账户余额注册：购买后 A 记录立即指向本服务器，并自动签发 Let's Encrypt 证书。",
+    "registerTitle": "注册域名",
+    "checkBtn": "查询可否注册",
+    "available": "可注册",
+    "taken": "已被注册",
+    "premium": "Premium 域名",
+    "price": "价格",
+    "buyPark": "购买并停放",
+    "buying": "购买中…",
+    "buyConfirm": "购买并停放该域名",
+    "registeredOk": "域名已注册",
+    "parkedOk": "已通过 Namecheap API 自动配置 DNS",
+    "importBtn": "从 Namecheap 导入",
+    "importBtn2": "导入",
+    "importHint": "从您的 Namecheap 账户选择域名并添加到追踪器",
+    "importHintLong": "Namecheap 账户中的全部域名。勾选的域名将添加到追踪器：A 记录和 SSL 自动配置。",
+    "importTitle": "从 Namecheap 导入",
+    "importing": "导入中…",
+    "importedCount": "已添加域名",
+    "inTracker": "已在追踪器中",
+    "noDomains": "账户中没有域名"
+  },
   "ipranges": {
     "title": "数据中心 IP 段（隐匿分流）",
     "description": "云与爬虫列表（AWS、Google、Meta、OpenAI…）每日更新；隐匿分流会把来自这些 IP 的访客标记为数据中心。",
@@ -29771,6 +30013,7 @@ const fr = {
     "sslDnsSeen": "Enregistrement A du domaine",
     "sslNoARecord": "aucun enregistrement A",
     "sslPending": "En attente d'installation",
+    "sslQueued": "Le certificat SSL est en cours d'installation en arrière-plan (1–2 minutes)",
     "sslEnvTitle": "L'émission automatique de SSL n'est pas disponible sur ce serveur",
     "sslEnvNoShell": "PHP ne peut pas exécuter de commandes externes ici : ni Certbot ni le planificateur ne peuvent être lancés. Les domaines resteront en attente de certificat.",
     "sslEnvNoCertbot": "Certbot n'est pas installé sur ce serveur, il n'y a donc rien pour émettre des certificats. Installez-le : apt install certbot",
@@ -31472,6 +31715,51 @@ const fr = {
     "zonesAvailable": "zones dans le compte",
     "managedDomains": "Domaines gérés par Cloudflare"
   },
+  "namecheap": {
+    "title": "Namecheap",
+    "description": "Stationnement DNS automatique des domaines de votre compte Namecheap, achat de domaines et SSL Let's Encrypt gratuit — directement depuis le tracker",
+    "howTo": "Activez l'accès API : Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access, puis ajoutez l'IP sortante du serveur aux Whitelisted IPs. Les domaines enregistrés dans le compte reçoivent leur enregistrement A automatiquement au stationnement ; le certificat Let's Encrypt est émis dès que le DNS se propage.",
+    "username": "Username",
+    "keySaved": "clé enregistrée — saisissez-en une nouvelle pour remplacer",
+    "whitelistIp": "IP du serveur pour les Whitelisted IPs",
+    "whitelistHint": "Ajoutez cette IP dans Namecheap : Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Si l'adresse affichée est incorrecte, appuyez sur Tester : Namecheap nomme l'IP d'où viennent réellement les requêtes.",
+    "addressBook": "Profil de contact (Address Book) pour les nouveaux domaines",
+    "addressPlaceholder": "— non sélectionné —",
+    "addressRefresh": "Recharger la liste du Address Book",
+    "addressHint": "Les profils sont chargés depuis le Address Book de Namecheap — ils sont requis pour enregistrer de nouveaux domaines.",
+    "addressesLoaded": "profils chargés",
+    "environment": "Environnement",
+    "production": "Production",
+    "sandbox": "Sandbox",
+    "saved": "Enregistré",
+    "test": "Tester",
+    "connected": "Connecté",
+    "balance": "solde",
+    "errConnection": "Namecheap a refusé la connexion",
+    "registerBtn": "Enregistrer un domaine",
+    "registerHint": "Acheter un domaine avec le solde Namecheap et le stationner ici en un clic",
+    "registerHintLong": "Le domaine est enregistré via le solde de votre compte Namecheap : dès l'achat, son enregistrement A pointe vers ce serveur et un certificat Let's Encrypt est émis automatiquement.",
+    "registerTitle": "Enregistrer un domaine",
+    "checkBtn": "Vérifier la disponibilité",
+    "available": "disponible",
+    "taken": "pris",
+    "premium": "Domaine premium",
+    "price": "Prix",
+    "buyPark": "Acheter et stationner",
+    "buying": "Achat en cours…",
+    "buyConfirm": "Acheter et stationner le domaine",
+    "registeredOk": "Domaine enregistré",
+    "parkedOk": "DNS configuré automatiquement via l'API Namecheap",
+    "importBtn": "Importer depuis Namecheap",
+    "importBtn2": "Importer",
+    "importHint": "Choisir des domaines de votre compte Namecheap et les ajouter au tracker",
+    "importHintLong": "Tous les domaines du compte Namecheap. Ceux cochés sont ajoutés au tracker : leur enregistrement A et le SSL sont configurés automatiquement.",
+    "importTitle": "Importer depuis Namecheap",
+    "importing": "Import en cours…",
+    "importedCount": "Domaines ajoutés",
+    "inTracker": "déjà dans le tracker",
+    "noDomains": "Aucun domaine dans le compte"
+  },
   "ipranges": {
     "title": "Plages IP des datacenters (cloaking)",
     "description": "Les listes de clouds et crawlers (AWS, Google, Meta, OpenAI…) sont actualisées chaque jour ; le cloaker marque les visiteurs de ces IP comme datacenter.",
@@ -32387,6 +32675,7 @@ const de = {
     "sslDnsSeen": "A-Eintrag der Domain",
     "sslNoARecord": "kein A-Eintrag",
     "sslPending": "Warten auf Installation",
+    "sslQueued": "SSL-Zertifikat wird im Hintergrund installiert (1–2 Minuten)",
     "sslEnvTitle": "Automatische SSL-Ausstellung ist auf diesem Server nicht verfügbar",
     "sslEnvNoShell": "PHP kann hier keine externen Befehle ausführen — weder Certbot noch der Planer lassen sich starten. Domains warten dauerhaft auf ein Zertifikat.",
     "sslEnvNoCertbot": "Certbot ist auf diesem Server nicht installiert, es gibt also nichts, womit Zertifikate ausgestellt werden könnten. Installieren: apt install certbot",
@@ -34085,6 +34374,51 @@ const de = {
     "syncedCount": "umgezogen",
     "zonesAvailable": "Zonen im Konto",
     "managedDomains": "Von Cloudflare verwaltete Domains"
+  },
+  "namecheap": {
+    "title": "Namecheap",
+    "description": "Auto-DNS-Parking für Domains aus Ihrem Namecheap-Konto, Domain-Kauf und kostenloses Let's-Encrypt-SSL — direkt aus dem Tracker",
+    "howTo": "API-Zugriff aktivieren: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access, und die ausgehende Server-IP zu Whitelisted IPs hinzufügen. Im Konto registrierte Domains erhalten beim Parken automatisch einen A-Record; das Let's-Encrypt-Zertifikat wird ausgestellt, sobald DNS propagiert.",
+    "username": "Username",
+    "keySaved": "Schlüssel gespeichert — neuen eingeben, um zu ersetzen",
+    "whitelistIp": "Server-IP für Whitelisted IPs",
+    "whitelistHint": "Diese IP in Namecheap hinzufügen: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Wenn die angezeigte Adresse falsch ist, drücken Sie Testen — Namecheap nennt die IP, von der die Anfragen tatsächlich kamen.",
+    "addressBook": "Kontaktprofil (Address Book) für neue Domains",
+    "addressPlaceholder": "— nicht ausgewählt —",
+    "addressRefresh": "Address-Book-Liste neu laden",
+    "addressHint": "Profile werden aus dem Namecheap Address Book geladen — sie sind für die Registrierung neuer Domains erforderlich.",
+    "addressesLoaded": "Profile geladen",
+    "environment": "Umgebung",
+    "production": "Production",
+    "sandbox": "Sandbox",
+    "saved": "Gespeichert",
+    "test": "Testen",
+    "connected": "Verbunden",
+    "balance": "Guthaben",
+    "errConnection": "Namecheap hat die Verbindung abgelehnt",
+    "registerBtn": "Domain registrieren",
+    "registerHint": "Domain über Ihr Namecheap-Guthaben kaufen und mit einem Klick hier parken",
+    "registerHintLong": "Die Domain wird über das Guthaben Ihres Namecheap-Kontos registriert: Direkt nach dem Kauf zeigt der A-Record auf diesen Server, und ein Let's-Encrypt-Zertifikat wird automatisch ausgestellt.",
+    "registerTitle": "Domain registrieren",
+    "checkBtn": "Verfügbarkeit prüfen",
+    "available": "frei",
+    "taken": "vergeben",
+    "premium": "Premium-Domain",
+    "price": "Preis",
+    "buyPark": "Kaufen & parken",
+    "buying": "Kauf läuft…",
+    "buyConfirm": "Domain kaufen und parken",
+    "registeredOk": "Domain registriert",
+    "parkedOk": "DNS automatisch über die Namecheap-API konfiguriert",
+    "importBtn": "Aus Namecheap importieren",
+    "importBtn2": "Importieren",
+    "importHint": "Domänen aus Ihrem Namecheap-Konto auswählen und zum Tracker hinzufügen",
+    "importHintLong": "Alle Domains des Namecheap-Kontos. Die markierten werden zum Tracker hinzugefügt: A-Record und SSL werden automatisch konfiguriert.",
+    "importTitle": "Aus Namecheap importieren",
+    "importing": "Import läuft…",
+    "importedCount": "Domains hinzugefügt",
+    "inTracker": "bereits im Tracker",
+    "noDomains": "Keine Domains im Konto"
   },
   "ipranges": {
     "title": "Rechenzentrum-IP-Bereiche (Cloaking)",
@@ -47843,6 +48177,109 @@ const Domains = ({ campaigns }) => {
   });
   const [error, setError] = reactExports.useState("");
   const [showDnsModal, setShowDnsModal] = reactExports.useState(false);
+  const [ncConnected, setNcConnected] = reactExports.useState(false);
+  const [showRegister, setShowRegister] = reactExports.useState(false);
+  const [regDomain, setRegDomain] = reactExports.useState("");
+  const [regChecking, setRegChecking] = reactExports.useState(false);
+  const [regResult, setRegResult] = reactExports.useState(null);
+  const [regBuying, setRegBuying] = reactExports.useState(false);
+  const [regMessage, setRegMessage] = reactExports.useState("");
+  const [showImport, setShowImport] = reactExports.useState(false);
+  const [ncImport, setNcImport] = reactExports.useState({ loading: false, domains: [], selected: {}, importing: false, message: "" });
+  reactExports.useEffect(() => {
+    cachedGet("namecheap_status").then(({ data }) => {
+      if (data.status === "success") setNcConnected(!!data.data.connected);
+    }).catch(() => {
+    });
+  }, []);
+  const checkNcDomain = async () => {
+    const domain = regDomain.trim().toLowerCase();
+    if (!domain) return;
+    setRegChecking(true);
+    setRegResult(null);
+    setRegMessage("");
+    try {
+      const { data } = await cachedPost("namecheap_check_domain", { domain });
+      if (data.status === "success") {
+        setRegResult(data.data);
+      } else {
+        setRegMessage(data.message || t("common.error"));
+      }
+    } catch (e) {
+      setRegMessage(t("common.networkError"));
+    } finally {
+      setRegChecking(false);
+    }
+  };
+  const buyAndPark = async () => {
+    const domain = regResult?.domain || regDomain.trim().toLowerCase();
+    const priceNote = regResult?.price ? ` (${regResult.price})` : "";
+    if (!window.confirm(`${t("namecheap.buyConfirm")}: ${domain}${priceNote}?`)) return;
+    setRegBuying(true);
+    setRegMessage("");
+    try {
+      const { data } = await cachedPost("namecheap_register_domain", { domain });
+      if (data.status === "success") {
+        setShowRegister(false);
+        setRegDomain("");
+        setRegResult(null);
+        fetchDomains();
+        const lines = [`${t("namecheap.registeredOk")}: ${data.data.domain}`];
+        if (data.data.namecheap) lines.push(`✓ ${t("namecheap.parkedOk")}: ${data.data.namecheap}`);
+        lines.push(t("domains.sslQueued", "SSL сертификат устанавливается в фоновом режиме (1-2 минуты)"));
+        alert(lines.join("\n"));
+      } else {
+        setRegMessage(data.message || t("common.error"));
+      }
+    } catch (e) {
+      setRegMessage(t("common.networkError"));
+    } finally {
+      setRegBuying(false);
+    }
+  };
+  const openImport = async () => {
+    setShowImport(true);
+    setNcImport({ loading: true, domains: [], selected: {}, importing: false, message: "" });
+    try {
+      const [{ data: listRes }] = await Promise.all([cachedPost("namecheap_domains", {})]);
+      if (listRes.status !== "success") {
+        setNcImport((s) => ({ ...s, loading: false, message: listRes.message || t("common.error") }));
+        return;
+      }
+      const have = new Set(domains.map((d) => d.name.toLowerCase()));
+      const fresh = (listRes.data.domains || []).filter((d) => !have.has(d));
+      const selected = {};
+      fresh.forEach((d) => {
+        selected[d] = true;
+      });
+      setNcImport({ loading: false, domains: listRes.data.domains || [], selected, importing: false, message: "" });
+    } catch (e) {
+      setNcImport((s) => ({ ...s, loading: false, message: t("common.networkError") }));
+    }
+  };
+  const importSelected = async () => {
+    const names2 = Object.keys(ncImport.selected).filter((k) => ncImport.selected[k]);
+    if (!names2.length) return;
+    setNcImport((s) => ({ ...s, importing: true, message: "" }));
+    try {
+      const { data } = await cachedPost("save_domain", { name: names2.join(", ") });
+      if (data.status === "success") {
+        setShowImport(false);
+        fetchDomains();
+        const parked = (data.domains || []).filter((d) => d.namecheap).map((d) => `${d.name}: ${d.namecheap}`);
+        const warnings = data.warnings || [];
+        const lines = [`${t("namecheap.importedCount")}: ${(data.domains || []).length}`];
+        if (parked.length) lines.push("", `✓ ${t("namecheap.parkedOk")}:`, ...parked);
+        if (warnings.length) lines.push("", `⚠ ${warnings.join("; ")}`);
+        if (data.ssl) lines.push("", data.ssl);
+        alert(lines.join("\n"));
+      } else {
+        setNcImport((s) => ({ ...s, importing: false, message: data.message || t("common.error") }));
+      }
+    } catch (e) {
+      setNcImport((s) => ({ ...s, importing: false, message: t("common.networkError") }));
+    }
+  };
   reactExports.useEffect(() => {
     fetchDomains();
   }, []);
@@ -48017,6 +48454,11 @@ ${t("domains.serverIp")}: ${parsed.expected || "—"}`;
         setShowModal(false);
         setFormData({ id: null, name: "", index_campaign_id: "", catch_404: false, group_id: "", is_noindex: true, https_only: false });
         fetchDomains();
+        const parked = (res.data.domains || []).filter((d) => d.namecheap).map((d) => `${d.name}: ${d.namecheap}`);
+        if (parked.length) {
+          alert(`✓ ${t("namecheap.parkedOk")}:
+${parked.join("\n")}`);
+        }
       } else {
         setError(res.data.message || t("common.error"));
       }
@@ -48098,6 +48540,38 @@ ${t("domains.serverIp")}: ${parsed.expected || "—"}`;
             ]
           }
         ),
+        ncConnected && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: () => {
+                setShowRegister(true);
+                setRegResult(null);
+                setRegMessage("");
+              },
+              className: "btn btn-secondary flex items-center gap-2",
+              title: t("namecheap.registerHint", "Купить домен через баланс Namecheap и припарковать его сюда одним кликом"),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ShoppingCart, { size: 16 }),
+                " ",
+                t("namecheap.registerBtn", "Register Domain")
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: openImport,
+              className: "btn btn-secondary flex items-center gap-2",
+              title: t("namecheap.importHint", "Выбрать домены из аккаунта Namecheap и добавить их в трекер"),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16 }),
+                " ",
+                t("namecheap.importBtn", "Import from Namecheap")
+              ]
+            }
+          )
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
@@ -48277,6 +48751,153 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer mt-6", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setShowModal(false), className: "btn btn-secondary", children: t("common.cancel") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "submit", className: "btn btn-primary", children: t("common.save") })
+        ] })
+      ] })
+    ] }) }),
+    showRegister && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-md", style: { padding: "24px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ShoppingCart, { size: 18 }),
+          " ",
+          t("namecheap.registerTitle", "Register Domain")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setShowRegister(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: t("namecheap.registerHintLong", "Домен регистрируется через баланс вашего аккаунта Namecheap: сразу после покупки A-запись указывает на этот сервер, и SSL Let's Encrypt выпускается автоматически.") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              className: "form-input",
+              style: { flex: 1 },
+              placeholder: "my-new-domain.com",
+              value: regDomain,
+              onChange: (e) => {
+                setRegDomain(e.target.value.toLowerCase());
+                setRegResult(null);
+              },
+              onKeyDown: (e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  checkNcDomain();
+                }
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              className: "btn btn-secondary",
+              disabled: regChecking || !regDomain.trim(),
+              onClick: checkNcDomain,
+              children: regChecking ? t("domains.checkingShort") : t("namecheap.checkBtn", "Check Availability")
+            }
+          )
+        ] }),
+        regResult && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-2xl p-4", style: { border: "1px solid var(--color-border)", background: "var(--color-bg-soft)" }, children: regResult.available ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: regResult.domain }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", children: [
+              "— ",
+              t("namecheap.available", "свободен")
+            ] })
+          ] }),
+          regResult.price && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm mt-1", style: { color: "var(--color-text-primary)" }, children: [
+            regResult.is_premium ? t("namecheap.premium", "Premium-домен") + ": " : t("namecheap.price", "Цена") + ": ",
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold", children: [
+              "$",
+              regResult.price
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              className: "btn btn-primary mt-3 w-full",
+              disabled: regBuying,
+              onClick: buyAndPark,
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ShoppingCart, { size: 16 }),
+                regBuying ? t("namecheap.buying", "Покупаем…") : t("namecheap.buyPark", "Buy & Park Domain")
+              ]
+            }
+          )
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "text-red-500" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: regResult.domain }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", children: [
+            "— ",
+            t("namecheap.taken", "занят")
+          ] })
+        ] }) }),
+        regMessage && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-danger flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
+          regMessage
+        ] })
+      ] })
+    ] }) }),
+    showImport && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-lg", style: { padding: "24px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 18 }),
+          " ",
+          t("namecheap.importTitle", "Import from Namecheap")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setShowImport(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: t("namecheap.importHintLong", "Все домены аккаунта Namecheap. Отмеченные добавляются в трекер: A-запись и SSL настраиваются автоматически.") }),
+        ncImport.loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 20, className: "animate-spin mx-auto mb-2" }),
+          t("common.loading")
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "overflow-y-auto rounded-2xl", style: { maxHeight: "320px", border: "1px solid var(--color-border)" }, children: [
+            ncImport.domains.map((d) => {
+              const inTracker = !Object.prototype.hasOwnProperty.call(ncImport.selected, d);
+              const isSel = !!ncImport.selected[d];
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-3 px-4 py-2 cursor-pointer", style: { borderBottom: "1px solid var(--color-border)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "checkbox",
+                    checked: isSel,
+                    onChange: (e) => setNcImport((s) => ({ ...s, selected: { ...s.selected, [d]: e.target.checked } }))
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-sm", style: { color: isSel ? "var(--color-text-primary)" : "var(--color-text-secondary)" }, children: d }),
+                inTracker && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "badge badge-success ml-auto text-xs", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 12 }),
+                  " ",
+                  t("namecheap.inTracker", "уже в трекере")
+                ] })
+              ] }, d);
+            }),
+            !ncImport.domains.length && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: t("namecheap.noDomains", "В аккаунте нет доменов") })
+          ] }),
+          ncImport.message && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-danger flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
+            ncImport.message
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary", onClick: () => setShowImport(false), children: t("common.cancel") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                className: "btn btn-primary",
+                disabled: ncImport.importing || !Object.values(ncImport.selected).some(Boolean),
+                onClick: importSelected,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16 }),
+                  ncImport.importing ? t("namecheap.importing", "Импортируем…") : `${t("namecheap.importBtn2", "Импортировать")} (${Object.values(ncImport.selected).filter(Boolean).length})`
+                ]
+              }
+            )
+          ] })
         ] })
       ] })
     ] }) }),
@@ -60555,6 +61176,11 @@ const IntegrationsPage = () => {
   const [cfStatus, setCfStatus] = reactExports.useState(null);
   const [cfBusy, setCfBusy] = reactExports.useState(false);
   const [cfMessage, setCfMessage] = reactExports.useState(null);
+  const [ncForm, setNcForm] = reactExports.useState({ username: "", api_key: "", sandbox: false, address_id: "", server_ip: "" });
+  const [ncStatus, setNcStatus] = reactExports.useState(null);
+  const [ncBusy, setNcBusy] = reactExports.useState(false);
+  const [ncMessage, setNcMessage] = reactExports.useState(null);
+  const [ncAddresses, setNcAddresses] = reactExports.useState([]);
   const [rcSaving, setRcSaving] = reactExports.useState(false);
   const [rcMessage, setRcMessage] = reactExports.useState(null);
   const [rcSettings, setRcSettings] = reactExports.useState({
@@ -60935,6 +61561,30 @@ const IntegrationsPage = () => {
         if (res.data.status === "success") {
           setCfStatus(res.data.data);
           setCfForm((f) => ({ ...f, proxied: !!res.data.data.proxied, ssl_mode: res.data.data.ssl_mode || "flexible", server_ip: res.data.data.server_ip || "" }));
+        }
+      }).catch(() => {
+      });
+    }
+    if (activeTab === "namecheap") {
+      const ncAddressRefresh = async () => {
+        try {
+          const res = await axios.post(`${API_URL$9}?action=namecheap_addresses`, {});
+          if (res.data.status === "success") setNcAddresses(res.data.data.addresses || []);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      axios.get(`${API_URL$9}?action=namecheap_status`).then((res) => {
+        if (res.data.status === "success") {
+          setNcStatus(res.data.data);
+          setNcForm((f) => ({
+            ...f,
+            username: res.data.data.username || "",
+            sandbox: !!res.data.data.sandbox,
+            address_id: res.data.data.address_id || "",
+            server_ip: res.data.data.server_ip || ""
+          }));
+          if (res.data.data.connected) ncAddressRefresh();
         }
       }).catch(() => {
       });
@@ -61699,6 +62349,12 @@ $client->execute();
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Cloud, { className: "w-5 h-5" }),
       description: t("cloudflare.description", "Управление DNS доменов трекера через Cloudflare API: A-записи прописываются сами, SSL — краем CF"),
       isCloudflare: true
+    },
+    namecheap: {
+      title: t("namecheap.title", "Namecheap"),
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "w-5 h-5" }),
+      description: t("namecheap.description", "Автопарковка DNS доменов из аккаунта Namecheap, покупка новых доменов и выпуск SSL — прямо из трекера"),
+      isNamecheap: true
     },
     recaptcha: {
       title: t("recaptcha.tabTitle"),
@@ -62809,7 +63465,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
       }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("nav", { style: { padding: "8px", overflowY: "auto" }, children: (() => {
         const groups = [
           { label: t("integrations.groupAds", "Ad networks"), ids: ["facebook_costs", "facebook_conversions", "dolphin_fbtool"] },
-          { label: t("integrations.groupDomains", "Domains & SSL"), ids: ["cloudflare"] },
+          { label: t("integrations.groupDomains", "Domains & SSL"), ids: ["cloudflare", "namecheap"] },
           { label: t("integrations.groupSites", "Sites & landings"), ids: ["kclient_php", "kclient_js", "tracking_pixel", "js_banner", "wordpress", "wordpress_plugin", "static_site", "geo_redirect", "device_redirect"] },
           { label: t("integrations.groupTools", "Tools"), ids: ["countdown_timer", "back_button_trap", "exit_popup", "app_config", "recaptcha", "telegram"] }
         ];
@@ -63053,7 +63709,182 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
             ": ",
             cfStatus.managed_domains
           ] })
-        ] }) }) : activeObj.isRecaptcha ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "600px", display: "flex", flexDirection: "column", gap: "24px" }, children: [
+        ] }) }) : activeObj.isNamecheap ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { maxWidth: "620px", display: "flex", flexDirection: "column", gap: "20px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginBottom: "16px", lineHeight: 1.6 }, children: t("namecheap.howTo", "Включите API-доступ: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access. Исходящий IP сервера добавьте в Whitelisted IPs. Домены, зарегистрированные в аккаунте, при парковке получают A-запись автоматически; SSL Let's Encrypt выпускается сразу после того, как DNS обновится.") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: [
+                t("namecheap.username", "Username"),
+                " ",
+                ncStatus?.connected ? "✓" : ""
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  className: "form-input",
+                  style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px" },
+                  value: ncForm.username,
+                  onChange: (e) => setNcForm({ ...ncForm, username: e.target.value })
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "API Key" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "password",
+                  className: "form-input",
+                  style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" },
+                  value: ncForm.api_key,
+                  onChange: (e) => setNcForm({ ...ncForm, api_key: e.target.value }),
+                  placeholder: ncStatus?.connected ? t("namecheap.keySaved", "ключ сохранён — введите новый, чтобы заменить") : ""
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "12px", borderRadius: "8px", border: "1px dashed var(--color-border)", background: "var(--color-bg-soft)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)" }, children: t("namecheap.whitelistIp", "IP сервера для Whitelisted IPs") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono", style: { fontSize: "15px", color: "var(--color-text-primary)" }, children: ncStatus?.detected_ip || ncStatus?.server_ip || "—" })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    className: "btn btn-secondary btn-icon",
+                    onClick: () => copyToClipboard(ncStatus?.detected_ip || ncStatus?.server_ip || "", "nc-ip"),
+                    title: t("common.copy"),
+                    children: copied === "nc-ip" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { margin: "8px 0 0", color: "var(--color-text-muted)" }, children: t("namecheap.whitelistHint", "Добавьте этот IP в Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Если показан неверный адрес — нажмите «Проверить»: Namecheap сам назовёт IP, с которого пришли запросы.") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.addressBook", "Профиль контакта (Address Book) для новых доменов") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    className: "form-select",
+                    style: { flex: 1, padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px" },
+                    value: ncForm.address_id,
+                    onChange: (e) => setNcForm({ ...ncForm, address_id: e.target.value }),
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("namecheap.addressPlaceholder", "— не выбран —") }),
+                      ncAddresses.map((a) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a.id, children: [
+                        a.name,
+                        a.is_default ? " ✓" : ""
+                      ] }, a.id))
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    className: "btn btn-secondary btn-icon",
+                    disabled: ncBusy,
+                    onClick: async () => {
+                      setNcBusy(true);
+                      try {
+                        const res = await axios.post(`${API_URL$9}?action=namecheap_addresses`, {});
+                        if (res.data.status === "success") {
+                          setNcAddresses(res.data.data.addresses || []);
+                          setNcMessage("✓ " + t("namecheap.addressesLoaded", "профили загружены"));
+                        } else setNcMessage("⚠ " + (res.data.message || t("common.error")));
+                      } catch (err) {
+                        setNcMessage("⚠ " + t("common.networkError"));
+                      } finally {
+                        setNcBusy(false);
+                      }
+                    },
+                    title: t("namecheap.addressRefresh", "Обновить список из Address Book"),
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" })
+                  }
+                )
+              ] }),
+              !ncAddresses.length && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { margin: "6px 0 0", color: "var(--color-text-muted)" }, children: t("namecheap.addressHint", "Профили подтягиваются из Namecheap Address Book — они нужны для регистрации новых доменов.") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.environment", "Окружение") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)", fontSize: "14px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "radio", name: "nc-env", checked: !ncForm.sandbox, onChange: () => setNcForm({ ...ncForm, sandbox: false }) }),
+                  t("namecheap.production", "Production")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)", fontSize: "14px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "radio", name: "nc-env", checked: ncForm.sandbox, onChange: () => setNcForm({ ...ncForm, sandbox: true }) }),
+                  t("namecheap.sandbox", "Sandbox")
+                ] })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", style: { marginTop: "4px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  className: "btn btn-primary",
+                  disabled: ncBusy,
+                  onClick: async () => {
+                    setNcBusy(true);
+                    setNcMessage(null);
+                    try {
+                      const res = await axios.post(`${API_URL$9}?action=namecheap_save`, ncForm);
+                      if (res.data.status === "success") {
+                        setNcMessage("✓ " + t("namecheap.saved", "Сохранено"));
+                        const st = await axios.get(`${API_URL$9}?action=namecheap_status`);
+                        if (st.data.status === "success") setNcStatus(st.data.data);
+                        setNcForm((f) => ({ ...f, api_key: "" }));
+                      } else if (res.data.message === "namecheap_connection_failed") {
+                        setNcMessage("⚠ " + t("namecheap.errConnection", "Namecheap отклонил подключение") + (res.data.detail?.error ? `: ${res.data.detail.error}` : ""));
+                        if (res.data.detail?.ip) {
+                          setNcStatus((s) => s ? { ...s, detected_ip: res.data.detail.ip } : s);
+                        }
+                      } else {
+                        setNcMessage("⚠ " + (res.data.message || t("common.error")));
+                      }
+                    } catch (err) {
+                      setNcMessage("⚠ " + t("common.networkError"));
+                    } finally {
+                      setNcBusy(false);
+                    }
+                  },
+                  children: ncBusy ? t("common.saving") : t("common.save")
+                }
+              ),
+              ncStatus?.connected && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  className: "btn btn-secondary",
+                  disabled: ncBusy,
+                  onClick: async () => {
+                    setNcBusy(true);
+                    setNcMessage(null);
+                    try {
+                      const res = await axios.post(`${API_URL$9}?action=namecheap_test`, {});
+                      if (res.data.status === "success") {
+                        setNcMessage("✓ " + t("namecheap.connected", "Подключено") + (res.data.data?.balance ? ` · ${t("namecheap.balance", "баланс")}: ${res.data.data.balance}` : ""));
+                      } else {
+                        const st = await axios.get(`${API_URL$9}?action=namecheap_status`);
+                        if (st.data.status === "success") setNcStatus(st.data.data);
+                        setNcMessage("⚠ " + (res.data.message || t("common.error")));
+                      }
+                    } catch (err) {
+                      setNcMessage("⚠ " + t("common.networkError"));
+                    } finally {
+                      setNcBusy(false);
+                    }
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "w-4 h-4" }),
+                    t("namecheap.test", "Проверить")
+                  ]
+                }
+              )
+            ] }),
+            ncMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: ncMessage })
+          ] })
+        ] }) }) }) : activeObj.isRecaptcha ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "600px", display: "flex", flexDirection: "column", gap: "24px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "16px", fontWeight: "600", color: "var(--color-text-primary)", marginBottom: "4px" }, children: t("recaptcha.v2Title") }),

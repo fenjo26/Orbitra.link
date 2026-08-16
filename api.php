@@ -146,6 +146,104 @@ function orbitraCloudflareSyncDomain(PDO $pdo, array $domain, ?array $cfg = null
     return $dns;
 }
 
+// === Namecheap integration helpers ===
+
+/** Connection config from settings; client_ip is the whitelisted outgoing IP. */
+function orbitraNamecheapConfig(PDO $pdo): array
+{
+    static $cfg = null;
+    if ($cfg !== null) {
+        return $cfg;
+    }
+    $out = ['api_key' => '', 'username' => '', 'sandbox' => false, 'address_id' => '', 'server_ip' => '', 'client_ip' => ''];
+    try {
+        $keys = ['nc_api_key', 'nc_username', 'nc_sandbox', 'nc_address_id', 'nc_server_ip', 'nc_detected_ip', 'cf_server_ip'];
+        $in = "'" . implode("','", $keys) . "'";
+        $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ($in)");
+        $detected = '';
+        $cfIp = '';
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            switch ($row['key']) {
+                case 'nc_api_key': $out['api_key'] = (string) $row['value']; break;
+                case 'nc_username': $out['username'] = (string) $row['value']; break;
+                case 'nc_sandbox': $out['sandbox'] = ((string) $row['value']) === '1'; break;
+                case 'nc_address_id': $out['address_id'] = (string) $row['value']; break;
+                case 'nc_server_ip': $out['server_ip'] = (string) $row['value']; break;
+                case 'nc_detected_ip': $detected = (string) $row['value']; break;
+                case 'cf_server_ip': $cfIp = (string) $row['value']; break;
+            }
+        }
+        // A-запись пишем на тот же IP сервера, что и Cloudflare-интеграция —
+        // это один и тот же сервер; локальная настройка её переопределяет.
+        if ($out['server_ip'] === '') {
+            $out['server_ip'] = $cfIp;
+        }
+        // ClientIP должен совпадать с исходящим адресом сервера: реальный адрес
+        // Namecheap сам называет в whitelist-ошибке — ему и верим.
+        $out['client_ip'] = $detected !== '' ? $detected : $cfIp;
+        if ($out['client_ip'] === '') {
+            $out['client_ip'] = (string) ($_SERVER['SERVER_ADDR'] ?? '');
+        }
+        $out['detected_ip'] = $detected;
+    } catch (\Throwable $e) {
+        // Defaults above degrade into "not connected".
+    }
+    $cfg = $out;
+    return $cfg;
+}
+
+/** Remember the outgoing IP Namecheap complained about — it goes into the whitelist hint. */
+function orbitraNamecheapRememberIp(PDO $pdo, string $ip): void
+{
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+        return;
+    }
+    try {
+        $pdo->prepare("INSERT INTO settings (key, value) VALUES ('nc_detected_ip', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")->execute([$ip]);
+    } catch (\Throwable $e) {
+        // Cosmetic only — the hint just stays empty.
+    }
+}
+
+/**
+ * Point a parked domain at the tracker through Namecheap: find the registered
+ * zone in the account, write the A record for the host (or @+www for a root
+ * domain). Unlike Cloudflare there is no edge SSL, so the domain stays in the
+ * certbot queue and gets its Let's Encrypt certificate once DNS resolves.
+ * @return array{ok:bool,message:string}
+ */
+function orbitraNamecheapSyncDomain(PDO $pdo, array $domain, ?array $cfg = null): array
+{
+    require_once __DIR__ . '/core/NamecheapClient.php';
+    $cfg = $cfg ?? orbitraNamecheapConfig($pdo);
+    if ($cfg['api_key'] === '' || $cfg['username'] === '') {
+        return ['ok' => false, 'message' => 'Namecheap is not connected'];
+    }
+    if (filter_var($cfg['server_ip'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+        return ['ok' => false, 'message' => 'Server IP is unknown — set it in the Namecheap integration'];
+    }
+
+    $host = strtolower(trim((string) $domain['name']));
+    $registered = NamecheapClient::findRegisteredDomain($cfg, $host);
+    if ($registered === null) {
+        return ['ok' => false, 'message' => 'Domain not found in Namecheap account'];
+    }
+
+    // sub.promo.example.com над зоной example.com → паркуем запись "sub.promo";
+    // сама зона (корень) → "@" и www.
+    $sub = $registered === $host ? '' : substr($host, 0, -1 * (strlen($registered) + 1));
+    $split = NamecheapClient::splitSldTld($registered);
+    if ($split === null) {
+        return ['ok' => false, 'message' => 'Cannot parse registered domain ' . $registered];
+    }
+
+    $result = NamecheapClient::setHostRecords($cfg, $split['sld'], $split['tld'], $sub === '' ? '@' : $sub, $cfg['server_ip']);
+    if ($result['ip_hint'] !== '') {
+        orbitraNamecheapRememberIp($pdo, $result['ip_hint']);
+    }
+    return ['ok' => $result['ok'], 'message' => $result['message']];
+}
+
 /**
  * Runs `composer install` for the tracker and reports what happened.
  *
@@ -5721,6 +5819,19 @@ try {
                                         : null; // zone not in the account is not an error
                                 }
 
+                                // Namecheap: same zero-config parking — when the domain
+                                // (or its registered root) lives in the connected account,
+                                // its A record is written through the API right here. SSL
+                                // stays with certbot: the LE certificate is issued as soon
+                                // as the fresh DNS record resolves.
+                                $ncCfg = orbitraNamecheapConfig($pdo);
+                                if ($ncCfg['api_key'] !== '') {
+                                    $ncSync = orbitraNamecheapSyncDomain($pdo, ['id' => $newId, 'name' => $domainName], $ncCfg);
+                                    $results[count($results) - 1]['namecheap'] = $ncSync['ok']
+                                        ? $ncSync['message']
+                                        : null; // domain not in the account is not an error
+                                }
+
                                 $sslPending = true;
 
                                 logAudit($pdo, 'CREATE', 'Domain', $newId, "Name: $domainName");
@@ -5971,6 +6082,247 @@ try {
                         }
                     }
                     echo json_encode(['status' => 'success', 'data' => ['synced' => $synced, 'failed' => $failed]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // === Namecheap: zero-config DNS parking, domain purchasing, import ===
+        case 'namecheap_status':
+            try {
+                $cfgNc = orbitraNamecheapConfig($pdo);
+                echo json_encode(['status' => 'success', 'data' => [
+                    'connected' => $cfgNc['api_key'] !== '' && $cfgNc['username'] !== '',
+                    'username' => $cfgNc['username'],
+                    'sandbox' => $cfgNc['sandbox'],
+                    'address_id' => $cfgNc['address_id'],
+                    'server_ip' => $cfgNc['server_ip'],
+                    'detected_ip' => $cfgNc['detected_ip'],
+                ]]);
+            } catch (\Exception $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        case 'namecheap_save':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataNc = json_decode(orbitraRequestBody(), true);
+                try {
+                    $username = trim((string) ($dataNc['username'] ?? ''));
+                    $apiKey = trim((string) ($dataNc['api_key'] ?? ''));
+                    $sandbox = !empty($dataNc['sandbox']);
+                    $addressId = trim((string) ($dataNc['address_id'] ?? ''));
+                    $serverIp = trim((string) ($dataNc['server_ip'] ?? ''));
+
+                    // An empty key field means "keep the stored one" — the form
+                    // never echoes the secret back, same as Cloudflare/FB forms.
+                    if ($apiKey === '') {
+                        $stmtOld = $pdo->query("SELECT value FROM settings WHERE key = 'nc_api_key' LIMIT 1");
+                        $apiKey = (string) $stmtOld->fetchColumn();
+                    }
+
+                    if ($apiKey !== '' && $username !== '') {
+                        require_once __DIR__ . '/core/NamecheapClient.php';
+                        $cfgProbe = ['api_key' => $apiKey, 'username' => $username, 'client_ip' => orbitraNamecheapConfig($pdo)['client_ip'], 'sandbox' => $sandbox];
+                        $verify = NamecheapClient::verifyConnection($cfgProbe);
+                        if (!$verify['ok']) {
+                            if ($verify['ip_hint'] !== '') {
+                                orbitraNamecheapRememberIp($pdo, $verify['ip_hint']);
+                            }
+                            echo json_encode(['status' => 'error', 'message' => 'namecheap_connection_failed', 'detail' => ['error' => $verify['message'], 'ip' => $verify['ip_hint']]]);
+                            break;
+                        }
+                    } elseif ($apiKey !== '' || $username !== '') {
+                        echo json_encode(['status' => 'error', 'message' => 'namecheap_username_and_key_required']);
+                        break;
+                    }
+
+                    foreach ([
+                        ['nc_api_key', $apiKey],
+                        ['nc_username', $username],
+                        ['nc_sandbox', $sandbox ? '1' : '0'],
+                        ['nc_address_id', $addressId],
+                        ['nc_server_ip', $serverIp],
+                    ] as [$keyNc, $valueNc]) {
+                        $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")->execute([$keyNc, $valueNc]);
+                    }
+
+                    echo json_encode(['status' => 'success', 'data' => ['connected' => $apiKey !== '' && $username !== '']]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        case 'namecheap_test':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                try {
+                    $cfgNc = orbitraNamecheapConfig($pdo);
+                    if ($cfgNc['api_key'] === '' || $cfgNc['username'] === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'namecheap_not_connected']);
+                        break;
+                    }
+                    require_once __DIR__ . '/core/NamecheapClient.php';
+                    $verify = NamecheapClient::verifyConnection($cfgNc);
+                    if (!$verify['ok']) {
+                        if ($verify['ip_hint'] !== '') {
+                            orbitraNamecheapRememberIp($pdo, $verify['ip_hint']);
+                        }
+                        echo json_encode(['status' => 'error', 'message' => $verify['message']]);
+                        break;
+                    }
+                    echo json_encode(['status' => 'success', 'data' => ['balance' => $verify['balance']]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        case 'namecheap_addresses':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                try {
+                    $cfgNc = orbitraNamecheapConfig($pdo);
+                    require_once __DIR__ . '/core/NamecheapClient.php';
+                    $addresses = NamecheapClient::listAddresses($cfgNc);
+                    echo json_encode(['status' => 'success', 'data' => ['addresses' => $addresses]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // Every domain in the account — the Import dialog checks the ones the
+        // tracker does not have yet; adding goes through the usual save_domain
+        // flow, so parking + SSL come along for free.
+        case 'namecheap_domains':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                try {
+                    $cfgNc = orbitraNamecheapConfig($pdo);
+                    if ($cfgNc['api_key'] === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'namecheap_not_connected']);
+                        break;
+                    }
+                    require_once __DIR__ . '/core/NamecheapClient.php';
+                    $names = NamecheapClient::listDomains($cfgNc);
+                    if (empty($names)) {
+                        // An empty account and a failed listing look the same —
+                        // tell them apart so the dialog can show the API error.
+                        $probe = NamecheapClient::verifyConnection($cfgNc);
+                        if (!$probe['ok']) {
+                            echo json_encode(['status' => 'error', 'message' => $probe['message']]);
+                            break;
+                        }
+                    }
+                    echo json_encode(['status' => 'success', 'data' => ['domains' => array_values($names)]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        case 'namecheap_check_domain':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataNc = json_decode(orbitraRequestBody(), true);
+                try {
+                    $cfgNc = orbitraNamecheapConfig($pdo);
+                    $domain = strtolower(trim((string) ($dataNc['domain'] ?? '')));
+                    if ($domain === '' || !preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$/', $domain)) {
+                        echo json_encode(['status' => 'error', 'message' => 'Invalid domain name']);
+                        break;
+                    }
+                    require_once __DIR__ . '/core/NamecheapClient.php';
+                    $check = NamecheapClient::checkDomain($cfgNc, $domain);
+                    echo json_encode(['status' => 'success', 'data' => $check]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // Buy & Park: register through the account balance, point the fresh
+        // domain at this server, then hand it to the normal domain flow
+        // (nginx config + background Let's Encrypt certificate).
+        case 'namecheap_register_domain':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataNc = json_decode(orbitraRequestBody(), true);
+                try {
+                    $cfgNc = orbitraNamecheapConfig($pdo);
+                    if ($cfgNc['api_key'] === '' || $cfgNc['username'] === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'namecheap_not_connected']);
+                        break;
+                    }
+                    $domain = strtolower(trim((string) ($dataNc['domain'] ?? '')));
+                    $years = max(1, min(10, (int) ($dataNc['years'] ?? 1)));
+                    $addressId = trim((string) ($dataNc['address_id'] ?? '')) ?: $cfgNc['address_id'];
+                    if ($domain === '' || !preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z]{2,})+$/', $domain)) {
+                        echo json_encode(['status' => 'error', 'message' => 'Invalid domain name']);
+                        break;
+                    }
+                    if ($addressId === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'namecheap_address_required']);
+                        break;
+                    }
+                    require_once __DIR__ . '/core/NamecheapClient.php';
+
+                    // Registration costs real money — re-check availability so a
+                    // stale dialog can never click "buy" on an already-taken name.
+                    $check = NamecheapClient::checkDomain($cfgNc, $domain);
+                    if (!$check['available']) {
+                        echo json_encode(['status' => 'error', 'message' => 'namecheap_domain_taken', 'detail' => ['domain' => $domain]]);
+                        break;
+                    }
+
+                    $reg = NamecheapClient::registerDomain($cfgNc, $domain, $years, $addressId);
+                    if (!$reg['ok']) {
+                        echo json_encode(['status' => 'error', 'message' => $reg['message']]);
+                        break;
+                    }
+
+                    $exists = $pdo->prepare("SELECT id FROM domains WHERE name = ? LIMIT 1");
+                    $exists->execute([$domain]);
+                    if ($exists->fetchColumn()) {
+                        echo json_encode(['status' => 'success', 'data' => ['domain' => $domain, 'namecheap' => $reg['message'], 'duplicate' => true]]);
+                        break;
+                    }
+
+                    $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status) VALUES (?, NULL, 1, NULL, 1, 0, 'pending')")->execute([$domain]);
+                    $newId = (int) $pdo->lastInsertId();
+                    logAudit($pdo, 'CREATE', 'Domain', $newId, "Namecheap purchase: $domain");
+
+                    $ncSync = orbitraNamecheapSyncDomain($pdo, ['id' => $newId, 'name' => $domain], $cfgNc);
+                    $nginxResult = updateNginxConfig($pdo);
+                    $cliPath = __DIR__ . '/cli/ssl_installer.php';
+                    if (file_exists($cliPath)) {
+                        orbitraShell("php " . escapeshellarg($cliPath) . " > /dev/null 2>&1 &");
+                    }
+
+                    echo json_encode(['status' => 'success', 'data' => [
+                        'domain' => $domain,
+                        'registered' => $reg['message'],
+                        'namecheap' => $ncSync['ok'] ? $ncSync['message'] : null,
+                        'nginx' => $nginxResult,
+                    ]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // Force re-park an existing domain row (the "moved to a new server" case).
+        case 'namecheap_sync_domain':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataNc = json_decode(orbitraRequestBody(), true);
+                try {
+                    $stmtNc = $pdo->prepare("SELECT id, name FROM domains WHERE id = ? LIMIT 1");
+                    $stmtNc->execute([(int) ($dataNc['id'] ?? 0)]);
+                    $domainNc = $stmtNc->fetch(PDO::FETCH_ASSOC);
+                    if (!$domainNc) {
+                        echo json_encode(['status' => 'error', 'message' => 'Domain not found']);
+                        break;
+                    }
+                    $resultNc = orbitraNamecheapSyncDomain($pdo, $domainNc);
+                    echo json_encode(['status' => $resultNc['ok'] ? 'success' : 'error', 'message' => $resultNc['message']]);
                 } catch (\Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }
