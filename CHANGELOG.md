@@ -7,6 +7,15 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.8.1] — 2026-08-16
+
+### Fixed
+- ✅ **Stream names were wiped on every campaign save** — the stream INSERT in
+  `save_campaign` never carried the `name` column, so anything the editor's
+  stream-name field collected became NULL on save. Found live while testing
+  0.9.8.0 on the demo (a stream saved as "MCP stream" came back as null).
+  Lost names need re-entering once after the update.
+
 ## [0.9.8.0] — 2026-08-16
 
 ### Added

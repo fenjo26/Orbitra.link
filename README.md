@@ -1,4 +1,4 @@
-# Orbitra v0.9.8.0 Tracker
+# Orbitra v0.9.8.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -387,6 +387,14 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
+
+## 📝 What's New in v0.9.8.1
+
+### Fixed
+- ✅ **Stream names were wiped on every campaign save** — the editor's
+  stream-name field collected the name, but the save INSERT never carried the
+  `name` column, so every save turned it into NULL. Found live while testing
+  0.9.8.0; if a stream lost its name, re-enter it once after updating.
 
 ## 📝 What's New in v0.9.8.0
 
