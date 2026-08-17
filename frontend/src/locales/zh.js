@@ -2655,7 +2655,16 @@ export default {
         "colCpc": "CPC",
         "colUcpc": "uCPC",
         "colCpa": "CPA",
-        "colEarningsPerConv": "单次转化收益"
+        "colEarningsPerConv": "单次转化收益",
+        "presetTraffic": "流量",
+        "saveTemplate": "保存为模板",
+        "templateNamePlaceholder": "例如：COD Nutra Split",
+        "setAsDefault": "设为默认模板",
+        "updateTemplate": "保存更改到“{name}”",
+        "deleteTemplateConfirm": "确定删除模板“{name}”吗？",
+        "renameTemplatePrompt": "模板名称：",
+        "makeDefault": "设为默认",
+        "defaultTemplateActive": "默认模板 — 点击可取消"
     },
     "dateRangePicker": {
         "today": "今天",

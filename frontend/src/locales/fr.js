@@ -2655,7 +2655,16 @@ export default {
         "colCpc": "CPC",
         "colUcpc": "uCPC",
         "colCpa": "CPA",
-        "colEarningsPerConv": "Revenu par conversion"
+        "colEarningsPerConv": "Revenu par conversion",
+        "presetTraffic": "Trafic",
+        "saveTemplate": "Enregistrer comme modèle",
+        "templateNamePlaceholder": "ex. COD Nutra Split",
+        "setAsDefault": "Définir comme modèle par défaut",
+        "updateTemplate": "Enregistrer les modifications dans « {name} »",
+        "deleteTemplateConfirm": "Supprimer le modèle « {name} » ?",
+        "renameTemplatePrompt": "Nom du modèle :",
+        "makeDefault": "Définir par défaut",
+        "defaultTemplateActive": "Modèle par défaut — cliquer pour retirer"
     },
     "dateRangePicker": {
         "today": "Aujourd'hui",

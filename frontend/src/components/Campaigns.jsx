@@ -4,7 +4,7 @@ import InfoBanner from './InfoBanner';
 import GroupsModal from './GroupsModal';
 import CampaignReports from './CampaignReports';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
-import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS } from './ReportCustomizerModal';
+import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns } from './ReportCustomizerModal';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { financeVisibility, financeHiddenMetric } from '../utils/permissions';
@@ -43,6 +43,9 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             const saved = localStorage.getItem('orbitra_campaign_columns');
             if (saved) return JSON.parse(saved);
         } catch (e) {}
+        // No per-page selection yet — fall back to the user's default template
+        const fromDefaultTemplate = getDefaultTemplateColumns();
+        if (fromDefaultTemplate) return fromDefaultTemplate;
         return [...PRESETS.best];
     });
 

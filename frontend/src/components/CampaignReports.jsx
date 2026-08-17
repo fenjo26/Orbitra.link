@@ -3,7 +3,7 @@ import axios from 'axios';
 import { X, Download, Filter, BarChart3, Plus, Trash2, SlidersHorizontal, GripVertical, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
-import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS } from './ReportCustomizerModal';
+import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns } from './ReportCustomizerModal';
 
 const API_URL = '/api.php';
 
@@ -33,6 +33,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             const saved = localStorage.getItem('orbitra_report_columns');
             if (saved) return JSON.parse(saved);
         } catch (e) {}
+        // No per-page selection yet — fall back to the user's default template
+        const fromDefaultTemplate = getDefaultTemplateColumns();
+        if (fromDefaultTemplate) return fromDefaultTemplate;
         return [...PRESETS.best];
     });
 

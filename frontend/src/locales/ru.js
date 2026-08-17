@@ -2655,7 +2655,16 @@ export default {
         "colCpc": "CPC",
         "colUcpc": "uCPC",
         "colCpa": "CPA",
-        "colEarningsPerConv": "Доход на конверсию"
+        "colEarningsPerConv": "Доход на конверсию",
+        "presetTraffic": "Трафик",
+        "saveTemplate": "Сохранить как шаблон",
+        "templateNamePlaceholder": "напр. COD Nutra Split",
+        "setAsDefault": "Сделать шаблоном по умолчанию",
+        "updateTemplate": "Сохранить изменения в \"{name}\"",
+        "deleteTemplateConfirm": "Удалить шаблон \"{name}\"?",
+        "renameTemplatePrompt": "Название шаблона:",
+        "makeDefault": "Сделать по умолчанию",
+        "defaultTemplateActive": "Шаблон по умолчанию — нажмите, чтобы убрать"
     },
     "dateRangePicker": {
         "today": "Сегодня",

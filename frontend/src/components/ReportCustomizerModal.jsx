@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { X, GripVertical, ChevronUp, ChevronDown, Plus, Trash2, Search, SlidersHorizontal, Layers, Filter as FilterIcon, RotateCcw } from 'lucide-react';
+import { X, GripVertical, ChevronUp, ChevronDown, Plus, Trash2, Search, SlidersHorizontal, Layers, Filter as FilterIcon, RotateCcw, Star, Pencil, Save } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 // Exact 64 Keitaro Metrics List.
@@ -75,13 +75,79 @@ export const ALL_REPORT_METRICS = [
 export const PRESETS = {
     best: ['profitability', 'clicks', 'unique_clicks', 'conversions', 'roi_confirmed', 'cost', 'revenue', 'profit', 'cr', 'epc', 'cpc', 'cpa'],
     finance: ['cost', 'revenue', 'revenue_confirmed', 'revenue_hold', 'revenue_rejected', 'profit', 'roi', 'profit_confirmed', 'roi_confirmed', 'cpa', 'epc'],
-    cod: ['clicks', 'unique_clicks', 'conversions', 'sales', 'leads', 'rejected', 'trash', 'approve_rate', 'cost', 'revenue_confirmed', 'profit_confirmed', 'roi_confirmed', 'cpa'],
-    lander_to_offer: ['clicks', 'unique_clicks', 'lp_views', 'prelander_clicks', 'lp_ctr', 'conversions', 'cr', 'cost', 'revenue', 'profit', 'roi', 'epc', 'cpc'],
+    cod: ['clicks', 'unique_clicks', 'leads', 'sales', 'approve_rate', 'rejected', 'trash', 'cost', 'cpl', 'cps', 'cpa', 'revenue_confirmed', 'profit_confirmed', 'roi_confirmed'],
+    lander_to_offer: ['clicks', 'unique_clicks', 'lp_views', 'prelander_clicks', 'lp_ctr', 'conversions', 'cr', 'cpa', 'cpc', 'epc', 'cost', 'revenue', 'profit', 'roi'],
     traffic: ['clicks', 'unique_clicks', 'visitors', 'unique_clicks_stream', 'unique_clicks_global', 'uc_rate', 'bots', 'bot_rate', 'proxies', 'empty_referrers', 'conversions', 'cr'],
     all: ALL_REPORT_METRICS.map(m => m.id),
 };
 
 const DEFAULT_METRIC_ORDER = ALL_REPORT_METRICS.map(m => m.id);
+
+// --- User-saved column templates (localStorage) ---
+const TEMPLATES_KEY = 'orbitra_column_templates';
+const DEFAULT_TEMPLATE_KEY = 'orbitra_default_template_id';
+
+const arraysEqual = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => v === b[i]);
+
+// Template ids only need to be unique per browser — seeded once at module load
+let nextTemplateId = Date.now();
+
+const loadColumnTemplates = () => {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(TEMPLATES_KEY) || '[]');
+        if (!Array.isArray(parsed)) return [];
+        return parsed.filter(t => t && typeof t.id === 'string' && typeof t.name === 'string' && Array.isArray(t.columns));
+    } catch {
+        // Corrupt storage entry — fall back to no saved templates
+        return [];
+    }
+};
+
+const persistColumnTemplates = (next) => {
+    try {
+        localStorage.setItem(TEMPLATES_KEY, JSON.stringify(next));
+    } catch {
+        // Storage full/unavailable — templates just won't survive the session
+    }
+};
+
+const loadDefaultTemplateId = () => {
+    try {
+        return localStorage.getItem(DEFAULT_TEMPLATE_KEY);
+    } catch {
+        return null;
+    }
+};
+
+const persistDefaultTemplateId = (id) => {
+    try {
+        if (id) localStorage.setItem(DEFAULT_TEMPLATE_KEY, id);
+        else localStorage.removeItem(DEFAULT_TEMPLATE_KEY);
+    } catch {
+        // Storage full/unavailable — default choice won't survive the session
+    }
+};
+
+// Columns of the user's default template (system preset id or custom template
+// id), or null when no default is set. Pages use this as the initial shape
+// when no per-page column selection has been saved yet.
+export const getDefaultTemplateColumns = () => {
+    const id = loadDefaultTemplateId();
+    if (!id) return null;
+    if (Array.isArray(PRESETS[id])) return [...PRESETS[id]];
+    const tpl = loadColumnTemplates().find(t => t.id === id);
+    return tpl ? [...tpl.columns] : null;
+};
+
+// System preset chips: [preset key, locale key under reportCustomizer.*]
+const SYSTEM_PRESETS = [
+    ['best', 'presetBest'],
+    ['finance', 'presetFinance'],
+    ['cod', 'presetCod'],
+    ['lander_to_offer', 'presetLanderToOffer'],
+    ['traffic', 'presetTraffic'],
+    ['all', 'presetAll']
+];
 
 const ReportCustomizerModal = ({
     isOpen,
@@ -108,6 +174,15 @@ const ReportCustomizerModal = ({
     // Filters
     const [filters, setFilters] = useState([]);
 
+    // Saved column templates + the one marked as default
+    const [templates, setTemplates] = useState([]);
+    const [defaultTemplateId, setDefaultTemplateId] = useState(null);
+    // Custom template the user last applied — enables the "Save changes to X" flow
+    const [lastAppliedTemplateId, setLastAppliedTemplateId] = useState(null);
+    const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+    const [templateName, setTemplateName] = useState('');
+    const [templateAsDefault, setTemplateAsDefault] = useState(false);
+
     // Drag-and-drop state, tracked in ref + state so drops never lose the ID
     const draggedIdRef = useRef(null);
     const [draggedId, setDraggedId] = useState(null);
@@ -127,6 +202,13 @@ const ReportCustomizerModal = ({
             if (currentLayers) setLayers([...currentLayers]);
             if (currentFilters) setFilters([...currentFilters]);
             setSearchQuery('');
+
+            setTemplates(loadColumnTemplates());
+            setDefaultTemplateId(loadDefaultTemplateId());
+            setLastAppliedTemplateId(null);
+            setSaveDialogOpen(false);
+            setTemplateName('');
+            setTemplateAsDefault(false);
         }
         prevIsOpenRef.current = isOpen;
     }, [isOpen, selectedColumns, currentLayers, currentFilters]);
@@ -143,16 +225,68 @@ const ReportCustomizerModal = ({
         });
     };
 
-    const handleApplyPreset = (presetKey) => {
-        const presetCols = PRESETS[presetKey];
-        if (!presetCols) return;
-        setSelectedSet(new Set(presetCols));
-        const unselected = DEFAULT_METRIC_ORDER.filter(id => !presetCols.includes(id));
-        setOrderedMetricIds([...presetCols, ...unselected]);
+    // Apply a system preset or a saved template: exact columns, exact order
+    const handleApplyTemplate = (templateId) => {
+        const cols = Array.isArray(PRESETS[templateId])
+            ? PRESETS[templateId]
+            : templates.find(t => t.id === templateId)?.columns;
+        if (!cols) return;
+        setSelectedSet(new Set(cols));
+        const unselected = DEFAULT_METRIC_ORDER.filter(id => !cols.includes(id));
+        setOrderedMetricIds([...cols, ...unselected]);
+        setLastAppliedTemplateId(templateId);
     };
 
     const handleRestoreDefault = () => {
-        handleApplyPreset('best');
+        handleApplyTemplate('best');
+    };
+
+    const handleToggleDefault = (templateId) => {
+        const next = defaultTemplateId === templateId ? null : templateId;
+        setDefaultTemplateId(next);
+        persistDefaultTemplateId(next);
+    };
+
+    const handleSaveTemplate = () => {
+        const name = templateName.trim();
+        if (!name) return;
+        const tpl = { id: `custom_${++nextTemplateId}`, name, columns: selectedOrdered, isCustom: true };
+        const next = [...templates, tpl];
+        setTemplates(next);
+        persistColumnTemplates(next);
+        setLastAppliedTemplateId(tpl.id);
+        if (templateAsDefault) {
+            setDefaultTemplateId(tpl.id);
+            persistDefaultTemplateId(tpl.id);
+        }
+        setSaveDialogOpen(false);
+        setTemplateName('');
+        setTemplateAsDefault(false);
+    };
+
+    const handleUpdateTemplate = (tpl) => {
+        const next = templates.map(t => (t.id === tpl.id ? { ...t, columns: selectedOrdered } : t));
+        setTemplates(next);
+        persistColumnTemplates(next);
+    };
+
+    const handleRenameTemplate = (tpl) => {
+        const name = window.prompt(t('reportCustomizer.renameTemplatePrompt', 'Template name:'), tpl.name);
+        if (name === null) return;
+        const clean = name.trim();
+        if (!clean || clean === tpl.name) return;
+        const next = templates.map(t => (t.id === tpl.id ? { ...t, name: clean } : t));
+        setTemplates(next);
+        persistColumnTemplates(next);
+    };
+
+    const handleDeleteTemplate = (tpl) => {
+        if (!window.confirm(t('reportCustomizer.deleteTemplateConfirm', 'Delete template "{name}"?').replace('{name}', tpl.name))) return;
+        const next = templates.filter(t => t.id !== tpl.id);
+        setTemplates(next);
+        persistColumnTemplates(next);
+        if (defaultTemplateId === tpl.id) handleToggleDefault(tpl.id);
+        if (lastAppliedTemplateId === tpl.id) setLastAppliedTemplateId(null);
     };
 
     // Move metric up or down by 1 position (instant, keyboard/touch-friendly)
@@ -249,6 +383,29 @@ const ReportCustomizerModal = ({
             setSelectedSet(prev => new Set([...prev, ...visibleIds]));
         }
     };
+
+    // Selected columns in the user's drag order — the exact shape a template stores
+    const selectedOrdered = useMemo(
+        () => orderedMetricIds.filter(id => selectedSet.has(id)),
+        [orderedMetricIds, selectedSet]
+    );
+
+    // Which preset/template the current selection matches exactly (drives chip highlight)
+    const activeTemplateId = useMemo(() => {
+        for (const [key] of SYSTEM_PRESETS) {
+            if (arraysEqual(PRESETS[key], selectedOrdered)) return key;
+        }
+        const match = templates.find(t => arraysEqual(t.columns, selectedOrdered));
+        return match ? match.id : null;
+    }, [selectedOrdered, templates]);
+
+    // A custom template was applied and then edited — offer an in-place update
+    const updatableTemplate = useMemo(() => {
+        if (!lastAppliedTemplateId) return null;
+        const tpl = templates.find(t => t.id === lastAppliedTemplateId);
+        if (!tpl) return null;
+        return arraysEqual(tpl.columns, selectedOrdered) ? null : tpl;
+    }, [lastAppliedTemplateId, templates, selectedOrdered]);
 
     // Early return goes AFTER every hook
     if (!isOpen) return null;
@@ -364,34 +521,174 @@ const ReportCustomizerModal = ({
                             )}
                         </div>
 
-                        {/* Quick Presets Bar */}
+                        {/* Presets & Saved Templates Bar */}
                         <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-2 select-none" style={{ scrollbarWidth: 'none' }}>
                             <span className="text-[11px] font-medium text-[var(--color-text-muted)] flex-shrink-0 mr-0.5">
                                 {t('reportCustomizer.presets', 'Presets')}:
                             </span>
-                            {[
-                                ['best', 'Best (12)'],
-                                ['finance', 'Finance (11)'],
-                                ['cod', 'COD (13)'],
-                                ['lander_to_offer', 'Lander → Offer'],
-                                ['traffic', 'Traffic (12)'],
-                                ['all', 'All (64)']
-                            ].map(([pKey, pLabel]) => (
+                            {SYSTEM_PRESETS.map(([pKey, labelKey]) => {
+                                const isActive = activeTemplateId === pKey;
+                                const isDefault = defaultTemplateId === pKey;
+                                return (
+                                    <div
+                                        key={pKey}
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => handleApplyTemplate(pKey)}
+                                        className="group text-[11px] pl-2.5 pr-1.5 py-1 rounded-lg border transition-all flex-shrink-0 flex items-center gap-1 font-medium cursor-pointer hover:border-[var(--color-primary)]"
+                                        style={{
+                                            backgroundColor: isActive ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
+                                            borderColor: isActive ? 'var(--color-primary)' : 'var(--color-border)',
+                                            color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)'
+                                        }}
+                                    >
+                                        <span>{t(`reportCustomizer.${labelKey}`)} ({PRESETS[pKey].length})</span>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); handleToggleDefault(pKey); }}
+                                            className={`p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault
+                                                ? 'text-[var(--color-primary)]'
+                                                : 'text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100'}`}
+                                            title={isDefault
+                                                ? t('reportCustomizer.defaultTemplateActive', 'Default template — click to remove')
+                                                : t('reportCustomizer.makeDefault', 'Set as default')}
+                                        >
+                                            <Star className={`w-3 h-3 ${isDefault ? 'fill-current' : ''}`} />
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                            {templates.map((tpl) => {
+                                const isActive = activeTemplateId === tpl.id;
+                                const isDefault = defaultTemplateId === tpl.id;
+                                return (
+                                    <div
+                                        key={tpl.id}
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => handleApplyTemplate(tpl.id)}
+                                        className="group text-[11px] pl-2 pr-1.5 py-1 rounded-lg border transition-all flex-shrink-0 flex items-center gap-1 font-medium cursor-pointer hover:border-[var(--color-primary)]"
+                                        style={{
+                                            backgroundColor: isActive ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
+                                            borderColor: isActive ? 'var(--color-primary)' : 'var(--color-border)',
+                                            color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)'
+                                        }}
+                                    >
+                                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: 'var(--color-primary)' }} />
+                                        <span className="max-w-40 truncate">{tpl.name}</span>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); handleToggleDefault(tpl.id); }}
+                                            className={`p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault
+                                                ? 'text-[var(--color-primary)]'
+                                                : 'text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100'}`}
+                                            title={isDefault
+                                                ? t('reportCustomizer.defaultTemplateActive', 'Default template — click to remove')
+                                                : t('reportCustomizer.makeDefault', 'Set as default')}
+                                        >
+                                            <Star className={`w-3 h-3 ${isDefault ? 'fill-current' : ''}`} />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); handleRenameTemplate(tpl); }}
+                                            className="p-0.5 rounded flex-shrink-0 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 hover:text-[var(--color-primary)] transition-opacity"
+                                            title={t('common.edit', 'Edit')}
+                                        >
+                                            <Pencil className="w-3 h-3" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); handleDeleteTemplate(tpl); }}
+                                            className="p-0.5 rounded flex-shrink-0 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 hover:text-red-500 transition-opacity"
+                                            title={t('common.delete', 'Delete')}
+                                        >
+                                            <Trash2 className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                            {updatableTemplate && (
                                 <button
-                                    key={pKey}
                                     type="button"
-                                    onClick={() => handleApplyPreset(pKey)}
-                                    className="text-[11px] px-2.5 py-1 rounded-lg border transition-all flex-shrink-0 hover:border-[var(--color-primary)] font-medium"
+                                    onClick={() => handleUpdateTemplate(updatableTemplate)}
+                                    className="text-[11px] px-2.5 py-1 rounded-lg border transition-all flex-shrink-0 flex items-center gap-1 font-medium hover:border-[var(--color-primary)]"
                                     style={{
                                         backgroundColor: 'var(--color-bg-soft)',
                                         borderColor: 'var(--color-border)',
-                                        color: 'var(--color-text-secondary)'
+                                        color: 'var(--color-text-primary)'
                                     }}
+                                    title={t('reportCustomizer.updateTemplate', 'Save changes to "{name}"').replace('{name}', updatableTemplate.name)}
                                 >
-                                    {pLabel}
+                                    <Save className="w-3 h-3 flex-shrink-0" />
+                                    <span className="max-w-32 truncate">
+                                        {t('reportCustomizer.updateTemplate', 'Save changes to "{name}"').replace('{name}', updatableTemplate.name)}
+                                    </span>
                                 </button>
-                            ))}
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => { setTemplateName(''); setTemplateAsDefault(false); setSaveDialogOpen(true); }}
+                                className="text-[11px] px-2.5 py-1 rounded-lg border transition-all flex-shrink-0 flex items-center gap-1 font-medium hover:border-[var(--color-primary)]"
+                                style={{
+                                    backgroundColor: 'var(--color-bg-soft)',
+                                    borderColor: 'var(--color-border)',
+                                    color: 'var(--color-primary)'
+                                }}
+                            >
+                                <Plus className="w-3 h-3" />
+                                {t('reportCustomizer.saveTemplate', 'Save as Template')}
+                            </button>
                         </div>
+
+                        {/* Save Template Dialog */}
+                        {saveDialogOpen && (
+                            <div className="mb-2 p-2.5 rounded-xl border flex flex-col gap-2" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
+                                <input
+                                    autoFocus
+                                    type="text"
+                                    value={templateName}
+                                    onChange={(e) => setTemplateName(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') handleSaveTemplate();
+                                        if (e.key === 'Escape') setSaveDialogOpen(false);
+                                    }}
+                                    placeholder={t('reportCustomizer.templateNamePlaceholder', 'e.g. COD Nutra Split')}
+                                    className="form-input text-xs py-2 px-3 rounded-xl w-full"
+                                    style={{
+                                        backgroundColor: 'var(--color-bg-card)',
+                                        borderColor: 'var(--color-border)',
+                                        color: 'var(--color-text-primary)'
+                                    }}
+                                />
+                                <label className="flex items-center gap-2 text-xs cursor-pointer select-none" style={{ color: 'var(--color-text-secondary)' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={templateAsDefault}
+                                        onChange={(e) => setTemplateAsDefault(e.target.checked)}
+                                        className="w-4 h-4 rounded cursor-pointer"
+                                        style={{ accentColor: 'var(--color-primary)' }}
+                                    />
+                                    {t('reportCustomizer.setAsDefault', 'Set as default template')}
+                                </label>
+                                <div className="flex justify-end gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setSaveDialogOpen(false)}
+                                        className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium"
+                                    >
+                                        {t('common.cancel', 'Cancel')}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleSaveTemplate}
+                                        disabled={!templateName.trim()}
+                                        className="btn btn-primary text-xs py-1.5 px-4 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {t('common.save', 'Save')}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Select All Checkbox + Selected Count Badge */}
                         <div className="flex items-center justify-between px-2 py-1.5 select-none rounded-lg bg-[var(--color-bg-soft)] mb-2 border border-[var(--color-border)]">

@@ -2655,7 +2655,16 @@ export default {
         "colCpc": "CPC",
         "colUcpc": "uCPC",
         "colCpa": "CPA",
-        "colEarningsPerConv": "Earnings / Conv"
+        "colEarningsPerConv": "Earnings / Conv",
+        "presetTraffic": "Traffic",
+        "saveTemplate": "Save as Template",
+        "templateNamePlaceholder": "e.g. COD Nutra Split",
+        "setAsDefault": "Set as default template",
+        "updateTemplate": "Save changes to \"{name}\"",
+        "deleteTemplateConfirm": "Delete template \"{name}\"?",
+        "renameTemplatePrompt": "Template name:",
+        "makeDefault": "Set as default",
+        "defaultTemplateActive": "Default template — click to remove"
     },
     "dateRangePicker": {
         "today": "Today",
