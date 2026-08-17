@@ -512,11 +512,11 @@ const CohortView = () => {
                                         <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{s.clicks.toLocaleString(LOCALE_TAGS[language] || 'en-US')}</td>
                                         <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{s.conversions}</td>
                                         <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>${s.revenue.toFixed(2)}</td>
-                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: s.profit >= 0 ? 'var(--color-success)' : 'var(--color-danger)' }}>
-                                            ${s.profit.toFixed(2)}
+                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: s.profit > 0 ? 'var(--color-success)' : s.profit < 0 ? 'var(--color-danger)' : 'var(--color-text-secondary)' }}>
+                                            {s.profit > 0 ? '+' : s.profit < 0 ? '-' : ''}${Math.abs(s.profit).toFixed(2)}
                                         </td>
-                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: s.roi >= 0 ? 'var(--color-success)' : 'var(--color-danger)' }}>
-                                            {s.roi.toFixed(2)}%
+                                        <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: s.roi > 0 ? 'var(--color-success)' : s.roi < 0 ? 'var(--color-danger)' : 'var(--color-text-muted)' }}>
+                                            {s.roi > 0 ? '+' : ''}{s.roi.toFixed(2)}%
                                         </td>
                                         <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-muted)' }}>
                                             M{s.firstIdx ?? 0}

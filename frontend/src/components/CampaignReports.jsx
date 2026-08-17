@@ -440,7 +440,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'roi_confirmed':
             case 'real_roi': {
                 if (val === null || val === undefined) return '—';
-                const isPos = num >= 0;
+                // Zero ROI (no spend yet) is neutral, not "positive" — a green
+                // +0.00% reads as profit on idle rows. Same rule for the Σ row.
+                if (num === 0) {
+                    return <span style={{ color: 'var(--color-text-muted)' }}>0.00%</span>;
+                }
+                const isPos = num > 0;
                 return (
                     <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: strong ? 700 : 600 }}>
                         {isPos ? '+' : ''}{num.toFixed(2)}%
@@ -452,10 +457,16 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'profit_all':
             case 'profit_confirmed':
             case 'real_profit': {
-                const isPos = num >= 0;
+                // $0.00 is neutral gray — zero means "nothing happened yet",
+                // not a profitable row. The minus goes before the currency
+                // sign (-$5.20, not $-5.20).
+                if (Math.abs(num) < 0.0001) {
+                    return <span style={{ color: 'var(--color-text-secondary)' }}>$0.00</span>;
+                }
+                const isPos = num > 0;
                 return (
                     <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: strong ? 700 : 600 }}>
-                        {isPos ? '+' : ''}${num.toFixed(2)}
+                        {isPos ? '+' : '-'}${Math.abs(num).toFixed(2)}
                     </span>
                 );
             }

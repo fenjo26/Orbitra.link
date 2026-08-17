@@ -55776,7 +55776,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       case "roi_confirmed":
       case "real_roi": {
         if (val === null || val === void 0) return "—";
-        const isPos = num >= 0;
+        if (num === 0) {
+          return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "0.00%" });
+        }
+        const isPos = num > 0;
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: strong ? 700 : 600 }, children: [
           isPos ? "+" : "",
           num.toFixed(2),
@@ -55787,11 +55790,14 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       case "profit_all":
       case "profit_confirmed":
       case "real_profit": {
-        const isPos = num >= 0;
+        if (Math.abs(num) < 1e-4) {
+          return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-secondary)" }, children: "$0.00" });
+        }
+        const isPos = num > 0;
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: strong ? 700 : 600 }, children: [
-          isPos ? "+" : "",
+          isPos ? "+" : "-",
           "$",
-          num.toFixed(2)
+          Math.abs(num).toFixed(2)
         ] });
       }
       case "cost":
@@ -56693,7 +56699,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       case "roi_confirmed":
       case "real_roi": {
         if (val === null || val === void 0) return "—";
-        const isPos = num >= 0;
+        if (num === 0) {
+          return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "0.00%" });
+        }
+        const isPos = num > 0;
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
           isPos ? "+" : "",
           num.toFixed(2),
@@ -56704,11 +56713,14 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       case "profit_all":
       case "profit_confirmed":
       case "real_profit": {
-        const isPos = num >= 0;
+        if (Math.abs(num) < 1e-4) {
+          return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-secondary)" }, children: "$0.00" });
+        }
+        const isPos = num > 0;
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
-          isPos ? "+" : "",
+          isPos ? "+" : "-",
           "$",
-          num.toFixed(2)
+          Math.abs(num).toFixed(2)
         ] });
       }
       case "cost":
@@ -77637,11 +77649,13 @@ const CohortView = () => {
             "$",
             s.revenue.toFixed(2)
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", color: s.profit >= 0 ? "var(--color-success)" : "var(--color-danger)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", color: s.profit > 0 ? "var(--color-success)" : s.profit < 0 ? "var(--color-danger)" : "var(--color-text-secondary)" }, children: [
+            s.profit > 0 ? "+" : s.profit < 0 ? "-" : "",
             "$",
-            s.profit.toFixed(2)
+            Math.abs(s.profit).toFixed(2)
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", color: s.roi >= 0 ? "var(--color-success)" : "var(--color-danger)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", color: s.roi > 0 ? "var(--color-success)" : s.roi < 0 ? "var(--color-danger)" : "var(--color-text-muted)" }, children: [
+            s.roi > 0 ? "+" : "",
             s.roi.toFixed(2),
             "%"
           ] }),
