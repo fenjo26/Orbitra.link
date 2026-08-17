@@ -263,6 +263,12 @@ CREATE TABLE custom_metrics (
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
+CREATE TABLE domain_groups (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
 CREATE TABLE domains (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,
@@ -271,11 +277,19 @@ CREATE TABLE domains (
         group_id INTEGER,
         is_noindex INTEGER DEFAULT 0,
         https_only INTEGER DEFAULT 0,
-        ssl_status TEXT DEFAULT 'none',                  -- 'none'|'pending'|'installing'|'installed'|'failed'
+        ssl_status TEXT DEFAULT 'none',                  -- 'none'|'pending'|'waiting_dns'|'installing'|'installed'|'failed'|'cloudflare'
         ssl_error TEXT,                                   -- SSL installation error message
+        ssl_attempts INTEGER DEFAULT 0,
+        ssl_last_attempt TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP, dns_status TEXT, dns_ip TEXT, dns_checked_at DATETIME,
+        keitaro_id INTEGER,
+        admin_access INTEGER DEFAULT 1,                  -- 0: admin panel returns 404 on this domain
+        cloudflare_proxy INTEGER DEFAULT 0,              -- 1: SSL comes from the CF edge, certbot is skipped
+        registrar TEXT DEFAULT '',
+        dns_provider TEXT DEFAULT '',
+        status TEXT DEFAULT 'OK',                        -- 'OK'|'Active'|'Disabled'; Disabled serves 404 on the whole host
         FOREIGN KEY (index_campaign_id) REFERENCES campaigns(id) ON DELETE SET NULL,
-        FOREIGN KEY (group_id) REFERENCES offer_groups(id) ON DELETE SET NULL
+        FOREIGN KEY (group_id) REFERENCES domain_groups(id) ON DELETE SET NULL
     );
 
 CREATE TABLE geo_profiles (

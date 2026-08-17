@@ -51,7 +51,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 22;
+    $LATEST_SCHEMA_VERSION = 23;
 
     $schemaVersion = 0;
     try {
@@ -167,6 +167,12 @@ try {
         archived_at DATETIME
     );
 
+    CREATE TABLE IF NOT EXISTS domain_groups (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE TABLE IF NOT EXISTS domains (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,
@@ -175,13 +181,20 @@ try {
         group_id INTEGER,
         is_noindex INTEGER DEFAULT 0,
         https_only INTEGER DEFAULT 0,
-        ssl_status TEXT DEFAULT 'none',                  -- 'none'|'pending'|'waiting_dns'|'installing'|'installed'|'failed'
+        ssl_status TEXT DEFAULT 'none',                  -- 'none'|'pending'|'waiting_dns'|'installing'|'installed'|'failed'|'cloudflare'
         ssl_error TEXT,                                   -- last Certbot output / DNS mismatch detail
         ssl_attempts INTEGER DEFAULT 0,                   -- failures so far, drives the retry backoff
         ssl_last_attempt TEXT,                            -- when the last attempt ran
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        dns_status TEXT, dns_ip TEXT, dns_checked_at DATETIME,
+        keitaro_id INTEGER,
+        admin_access INTEGER DEFAULT 1,                  -- 0: admin panel returns 404 on this domain
+        cloudflare_proxy INTEGER DEFAULT 0,              -- 1: SSL comes from the CF edge, certbot is skipped
+        registrar TEXT DEFAULT '',
+        dns_provider TEXT DEFAULT '',
+        status TEXT DEFAULT 'OK',                        -- 'OK'|'Active'|'Disabled'; Disabled serves 404 on the whole host
         FOREIGN KEY (index_campaign_id) REFERENCES campaigns(id) ON DELETE SET NULL,
-        FOREIGN KEY (group_id) REFERENCES offer_groups(id) ON DELETE SET NULL
+        FOREIGN KEY (group_id) REFERENCES domain_groups(id) ON DELETE SET NULL
     );
 
     -- Backorder / domain availability tracker (separate from tracking domains)
@@ -1337,6 +1350,110 @@ try {
                     $pdo->exec("ALTER TABLE campaign_pixels ADD COLUMN event_source_url TEXT");
                 } catch (\Throwable $e) {
                     // Column already present on a half-migrated DB.
+                }
+            }
+
+            if ($schemaVersion < 23) {
+                // Migration 23: dedicated domain groups + Keitaro-style domain
+                // attributes (admin access, Cloudflare proxy, registrar/DNS
+                // metadata, manual status).
+                try {
+                    $pdo->exec("CREATE TABLE IF NOT EXISTS domain_groups (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL UNIQUE,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )");
+                } catch (\Throwable $e) {}
+
+                // Domains used to share offer_groups for grouping. Carry the
+                // group rows a domain actually references into the new table
+                // under the same ids, so existing group_id values keep naming
+                // the same group.
+                try {
+                    $pdo->exec("INSERT OR IGNORE INTO domain_groups (id, name, created_at)
+                        SELECT og.id, og.name, COALESCE(og.created_at, datetime('now'))
+                        FROM offer_groups og
+                        WHERE og.id IN (SELECT DISTINCT group_id FROM domains WHERE group_id IS NOT NULL)");
+                } catch (\Throwable $e) {}
+
+                // admin_access defaults to 1: flipping existing rows to Deny
+                // would lock the operator out of the panel on the very host
+                // they are reading it from. Deny stays opt-in per domain.
+                $alters = [
+                    "ALTER TABLE domains ADD COLUMN admin_access INTEGER DEFAULT 1",
+                    "ALTER TABLE domains ADD COLUMN cloudflare_proxy INTEGER DEFAULT 0",
+                    "ALTER TABLE domains ADD COLUMN registrar TEXT DEFAULT ''",
+                    "ALTER TABLE domains ADD COLUMN dns_provider TEXT DEFAULT ''",
+                    "ALTER TABLE domains ADD COLUMN status TEXT DEFAULT 'OK'",
+                ];
+                foreach ($alters as $sql) {
+                    try { $pdo->exec($sql); } catch (\Throwable $e) {}
+                }
+
+                // The declared FK on group_id still targets offer_groups, and
+                // with foreign_keys=ON deleting an offer group with a matching
+                // id would null out unrelated domain groups. Rebuild the table
+                // with the FK pointing at domain_groups. Column lists are
+                // intersected with what actually exists — installs differ
+                // (keitaro_id and the dns_* columns arrived in later
+                // migrations) — so a partial column set copies rather than
+                // drops. Create-copy-drop-rename order: renaming the old table
+                // first would rewrite the domain_id FKs that point at it.
+                try {
+                    $existingCols = array_map(
+                        static fn($r) => (string) $r['name'],
+                        $pdo->query("PRAGMA table_info(domains)")->fetchAll(PDO::FETCH_ASSOC)
+                    );
+                    $canonical = ['id','name','index_campaign_id','catch_404','group_id','is_noindex','https_only','ssl_status','ssl_error','ssl_attempts','ssl_last_attempt','created_at','dns_status','dns_ip','dns_checked_at','keitaro_id','admin_access','cloudflare_proxy','registrar','dns_provider','status'];
+                    $common = array_values(array_intersect($existingCols, $canonical));
+                    if ($common) {
+                        $pdo->exec("PRAGMA foreign_keys = OFF");
+                        $pdo->exec("DROP TABLE IF EXISTS domains_v23_tmp");
+                        $pdo->exec("CREATE TABLE domains_v23_tmp (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            name TEXT NOT NULL UNIQUE,
+                            index_campaign_id INTEGER,
+                            catch_404 INTEGER DEFAULT 0,
+                            group_id INTEGER,
+                            is_noindex INTEGER DEFAULT 0,
+                            https_only INTEGER DEFAULT 0,
+                            ssl_status TEXT DEFAULT 'none',
+                            ssl_error TEXT,
+                            ssl_attempts INTEGER DEFAULT 0,
+                            ssl_last_attempt TEXT,
+                            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                            dns_status TEXT, dns_ip TEXT, dns_checked_at DATETIME,
+                            keitaro_id INTEGER,
+                            admin_access INTEGER DEFAULT 1,
+                            cloudflare_proxy INTEGER DEFAULT 0,
+                            registrar TEXT DEFAULT '',
+                            dns_provider TEXT DEFAULT '',
+                            status TEXT DEFAULT 'OK',
+                            FOREIGN KEY (index_campaign_id) REFERENCES campaigns(id) ON DELETE SET NULL,
+                            FOREIGN KEY (group_id) REFERENCES domain_groups(id) ON DELETE SET NULL
+                        )");
+                        $colList = implode(', ', $common);
+                        $pdo->exec("INSERT INTO domains_v23_tmp ($colList) SELECT $colList FROM domains");
+                        $pdo->exec("DROP TABLE domains");
+                        $pdo->exec("ALTER TABLE domains_v23_tmp RENAME TO domains");
+                        $pdo->exec("PRAGMA foreign_keys = ON");
+                    }
+                } catch (\Throwable $e) {
+                    // The ALTERs above already added the columns, so a failed
+                    // rebuild leaves a fully working table with the legacy FK
+                    // — only the automatic group cleanup on offer-group delete
+                    // stays wrong. Put the original back if the swap died
+                    // between DROP and RENAME.
+                    try {
+                        $hasDomains = (bool) $pdo->query("SELECT 1 FROM sqlite_master WHERE type='table' AND name='domains'")->fetchColumn();
+                        $hasTmp = (bool) $pdo->query("SELECT 1 FROM sqlite_master WHERE type='table' AND name='domains_v23_tmp'")->fetchColumn();
+                        if (!$hasDomains && $hasTmp) {
+                            $pdo->exec("ALTER TABLE domains_v23_tmp RENAME TO domains");
+                        } elseif ($hasTmp) {
+                            $pdo->exec("DROP TABLE domains_v23_tmp");
+                        }
+                    } catch (\Throwable $e2) {}
+                    try { $pdo->exec("PRAGMA foreign_keys = ON"); } catch (\Throwable $e2) {}
                 }
             }
 

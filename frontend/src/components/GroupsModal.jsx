@@ -16,6 +16,7 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
             case 'offer': return 'offer_groups';
             case 'landing': return 'landing_groups';
             case 'campaign': return 'campaign_groups';
+            case 'domain': return 'domain_groups';
             default: return 'offer_groups';
         }
     };
@@ -25,6 +26,7 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
             case 'offer': return 'delete_offer_group';
             case 'landing': return 'delete_landing_group';
             case 'campaign': return 'delete_campaign_group';
+            case 'domain': return 'delete_domain_group';
             default: return 'delete_offer_group';
         }
     };
@@ -34,6 +36,7 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
             case 'offer': return t('groupsModal.offerGroups');
             case 'landing': return t('groupsModal.landingGroups');
             case 'campaign': return t('groupsModal.campaignGroups');
+            case 'domain': return t('groupsModal.domainGroups');
             default: return t('groupsModal.groups');
         }
     };

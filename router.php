@@ -10,6 +10,26 @@ $stmt = $pdo->prepare("SELECT * FROM domains WHERE name = ? LIMIT 1");
 $stmt->execute([$host]);
 $domain = $stmt->fetch();
 
+// A manually disabled domain serves nothing: 404 the whole host before any
+// routing, tracking included.
+if ($domain && strtolower((string)($domain['status'] ?? 'OK')) === 'disabled') {
+    http_response_code(404);
+    header('Content-Type: text/plain; charset=utf-8');
+    exit('404 Not Found');
+}
+
+// Admin panel / admin API visibility on this host. A parked domain with
+// admin_access=0 keeps tracking (campaign aliases, /r/, postback, click API)
+// but the panel and api.php answer 404, so the admin surface stays on the
+// hosts the operator manages the tracker from. Hosts that are not parked
+// are unaffected.
+$adminAllowed = !$domain || (int)($domain['admin_access'] ?? 1) === 1;
+$orbitraDenyAdmin = static function (): void {
+    http_response_code(404);
+    header('Content-Type: text/plain; charset=utf-8');
+    exit('404 Not Found');
+};
+
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // Fast-fail common browser static asset requests that shouldn't trigger tracking.
@@ -57,6 +77,9 @@ if ($domain) {
 
 // Serve admin panel for root
 if ($uri === '/' || $uri === '') {
+    if (!$adminAllowed) {
+        $orbitraDenyAdmin();
+    }
     include 'admin.php';
     exit;
 }
@@ -71,6 +94,9 @@ elseif (preg_match('#^/' . preg_quote($postback_key) . '/postback(\?.*)?$#', $_S
     exit;
 }
 elseif ($uri === '/api.php') {
+    if (!$adminAllowed) {
+        $orbitraDenyAdmin();
+    }
     include 'api.php';
     exit;
 }
@@ -129,5 +155,8 @@ elseif (file_exists(__DIR__ . $uri) && $uri !== '/' && $uri !== '/admin.php' && 
     return false; // serve the requested resource as-is.
 }
 else {
+    if (!$adminAllowed) {
+        $orbitraDenyAdmin();
+    }
     include 'admin.php'; // Default to admin panel if no resource is found or asked for index
 }

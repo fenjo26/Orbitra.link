@@ -3932,6 +3932,43 @@ try {
             }
             break;
 
+        case 'domain_groups':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(orbitraRequestBody(), true);
+                if (!empty($data['name'])) {
+                    try {
+                        $stmt = $pdo->prepare("INSERT INTO domain_groups (name) VALUES (?)");
+                        $stmt->execute([trim($data['name'])]);
+                        echo json_encode(['status' => 'success', 'data' => ['id' => (int)$pdo->lastInsertId()]]);
+                    } catch (\Exception $e) {
+                        echo json_encode(['status' => 'error', 'message' => 'Группа с таким названием уже существует']);
+                    }
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Missing name']);
+                }
+            } else {
+                $stmt = $pdo->query("SELECT * FROM domain_groups ORDER BY name ASC");
+                echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+            }
+            break;
+
+        case 'delete_domain_group':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(orbitraRequestBody(), true);
+                $id = $data['id'] ?? null;
+                if ($id) {
+                    // Detach domains first: half-migrated installs still carry
+                    // the legacy FK to offer_groups, so the SET NULL from the
+                    // new FK cannot be relied on there.
+                    $pdo->prepare("UPDATE domains SET group_id = NULL WHERE group_id = ?")->execute([(int)$id]);
+                    $pdo->prepare("DELETE FROM domain_groups WHERE id = ?")->execute([(int)$id]);
+                    echo json_encode(['status' => 'success']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
+                }
+            }
+            break;
+
         case 'delete_offer_group':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
@@ -4585,9 +4622,10 @@ try {
             }
 
             $stmt = $pdo->query("
-                SELECT d.*, c.name as index_campaign_name
+                SELECT d.*, c.name as index_campaign_name, dg.name as group_name
                 FROM domains d
                 LEFT JOIN campaigns c ON d.index_campaign_id = c.id
+                LEFT JOIN domain_groups dg ON dg.id = d.group_id
                 ORDER BY d.created_at DESC
             ");
             $domains = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -4620,7 +4658,7 @@ try {
                 // Only do DNS lookup if: force_refresh=1 OR no cached status at all
                 if ($hasCachedStatus && !$forceRefresh) {
                     // Use cached status regardless of age for instant page load
-                    $domain['status'] = $domain['dns_status'];
+                    $domain['dns_state'] = $domain['dns_status'];
                     $domain['cache_age'] = $cacheAge;
                 } elseif (!$hasCachedStatus || $forceRefresh) {
                     // Only do DNS lookup for domains without status OR when explicitly requested
@@ -4629,7 +4667,7 @@ try {
                     // Skip DNS lookup if we've reached the limit and not forcing refresh
                     // This ensures ALL domains eventually get checked, just not all at once
                     if (!$hasCachedStatus && !$forceRefresh && $dnsLookupsCount >= $maxDnsLookups) {
-                        $domain['status'] = 'checking';
+                        $domain['dns_state'] = 'checking';
                     } else {
                         // Perform DNS lookup
                         $domainIp = @gethostbyname($domain['name']);
@@ -4642,26 +4680,26 @@ try {
                         $serverIp = trim($serverIp);
 
                         if ($domainIp === $serverIp) {
-                            $domain['status'] = 'active';
+                            $domain['dns_state'] = 'active';
                             error_log("DNS Match: {$domain['name']} is ACTIVE");
                         } elseif ($domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
                             // Localhost environment - consider as active
-                            $domain['status'] = 'active';
+                            $domain['dns_state'] = 'active';
                             error_log("DNS Localhost: {$domain['name']} marked ACTIVE (localhost)");
                         } elseif ($domainIp === $domain['name']) {
                             // DNS lookup failed - domain doesn't resolve
-                            $domain['status'] = 'pending';
+                            $domain['dns_state'] = 'pending';
                             error_log("DNS Failed: {$domain['name']} does not resolve");
                         } else {
                             // Domain resolves but to different IP
-                            $domain['status'] = 'pending';
+                            $domain['dns_state'] = 'pending';
                             error_log("DNS Mismatch: {$domain['name']} resolves to {$domainIp}, expected {$serverIp}");
                         }
 
                         // Mark for database update
                         $needsUpdate[] = [
                             'id' => $domainId,
-                            'status' => $domain['status'],
+                            'status' => $domain['dns_state'],
                             'ip' => $domainIp
                         ];
 
@@ -4672,7 +4710,7 @@ try {
                     }
                 } else {
                     // Has cached status - use it
-                    $domain['status'] = $domain['dns_status'];
+                    $domain['dns_state'] = $domain['dns_status'];
                     $domain['cache_age'] = $cacheAge;
                 }
             }
@@ -5805,12 +5843,33 @@ try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
-                $name = $data['name'] ?? '';
+                // Pasted input is often a full URL — clean it instead of
+                // rejecting it with a format error. Domains are case-blind,
+                // and the UNIQUE index is not, so normalize to lowercase too.
+                $cleanDomainName = static function (string $raw): string {
+                    $n = strtolower(trim($raw));
+                    $n = preg_replace('~^(?:https?://)+~i', '', $n);
+                    $n = preg_replace('~/+$~D', '', $n);
+                    $n = preg_replace('~\s+~', '', $n);
+                    return trim($n, " \t\n\r\0\x0B./");
+                };
+                $name = $cleanDomainName((string)($data['name'] ?? ''));
                 $indexCampId = !empty($data['index_campaign_id']) ? (int) $data['index_campaign_id'] : null;
                 $catch404 = !empty($data['catch_404']) ? 1 : 0;
                 $groupId = !empty($data['group_id']) ? (int) $data['group_id'] : null;
                 $isNoindex = !empty($data['is_noindex']) ? 1 : 0;
                 $httpsOnly = !empty($data['https_only']) ? 1 : 0;
+                // Programmatic callers (Namecheap import, MCP) omit the panel
+                // toggles; absent means "keep the current behavior", which for
+                // admin access is allowed — a silent Deny would 404 the panel
+                // on hosts the operator did not opt out of.
+                $adminAccess = array_key_exists('admin_access', $data) ? (!empty($data['admin_access']) ? 1 : 0) : 1;
+                $cfProxy = !empty($data['cloudflare_proxy']) ? 1 : 0;
+                $registrar = mb_substr(trim((string)($data['registrar'] ?? '')), 0, 120);
+                $dnsProvider = mb_substr(trim((string)($data['dns_provider'] ?? '')), 0, 120);
+                $statusMap = ['ok' => 'OK', 'active' => 'Active', 'disabled' => 'Disabled'];
+                $statusKey = strtolower(trim((string)($data['status'] ?? 'OK')));
+                $domainStatus = $statusMap[$statusKey] ?? 'OK';
 
                 if (!$name) {
                     echo json_encode(['status' => 'error', 'message' => 'Имя домена обязательно']);
@@ -5820,8 +5879,8 @@ try {
                 try {
                     // EDIT MODE: Update existing domain
                     if ($id) {
-                        $stmt = $pdo->prepare("UPDATE domains SET name=?, index_campaign_id=?, catch_404=?, group_id=?, is_noindex=?, https_only=? WHERE id=?");
-                        $stmt->execute([$name, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $id]);
+                        $stmt = $pdo->prepare("UPDATE domains SET name=?, index_campaign_id=?, catch_404=?, group_id=?, is_noindex=?, https_only=?, admin_access=?, cloudflare_proxy=?, registrar=?, dns_provider=?, status=? WHERE id=?");
+                        $stmt->execute([$name, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $adminAccess, $cfProxy, $registrar, $dnsProvider, $domainStatus, $id]);
                         logAudit($pdo, 'UPDATE', 'Domain', $id, "Name: $name");
 
                         // Every parked domain wants a certificate, whether or not
@@ -5830,7 +5889,12 @@ try {
                         // out of the queue and left it on the self-signed catch-all.
                         $certPath = "/etc/letsencrypt/live/$name/cert.pem";
                         $sslQueued = false;
-                        if (file_exists($certPath)) {
+                        if ($cfProxy) {
+                            // Behind the Cloudflare proxy the edge serves the
+                            // certificate visitors actually see, and certbot
+                            // cannot validate through it — leave the queue.
+                            $pdo->prepare("UPDATE domains SET ssl_status = 'cloudflare', ssl_error = NULL, ssl_attempts = 0, ssl_last_attempt = NULL WHERE id = ?")->execute([$id]);
+                        } elseif (file_exists($certPath)) {
                             $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL WHERE id = ?")->execute([$id]);
                         } else {
                             $pdo->prepare("UPDATE domains SET ssl_status = 'pending', ssl_error = NULL, ssl_attempts = 0, ssl_last_attempt = NULL WHERE id = ?")->execute([$id]);
@@ -5868,7 +5932,11 @@ try {
                         $sslPending = false;
                         $errors = [];
 
-                        foreach ($names as $domainName) {
+                        foreach ($names as $rawName) {
+                            $domainName = $cleanDomainName($rawName);
+                            if ($domainName === '') {
+                                continue;
+                            }
                             // Validate domain name (basic check)
                             if (!preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/', $domainName)) {
                                 $errors[] = "Неверный формат домена: $domainName";
@@ -5879,12 +5947,13 @@ try {
                             // as it is in Keitaro — not the HTTPS-only toggle, which
                             // only decides whether http:// redirects to https://.
                             // A domain added without it used to sit at 'none' and
-                            // never get a certificate at all.
-                            $sslStatus = 'pending';
+                            // never get a certificate at all. A Cloudflare-proxied
+                            // domain is the one exception: the edge serves its SSL.
+                            $sslStatus = $cfProxy ? 'cloudflare' : 'pending';
 
                             try {
-                                $stmt = $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                                $stmt->execute([$domainName, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $sslStatus]);
+                                $stmt = $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status, admin_access, cloudflare_proxy, registrar, dns_provider, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                $stmt->execute([$domainName, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $sslStatus, $adminAccess, $cfProxy, $registrar, $dnsProvider, $domainStatus]);
                                 $newId = $pdo->lastInsertId();
                                 $results[] = ['id' => $newId, 'name' => $domainName];
 

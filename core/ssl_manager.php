@@ -283,7 +283,10 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
         // the request for a certificate, exactly as it is in Keitaro. Domains
         // already serving a certificate are filtered out below rather than in
         // SQL, because "installed" in the database has been wrong before.
-        $rows = $pdo->query("SELECT id, name, ssl_status, ssl_attempts, ssl_last_attempt FROM domains WHERE name IS NOT NULL AND name != '' ORDER BY id")
+        // Cloudflare-proxied domains are the exception — the edge serves their
+        // certificate and certbot cannot validate through the proxy, so asking
+        // Let's Encrypt would only burn the hourly failure budget.
+        $rows = $pdo->query("SELECT id, name, ssl_status, ssl_attempts, ssl_last_attempt, cloudflare_proxy FROM domains WHERE name IS NOT NULL AND name != '' ORDER BY id")
             ->fetchAll(PDO::FETCH_ASSOC);
     } catch (\Throwable $e) {
         return $result;
@@ -304,6 +307,13 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
         }
 
         $id = (int) $row['id'];
+
+        // Proxied through Cloudflare (flagged manually or detected by the
+        // integration): the edge certificate is the one visitors get.
+        if ((int) ($row['cloudflare_proxy'] ?? 0) === 1 || ($row['ssl_status'] ?? '') === 'cloudflare') {
+            continue;
+        }
+
         $certFile = ORBITRA_LETSENCRYPT_DIR . "/live/$domain/fullchain.pem";
 
         // Already covered. Make sure nginx knows about it, then move on.

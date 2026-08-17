@@ -1,9 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Clock, Cloud, ShoppingCart, Download } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import HelpTooltip from './HelpTooltip';
+import GroupsModal from './GroupsModal';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost } from '../utils/apiCache';
+
+// Mirrors the backend cleaner: pasted URLs become bare hosts before they ever
+// reach save_domain, so an invalid-format rejection never surprises the user.
+const cleanNameInput = (v) => v.toLowerCase().replace(/^https?:\/\//, '').replace(/\/+$/, '').replace(/\s+/g, '');
+
+// Compact two-option pill switch used by the Crawlers / Admin / HTTPS /
+// Cloudflare toggles. Segmented control over a hidden state pair — the same
+// visual language as the rest of the panel, theme vars included.
+const ToggleGroup = ({ value, options, onChange }) => (
+    <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+        {options.map((opt, i) => (
+            <button
+                key={opt.value}
+                type="button"
+                onClick={() => onChange(opt.value)}
+                className="flex-1 text-xs font-medium py-1.5 px-2 transition"
+                style={{
+                    background: value === opt.value ? 'var(--color-primary)' : 'var(--color-bg-soft)',
+                    color: value === opt.value ? 'var(--color-text-inverse, #fff)' : 'var(--color-text-secondary)',
+                    borderRight: i < options.length - 1 ? '1px solid var(--color-border)' : 'none',
+                    cursor: 'pointer'
+                }}
+            >
+                {opt.label}
+            </button>
+        ))}
+    </div>
+);
 
 const Domains = ({ campaigns }) => {
     const { t } = useLanguage();
@@ -27,13 +56,32 @@ const Domains = ({ campaigns }) => {
     // single most confusing thing this page did.
     const [sslEnv, setSslEnv] = useState(null);
 
-    // Edit Modal State
+    // Edit Modal State. Defaults follow the Keitaro-style spec: crawlers
+    // disallowed, admin denied, HTTPS-only on, Cloudflare proxy off. Denying
+    // admin here only affects this domain — the panel stays reachable on
+    // every other host (and via the server IP).
+    const defaultFormData = {
+        id: null, name: '',
+        group_id: '',
+        index_campaign_id: '',
+        catch_404: false,
+        is_noindex: true,
+        admin_access: false,
+        https_only: true,
+        cloudflare_proxy: false,
+        registrar: '',
+        dns_provider: '',
+        status: 'OK'
+    };
     const [showModal, setShowModal] = useState(false);
-    const [formData, setFormData] = useState({
-        id: null, name: '', index_campaign_id: '', catch_404: false,
-        group_id: '', is_noindex: true, https_only: false
-    });
+    const [formData, setFormData] = useState(defaultFormData);
     const [error, setError] = useState('');
+    const [domainGroups, setDomainGroups] = useState([]);
+    const [showGroupsModal, setShowGroupsModal] = useState(false);
+    // "Add more": save, keep the modal open and the settings, clear the name.
+    const [addMore, setAddMore] = useState(false);
+    const [saveNotice, setSaveNotice] = useState('');
+    const nameInputRef = useRef(null);
 
     // DNS Warning Modal State
     const [showDnsModal, setShowDnsModal] = useState(false);
@@ -54,6 +102,17 @@ const Domains = ({ campaigns }) => {
         cachedGet('namecheap_status')
             .then(({ data }) => { if (data.status === 'success') setNcConnected(!!data.data.connected); })
             .catch(() => {});
+    }, []);
+
+    const fetchDomainGroups = async () => {
+        try {
+            const { data } = await cachedGet('domain_groups');
+            if (data.status === 'success') setDomainGroups(data.data || []);
+        } catch (e) { /* the select simply shows "No group" */ }
+    };
+
+    useEffect(() => {
+        fetchDomainGroups();
     }, []);
 
     const checkNcDomain = async () => {
@@ -187,11 +246,17 @@ const Domains = ({ campaigns }) => {
             name: domain.name,
             index_campaign_id: domain.index_campaign_id || '',
             catch_404: domain.catch_404 === 1,
-            group_id: domain.group_id || '',
+            group_id: domain.group_id ? String(domain.group_id) : '',
             is_noindex: domain.is_noindex === 1,
-            https_only: domain.https_only === 1
+            admin_access: Number(domain.admin_access ?? 1) === 1,
+            https_only: domain.https_only === 1,
+            cloudflare_proxy: Number(domain.cloudflare_proxy ?? 0) === 1,
+            registrar: domain.registrar || '',
+            dns_provider: domain.dns_provider || '',
+            status: domain.status || 'OK'
         });
         setError('');
+        setSaveNotice('');
         setShowModal(true);
     };
 
@@ -349,8 +414,6 @@ const Domains = ({ campaigns }) => {
         try {
             const res = await cachedPost('save_domain', formData);
             if (res.data.status === 'success') {
-                setShowModal(false);
-                setFormData({ id: null, name: '', index_campaign_id: '', catch_404: false, group_id: '', is_noindex: true, https_only: false });
                 fetchDomains();
                 // Zero-config parking report: when the Namecheap integration
                 // wrote the A records itself, say so — otherwise the operator
@@ -359,6 +422,18 @@ const Domains = ({ campaigns }) => {
                 if (parked.length) {
                     alert(`✓ ${t('namecheap.parkedOk')}:\n${parked.join('\n')}`);
                 }
+                if (!formData.id && addMore) {
+                    // Keep the chosen group and settings — the point of the
+                    // checkbox is parking a batch into the same configuration —
+                    // and clear only the name for the next entry.
+                    setFormData(prev => ({ ...defaultFormData, group_id: prev.group_id, index_campaign_id: prev.index_campaign_id, catch_404: prev.catch_404, is_noindex: prev.is_noindex, admin_access: prev.admin_access, https_only: prev.https_only, cloudflare_proxy: prev.cloudflare_proxy, registrar: prev.registrar, dns_provider: prev.dns_provider, status: prev.status }));
+                    setSaveNotice(t('domains.savedAddMore', 'Saved — ready for the next domain'));
+                    setTimeout(() => setSaveNotice(''), 3000);
+                    nameInputRef.current?.focus();
+                    return;
+                }
+                setShowModal(false);
+                setFormData(defaultFormData);
             } else {
                 setError(res.data.message || t('common.error'));
             }
@@ -453,7 +528,9 @@ const Domains = ({ campaigns }) => {
                     )}
                     <button
                         onClick={() => {
-                            setFormData({ id: null, name: '', index_campaign_id: '', catch_404: false, group_id: '', is_noindex: true, https_only: false });
+                            setFormData(defaultFormData);
+                            setError('');
+                            setSaveNotice('');
                             setShowModal(true);
                         }}
                         className="btn btn-primary"
@@ -497,6 +574,7 @@ const Domains = ({ campaigns }) => {
                     <thead>
                         <tr>
                             <th>{t('domains.domain')}</th>
+                            <th>{t('domains.group')}</th>
                             <th>{t('domains.status')}</th>
                             <th>{t('domains.indexPage')}</th>
                             <th className="text-center">{t('domains.https')}</th>
@@ -507,17 +585,24 @@ const Domains = ({ campaigns }) => {
                     </thead>
                     <tbody>
                         {loading ? (
-                            <tr><td colSpan="7" className="text-center py-8">{t('domains.loading')}</td></tr>
+                            <tr><td colSpan="8" className="text-center py-8">{t('domains.loading')}</td></tr>
                         ) : filteredDomains.length === 0 ? (
-                            <tr><td colSpan="7" className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>{t('domains.noDomains')}</td></tr>
+                            <tr><td colSpan="8" className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>{t('domains.noDomains')}</td></tr>
                         ) : (
                             filteredDomains.map(domain => (
                                 <tr key={domain.id}>
                                     <td className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{domain.name}</td>
                                     <td>
-                                        {(ignoreDnsUi || domain.status === 'active') ? (
+                                        {domain.group_name
+                                            ? <span className="badge" style={{ background: 'color-mix(in srgb, var(--color-primary) 10%, transparent)', color: 'var(--color-primary)' }}>{domain.group_name}</span>
+                                            : <span style={{ color: 'var(--color-text-muted)' }}>—</span>}
+                                    </td>
+                                    <td>
+                                        {String(domain.status) === 'Disabled' ? (
+                                            <span className="badge badge-danger"><X size={14} /> {t('domains.statusDisabled')}</span>
+                                        ) : (ignoreDnsUi || domain.dns_state === 'active') ? (
                                             <span className="badge badge-success">
-                                                <Check size={14} /> {t('domains.ok')}
+                                                <Check size={14} /> {String(domain.status) === 'Active' ? t('domains.statusActive') : t('domains.ok')}
                                             </span>
                                         ) : (
                                             <button
@@ -578,7 +663,7 @@ const Domains = ({ campaigns }) => {
 
             {showModal && (
                 <div className="modal-overlay">
-                    <div className="modal-content w-full max-w-md" style={{ padding: '24px' }}>
+                    <div className="modal-content w-full max-w-2xl" style={{ padding: '24px' }}>
                         <div className="modal-header">
                             <h3 className="modal-title">{formData.id ? t('domains.editDomain') : t('domains.addDomainTitle')}</h3>
                             <button type="button" className="btn btn-ghost btn-icon" onClick={() => setShowModal(false)}>
@@ -586,75 +671,204 @@ const Domains = ({ campaigns }) => {
                             </button>
                         </div>
                         {error && <div className="alert alert-danger mb-4 flex items-center gap-2"><AlertCircle size={16} />{error}</div>}
+                        {saveNotice && (
+                            <div className="alert alert-success mb-4 flex items-center gap-2"><Check size={16} />{saveNotice}</div>
+                        )}
 
                         <form onSubmit={handleSubmit} className="space-y-4">
+                            {/* Domain */}
                             <div>
-                                <label className="block text-sm font-medium mb-1">
-                                    {t('domains.domainName')}{' '}
-                                    <span className="text-xs font-normal" style={{ color: 'var(--color-text-muted)' }}>({t('domains.bulkHint')})</span>
-                                </label>
-                                <textarea
+                                <label className="block text-sm font-medium mb-1">{t('domains.domainName')}</label>
+                                <input
+                                    ref={nameInputRef}
+                                    type="text"
                                     required
-                                    rows={3}
+                                    autoFocus={!formData.id}
                                     className="form-input w-full"
                                     placeholder={t('domains.bulkPlaceholder')}
                                     value={formData.name}
-                                    onChange={e => setFormData({ ...formData, name: e.target.value.toLowerCase() })}
+                                    onChange={e => setFormData({ ...formData, name: cleanNameInput(e.target.value) })}
                                 />
-                                <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.bulkExample')}</p>
+                                <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                                    {t('domains.domainBulkHelper')} {t('domains.bulkExample')}
+                                </p>
                             </div>
 
+                            {/* Group */}
+                            <div>
+                                <label className="block text-sm font-medium mb-1">{t('domains.group')}</label>
+                                <div className="flex gap-2">
+                                    <select
+                                        className="form-select w-full"
+                                        value={formData.group_id}
+                                        onChange={e => setFormData({ ...formData, group_id: e.target.value })}
+                                    >
+                                        <option value="">{t('domains.noGroup')}</option>
+                                        {domainGroups.map(g => (
+                                            <option key={g.id} value={g.id}>{g.name}</option>
+                                        ))}
+                                    </select>
+                                    <button
+                                        type="button"
+                                        className="btn btn-secondary whitespace-nowrap"
+                                        onClick={() => setShowGroupsModal(true)}
+                                    >
+                                        <Plus size={14} /> {t('domains.createGroup')}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Control toggles */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label className="block text-xs font-medium mb-1.5">{t('domains.searchRobots')}</label>
+                                    <ToggleGroup
+                                        value={formData.is_noindex ? 'disallow' : 'allow'}
+                                        onChange={v => setFormData({ ...formData, is_noindex: v === 'disallow' })}
+                                        options={[
+                                            { value: 'allow', label: t('domains.allowRobotsShort') },
+                                            { value: 'disallow', label: t('domains.disallowShort') }
+                                        ]}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium mb-1.5">{t('domains.adminDashboard')}</label>
+                                    <ToggleGroup
+                                        value={formData.admin_access ? 'allow' : 'deny'}
+                                        onChange={v => setFormData({ ...formData, admin_access: v === 'allow' })}
+                                        options={[
+                                            { value: 'allow', label: t('domains.allowAccess') },
+                                            { value: 'deny', label: t('domains.denyAccess') }
+                                        ]}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium mb-1.5 flex items-center gap-1">
+                                        {t('domains.httpsOnlyShort')} <HelpTooltip textKey="help.httpsTooltip" />
+                                    </label>
+                                    <ToggleGroup
+                                        value={formData.https_only ? 'on' : 'off'}
+                                        onChange={v => setFormData({ ...formData, https_only: v === 'on' })}
+                                        options={[
+                                            { value: 'on', label: t('domains.on') },
+                                            { value: 'off', label: t('domains.off') }
+                                        ]}
+                                    />
+                                </div>
+                            </div>
+                            {!formData.admin_access && (
+                                <p className="text-xs -mt-2" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.adminAccessHint')}</p>
+                            )}
+
+                            {/* Cloudflare Proxy */}
+                            <div className="flex items-center justify-between gap-4 p-3 rounded-lg" style={{ background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                                <div>
+                                    <label className="block text-sm font-medium">{t('domains.cloudflareProxy')}</label>
+                                    <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.cfProxyHint')}</p>
+                                </div>
+                                <div style={{ minWidth: '140px' }}>
+                                    <ToggleGroup
+                                        value={formData.cloudflare_proxy ? 'on' : 'off'}
+                                        onChange={v => setFormData({ ...formData, cloudflare_proxy: v === 'on' })}
+                                        options={[
+                                            { value: 'on', label: t('domains.on') },
+                                            { value: 'off', label: t('domains.off') }
+                                        ]}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Index page */}
                             <div>
                                 <label className="block text-sm font-medium mb-1">{t('domains.indexPageLabel')} <HelpTooltip textKey="help.indexCampaignTooltip" /></label>
-                                <select
-                                    className="form-select w-full"
-                                    value={formData.index_campaign_id} onChange={e => setFormData({ ...formData, index_campaign_id: e.target.value })}
-                                >
-                                    <option value="">-- {t('domains.notSelected')} --</option>
-                                    {campaigns.map(c => (
-                                        <option key={c.id} value={c.id}>{c.name} ({c.alias})</option>
-                                    ))}
-                                </select>
+                                <div className="flex items-center gap-3">
+                                    <select
+                                        className="form-select flex-1"
+                                        value={formData.index_campaign_id}
+                                        onChange={e => setFormData({ ...formData, index_campaign_id: e.target.value })}
+                                    >
+                                        <option value="">-- {t('domains.notSelected')} --</option>
+                                        {campaigns.map(c => (
+                                            <option key={c.id} value={c.id}>{c.name} ({c.alias})</option>
+                                        ))}
+                                    </select>
+                                    <label className="inline-flex items-center gap-2 text-sm font-medium whitespace-nowrap cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.catch_404}
+                                            onChange={e => setFormData({ ...formData, catch_404: e.target.checked })}
+                                        />
+                                        {t('domains.catch404')}
+                                    </label>
+                                </div>
                                 <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.indexPageHint')}</p>
                             </div>
 
-                            <div className="flex items-center gap-2 mt-2">
-                                <input
-                                    type="checkbox" id="catch404"
-                                    checked={formData.catch_404} onChange={e => setFormData({ ...formData, catch_404: e.target.checked })}
-                                />
-                                <label htmlFor="catch404" className="text-sm font-medium cursor-pointer">{t('domains.catch404')}</label>
-                            </div>
-
-                            <hr className="my-3" style={{ borderColor: 'var(--color-border)' }} />
-
-                            <div>
-                                <label className="block text-sm font-medium mb-1">{t('domains.searchRobots')}</label>
-                                <select
-                                    className="form-select w-full"
-                                    value={formData.is_noindex ? '1' : '0'} onChange={e => setFormData({ ...formData, is_noindex: e.target.value === '1' })}
-                                >
-                                    <option value="1">{t('domains.disallowRobots')}</option>
-                                    <option value="0">{t('domains.allowRobots')}</option>
-                                </select>
-                                <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.robotsHint')}</p>
-                            </div>
-
-                            <div className="flex items-center gap-2 pt-2">
-                                <input
-                                    type="checkbox" id="https_only"
-                                    checked={formData.https_only} onChange={e => setFormData({ ...formData, https_only: e.target.checked })}
-                                />
-                                <label htmlFor="https_only" className="text-sm font-medium cursor-pointer">{t('domains.httpsOnly')} <HelpTooltip textKey="help.httpsTooltip" /></label>
+                            {/* Metadata */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label className="block text-xs font-medium mb-1.5">{t('domains.registrar')}</label>
+                                    <input
+                                        type="text"
+                                        className="form-input w-full"
+                                        placeholder={t('domains.optional')}
+                                        value={formData.registrar}
+                                        onChange={e => setFormData({ ...formData, registrar: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium mb-1.5">{t('domains.dnsProvider')}</label>
+                                    <input
+                                        type="text"
+                                        className="form-input w-full"
+                                        placeholder="Cloudflare"
+                                        value={formData.dns_provider}
+                                        onChange={e => setFormData({ ...formData, dns_provider: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium mb-1.5">{t('domains.status')}</label>
+                                    <select
+                                        className="form-select w-full"
+                                        value={formData.status}
+                                        onChange={e => setFormData({ ...formData, status: e.target.value })}
+                                    >
+                                        <option value="OK">{t('domains.statusOk')}</option>
+                                        <option value="Active">{t('domains.statusActive')}</option>
+                                        <option value="Disabled">{t('domains.statusDisabled')}</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div className="modal-footer mt-6">
+                                {!formData.id && (
+                                    <label className="inline-flex items-center gap-2 text-sm font-medium cursor-pointer mr-auto">
+                                        <input
+                                            type="checkbox"
+                                            checked={addMore}
+                                            onChange={e => setAddMore(e.target.checked)}
+                                        />
+                                        {t('domains.addMore')}
+                                    </label>
+                                )}
                                 <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary">{t('common.cancel')}</button>
-                                <button type="submit" className="btn btn-primary">{t('common.save')}</button>
+                                <button type="submit" className="btn btn-primary">{formData.id ? t('common.save') : t('common.add')}</button>
                             </div>
                         </form>
                     </div>
                 </div>
+            )}
+
+            {/* Domain groups: create/delete from inside the Add/Edit modal */}
+            {showGroupsModal && (
+                <GroupsModal
+                    type="domain"
+                    onClose={setShowGroupsModal}
+                    onGroupCreated={(g) => {
+                        fetchDomainGroups();
+                        if (g && g.id) setFormData(f => ({ ...f, group_id: String(g.id) }));
+                    }}
+                />
             )}
 
             {/* Namecheap: Register Domain */}
