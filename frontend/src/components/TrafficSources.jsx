@@ -265,15 +265,34 @@ const TrafficSources = ({ refreshData }) => {
             {showFilters && (
                 <div className="page-card" style={{ padding: '16px' }}>
                     <div className="flex flex-wrap gap-4 items-center">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2" size={18} style={{ color: 'var(--color-text-muted)' }} />
+                        <div className="relative min-w-[220px]">
+                            <Search 
+                                className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none select-none" 
+                                style={{ color: 'var(--color-text-muted)' }} 
+                            />
                             <input
                                 type="text"
-                                placeholder={t('sources.search')}
+                                placeholder={t('sources.search', 'Search sources...')}
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="form-input pl-10"
+                                className="form-input text-xs rounded-xl w-full pr-8 transition-all"
+                                style={{ 
+                                    paddingLeft: '36px',
+                                    backgroundColor: 'var(--color-bg-card)',
+                                    borderColor: 'var(--color-border)',
+                                    color: 'var(--color-text-primary)'
+                                }}
                             />
+                            {search && (
+                                <button
+                                    type="button"
+                                    onClick={() => setSearch('')}
+                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-[var(--color-text-muted)]"
+                                    title={t('common.clear', 'Clear')}
+                                >
+                                    <X className="w-3.5 h-3.5" />
+                                </button>
+                            )}
                         </div>
                         <select
                             value={stateFilter}

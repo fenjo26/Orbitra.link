@@ -1,4 +1,4 @@
-# Orbitra v1.0.0 Tracker
+# Orbitra v1.0.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -422,19 +422,14 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.0.0 (2026-08-17)
-- 🏗️ **LeadForge + CRM capsule** — forge ready-to-upload landing packages (order.php / thank_you.php served through the in-process bridge — static hosting works), collect leads in the built-in CRM (`crm_lead` creates the underlying click); LeadForge / Tracker / CRM switch from the navbar
-- 🎯 **TikTok Conversions API** — server-side events next to Facebook CAPI, both driven by pixel profiles (niche, events, test codes); schema v26 + migrations panel
-- 🔍 **Inline mini search** in Offers / Campaigns / Landings headers — live filter by name, URL, group, network and exact ID
-- 📄 **Universal table pagination** — Showing X-Y of N · Page Size 25/50/100/250/All (remembered across tables) · First/Prev/pages/Next/Last; TOTAL stays global over the filtered list
-- 📱 **Responsive fixes** — navbar stops clipping on 768–1280px laptops (xl breakpoint + full drawer), dashboard loses horizontal scroll (stat-card grid, fluid selectors)
-- 🔀 **Traffic source filter** in Campaigns — "All traffic sources" dropdown next to groups, instant client-side narrowing
-- ⚖️ **Stream weights, visible** — weight + live % badge on every stream header (By-weight rotation), total-weight bar with Split Evenly
-- ⚡ **Traffic Sources performance** — stats via a single-pass subquery instead of a full clicks JOIN; editor templates cached in-memory
-- 📋 **Copy works on HTTP/IP** — postback URL / campaign-link copies route through the execCommand fallback; the postback code block is click-to-copy
-- 📐 Carries the unreleased 0.9.9.2: universal CPV/EPV direct-vs-Lander semantics
+### Current release — v1.0.1 (2026-08-17)
+- 🎵 **1-Click TikTok For Business** — OAuth login from the Pixel Vault auto-discovers ad accounts and pixels, imports the pixels into the vault and sets up spend sync per selected cabinet; ~24h access tokens are refreshed automatically on every cost sync, and the fresh token propagates to the imported pixels
+- 🗂️ **Pixel Vault source tabs** — All / Facebook / TikTok / Google Ads… filter chips with live counts; pixel options in the campaign editor spell out their network
+- 📄 **TikTok Pixel snippet** — landing code that boots `ttq` from the `{pixel}` campaign parameter via cookie (Integrations → Sites & landings)
+- ⬜ **Fixed: Campaigns white screen** — TDZ crash on the traffic-source filter state shipped in 1.0.0
+- 🎨 **Fixed: dashboard stat cards** — breathing room above Traffic Dynamics, softer theme-safe active glow; clearer search input on Traffic Sources
 
-Previous release — v0.9.9.1: column grid in tracker tables, tabbed editors + modals fit the screen, clipboard fallback for HTTP/IP installs, campaign switch pauses linked Facebook campaigns, EPC/CPC per LP click, EPV metric.
+Previous release — v1.0.0: LeadForge landing forge + CRM capsule, TikTok Conversions API + pixel profiles, inline table search, universal pagination, traffic-source filter + visible stream weights, 0.9.9.2 funnel semantics.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

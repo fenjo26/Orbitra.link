@@ -75,6 +75,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         };
     }, [menuAnchor]);
 
+    // Group Filtering State — declared before the pagination-reset effect:
+    // its deps array evaluates during render and hits the TDZ otherwise.
+    const [groups, setGroups] = useState([]);
+    const [selectedGroupId, setSelectedGroupId] = useState('');
+    const [selectedSourceId, setSelectedSourceId] = useState('');
+
     // Any narrowing of the list must drop the user back to the first page,
     // or page 3 of yesterday's filter shows an empty slice.
     useEffect(() => {
@@ -169,11 +175,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const [dateFrom, setDateFrom] = useState(todayPreset?.from || formatDate(new Date()));
     const [dateTo, setDateTo] = useState(todayPreset?.to || formatDate(new Date()));
     const [timezone, setTimezone] = useState(() => localStorage.getItem('orbitra_tz') || 'UTC');
-
-    // Group Filtering State
-    const [groups, setGroups] = useState([]);
-    const [selectedGroupId, setSelectedGroupId] = useState('');
-    const [selectedSourceId, setSelectedSourceId] = useState('');
 
     // Active Campaign Data (fetched with date & group parameters)
     const [campaignList, setCampaignList] = useState(initialCampaigns || []);

@@ -1,6 +1,14 @@
-# Основные Функции Orbitra v1.0.0
+# Основные Функции Orbitra v1.0.1
 
 Полный обзор функциональности трекера Orbitra — современного аналога Keitaro Tracker.
+
+## 🆕 Новое в v1.0.1
+
+- **1-Click TikTok For Business** — OAuth-вход попапом из Pixel Vault (api.php `tiktok_oauth_start/callback/connect_accounts`, зеркало Facebook-флоу): авто-обнаружение кабинетов (`/oauth2/advertiser/get/`) и пикселей (`/pixel/list/`), чекбоксы кабинетов с интервалом синка расходов (движок `tiktok`), авто-импорт пикселей в хранилище; токен не покидает сервер (во попапе только flow_id).
+- **Авто-продление TikTok-токена** — access-токен TikTok живёт ~24 часа, refresh-токен одноразовый (год); `TikTokAdsEngine::ensureFreshToken()` продлевает токен на каждом тике синка расходов (крон и «Sync now»), обновляет все копии подключения того же логина и протягивает новый токен в pixel_profiles/campaign_pixels по совпадению старого; мёртвый refresh-токен роняет синк с внятной ошибкой.
+- **Табы источников в Pixel Vault** — чипы All / Facebook / TikTok / Google Ads… со счётчиками; в селекторе пикселя редактора кампании опции вида `pixel_id ( TikTok · Ниша / Имя )`.
+- **Сниппет TikTok Pixel** — Integrations → Sites & landings: cookie из параметра кампании `{pixel}` (шаблон источника TikTok, `__PIXEL__`) + загрузчик `ttq` для лендинга и thank-you.
+- **Фиксы** — белый экран Campaigns (TDZ стейта фильтра источников из v1.0.0), свечение активных карточек метрик через color-mix + отступ над Traffic Dynamics, поиск в Traffic Sources (иконка, крестик, стили карточки).
 
 ## 🆕 Новое в v1.0.0
 

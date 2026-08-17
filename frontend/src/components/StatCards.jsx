@@ -71,7 +71,7 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics,
     ];
 
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3 sm:gap-4 mt-6 mb-2 w-full">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3 sm:gap-4 mt-6 mb-8 w-full">
             {cards.filter(card => showCard(card.id)).map(card => (
                 <Card
                     key={card.id}
@@ -93,7 +93,10 @@ const Card = ({ title, value, isActive, onClick, colorVar }) => (
         style={{
             padding: '14px 16px',
             border: isActive ? `2px solid var(${colorVar})` : '2px solid transparent',
-            boxShadow: isActive ? `0 8px 25px var(${colorVar}, rgba(0,0,0,0.1))` : 'var(--shadow-main)'
+            boxShadow: isActive
+                ? `0 4px 14px color-mix(in srgb, var(${colorVar}) 25%, transparent)`
+                : 'var(--shadow-main)',
+            transform: isActive ? 'translateY(-1px)' : 'none'
         }}
     >
         <h3 className="text-[10px] sm:text-xs uppercase font-bold tracking-wider mb-1 truncate text-[var(--color-text-muted)]">{title}</h3>

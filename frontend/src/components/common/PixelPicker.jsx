@@ -42,6 +42,10 @@ export const PixelPicker = ({ label, value, profileId, trafficSource, resolveSer
         (profileId && String(profile.id) === String(profileId)) ||
         (!profileId && String(profile.pixel_id) === String(value || ''))
     );
+    // Vault profiles from several networks can appear in one unfiltered picker
+    // (the campaign editor), so each option spells out its source.
+    const sourceLabels = { facebook: 'Facebook', tiktok: 'TikTok', google_ads: 'Google Ads', snapchat: 'Snapchat', pinterest: 'Pinterest' };
+    const optionLabel = px => `${px.pixel_id} ( ${sourceLabels[px.traffic_source] || px.traffic_source || 'Facebook'} · ${px.niche || '—'} / ${px.name || '—'} )`;
 
     const showCustom = isCustom || (!!value && !matched && !profileId);
 
@@ -133,7 +137,7 @@ export const PixelPicker = ({ label, value, profileId, trafficSource, resolveSer
                     <option disabled>──────────────────</option>
                     {savedProfiles.map(px => (
                         <option key={px.id || px.pixel_id} value={String(px.id)}>
-                            {px.pixel_id} ( {px.niche || '—'} / {px.name || '—'} )
+                            {optionLabel(px)}
                         </option>
                     ))}
                     <option disabled>──────────────────</option>

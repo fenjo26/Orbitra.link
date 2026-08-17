@@ -173,7 +173,7 @@ function orbitraFacebookOAuthOrigin(): string
  *
  * @param array<string,mixed> $payload
  */
-function orbitraFacebookOAuthPopupResponse(array $payload, string $origin): void
+function orbitraFacebookOAuthPopupResponse(array $payload, string $origin, string $networkName = 'Facebook'): void
 {
     $nonce = base64_encode(random_bytes(18));
     $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
@@ -182,7 +182,7 @@ function orbitraFacebookOAuthPopupResponse(array $payload, string $origin): void
     }
     $target = json_encode($origin, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
     $isError = ($payload['status'] ?? 'error') !== 'success';
-    $title = $isError ? 'Facebook connection failed' : 'Facebook connected';
+    $title = $isError ? $networkName . ' connection failed' : $networkName . ' connected';
     $message = htmlspecialchars((string) ($payload['message'] ?? ($isError ? 'Return to Orbitra and try again.' : 'You can close this window.')), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
     header('Content-Type: text/html; charset=utf-8');
@@ -256,6 +256,128 @@ function orbitraFacebookNormalizeAccountId(string $accountId): string
         return '';
     }
     return 'act_' . $accountId;
+}
+
+// === TikTok for Business OAuth helpers ===
+
+/**
+ * TikTok app credentials for the 1-click flow. Precedence mirrors the Facebook
+ * helper: environment, then settings, then app_id/app_secret stored inside an
+ * existing tiktok aggregator connection (the optional fields of the engine).
+ *
+ * @return array{app_id:string,app_secret:string}
+ */
+function orbitraTikTokOAuthCredentials(PDO $pdo): array
+{
+    $appId = trim((string) (getenv('ORBITRA_TIKTOK_APP_ID') ?: ''));
+    $appSecret = trim((string) (getenv('ORBITRA_TIKTOK_APP_SECRET') ?: ''));
+
+    try {
+        $rows = $pdo->query("SELECT key, value FROM settings WHERE key IN ('tiktok_app_id','tiktok_app_secret')")
+            ->fetchAll(PDO::FETCH_KEY_PAIR);
+        if ($appId === '') {
+            $appId = trim((string) ($rows['tiktok_app_id'] ?? ''));
+        }
+        if ($appSecret === '') {
+            $appSecret = trim((string) ($rows['tiktok_app_secret'] ?? ''));
+        }
+    } catch (\Throwable $e) {
+        // A fresh/partial database can still use environment variables.
+    }
+
+    if ($appId === '' || $appSecret === '') {
+        try {
+            $stmt = $pdo->query("SELECT credentials_json FROM aggregator_connections WHERE engine = 'tiktok' ORDER BY id DESC");
+            foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $raw) {
+                $credentials = json_decode((string) $raw, true);
+                if (!is_array($credentials)) {
+                    continue;
+                }
+                if ($appId === '') {
+                    $appId = trim((string) ($credentials['app_id'] ?? ''));
+                }
+                if ($appSecret === '') {
+                    $appSecret = trim((string) ($credentials['app_secret'] ?? ''));
+                }
+                if ($appId !== '' && $appSecret !== '') {
+                    break;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Missing aggregator table is handled by the validation below.
+        }
+    }
+
+    if ($appId !== '' && !ctype_digit($appId)) {
+        $appId = '';
+    }
+
+    return ['app_id' => $appId, 'app_secret' => $appSecret];
+}
+
+/**
+ * Call a TikTok Business API v1.3 endpoint. TikTok reports failures inside an
+ * HTTP 200 with code != 0 — both shapes are normalized to a thrown exception.
+ *
+ * @param array<string,mixed>|null $json POST body; null for GET
+ * @return array<string,mixed> decoded response body
+ */
+function orbitraTikTokBusinessApi(string $method, string $path, array $query, ?array $json, string $accessToken, int $timeout = 25): array
+{
+    if (!function_exists('curl_init')) {
+        throw new RuntimeException('PHP cURL is required for TikTok OAuth.');
+    }
+    $url = 'https://business-api.tiktok.com/open_api/v1.3/' . ltrim($path, '/');
+    if ($query) {
+        $url .= '?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986);
+    }
+
+    $headers = ['Content-Type: application/json'];
+    if ($accessToken !== '') {
+        $headers[] = 'Access-Token: ' . $accessToken;
+    }
+
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    if (strtoupper($method) === 'POST') {
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($json ?? [], JSON_UNESCAPED_UNICODE));
+    }
+    $body = curl_exec($ch);
+    $statusCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+
+    if ($curlError !== '') {
+        throw new RuntimeException('TikTok HTTP transport error: ' . $curlError);
+    }
+    if (!is_string($body) || $body === '') {
+        throw new RuntimeException('TikTok returned an empty response.');
+    }
+    $decoded = json_decode($body, true);
+    if (!is_array($decoded)) {
+        throw new RuntimeException('TikTok returned an unreadable response.');
+    }
+    if ((int) ($decoded['code'] ?? -1) !== 0) {
+        // TikTok answers HTTP 200 with code != 0 on failure (GET and POST alike).
+        throw new RuntimeException(trim((string) ($decoded['message'] ?? 'TikTok API request failed.')) . ' (code ' . ($decoded['code'] ?? '?') . ')');
+    }
+
+    return $decoded;
+}
+
+/** Canonical TikTok advertiser id: digits only, TikTok ids never carry a prefix. */
+function orbitraTikTokNormalizeAdvertiserId(string $advertiserId): string
+{
+    $advertiserId = preg_replace('/[^0-9]/', '', trim($advertiserId));
+    if ($advertiserId === '' || strlen($advertiserId) > 32) {
+        return '';
+    }
+    return $advertiserId;
 }
 
 // === Cloudflare integration helpers ===
@@ -12900,6 +13022,385 @@ PHP;
             ]);
             break;
 
+        // Begin a popup-based TikTok for Business Login flow for automatic ad
+        // account + pixel discovery. Mirrors facebook_oauth_start; scope is
+        // omitted so the user grants exactly the permission set the app was
+        // approved for.
+        case 'tiktok_oauth_start':
+            if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+                echo json_encode(['status' => 'error', 'message' => 'GET required']);
+                break;
+            }
+
+            $origin = orbitraFacebookOAuthOrigin();
+            $oauthCredentials = orbitraTikTokOAuthCredentials($pdo);
+            if ($oauthCredentials['app_id'] === '' || $oauthCredentials['app_secret'] === '') {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.tiktok_oauth',
+                    'status' => 'error',
+                    'message' => 'TikTok OAuth is not configured. Set ORBITRA_TIKTOK_APP_ID and ORBITRA_TIKTOK_APP_SECRET on the server, or save App ID and App Secret in a manual TikTok connection.',
+                ], $origin, 'TikTok');
+            }
+
+            $now = time();
+            foreach ((array) ($_SESSION['tiktok_oauth_states'] ?? []) as $oldState => $details) {
+                if (!is_array($details) || (int) ($details['created_at'] ?? 0) < $now - 900) {
+                    unset($_SESSION['tiktok_oauth_states'][$oldState]);
+                }
+            }
+            foreach ((array) ($_SESSION['tiktok_oauth_flows'] ?? []) as $oldFlow => $details) {
+                if (!is_array($details) || (int) ($details['created_at'] ?? 0) < $now - 900) {
+                    unset($_SESSION['tiktok_oauth_flows'][$oldFlow]);
+                }
+            }
+
+            $state = bin2hex(random_bytes(32));
+            $redirectUri = $origin . '/api.php?action=tiktok_oauth_callback';
+            $_SESSION['tiktok_oauth_states'][$state] = [
+                'created_at' => $now,
+                'user_id' => (int) $_SESSION['user_id'],
+                'origin' => $origin,
+                'redirect_uri' => $redirectUri,
+            ];
+
+            $authUrl = 'https://ads.tiktok.com/marketing_api/auth?' . http_build_query([
+                'app_id' => $oauthCredentials['app_id'],
+                'redirect_uri' => $redirectUri,
+                'state' => $state,
+            ], '', '&', PHP_QUERY_RFC3986);
+            header('Cache-Control: no-store');
+            header('Location: ' . $authUrl, true, 302);
+            exit;
+
+        // Exchange the authorization code, discover every accessible advertiser
+        // account and its pixels, then hand only non-secret metadata to the opener
+        // window. The tokens stay server-side in the session flow.
+        case 'tiktok_oauth_callback':
+            if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+                echo json_encode(['status' => 'error', 'message' => 'GET required']);
+                break;
+            }
+
+            $origin = orbitraFacebookOAuthOrigin();
+            $state = trim((string) ($_GET['state'] ?? ''));
+            $storedState = $state !== '' ? ($_SESSION['tiktok_oauth_states'][$state] ?? null) : null;
+            if ($state !== '') {
+                unset($_SESSION['tiktok_oauth_states'][$state]);
+            }
+            if (!is_array($storedState)
+                || (int) ($storedState['created_at'] ?? 0) < time() - 900
+                || (int) ($storedState['user_id'] ?? 0) !== (int) $_SESSION['user_id']
+                || !hash_equals((string) ($storedState['origin'] ?? ''), $origin)) {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.tiktok_oauth',
+                    'status' => 'error',
+                    'message' => 'The TikTok authorization request expired or could not be verified. Please try again.',
+                ], $origin, 'TikTok');
+            }
+
+            if (!empty($_GET['error'])) {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.tiktok_oauth',
+                    'status' => 'error',
+                    'message' => trim((string) ($_GET['error_description'] ?? $_GET['error_reason'] ?? 'TikTok authorization was cancelled.')),
+                ], $origin, 'TikTok');
+            }
+
+            // The authorization endpoint documents auth_code, but older app
+            // configurations redirect with code — accept both spellings.
+            $authCode = trim((string) ($_GET['auth_code'] ?? $_GET['code'] ?? ''));
+            if ($authCode === '') {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.tiktok_oauth',
+                    'status' => 'error',
+                    'message' => 'TikTok did not return an authorization code.',
+                ], $origin, 'TikTok');
+            }
+
+            try {
+                $oauthCredentials = orbitraTikTokOAuthCredentials($pdo);
+                if ($oauthCredentials['app_id'] === '' || $oauthCredentials['app_secret'] === '') {
+                    throw new RuntimeException('TikTok OAuth app credentials are no longer available.');
+                }
+
+                $tokenResponse = orbitraTikTokBusinessApi('POST', '/oauth2/access_token/', [], [
+                    'app_id' => $oauthCredentials['app_id'],
+                    'secret' => $oauthCredentials['app_secret'],
+                    'auth_code' => $authCode,
+                ], '');
+                $tokenData = is_array($tokenResponse['data'] ?? null) ? $tokenResponse['data'] : [];
+                $accessToken = trim((string) ($tokenData['access_token'] ?? ''));
+                if ($accessToken === '') {
+                    throw new RuntimeException('TikTok did not return an access token.');
+                }
+                // TikTok access tokens live ~24h; the one-year refresh token is
+                // what keeps the connection alive (TikTokAdsEngine::ensureFreshToken).
+                $refreshToken = trim((string) ($tokenData['refresh_token'] ?? ''));
+                $tokenExpiresAt = time() + max(0, (int) ($tokenData['expires_in'] ?? 86400));
+                $refreshExpiresAt = (int) ($tokenData['refresh_token_expires_in'] ?? 0) > 0
+                    ? time() + (int) $tokenData['refresh_token_expires_in']
+                    : null;
+
+                $advertiserResponse = orbitraTikTokBusinessApi('GET', '/oauth2/advertiser/get/', [
+                    'app_id' => $oauthCredentials['app_id'],
+                    'secret' => $oauthCredentials['app_secret'],
+                ], null, $accessToken);
+                $advertiserList = $advertiserResponse['data']['list'] ?? [];
+                if (!is_array($advertiserList)) {
+                    $advertiserList = [];
+                }
+
+                $accounts = [];
+                foreach ($advertiserList as $advertiser) {
+                    if (!is_array($advertiser)) {
+                        continue;
+                    }
+                    $advertiserId = orbitraTikTokNormalizeAdvertiserId((string) ($advertiser['advertiser_id'] ?? ''));
+                    if ($advertiserId === '' || isset($accounts[$advertiserId])) {
+                        continue;
+                    }
+                    $accounts[$advertiserId] = [
+                        'id' => $advertiserId,
+                        'name' => substr(trim((string) ($advertiser['advertiser_name'] ?? '')) ?: $advertiserId, 0, 190),
+                        'currency' => strtoupper(trim((string) ($advertiser['currency'] ?? ''))),
+                        'timezone' => trim((string) ($advertiser['timezone'] ?? '')),
+                    ];
+                }
+
+                // Pixels are a bonus on top of the accounts: a failed pixel/list
+                // call for one cabinet must not kill the whole discovery.
+                $pixels = [];
+                foreach (array_slice($accounts, 0, 100, true) as $advertiserId => $account) {
+                    try {
+                        $pixelResponse = orbitraTikTokBusinessApi('GET', '/pixel/list/', [
+                            'advertiser_id' => $advertiserId,
+                            'page' => 1,
+                            'page_size' => 100,
+                        ], null, $accessToken);
+                        $pixelList = $pixelResponse['data']['pixels'] ?? $pixelResponse['data']['list'] ?? [];
+                        if (!is_array($pixelList)) {
+                            continue;
+                        }
+                        foreach ($pixelList as $pixel) {
+                            if (!is_array($pixel)) {
+                                continue;
+                            }
+                            $pixelId = trim((string) ($pixel['pixel_id'] ?? $pixel['code'] ?? ''));
+                            if ($pixelId === '' || isset($pixels[$pixelId])) {
+                                continue;
+                            }
+                            $pixels[$pixelId] = [
+                                'pixel_id' => $pixelId,
+                                'name' => substr(trim((string) ($pixel['pixel_name'] ?? $pixel['name'] ?? '')) ?: $pixelId, 0, 190),
+                                'advertiser_id' => $advertiserId,
+                                'advertiser_name' => $account['name'],
+                            ];
+                            if (count($pixels) >= 200) {
+                                break 2;
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        continue;
+                    }
+                }
+
+                $flowId = bin2hex(random_bytes(32));
+                $_SESSION['tiktok_oauth_flows'][$flowId] = [
+                    'created_at' => time(),
+                    'user_id' => (int) $_SESSION['user_id'],
+                    'access_token' => $accessToken,
+                    'refresh_token' => $refreshToken,
+                    'token_expires_at' => $tokenExpiresAt,
+                    'refresh_token_expires_at' => $refreshExpiresAt,
+                    'app_id' => $oauthCredentials['app_id'],
+                    'app_secret' => $oauthCredentials['app_secret'],
+                    'accounts' => $accounts,
+                    'pixels' => $pixels,
+                ];
+
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.tiktok_oauth',
+                    'status' => 'success',
+                    'flow_id' => $flowId,
+                    'accounts' => array_values($accounts),
+                    'pixels' => array_values($pixels),
+                    'message' => count($accounts) . ' TikTok ad account(s), ' . count($pixels) . ' pixel(s) found.',
+                ], $origin, 'TikTok');
+            } catch (\Throwable $e) {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.tiktok_oauth',
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ], $origin, 'TikTok');
+            }
+
+        // Save one spend-sync aggregator connection per selected TikTok account
+        // and auto-import the discovered pixels into the Pixel Vault. The flow_id
+        // references the browser OAuth flow; tokens never round-trip the client.
+        case 'tiktok_connect_accounts':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+
+            $data = json_decode(orbitraRequestBody(), true);
+            if (!is_array($data)) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid JSON body']);
+                break;
+            }
+
+            $now = time();
+            foreach ((array) ($_SESSION['tiktok_oauth_flows'] ?? []) as $oldFlow => $details) {
+                if (!is_array($details) || (int) ($details['created_at'] ?? 0) < $now - 900) {
+                    unset($_SESSION['tiktok_oauth_flows'][$oldFlow]);
+                }
+            }
+
+            $flowId = trim((string) ($data['flow_id'] ?? ''));
+            $flow = $flowId !== '' ? ($_SESSION['tiktok_oauth_flows'][$flowId] ?? null) : null;
+            if (!is_array($flow)
+                || (int) ($flow['created_at'] ?? 0) < $now - 900
+                || (int) ($flow['user_id'] ?? 0) !== (int) $_SESSION['user_id']) {
+                echo json_encode(['status' => 'error', 'message' => 'TikTok connection session expired. Please log in with TikTok again.']);
+                break;
+            }
+
+            $requestedAccounts = $data['accounts'] ?? [];
+            if (!is_array($requestedAccounts) || count($requestedAccounts) < 1 || count($requestedAccounts) > 500) {
+                echo json_encode(['status' => 'error', 'message' => 'Select between 1 and 500 TikTok ad accounts.']);
+                break;
+            }
+
+            $allowedAccounts = is_array($flow['accounts'] ?? null) ? $flow['accounts'] : [];
+            $selectedAccounts = [];
+            foreach ($requestedAccounts as $requested) {
+                if (!is_array($requested)) {
+                    continue;
+                }
+                $accountId = orbitraTikTokNormalizeAdvertiserId((string) ($requested['id'] ?? $requested['advertiser_id'] ?? ''));
+                if ($accountId === '' || !isset($allowedAccounts[$accountId])) {
+                    echo json_encode(['status' => 'error', 'message' => 'One or more selected accounts do not belong to this TikTok login.']);
+                    break 2;
+                }
+                $selectedAccounts[$accountId] = $allowedAccounts[$accountId];
+            }
+
+            if (!$selectedAccounts) {
+                echo json_encode(['status' => 'error', 'message' => 'No valid TikTok ad accounts were selected.']);
+                break;
+            }
+
+            $syncInterval = max(1, min(168, (int) ($data['sync_interval_hours'] ?? 2)));
+            $importPixels = !array_key_exists('import_pixels', $data) || filter_var($data['import_pixels'], FILTER_VALIDATE_BOOLEAN);
+            $token = trim((string) ($flow['access_token'] ?? ''));
+            if ($token === '' || strlen($token) > 8192) {
+                echo json_encode(['status' => 'error', 'message' => 'A valid TikTok access token is required.']);
+                break;
+            }
+
+            $created = 0;
+            $updated = 0;
+            $importedPixels = 0;
+            $skippedPixels = 0;
+            try {
+                $existing = [];
+                $stmt = $pdo->query("SELECT id, credentials_json FROM aggregator_connections WHERE engine = 'tiktok' ORDER BY id ASC");
+                foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                    $credentials = json_decode((string) ($row['credentials_json'] ?? ''), true);
+                    if (!is_array($credentials)) {
+                        continue;
+                    }
+                    $accountId = orbitraTikTokNormalizeAdvertiserId((string) ($credentials['advertiser_id'] ?? ''));
+                    if ($accountId !== '' && !isset($existing[$accountId])) {
+                        $existing[$accountId] = ['id' => (int) $row['id'], 'credentials' => $credentials];
+                    }
+                }
+
+                $pdo->beginTransaction();
+                $updateStmt = $pdo->prepare("UPDATE aggregator_connections SET name=?, auth_type='oauth', credentials_json=?, sync_interval_hours=?, is_active=1 WHERE id=?");
+                $insertStmt = $pdo->prepare("INSERT INTO aggregator_connections (name, engine, affiliate_network_id, auth_type, credentials_json, base_url, deal_type, baseline, click_id_param, field_mapping_json, sync_interval_hours, is_active) VALUES (?, 'tiktok', NULL, 'oauth', ?, '', 'cpa', 0, 'sub_id', '{}', ?, 1)");
+
+                foreach ($selectedAccounts as $accountId => $account) {
+                    $credentials = $existing[$accountId]['credentials'] ?? [];
+                    $credentials['access_token'] = $token;
+                    $credentials['advertiser_id'] = $accountId;
+                    $credentials['account_name'] = $account['name'];
+                    $credentials['currency'] = (string) ($account['currency'] ?? '');
+                    $credentials['timezone'] = (string) ($account['timezone'] ?? '');
+                    // App credentials are stored per connection so the 24h access
+                    // token can be refreshed by cron without re-resolving the app.
+                    $credentials['app_id'] = (string) ($flow['app_id'] ?? '');
+                    $credentials['app_secret'] = (string) ($flow['app_secret'] ?? '');
+                    $credentials['refresh_token'] = (string) ($flow['refresh_token'] ?? '');
+                    $credentials['token_expires_at'] = (int) ($flow['token_expires_at'] ?? 0);
+                    if (!empty($flow['refresh_token_expires_at'])) {
+                        $credentials['refresh_token_expires_at'] = (int) $flow['refresh_token_expires_at'];
+                    }
+                    $credentialsJson = json_encode($credentials, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+                    if (isset($existing[$accountId])) {
+                        $updateStmt->execute([$account['name'], $credentialsJson, $syncInterval, $existing[$accountId]['id']]);
+                        $updated++;
+                    } else {
+                        $insertStmt->execute([$account['name'], $credentialsJson, $syncInterval]);
+                        $created++;
+                    }
+                }
+
+                if ($importPixels) {
+                    $discoveredPixels = is_array($flow['pixels'] ?? null) ? $flow['pixels'] : [];
+                    $existingPixelStmt = $pdo->prepare("SELECT id FROM pixel_profiles WHERE traffic_source = 'tiktok' AND pixel_id = ? LIMIT 1");
+                    $insertPixelStmt = $pdo->prepare("INSERT INTO pixel_profiles (traffic_source, niche, name, pixel_id, token, events, is_active) VALUES ('tiktok', 'General', ?, ?, ?, 'PageView,SubmitForm,CompletePayment', 1)");
+                    foreach ($discoveredPixels as $pixel) {
+                        if (!is_array($pixel) || !isset($selectedAccounts[$pixel['advertiser_id'] ?? ''])) {
+                            continue;
+                        }
+                        $pixelId = trim((string) ($pixel['pixel_id'] ?? ''));
+                        if ($pixelId === '') {
+                            continue;
+                        }
+                        $existingPixelStmt->execute([$pixelId]);
+                        if ($existingPixelStmt->fetch()) {
+                            $skippedPixels++;
+                            continue;
+                        }
+                        $profileName = substr(trim((string) ($pixel['name'] ?? '')) !== ''
+                            ? $pixel['name'] . ' (' . $pixel['advertiser_name'] . ')'
+                            : 'TikTok pixel ' . $pixelId, 0, 190);
+                        $insertPixelStmt->execute([$profileName, $pixelId, $token]);
+                        $importedPixels++;
+                    }
+                }
+
+                $pdo->commit();
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Could not save TikTok ad accounts: ' . $e->getMessage()]);
+                break;
+            }
+
+            unset($_SESSION['tiktok_oauth_flows'][$flowId]);
+            logAudit($pdo, 'CREATE', 'TikTok OAuth Connections', null, [
+                'connected_count' => count($selectedAccounts),
+                'created_count' => $created,
+                'updated_count' => $updated,
+                'imported_pixels' => $importedPixels,
+            ]);
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'connected_count' => count($selectedAccounts),
+                    'created_count' => $created,
+                    'updated_count' => $updated,
+                    'imported_pixels' => $importedPixels,
+                    'skipped_pixels' => $skippedPixels,
+                ],
+            ]);
+            break;
+
         // Every Facebook pixel across all campaigns, for the Integrations page.
         // The token itself is never returned — only whether one is set, which is
         // what decides between "server-side on" and "browser pixel only".
@@ -13392,6 +13893,14 @@ PHP;
                             $startTime = microtime(true);
                             $credentials = json_decode($conn['credentials_json'] ?? '{}', true);
                             $fieldMapping = json_decode($conn['field_mapping_json'] ?? '{}', true);
+
+                            // TikTok OAuth access tokens live ~24h; refresh before use
+                            // (no-op for manual tokens with no refresh material). A dead
+                            // refresh token throws here so the log names the real problem
+                            // instead of "fetched 0 records".
+                            if (($conn['engine'] ?? '') === 'tiktok' && is_array($credentials)) {
+                                $credentials = TikTokAdsEngine::ensureFreshToken($pdo, $credentials);
+                            }
 
                             try {
                                 // Dispatch to correct engine

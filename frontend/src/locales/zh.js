@@ -345,8 +345,8 @@ export default {
         "terminal": "终端",
         "alternativeSqLite": "通过 SQLite 的替代方案：",
         "recoveryFooter": "修改密码后，您可以使用新密码登录。",
-        "cliPhp": "php api.php?action=reset_password&user=YOUR_LOGIN",
-        "cliSqlite": "sqlite3 Orbitra_db.sqlite“更新用户设置密码='new_password'，其中用户名='登录'”"
+        "cliPhp": "php cli/reset_password.php YOUR_LOGIN YOUR_NEW_PASSWORD",
+        "cliSqlite": "php -r \"require 'config.php'; \\$pdo->prepare('UPDATE users SET password=?, is_active=1 WHERE username=?')->execute([password_hash('NEW_PASSWORD', PASSWORD_DEFAULT), 'YOUR_LOGIN']);\""
     },
     "dashboard": {
         "today": "今天",
@@ -2099,6 +2099,7 @@ export default {
         "testEventSent": "测试事件已成功发送至 Meta！",
         "editPixel": "编辑像素配置",
         "allNiches": "所有分类",
+        "allSources": "全部",
         "search": "查找像素…",
         "token": "令牌",
         "duplicate": "复制",
@@ -2248,6 +2249,8 @@ export default {
         "jsBannerTitle": "JS广告（横幅）",
         "jsBannerDesc": "在您的网站上显示横幅或广告块。允许横幅拆分测试并跟踪点击/展示次数。",
         "pixelDesc": "在无法放置 JS 的第三方网站（例如，在电子邮件新闻通讯中）上跟踪页面浏览量或转化的最简单方法。",
+        "tiktokPixelTitle": "TikTok 像素",
+        "tiktokPixelDesc": "本地落地页上的浏览器端 TikTok 像素。像素 ID 通过 TikTok 流量源模板的 {pixel} 广告系列参数传入，并存入 Cookie 供感谢页使用。",
         "codeToInsert": "要在网站上插入的代码：",
         "copyCode": "复制代码",
         "copied": "复制了！",
@@ -2708,6 +2711,8 @@ export default {
         "fields": {
             "ttToken": "Access Token",
             "ttAdvertiser": "广告主 ID",
+            "ttAppId": "App ID（可选，用于 OAuth 令牌自动续期）",
+            "ttAppSecret": "App Secret（可选）",
             "fbToken": "访问令牌（长期 / 系统用户）",
             "fbAdAccount": "广告账户 ID",
             "fbApiVersion": "Facebook API 版本",
@@ -2715,6 +2720,25 @@ export default {
             "fbAppSecret": "App Secret（可选）",
             "proxy": "代理（可选）— scheme://user:pass@host:port"
         }
+    },
+    "tiktokCosts": {
+        "modalTitle": "TikTok 商业平台",
+        "oneClickTitle": "一键关联 TikTok",
+        "oneClickDesc": "使用 TikTok for Business 账号登录，Orbitra 将自动检索您的广告账户与像素，开启消耗同步并将像素导入 Pixel Vault。",
+        "loginWithTikTok": "使用 TikTok 登录",
+        "oauthConnecting": "正在连接 TikTok…",
+        "selectAccounts": "选择要关联的广告账户",
+        "discoveredPixels": "已发现的像素",
+        "importPixels": "将发现的像素导入 Pixel Vault",
+        "syncEvery": "消耗同步间隔",
+        "connectSelected": "保存并关联",
+        "connecting": "正在关联账户…",
+        "connectedAccounts": "已关联 {n} 个 TikTok 广告账户，导入 {m} 个像素。",
+        "oauthFailed": "TikTok 连接失败，请重试。",
+        "popupBlocked": "TikTok 登录窗口被拦截。请允许 Orbitra 的弹窗后重试。",
+        "noDiscoveredAccounts": "TikTok 登录成功，但未找到可访问的广告账户。",
+        "connectTikTok": "一键关联 TikTok 商业广告",
+        "connectTikTokHint": "通过 TikTok 登录：自动发现广告账户与像素，导入 Pixel Vault 并开启消耗自动同步"
     },
     "fbCosts": {
         "title": "Facebook Costs",

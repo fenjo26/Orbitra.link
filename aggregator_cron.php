@@ -186,6 +186,9 @@ foreach ($connections as $conn) {
             case 'tiktok':
                 if (file_exists(__DIR__ . '/aggregator_engines/TikTokAdsEngine.php')) {
                     require_once __DIR__ . '/aggregator_engines/TikTokAdsEngine.php';
+                    // OAuth-токен TikTok живёт ~24 часа — продлеваем перед синком.
+                    // Ручным подключениям без refresh-токена это no-op.
+                    $credentials = TikTokAdsEngine::ensureFreshToken($pdo, is_array($credentials) ? $credentials : []);
                     $records = TikTokAdsEngine::fetchRecords($credentials, $connDateFrom, $connDateTo, $fieldMapping);
                     $isCostEngine = true;
                 }

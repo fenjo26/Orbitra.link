@@ -345,8 +345,8 @@ export default {
         "terminal": "terminales",
         "alternativeSqLite": "Alternativa a través de SQLite:",
         "recoveryFooter": "Después de cambiar la contraseña, puede iniciar sesión con la nueva contraseña.",
-        "cliPhp": "php api.php?action=reset_password&user=TU_INICIO DE SESIÓN",
-        "cliSqlite": "sqlite3 orbitra_db.sqlite \"ACTUALIZAR usuarios ESTABLECER contraseña='nueva_contraseña' DONDE nombre de usuario='iniciar sesión'\""
+        "cliPhp": "php cli/reset_password.php YOUR_LOGIN YOUR_NEW_PASSWORD",
+        "cliSqlite": "php -r \"require 'config.php'; \\$pdo->prepare('UPDATE users SET password=?, is_active=1 WHERE username=?')->execute([password_hash('NEW_PASSWORD', PASSWORD_DEFAULT), 'YOUR_LOGIN']);\""
     },
     "dashboard": {
         "today": "hoy",
@@ -2099,6 +2099,7 @@ export default {
         "testEventSent": "¡Evento de prueba enviado a Meta con éxito!",
         "editPixel": "Editar perfil de píxel",
         "allNiches": "Todos los nichos",
+        "allSources": "Todos",
         "search": "Buscar píxel…",
         "token": "Token",
         "duplicate": "Duplicar",
@@ -2248,6 +2249,8 @@ export default {
         "jsBannerTitle": "Publicidad JS (Banner)",
         "jsBannerDesc": "Muestra banners o bloques de anuncios en su sitio web. Permite realizar pruebas de división de banners y realizar un seguimiento de los clics/impresiones.",
         "pixelDesc": "La forma más sencilla de realizar un seguimiento de las visitas a páginas o las conversiones en sitios de terceros donde no se puede colocar JS (por ejemplo, en boletines informativos por correo electrónico).",
+        "tiktokPixelTitle": "Píxel de TikTok",
+        "tiktokPixelDesc": "Píxel de TikTok en el navegador para landings locales. La ID del píxel llega en el parámetro de campaña {pixel} de la plantilla de fuente TikTok y se guarda en una cookie para la página de agradecimiento.",
         "codeToInsert": "Código para insertar en el sitio:",
         "copyCode": "Copiar código",
         "copied": "¡Copiado!",
@@ -2708,6 +2711,8 @@ export default {
         "fields": {
             "ttToken": "Access Token",
             "ttAdvertiser": "Advertiser ID",
+            "ttAppId": "App ID (opcional, mantiene el auto-refresco del token OAuth)",
+            "ttAppSecret": "App Secret (opcional)",
             "fbToken": "Access Token (de larga duración / usuario de sistema)",
             "fbAdAccount": "ID de la cuenta publicitaria",
             "fbApiVersion": "Versión de la API de Facebook",
@@ -2715,6 +2720,25 @@ export default {
             "fbAppSecret": "App Secret (opcional)",
             "proxy": "Proxy (opcional) — scheme://user:pass@host:port"
         }
+    },
+    "tiktokCosts": {
+        "modalTitle": "TikTok For Business",
+        "oneClickTitle": "Integración con TikTok en 1 clic",
+        "oneClickDesc": "Inicia sesión con tu cuenta de TikTok For Business. Orbitra descubrirá automáticamente tus cuentas publicitarias y píxeles, activará la sincronización de gastos e importará los píxeles al Pixel Vault.",
+        "loginWithTikTok": "Iniciar sesión con TikTok",
+        "oauthConnecting": "Conectando con TikTok…",
+        "selectAccounts": "Selecciona cuentas publicitarias para conectar",
+        "discoveredPixels": "Píxeles encontrados",
+        "importPixels": "Importar los píxeles encontrados al Pixel Vault",
+        "syncEvery": "Actualizar gastos cada",
+        "connectSelected": "Guardar y conectar",
+        "connecting": "Conectando cuentas…",
+        "connectedAccounts": "Se conectaron {n} cuenta(s) de TikTok Ads, se importaron {m} píxel(es).",
+        "oauthFailed": "No se pudo conectar TikTok. Inténtalo de nuevo.",
+        "popupBlocked": "La ventana de inicio de sesión de TikTok fue bloqueada. Permite las ventanas emergentes para Orbitra e inténtalo de nuevo.",
+        "noDiscoveredAccounts": "El inicio de sesión en TikTok funcionó, pero no se encontraron cuentas publicitarias accesibles.",
+        "connectTikTok": "Conectar TikTok For Business",
+        "connectTikTokHint": "Inicio de sesión con TikTok — detecta cuentas y píxeles, los importa al Pixel Vault y activa la sincronización automática de gastos"
     },
     "fbCosts": {
         "title": "Facebook Costs",

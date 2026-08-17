@@ -7,6 +7,50 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.1] — 2026-08-17
+
+TikTok gets the same 1-click entry Facebook has, plus fixes for the 1.0.0
+follow-ups found in the field.
+
+### Added
+- 🎵 **1-Click TikTok for Business (OAuth 2.0)** — a popup login from the
+  Pixel Vault discovers every accessible ad account and pixel
+  (`/oauth2/advertiser/get/`, `/pixel/list/`), auto-imports the pixels into
+  the vault and saves one spend-sync connection per selected cabinet
+  (engine `tiktok`, checkboxes + sync interval). Tokens never reach the
+  browser: the popup only carries an opaque flow id, mirroring the Facebook
+  flow.
+- 🔄 **Automatic TikTok token refresh** — TikTok access tokens live ~24h and
+  the refresh token is single-use; `TikTokAdsEngine::ensureFreshToken()`
+  refreshes on every scheduled/manual cost sync, writes the new pair to all
+  sibling connections of the same login and propagates the access token to
+  the imported pixel profiles and campaign pixel copies (old-token match).
+  A dead refresh token throws, so the sync log names the real reason.
+- 🗂️ **Pixel Vault source tabs** — All / Facebook / TikTok / Google Ads…
+  filter chips with live counts, next to the existing niche filter.
+- 🎯 **Pixel options name their network** — the campaign editor's pixel
+  picker shows `pixel_id ( TikTok · Nutra / Name )`, so mixed-network vaults
+  stay distinguishable.
+- 📄 **TikTok Pixel snippet** — ready-made landing code in the Integrations
+  library: the `{pixel}` campaign parameter (TikTok source template's
+  `__PIXEL__`) is stored in a cookie and boots `ttq` on the landing or
+  thank-you page.
+- ⚙️ Optional App ID / App Secret fields on TikTok cost connections — they
+  authorize the app for 1-click login and keep token refresh working
+  (env `ORBITRA_TIKTOK_APP_ID`/`_APP_SECRET` also honoured).
+
+### Fixed
+- ⬜ **Campaigns white screen (TDZ)** — shipped in 1.0.0: the
+  traffic-source filter state sat in an effect's dependency array above its
+  `const` declarations, so every visit to Campaigns threw
+  *Cannot access 'selectedGroupId' before initialization*. The state block
+  moved above the pagination-reset effect.
+- 🎨 **Dashboard stat cards** — 32px of air above Traffic Dynamics, active
+  glow softened to `color-mix(… 25%, transparent)` with a 1px lift,
+  theme-safe across all 5 themes.
+- 🔍 **Traffic Sources search** — clearer icon sizing, a clear button and
+  card-consistent input styling.
+
 ## [1.0.0] — 2026-08-17
 
 The 1.0 milestone: Orbitra grows from a click tracker into a full funnel

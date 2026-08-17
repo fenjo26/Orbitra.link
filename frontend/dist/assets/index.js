@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1V = [
+const __iconNode$1W = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$1V = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1V);
-const __iconNode$1U = [
+const Activity = createLucideIcon("activity", __iconNode$1W);
+const __iconNode$1V = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1U);
-const __iconNode$1T = [
+const Archive = createLucideIcon("archive", __iconNode$1V);
+const __iconNode$1U = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1T);
-const __iconNode$1S = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1U);
+const __iconNode$1T = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1S);
-const __iconNode$1R = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1T);
+const __iconNode$1S = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1R);
-const __iconNode$1Q = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1S);
+const __iconNode$1R = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$1Q = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1Q);
-const __iconNode$1P = [
+const BellOff = createLucideIcon("bell-off", __iconNode$1R);
+const __iconNode$1Q = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$1P = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1P);
-const __iconNode$1O = [
+const Bell = createLucideIcon("bell", __iconNode$1Q);
+const __iconNode$1P = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1O);
-const __iconNode$1N = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$1P);
+const __iconNode$1O = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1N);
-const __iconNode$1M = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1O);
+const __iconNode$1N = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1M);
-const __iconNode$1L = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1N);
+const __iconNode$1M = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$1L = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1L);
-const __iconNode$1K = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1K);
-const __iconNode$1J = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1J);
-const __iconNode$1I = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1I);
-const __iconNode$1H = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1H);
-const __iconNode$1G = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1G);
-const __iconNode$1F = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1M);
+const __iconNode$1L = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1L);
+const __iconNode$1K = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1K);
+const __iconNode$1J = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1J);
+const __iconNode$1I = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1I);
+const __iconNode$1H = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1H);
+const __iconNode$1G = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1F);
-const __iconNode$1E = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1G);
+const __iconNode$1F = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1E);
-const __iconNode$1D = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1F);
+const __iconNode$1E = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1D);
-const __iconNode$1C = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1E);
+const __iconNode$1D = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1C);
-const __iconNode$1B = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1D);
+const __iconNode$1C = [
   [
     "path",
     {
@@ -15240,50 +15240,50 @@ const __iconNode$1B = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1B);
-const __iconNode$1A = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1C);
+const __iconNode$1B = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1A);
-const __iconNode$1z = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1B);
+const __iconNode$1A = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1z);
-const __iconNode$1y = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1A);
+const __iconNode$1z = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1y);
-const __iconNode$1x = [
+const Clock = createLucideIcon("clock", __iconNode$1z);
+const __iconNode$1y = [
   ["path", { d: "M12 13v8", key: "1l5pq0" }],
   ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
   ["path", { d: "m8 17 4-4 4 4", key: "1quai1" }]
 ];
-const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1x);
-const __iconNode$1w = [
+const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1y);
+const __iconNode$1x = [
   ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1w);
-const __iconNode$1v = [
+const Cloud = createLucideIcon("cloud", __iconNode$1x);
+const __iconNode$1w = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1v);
-const __iconNode$1u = [
+const Code = createLucideIcon("code", __iconNode$1w);
+const __iconNode$1v = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M12 3v18", key: "108xh3" }]
 ];
-const Columns2 = createLucideIcon("columns-2", __iconNode$1u);
-const __iconNode$1t = [
+const Columns2 = createLucideIcon("columns-2", __iconNode$1v);
+const __iconNode$1u = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1t);
-const __iconNode$1s = [
+const Copy = createLucideIcon("copy", __iconNode$1u);
+const __iconNode$1t = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15299,25 +15299,25 @@ const __iconNode$1s = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1s);
-const __iconNode$1r = [
+const Cpu = createLucideIcon("cpu", __iconNode$1t);
+const __iconNode$1s = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1r);
-const __iconNode$1q = [
+const Database = createLucideIcon("database", __iconNode$1s);
+const __iconNode$1r = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$1q);
-const __iconNode$1p = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1r);
+const __iconNode$1q = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$1p);
-const __iconNode$1o = [
+const Download = createLucideIcon("download", __iconNode$1q);
+const __iconNode$1p = [
   [
     "path",
     {
@@ -15326,20 +15326,20 @@ const __iconNode$1o = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$1o);
-const __iconNode$1n = [
+const Droplet = createLucideIcon("droplet", __iconNode$1p);
+const __iconNode$1o = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1n);
-const __iconNode$1m = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1o);
+const __iconNode$1n = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$1m);
-const __iconNode$1l = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$1n);
+const __iconNode$1m = [
   [
     "path",
     {
@@ -15357,8 +15357,8 @@ const __iconNode$1l = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$1l);
-const __iconNode$1k = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$1m);
+const __iconNode$1l = [
   [
     "path",
     {
@@ -15368,8 +15368,8 @@ const __iconNode$1k = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$1k);
-const __iconNode$1j = [
+const Eye = createLucideIcon("eye", __iconNode$1l);
+const __iconNode$1k = [
   [
     "path",
     {
@@ -15383,8 +15383,8 @@ const __iconNode$1j = [
   ["path", { d: "M8 7V6", key: "1nbb54" }],
   ["circle", { cx: "8", cy: "20", r: "2", key: "ckkr5m" }]
 ];
-const FileArchive = createLucideIcon("file-archive", __iconNode$1j);
-const __iconNode$1i = [
+const FileArchive = createLucideIcon("file-archive", __iconNode$1k);
+const __iconNode$1j = [
   [
     "path",
     {
@@ -15396,8 +15396,8 @@ const __iconNode$1i = [
   ["path", { d: "M10 12.5 8 15l2 2.5", key: "1tg20x" }],
   ["path", { d: "m14 12.5 2 2.5-2 2.5", key: "yinavb" }]
 ];
-const FileCode = createLucideIcon("file-code", __iconNode$1i);
-const __iconNode$1h = [
+const FileCode = createLucideIcon("file-code", __iconNode$1j);
+const __iconNode$1i = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15408,8 +15408,8 @@ const __iconNode$1h = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$1h);
-const __iconNode$1g = [
+const FileStack = createLucideIcon("file-stack", __iconNode$1i);
+const __iconNode$1h = [
   [
     "path",
     {
@@ -15422,8 +15422,8 @@ const __iconNode$1g = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$1g);
-const __iconNode$1f = [
+const FileText = createLucideIcon("file-text", __iconNode$1h);
+const __iconNode$1g = [
   [
     "path",
     {
@@ -15432,22 +15432,22 @@ const __iconNode$1f = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$1f);
-const __iconNode$1e = [
+const Funnel = createLucideIcon("funnel", __iconNode$1g);
+const __iconNode$1f = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$1e);
-const __iconNode$1d = [
+const Globe = createLucideIcon("globe", __iconNode$1f);
+const __iconNode$1e = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }],
   ["path", { d: "M9 3v18", key: "fh3hqa" }],
   ["path", { d: "M15 3v18", key: "14nvp0" }]
 ];
-const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1d);
-const __iconNode$1c = [
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1e);
+const __iconNode$1d = [
   ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
   ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
   ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
@@ -15455,8 +15455,8 @@ const __iconNode$1c = [
   ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
   ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
 ];
-const GripVertical = createLucideIcon("grip-vertical", __iconNode$1c);
-const __iconNode$1b = [
+const GripVertical = createLucideIcon("grip-vertical", __iconNode$1d);
+const __iconNode$1c = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15468,8 +15468,8 @@ const __iconNode$1b = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$1b);
-const __iconNode$1a = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$1c);
+const __iconNode$1b = [
   [
     "path",
     {
@@ -15478,20 +15478,20 @@ const __iconNode$1a = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$1a);
-const __iconNode$19 = [
+const Heart = createLucideIcon("heart", __iconNode$1b);
+const __iconNode$1a = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$19);
-const __iconNode$18 = [
+const Image = createLucideIcon("image", __iconNode$1a);
+const __iconNode$19 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$18);
-const __iconNode$17 = [
+const Info = createLucideIcon("info", __iconNode$19);
+const __iconNode$18 = [
   [
     "path",
     {
@@ -15501,14 +15501,14 @@ const __iconNode$17 = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$17);
-const __iconNode$16 = [
+const KeyRound = createLucideIcon("key-round", __iconNode$18);
+const __iconNode$17 = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$16);
-const __iconNode$15 = [
+const Key = createLucideIcon("key", __iconNode$17);
+const __iconNode$16 = [
   [
     "path",
     {
@@ -15531,28 +15531,28 @@ const __iconNode$15 = [
     }
   ]
 ];
-const Layers = createLucideIcon("layers", __iconNode$15);
-const __iconNode$14 = [
+const Layers = createLucideIcon("layers", __iconNode$16);
+const __iconNode$15 = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$14);
-const __iconNode$13 = [
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$15);
+const __iconNode$14 = [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
   ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
   ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
 ];
-const LayoutGrid = createLucideIcon("layout-grid", __iconNode$13);
-const __iconNode$12 = [
+const LayoutGrid = createLucideIcon("layout-grid", __iconNode$14);
+const __iconNode$13 = [
   ["rect", { width: "18", height: "7", x: "3", y: "3", rx: "1", key: "f1a2em" }],
   ["rect", { width: "9", height: "7", x: "3", y: "14", rx: "1", key: "jqznyg" }],
   ["rect", { width: "5", height: "7", x: "16", y: "14", rx: "1", key: "q5h2i8" }]
 ];
-const LayoutTemplate = createLucideIcon("layout-template", __iconNode$12);
-const __iconNode$11 = [
+const LayoutTemplate = createLucideIcon("layout-template", __iconNode$13);
+const __iconNode$12 = [
   [
     "path",
     {
@@ -15563,19 +15563,19 @@ const __iconNode$11 = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$11);
-const __iconNode$10 = [
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$12);
+const __iconNode$11 = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-const Link2 = createLucideIcon("link-2", __iconNode$10);
-const __iconNode$$ = [
+const Link2 = createLucideIcon("link-2", __iconNode$11);
+const __iconNode$10 = [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ];
-const Link = createLucideIcon("link", __iconNode$$);
-const __iconNode$_ = [
+const Link = createLucideIcon("link", __iconNode$10);
+const __iconNode$$ = [
   ["path", { d: "M12 2v4", key: "3427ic" }],
   ["path", { d: "m16.2 7.8 2.9-2.9", key: "r700ao" }],
   ["path", { d: "M18 12h4", key: "wj9ykh" }],
@@ -15585,24 +15585,24 @@ const __iconNode$_ = [
   ["path", { d: "M2 12h4", key: "j09sii" }],
   ["path", { d: "m4.9 4.9 2.9 2.9", key: "giyufr" }]
 ];
-const Loader = createLucideIcon("loader", __iconNode$_);
-const __iconNode$Z = [
+const Loader = createLucideIcon("loader", __iconNode$$);
+const __iconNode$_ = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$Z);
-const __iconNode$Y = [
+const Lock = createLucideIcon("lock", __iconNode$_);
+const __iconNode$Z = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$Y);
-const __iconNode$X = [
+const LogOut = createLucideIcon("log-out", __iconNode$Z);
+const __iconNode$Y = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Mail = createLucideIcon("mail", __iconNode$X);
-const __iconNode$W = [
+const Mail = createLucideIcon("mail", __iconNode$Y);
+const __iconNode$X = [
   [
     "path",
     {
@@ -15612,8 +15612,8 @@ const __iconNode$W = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$W);
-const __iconNode$V = [
+const MapPin = createLucideIcon("map-pin", __iconNode$X);
+const __iconNode$W = [
   [
     "path",
     {
@@ -15624,21 +15624,21 @@ const __iconNode$V = [
   ["path", { d: "M15 5.764v15", key: "1pn4in" }],
   ["path", { d: "M9 3.236v15", key: "1uimfh" }]
 ];
-const Map$1 = createLucideIcon("map", __iconNode$V);
-const __iconNode$U = [
+const Map$1 = createLucideIcon("map", __iconNode$W);
+const __iconNode$V = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "m21 3-7 7", key: "1l2asr" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M9 21H3v-6", key: "wtvkvv" }]
 ];
-const Maximize2 = createLucideIcon("maximize-2", __iconNode$U);
-const __iconNode$T = [
+const Maximize2 = createLucideIcon("maximize-2", __iconNode$V);
+const __iconNode$U = [
   ["path", { d: "M4 5h16", key: "1tepv9" }],
   ["path", { d: "M4 12h16", key: "1lakjw" }],
   ["path", { d: "M4 19h16", key: "1djgab" }]
 ];
-const Menu = createLucideIcon("menu", __iconNode$T);
-const __iconNode$S = [
+const Menu = createLucideIcon("menu", __iconNode$U);
+const __iconNode$T = [
   [
     "path",
     {
@@ -15647,8 +15647,8 @@ const __iconNode$S = [
     }
   ]
 ];
-const MessageCircle = createLucideIcon("message-circle", __iconNode$S);
-const __iconNode$R = [
+const MessageCircle = createLucideIcon("message-circle", __iconNode$T);
+const __iconNode$S = [
   [
     "path",
     {
@@ -15657,21 +15657,21 @@ const __iconNode$R = [
     }
   ]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$R);
-const __iconNode$Q = [
+const MessageSquare = createLucideIcon("message-square", __iconNode$S);
+const __iconNode$R = [
   ["path", { d: "m14 10 7-7", key: "oa77jy" }],
   ["path", { d: "M20 10h-6V4", key: "mjg0md" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M4 14h6v6", key: "rmj7iw" }]
 ];
-const Minimize2 = createLucideIcon("minimize-2", __iconNode$Q);
-const __iconNode$P = [
+const Minimize2 = createLucideIcon("minimize-2", __iconNode$R);
+const __iconNode$Q = [
   ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
   ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
   ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
 ];
-const Monitor = createLucideIcon("monitor", __iconNode$P);
-const __iconNode$O = [
+const Monitor = createLucideIcon("monitor", __iconNode$Q);
+const __iconNode$P = [
   [
     "path",
     {
@@ -15680,7 +15680,12 @@ const __iconNode$O = [
     }
   ]
 ];
-const Moon = createLucideIcon("moon", __iconNode$O);
+const Moon = createLucideIcon("moon", __iconNode$P);
+const __iconNode$O = [
+  ["circle", { cx: "8", cy: "18", r: "4", key: "1fc0mg" }],
+  ["path", { d: "M12 18V2l7 4", key: "g04rme" }]
+];
+const Music2 = createLucideIcon("music-2", __iconNode$O);
 const __iconNode$N = [
   ["path", { d: "M12 22v-9", key: "x3hkom" }],
   [
@@ -16500,8 +16505,8 @@ const ru = {
     "terminal": "Терминал",
     "alternativeSqLite": "Альтернатива через SQLite:",
     "recoveryFooter": "После изменения пароля вы сможете войти с новым паролем.",
-    "cliPhp": "php api.php?action=reset_password&user=YOUR_LOGIN",
-    "cliSqlite": `sqlite3 orbitra_db.sqlite "UPDATE users SET password='new_password' WHERE username='login'"`
+    "cliPhp": "php cli/reset_password.php YOUR_LOGIN YOUR_NEW_PASSWORD",
+    "cliSqlite": `php -r "require 'config.php'; \\$pdo->prepare('UPDATE users SET password=?, is_active=1 WHERE username=?')->execute([password_hash('NEW_PASSWORD', PASSWORD_DEFAULT), 'YOUR_LOGIN']);"`
   },
   "dashboard": {
     "today": "Сегодня",
@@ -18336,6 +18341,8 @@ const ru = {
     "jsBannerDesc": "Выводит баннеры или блоки с рекламой на ваш сайт. Позволяет сплитовать баннеры и отслеживать клики/показы.",
     "jsBannerTitle": "JS-реклама (Баннер)",
     "pixelDesc": "Самый простой способ отследить показ страницы или конверсию на стороннем сайте, где нельзя разместить JS (например, в email-рассылке).",
+    "tiktokPixelTitle": "TikTok Пиксель",
+    "tiktokPixelDesc": "Браузерный пиксель TikTok на локальных лендингах. ID пикселя приходит в параметре кампании {pixel} из шаблона источника TikTok и сохраняется в cookie для страницы благодарности.",
     "codeToInsert": "Код для вставки на сайт:",
     "copyCode": "Копировать код",
     "copied": "Скопировано!",
@@ -18467,6 +18474,7 @@ const ru = {
     "testEventSent": "Тестовое событие успешно отправлено в Meta!",
     "editPixel": "Редактировать профиль пикселя",
     "allNiches": "Все ниши",
+    "allSources": "Все",
     "search": "Найти пиксель…",
     "token": "Токен",
     "duplicate": "Дублировать",
@@ -18861,6 +18869,8 @@ const ru = {
     "fields": {
       "ttToken": "Access Token",
       "ttAdvertiser": "Advertiser ID (ID кабинета)",
+      "ttAppId": "App ID (опционально, нужен для авто-продления OAuth-токена)",
+      "ttAppSecret": "App Secret (опционально)",
       "fbToken": "Access Token (long-lived / system user)",
       "fbAdAccount": "ID рекламного кабинета",
       "fbApiVersion": "Версия Facebook API",
@@ -18868,6 +18878,25 @@ const ru = {
       "fbAppSecret": "App Secret (опционально)",
       "proxy": "Прокси (опционально) — scheme://user:pass@host:port"
     }
+  },
+  "tiktokCosts": {
+    "modalTitle": "TikTok For Business",
+    "oneClickTitle": "1-Click интеграция с TikTok",
+    "oneClickDesc": "Войдите в аккаунт TikTok For Business — Orbitra автоматически найдёт рекламные кабинеты и пиксели, включит синхронизацию расходов и импортирует пиксели в Pixel Vault.",
+    "loginWithTikTok": "Войти через TikTok",
+    "oauthConnecting": "Подключение к TikTok…",
+    "selectAccounts": "Выберите кабинеты для подключения",
+    "discoveredPixels": "Найденные пиксели",
+    "importPixels": "Импортировать найденные пиксели в Pixel Vault",
+    "syncEvery": "Обновлять расходы каждые",
+    "connectSelected": "Сохранить и подключить",
+    "connecting": "Подключение кабинетов…",
+    "connectedAccounts": "Подключено кабинетов TikTok: {n}, импортировано пикселей: {m}.",
+    "oauthFailed": "Не удалось подключить TikTok. Попробуйте ещё раз.",
+    "popupBlocked": "Окно входа TikTok заблокировано. Разрешите всплывающие окна для Orbitra и попробуйте снова.",
+    "noDiscoveredAccounts": "Вход в TikTok выполнен, но доступных рекламных кабинетов не найдено.",
+    "connectTikTok": "Подключить TikTok For Business",
+    "connectTikTokHint": "Вход через TikTok — авто-обнаружение кабинетов и пикселей, импорт в Pixel Vault и автоматическая синхронизация расходов"
   },
   "fbCosts": {
     "title": "Facebook Costs",
@@ -19531,8 +19560,8 @@ const en = {
     "terminal": "Terminal",
     "alternativeSqLite": "Alternative via SQLite:",
     "recoveryFooter": "After changing the password, you can log in with the new password.",
-    "cliPhp": "php api.php?action=reset_password&user=YOUR_LOGIN",
-    "cliSqlite": `sqlite3 orbitra_db.sqlite "UPDATE users SET password='new_password' WHERE username='login'"`
+    "cliPhp": "php cli/reset_password.php YOUR_LOGIN YOUR_NEW_PASSWORD",
+    "cliSqlite": `php -r "require 'config.php'; \\$pdo->prepare('UPDATE users SET password=?, is_active=1 WHERE username=?')->execute([password_hash('NEW_PASSWORD', PASSWORD_DEFAULT), 'YOUR_LOGIN']);"`
   },
   "dashboard": {
     "today": "Today",
@@ -21283,6 +21312,7 @@ const en = {
     "testEventSent": "Test event sent successfully!",
     "editPixel": "Edit Pixel Profile",
     "allNiches": "All Niches",
+    "allSources": "All",
     "search": "Find a pixel…",
     "token": "Token",
     "duplicate": "Duplicate",
@@ -21432,6 +21462,8 @@ const en = {
     "jsBannerTitle": "JS Advertising (Banner)",
     "jsBannerDesc": "Displays banners or ad blocks on your website. Allows banner split testing and tracks clicks/impressions.",
     "pixelDesc": "The simplest way to track page views or conversions on third-party sites where JS cannot be placed (e.g., in email newsletters).",
+    "tiktokPixelTitle": "TikTok Pixel",
+    "tiktokPixelDesc": "Browser TikTok Pixel on local landings. The pixel id arrives in the {pixel} campaign parameter from the TikTok source template and is stored in a cookie for the thank-you page.",
     "codeToInsert": "Code to insert on site:",
     "copyCode": "Copy Code",
     "copied": "Copied!",
@@ -21892,6 +21924,8 @@ const en = {
     "fields": {
       "ttToken": "Access Token",
       "ttAdvertiser": "Advertiser ID",
+      "ttAppId": "App ID (optional, keeps OAuth auto-refresh working)",
+      "ttAppSecret": "App Secret (optional)",
       "fbToken": "Access Token (long-lived / system user)",
       "fbAdAccount": "Ad Account ID",
       "fbApiVersion": "Facebook API version",
@@ -21899,6 +21933,25 @@ const en = {
       "fbAppSecret": "App Secret (optional)",
       "proxy": "Proxy (optional) — scheme://user:pass@host:port"
     }
+  },
+  "tiktokCosts": {
+    "modalTitle": "TikTok For Business",
+    "oneClickTitle": "1-Click TikTok Integration",
+    "oneClickDesc": "Log in with your TikTok for Business account. Orbitra will automatically discover your ad accounts and pixels, set up spend sync and import the pixels into the Pixel Vault.",
+    "loginWithTikTok": "Log in with TikTok",
+    "oauthConnecting": "Connecting to TikTok…",
+    "selectAccounts": "Select Ad Accounts to Connect",
+    "discoveredPixels": "Discovered pixels",
+    "importPixels": "Import discovered pixels into the Pixel Vault",
+    "syncEvery": "Update spend every",
+    "connectSelected": "Save & Connect",
+    "connecting": "Connecting accounts…",
+    "connectedAccounts": "Connected {n} TikTok ad account(s), imported {m} pixel(s).",
+    "oauthFailed": "TikTok connection failed. Please try again.",
+    "popupBlocked": "The TikTok login window was blocked. Allow popups for Orbitra and try again.",
+    "noDiscoveredAccounts": "TikTok login succeeded, but no accessible ad accounts were found.",
+    "connectTikTok": "Connect TikTok For Business",
+    "connectTikTokHint": "Log in with TikTok: discovers ad accounts and pixels, imports them into the Pixel Vault and enables automatic spend sync"
   },
   "fbCosts": {
     "title": "Facebook Costs",
@@ -22562,8 +22615,8 @@ const uk = {
     "terminal": "Термінал",
     "alternativeSqLite": "Альтернатива через SQLite:",
     "recoveryFooter": "Після зміни пароля ви можете увійти з новим паролем.",
-    "cliPhp": "php api.php?action=reset_password&user=YOUR_LOGIN",
-    "cliSqlite": `sqlite3 orbitra_db.sqlite "ОНОВИТИ користувачів SET password='new_password' WHERE username='login'"`
+    "cliPhp": "php cli/reset_password.php YOUR_LOGIN YOUR_NEW_PASSWORD",
+    "cliSqlite": `php -r "require 'config.php'; \\$pdo->prepare('UPDATE users SET password=?, is_active=1 WHERE username=?')->execute([password_hash('NEW_PASSWORD', PASSWORD_DEFAULT), 'YOUR_LOGIN']);"`
   },
   "dashboard": {
     "today": "Сьогодні",
@@ -24314,6 +24367,7 @@ const uk = {
     "testEventSent": "Тестову подію успішно надіслано в Meta!",
     "editPixel": "Редагувати профіль пікселя",
     "allNiches": "Усі ніші",
+    "allSources": "Усі",
     "search": "Знайти піксель…",
     "token": "Токен",
     "duplicate": "Дублювати",
@@ -24463,6 +24517,8 @@ const uk = {
     "jsBannerTitle": "JS реклама (банер)",
     "jsBannerDesc": "Відображає банери або рекламні блоки на вашому сайті. Дозволяє розділити банери та відстежувати кліки/покази.",
     "pixelDesc": "Найпростіший спосіб відстежувати перегляди сторінок або конверсії на сторонніх сайтах, де не можна розмістити JS (наприклад, в електронних розсилках).",
+    "tiktokPixelTitle": "TikTok Піксель",
+    "tiktokPixelDesc": "Браузерний піксель TikTok на локальних лендах. ID пікселя приходить у параметрі кампанії {pixel} із шаблону джерела TikTok і зберігається в cookie для сторінки подяки.",
     "codeToInsert": "Код для вставки на сайт:",
     "copyCode": "Копіювати код",
     "copied": "Скопійовано!",
@@ -24923,6 +24979,8 @@ const uk = {
     "fields": {
       "ttToken": "Access Token",
       "ttAdvertiser": "Advertiser ID (ID кабінету)",
+      "ttAppId": "App ID (необов'язково, потрібен для авто-поновлення OAuth-токена)",
+      "ttAppSecret": "App Secret (необов’язково)",
       "fbToken": "Access Token (long-lived / system user)",
       "fbAdAccount": "ID рекламного кабінету",
       "fbApiVersion": "Версія Facebook API",
@@ -24930,6 +24988,25 @@ const uk = {
       "fbAppSecret": "App Secret (опційно)",
       "proxy": "Проксі (опційно) — scheme://user:pass@host:port"
     }
+  },
+  "tiktokCosts": {
+    "modalTitle": "TikTok For Business",
+    "oneClickTitle": "1-Click інтеграція з TikTok",
+    "oneClickDesc": "Увійдіть в акаунт TikTok For Business — Orbitra автоматично знайде рекламні кабінети та пікселі, увімкне синхронізацію витрат та імпортує пікселі в Pixel Vault.",
+    "loginWithTikTok": "Увійти через TikTok",
+    "oauthConnecting": "Підключення до TikTok…",
+    "selectAccounts": "Виберіть кабінети для підключення",
+    "discoveredPixels": "Знайдені пікселі",
+    "importPixels": "Імпортувати знайдені пікселі в Pixel Vault",
+    "syncEvery": "Оновлювати витрати кожні",
+    "connectSelected": "Зберегти та підключити",
+    "connecting": "Підключення кабінетів…",
+    "connectedAccounts": "Підключено кабінетів TikTok: {n}, імпортовано пікселів: {m}.",
+    "oauthFailed": "Не вдалося підключити TikTok. Спробуйте ще раз.",
+    "popupBlocked": "Вікно входу TikTok заблоковано. Дозвольте спливаючі вікна для Orbitra та спробуйте ще раз.",
+    "noDiscoveredAccounts": "Вхід у TikTok виконано, але доступних рекламних кабінетів не знайдено.",
+    "connectTikTok": "Підключити TikTok For Business",
+    "connectTikTokHint": "Вхід через TikTok — авто-виявлення кабінетів і пікселів, імпорт у Pixel Vault та автоматична синхронізація витрат"
   },
   "fbCosts": {
     "title": "Facebook Costs",
@@ -25593,8 +25670,8 @@ const es = {
     "terminal": "terminales",
     "alternativeSqLite": "Alternativa a través de SQLite:",
     "recoveryFooter": "Después de cambiar la contraseña, puede iniciar sesión con la nueva contraseña.",
-    "cliPhp": "php api.php?action=reset_password&user=TU_INICIO DE SESIÓN",
-    "cliSqlite": `sqlite3 orbitra_db.sqlite "ACTUALIZAR usuarios ESTABLECER contraseña='nueva_contraseña' DONDE nombre de usuario='iniciar sesión'"`
+    "cliPhp": "php cli/reset_password.php YOUR_LOGIN YOUR_NEW_PASSWORD",
+    "cliSqlite": `php -r "require 'config.php'; \\$pdo->prepare('UPDATE users SET password=?, is_active=1 WHERE username=?')->execute([password_hash('NEW_PASSWORD', PASSWORD_DEFAULT), 'YOUR_LOGIN']);"`
   },
   "dashboard": {
     "today": "hoy",
@@ -27345,6 +27422,7 @@ const es = {
     "testEventSent": "¡Evento de prueba enviado a Meta con éxito!",
     "editPixel": "Editar perfil de píxel",
     "allNiches": "Todos los nichos",
+    "allSources": "Todos",
     "search": "Buscar píxel…",
     "token": "Token",
     "duplicate": "Duplicar",
@@ -27494,6 +27572,8 @@ const es = {
     "jsBannerTitle": "Publicidad JS (Banner)",
     "jsBannerDesc": "Muestra banners o bloques de anuncios en su sitio web. Permite realizar pruebas de división de banners y realizar un seguimiento de los clics/impresiones.",
     "pixelDesc": "La forma más sencilla de realizar un seguimiento de las visitas a páginas o las conversiones en sitios de terceros donde no se puede colocar JS (por ejemplo, en boletines informativos por correo electrónico).",
+    "tiktokPixelTitle": "Píxel de TikTok",
+    "tiktokPixelDesc": "Píxel de TikTok en el navegador para landings locales. La ID del píxel llega en el parámetro de campaña {pixel} de la plantilla de fuente TikTok y se guarda en una cookie para la página de agradecimiento.",
     "codeToInsert": "Código para insertar en el sitio:",
     "copyCode": "Copiar código",
     "copied": "¡Copiado!",
@@ -27954,6 +28034,8 @@ const es = {
     "fields": {
       "ttToken": "Access Token",
       "ttAdvertiser": "Advertiser ID",
+      "ttAppId": "App ID (opcional, mantiene el auto-refresco del token OAuth)",
+      "ttAppSecret": "App Secret (opcional)",
       "fbToken": "Access Token (de larga duración / usuario de sistema)",
       "fbAdAccount": "ID de la cuenta publicitaria",
       "fbApiVersion": "Versión de la API de Facebook",
@@ -27961,6 +28043,25 @@ const es = {
       "fbAppSecret": "App Secret (opcional)",
       "proxy": "Proxy (opcional) — scheme://user:pass@host:port"
     }
+  },
+  "tiktokCosts": {
+    "modalTitle": "TikTok For Business",
+    "oneClickTitle": "Integración con TikTok en 1 clic",
+    "oneClickDesc": "Inicia sesión con tu cuenta de TikTok For Business. Orbitra descubrirá automáticamente tus cuentas publicitarias y píxeles, activará la sincronización de gastos e importará los píxeles al Pixel Vault.",
+    "loginWithTikTok": "Iniciar sesión con TikTok",
+    "oauthConnecting": "Conectando con TikTok…",
+    "selectAccounts": "Selecciona cuentas publicitarias para conectar",
+    "discoveredPixels": "Píxeles encontrados",
+    "importPixels": "Importar los píxeles encontrados al Pixel Vault",
+    "syncEvery": "Actualizar gastos cada",
+    "connectSelected": "Guardar y conectar",
+    "connecting": "Conectando cuentas…",
+    "connectedAccounts": "Se conectaron {n} cuenta(s) de TikTok Ads, se importaron {m} píxel(es).",
+    "oauthFailed": "No se pudo conectar TikTok. Inténtalo de nuevo.",
+    "popupBlocked": "La ventana de inicio de sesión de TikTok fue bloqueada. Permite las ventanas emergentes para Orbitra e inténtalo de nuevo.",
+    "noDiscoveredAccounts": "El inicio de sesión en TikTok funcionó, pero no se encontraron cuentas publicitarias accesibles.",
+    "connectTikTok": "Conectar TikTok For Business",
+    "connectTikTokHint": "Inicio de sesión con TikTok — detecta cuentas y píxeles, los importa al Pixel Vault y activa la sincronización automática de gastos"
   },
   "fbCosts": {
     "title": "Facebook Costs",
@@ -28624,8 +28725,8 @@ const zh = {
     "terminal": "终端",
     "alternativeSqLite": "通过 SQLite 的替代方案：",
     "recoveryFooter": "修改密码后，您可以使用新密码登录。",
-    "cliPhp": "php api.php?action=reset_password&user=YOUR_LOGIN",
-    "cliSqlite": "sqlite3 Orbitra_db.sqlite“更新用户设置密码='new_password'，其中用户名='登录'”"
+    "cliPhp": "php cli/reset_password.php YOUR_LOGIN YOUR_NEW_PASSWORD",
+    "cliSqlite": `php -r "require 'config.php'; \\$pdo->prepare('UPDATE users SET password=?, is_active=1 WHERE username=?')->execute([password_hash('NEW_PASSWORD', PASSWORD_DEFAULT), 'YOUR_LOGIN']);"`
   },
   "dashboard": {
     "today": "今天",
@@ -30376,6 +30477,7 @@ const zh = {
     "testEventSent": "测试事件已成功发送至 Meta！",
     "editPixel": "编辑像素配置",
     "allNiches": "所有分类",
+    "allSources": "全部",
     "search": "查找像素…",
     "token": "令牌",
     "duplicate": "复制",
@@ -30525,6 +30627,8 @@ const zh = {
     "jsBannerTitle": "JS广告（横幅）",
     "jsBannerDesc": "在您的网站上显示横幅或广告块。允许横幅拆分测试并跟踪点击/展示次数。",
     "pixelDesc": "在无法放置 JS 的第三方网站（例如，在电子邮件新闻通讯中）上跟踪页面浏览量或转化的最简单方法。",
+    "tiktokPixelTitle": "TikTok 像素",
+    "tiktokPixelDesc": "本地落地页上的浏览器端 TikTok 像素。像素 ID 通过 TikTok 流量源模板的 {pixel} 广告系列参数传入，并存入 Cookie 供感谢页使用。",
     "codeToInsert": "要在网站上插入的代码：",
     "copyCode": "复制代码",
     "copied": "复制了！",
@@ -30985,6 +31089,8 @@ const zh = {
     "fields": {
       "ttToken": "Access Token",
       "ttAdvertiser": "广告主 ID",
+      "ttAppId": "App ID（可选，用于 OAuth 令牌自动续期）",
+      "ttAppSecret": "App Secret（可选）",
       "fbToken": "访问令牌（长期 / 系统用户）",
       "fbAdAccount": "广告账户 ID",
       "fbApiVersion": "Facebook API 版本",
@@ -30992,6 +31098,25 @@ const zh = {
       "fbAppSecret": "App Secret（可选）",
       "proxy": "代理（可选）— scheme://user:pass@host:port"
     }
+  },
+  "tiktokCosts": {
+    "modalTitle": "TikTok 商业平台",
+    "oneClickTitle": "一键关联 TikTok",
+    "oneClickDesc": "使用 TikTok for Business 账号登录，Orbitra 将自动检索您的广告账户与像素，开启消耗同步并将像素导入 Pixel Vault。",
+    "loginWithTikTok": "使用 TikTok 登录",
+    "oauthConnecting": "正在连接 TikTok…",
+    "selectAccounts": "选择要关联的广告账户",
+    "discoveredPixels": "已发现的像素",
+    "importPixels": "将发现的像素导入 Pixel Vault",
+    "syncEvery": "消耗同步间隔",
+    "connectSelected": "保存并关联",
+    "connecting": "正在关联账户…",
+    "connectedAccounts": "已关联 {n} 个 TikTok 广告账户，导入 {m} 个像素。",
+    "oauthFailed": "TikTok 连接失败，请重试。",
+    "popupBlocked": "TikTok 登录窗口被拦截。请允许 Orbitra 的弹窗后重试。",
+    "noDiscoveredAccounts": "TikTok 登录成功，但未找到可访问的广告账户。",
+    "connectTikTok": "一键关联 TikTok 商业广告",
+    "connectTikTokHint": "通过 TikTok 登录：自动发现广告账户与像素，导入 Pixel Vault 并开启消耗自动同步"
   },
   "fbCosts": {
     "title": "Facebook Costs",
@@ -31655,8 +31780,8 @@ const fr = {
     "terminal": "Terminal",
     "alternativeSqLite": "Alternative via SQLite :",
     "recoveryFooter": "Après avoir modifié le mot de passe, vous pouvez vous connecter avec le nouveau mot de passe.",
-    "cliPhp": "php api.php?action=reset_password&user=YOUR_LOGIN",
-    "cliSqlite": `sqlite3 orbitra_db.sqlite "MISE À JOUR des utilisateurs SET password='new_password' WHERE username='login'"`
+    "cliPhp": "php cli/reset_password.php YOUR_LOGIN YOUR_NEW_PASSWORD",
+    "cliSqlite": `php -r "require 'config.php'; \\$pdo->prepare('UPDATE users SET password=?, is_active=1 WHERE username=?')->execute([password_hash('NEW_PASSWORD', PASSWORD_DEFAULT), 'YOUR_LOGIN']);"`
   },
   "dashboard": {
     "today": "Aujourd'hui",
@@ -33407,6 +33532,7 @@ const fr = {
     "testEventSent": "Événement de test envoyé à Meta avec succès !",
     "editPixel": "Modifier le profil de pixel",
     "allNiches": "Toutes les niches",
+    "allSources": "Tous",
     "search": "Rechercher un pixel…",
     "token": "Jeton",
     "duplicate": "Dupliquer",
@@ -33556,6 +33682,8 @@ const fr = {
     "jsBannerTitle": "Publicité JS (bannière)",
     "jsBannerDesc": "Affiche des bannières ou des blocs d'annonces sur votre site Web. Permet de tester le fractionnement des bannières et de suivre les clics/impressions.",
     "pixelDesc": "Le moyen le plus simple de suivre les pages vues ou les conversions sur des sites tiers où le JS ne peut pas être placé (par exemple, dans les newsletters par courrier électronique).",
+    "tiktokPixelTitle": "Pixel TikTok",
+    "tiktokPixelDesc": "Pixel TikTok côté navigateur sur les landings locaux. L’ID du pixel arrive via le paramètre de campagne {pixel} du modèle de source TikTok et est stocké dans un cookie pour la page de remerciement.",
     "codeToInsert": "Code à insérer sur le site :",
     "copyCode": "Copier le code",
     "copied": "Copié !",
@@ -34018,6 +34146,8 @@ const fr = {
     "fields": {
       "ttToken": "Access Token",
       "ttAdvertiser": "ID annonceur",
+      "ttAppId": "App ID (facultatif, nécessaire au renouvellement automatique du jeton OAuth)",
+      "ttAppSecret": "App Secret (facultatif)",
       "fbToken": "Access Token (longue durée / utilisateur système)",
       "fbAdAccount": "ID du compte publicitaire",
       "fbApiVersion": "Version de l'API Facebook",
@@ -34025,6 +34155,25 @@ const fr = {
       "fbAppSecret": "App Secret (optionnel)",
       "proxy": "Proxy (optionnel) — scheme://user:pass@host:port"
     }
+  },
+  "tiktokCosts": {
+    "modalTitle": "TikTok For Business",
+    "oneClickTitle": "Intégration TikTok en 1 clic",
+    "oneClickDesc": "Connectez-vous avec votre compte TikTok For Business. Orbitra découvre automatiquement vos comptes publicitaires et vos pixels, active la synchronisation des dépenses et importe les pixels dans le Pixel Vault.",
+    "loginWithTikTok": "Se connecter avec TikTok",
+    "oauthConnecting": "Connexion à TikTok…",
+    "selectAccounts": "Comptes publicitaires à connecter",
+    "discoveredPixels": "Pixels découverts",
+    "importPixels": "Importer les pixels découverts dans le Pixel Vault",
+    "syncEvery": "Actualiser les dépenses toutes les",
+    "connectSelected": "Enregistrer et connecter",
+    "connecting": "Connexion des comptes…",
+    "connectedAccounts": "{n} compte(s) TikTok Ads connecté(s), {m} pixel(s) importé(s).",
+    "oauthFailed": "Échec de la connexion TikTok. Veuillez réessayer.",
+    "popupBlocked": "La fenêtre de connexion TikTok a été bloquée. Autorisez les popups pour Orbitra et réessayez.",
+    "noDiscoveredAccounts": "Connexion TikTok réussie, mais aucun compte publicitaire accessible n’a été trouvé.",
+    "connectTikTok": "Connecter TikTok For Business",
+    "connectTikTokHint": "Connexion via TikTok — découvre les comptes et les pixels, les importe dans le Pixel Vault et active la synchronisation automatique des dépenses"
   },
   "fbCosts": {
     "title": "Facebook Costs",
@@ -34688,8 +34837,8 @@ const de = {
     "terminal": "Terminal",
     "alternativeSqLite": "Alternative über SQLite:",
     "recoveryFooter": "Nach der Änderung des Passworts können Sie sich mit dem neuen Passwort anmelden.",
-    "cliPhp": "php api.php?action=reset_password&user=YOUR_LOGIN",
-    "cliSqlite": `sqlite3 orbitra_db.sqlite "UPDATE Benutzer SET Passwort='new_password' WHERE Benutzername='login'"`
+    "cliPhp": "php cli/reset_password.php YOUR_LOGIN YOUR_NEW_PASSWORD",
+    "cliSqlite": `php -r "require 'config.php'; \\$pdo->prepare('UPDATE users SET password=?, is_active=1 WHERE username=?')->execute([password_hash('NEW_PASSWORD', PASSWORD_DEFAULT), 'YOUR_LOGIN']);"`
   },
   "dashboard": {
     "today": "Heute",
@@ -36440,6 +36589,7 @@ const de = {
     "testEventSent": "Testereignis erfolgreich an Meta gesendet!",
     "editPixel": "Pixel-Profil bearbeiten",
     "allNiches": "Alle Nischen",
+    "allSources": "Alle",
     "search": "Pixel suchen…",
     "token": "Token",
     "duplicate": "Duplizieren",
@@ -36589,6 +36739,8 @@ const de = {
     "jsBannerTitle": "JS-Werbung (Banner)",
     "jsBannerDesc": "Zeigt Banner oder Werbeblöcke auf Ihrer Website an. Ermöglicht Banner-Split-Tests und verfolgt Klicks/Impressionen.",
     "pixelDesc": "Die einfachste Möglichkeit, Seitenaufrufe oder Conversions auf Websites von Drittanbietern zu verfolgen, auf denen JS nicht platziert werden kann (z. B. in E-Mail-Newslettern).",
+    "tiktokPixelTitle": "TikTok-Pixel",
+    "tiktokPixelDesc": "Browser-TikTok-Pixel auf lokalen Landings. Die Pixel-ID kommt über den Kampagnenparameter {pixel} aus der TikTok-Quellvorlage und wird für die Danke-Seite in einem Cookie gespeichert.",
     "codeToInsert": "Code zum Einfügen auf der Website:",
     "copyCode": "Code kopieren",
     "copied": "Kopiert!",
@@ -37049,6 +37201,8 @@ const de = {
     "fields": {
       "ttToken": "Access Token",
       "ttAdvertiser": "Advertiser-ID",
+      "ttAppId": "App-ID (optional, hält die OAuth-Auto-Erneuerung am Laufen)",
+      "ttAppSecret": "App Secret (optional)",
       "fbToken": "Access Token (langlebig / System-User)",
       "fbAdAccount": "Werbekonto-ID",
       "fbApiVersion": "Facebook-API-Version",
@@ -37056,6 +37210,25 @@ const de = {
       "fbAppSecret": "App Secret (optional)",
       "proxy": "Proxy (optional) — scheme://user:pass@host:port"
     }
+  },
+  "tiktokCosts": {
+    "modalTitle": "TikTok For Business",
+    "oneClickTitle": "1-Click-TikTok-Integration",
+    "oneClickDesc": "Melden Sie sich mit Ihrem TikTok-For-Business-Konto an. Orbitra findet automatisch Werbekonten und Pixel, richtet die Kosten-Synchronisierung ein und importiert die Pixel in den Pixel Vault.",
+    "loginWithTikTok": "Mit TikTok anmelden",
+    "oauthConnecting": "Verbindung zu TikTok…",
+    "selectAccounts": "Werbekonten zum Verbinden wählen",
+    "discoveredPixels": "Gefundene Pixel",
+    "importPixels": "Gefundene Pixel in den Pixel Vault importieren",
+    "syncEvery": "Ausgaben aktualisieren alle",
+    "connectSelected": "Speichern & verbinden",
+    "connecting": "Konten werden verbunden…",
+    "connectedAccounts": "{n} TikTok-Werbekonto/-konten verbunden, {m} Pixel importiert.",
+    "oauthFailed": "TikTok-Verbindung fehlgeschlagen. Bitte erneut versuchen.",
+    "popupBlocked": "Das TikTok-Anmeldefenster wurde blockiert. Erlauben Sie Popups für Orbitra und versuchen Sie es erneut.",
+    "noDiscoveredAccounts": "TikTok-Anmeldung erfolgreich, aber keine zugänglichen Werbekonten gefunden.",
+    "connectTikTok": "TikTok For Business verbinden",
+    "connectTikTokHint": "Anmeldung über TikTok — erkennt Werbekonten und Pixel automatisch, importiert sie in den Pixel Vault und aktiviert die automatische Kosten-Synchronisierung"
   },
   "fbCosts": {
     "title": "Facebook Costs",
@@ -38559,7 +38732,7 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics,
     { id: "bot_rate", title: t("metrics.botRate", "Bot %"), value: formatPercent(metrics?.bot_rate), color: "--color-danger" },
     { id: "ctr", title: t("metrics.ctr"), value: formatPercent(metrics?.ctr), color: "--color-ctr" }
   ];
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3 sm:gap-4 mt-6 mb-2 w-full", children: cards.filter((card) => showCard(card.id)).map((card) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3 sm:gap-4 mt-6 mb-8 w-full", children: cards.filter((card) => showCard(card.id)).map((card) => /* @__PURE__ */ jsxRuntimeExports.jsx(
     Card,
     {
       title: card.title,
@@ -38579,7 +38752,8 @@ const Card = ({ title, value, isActive, onClick, colorVar }) => /* @__PURE__ */ 
     style: {
       padding: "14px 16px",
       border: isActive ? `2px solid var(${colorVar})` : "2px solid transparent",
-      boxShadow: isActive ? `0 8px 25px var(${colorVar}, rgba(0,0,0,0.1))` : "var(--shadow-main)"
+      boxShadow: isActive ? `0 4px 14px color-mix(in srgb, var(${colorVar}) 25%, transparent)` : "var(--shadow-main)",
+      transform: isActive ? "translateY(-1px)" : "none"
     },
     children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-[10px] sm:text-xs uppercase font-bold tracking-wider mb-1 truncate text-[var(--color-text-muted)]", children: title }),
@@ -55462,6 +55636,9 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       window.removeEventListener("resize", close);
     };
   }, [menuAnchor]);
+  const [groups, setGroups] = reactExports.useState([]);
+  const [selectedGroupId, setSelectedGroupId] = reactExports.useState("");
+  const [selectedSourceId, setSelectedSourceId] = reactExports.useState("");
   reactExports.useEffect(() => {
     setPage(0);
   }, [search, rowsPerPage, selectedGroupId, selectedSourceId]);
@@ -55544,9 +55721,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   const [dateFrom, setDateFrom] = reactExports.useState(todayPreset?.from || formatDate$1(/* @__PURE__ */ new Date()));
   const [dateTo, setDateTo] = reactExports.useState(todayPreset?.to || formatDate$1(/* @__PURE__ */ new Date()));
   const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
-  const [groups, setGroups] = reactExports.useState([]);
-  const [selectedGroupId, setSelectedGroupId] = reactExports.useState("");
-  const [selectedSourceId, setSelectedSourceId] = reactExports.useState("");
   const [campaignList, setCampaignList] = reactExports.useState(initialCampaigns || []);
   const [columnsFilterOpen, setColumnsFilterOpen] = reactExports.useState(false);
   const [chosenColumns, setChosenColumns] = reactExports.useState(() => {
@@ -62472,16 +62646,38 @@ const TrafficSources = ({ refreshData }) => {
       ] })
     ] }),
     showFilters && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { padding: "16px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-4 items-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-3 top-1/2 -translate-y-1/2", size: 18, style: { color: "var(--color-text-muted)" } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative min-w-[220px]", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Search,
+          {
+            className: "w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none select-none",
+            style: { color: "var(--color-text-muted)" }
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
             type: "text",
-            placeholder: t("sources.search"),
+            placeholder: t("sources.search", "Search sources..."),
             value: search,
             onChange: (e) => setSearch(e.target.value),
-            className: "form-input pl-10"
+            className: "form-input text-xs rounded-xl w-full pr-8 transition-all",
+            style: {
+              paddingLeft: "36px",
+              backgroundColor: "var(--color-bg-card)",
+              borderColor: "var(--color-border)",
+              color: "var(--color-text-primary)"
+            }
+          }
+        ),
+        search && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => setSearch(""),
+            className: "absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-[var(--color-text-muted)]",
+            title: t("common.clear", "Clear"),
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" })
           }
         )
       ] }),
@@ -67731,6 +67927,8 @@ const PixelPicker = ({ label, value, profileId, trafficSource, resolveServerSide
   const matched = savedProfiles.find(
     (profile) => profileId && String(profile.id) === String(profileId) || !profileId && String(profile.pixel_id) === String(value || "")
   );
+  const sourceLabels = { facebook: "Facebook", tiktok: "TikTok", google_ads: "Google Ads", snapchat: "Snapchat", pinterest: "Pinterest" };
+  const optionLabel = (px) => `${px.pixel_id} ( ${sourceLabels[px.traffic_source] || px.traffic_source || "Facebook"} · ${px.niche || "—"} / ${px.name || "—"} )`;
   const showCustom = isCustom || !!value && !matched && !profileId;
   const applyProfile = async (profile) => {
     setIsCustom(false);
@@ -67827,14 +68025,7 @@ const PixelPicker = ({ label, value, profileId, trafficSource, resolveServerSide
             t("fbConv.addNewPixel", "Add New Pixel to Vault...")
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("option", { disabled: true, children: "──────────────────" }),
-          savedProfiles.map((px) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: String(px.id), children: [
-            px.pixel_id,
-            " ( ",
-            px.niche || "—",
-            " / ",
-            px.name || "—",
-            " )"
-          ] }, px.id || px.pixel_id)),
+          savedProfiles.map((px) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: String(px.id), children: optionLabel(px) }, px.id || px.pixel_id)),
           /* @__PURE__ */ jsxRuntimeExports.jsx("option", { disabled: true, children: "──────────────────" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "__custom__", children: [
             "+ ",
@@ -68039,6 +68230,18 @@ const IntegrationsPage = () => {
   const [fbOAuthConnecting, setFbOAuthConnecting] = reactExports.useState(false);
   const fbOAuthPopupRef = reactExports.useRef(null);
   const fbOAuthPollRef = reactExports.useRef(null);
+  const [ttModalOpen, setTtModalOpen] = reactExports.useState(false);
+  const [ttDiscoveredAccounts, setTtDiscoveredAccounts] = reactExports.useState([]);
+  const [ttDiscoveredPixels, setTtDiscoveredPixels] = reactExports.useState([]);
+  const [ttSelectedAccounts, setTtSelectedAccounts] = reactExports.useState([]);
+  const [ttOAuthFlowId, setTtOAuthFlowId] = reactExports.useState("");
+  const [ttOAuthLoading, setTtOAuthLoading] = reactExports.useState(false);
+  const [ttConnecting, setTtConnecting] = reactExports.useState(false);
+  const [ttImportPixels, setTtImportPixels] = reactExports.useState(true);
+  const [ttSyncInterval, setTtSyncInterval] = reactExports.useState(2);
+  const [ttMessage, setTtMessage] = reactExports.useState(null);
+  const ttPopupRef = reactExports.useRef(null);
+  const ttPollRef = reactExports.useRef(null);
   const emptyCapiForm = {
     campaign_id: "",
     pixel_profile_id: "",
@@ -68077,6 +68280,7 @@ const IntegrationsPage = () => {
   const [pixelProfileForm, setPixelProfileForm] = reactExports.useState(emptyPixelProfileForm);
   const [pixelProfileSearch, setPixelProfileSearch] = reactExports.useState("");
   const [pixelProfileNiche, setPixelProfileNiche] = reactExports.useState("");
+  const [pixelProfileSource, setPixelProfileSource] = reactExports.useState("all");
   const [pixelProfileMessage, setPixelProfileMessage] = reactExports.useState(null);
   const [pixelProfileTesting, setPixelProfileTesting] = reactExports.useState(null);
   const [cfForm, setCfForm] = reactExports.useState({ api_token: "", proxied: true, ssl_mode: "flexible", server_ip: "" });
@@ -68569,6 +68773,45 @@ const IntegrationsPage = () => {
       fbOAuthPopupRef.current = null;
     };
   }, []);
+  reactExports.useEffect(() => {
+    const handleTikTokOAuthMessage = (event) => {
+      if (event.origin !== window.location.origin || event.data?.type !== "orbitra.tiktok_oauth") return;
+      if (!ttPopupRef.current || event.source !== ttPopupRef.current) return;
+      setTtOAuthLoading(false);
+      if (ttPollRef.current) {
+        window.clearInterval(ttPollRef.current);
+        ttPollRef.current = null;
+      }
+      ttPopupRef.current = null;
+      if (event.data.status !== "success") {
+        setTtDiscoveredAccounts([]);
+        setTtDiscoveredPixels([]);
+        setTtSelectedAccounts([]);
+        setTtOAuthFlowId("");
+        setTtMessage({ type: "error", text: event.data.message || translationRef.current("tiktokCosts.oauthFailed") });
+        return;
+      }
+      const accounts = Array.isArray(event.data.accounts) ? event.data.accounts : [];
+      const pixels = Array.isArray(event.data.pixels) ? event.data.pixels : [];
+      setTtDiscoveredAccounts(accounts);
+      setTtDiscoveredPixels(pixels);
+      setTtSelectedAccounts(accounts.map((account) => account.id));
+      setTtOAuthFlowId(event.data.flow_id || "");
+      setTtMessage(accounts.length === 0 ? { type: "error", text: translationRef.current("tiktokCosts.noDiscoveredAccounts") } : null);
+    };
+    window.addEventListener("message", handleTikTokOAuthMessage);
+    return () => {
+      window.removeEventListener("message", handleTikTokOAuthMessage);
+      if (ttPollRef.current) {
+        window.clearInterval(ttPollRef.current);
+        ttPollRef.current = null;
+      }
+      if (ttPopupRef.current && !ttPopupRef.current.closed) {
+        ttPopupRef.current.close();
+      }
+      ttPopupRef.current = null;
+    };
+  }, []);
   const loadFbConnection = async (id) => {
     try {
       const res = await axios.get(`${API_URL$b}?action=aggregator_connection_detail&id=${id}`);
@@ -68652,6 +68895,100 @@ const IntegrationsPage = () => {
   };
   const toggleFacebookAccount = (accountId, checked) => {
     setFbSelectedAccounts((current) => checked ? [.../* @__PURE__ */ new Set([...current, accountId])] : current.filter((id) => id !== accountId));
+  };
+  const resetTikTokOAuth = () => {
+    if (ttPollRef.current) {
+      window.clearInterval(ttPollRef.current);
+      ttPollRef.current = null;
+    }
+    if (ttPopupRef.current && !ttPopupRef.current.closed) {
+      ttPopupRef.current.close();
+    }
+    ttPopupRef.current = null;
+    setTtDiscoveredAccounts([]);
+    setTtDiscoveredPixels([]);
+    setTtSelectedAccounts([]);
+    setTtOAuthFlowId("");
+    setTtOAuthLoading(false);
+    setTtConnecting(false);
+  };
+  const openTikTokModal = () => {
+    resetTikTokOAuth();
+    setTtMessage(null);
+    setTtImportPixels(true);
+    setTtSyncInterval(2);
+    setTtModalOpen(true);
+  };
+  const handleStartTikTokOAuth = () => {
+    setTtMessage(null);
+    setTtDiscoveredAccounts([]);
+    setTtDiscoveredPixels([]);
+    setTtSelectedAccounts([]);
+    setTtOAuthFlowId("");
+    if (ttPopupRef.current && !ttPopupRef.current.closed) {
+      ttPopupRef.current.close();
+    }
+    if (ttPollRef.current) {
+      window.clearInterval(ttPollRef.current);
+    }
+    const width = 640;
+    const height = 720;
+    const left = Math.max(0, window.screenX + Math.round((window.outerWidth - width) / 2));
+    const top = Math.max(0, window.screenY + Math.round((window.outerHeight - height) / 2));
+    const popup = window.open(
+      `${API_URL$b}?action=tiktok_oauth_start`,
+      "orbitra-tiktok-oauth",
+      `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+    );
+    if (!popup) {
+      setTtOAuthLoading(false);
+      setTtMessage({ type: "error", text: t("tiktokCosts.popupBlocked") });
+      return;
+    }
+    ttPopupRef.current = popup;
+    setTtOAuthLoading(true);
+    popup.focus();
+    ttPollRef.current = window.setInterval(() => {
+      if (popup.closed) {
+        window.clearInterval(ttPollRef.current);
+        ttPollRef.current = null;
+        ttPopupRef.current = null;
+        setTtOAuthLoading(false);
+      }
+    }, 500);
+  };
+  const toggleTikTokAccount = (accountId, checked) => {
+    setTtSelectedAccounts((current) => checked ? [.../* @__PURE__ */ new Set([...current, accountId])] : current.filter((id) => id !== accountId));
+  };
+  const handleConnectTikTokAccounts = async () => {
+    if (!ttOAuthFlowId || ttSelectedAccounts.length === 0) return;
+    setTtConnecting(true);
+    setTtMessage(null);
+    try {
+      const accounts = ttDiscoveredAccounts.filter((account) => ttSelectedAccounts.includes(account.id));
+      const res = await axios.post(`${API_URL$b}?action=tiktok_connect_accounts`, {
+        flow_id: ttOAuthFlowId,
+        accounts,
+        sync_interval_hours: ttSyncInterval || 2,
+        import_pixels: ttImportPixels
+      });
+      if (res.data.status !== "success") {
+        setTtMessage({ type: "error", text: res.data.message || t("tiktokCosts.oauthFailed") });
+        return;
+      }
+      const connected = res.data.data?.connected_count ?? accounts.length;
+      const imported = res.data.data?.imported_pixels ?? 0;
+      const summary = t("tiktokCosts.connectedAccounts").replace("{n}", connected).replace("{m}", imported);
+      setPixelProfileMessage({ type: "success", text: summary });
+      setTtMessage({ type: "success", text: summary });
+      resetTikTokOAuth();
+      fetchPixelProfiles();
+      setTtModalOpen(false);
+    } catch (err) {
+      setTtMessage({ type: "error", text: err.response?.data?.message || err.message || t("tiktokCosts.oauthFailed") });
+    } finally {
+      setTtConnecting(false);
+    }
   };
   const handleConnectDiscoveredAccounts = async () => {
     if (!fbOAuthFlowId || fbSelectedAccounts.length === 0) return;
@@ -69315,7 +69652,13 @@ const IntegrationsPage = () => {
   const renderPixelVaultPanel = () => {
     const niches = [...new Set(pixelProfiles.map((profile) => profile.niche || "General"))].sort((a, b) => a.localeCompare(b));
     const query = pixelProfileSearch.trim().toLowerCase();
+    const sourceCounts = pixelProfiles.reduce((counts, profile) => {
+      const source = profile.traffic_source || "facebook";
+      counts[source] = (counts[source] || 0) + 1;
+      return counts;
+    }, {});
     const visible = pixelProfiles.filter((profile) => {
+      if (pixelProfileSource !== "all" && (profile.traffic_source || "facebook") !== pixelProfileSource) return false;
       if (pixelProfileNiche && (profile.niche || "General") !== pixelProfileNiche) return false;
       if (!query) return true;
       return [profile.name, profile.niche, profile.pixel_id, profile.traffic_source].some((value) => String(value || "").toLowerCase().includes(query));
@@ -69510,36 +69853,71 @@ const IntegrationsPage = () => {
             ] })
           ] })
         ] })
-      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { border: "1px solid var(--color-border)", borderRadius: "14px", padding: "12px", marginBottom: "18px", background: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "form-select", style: { maxWidth: "210px" }, value: pixelProfileNiche, onChange: (e) => setPixelProfileNiche(e.target.value), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("pixelVault.allNiches") }),
-          niches.map((niche) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: niche, children: niche }, niche))
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px solid var(--color-border)", borderRadius: "14px", padding: "12px", marginBottom: "18px", background: "var(--color-bg-soft)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: pixelProfileNiche || query ? "10px" : 0 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              className: `btn btn-sm ${pixelProfileSource === "all" ? "btn-primary" : "btn-secondary"}`,
+              style: { fontSize: "11px" },
+              onClick: () => setPixelProfileSource("all"),
+              children: [
+                t("pixelVault.allSources"),
+                " (",
+                pixelProfiles.length,
+                ")"
+              ]
+            }
+          ),
+          pixelSourceOptions.filter((source) => sourceCounts[source.value]).map((source) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              className: `btn btn-sm ${pixelProfileSource === source.value ? "btn-primary" : "btn-secondary"}`,
+              style: { fontSize: "11px" },
+              onClick: () => setPixelProfileSource(pixelProfileSource === source.value ? "all" : source.value),
+              children: [
+                source.icon,
+                " ",
+                source.label,
+                " (",
+                sourceCounts[source.value],
+                ")"
+              ]
+            },
+            source.value
+          ))
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            className: "form-input",
-            style: { maxWidth: "260px" },
-            value: pixelProfileSearch,
-            onChange: (e) => setPixelProfileSearch(e.target.value),
-            placeholder: t("pixelVault.search")
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "6px", flexWrap: "wrap" }, children: niches.slice(0, 5).map((niche) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            className: "btn btn-secondary btn-sm",
-            style: { fontSize: "11px" },
-            onClick: () => setPixelProfileNiche(pixelProfileNiche === niche ? "" : niche),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { size: 11 }),
-              " ",
-              niche
-            ]
-          },
-          niche
-        )) })
-      ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "form-select", style: { maxWidth: "210px" }, value: pixelProfileNiche, onChange: (e) => setPixelProfileNiche(e.target.value), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("pixelVault.allNiches") }),
+            niches.map((niche) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: niche, children: niche }, niche))
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              className: "form-input",
+              style: { maxWidth: "260px" },
+              value: pixelProfileSearch,
+              onChange: (e) => setPixelProfileSearch(e.target.value),
+              placeholder: t("pixelVault.search")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "6px", flexWrap: "wrap" }, children: niches.slice(0, 5).map((niche) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              className: "btn btn-secondary btn-sm",
+              style: { fontSize: "11px" },
+              onClick: () => setPixelProfileNiche(pixelProfileNiche === niche ? "" : niche),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { size: 11 }),
+                " ",
+                niche
+              ]
+            },
+            niche
+          )) })
+        ] })
+      ] }),
       pixelProfilesLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
         Object.entries(grouped).map(([niche, profiles]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "7px", fontWeight: 600, fontSize: "13px", color: "var(--color-text-secondary)", marginBottom: "8px" }, children: [
@@ -69612,7 +69990,191 @@ const IntegrationsPage = () => {
           }) })
         ] }, niche)),
         visible.length === 0 && !pixelProfileEditing && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", padding: "34px 0" }, children: t("pixelVault.noProfiles") })
-      ] })
+      ] }),
+      ttModalOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => {
+        resetTikTokOAuth();
+        setTtModalOpen(false);
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "560px" }, onClick: (e) => e.stopPropagation(), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header px-6 pt-5", style: { flexShrink: 0 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "modal-title font-bold text-base m-0", children: [
+            "🎵 ",
+            t("tiktokCosts.modalTitle")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "action-btn", onClick: () => {
+            resetTikTokOAuth();
+            setTtModalOpen(false);
+          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16 }) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6 space-y-4", style: { overflowY: "auto" }, children: [
+          ttMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            padding: "10px 14px",
+            borderRadius: "10px",
+            fontSize: "13px",
+            background: ttMessage.type === "success" ? "#dcfce7" : "#fee2e2",
+            color: ttMessage.type === "success" ? "#166534" : "#991b1b",
+            border: `1px solid ${ttMessage.type === "success" ? "#86efac" : "#fca5a5"}`
+          }, children: ttMessage.text }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "p-5 rounded-2xl border text-center flex flex-col items-center gap-3",
+              style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "div",
+                  {
+                    className: "w-12 h-12 rounded-2xl flex items-center justify-center",
+                    style: { backgroundColor: "rgba(254, 44, 85, 0.12)", color: "#FE2C55" },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { size: 22 })
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold m-0", style: { color: "var(--color-text-primary)" }, children: t("tiktokCosts.oneClickTitle") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs m-0 mt-1 max-w-md", style: { color: "var(--color-text-muted)" }, children: t("tiktokCosts.oneClickDesc") })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: handleStartTikTokOAuth,
+                    disabled: ttOAuthLoading || ttConnecting,
+                    className: "btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]",
+                    style: { backgroundColor: "#FE2C55", color: "#ffffff", boxShadow: "0 4px 14px rgba(254, 44, 85, 0.3)", opacity: ttOAuthLoading ? 0.75 : 1 },
+                    children: [
+                      ttOAuthLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { size: 16 }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: ttOAuthLoading ? t("tiktokCosts.oauthConnecting") : t("tiktokCosts.loginWithTikTok") })
+                    ]
+                  }
+                )
+              ]
+            }
+          ),
+          ttDiscoveredAccounts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "p-4 rounded-2xl border space-y-3",
+              style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-success)" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center gap-3", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold", style: { color: "var(--color-text-primary)" }, children: [
+                    t("tiktokCosts.selectAccounts"),
+                    ":"
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => setTtSelectedAccounts(ttDiscoveredAccounts.map((account) => account.id)),
+                      className: "text-xs hover:underline",
+                      style: { color: "var(--color-primary)" },
+                      children: t("common.selectAll")
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2 max-h-48 overflow-y-auto", children: ttDiscoveredAccounts.map((account) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "label",
+                  {
+                    className: "flex items-center justify-between gap-3 p-2.5 rounded-xl border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5",
+                    style: { borderColor: "var(--color-border)" },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5 min-w-0", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "input",
+                          {
+                            type: "checkbox",
+                            checked: ttSelectedAccounts.includes(account.id),
+                            onChange: (event) => toggleTikTokAccount(account.id, event.target.checked),
+                            className: "rounded"
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold truncate", style: { color: "var(--color-text-primary)" }, children: account.name }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] font-mono", style: { color: "var(--color-text-muted)" }, children: account.id })
+                        ] })
+                      ] }),
+                      account.currency && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "span",
+                        {
+                          className: "text-xs font-semibold px-2 py-0.5 rounded shrink-0",
+                          style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-secondary)" },
+                          children: account.currency
+                        }
+                      )
+                    ]
+                  },
+                  account.id
+                )) }),
+                ttDiscoveredPixels.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-semibold mb-2", style: { color: "var(--color-text-primary)" }, children: [
+                    t("tiktokCosts.discoveredPixels"),
+                    " (",
+                    ttDiscoveredPixels.length,
+                    "):"
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1 mb-2 max-h-28 overflow-y-auto", children: ttDiscoveredPixels.map((pixel) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[11px] font-mono truncate", style: { color: "var(--color-text-muted)" }, children: [
+                    pixel.pixel_id,
+                    " — ",
+                    pixel.name,
+                    " (",
+                    pixel.advertiser_name,
+                    ")"
+                  ] }, pixel.pixel_id)) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs cursor-pointer", style: { color: "var(--color-text-secondary)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "checkbox",
+                        checked: ttImportPixels,
+                        onChange: (event) => setTtImportPixels(event.target.checked),
+                        className: "rounded"
+                      }
+                    ),
+                    t("tiktokCosts.importPixels")
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs whitespace-nowrap", style: { color: "var(--color-text-secondary)" }, children: [
+                    t("tiktokCosts.syncEvery"),
+                    ":"
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "select",
+                    {
+                      className: "form-select text-xs",
+                      style: { maxWidth: "120px" },
+                      value: ttSyncInterval,
+                      onChange: (e) => setTtSyncInterval(Number(e.target.value)),
+                      children: [1, 2, 6, 12, 24].map((hours) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: hours, children: [
+                        hours,
+                        "h"
+                      ] }, hours))
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: handleConnectTikTokAccounts,
+                    disabled: ttConnecting || ttSelectedAccounts.length === 0,
+                    className: "btn btn-primary w-full py-2 rounded-xl text-xs font-semibold",
+                    children: [
+                      ttConnecting ? t("tiktokCosts.connecting") : t("tiktokCosts.connectSelected"),
+                      " (",
+                      ttSelectedAccounts.length,
+                      ")"
+                    ]
+                  }
+                )
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-end gap-2 px-6 pb-6", style: { flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary btn-sm", onClick: () => {
+          resetTikTokOAuth();
+          setTtModalOpen(false);
+        }, children: t("common.cancel") }) })
+      ] }) })
     ] });
   };
   const handleCapiSave = async () => {
@@ -69992,6 +70554,60 @@ $client->execute();
 
 <!-- Tracking conversions (place on Thank You page) -->
 <img src="${trackerUrl}/pixel.gif?action=conversion&subid={subid}&status=lead" width="1" height="1" border="0" alt="" />`
+    },
+    tiktok_pixel: {
+      title: t("integrations.tiktokPixelTitle", "TikTok Pixel"),
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { className: "w-5 h-5" }),
+      description: t("integrations.tiktokPixelDesc", "Browser TikTok Pixel on local landings. The pixel id arrives in the {pixel} campaign parameter from the TikTok source template and is stored in a cookie for the thank-you page."),
+      code: `<!-- 1. Landing <head>: store the pixel id from the campaign parameter.
+        The TikTok source template fills {pixel} = __PIXEL__; replace "pixel"
+        if your campaign passes it under another name. -->
+<script>
+var date = new Date();
+date.setTime(date.getTime() + (5 * 24 * 60 * 60 * 1000));
+if (!'{pixel}'.match('{')) {
+  document.cookie = "pixel={pixel}; " + "expires=" + date.toUTCString() + "";
+}
+<\/script>
+
+<!-- 2. Where events fire (landing or thank-you page): read the cookie
+        and boot the pixel with it. -->
+<script>
+var matches = document.cookie.match(new RegExp("(?:^|; )" + 'pixel' + "=([^;]*)"));
+var pixel = matches ? decodeURIComponent(matches[1]) : undefined;
+<\/script>
+
+<!-- TikTok Pixel Code Start -->
+<script>
+    !function (w, d, t) {
+      w.TiktokAnalyticsObject = t;
+      var ttq = w[t] = w[t] = [];
+      ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie"],
+        ttq.setAndDefer = function (t, e) {
+          t[e] = function () {
+            t.push([e].concat(Array.prototype.slice.call(arguments, 0)))
+          }
+        };
+      for (var i = 0; i < ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]);
+      ttq.instance = function (t) {
+        for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++) ttq.setAndDefer(e, ttq.methods[n]);
+        return e
+      }, ttq.load = function (e, n) {
+        var i = "https://analytics.tiktok.com/i18n/pixel/events.js";
+        ttq._i = ttq._i || {}, ttq._i[e] = [], ttq._i[e]._u = i, ttq._t = ttq._t || {}, ttq._t[e] = +new Date, ttq._o = ttq._o || {}, ttq._o[e] = n || {};
+        var o = document.createElement("script");
+        o.type = "text/javascript", o.async = !0, o.src = i + "?sdkid=" + e + "&lib=" + t;
+        var a = document.getElementsByTagName("script")[0];
+        a.parentNode.insertBefore(o, a)
+      };
+      ttq.load(pixel);
+      ttq.page();
+    }(window, document, 'ttq');
+<\/script>
+<!-- TikTok Pixel Code End -->
+
+<!-- No access to the landing code (offer redirect)? Use the server-side
+        TikTok Conversions API instead: Pixel Vault -> Connect TikTok. -->`
     },
     facebook_costs: {
       title: t("fbCosts.title"),
@@ -71338,7 +71954,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
         const groups = [
           { label: t("integrations.groupAds", "Ad networks"), ids: ["pixel_vault", "facebook_costs", "facebook_conversions", "dolphin_fbtool", "chrome_extension"] },
           { label: t("integrations.groupDomains", "Domains & SSL"), ids: ["cloudflare", "namecheap"] },
-          { label: t("integrations.groupSites", "Sites & landings"), ids: ["kclient_php", "kclient_js", "tracking_pixel", "js_banner", "wordpress", "wordpress_plugin", "static_site", "geo_redirect", "device_redirect"] },
+          { label: t("integrations.groupSites", "Sites & landings"), ids: ["kclient_php", "kclient_js", "tracking_pixel", "tiktok_pixel", "js_banner", "wordpress", "wordpress_plugin", "static_site", "geo_redirect", "device_redirect"] },
           { label: t("integrations.groupTools", "Tools"), ids: ["countdown_timer", "back_button_trap", "exit_popup", "app_config", "recaptcha", "telegram"] }
         ];
         const grouped = new Set(groups.flatMap((g) => g.ids));
@@ -71429,22 +72045,37 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
               margin: "8px 0 0 0"
             }, children: activeObj.description })
           ] }),
-          activeObj.isPixelVault && !pixelProfileEditing && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              className: "btn btn-primary",
-              onClick: () => {
-                setPixelProfileForm(emptyPixelProfileForm);
-                setPixelProfileEditing("new");
-                setPixelProfileMessage(null);
-              },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
-                " ",
-                t("pixelVault.addNewPixel")
-              ]
-            }
-          )
+          activeObj.isPixelVault && !pixelProfileEditing && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                className: "btn btn-secondary",
+                onClick: openTikTokModal,
+                title: t("tiktokCosts.connectTikTokHint"),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { size: 16 }),
+                  " ",
+                  t("tiktokCosts.connectTikTok")
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                className: "btn btn-primary",
+                onClick: () => {
+                  setPixelProfileForm(emptyPixelProfileForm);
+                  setPixelProfileEditing("new");
+                  setPixelProfileMessage(null);
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+                  " ",
+                  t("pixelVault.addNewPixel")
+                ]
+              }
+            )
+          ] })
         ] }),
         activeObj.isCloudflare ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "620px", display: "flex", flexDirection: "column", gap: "20px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [

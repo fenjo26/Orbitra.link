@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
-import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud, Database, Tag } from 'lucide-react';
+import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud, Database, Tag, Music2 } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard as copyUtil } from '../utils/clipboard';
@@ -75,6 +75,22 @@ const IntegrationsPage = () => {
     const fbOAuthPopupRef = useRef(null);
     const fbOAuthPollRef = useRef(null);
 
+    // TikTok 1-click OAuth — mirrors the Facebook flow. The discovery modal
+    // imports pixels into the vault and creates one spend-sync connection per
+    // selected ad account (engine 'tiktok', refreshed by cron).
+    const [ttModalOpen, setTtModalOpen] = useState(false);
+    const [ttDiscoveredAccounts, setTtDiscoveredAccounts] = useState([]);
+    const [ttDiscoveredPixels, setTtDiscoveredPixels] = useState([]);
+    const [ttSelectedAccounts, setTtSelectedAccounts] = useState([]);
+    const [ttOAuthFlowId, setTtOAuthFlowId] = useState('');
+    const [ttOAuthLoading, setTtOAuthLoading] = useState(false);
+    const [ttConnecting, setTtConnecting] = useState(false);
+    const [ttImportPixels, setTtImportPixels] = useState(true);
+    const [ttSyncInterval, setTtSyncInterval] = useState(2);
+    const [ttMessage, setTtMessage] = useState(null);
+    const ttPopupRef = useRef(null);
+    const ttPollRef = useRef(null);
+
     // Facebook Conversions state — campaign_pixels rows of type 'facebook' that
     // carry a Conversions API token.
     const emptyCapiForm = {
@@ -104,6 +120,7 @@ const IntegrationsPage = () => {
     const [pixelProfileForm, setPixelProfileForm] = useState(emptyPixelProfileForm);
     const [pixelProfileSearch, setPixelProfileSearch] = useState('');
     const [pixelProfileNiche, setPixelProfileNiche] = useState('');
+    const [pixelProfileSource, setPixelProfileSource] = useState('all');
     const [pixelProfileMessage, setPixelProfileMessage] = useState(null);
     const [pixelProfileTesting, setPixelProfileTesting] = useState(null);
 
@@ -607,6 +624,54 @@ const IntegrationsPage = () => {
         };
     }, []);
 
+    // Same popup handshake for TikTok: the callback page posts the discovered
+    // accounts and pixels back; tokens stay server-side behind the flow id.
+    useEffect(() => {
+        const handleTikTokOAuthMessage = (event) => {
+            if (event.origin !== window.location.origin || event.data?.type !== 'orbitra.tiktok_oauth') return;
+            if (!ttPopupRef.current || event.source !== ttPopupRef.current) return;
+
+            setTtOAuthLoading(false);
+            if (ttPollRef.current) {
+                window.clearInterval(ttPollRef.current);
+                ttPollRef.current = null;
+            }
+            ttPopupRef.current = null;
+
+            if (event.data.status !== 'success') {
+                setTtDiscoveredAccounts([]);
+                setTtDiscoveredPixels([]);
+                setTtSelectedAccounts([]);
+                setTtOAuthFlowId('');
+                setTtMessage({ type: 'error', text: event.data.message || translationRef.current('tiktokCosts.oauthFailed') });
+                return;
+            }
+
+            const accounts = Array.isArray(event.data.accounts) ? event.data.accounts : [];
+            const pixels = Array.isArray(event.data.pixels) ? event.data.pixels : [];
+            setTtDiscoveredAccounts(accounts);
+            setTtDiscoveredPixels(pixels);
+            setTtSelectedAccounts(accounts.map(account => account.id));
+            setTtOAuthFlowId(event.data.flow_id || '');
+            setTtMessage(accounts.length === 0
+                ? { type: 'error', text: translationRef.current('tiktokCosts.noDiscoveredAccounts') }
+                : null);
+        };
+
+        window.addEventListener('message', handleTikTokOAuthMessage);
+        return () => {
+            window.removeEventListener('message', handleTikTokOAuthMessage);
+            if (ttPollRef.current) {
+                window.clearInterval(ttPollRef.current);
+                ttPollRef.current = null;
+            }
+            if (ttPopupRef.current && !ttPopupRef.current.closed) {
+                ttPopupRef.current.close();
+            }
+            ttPopupRef.current = null;
+        };
+    }, []);
+
     // The list endpoint strips credentials, so editing has to re-read the row.
     const loadFbConnection = async (id) => {
         try {
@@ -697,6 +762,114 @@ const IntegrationsPage = () => {
         setFbSelectedAccounts(current => checked
             ? [...new Set([...current, accountId])]
             : current.filter(id => id !== accountId));
+    };
+
+    const resetTikTokOAuth = () => {
+        if (ttPollRef.current) {
+            window.clearInterval(ttPollRef.current);
+            ttPollRef.current = null;
+        }
+        if (ttPopupRef.current && !ttPopupRef.current.closed) {
+            ttPopupRef.current.close();
+        }
+        ttPopupRef.current = null;
+        setTtDiscoveredAccounts([]);
+        setTtDiscoveredPixels([]);
+        setTtSelectedAccounts([]);
+        setTtOAuthFlowId('');
+        setTtOAuthLoading(false);
+        setTtConnecting(false);
+    };
+
+    const openTikTokModal = () => {
+        resetTikTokOAuth();
+        setTtMessage(null);
+        setTtImportPixels(true);
+        setTtSyncInterval(2);
+        setTtModalOpen(true);
+    };
+
+    const handleStartTikTokOAuth = () => {
+        setTtMessage(null);
+        setTtDiscoveredAccounts([]);
+        setTtDiscoveredPixels([]);
+        setTtSelectedAccounts([]);
+        setTtOAuthFlowId('');
+
+        if (ttPopupRef.current && !ttPopupRef.current.closed) {
+            ttPopupRef.current.close();
+        }
+        if (ttPollRef.current) {
+            window.clearInterval(ttPollRef.current);
+        }
+
+        const width = 640;
+        const height = 720;
+        const left = Math.max(0, window.screenX + Math.round((window.outerWidth - width) / 2));
+        const top = Math.max(0, window.screenY + Math.round((window.outerHeight - height) / 2));
+        const popup = window.open(
+            `${API_URL}?action=tiktok_oauth_start`,
+            'orbitra-tiktok-oauth',
+            `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+        if (!popup) {
+            setTtOAuthLoading(false);
+            setTtMessage({ type: 'error', text: t('tiktokCosts.popupBlocked') });
+            return;
+        }
+
+        ttPopupRef.current = popup;
+        setTtOAuthLoading(true);
+        popup.focus();
+        ttPollRef.current = window.setInterval(() => {
+            if (popup.closed) {
+                window.clearInterval(ttPollRef.current);
+                ttPollRef.current = null;
+                ttPopupRef.current = null;
+                setTtOAuthLoading(false);
+            }
+        }, 500);
+    };
+
+    const toggleTikTokAccount = (accountId, checked) => {
+        setTtSelectedAccounts(current => checked
+            ? [...new Set([...current, accountId])]
+            : current.filter(id => id !== accountId));
+    };
+
+    const handleConnectTikTokAccounts = async () => {
+        if (!ttOAuthFlowId || ttSelectedAccounts.length === 0) return;
+        setTtConnecting(true);
+        setTtMessage(null);
+        try {
+            const accounts = ttDiscoveredAccounts.filter(account => ttSelectedAccounts.includes(account.id));
+            const res = await axios.post(`${API_URL}?action=tiktok_connect_accounts`, {
+                flow_id: ttOAuthFlowId,
+                accounts,
+                sync_interval_hours: ttSyncInterval || 2,
+                import_pixels: ttImportPixels
+            });
+            if (res.data.status !== 'success') {
+                setTtMessage({ type: 'error', text: res.data.message || t('tiktokCosts.oauthFailed') });
+                return;
+            }
+
+            const connected = res.data.data?.connected_count ?? accounts.length;
+            const imported = res.data.data?.imported_pixels ?? 0;
+            const summary = t('tiktokCosts.connectedAccounts')
+                .replace('{n}', connected)
+                .replace('{m}', imported);
+            // The modal closes right after, so the summary lands in the vault banner.
+            setPixelProfileMessage({ type: 'success', text: summary });
+            setTtMessage({ type: 'success', text: summary });
+            resetTikTokOAuth();
+            fetchPixelProfiles();
+            setTtModalOpen(false);
+        } catch (err) {
+            setTtMessage({ type: 'error', text: err.response?.data?.message || err.message || t('tiktokCosts.oauthFailed') });
+        } finally {
+            setTtConnecting(false);
+        }
     };
 
     const handleConnectDiscoveredAccounts = async () => {
@@ -1287,7 +1460,14 @@ const IntegrationsPage = () => {
         const niches = [...new Set(pixelProfiles.map(profile => profile.niche || 'General'))]
             .sort((a, b) => a.localeCompare(b));
         const query = pixelProfileSearch.trim().toLowerCase();
+        // Source tabs: "All" plus every source that actually has profiles.
+        const sourceCounts = pixelProfiles.reduce((counts, profile) => {
+            const source = profile.traffic_source || 'facebook';
+            counts[source] = (counts[source] || 0) + 1;
+            return counts;
+        }, {});
         const visible = pixelProfiles.filter(profile => {
+            if (pixelProfileSource !== 'all' && (profile.traffic_source || 'facebook') !== pixelProfileSource) return false;
             if (pixelProfileNiche && (profile.niche || 'General') !== pixelProfileNiche) return false;
             if (!query) return true;
             return [profile.name, profile.niche, profile.pixel_id, profile.traffic_source]
@@ -1403,6 +1583,25 @@ const IntegrationsPage = () => {
                     </div>
                 ) : (
                     <div style={{ border: '1px solid var(--color-border)', borderRadius: '14px', padding: '12px', marginBottom: '18px', background: 'var(--color-bg-soft)' }}>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: pixelProfileNiche || query ? '10px' : 0 }}>
+                            <button
+                                className={`btn btn-sm ${pixelProfileSource === 'all' ? 'btn-primary' : 'btn-secondary'}`}
+                                style={{ fontSize: '11px' }}
+                                onClick={() => setPixelProfileSource('all')}
+                            >
+                                {t('pixelVault.allSources')} ({pixelProfiles.length})
+                            </button>
+                            {pixelSourceOptions.filter(source => sourceCounts[source.value]).map(source => (
+                                <button
+                                    key={source.value}
+                                    className={`btn btn-sm ${pixelProfileSource === source.value ? 'btn-primary' : 'btn-secondary'}`}
+                                    style={{ fontSize: '11px' }}
+                                    onClick={() => setPixelProfileSource(pixelProfileSource === source.value ? 'all' : source.value)}
+                                >
+                                    {source.icon} {source.label} ({sourceCounts[source.value]})
+                                </button>
+                            ))}
+                        </div>
                         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                             <select className="form-select" style={{ maxWidth: '210px' }} value={pixelProfileNiche} onChange={e => setPixelProfileNiche(e.target.value)}>
                                 <option value="">{t('pixelVault.allNiches')}</option>
@@ -1480,6 +1679,146 @@ const IntegrationsPage = () => {
                         {visible.length === 0 && !pixelProfileEditing && (
                             <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '13px', padding: '34px 0' }}>{t('pixelVault.noProfiles')}</p>
                         )}
+                    </div>
+                )}
+
+                {ttModalOpen && (
+                    <div className="modal-overlay" onClick={() => { resetTikTokOAuth(); setTtModalOpen(false); }}>
+                        <div className="modal-content" style={{ maxWidth: '560px' }} onClick={e => e.stopPropagation()}>
+                            <div className="modal-header px-6 pt-5" style={{ flexShrink: 0 }}>
+                                <h4 className="modal-title font-bold text-base m-0">🎵 {t('tiktokCosts.modalTitle')}</h4>
+                                <button type="button" className="action-btn" onClick={() => { resetTikTokOAuth(); setTtModalOpen(false); }}>
+                                    <X size={16} />
+                                </button>
+                            </div>
+                            <div className="p-6 space-y-4" style={{ overflowY: 'auto' }}>
+                                {ttMessage && (
+                                    <div style={{
+                                        padding: '10px 14px', borderRadius: '10px', fontSize: '13px',
+                                        background: ttMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
+                                        color: ttMessage.type === 'success' ? '#166534' : '#991b1b',
+                                        border: `1px solid ${ttMessage.type === 'success' ? '#86efac' : '#fca5a5'}`
+                                    }}>{ttMessage.text}</div>
+                                )}
+
+                                <div
+                                    className="p-5 rounded-2xl border text-center flex flex-col items-center gap-3"
+                                    style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}
+                                >
+                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                                        style={{ backgroundColor: 'rgba(254, 44, 85, 0.12)', color: '#FE2C55' }}>
+                                        <Music2 size={22} />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-bold m-0" style={{ color: 'var(--color-text-primary)' }}>
+                                            {t('tiktokCosts.oneClickTitle')}
+                                        </h4>
+                                        <p className="text-xs m-0 mt-1 max-w-md" style={{ color: 'var(--color-text-muted)' }}>
+                                            {t('tiktokCosts.oneClickDesc')}
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleStartTikTokOAuth}
+                                        disabled={ttOAuthLoading || ttConnecting}
+                                        className="btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]"
+                                        style={{ backgroundColor: '#FE2C55', color: '#ffffff', boxShadow: '0 4px 14px rgba(254, 44, 85, 0.3)', opacity: ttOAuthLoading ? 0.75 : 1 }}
+                                    >
+                                        {ttOAuthLoading ? <RefreshCw size={16} className="animate-spin" /> : <Music2 size={16} />}
+                                        <span>{ttOAuthLoading ? t('tiktokCosts.oauthConnecting') : t('tiktokCosts.loginWithTikTok')}</span>
+                                    </button>
+                                </div>
+
+                                {ttDiscoveredAccounts.length > 0 && (
+                                    <div className="p-4 rounded-2xl border space-y-3"
+                                        style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-success)' }}>
+                                        <div className="flex justify-between items-center gap-3">
+                                            <span className="text-xs font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                                                {t('tiktokCosts.selectAccounts')}:
+                                            </span>
+                                            <button type="button" onClick={() => setTtSelectedAccounts(ttDiscoveredAccounts.map(account => account.id))}
+                                                className="text-xs hover:underline" style={{ color: 'var(--color-primary)' }}>
+                                                {t('common.selectAll')}
+                                            </button>
+                                        </div>
+
+                                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                                            {ttDiscoveredAccounts.map(account => (
+                                                <label key={account.id}
+                                                    className="flex items-center justify-between gap-3 p-2.5 rounded-xl border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
+                                                    style={{ borderColor: 'var(--color-border)' }}>
+                                                    <div className="flex items-center gap-2.5 min-w-0">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={ttSelectedAccounts.includes(account.id)}
+                                                            onChange={event => toggleTikTokAccount(account.id, event.target.checked)}
+                                                            className="rounded"
+                                                        />
+                                                        <div className="min-w-0">
+                                                            <div className="text-xs font-semibold truncate" style={{ color: 'var(--color-text-primary)' }}>{account.name}</div>
+                                                            <div className="text-[11px] font-mono" style={{ color: 'var(--color-text-muted)' }}>{account.id}</div>
+                                                        </div>
+                                                    </div>
+                                                    {account.currency && (
+                                                        <span className="text-xs font-semibold px-2 py-0.5 rounded shrink-0"
+                                                            style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)' }}>
+                                                            {account.currency}
+                                                        </span>
+                                                    )}
+                                                </label>
+                                            ))}
+                                        </div>
+
+                                        {ttDiscoveredPixels.length > 0 && (
+                                            <div className="p-3 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
+                                                <div className="text-xs font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                                                    {t('tiktokCosts.discoveredPixels')} ({ttDiscoveredPixels.length}):
+                                                </div>
+                                                <div className="space-y-1 mb-2 max-h-28 overflow-y-auto">
+                                                    {ttDiscoveredPixels.map(pixel => (
+                                                        <div key={pixel.pixel_id} className="text-[11px] font-mono truncate" style={{ color: 'var(--color-text-muted)' }}>
+                                                            {pixel.pixel_id} — {pixel.name} ({pixel.advertiser_name})
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <label className="flex items-center gap-2 text-xs cursor-pointer" style={{ color: 'var(--color-text-secondary)' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={ttImportPixels}
+                                                        onChange={event => setTtImportPixels(event.target.checked)}
+                                                        className="rounded"
+                                                    />
+                                                    {t('tiktokCosts.importPixels')}
+                                                </label>
+                                            </div>
+                                        )}
+
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs whitespace-nowrap" style={{ color: 'var(--color-text-secondary)' }}>
+                                                {t('tiktokCosts.syncEvery')}:
+                                            </span>
+                                            <select className="form-select text-xs" style={{ maxWidth: '120px' }}
+                                                value={ttSyncInterval} onChange={e => setTtSyncInterval(Number(e.target.value))}>
+                                                {[1, 2, 6, 12, 24].map(hours => (
+                                                    <option key={hours} value={hours}>{hours}h</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <button type="button" onClick={handleConnectTikTokAccounts}
+                                            disabled={ttConnecting || ttSelectedAccounts.length === 0}
+                                            className="btn btn-primary w-full py-2 rounded-xl text-xs font-semibold">
+                                            {ttConnecting ? t('tiktokCosts.connecting') : t('tiktokCosts.connectSelected')} ({ttSelectedAccounts.length})
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex justify-end gap-2 px-6 pb-6" style={{ flexShrink: 0 }}>
+                                <button type="button" className="btn btn-secondary btn-sm" onClick={() => { resetTikTokOAuth(); setTtModalOpen(false); }}>
+                                    {t('common.cancel')}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
@@ -1790,6 +2129,12 @@ const IntegrationsPage = () => {
             icon: <ImageIcon className="w-5 h-5" />,
             description: t('integrations.pixelDesc'),
             code: `<!-- Tracking impressions -->\n<img src="${trackerUrl}/pixel.gif?campaign_id=YOUR_ID" width="1" height="1" border="0" alt="" />\n\n<!-- Tracking conversions (place on Thank You page) -->\n<img src="${trackerUrl}/pixel.gif?action=conversion&subid={subid}&status=lead" width="1" height="1" border="0" alt="" />`
+        },
+        tiktok_pixel: {
+            title: t('integrations.tiktokPixelTitle', 'TikTok Pixel'),
+            icon: <Music2 className="w-5 h-5" />,
+            description: t('integrations.tiktokPixelDesc', 'Browser TikTok Pixel on local landings. The pixel id arrives in the {pixel} campaign parameter from the TikTok source template and is stored in a cookie for the thank-you page.'),
+            code: `<!-- 1. Landing <head>: store the pixel id from the campaign parameter.\n        The TikTok source template fills {pixel} = __PIXEL__; replace "pixel"\n        if your campaign passes it under another name. -->\n<script>\nvar date = new Date();\ndate.setTime(date.getTime() + (5 * 24 * 60 * 60 * 1000));\nif (!'{pixel}'.match('{')) {\n  document.cookie = "pixel={pixel}; " + "expires=" + date.toUTCString() + "";\n}\n</script>\n\n<!-- 2. Where events fire (landing or thank-you page): read the cookie\n        and boot the pixel with it. -->\n<script>\nvar matches = document.cookie.match(new RegExp("(?:^|; )" + 'pixel' + "=([^;]*)"));\nvar pixel = matches ? decodeURIComponent(matches[1]) : undefined;\n</script>\n\n<!-- TikTok Pixel Code Start -->\n<script>\n    !function (w, d, t) {\n      w.TiktokAnalyticsObject = t;\n      var ttq = w[t] = w[t] = [];\n      ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie"],\n        ttq.setAndDefer = function (t, e) {\n          t[e] = function () {\n            t.push([e].concat(Array.prototype.slice.call(arguments, 0)))\n          }\n        };\n      for (var i = 0; i < ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]);\n      ttq.instance = function (t) {\n        for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++) ttq.setAndDefer(e, ttq.methods[n]);\n        return e\n      }, ttq.load = function (e, n) {\n        var i = "https://analytics.tiktok.com/i18n/pixel/events.js";\n        ttq._i = ttq._i || {}, ttq._i[e] = [], ttq._i[e]._u = i, ttq._t = ttq._t || {}, ttq._t[e] = +new Date, ttq._o = ttq._o || {}, ttq._o[e] = n || {};\n        var o = document.createElement("script");\n        o.type = "text/javascript", o.async = !0, o.src = i + "?sdkid=" + e + "&lib=" + t;\n        var a = document.getElementsByTagName("script")[0];\n        a.parentNode.insertBefore(o, a)\n      };\n      ttq.load(pixel);\n      ttq.page();\n    }(window, document, 'ttq');\n</script>\n<!-- TikTok Pixel Code End -->\n\n<!-- No access to the landing code (offer redirect)? Use the server-side\n        TikTok Conversions API instead: Pixel Vault -> Connect TikTok. -->`
         },
         facebook_costs: {
             title: t('fbCosts.title'),
@@ -2987,7 +3332,7 @@ global \$wpdb;
                                 const groups = [
                                     { label: t('integrations.groupAds', 'Ad networks'), ids: ['pixel_vault', 'facebook_costs', 'facebook_conversions', 'dolphin_fbtool', 'chrome_extension'] },
                                     { label: t('integrations.groupDomains', 'Domains & SSL'), ids: ['cloudflare', 'namecheap'] },
-                                    { label: t('integrations.groupSites', 'Sites & landings'), ids: ['kclient_php', 'kclient_js', 'tracking_pixel', 'js_banner', 'wordpress', 'wordpress_plugin', 'static_site', 'geo_redirect', 'device_redirect'] },
+                                    { label: t('integrations.groupSites', 'Sites & landings'), ids: ['kclient_php', 'kclient_js', 'tracking_pixel', 'tiktok_pixel', 'js_banner', 'wordpress', 'wordpress_plugin', 'static_site', 'geo_redirect', 'device_redirect'] },
                                     { label: t('integrations.groupTools', 'Tools'), ids: ['countdown_timer', 'back_button_trap', 'exit_popup', 'app_config', 'recaptcha', 'telegram'] },
                                 ];
                                 const grouped = new Set(groups.flatMap(g => g.ids));
@@ -3092,16 +3437,25 @@ global \$wpdb;
                                 </p>
                             </div>
                             {activeObj.isPixelVault && !pixelProfileEditing && (
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={() => {
-                                        setPixelProfileForm(emptyPixelProfileForm);
-                                        setPixelProfileEditing('new');
-                                        setPixelProfileMessage(null);
-                                    }}
-                                >
-                                    <Plus size={16} /> {t('pixelVault.addNewPixel')}
-                                </button>
+                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                    <button
+                                        className="btn btn-secondary"
+                                        onClick={openTikTokModal}
+                                        title={t('tiktokCosts.connectTikTokHint')}
+                                    >
+                                        <Music2 size={16} /> {t('tiktokCosts.connectTikTok')}
+                                    </button>
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={() => {
+                                            setPixelProfileForm(emptyPixelProfileForm);
+                                            setPixelProfileEditing('new');
+                                            setPixelProfileMessage(null);
+                                        }}
+                                    >
+                                        <Plus size={16} /> {t('pixelVault.addNewPixel')}
+                                    </button>
+                                </div>
                             )}
                         </div>
 

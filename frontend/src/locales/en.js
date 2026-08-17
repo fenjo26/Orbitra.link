@@ -345,8 +345,8 @@ export default {
         "terminal": "Terminal",
         "alternativeSqLite": "Alternative via SQLite:",
         "recoveryFooter": "After changing the password, you can log in with the new password.",
-        "cliPhp": "php api.php?action=reset_password&user=YOUR_LOGIN",
-        "cliSqlite": "sqlite3 orbitra_db.sqlite \"UPDATE users SET password='new_password' WHERE username='login'\""
+        "cliPhp": "php cli/reset_password.php YOUR_LOGIN YOUR_NEW_PASSWORD",
+        "cliSqlite": "php -r \"require 'config.php'; \\$pdo->prepare('UPDATE users SET password=?, is_active=1 WHERE username=?')->execute([password_hash('NEW_PASSWORD', PASSWORD_DEFAULT), 'YOUR_LOGIN']);\""
     },
     "dashboard": {
         "today": "Today",
@@ -2099,6 +2099,7 @@ export default {
         "testEventSent": "Test event sent successfully!",
         "editPixel": "Edit Pixel Profile",
         "allNiches": "All Niches",
+        "allSources": "All",
         "search": "Find a pixel…",
         "token": "Token",
         "duplicate": "Duplicate",
@@ -2248,6 +2249,8 @@ export default {
         "jsBannerTitle": "JS Advertising (Banner)",
         "jsBannerDesc": "Displays banners or ad blocks on your website. Allows banner split testing and tracks clicks/impressions.",
         "pixelDesc": "The simplest way to track page views or conversions on third-party sites where JS cannot be placed (e.g., in email newsletters).",
+        "tiktokPixelTitle": "TikTok Pixel",
+        "tiktokPixelDesc": "Browser TikTok Pixel on local landings. The pixel id arrives in the {pixel} campaign parameter from the TikTok source template and is stored in a cookie for the thank-you page.",
         "codeToInsert": "Code to insert on site:",
         "copyCode": "Copy Code",
         "copied": "Copied!",
@@ -2708,6 +2711,8 @@ export default {
         "fields": {
             "ttToken": "Access Token",
             "ttAdvertiser": "Advertiser ID",
+            "ttAppId": "App ID (optional, keeps OAuth auto-refresh working)",
+            "ttAppSecret": "App Secret (optional)",
             "fbToken": "Access Token (long-lived / system user)",
             "fbAdAccount": "Ad Account ID",
             "fbApiVersion": "Facebook API version",
@@ -2715,6 +2720,25 @@ export default {
             "fbAppSecret": "App Secret (optional)",
             "proxy": "Proxy (optional) — scheme://user:pass@host:port"
         }
+    },
+    "tiktokCosts": {
+        "modalTitle": "TikTok For Business",
+        "oneClickTitle": "1-Click TikTok Integration",
+        "oneClickDesc": "Log in with your TikTok for Business account. Orbitra will automatically discover your ad accounts and pixels, set up spend sync and import the pixels into the Pixel Vault.",
+        "loginWithTikTok": "Log in with TikTok",
+        "oauthConnecting": "Connecting to TikTok…",
+        "selectAccounts": "Select Ad Accounts to Connect",
+        "discoveredPixels": "Discovered pixels",
+        "importPixels": "Import discovered pixels into the Pixel Vault",
+        "syncEvery": "Update spend every",
+        "connectSelected": "Save & Connect",
+        "connecting": "Connecting accounts…",
+        "connectedAccounts": "Connected {n} TikTok ad account(s), imported {m} pixel(s).",
+        "oauthFailed": "TikTok connection failed. Please try again.",
+        "popupBlocked": "The TikTok login window was blocked. Allow popups for Orbitra and try again.",
+        "noDiscoveredAccounts": "TikTok login succeeded, but no accessible ad accounts were found.",
+        "connectTikTok": "Connect TikTok For Business",
+        "connectTikTokHint": "Log in with TikTok: discovers ad accounts and pixels, imports them into the Pixel Vault and enables automatic spend sync"
     },
     "fbCosts": {
         "title": "Facebook Costs",

@@ -345,8 +345,8 @@ export default {
         "terminal": "Terminal",
         "alternativeSqLite": "Alternative via SQLite :",
         "recoveryFooter": "Après avoir modifié le mot de passe, vous pouvez vous connecter avec le nouveau mot de passe.",
-        "cliPhp": "php api.php?action=reset_password&user=YOUR_LOGIN",
-        "cliSqlite": "sqlite3 orbitra_db.sqlite \"MISE À JOUR des utilisateurs SET password='new_password' WHERE username='login'\""
+        "cliPhp": "php cli/reset_password.php YOUR_LOGIN YOUR_NEW_PASSWORD",
+        "cliSqlite": "php -r \"require 'config.php'; \\$pdo->prepare('UPDATE users SET password=?, is_active=1 WHERE username=?')->execute([password_hash('NEW_PASSWORD', PASSWORD_DEFAULT), 'YOUR_LOGIN']);\""
     },
     "dashboard": {
         "today": "Aujourd'hui",
@@ -2099,6 +2099,7 @@ export default {
         "testEventSent": "Événement de test envoyé à Meta avec succès !",
         "editPixel": "Modifier le profil de pixel",
         "allNiches": "Toutes les niches",
+        "allSources": "Tous",
         "search": "Rechercher un pixel…",
         "token": "Jeton",
         "duplicate": "Dupliquer",
@@ -2248,6 +2249,8 @@ export default {
         "jsBannerTitle": "Publicité JS (bannière)",
         "jsBannerDesc": "Affiche des bannières ou des blocs d'annonces sur votre site Web. Permet de tester le fractionnement des bannières et de suivre les clics/impressions.",
         "pixelDesc": "Le moyen le plus simple de suivre les pages vues ou les conversions sur des sites tiers où le JS ne peut pas être placé (par exemple, dans les newsletters par courrier électronique).",
+        "tiktokPixelTitle": "Pixel TikTok",
+        "tiktokPixelDesc": "Pixel TikTok côté navigateur sur les landings locaux. L’ID du pixel arrive via le paramètre de campagne {pixel} du modèle de source TikTok et est stocké dans un cookie pour la page de remerciement.",
         "codeToInsert": "Code à insérer sur le site :",
         "copyCode": "Copier le code",
         "copied": "Copié !",
@@ -2708,6 +2711,8 @@ export default {
         "fields": {
             "ttToken": "Access Token",
             "ttAdvertiser": "ID annonceur",
+            "ttAppId": "App ID (facultatif, nécessaire au renouvellement automatique du jeton OAuth)",
+            "ttAppSecret": "App Secret (facultatif)",
             "fbToken": "Access Token (longue durée / utilisateur système)",
             "fbAdAccount": "ID du compte publicitaire",
             "fbApiVersion": "Version de l'API Facebook",
@@ -2715,6 +2720,25 @@ export default {
             "fbAppSecret": "App Secret (optionnel)",
             "proxy": "Proxy (optionnel) — scheme://user:pass@host:port"
         }
+    },
+    "tiktokCosts": {
+        "modalTitle": "TikTok For Business",
+        "oneClickTitle": "Intégration TikTok en 1 clic",
+        "oneClickDesc": "Connectez-vous avec votre compte TikTok For Business. Orbitra découvre automatiquement vos comptes publicitaires et vos pixels, active la synchronisation des dépenses et importe les pixels dans le Pixel Vault.",
+        "loginWithTikTok": "Se connecter avec TikTok",
+        "oauthConnecting": "Connexion à TikTok…",
+        "selectAccounts": "Comptes publicitaires à connecter",
+        "discoveredPixels": "Pixels découverts",
+        "importPixels": "Importer les pixels découverts dans le Pixel Vault",
+        "syncEvery": "Actualiser les dépenses toutes les",
+        "connectSelected": "Enregistrer et connecter",
+        "connecting": "Connexion des comptes…",
+        "connectedAccounts": "{n} compte(s) TikTok Ads connecté(s), {m} pixel(s) importé(s).",
+        "oauthFailed": "Échec de la connexion TikTok. Veuillez réessayer.",
+        "popupBlocked": "La fenêtre de connexion TikTok a été bloquée. Autorisez les popups pour Orbitra et réessayez.",
+        "noDiscoveredAccounts": "Connexion TikTok réussie, mais aucun compte publicitaire accessible n’a été trouvé.",
+        "connectTikTok": "Connecter TikTok For Business",
+        "connectTikTokHint": "Connexion via TikTok — découvre les comptes et les pixels, les importe dans le Pixel Vault et active la synchronisation automatique des dépenses"
     },
     "fbCosts": {
         "title": "Facebook Costs",

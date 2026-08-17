@@ -345,8 +345,8 @@ export default {
         "terminal": "Terminal",
         "alternativeSqLite": "Alternative über SQLite:",
         "recoveryFooter": "Nach der Änderung des Passworts können Sie sich mit dem neuen Passwort anmelden.",
-        "cliPhp": "php api.php?action=reset_password&user=YOUR_LOGIN",
-        "cliSqlite": "sqlite3 orbitra_db.sqlite \"UPDATE Benutzer SET Passwort='new_password' WHERE Benutzername='login'\""
+        "cliPhp": "php cli/reset_password.php YOUR_LOGIN YOUR_NEW_PASSWORD",
+        "cliSqlite": "php -r \"require 'config.php'; \\$pdo->prepare('UPDATE users SET password=?, is_active=1 WHERE username=?')->execute([password_hash('NEW_PASSWORD', PASSWORD_DEFAULT), 'YOUR_LOGIN']);\""
     },
     "dashboard": {
         "today": "Heute",
@@ -2099,6 +2099,7 @@ export default {
         "testEventSent": "Testereignis erfolgreich an Meta gesendet!",
         "editPixel": "Pixel-Profil bearbeiten",
         "allNiches": "Alle Nischen",
+        "allSources": "Alle",
         "search": "Pixel suchen…",
         "token": "Token",
         "duplicate": "Duplizieren",
@@ -2248,6 +2249,8 @@ export default {
         "jsBannerTitle": "JS-Werbung (Banner)",
         "jsBannerDesc": "Zeigt Banner oder Werbeblöcke auf Ihrer Website an. Ermöglicht Banner-Split-Tests und verfolgt Klicks/Impressionen.",
         "pixelDesc": "Die einfachste Möglichkeit, Seitenaufrufe oder Conversions auf Websites von Drittanbietern zu verfolgen, auf denen JS nicht platziert werden kann (z. B. in E-Mail-Newslettern).",
+        "tiktokPixelTitle": "TikTok-Pixel",
+        "tiktokPixelDesc": "Browser-TikTok-Pixel auf lokalen Landings. Die Pixel-ID kommt über den Kampagnenparameter {pixel} aus der TikTok-Quellvorlage und wird für die Danke-Seite in einem Cookie gespeichert.",
         "codeToInsert": "Code zum Einfügen auf der Website:",
         "copyCode": "Code kopieren",
         "copied": "Kopiert!",
@@ -2708,6 +2711,8 @@ export default {
         "fields": {
             "ttToken": "Access Token",
             "ttAdvertiser": "Advertiser-ID",
+            "ttAppId": "App-ID (optional, hält die OAuth-Auto-Erneuerung am Laufen)",
+            "ttAppSecret": "App Secret (optional)",
             "fbToken": "Access Token (langlebig / System-User)",
             "fbAdAccount": "Werbekonto-ID",
             "fbApiVersion": "Facebook-API-Version",
@@ -2715,6 +2720,25 @@ export default {
             "fbAppSecret": "App Secret (optional)",
             "proxy": "Proxy (optional) — scheme://user:pass@host:port"
         }
+    },
+    "tiktokCosts": {
+        "modalTitle": "TikTok For Business",
+        "oneClickTitle": "1-Click-TikTok-Integration",
+        "oneClickDesc": "Melden Sie sich mit Ihrem TikTok-For-Business-Konto an. Orbitra findet automatisch Werbekonten und Pixel, richtet die Kosten-Synchronisierung ein und importiert die Pixel in den Pixel Vault.",
+        "loginWithTikTok": "Mit TikTok anmelden",
+        "oauthConnecting": "Verbindung zu TikTok…",
+        "selectAccounts": "Werbekonten zum Verbinden wählen",
+        "discoveredPixels": "Gefundene Pixel",
+        "importPixels": "Gefundene Pixel in den Pixel Vault importieren",
+        "syncEvery": "Ausgaben aktualisieren alle",
+        "connectSelected": "Speichern & verbinden",
+        "connecting": "Konten werden verbunden…",
+        "connectedAccounts": "{n} TikTok-Werbekonto/-konten verbunden, {m} Pixel importiert.",
+        "oauthFailed": "TikTok-Verbindung fehlgeschlagen. Bitte erneut versuchen.",
+        "popupBlocked": "Das TikTok-Anmeldefenster wurde blockiert. Erlauben Sie Popups für Orbitra und versuchen Sie es erneut.",
+        "noDiscoveredAccounts": "TikTok-Anmeldung erfolgreich, aber keine zugänglichen Werbekonten gefunden.",
+        "connectTikTok": "TikTok For Business verbinden",
+        "connectTikTokHint": "Anmeldung über TikTok — erkennt Werbekonten und Pixel automatisch, importiert sie in den Pixel Vault und aktiviert die automatische Kosten-Synchronisierung"
     },
     "fbCosts": {
         "title": "Facebook Costs",

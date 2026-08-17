@@ -345,8 +345,8 @@ export default {
         "terminal": "Терминал",
         "alternativeSqLite": "Альтернатива через SQLite:",
         "recoveryFooter": "После изменения пароля вы сможете войти с новым паролем.",
-        "cliPhp": "php api.php?action=reset_password&user=YOUR_LOGIN",
-        "cliSqlite": "sqlite3 orbitra_db.sqlite \"UPDATE users SET password='new_password' WHERE username='login'\""
+        "cliPhp": "php cli/reset_password.php YOUR_LOGIN YOUR_NEW_PASSWORD",
+        "cliSqlite": "php -r \"require 'config.php'; \\$pdo->prepare('UPDATE users SET password=?, is_active=1 WHERE username=?')->execute([password_hash('NEW_PASSWORD', PASSWORD_DEFAULT), 'YOUR_LOGIN']);\""
     },
     "dashboard": {
         "today": "Сегодня",
@@ -2183,6 +2183,8 @@ export default {
         "jsBannerDesc": "Выводит баннеры или блоки с рекламой на ваш сайт. Позволяет сплитовать баннеры и отслеживать клики/показы.",
         "jsBannerTitle": "JS-реклама (Баннер)",
         "pixelDesc": "Самый простой способ отследить показ страницы или конверсию на стороннем сайте, где нельзя разместить JS (например, в email-рассылке).",
+        "tiktokPixelTitle": "TikTok Пиксель",
+        "tiktokPixelDesc": "Браузерный пиксель TikTok на локальных лендингах. ID пикселя приходит в параметре кампании {pixel} из шаблона источника TikTok и сохраняется в cookie для страницы благодарности.",
         "codeToInsert": "Код для вставки на сайт:",
         "copyCode": "Копировать код",
         "copied": "Скопировано!",
@@ -2314,6 +2316,7 @@ export default {
         "testEventSent": "Тестовое событие успешно отправлено в Meta!",
         "editPixel": "Редактировать профиль пикселя",
         "allNiches": "Все ниши",
+        "allSources": "Все",
         "search": "Найти пиксель…",
         "token": "Токен",
         "duplicate": "Дублировать",
@@ -2708,6 +2711,8 @@ export default {
         "fields": {
             "ttToken": "Access Token",
             "ttAdvertiser": "Advertiser ID (ID кабинета)",
+            "ttAppId": "App ID (опционально, нужен для авто-продления OAuth-токена)",
+            "ttAppSecret": "App Secret (опционально)",
             "fbToken": "Access Token (long-lived / system user)",
             "fbAdAccount": "ID рекламного кабинета",
             "fbApiVersion": "Версия Facebook API",
@@ -2715,6 +2720,25 @@ export default {
             "fbAppSecret": "App Secret (опционально)",
             "proxy": "Прокси (опционально) — scheme://user:pass@host:port"
         }
+    },
+    "tiktokCosts": {
+        "modalTitle": "TikTok For Business",
+        "oneClickTitle": "1-Click интеграция с TikTok",
+        "oneClickDesc": "Войдите в аккаунт TikTok For Business — Orbitra автоматически найдёт рекламные кабинеты и пиксели, включит синхронизацию расходов и импортирует пиксели в Pixel Vault.",
+        "loginWithTikTok": "Войти через TikTok",
+        "oauthConnecting": "Подключение к TikTok…",
+        "selectAccounts": "Выберите кабинеты для подключения",
+        "discoveredPixels": "Найденные пиксели",
+        "importPixels": "Импортировать найденные пиксели в Pixel Vault",
+        "syncEvery": "Обновлять расходы каждые",
+        "connectSelected": "Сохранить и подключить",
+        "connecting": "Подключение кабинетов…",
+        "connectedAccounts": "Подключено кабинетов TikTok: {n}, импортировано пикселей: {m}.",
+        "oauthFailed": "Не удалось подключить TikTok. Попробуйте ещё раз.",
+        "popupBlocked": "Окно входа TikTok заблокировано. Разрешите всплывающие окна для Orbitra и попробуйте снова.",
+        "noDiscoveredAccounts": "Вход в TikTok выполнен, но доступных рекламных кабинетов не найдено.",
+        "connectTikTok": "Подключить TikTok For Business",
+        "connectTikTokHint": "Вход через TikTok — авто-обнаружение кабинетов и пикселей, импорт в Pixel Vault и автоматическая синхронизация расходов"
     },
     "fbCosts": {
         "title": "Facebook Costs",

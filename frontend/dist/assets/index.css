@@ -1026,6 +1026,10 @@
     max-height: calc(var(--spacing) * 24);
   }
 
+  .max-h-28 {
+    max-height: calc(var(--spacing) * 28);
+  }
+
   .max-h-32 {
     max-height: calc(var(--spacing) * 32);
   }
@@ -1316,6 +1320,10 @@
 
   .min-w-\[200px\] {
     min-width: 200px;
+  }
+
+  .min-w-\[220px\] {
+    min-width: 220px;
   }
 
   .min-w-\[280px\] {
@@ -2379,6 +2387,10 @@
 
   .pb-5 {
     padding-bottom: calc(var(--spacing) * 5);
+  }
+
+  .pb-6 {
+    padding-bottom: calc(var(--spacing) * 6);
   }
 
   .pb-10 {
