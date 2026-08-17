@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { X, GripVertical, Plus, Trash2, Search, SlidersHorizontal, Layers, Filter as FilterIcon } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { X, GripVertical, ChevronUp, ChevronDown, Plus, Trash2, Search, SlidersHorizontal, Layers, Filter as FilterIcon, RotateCcw } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 // Exact 64 Keitaro Metrics List.
@@ -74,9 +74,10 @@ export const ALL_REPORT_METRICS = [
 
 export const PRESETS = {
     best: ['profitability', 'clicks', 'unique_clicks', 'conversions', 'roi_confirmed', 'cost', 'revenue', 'profit', 'cr', 'epc', 'cpc', 'cpa'],
+    finance: ['cost', 'revenue', 'revenue_confirmed', 'revenue_hold', 'revenue_rejected', 'profit', 'roi', 'profit_confirmed', 'roi_confirmed', 'cpa', 'epc'],
     cod: ['clicks', 'unique_clicks', 'conversions', 'sales', 'leads', 'rejected', 'trash', 'approve_rate', 'cost', 'revenue_confirmed', 'profit_confirmed', 'roi_confirmed', 'cpa'],
     lander_to_offer: ['clicks', 'unique_clicks', 'lp_views', 'prelander_clicks', 'lp_ctr', 'conversions', 'cr', 'cost', 'revenue', 'profit', 'roi', 'epc', 'cpc'],
-    finance: ['cost', 'revenue', 'revenue_confirmed', 'revenue_hold', 'revenue_rejected', 'profit', 'roi', 'profit_confirmed', 'roi_confirmed', 'cpa', 'epc'],
+    traffic: ['clicks', 'unique_clicks', 'visitors', 'unique_clicks_stream', 'unique_clicks_global', 'uc_rate', 'bots', 'bot_rate', 'proxies', 'empty_referrers', 'conversions', 'cr'],
     all: ALL_REPORT_METRICS.map(m => m.id),
 };
 
@@ -107,15 +108,15 @@ const ReportCustomizerModal = ({
     // Filters
     const [filters, setFilters] = useState([]);
 
-    // Drag-and-drop state, by metric id. Indexes from displayMetrics (filtered
-    // by search) never matched the full orderedMetricIds array, which scrambled
-    // rows whenever a search was active; ids index into anything safely.
+    // Drag-and-drop state, tracked in ref + state so drops never lose the ID
+    const draggedIdRef = useRef(null);
     const [draggedId, setDraggedId] = useState(null);
     const [dragOverId, setDragOverId] = useState(null);
+    const prevIsOpenRef = useRef(false);
 
     useEffect(() => {
-        if (isOpen) {
-            const initialSelected = selectedColumns.length > 0 ? selectedColumns : PRESETS.best;
+        if (isOpen && !prevIsOpenRef.current) {
+            const initialSelected = selectedColumns && selectedColumns.length > 0 ? selectedColumns : PRESETS.best;
             setSelectedSet(new Set(initialSelected));
 
             // Put selected items in their user order, followed by the remaining unselected metrics
@@ -127,6 +128,7 @@ const ReportCustomizerModal = ({
             if (currentFilters) setFilters([...currentFilters]);
             setSearchQuery('');
         }
+        prevIsOpenRef.current = isOpen;
     }, [isOpen, selectedColumns, currentLayers, currentFilters]);
 
     const handleToggleMetric = (id) => {
@@ -141,16 +143,35 @@ const ReportCustomizerModal = ({
         });
     };
 
-    const handleRestoreDefault = () => {
-        setSelectedSet(new Set(PRESETS.best));
-        setOrderedMetricIds([...DEFAULT_METRIC_ORDER]);
+    const handleApplyPreset = (presetKey) => {
+        const presetCols = PRESETS[presetKey];
+        if (!presetCols) return;
+        setSelectedSet(new Set(presetCols));
+        const unselected = DEFAULT_METRIC_ORDER.filter(id => !presetCols.includes(id));
+        setOrderedMetricIds([...presetCols, ...unselected]);
     };
 
-    // Drag starts only from the grip handle: a draggable row swallowed row
-    // clicks (the checkbox had no handler of its own), and reordering inside
-    // onDragOver re-rendered mid-drag, so the browser cancelled the session.
-    // The single reorder happens on drop.
+    const handleRestoreDefault = () => {
+        handleApplyPreset('best');
+    };
+
+    // Move metric up or down by 1 position (instant, keyboard/touch-friendly)
+    const handleMoveMetric = (metricId, direction) => {
+        setOrderedMetricIds(prev => {
+            const next = [...prev];
+            const currentIndex = next.indexOf(metricId);
+            if (currentIndex === -1) return prev;
+            const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+            if (targetIndex < 0 || targetIndex >= next.length) return prev;
+            const [item] = next.splice(currentIndex, 1);
+            next.splice(targetIndex, 0, item);
+            return next;
+        });
+    };
+
+    // HTML5 Drag-and-Drop with ref fallback for Safari / Chrome Mac
     const handleDragStart = (e, metricId) => {
+        draggedIdRef.current = metricId;
         setDraggedId(metricId);
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', metricId);
@@ -166,24 +187,26 @@ const ReportCustomizerModal = ({
 
     const handleDrop = (e, targetMetricId) => {
         e.preventDefault();
-        const droppedId = draggedId || e.dataTransfer.getData('text/plain');
-        if (droppedId && droppedId !== targetMetricId) {
+        const sourceId = draggedIdRef.current || e.dataTransfer.getData('text/plain');
+        if (sourceId && sourceId !== targetMetricId) {
             setOrderedMetricIds(prev => {
                 const next = [...prev];
-                const fromIndex = next.indexOf(droppedId);
+                const fromIndex = next.indexOf(sourceId);
                 const toIndex = next.indexOf(targetMetricId);
                 if (fromIndex !== -1 && toIndex !== -1) {
-                    next.splice(fromIndex, 1);
-                    next.splice(toIndex, 0, droppedId);
+                    const [item] = next.splice(fromIndex, 1);
+                    next.splice(toIndex, 0, item);
                 }
                 return next;
             });
         }
+        draggedIdRef.current = null;
         setDraggedId(null);
         setDragOverId(null);
     };
 
     const handleDragEnd = () => {
+        draggedIdRef.current = null;
         setDraggedId(null);
         setDragOverId(null);
     };
@@ -212,11 +235,10 @@ const ReportCustomizerModal = ({
         return orderedMetricIds
             .map(id => ALL_REPORT_METRICS.find(m => m.id === id))
             .filter(Boolean)
-            .filter(m => !q || m.label.toLowerCase().includes(q) || m.id.toLowerCase().includes(q));
+            .filter(m => !q || m.label.toLowerCase().includes(q) || (m.shortLabel && m.shortLabel.toLowerCase().includes(q)) || m.id.toLowerCase().includes(q));
     }, [orderedMetricIds, searchQuery]);
 
-    // Select All toggles the visible (filtered) metrics: with a search active,
-    // it adds what is on screen to the selection instead of all 64 columns.
+    // Select All toggles the visible (filtered) metrics
     const isAllSelected = displayMetrics.length > 0 && displayMetrics.every(m => selectedSet.has(m.id));
 
     const handleToggleAll = () => {
@@ -228,9 +250,7 @@ const ReportCustomizerModal = ({
         }
     };
 
-    // Early return goes AFTER every hook: a null render that skipped the
-    // useMemo below made React throw #310 ("rendered more hooks than during
-    // the previous render") the moment the modal opened — black screen.
+    // Early return goes AFTER every hook
     if (!isOpen) return null;
 
     const handleAddUrlParam = () => {
@@ -262,10 +282,10 @@ const ReportCustomizerModal = ({
             <div
                 className="modal-content rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150"
                 style={{
-                    maxWidth: '540px',
+                    maxWidth: '560px',
                     width: '100%',
-                    maxHeight: '88vh',
-                    height: '84vh',
+                    maxHeight: '90vh',
+                    height: '86vh',
                     padding: 0,
                     backgroundColor: 'var(--color-bg-card)',
                     border: '1px solid var(--color-border)',
@@ -274,13 +294,17 @@ const ReportCustomizerModal = ({
             >
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
-                    <h3 className="text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                        {t('reportCustomizer.columnsSelector', 'Columns selector')}
-                    </h3>
+                    <div className="flex items-center gap-2">
+                        <SlidersHorizontal className="w-5 h-5 text-[var(--color-primary)]" />
+                        <h3 className="text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                            {t('reportCustomizer.columnsSelector', 'Columns')}
+                        </h3>
+                    </div>
                     <button
                         onClick={onClose}
                         className="btn-icon p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                         style={{ color: 'var(--color-text-muted)' }}
+                        title={t('common.close', 'Close')}
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -313,107 +337,176 @@ const ReportCustomizerModal = ({
 
                 {/* Tab: Columns Selector (Keitaro Exact Replica) */}
                 {activeTab === 'columns' && (
-                    <div className="flex flex-col flex-1 overflow-hidden p-5">
+                    <div className="flex flex-col flex-1 overflow-hidden p-4 sm:p-5">
                         {/* Search Input */}
-                        <div className="relative mb-3">
+                        <div className="relative mb-2.5">
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Search..."
-                                className="form-input text-xs py-2 px-3 rounded-xl w-full"
+                                placeholder={t('reportCustomizer.searchMetrics', 'Search columns...')}
+                                className="form-input text-xs py-2 pl-8 pr-8 rounded-xl w-full"
                                 style={{
                                     backgroundColor: 'var(--color-bg-soft)',
                                     borderColor: 'var(--color-border)',
                                     color: 'var(--color-text-primary)'
                                 }}
                             />
+                            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" />
                             {searchQuery && (
                                 <button
                                     type="button"
                                     onClick={() => setSearchQuery('')}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs"
-                                    style={{ color: 'var(--color-text-muted)' }}
+                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
                                 >
                                     ✕
                                 </button>
                             )}
                         </div>
 
-                        {/* Select All Checkbox */}
-                        <div className="flex items-center gap-3 px-2 py-2 select-none">
-                            <input
-                                type="checkbox"
-                                id="select_all_cols"
-                                checked={isAllSelected}
-                                onChange={handleToggleAll}
-                                className="w-4 h-4 rounded cursor-pointer"
-                                style={{ accentColor: 'var(--color-primary)' }}
-                            />
-                            <label htmlFor="select_all_cols" className="text-xs font-medium cursor-pointer" style={{ color: 'var(--color-text-primary)' }}>
-                                {t('reportCustomizer.selectAll', 'Select All')}
-                            </label>
+                        {/* Quick Presets Bar */}
+                        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-2 select-none" style={{ scrollbarWidth: 'none' }}>
+                            <span className="text-[11px] font-medium text-[var(--color-text-muted)] flex-shrink-0 mr-0.5">
+                                {t('reportCustomizer.presets', 'Presets')}:
+                            </span>
+                            {[
+                                ['best', 'Best (12)'],
+                                ['finance', 'Finance (11)'],
+                                ['cod', 'COD (13)'],
+                                ['lander_to_offer', 'Lander → Offer'],
+                                ['traffic', 'Traffic (12)'],
+                                ['all', 'All (64)']
+                            ].map(([pKey, pLabel]) => (
+                                <button
+                                    key={pKey}
+                                    type="button"
+                                    onClick={() => handleApplyPreset(pKey)}
+                                    className="text-[11px] px-2.5 py-1 rounded-lg border transition-all flex-shrink-0 hover:border-[var(--color-primary)] font-medium"
+                                    style={{
+                                        backgroundColor: 'var(--color-bg-soft)',
+                                        borderColor: 'var(--color-border)',
+                                        color: 'var(--color-text-secondary)'
+                                    }}
+                                >
+                                    {pLabel}
+                                </button>
+                            ))}
                         </div>
 
-                        <div className="h-[1px] my-1.5" style={{ backgroundColor: 'var(--color-border)' }}></div>
+                        {/* Select All Checkbox + Selected Count Badge */}
+                        <div className="flex items-center justify-between px-2 py-1.5 select-none rounded-lg bg-[var(--color-bg-soft)] mb-2 border border-[var(--color-border)]">
+                            <div className="flex items-center gap-2.5">
+                                <input
+                                    type="checkbox"
+                                    id="select_all_cols"
+                                    checked={isAllSelected}
+                                    onChange={handleToggleAll}
+                                    className="w-4 h-4 rounded cursor-pointer"
+                                    style={{ accentColor: 'var(--color-primary)' }}
+                                />
+                                <label htmlFor="select_all_cols" className="text-xs font-medium cursor-pointer" style={{ color: 'var(--color-text-primary)' }}>
+                                    {isAllSelected ? t('reportCustomizer.deselectAll', 'Deselect All') : t('reportCustomizer.selectAll', 'Select All')}
+                                </label>
+                            </div>
+                            <div className="text-[11px] font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: 'var(--color-bg-card)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border)' }}>
+                                {selectedSet.size} / {ALL_REPORT_METRICS.length} {t('reportCustomizer.selected', 'selected')}
+                            </div>
+                        </div>
 
                         {/* Reorderable Columns List */}
                         <div
                             className="flex-1 overflow-y-auto space-y-1 pr-1"
                             style={{ scrollbarWidth: 'thin' }}
-                            onDragLeave={() => setDragOverId(null)}
                         >
-                            {displayMetrics.map((metric) => {
+                            {displayMetrics.map((metric, idx) => {
                                 const isChecked = selectedSet.has(metric.id);
                                 const isDragging = draggedId === metric.id;
                                 const isOver = dragOverId === metric.id && draggedId && draggedId !== metric.id;
+                                const isFirst = idx === 0;
+                                const isLast = idx === displayMetrics.length - 1;
+
                                 return (
                                     <div
                                         key={metric.id}
                                         onDragOver={(e) => handleDragOver(e, metric.id)}
                                         onDrop={(e) => handleDrop(e, metric.id)}
-                                        className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs select-none transition-all"
+                                        onClick={() => handleToggleMetric(metric.id)}
+                                        className="group flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs select-none transition-all cursor-pointer border"
                                         style={{
                                             backgroundColor: isChecked ? 'var(--color-bg-soft)' : 'transparent',
+                                            borderColor: isChecked ? 'var(--color-border)' : 'transparent',
                                             opacity: isDragging ? 0.35 : 1,
-                                            // Insert-before highlight; inset shadow instead of a
-                                            // border so the rows don't jump while dragging.
                                             boxShadow: isOver ? 'inset 0 2px 0 var(--color-primary)' : 'none'
                                         }}
                                     >
-                                        {/* Drag handle — the only draggable element; the icon
-                                            is pointer-events-none so the drag bitmap and drop
-                                            target stay on the handle, never on the svg */}
+                                        {/* Drag handle */}
                                         <div
                                             draggable
                                             onDragStart={(e) => handleDragStart(e, metric.id)}
                                             onDragEnd={handleDragEnd}
+                                            onClick={(e) => e.stopPropagation()}
                                             className="cursor-grab active:cursor-grabbing p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors flex-shrink-0"
                                             title="Drag to reorder"
                                         >
-                                            <GripVertical className="w-4 h-4 pointer-events-none" />
+                                            <GripVertical className="w-3.5 h-3.5 pointer-events-none opacity-60 group-hover:opacity-100" />
                                         </div>
 
-                                        {/* Semantic label: clicking anywhere on the row (except
-                                            the drag handle) toggles the checkbox natively — no
-                                            onClick/onChange stopPropagation juggling */}
-                                        <label className="flex items-center gap-3 flex-1 cursor-pointer min-w-0 py-0.5">
-                                            <input
-                                                type="checkbox"
-                                                checked={isChecked}
-                                                onChange={() => handleToggleMetric(metric.id)}
-                                                className="w-4 h-4 rounded cursor-pointer flex-shrink-0"
-                                                style={{ accentColor: 'var(--color-primary)' }}
-                                            />
-                                            <span
-                                                className="truncate font-medium"
-                                                style={{
-                                                    color: isChecked ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'
-                                                }}
+                                        {/* Move Up / Move Down buttons */}
+                                        <div
+                                            className="flex items-center gap-0.5 flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <button
+                                                type="button"
+                                                disabled={isFirst}
+                                                onClick={() => handleMoveMetric(metric.id, 'up')}
+                                                className="p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors"
+                                                title="Move up"
                                             >
-                                                {metric.label}
-                                            </span>
-                                        </label>
+                                                <ChevronUp className="w-3.5 h-3.5" />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                disabled={isLast}
+                                                onClick={() => handleMoveMetric(metric.id, 'down')}
+                                                className="p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors"
+                                                title="Move down"
+                                            >
+                                                <ChevronDown className="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+
+                                        {/* Checkbox */}
+                                        <input
+                                            type="checkbox"
+                                            checked={isChecked}
+                                            onChange={() => handleToggleMetric(metric.id)}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="w-4 h-4 rounded cursor-pointer flex-shrink-0"
+                                            style={{ accentColor: 'var(--color-primary)' }}
+                                        />
+
+                                        {/* Full Metric Label */}
+                                        <span
+                                            className="flex-1 truncate font-medium"
+                                            style={{
+                                                color: isChecked ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'
+                                            }}
+                                        >
+                                            {metric.label}
+                                        </span>
+
+                                        {/* Compact Short Code Tag */}
+                                        <span
+                                            className="text-[10.5px] px-1.5 py-0.5 rounded font-mono flex-shrink-0"
+                                            style={{
+                                                backgroundColor: 'var(--color-bg-card)',
+                                                color: 'var(--color-text-muted)',
+                                                border: '1px solid var(--color-border)'
+                                            }}
+                                        >
+                                            {metric.shortLabel || metric.id}
+                                        </span>
                                     </div>
                                 );
                             })}
@@ -554,10 +647,11 @@ const ReportCustomizerModal = ({
                     <button
                         type="button"
                         onClick={handleRestoreDefault}
-                        className="text-xs transition-colors hover:underline"
+                        className="text-xs transition-colors hover:underline flex items-center gap-1.5 font-medium"
                         style={{ color: 'var(--color-primary)' }}
                     >
-                        {t('reportCustomizer.restoreDefault', 'Restore to default')}
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>{t('reportCustomizer.restoreDefault', 'Restore to default')}</span>
                     </button>
 
                     <div className="flex items-center gap-2.5">

@@ -48,6 +48,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
 
     // Header Drag-and-Drop state
     const [thDragIdx, setThDragIdx] = useState(null);
+    const [thDragOverIdx, setThDragOverIdx] = useState(null);
 
     // Finance-restricted users never see money columns, whatever the
     // customizer says — the backend already nulls the values.
@@ -112,17 +113,36 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
 
     const handleThDragOver = (e, idx) => {
         e.preventDefault();
-        if (thDragIdx === null || thDragIdx === idx) return;
-        const copy = [...chosenColumns];
-        const item = copy.splice(thDragIdx, 1)[0];
-        copy.splice(idx, 0, item);
-        setThDragIdx(idx);
-        setChosenColumns(copy);
-        localStorage.setItem('orbitra_campaign_columns', JSON.stringify(copy));
+        e.dataTransfer.dropEffect = 'move';
+        if (thDragOverIdx !== idx) {
+            setThDragOverIdx(idx);
+        }
+    };
+
+    const handleThDrop = (e, targetIdx) => {
+        e.preventDefault();
+        if (thDragIdx !== null && thDragIdx !== targetIdx) {
+            const sourceColId = visibleColumns[thDragIdx];
+            const targetColId = visibleColumns[targetIdx];
+            if (sourceColId && targetColId) {
+                const copy = [...chosenColumns];
+                const from = copy.indexOf(sourceColId);
+                const to = copy.indexOf(targetColId);
+                if (from !== -1 && to !== -1) {
+                    const [item] = copy.splice(from, 1);
+                    copy.splice(to, 0, item);
+                    setChosenColumns(copy);
+                    localStorage.setItem('orbitra_campaign_columns', JSON.stringify(copy));
+                }
+            }
+        }
+        setThDragIdx(null);
+        setThDragOverIdx(null);
     };
 
     const handleThDragEnd = () => {
         setThDragIdx(null);
+        setThDragOverIdx(null);
     };
 
     const handleCreate = () => {
@@ -346,21 +366,24 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />;
     };
 
-    const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, onDragStart, onDragOver, onDragEnd }) => {
+    const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, onDragStart, onDragOver, onDrop, onDragEnd }) => {
         const isActive = sortBy.key === colKey;
         return (
             <th
-                className={`${alignRight ? 'text-right' : 'text-left'} whitespace-nowrap`}
+                className={`${alignRight ? 'text-right' : 'text-left'} whitespace-nowrap transition-all`}
                 aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
                 title={fullTitle}
                 draggable={draggable}
                 onDragStart={onDragStart}
                 onDragOver={onDragOver}
+                onDrop={onDrop}
                 onDragEnd={onDragEnd}
                 style={{
                     textAlign: alignRight ? 'right' : 'left',
                     cursor: draggable ? 'grab' : 'pointer',
-                    userSelect: 'none'
+                    userSelect: 'none',
+                    boxShadow: isDragOver ? 'inset 2px 0 0 var(--color-primary)' : 'none',
+                    backgroundColor: isDragOver ? 'var(--color-bg-soft)' : undefined
                 }}
             >
                 <button
@@ -694,8 +717,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                         defaultDir="desc"
                                         alignRight={true}
                                         draggable={true}
+                                        isDragOver={thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx}
                                         onDragStart={() => handleThDragStart(colIdx)}
                                         onDragOver={(e) => handleThDragOver(e, colIdx)}
+                                        onDrop={(e) => handleThDrop(e, colIdx)}
                                         onDragEnd={handleThDragEnd}
                                     />
                                 );

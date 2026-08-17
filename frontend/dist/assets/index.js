@@ -50540,6 +50540,10 @@ const ALL_REPORT_METRICS = [
 ];
 const PRESETS = {
   best: ["profitability", "clicks", "unique_clicks", "conversions", "roi_confirmed", "cost", "revenue", "profit", "cr", "epc", "cpc", "cpa"],
+  finance: ["cost", "revenue", "revenue_confirmed", "revenue_hold", "revenue_rejected", "profit", "roi", "profit_confirmed", "roi_confirmed", "cpa", "epc"],
+  cod: ["clicks", "unique_clicks", "conversions", "sales", "leads", "rejected", "trash", "approve_rate", "cost", "revenue_confirmed", "profit_confirmed", "roi_confirmed", "cpa"],
+  lander_to_offer: ["clicks", "unique_clicks", "lp_views", "prelander_clicks", "lp_ctr", "conversions", "cr", "cost", "revenue", "profit", "roi", "epc", "cpc"],
+  traffic: ["clicks", "unique_clicks", "visitors", "unique_clicks_stream", "unique_clicks_global", "uc_rate", "bots", "bot_rate", "proxies", "empty_referrers", "conversions", "cr"],
   all: ALL_REPORT_METRICS.map((m) => m.id)
 };
 const DEFAULT_METRIC_ORDER = ALL_REPORT_METRICS.map((m) => m.id);
@@ -50562,11 +50566,13 @@ const ReportCustomizerModal = ({
   const [selectedSet, setSelectedSet] = reactExports.useState(() => new Set(PRESETS.best));
   const [layers, setLayers] = reactExports.useState([]);
   const [filters, setFilters] = reactExports.useState([]);
+  const draggedIdRef = reactExports.useRef(null);
   const [draggedId, setDraggedId] = reactExports.useState(null);
   const [dragOverId, setDragOverId] = reactExports.useState(null);
+  const prevIsOpenRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
-    if (isOpen) {
-      const initialSelected = selectedColumns.length > 0 ? selectedColumns : PRESETS.best;
+    if (isOpen && !prevIsOpenRef.current) {
+      const initialSelected = selectedColumns && selectedColumns.length > 0 ? selectedColumns : PRESETS.best;
       setSelectedSet(new Set(initialSelected));
       const unselected = DEFAULT_METRIC_ORDER.filter((id) => !initialSelected.includes(id));
       const initialOrder = [...initialSelected, ...unselected];
@@ -50575,6 +50581,7 @@ const ReportCustomizerModal = ({
       if (currentFilters) setFilters([...currentFilters]);
       setSearchQuery("");
     }
+    prevIsOpenRef.current = isOpen;
   }, [isOpen, selectedColumns, currentLayers, currentFilters]);
   const handleToggleMetric = (id) => {
     setSelectedSet((prev) => {
@@ -50587,11 +50594,30 @@ const ReportCustomizerModal = ({
       return next;
     });
   };
+  const handleApplyPreset = (presetKey) => {
+    const presetCols = PRESETS[presetKey];
+    if (!presetCols) return;
+    setSelectedSet(new Set(presetCols));
+    const unselected = DEFAULT_METRIC_ORDER.filter((id) => !presetCols.includes(id));
+    setOrderedMetricIds([...presetCols, ...unselected]);
+  };
   const handleRestoreDefault = () => {
-    setSelectedSet(new Set(PRESETS.best));
-    setOrderedMetricIds([...DEFAULT_METRIC_ORDER]);
+    handleApplyPreset("best");
+  };
+  const handleMoveMetric = (metricId, direction) => {
+    setOrderedMetricIds((prev) => {
+      const next = [...prev];
+      const currentIndex = next.indexOf(metricId);
+      if (currentIndex === -1) return prev;
+      const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+      if (targetIndex < 0 || targetIndex >= next.length) return prev;
+      const [item] = next.splice(currentIndex, 1);
+      next.splice(targetIndex, 0, item);
+      return next;
+    });
   };
   const handleDragStart = (e, metricId) => {
+    draggedIdRef.current = metricId;
     setDraggedId(metricId);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", metricId);
@@ -50605,23 +50631,25 @@ const ReportCustomizerModal = ({
   };
   const handleDrop = (e, targetMetricId) => {
     e.preventDefault();
-    const droppedId = draggedId || e.dataTransfer.getData("text/plain");
-    if (droppedId && droppedId !== targetMetricId) {
+    const sourceId = draggedIdRef.current || e.dataTransfer.getData("text/plain");
+    if (sourceId && sourceId !== targetMetricId) {
       setOrderedMetricIds((prev) => {
         const next = [...prev];
-        const fromIndex = next.indexOf(droppedId);
+        const fromIndex = next.indexOf(sourceId);
         const toIndex = next.indexOf(targetMetricId);
         if (fromIndex !== -1 && toIndex !== -1) {
-          next.splice(fromIndex, 1);
-          next.splice(toIndex, 0, droppedId);
+          const [item] = next.splice(fromIndex, 1);
+          next.splice(toIndex, 0, item);
         }
         return next;
       });
     }
+    draggedIdRef.current = null;
     setDraggedId(null);
     setDragOverId(null);
   };
   const handleDragEnd = () => {
+    draggedIdRef.current = null;
     setDraggedId(null);
     setDragOverId(null);
   };
@@ -50641,7 +50669,7 @@ const ReportCustomizerModal = ({
   };
   const displayMetrics = reactExports.useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return orderedMetricIds.map((id) => ALL_REPORT_METRICS.find((m) => m.id === id)).filter(Boolean).filter((m) => !q || m.label.toLowerCase().includes(q) || m.id.toLowerCase().includes(q));
+    return orderedMetricIds.map((id) => ALL_REPORT_METRICS.find((m) => m.id === id)).filter(Boolean).filter((m) => !q || m.label.toLowerCase().includes(q) || m.shortLabel && m.shortLabel.toLowerCase().includes(q) || m.id.toLowerCase().includes(q));
   }, [orderedMetricIds, searchQuery]);
   const isAllSelected = displayMetrics.length > 0 && displayMetrics.every((m) => selectedSet.has(m.id));
   const handleToggleAll = () => {
@@ -50678,10 +50706,10 @@ const ReportCustomizerModal = ({
     {
       className: "modal-content rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150",
       style: {
-        maxWidth: "540px",
+        maxWidth: "560px",
         width: "100%",
-        maxHeight: "88vh",
-        height: "84vh",
+        maxHeight: "90vh",
+        height: "86vh",
         padding: 0,
         backgroundColor: "var(--color-bg-card)",
         border: "1px solid var(--color-border)",
@@ -50689,13 +50717,17 @@ const ReportCustomizerModal = ({
       },
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-6 py-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-semibold", style: { color: "var(--color-text-primary)" }, children: t("reportCustomizer.columnsSelector", "Columns selector") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SlidersHorizontal, { className: "w-5 h-5 text-[var(--color-primary)]" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-semibold", style: { color: "var(--color-text-primary)" }, children: t("reportCustomizer.columnsSelector", "Columns") })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
               onClick: onClose,
               className: "btn-icon p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors",
               style: { color: "var(--color-text-muted)" },
+              title: t("common.close", "Close"),
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" })
             }
           )
@@ -50721,16 +50753,16 @@ const ReportCustomizerModal = ({
           },
           tabId
         )) }),
-        activeTab === "columns" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col flex-1 overflow-hidden p-5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative mb-3", children: [
+        activeTab === "columns" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col flex-1 overflow-hidden p-4 sm:p-5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative mb-2.5", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
                 type: "text",
                 value: searchQuery,
                 onChange: (e) => setSearchQuery(e.target.value),
-                placeholder: "Search...",
-                className: "form-input text-xs py-2 px-3 rounded-xl w-full",
+                placeholder: t("reportCustomizer.searchMetrics", "Search columns..."),
+                className: "form-input text-xs py-2 pl-8 pr-8 rounded-xl w-full",
                 style: {
                   backgroundColor: "var(--color-bg-soft)",
                   borderColor: "var(--color-border)",
@@ -50738,53 +50770,90 @@ const ReportCustomizerModal = ({
                 }
               }
             ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" }),
             searchQuery && /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
                 type: "button",
                 onClick: () => setSearchQuery(""),
-                className: "absolute right-3 top-1/2 -translate-y-1/2 text-xs",
-                style: { color: "var(--color-text-muted)" },
+                className: "absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
                 children: "✕"
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 px-2 py-2 select-none", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 overflow-x-auto pb-2 mb-2 select-none", style: { scrollbarWidth: "none" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px] font-medium text-[var(--color-text-muted)] flex-shrink-0 mr-0.5", children: [
+              t("reportCustomizer.presets", "Presets"),
+              ":"
+            ] }),
+            [
+              ["best", "Best (12)"],
+              ["finance", "Finance (11)"],
+              ["cod", "COD (13)"],
+              ["lander_to_offer", "Lander → Offer"],
+              ["traffic", "Traffic (12)"],
+              ["all", "All (64)"]
+            ].map(([pKey, pLabel]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
               {
-                type: "checkbox",
-                id: "select_all_cols",
-                checked: isAllSelected,
-                onChange: handleToggleAll,
-                className: "w-4 h-4 rounded cursor-pointer",
-                style: { accentColor: "var(--color-primary)" }
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "select_all_cols", className: "text-xs font-medium cursor-pointer", style: { color: "var(--color-text-primary)" }, children: t("reportCustomizer.selectAll", "Select All") })
+                type: "button",
+                onClick: () => handleApplyPreset(pKey),
+                className: "text-[11px] px-2.5 py-1 rounded-lg border transition-all flex-shrink-0 hover:border-[var(--color-primary)] font-medium",
+                style: {
+                  backgroundColor: "var(--color-bg-soft)",
+                  borderColor: "var(--color-border)",
+                  color: "var(--color-text-secondary)"
+                },
+                children: pLabel
+              },
+              pKey
+            ))
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-[1px] my-1.5", style: { backgroundColor: "var(--color-border)" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-2 py-1.5 select-none rounded-lg bg-[var(--color-bg-soft)] mb-2 border border-[var(--color-border)]", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "checkbox",
+                  id: "select_all_cols",
+                  checked: isAllSelected,
+                  onChange: handleToggleAll,
+                  className: "w-4 h-4 rounded cursor-pointer",
+                  style: { accentColor: "var(--color-primary)" }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "select_all_cols", className: "text-xs font-medium cursor-pointer", style: { color: "var(--color-text-primary)" }, children: isAllSelected ? t("reportCustomizer.deselectAll", "Deselect All") : t("reportCustomizer.selectAll", "Select All") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[11px] font-medium px-2 py-0.5 rounded-full", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-secondary)", border: "1px solid var(--color-border)" }, children: [
+              selectedSet.size,
+              " / ",
+              ALL_REPORT_METRICS.length,
+              " ",
+              t("reportCustomizer.selected", "selected")
+            ] })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "div",
             {
               className: "flex-1 overflow-y-auto space-y-1 pr-1",
               style: { scrollbarWidth: "thin" },
-              onDragLeave: () => setDragOverId(null),
-              children: displayMetrics.map((metric) => {
+              children: displayMetrics.map((metric, idx) => {
                 const isChecked = selectedSet.has(metric.id);
                 const isDragging = draggedId === metric.id;
                 const isOver = dragOverId === metric.id && draggedId && draggedId !== metric.id;
+                const isFirst = idx === 0;
+                const isLast = idx === displayMetrics.length - 1;
                 return /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "div",
                   {
                     onDragOver: (e) => handleDragOver(e, metric.id),
                     onDrop: (e) => handleDrop(e, metric.id),
-                    className: "flex items-center gap-3 px-3 py-2 rounded-xl text-xs select-none transition-all",
+                    onClick: () => handleToggleMetric(metric.id),
+                    className: "group flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs select-none transition-all cursor-pointer border",
                     style: {
                       backgroundColor: isChecked ? "var(--color-bg-soft)" : "transparent",
+                      borderColor: isChecked ? "var(--color-border)" : "transparent",
                       opacity: isDragging ? 0.35 : 1,
-                      // Insert-before highlight; inset shadow instead of a
-                      // border so the rows don't jump while dragging.
                       boxShadow: isOver ? "inset 0 2px 0 var(--color-primary)" : "none"
                     },
                     children: [
@@ -50794,33 +50863,76 @@ const ReportCustomizerModal = ({
                           draggable: true,
                           onDragStart: (e) => handleDragStart(e, metric.id),
                           onDragEnd: handleDragEnd,
+                          onClick: (e) => e.stopPropagation(),
                           className: "cursor-grab active:cursor-grabbing p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors flex-shrink-0",
                           title: "Drag to reorder",
-                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-4 h-4 pointer-events-none" })
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3.5 h-3.5 pointer-events-none opacity-60 group-hover:opacity-100" })
                         }
                       ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-3 flex-1 cursor-pointer min-w-0 py-0.5", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "input",
-                          {
-                            type: "checkbox",
-                            checked: isChecked,
-                            onChange: () => handleToggleMetric(metric.id),
-                            className: "w-4 h-4 rounded cursor-pointer flex-shrink-0",
-                            style: { accentColor: "var(--color-primary)" }
-                          }
-                        ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "span",
-                          {
-                            className: "truncate font-medium",
-                            style: {
-                              color: isChecked ? "var(--color-text-primary)" : "var(--color-text-secondary)"
-                            },
-                            children: metric.label
-                          }
-                        )
-                      ] })
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "div",
+                        {
+                          className: "flex items-center gap-0.5 flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity",
+                          onClick: (e) => e.stopPropagation(),
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "button",
+                              {
+                                type: "button",
+                                disabled: isFirst,
+                                onClick: () => handleMoveMetric(metric.id, "up"),
+                                className: "p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors",
+                                title: "Move up",
+                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5" })
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "button",
+                              {
+                                type: "button",
+                                disabled: isLast,
+                                onClick: () => handleMoveMetric(metric.id, "down"),
+                                className: "p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors",
+                                title: "Move down",
+                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5" })
+                              }
+                            )
+                          ]
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          checked: isChecked,
+                          onChange: () => handleToggleMetric(metric.id),
+                          onClick: (e) => e.stopPropagation(),
+                          className: "w-4 h-4 rounded cursor-pointer flex-shrink-0",
+                          style: { accentColor: "var(--color-primary)" }
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "span",
+                        {
+                          className: "flex-1 truncate font-medium",
+                          style: {
+                            color: isChecked ? "var(--color-text-primary)" : "var(--color-text-secondary)"
+                          },
+                          children: metric.label
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "span",
+                        {
+                          className: "text-[10.5px] px-1.5 py-0.5 rounded font-mono flex-shrink-0",
+                          style: {
+                            backgroundColor: "var(--color-bg-card)",
+                            color: "var(--color-text-muted)",
+                            border: "1px solid var(--color-border)"
+                          },
+                          children: metric.shortLabel || metric.id
+                        }
+                      )
                     ]
                   },
                   metric.id
@@ -50973,14 +51085,17 @@ const ReportCustomizerModal = ({
           ] }, fIdx))
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-6 py-3.5 border-t", style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
               type: "button",
               onClick: handleRestoreDefault,
-              className: "text-xs transition-colors hover:underline",
+              className: "text-xs transition-colors hover:underline flex items-center gap-1.5 font-medium",
               style: { color: "var(--color-primary)" },
-              children: t("reportCustomizer.restoreDefault", "Restore to default")
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("reportCustomizer.restoreDefault", "Restore to default") })
+              ]
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5", children: [
@@ -51036,21 +51151,32 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     return [...PRESETS.best];
   });
   const [thDragIdx, setThDragIdx] = reactExports.useState(null);
+  const [thDragOverIdx, setThDragOverIdx] = reactExports.useState(null);
   const handleThDragStart = (idx) => {
     setThDragIdx(idx);
   };
   const handleThDragOver = (e, idx) => {
     e.preventDefault();
-    if (thDragIdx === null || thDragIdx === idx) return;
-    const copy = [...chosenColumns];
-    const item = copy.splice(thDragIdx, 1)[0];
-    copy.splice(idx, 0, item);
-    setThDragIdx(idx);
-    setChosenColumns(copy);
-    localStorage.setItem("orbitra_report_columns", JSON.stringify(copy));
+    e.dataTransfer.dropEffect = "move";
+    if (thDragOverIdx !== idx) {
+      setThDragOverIdx(idx);
+    }
+  };
+  const handleThDrop = (e, targetIdx) => {
+    e.preventDefault();
+    if (thDragIdx !== null && thDragIdx !== targetIdx) {
+      const copy = [...chosenColumns];
+      const item = copy.splice(thDragIdx, 1)[0];
+      copy.splice(targetIdx, 0, item);
+      setChosenColumns(copy);
+      localStorage.setItem("orbitra_report_columns", JSON.stringify(copy));
+    }
+    setThDragIdx(null);
+    setThDragOverIdx(null);
   };
   const handleThDragEnd = () => {
     setThDragIdx(null);
+    setThDragOverIdx(null);
   };
   const handleSaveColumns = (cols) => {
     setChosenColumns(cols);
@@ -51522,19 +51648,23 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
           }, children: layerKeys.join(" → ") }),
           chosenColumns.map((colId, colIdx) => {
             const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
+            const isDragOver = thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx;
             return /* @__PURE__ */ jsxRuntimeExports.jsx(
               "th",
               {
                 draggable: true,
                 onDragStart: () => handleThDragStart(colIdx),
                 onDragOver: (e) => handleThDragOver(e, colIdx),
+                onDrop: (e) => handleThDrop(e, colIdx),
                 onDragEnd: handleThDragEnd,
                 title: def?.label,
                 style: {
                   textAlign: "right",
                   cursor: "grab",
                   userSelect: "none",
-                  whiteSpace: "nowrap"
+                  whiteSpace: "nowrap",
+                  boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
+                  backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
                 },
                 children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center justify-end gap-1 w-full", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-30 -ml-1" }),
@@ -51632,6 +51762,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     return [...PRESETS.best];
   });
   const [thDragIdx, setThDragIdx] = reactExports.useState(null);
+  const [thDragOverIdx, setThDragOverIdx] = reactExports.useState(null);
   const financeVis = reactExports.useMemo(() => financeVisibility(user), [user]);
   const visibleColumns = reactExports.useMemo(
     () => chosenColumns.filter((id) => !financeHiddenMetric(id, financeVis)),
@@ -51682,16 +51813,34 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   };
   const handleThDragOver = (e, idx) => {
     e.preventDefault();
-    if (thDragIdx === null || thDragIdx === idx) return;
-    const copy = [...chosenColumns];
-    const item = copy.splice(thDragIdx, 1)[0];
-    copy.splice(idx, 0, item);
-    setThDragIdx(idx);
-    setChosenColumns(copy);
-    localStorage.setItem("orbitra_campaign_columns", JSON.stringify(copy));
+    e.dataTransfer.dropEffect = "move";
+    if (thDragOverIdx !== idx) {
+      setThDragOverIdx(idx);
+    }
+  };
+  const handleThDrop = (e, targetIdx) => {
+    e.preventDefault();
+    if (thDragIdx !== null && thDragIdx !== targetIdx) {
+      const sourceColId = visibleColumns[thDragIdx];
+      const targetColId = visibleColumns[targetIdx];
+      if (sourceColId && targetColId) {
+        const copy = [...chosenColumns];
+        const from2 = copy.indexOf(sourceColId);
+        const to2 = copy.indexOf(targetColId);
+        if (from2 !== -1 && to2 !== -1) {
+          const [item] = copy.splice(from2, 1);
+          copy.splice(to2, 0, item);
+          setChosenColumns(copy);
+          localStorage.setItem("orbitra_campaign_columns", JSON.stringify(copy));
+        }
+      }
+    }
+    setThDragIdx(null);
+    setThDragOverIdx(null);
   };
   const handleThDragEnd = () => {
     setThDragIdx(null);
+    setThDragOverIdx(null);
   };
   const handleCreate = () => {
     setEditingCampaignId(null);
@@ -51885,22 +52034,25 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
     return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
   };
-  const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, onDragStart, onDragOver, onDragEnd }) => {
+  const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, onDragStart, onDragOver, onDrop, onDragEnd }) => {
     const isActive = sortBy.key === colKey;
     return /* @__PURE__ */ jsxRuntimeExports.jsx(
       "th",
       {
-        className: `${alignRight ? "text-right" : "text-left"} whitespace-nowrap`,
+        className: `${alignRight ? "text-right" : "text-left"} whitespace-nowrap transition-all`,
         "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none",
         title: fullTitle,
         draggable,
         onDragStart,
         onDragOver,
+        onDrop,
         onDragEnd,
         style: {
           textAlign: alignRight ? "right" : "left",
           cursor: draggable ? "grab" : "pointer",
-          userSelect: "none"
+          userSelect: "none",
+          boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
+          backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
         },
         children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
@@ -52213,8 +52365,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
               defaultDir: "desc",
               alignRight: true,
               draggable: true,
+              isDragOver: thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx,
               onDragStart: () => handleThDragStart(colIdx),
               onDragOver: (e) => handleThDragOver(e, colIdx),
+              onDrop: (e) => handleThDrop(e, colIdx),
               onDragEnd: handleThDragEnd
             },
             colId
@@ -53344,14 +53498,19 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
     const rest = columns.map((c) => c.id).filter((id) => !chosen.includes(id));
     return [...chosen, ...rest];
   });
+  const draggedIdRef = reactExports.useRef(null);
   const [draggedId, setDraggedId] = reactExports.useState(null);
   const [dragOverId, setDragOverId] = reactExports.useState(null);
+  const prevSelectedIdsRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    setSelectedSet(new Set(selectedIds));
-    const chosen = selectedIds.filter((id) => columns.some((c) => c.id === id));
-    const rest = columns.map((c) => c.id).filter((id) => !chosen.includes(id));
-    setOrderedIds([...chosen, ...rest]);
-  }, [selectedIds]);
+    if (prevSelectedIdsRef.current !== selectedIds) {
+      setSelectedSet(new Set(selectedIds));
+      const chosen = selectedIds.filter((id) => columns.some((c) => c.id === id));
+      const rest = columns.map((c) => c.id).filter((id) => !chosen.includes(id));
+      setOrderedIds([...chosen, ...rest]);
+      prevSelectedIdsRef.current = selectedIds;
+    }
+  }, [selectedIds, columns]);
   const isAllSelected = columns.every((c) => selectedSet.has(c.id));
   const handleToggle = (id, required) => {
     if (required) return;
@@ -53381,7 +53540,20 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
     const rest = columns.map((c) => c.id).filter((id) => !defaultIds.includes(id));
     setOrderedIds([...defaultIds.filter((id) => columns.some((c) => c.id === id)), ...rest]);
   };
+  const handleMoveMetric = (id, direction) => {
+    setOrderedIds((prev) => {
+      const next = [...prev];
+      const currentIndex = next.indexOf(id);
+      if (currentIndex === -1) return prev;
+      const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+      if (targetIndex < 0 || targetIndex >= next.length) return prev;
+      const [item] = next.splice(currentIndex, 1);
+      next.splice(targetIndex, 0, item);
+      return next;
+    });
+  };
   const handleDragStart = (e, id) => {
+    draggedIdRef.current = id;
     setDraggedId(id);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", id);
@@ -53393,24 +53565,25 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
   };
   const handleDrop = (e, targetId) => {
     e.preventDefault();
-    try {
-      const droppedId = draggedId || e.dataTransfer.getData("text/plain");
-      if (droppedId && droppedId !== targetId) {
-        const copy = [...orderedIds];
-        const from2 = copy.indexOf(droppedId);
-        const to2 = copy.indexOf(targetId);
+    const sourceId = draggedIdRef.current || e.dataTransfer.getData("text/plain");
+    if (sourceId && sourceId !== targetId) {
+      setOrderedIds((prev) => {
+        const next = [...prev];
+        const from2 = next.indexOf(sourceId);
+        const to2 = next.indexOf(targetId);
         if (from2 !== -1 && to2 !== -1) {
-          copy.splice(from2, 1);
-          copy.splice(to2, 0, droppedId);
-          setOrderedIds(copy);
+          const [item] = next.splice(from2, 1);
+          next.splice(to2, 0, item);
         }
-      }
-    } finally {
-      setDraggedId(null);
-      setDragOverId(null);
+        return next;
+      });
     }
+    draggedIdRef.current = null;
+    setDraggedId(null);
+    setDragOverId(null);
   };
   const handleDragEnd = () => {
+    draggedIdRef.current = null;
     setDraggedId(null);
     setDragOverId(null);
   };
@@ -53421,11 +53594,11 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { padding: "24px 16px", zIndex: 1200 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
-      className: "modal-content rounded-2xl shadow-2xl flex flex-col overflow-hidden",
+      className: "modal-content rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150",
       style: {
-        maxWidth: "480px",
+        maxWidth: "500px",
         width: "100%",
-        maxHeight: "80vh",
+        maxHeight: "84vh",
         padding: 0,
         backgroundColor: "var(--color-bg-card)",
         border: "1px solid var(--color-border)",
@@ -53433,7 +53606,7 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
       },
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-6 py-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-semibold", style: { color: "var(--color-text-primary)" }, children: t("columnsOrder.title") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-semibold", style: { color: "var(--color-text-primary)" }, children: t("columnsOrder.title", "Columns") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
@@ -53445,40 +53618,51 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 px-6 py-3 border-b select-none", style: { borderColor: "var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: isAllSelected,
-              onChange: handleToggleAll,
-              className: "w-4 h-4 rounded cursor-pointer",
-              style: { accentColor: "var(--color-primary)" }
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium", style: { color: "var(--color-text-primary)" }, children: t("editor.selectAll") })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-6 py-3 border-b select-none bg-[var(--color-bg-soft)]", style: { borderColor: "var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                id: "cols_select_all",
+                checked: isAllSelected,
+                onChange: handleToggleAll,
+                className: "w-4 h-4 rounded cursor-pointer",
+                style: { accentColor: "var(--color-primary)" }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "cols_select_all", className: "text-xs font-medium cursor-pointer", style: { color: "var(--color-text-primary)" }, children: t("editor.selectAll", "Select All") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[11px] font-medium px-2 py-0.5 rounded-full", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-secondary)", border: "1px solid var(--color-border)" }, children: [
+            selectedSet.size,
+            " / ",
+            columns.length
+          ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "div",
           {
-            className: "flex-1 overflow-y-auto px-4 py-3 space-y-0.5",
+            className: "flex-1 overflow-y-auto px-4 py-3 space-y-1",
             style: { scrollbarWidth: "thin" },
-            onDragLeave: () => setDragOverId(null),
-            children: orderedIds.map((id) => {
+            children: orderedIds.map((id, idx) => {
               const col = columns.find((c) => c.id === id);
               if (!col) return null;
               const isChecked = selectedSet.has(id);
               const isDragging = draggedId === id;
               const isOver = dragOverId === id && draggedId && draggedId !== id;
+              const isFirst = idx === 0;
+              const isLast = idx === orderedIds.length - 1;
               return /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "div",
                 {
                   onDragOver: (e) => handleDragOver(e, id),
                   onDrop: (e) => handleDrop(e, id),
                   onClick: () => handleToggle(id, col.required),
-                  className: "flex items-center gap-3 px-2 py-2 rounded-lg text-xs cursor-pointer select-none transition-colors hover:bg-black/5 dark:hover:bg-white/5",
+                  className: "group flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs select-none transition-all cursor-pointer border",
                   style: {
-                    opacity: isDragging ? 0.4 : 1,
+                    backgroundColor: isChecked ? "var(--color-bg-soft)" : "transparent",
+                    borderColor: isChecked ? "var(--color-border)" : "transparent",
+                    opacity: isDragging ? 0.35 : 1,
                     boxShadow: isOver ? "inset 0 2px 0 var(--color-primary)" : "none"
                   },
                   children: [
@@ -53488,9 +53672,41 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
                         draggable: true,
                         onDragStart: (e) => handleDragStart(e, id),
                         onDragEnd: handleDragEnd,
-                        className: "cursor-grab active:cursor-grabbing p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200",
+                        className: "cursor-grab active:cursor-grabbing p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors flex-shrink-0",
                         onClick: (e) => e.stopPropagation(),
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3.5 h-3.5 opacity-60" })
+                        title: "Drag to reorder",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3.5 h-3.5 opacity-60 group-hover:opacity-100 pointer-events-none" })
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "div",
+                      {
+                        className: "flex items-center gap-0.5 flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity",
+                        onClick: (e) => e.stopPropagation(),
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "button",
+                            {
+                              type: "button",
+                              disabled: isFirst,
+                              onClick: () => handleMoveMetric(id, "up"),
+                              className: "p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors",
+                              title: "Move up",
+                              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5" })
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "button",
+                            {
+                              type: "button",
+                              disabled: isLast,
+                              onClick: () => handleMoveMetric(id, "down"),
+                              className: "p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors",
+                              title: "Move down",
+                              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5" })
+                            }
+                          )
+                        ]
                       }
                     ),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -53501,19 +53717,19 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
                         disabled: col.required,
                         onChange: () => handleToggle(id, col.required),
                         onClick: (e) => e.stopPropagation(),
-                        className: "w-4 h-4 rounded cursor-pointer",
+                        className: "w-4 h-4 rounded cursor-pointer flex-shrink-0",
                         style: { accentColor: "var(--color-primary)" }
                       }
                     ),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "span",
                       {
-                        className: "flex-1 font-normal",
+                        className: "flex-1 font-medium truncate",
                         style: { color: isChecked ? "var(--color-text-primary)" : "var(--color-text-secondary)" },
                         children: col.label
                       }
                     ),
-                    col.required && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10.5px] px-1.5 py-0.5 rounded-md", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: t("columnsOrder.required") })
+                    col.required && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10.5px] px-1.5 py-0.5 rounded-md flex-shrink-0", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: t("columnsOrder.required", "Required") })
                   ]
                 },
                 id
@@ -53522,19 +53738,22 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-6 py-3.5 border-t", style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
               type: "button",
               onClick: handleRestoreDefault,
-              className: "text-xs transition-colors hover:underline",
+              className: "text-xs transition-colors hover:underline flex items-center gap-1.5 font-medium",
               style: { color: "var(--color-primary)" },
-              children: t("reportCustomizer.restoreDefault")
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("reportCustomizer.restoreDefault", "Restore to default") })
+              ]
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onClose, className: "btn btn-secondary text-xs py-2 px-4 rounded-xl font-medium", children: t("common.cancel") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: handleSave, className: "btn btn-primary text-xs py-2 px-5 rounded-xl font-medium", children: t("common.save") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onClose, className: "btn btn-secondary text-xs py-2 px-4 rounded-xl font-medium", children: t("common.cancel", "Cancel") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: handleSave, className: "btn btn-primary text-xs py-2 px-5 rounded-xl font-medium", children: t("common.save", "Save") })
           ] })
         ] })
       ]

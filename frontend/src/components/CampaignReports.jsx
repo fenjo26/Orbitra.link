@@ -38,6 +38,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
 
     // Drag-and-drop column state
     const [thDragIdx, setThDragIdx] = useState(null);
+    const [thDragOverIdx, setThDragOverIdx] = useState(null);
 
     const handleThDragStart = (idx) => {
         setThDragIdx(idx);
@@ -45,17 +46,28 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
 
     const handleThDragOver = (e, idx) => {
         e.preventDefault();
-        if (thDragIdx === null || thDragIdx === idx) return;
-        const copy = [...chosenColumns];
-        const item = copy.splice(thDragIdx, 1)[0];
-        copy.splice(idx, 0, item);
-        setThDragIdx(idx);
-        setChosenColumns(copy);
-        localStorage.setItem('orbitra_report_columns', JSON.stringify(copy));
+        e.dataTransfer.dropEffect = 'move';
+        if (thDragOverIdx !== idx) {
+            setThDragOverIdx(idx);
+        }
+    };
+
+    const handleThDrop = (e, targetIdx) => {
+        e.preventDefault();
+        if (thDragIdx !== null && thDragIdx !== targetIdx) {
+            const copy = [...chosenColumns];
+            const item = copy.splice(thDragIdx, 1)[0];
+            copy.splice(targetIdx, 0, item);
+            setChosenColumns(copy);
+            localStorage.setItem('orbitra_report_columns', JSON.stringify(copy));
+        }
+        setThDragIdx(null);
+        setThDragOverIdx(null);
     };
 
     const handleThDragEnd = () => {
         setThDragIdx(null);
+        setThDragOverIdx(null);
     };
 
     const handleSaveColumns = (cols) => {
@@ -557,19 +569,23 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                         </th>
                                         {chosenColumns.map((colId, colIdx) => {
                                             const def = ALL_REPORT_METRICS.find(m => m.id === colId);
+                                            const isDragOver = thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx;
                                             return (
                                                 <th
                                                     key={colId}
                                                     draggable
                                                     onDragStart={() => handleThDragStart(colIdx)}
                                                     onDragOver={(e) => handleThDragOver(e, colIdx)}
+                                                    onDrop={(e) => handleThDrop(e, colIdx)}
                                                     onDragEnd={handleThDragEnd}
                                                     title={def?.label}
                                                     style={{
                                                         textAlign: 'right',
                                                         cursor: 'grab',
                                                         userSelect: 'none',
-                                                        whiteSpace: 'nowrap'
+                                                        whiteSpace: 'nowrap',
+                                                        boxShadow: isDragOver ? 'inset 2px 0 0 var(--color-primary)' : 'none',
+                                                        backgroundColor: isDragOver ? 'var(--color-bg-soft)' : undefined
                                                     }}
                                                 >
                                                     <div className="inline-flex items-center justify-end gap-1 w-full">

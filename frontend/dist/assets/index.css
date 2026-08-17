@@ -548,6 +548,10 @@
     right: calc(var(--spacing) * 2);
   }
 
+  .right-2\.5 {
+    right: calc(var(--spacing) * 2.5);
+  }
+
   .right-3 {
     right: calc(var(--spacing) * 3);
   }
@@ -586,6 +590,10 @@
 
   .left-0 {
     left: calc(var(--spacing) * 0);
+  }
+
+  .left-2\.5 {
+    left: calc(var(--spacing) * 2.5);
   }
 
   .left-3 {
@@ -738,6 +746,10 @@
     margin-right: calc(var(--spacing) * -2);
   }
 
+  .mr-0\.5 {
+    margin-right: calc(var(--spacing) * .5);
+  }
+
   .mr-1 {
     margin-right: calc(var(--spacing) * 1);
   }
@@ -764,6 +776,10 @@
 
   .mb-2 {
     margin-bottom: calc(var(--spacing) * 2);
+  }
+
+  .mb-2\.5 {
+    margin-bottom: calc(var(--spacing) * 2.5);
   }
 
   .mb-3 {
@@ -1313,6 +1329,10 @@
 
   .justify-end {
     justify-content: flex-end;
+  }
+
+  .gap-0\.5 {
+    gap: calc(var(--spacing) * .5);
   }
 
   .gap-1 {
@@ -2075,6 +2095,10 @@
     padding-left: calc(var(--spacing) * 5);
   }
 
+  .pl-8 {
+    padding-left: calc(var(--spacing) * 8);
+  }
+
   .pl-9 {
     padding-left: calc(var(--spacing) * 9);
   }
@@ -2536,6 +2560,12 @@
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
 
+  .transition-opacity {
+    transition-property: opacity;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+
   .transition-transform {
     transition-property: transform, translate, scale, rotate;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
@@ -2761,6 +2791,16 @@
       }
     }
 
+    .hover\:bg-black\/10:hover {
+      background-color: #0000001a;
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-black\/10:hover {
+        background-color: color-mix(in oklab, var(--color-black) 10%, transparent);
+      }
+    }
+
     .hover\:bg-blue-50\/10:hover {
       background-color: #eff6ff1a;
     }
@@ -2901,6 +2941,10 @@
     cursor: not-allowed;
   }
 
+  .disabled\:opacity-20:disabled {
+    opacity: .2;
+  }
+
   .disabled\:opacity-50:disabled {
     opacity: .5;
   }
@@ -2928,6 +2972,10 @@
 
     .sm\:flex-row {
       flex-direction: row;
+    }
+
+    .sm\:p-5 {
+      padding: calc(var(--spacing) * 5);
     }
 
     .sm\:p-6 {
@@ -3081,6 +3129,16 @@
       @supports (color: color-mix(in lab, red, red)) {
         .dark\:hover\:bg-white\/5:hover {
           background-color: color-mix(in oklab, var(--color-white) 5%, transparent);
+        }
+      }
+
+      .dark\:hover\:bg-white\/10:hover {
+        background-color: #ffffff1a;
+      }
+
+      @supports (color: color-mix(in lab, red, red)) {
+        .dark\:hover\:bg-white\/10:hover {
+          background-color: color-mix(in oklab, var(--color-white) 10%, transparent);
         }
       }
 
