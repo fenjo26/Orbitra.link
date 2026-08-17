@@ -63,6 +63,55 @@ if (!function_exists('orbitraConversionStatusGroups')) {
     }
 
     /**
+     * One-row raw aggregate for the dashboard cards. The caller appends the
+     * dashboard's click WHERE clause and feeds the row through
+     * orbitraComputeDerivedMetrics(), keeping card math identical to reports.
+     */
+    function orbitraDashboardMetricsSql(?string $valueColumn, ?string $realRevenueColumn): string
+    {
+        $conversionAggregate = orbitraConversionAggregateSql($valueColumn);
+        $realRevenueJoin = '';
+        $realRevenueSelect = '0 AS real_revenue';
+
+        if ($realRevenueColumn !== null) {
+            $realRevenueAggregate = orbitraRevenueRecordsAggregateSql($realRevenueColumn);
+            $realRevenueJoin = "LEFT JOIN $realRevenueAggregate rra ON rra.click_id = cl.id";
+            $realRevenueSelect = 'COALESCE(SUM(rra.real_rev), 0) AS real_revenue';
+        }
+
+        return "
+            SELECT COUNT(cl.id) AS clicks,
+                   COUNT(DISTINCT cl.ip) AS unique_clicks,
+                   COALESCE(SUM(cl.is_bot), 0) AS bots,
+                   COALESCE(SUM(cl.is_proxy), 0) AS proxies,
+                   COALESCE(SUM(CASE WHEN COALESCE(cl.referer, '') = '' THEN 1 ELSE 0 END), 0) AS empty_referrers,
+                   COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END), 0) AS prelander_clicks,
+                   COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0
+                                          AND cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END), 0) AS lp_clicks,
+                   COALESCE(SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END), 0) AS offer_clicks,
+                   COALESCE(SUM(cl.cost), 0) AS cost,
+                   COALESCE(SUM(cva.cnt_any), 0) AS conversions,
+                   COALESCE(SUM(cva.cnt_sale), 0) AS sales,
+                   COALESCE(SUM(cva.cnt_hold), 0) AS leads,
+                   COALESCE(SUM(cva.cnt_rejected), 0) AS rejected,
+                   COALESCE(SUM(cva.cnt_trash), 0) AS trash,
+                   COALESCE(SUM(cva.cnt_registration), 0) AS registrations,
+                   COALESCE(SUM(cva.cnt_deposit), 0) AS deposits,
+                   COALESCE(SUM(cva.rev_all), 0) AS revenue,
+                   COALESCE(SUM(cva.rev_sale), 0) AS revenue_confirmed,
+                   COALESCE(SUM(cva.rev_hold), 0) AS revenue_hold,
+                   COALESCE(SUM(cva.rev_rejected), 0) AS revenue_rejected,
+                   COALESCE(SUM(cva.rev_trash), 0) AS revenue_trash,
+                   COALESCE(SUM(cva.rev_registration), 0) AS revenue_registration,
+                   COALESCE(SUM(cva.rev_deposit), 0) AS revenue_deposit,
+                   $realRevenueSelect
+            FROM clicks cl
+            LEFT JOIN $conversionAggregate cva ON cva.click_id = cl.id
+            $realRevenueJoin
+        ";
+    }
+
+    /**
      * Full offers list with per-status conversion counters, money and cost,
      * ready to prepare/execute. The offers table page runs this and then feeds
      * each row through orbitraComputeDerivedMetrics(), so its numbers are the

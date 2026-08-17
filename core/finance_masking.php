@@ -43,9 +43,10 @@ function orbitraAllFinanceVisible(array $flags): bool
 /**
  * Does this row/array key belong to a hidden family?
  *
- * Cost family: cost, click_cost, costs, spend, cpc, cpv, cpa, cost_value — but NOT
+ * Cost family: cost, click_cost, costs, spend, cpc, cpv, cpa, cpl, cps,
+ * cost_value — but NOT
  * cost_model (a CPC/CPM label, not an amount).
- * Revenue family: any prefix chain ending in revenue / profit / roi / epc
+ * Revenue family: any prefix chain ending in revenue / profit / roi / epc / epv
  * (revenue_confirmed, real_revenue, click_sale_revenue, real_roi, ...).
  * Payout family: payout, payouts, payout_value — but NOT payout_type.
  */
@@ -57,12 +58,12 @@ function orbitraFinanceKeyMasked(string $key, array $flags): bool
     $k = strtolower(trim($key));
     if (!$flags['costs'] && (
         preg_match('/^(?:[a-z]+_)*cost$/', $k)
-        || in_array($k, ['costs', 'spend', 'cpc', 'cpv', 'cpa', 'cost_value'], true)
+        || in_array($k, ['costs', 'spend', 'cpc', 'cpv', 'cpa', 'cpl', 'cps', 'cost_value'], true)
     )) {
         return true;
     }
     if (!$flags['revenue'] && (
-        preg_match('/^(?:[a-z]+_)*(?:revenue|profit|roi|epc)$/', $k)
+        preg_match('/^(?:[a-z]+_)*(?:revenue|profit|roi|epc|epv)$/', $k)
         || preg_match('/^revenue(?:_[a-z]+)?$/', $k)
     )) {
         return true;

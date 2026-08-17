@@ -76,8 +76,8 @@ export const firstAllowedTab = (user) =>
 // cost_value, roi, profitability, ... Count-style ids (deposits, sales) stay
 // visible — only money families hide.
 const FINANCE_SEGMENTS = {
-    costs: [/^cost/, 'cpc', 'cpv', 'cpa', 'cps', 'spend'],
-    revenue: [/^profit/, 'revenue', 'roi', 'epc', 'uepc'],
+    costs: [/^cost/, 'cpc', 'cpv', 'cpa', 'cpl', 'cps', 'spend'],
+    revenue: [/^profit/, 'revenue', 'roi', 'epc', 'uepc', 'epv'],
     payout: [/^payout/],
 };
 

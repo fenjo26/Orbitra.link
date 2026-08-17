@@ -1248,60 +1248,21 @@ try {
             break;
 
         case 'metrics':
-            // 7 Stat Cards
-            $metrics = [];
-
-            list($whereCl, $paramsCl) = getDashboardFilters();
-            $clicksStmt = $pdo->prepare("SELECT COUNT(id) as total_clicks, COUNT(DISTINCT ip) as unique_clicks FROM clicks $whereCl");
-            $clicksStmt->execute($paramsCl);
-            $clickData = $clicksStmt->fetch();
-            $metrics['clicks'] = (int) $clickData['total_clicks'];
-            $metrics['unique_clicks'] = (int) $clickData['unique_clicks'];
-            list($whereClicksPrefixed, $paramsClicksPrefixed) = getDashboardFilters('clicks.');
-
-            list($whereCv, $paramsCv) = getDashboardFilters();
-            // Handle conversions specific join if campaign_id is provided, but conversions has click_id.
-            // Wait, conversions doesn't have campaign_id natively. We just join clicks!
-            $joinConv = "";
-            if (!empty($_GET['campaign_id'])) {
-                $joinConv = "LEFT JOIN clicks cl ON conversions.click_id = cl.id ";
-                list($whereCv, $paramsCv) = getDashboardFilters('cl.');
-            } else {
-                list($whereCv, $paramsCv) = getDashboardFilters('');
-            }
-
+            // Dashboard cards use the same event/status math as the full
+            // reports. Keeping one click row in the outer query prevents a
+            // click with several conversions from multiplying cost or volume.
             $conversionsValueColumn = getConversionsValueColumn($pdo);
-            $conversionRevenueSumExpression = $conversionsValueColumn !== null
-                ? "COALESCE(SUM(conversions.$conversionsValueColumn), 0)"
-                : "0";
-            $convStmt = $pdo->prepare("SELECT COUNT(conversions.id) as total_conversions, $conversionRevenueSumExpression as total_revenue FROM conversions $joinConv $whereCv");
-            $convStmt->execute($paramsCv);
-            $convData = $convStmt->fetch();
-            $metrics['conversions'] = (int) $convData['total_conversions'];
-            $metrics['revenue'] = (float) $convData['total_revenue'];
-
-            // Расход (в этой модели у нас нет cost, для красоты ставим 0 или моковые данные)
-            $metrics['cost'] = 0.00;
-
-            // Прибыль
-            $metrics['profit'] = $metrics['revenue'] - $metrics['cost'];
-
-            // ROI = (Profit / Cost) * 100
-            $metrics['roi'] = $metrics['cost'] > 0 ? round(($metrics['profit'] / $metrics['cost']) * 100, 2) : ($metrics['profit'] > 0 ? 100 : 0);
-
-            // Real Revenue
-            $metrics['real_revenue'] = 0.0;
             $revenueRecordsValueColumn = getRevenueRecordsValueColumn($pdo);
-            if ($revenueRecordsValueColumn !== null) {
-                $rrStmt = $pdo->prepare("SELECT COALESCE(SUM(rr.$revenueRecordsValueColumn), 0) as real_rev FROM revenue_records rr JOIN clicks ON rr.click_id = clicks.id $whereClicksPrefixed");
-                $rrStmt->execute($paramsClicksPrefixed);
-                $metrics['real_revenue'] = (float) $rrStmt->fetch()['real_rev'];
-            }
-            $real_profit = $metrics['real_revenue'] - $metrics['cost'];
-            $metrics['real_roi'] = $metrics['cost'] > 0 ? round(($real_profit / $metrics['cost']) * 100, 2) : ($real_profit > 0 ? 100 : 0);
+            list($whereCl, $paramsCl) = getDashboardFilters('cl.');
+            $metricsStmt = $pdo->prepare(
+                orbitraDashboardMetricsSql($conversionsValueColumn, $revenueRecordsValueColumn) . $whereCl
+            );
+            $metricsStmt->execute($paramsCl);
+            $metrics = orbitraComputeDerivedMetrics($metricsStmt->fetch(PDO::FETCH_ASSOC) ?: []);
 
-            // CTR Placeholder
-            $metrics['ctr'] = 100; // Simplified, typically needs impressions
+            // CTR remains the legacy placeholder until impression tracking is
+            // available; CR/LP CTR/Bot rate above are measured values.
+            $metrics['ctr'] = 100;
 
             $financeFlags = orbitraRequestFinanceFlags();
             if (!orbitraAllFinanceVisible($financeFlags)) {

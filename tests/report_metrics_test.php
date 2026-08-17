@@ -106,7 +106,8 @@ $assert('roi at zero cost is null', $zero['roi'], null);
 //   m6 nothing,               ip E, cost 0   (no conversions)
 $pdo->exec('CREATE TABLE clicks (id TEXT PRIMARY KEY, campaign_id INTEGER, offer_id INTEGER,
     landing_id INTEGER, ip TEXT, cost REAL DEFAULT 0, is_conversion INTEGER DEFAULT 0,
-    revenue REAL DEFAULT 0, created_at TEXT DEFAULT "2026-01-01 10:00:00")');
+    revenue REAL DEFAULT 0, is_bot INTEGER DEFAULT 0, is_proxy INTEGER DEFAULT 0,
+    referer TEXT, created_at TEXT DEFAULT "2026-01-01 10:00:00")');
 $pdo->exec('CREATE TABLE landings (id INTEGER PRIMARY KEY, name TEXT, type TEXT, url TEXT,
     state TEXT, group_id INTEGER, is_archived INTEGER DEFAULT 0)');
 $pdo->exec('CREATE TABLE landing_groups (id INTEGER PRIMARY KEY, name TEXT)');
@@ -121,10 +122,30 @@ $pdo->exec('CREATE TABLE affiliate_networks (id INTEGER PRIMARY KEY, name TEXT)'
 $st = $pdo->prepare('INSERT INTO clicks (id, landing_id, offer_id, ip, cost) VALUES (?,?,?,?,?)');
 foreach ([['m1',1,7,'A',10], ['m2',1,null,'A',5], ['m3',1,null,'B',1],
           ['m4',2,8,'C',4], ['m5',null,9,'D',1], ['m6',null,null,'E',0]] as $r) { $st->execute($r); }
+$pdo->exec("UPDATE clicks SET is_bot = 1 WHERE id = 'm4'");
 $st = $pdo->prepare('INSERT INTO landings (id, name, group_id) VALUES (?,?,?)');
 foreach ([[1,'LP one',1], [2,'LP two',null], [3,'LP empty',null]] as $r) { $st->execute($r); }
 $pdo->exec("INSERT INTO landing_groups (id, name) VALUES (1, 'grp')");
 $pdo->exec('INSERT INTO offers (id, name) VALUES (7,"of7"), (8,"of8"), (9,"of9")');
+
+// Dashboard cards aggregate the same dataset in one row, then run the shared
+// derivation helper. This catches missing cards and guards against multiplying
+// click cost when one click has several conversion events.
+$dashboardRaw = $pdo->query(orbitraDashboardMetricsSql('payout', null))->fetch(PDO::FETCH_ASSOC);
+$dashboard = orbitraComputeDerivedMetrics($dashboardRaw ?: []);
+$assert('Dashboard clicks', $dashboard['clicks'], 6, 0);
+$assert('Dashboard unique clicks', $dashboard['unique_clicks'], 5, 0);
+$assert('Dashboard conversions', $dashboard['conversions'], 8, 0);
+$assert('Dashboard leads', $dashboard['leads'], 1, 0);
+$assert('Dashboard sales', $dashboard['sales'], 3, 0);
+$assert('Dashboard bots', $dashboard['bots'], 1, 0);
+$assert('Dashboard cost is not multiplied', $dashboard['cost'], 21);
+$assert('Dashboard confirmed revenue', $dashboard['revenue_confirmed'], 45);
+$assert('Dashboard confirmed profit', $dashboard['profit_confirmed'], 24);
+$assert('Dashboard CPL', $dashboard['cpl'], 21);
+$assert('Dashboard CPS', $dashboard['cps'], 7);
+$assert('Dashboard LP CTR', $dashboard['lp_ctr'], 50);
+$assert('Dashboard bot rate', $dashboard['bot_rate'], 16.67);
 
 // The derivation loop the landings/offers endpoints run after the SQL.
 $deriveRow = function (array $row): array {
