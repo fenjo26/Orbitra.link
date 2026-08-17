@@ -812,22 +812,36 @@ code {
 /* Form Input - поле ввода */
 .form-input {
   background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
-  border: none;
   padding: 14px 18px;
   font-size: 14px;
   color: var(--color-text-primary);
   outline: none;
   width: 100%;
-  transition: 0.25s cubic-bezier(.4, 0, .2, 1);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+/* bg-soft on bg-card is nearly identical in dark themes — without a border
+   the field reads as floating text until clicked. The 1px border is what
+   makes the outline visible at rest; hover deepens it, focus goes primary. */
+.form-input:hover {
+  border-color: color-mix(in srgb, var(--color-text-muted) 60%, transparent);
 }
 
 .form-input:focus {
-  box-shadow: 0 0 0 2px var(--color-border), inset 0 0 5px var(--color-bg-card);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
 }
 
 .form-input::placeholder {
   color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.form-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Override padding for inputs with left icon (pl-12) */
@@ -837,23 +851,62 @@ code {
   padding-left: 3rem !important;
 }
 
-/* Form Select */
+/* Form Select - выпадающий список со стрелкой (appearance:none убирает
+   системную, своя рисуется фоном) */
 .form-select {
   background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
-  border: none;
-  padding: 14px 18px;
+  padding: 14px 38px 14px 18px;
   font-size: 14px;
   color: var(--color-text-primary);
   outline: none;
   width: 100%;
   cursor: pointer;
   appearance: none;
-  transition: 0.25s cubic-bezier(.4, 0, .2, 1);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.form-select:hover {
+  border-color: color-mix(in srgb, var(--color-text-muted) 60%, transparent);
 }
 
 .form-select:focus {
-  box-shadow: 0 0 0 2px var(--color-border);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+/* Выпадающее меню опций иначе берёт системный (белый) фон в части браузеров. */
+.form-select option {
+  background-color: var(--color-bg-card);
+  color: var(--color-text-primary);
+}
+
+/* Form Textarea - многострочное поле */
+.form-textarea {
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 14px 18px;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  outline: none;
+  width: 100%;
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-textarea:hover {
+  border-color: color-mix(in srgb, var(--color-text-muted) 60%, transparent);
+}
+
+.form-textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
 }
 
 /* Form Label */

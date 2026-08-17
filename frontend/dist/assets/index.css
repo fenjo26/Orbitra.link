@@ -3909,22 +3909,45 @@ code {
 
 .form-input {
   background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
   color: var(--color-text-primary);
-  border: none;
   border-radius: 16px;
   outline: none;
   width: 100%;
   padding: 14px 18px;
   font-size: 14px;
-  transition: all .25s cubic-bezier(.4, 0, .2, 1);
+  transition: border-color .2s, box-shadow .2s, background-color .2s;
+}
+
+.form-input:hover {
+  border-color: var(--color-text-muted);
+}
+
+@supports (color: color-mix(in lab, red, red)) {
+  .form-input:hover {
+    border-color: color-mix(in srgb, var(--color-text-muted) 60%, transparent);
+  }
 }
 
 .form-input:focus {
-  box-shadow: 0 0 0 2px var(--color-border), inset 0 0 5px var(--color-bg-card);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary);
+}
+
+@supports (color: color-mix(in lab, red, red)) {
+  .form-input:focus {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+  }
 }
 
 .form-input::placeholder {
   color: var(--color-text-muted);
+  opacity: .7;
+}
+
+.form-input:disabled {
+  opacity: .6;
+  cursor: not-allowed;
 }
 
 .form-input.pl-12, .form-select.pl-12, .form-textarea.pl-12 {
@@ -3933,20 +3956,80 @@ code {
 
 .form-select {
   background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
   color: var(--color-text-primary);
   cursor: pointer;
   appearance: none;
-  border: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-position: right 14px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  border-radius: 16px;
+  outline: none;
+  width: 100%;
+  padding: 14px 38px 14px 18px;
+  font-size: 14px;
+  transition: border-color .2s, box-shadow .2s, background-color .2s;
+}
+
+.form-select:hover {
+  border-color: var(--color-text-muted);
+}
+
+@supports (color: color-mix(in lab, red, red)) {
+  .form-select:hover {
+    border-color: color-mix(in srgb, var(--color-text-muted) 60%, transparent);
+  }
+}
+
+.form-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary);
+}
+
+@supports (color: color-mix(in lab, red, red)) {
+  .form-select:focus {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+  }
+}
+
+.form-select option {
+  background-color: var(--color-bg-card);
+  color: var(--color-text-primary);
+}
+
+.form-textarea {
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  resize: vertical;
   border-radius: 16px;
   outline: none;
   width: 100%;
   padding: 14px 18px;
   font-size: 14px;
-  transition: all .25s cubic-bezier(.4, 0, .2, 1);
+  transition: border-color .2s, box-shadow .2s;
 }
 
-.form-select:focus {
-  box-shadow: 0 0 0 2px var(--color-border);
+.form-textarea:hover {
+  border-color: var(--color-text-muted);
+}
+
+@supports (color: color-mix(in lab, red, red)) {
+  .form-textarea:hover {
+    border-color: color-mix(in srgb, var(--color-text-muted) 60%, transparent);
+  }
+}
+
+.form-textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary);
+}
+
+@supports (color: color-mix(in lab, red, red)) {
+  .form-textarea:focus {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+  }
 }
 
 .form-label {
