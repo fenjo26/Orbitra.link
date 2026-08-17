@@ -380,6 +380,114 @@ function orbitraTikTokNormalizeAdvertiserId(string $advertiserId): string
     return $advertiserId;
 }
 
+// === Google Ads OAuth helpers ===
+
+require_once __DIR__ . '/core/google_ads_tree.php';
+
+/**
+ * Google OAuth app credentials for the 1-click flow. Precedence mirrors the
+ * TikTok helper: environment, then settings, then credentials stored inside an
+ * existing google_ads aggregator connection (the manual form's fields) — so an
+ * operator can bootstrap 1-click by saving one manual connection.
+ *
+ * @return array{client_id:string,client_secret:string,developer_token:string}
+ */
+function orbitraGoogleAdsOAuthCredentials(PDO $pdo): array
+{
+    $clientId = trim((string) (getenv('ORBITRA_GOOGLE_CLIENT_ID') ?: ''));
+    $clientSecret = trim((string) (getenv('ORBITRA_GOOGLE_CLIENT_SECRET') ?: ''));
+    $developerToken = trim((string) (getenv('ORBITRA_GOOGLE_DEVELOPER_TOKEN') ?: ''));
+
+    try {
+        $rows = $pdo->query("SELECT key, value FROM settings WHERE key IN ('google_ads_client_id','google_ads_client_secret','google_ads_developer_token')")
+            ->fetchAll(PDO::FETCH_KEY_PAIR);
+        if ($clientId === '') {
+            $clientId = trim((string) ($rows['google_ads_client_id'] ?? ''));
+        }
+        if ($clientSecret === '') {
+            $clientSecret = trim((string) ($rows['google_ads_client_secret'] ?? ''));
+        }
+        if ($developerToken === '') {
+            $developerToken = trim((string) ($rows['google_ads_developer_token'] ?? ''));
+        }
+    } catch (\Throwable $e) {
+        // A fresh/partial database can still use environment variables.
+    }
+
+    if ($clientId === '' || $clientSecret === '' || $developerToken === '') {
+        try {
+            $stmt = $pdo->query("SELECT credentials_json FROM aggregator_connections WHERE engine = 'google_ads' ORDER BY id DESC");
+            foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $raw) {
+                $credentials = json_decode((string) $raw, true);
+                if (!is_array($credentials)) {
+                    continue;
+                }
+                if ($clientId === '') {
+                    $clientId = trim((string) ($credentials['client_id'] ?? ''));
+                }
+                if ($clientSecret === '') {
+                    $clientSecret = trim((string) ($credentials['client_secret'] ?? ''));
+                }
+                if ($developerToken === '') {
+                    $developerToken = trim((string) ($credentials['developer_token'] ?? ''));
+                }
+                if ($clientId !== '' && $clientSecret !== '' && $developerToken !== '') {
+                    break;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Missing aggregator table is handled by the validation in the endpoints.
+        }
+    }
+
+    return ['client_id' => $clientId, 'client_secret' => $clientSecret, 'developer_token' => $developerToken];
+}
+
+/**
+ * POST a Google Ads API v19 searchStream GAQL query and return the decoded
+ * body. Non-2xx responses and API errors inside the body throw.
+ *
+ * @return array<string,mixed>
+ */
+function orbitraGoogleAdsGaql(string $accessToken, string $developerToken, string $customerId, string $gaql, int $timeout = 20): array
+{
+    if (!function_exists('curl_init')) {
+        throw new RuntimeException('PHP cURL is required for Google Ads OAuth.');
+    }
+    $url = 'https://googleads.googleapis.com/v19/customers/' . rawurlencode($customerId) . '/googleAds:searchStream';
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['query' => $gaql]));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $accessToken,
+        'developer-token: ' . $developerToken,
+        'login-customer-id: ' . $customerId,
+        'Content-Type: application/json',
+    ]);
+    $body = curl_exec($ch);
+    $statusCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+
+    if ($curlError !== '') {
+        throw new RuntimeException('Google Ads HTTP transport error: ' . $curlError);
+    }
+    $decoded = json_decode((string) $body, true);
+    if (!is_array($decoded)) {
+        throw new RuntimeException('Google Ads returned an unreadable response.');
+    }
+    if (isset($decoded['error']) || isset($decoded[0]['error'])) {
+        $error = is_array($decoded['error'] ?? null) ? $decoded['error'] : ($decoded[0]['error'] ?? []);
+        throw new RuntimeException((string) ($error['message'] ?? 'Google Ads API request failed.'));
+    }
+
+    return $decoded;
+}
+
 // === Cloudflare integration helpers ===
 
 /** Connection config from settings; server_ip falls back to the web-facing address. */
@@ -13397,6 +13505,398 @@ PHP;
                     'updated_count' => $updated,
                     'imported_pixels' => $importedPixels,
                     'skipped_pixels' => $skippedPixels,
+                ],
+            ]);
+            break;
+
+        // === Google Ads Costs: 1-Click OAuth — mirrors the TikTok flow ===
+
+        // Build the Google consent URL. Requires offline access (refresh token),
+        // forced with prompt=consent — a re-grant without it returns no refresh
+        // token and the connection would die after the first hour.
+        case 'google_ads_oauth_start':
+            if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+                echo json_encode(['status' => 'error', 'message' => 'GET required']);
+                break;
+            }
+
+            $origin = orbitraFacebookOAuthOrigin();
+            $oauthCredentials = orbitraGoogleAdsOAuthCredentials($pdo);
+            $missingConfig = [];
+            if ($oauthCredentials['client_id'] === '') {
+                $missingConfig[] = 'ORBITRA_GOOGLE_CLIENT_ID';
+            }
+            if ($oauthCredentials['client_secret'] === '') {
+                $missingConfig[] = 'ORBITRA_GOOGLE_CLIENT_SECRET';
+            }
+            if ($oauthCredentials['developer_token'] === '') {
+                $missingConfig[] = 'ORBITRA_GOOGLE_DEVELOPER_TOKEN';
+            }
+            if ($missingConfig) {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.google_ads_oauth',
+                    'status' => 'error',
+                    'message' => 'Google Ads OAuth is not configured. Set ' . implode(', ', $missingConfig) . ' on the server, or save a manual Google Ads connection first — its Client ID / Secret / Developer Token are reused for 1-click.',
+                ], $origin, 'Google Ads');
+            }
+
+            $now = time();
+            foreach ((array) ($_SESSION['google_ads_oauth_states'] ?? []) as $oldState => $details) {
+                if (!is_array($details) || (int) ($details['created_at'] ?? 0) < $now - 900) {
+                    unset($_SESSION['google_ads_oauth_states'][$oldState]);
+                }
+            }
+            foreach ((array) ($_SESSION['google_ads_oauth_flows'] ?? []) as $oldFlow => $details) {
+                if (!is_array($details) || (int) ($details['created_at'] ?? 0) < $now - 900) {
+                    unset($_SESSION['google_ads_oauth_flows'][$oldFlow]);
+                }
+            }
+
+            $state = bin2hex(random_bytes(32));
+            $redirectUri = $origin . '/api.php?action=google_ads_oauth_callback';
+            $_SESSION['google_ads_oauth_states'][$state] = [
+                'created_at' => $now,
+                'user_id' => (int) $_SESSION['user_id'],
+                'origin' => $origin,
+                'redirect_uri' => $redirectUri,
+            ];
+
+            $authUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
+                'client_id' => $oauthCredentials['client_id'],
+                'redirect_uri' => $redirectUri,
+                'response_type' => 'code',
+                'scope' => 'https://www.googleapis.com/auth/adwords',
+                'access_type' => 'offline',
+                'prompt' => 'consent',
+                'state' => $state,
+            ], '', '&', PHP_QUERY_RFC3986);
+            header('Cache-Control: no-store');
+            header('Location: ' . $authUrl, true, 302);
+            exit;
+
+        // Exchange the authorization code, then discover every accessible
+        // account plus the full MCC hierarchy under each manager. Only account
+        // metadata crosses to the opener window; the refresh token stays
+        // server-side in the session flow.
+        case 'google_ads_oauth_callback':
+            if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+                echo json_encode(['status' => 'error', 'message' => 'GET required']);
+                break;
+            }
+
+            $origin = orbitraFacebookOAuthOrigin();
+            $state = trim((string) ($_GET['state'] ?? ''));
+            $storedState = $state !== '' ? ($_SESSION['google_ads_oauth_states'][$state] ?? null) : null;
+            if ($state !== '') {
+                unset($_SESSION['google_ads_oauth_states'][$state]);
+            }
+            if (!is_array($storedState)
+                || (int) ($storedState['created_at'] ?? 0) < time() - 900
+                || (int) ($storedState['user_id'] ?? 0) !== (int) $_SESSION['user_id']
+                || !hash_equals((string) ($storedState['origin'] ?? ''), $origin)) {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.google_ads_oauth',
+                    'status' => 'error',
+                    'message' => 'The Google authorization request expired or could not be verified. Please try again.',
+                ], $origin, 'Google Ads');
+            }
+
+            if (!empty($_GET['error'])) {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.google_ads_oauth',
+                    'status' => 'error',
+                    'message' => trim((string) ($_GET['error_description'] ?? $_GET['error'] ?? 'Google authorization was cancelled.')),
+                ], $origin, 'Google Ads');
+            }
+
+            $authCode = trim((string) ($_GET['code'] ?? ''));
+            if ($authCode === '') {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.google_ads_oauth',
+                    'status' => 'error',
+                    'message' => 'Google did not return an authorization code.',
+                ], $origin, 'Google Ads');
+            }
+
+            try {
+                $oauthCredentials = orbitraGoogleAdsOAuthCredentials($pdo);
+                if ($oauthCredentials['client_id'] === '' || $oauthCredentials['client_secret'] === '' || $oauthCredentials['developer_token'] === '') {
+                    throw new RuntimeException('Google Ads OAuth app credentials are no longer available.');
+                }
+
+                // Exchange the one-time code for tokens. The refresh token is the
+                // durable credential — access tokens live ~1h and are re-minted by
+                // GoogleAdsEngine::getAccessToken() on every sync.
+                $ch = curl_init('https://oauth2.googleapis.com/token');
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+                curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+                    'code' => $authCode,
+                    'client_id' => $oauthCredentials['client_id'],
+                    'client_secret' => $oauthCredentials['client_secret'],
+                    'redirect_uri' => (string) ($storedState['redirect_uri'] ?? ($origin . '/api.php?action=google_ads_oauth_callback')),
+                    'grant_type' => 'authorization_code',
+                ]));
+                $tokenBody = (string) curl_exec($ch);
+                $tokenCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $tokenErr = curl_error($ch);
+                curl_close($ch);
+
+                if ($tokenErr !== '') {
+                    throw new RuntimeException('Google token endpoint: HTTP transport error ' . $tokenErr);
+                }
+                $tokenData = json_decode($tokenBody, true);
+                if (!is_array($tokenData)) {
+                    throw new RuntimeException('Google token endpoint returned an unreadable response.');
+                }
+                if ($tokenCode < 200 || $tokenCode >= 300) {
+                    throw new RuntimeException('Google token endpoint: HTTP ' . $tokenCode . ': ' . (string) ($tokenData['error_description'] ?? $tokenData['error'] ?? substr($tokenBody, 0, 300)));
+                }
+                $accessToken = trim((string) ($tokenData['access_token'] ?? ''));
+                $refreshToken = trim((string) ($tokenData['refresh_token'] ?? ''));
+                if ($accessToken === '') {
+                    throw new RuntimeException('Google did not return an access token.');
+                }
+                if ($refreshToken === '') {
+                    throw new RuntimeException('Google did not return a refresh token — the app was already authorized without offline access. Revoke it at myaccount.google.com/permissions and connect again.');
+                }
+
+                // Directly accessible accounts. MCC sub-accounts are NOT listed
+                // here — only the managers — so the hierarchy below is what finds them.
+                $ch = curl_init('https://googleads.googleapis.com/v19/customers:listAccessibleCustomers');
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+                curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Authorization: Bearer ' . $accessToken,
+                    'developer-token: ' . $oauthCredentials['developer_token'],
+                ]);
+                $listBody = (string) curl_exec($ch);
+                $listCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $listErr = curl_error($ch);
+                curl_close($ch);
+
+                if ($listErr !== '') {
+                    throw new RuntimeException('Google Ads HTTP transport error: ' . $listErr);
+                }
+                $listData = json_decode($listBody, true);
+                if (!is_array($listData) || $listCode < 200 || $listCode >= 300) {
+                    $message = is_array($listData) ? (string) ($listData['error']['message'] ?? '') : '';
+                    throw new RuntimeException('Google Ads: HTTP ' . $listCode . ($message !== '' ? ': ' . $message : ''));
+                }
+
+                $accessibleCids = [];
+                foreach ((array) ($listData['resourceNames'] ?? []) as $resourceName) {
+                    $cid = orbitraGoogleAdsCidDigits((string) $resourceName);
+                    if ($cid !== '' && !in_array($cid, $accessibleCids, true)) {
+                        $accessibleCids[] = $cid;
+                    }
+                }
+
+                // Self metadata per accessible CID; for every manager (MCC) the
+                // full client hierarchy. A failed query for one account must not
+                // kill the discovery — the account is just not offered.
+                $selfMeta = [];
+                $managerChildren = [];
+                foreach ($accessibleCids as $cid) {
+                    try {
+                        $customerResponse = orbitraGoogleAdsGaql($accessToken, $oauthCredentials['developer_token'], $cid,
+                            'SELECT customer.id, customer.descriptive_name, customer.currency_code, customer.manager, customer.time_zone FROM customer');
+                        $row = $customerResponse[0]['results'][0] ?? ($customerResponse['results'][0] ?? null);
+                        if (!is_array($row)) {
+                            continue;
+                        }
+                        $meta = [
+                            'name' => (string) ($row['customer']['descriptiveName'] ?? ''),
+                            'currency' => (string) ($row['customer']['currencyCode'] ?? ''),
+                            'timezone' => (string) ($row['customer']['timeZone'] ?? ''),
+                            'manager' => !empty($row['customer']['manager']),
+                        ];
+                        $selfMeta[$cid] = $meta;
+
+                        if ($meta['manager']) {
+                            try {
+                                $clientResponse = orbitraGoogleAdsGaql($accessToken, $oauthCredentials['developer_token'], $cid,
+                                    'SELECT customer_client.client_customer, customer_client.descriptive_name, customer_client.currency_code, customer_client.manager, customer_client.level, customer_client.hidden FROM customer_client');
+                                $clientRows = $clientResponse[0]['results'] ?? ($clientResponse['results'] ?? []);
+                                $managerChildren[$cid] = [];
+                                foreach ((array) $clientRows as $clientRow) {
+                                    $managerChildren[$cid][] = is_array($clientRow['customerClient'] ?? null) ? $clientRow['customerClient'] : [];
+                                }
+                            } catch (\Throwable $e) {
+                                continue;
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        continue;
+                    }
+                }
+
+                $tree = orbitraGoogleAdsBuildAccountTree($accessibleCids, $selfMeta, $managerChildren);
+
+                $flowId = bin2hex(random_bytes(32));
+                $flowAccounts = [];
+                foreach ($tree['accounts'] as $account) {
+                    $flowAccounts[$account['cid']] = $account;
+                }
+                $_SESSION['google_ads_oauth_flows'][$flowId] = [
+                    'created_at' => time(),
+                    'user_id' => (int) $_SESSION['user_id'],
+                    'refresh_token' => $refreshToken,
+                    'client_id' => $oauthCredentials['client_id'],
+                    'client_secret' => $oauthCredentials['client_secret'],
+                    'developer_token' => $oauthCredentials['developer_token'],
+                    'accounts' => $flowAccounts,
+                ];
+
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.google_ads_oauth',
+                    'status' => 'success',
+                    'flow_id' => $flowId,
+                    'managers' => $tree['managers'],
+                    'accounts' => $tree['accounts'],
+                    'message' => count($tree['accounts']) . ' Google Ads account(s), ' . count($tree['managers']) . ' manager account(s) found.',
+                ], $origin, 'Google Ads');
+            } catch (\Throwable $e) {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.google_ads_oauth',
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ], $origin, 'Google Ads');
+            }
+
+        // Save one spend-sync aggregator connection per selected Google Ads
+        // account. flow_id references the server-side OAuth flow, so the refresh
+        // token never round-trips the client. Google refresh tokens do not
+        // rotate on use — every connection can keep its own copy safely.
+        case 'google_ads_connect_accounts':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+
+            $data = json_decode(orbitraRequestBody(), true);
+            if (!is_array($data)) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid JSON body']);
+                break;
+            }
+
+            $now = time();
+            foreach ((array) ($_SESSION['google_ads_oauth_flows'] ?? []) as $oldFlow => $details) {
+                if (!is_array($details) || (int) ($details['created_at'] ?? 0) < $now - 900) {
+                    unset($_SESSION['google_ads_oauth_flows'][$oldFlow]);
+                }
+            }
+
+            $flowId = trim((string) ($data['flow_id'] ?? ''));
+            $flow = $flowId !== '' ? ($_SESSION['google_ads_oauth_flows'][$flowId] ?? null) : null;
+            if (!is_array($flow)
+                || (int) ($flow['created_at'] ?? 0) < $now - 900
+                || (int) ($flow['user_id'] ?? 0) !== (int) $_SESSION['user_id']) {
+                echo json_encode(['status' => 'error', 'message' => 'Google Ads connection session expired. Please log in with Google again.']);
+                break;
+            }
+
+            $requestedAccounts = $data['accounts'] ?? [];
+            if (!is_array($requestedAccounts) || count($requestedAccounts) < 1 || count($requestedAccounts) > 500) {
+                echo json_encode(['status' => 'error', 'message' => 'Select between 1 and 500 Google Ads accounts.']);
+                break;
+            }
+
+            $allowedAccounts = is_array($flow['accounts'] ?? null) ? $flow['accounts'] : [];
+            $selectedAccounts = [];
+            foreach ($requestedAccounts as $requested) {
+                if (!is_array($requested)) {
+                    continue;
+                }
+                $cid = orbitraGoogleAdsCidDigits((string) ($requested['id'] ?? $requested['cid'] ?? ''));
+                if ($cid === '' || !isset($allowedAccounts[$cid])) {
+                    echo json_encode(['status' => 'error', 'message' => 'One or more selected accounts do not belong to this Google login.']);
+                    break 2;
+                }
+                $selectedAccounts[$cid] = $allowedAccounts[$cid];
+            }
+
+            if (!$selectedAccounts) {
+                echo json_encode(['status' => 'error', 'message' => 'No valid Google Ads accounts were selected.']);
+                break;
+            }
+
+            $syncInterval = max(1, min(168, (int) ($data['sync_interval_hours'] ?? 2)));
+            $refreshToken = trim((string) ($flow['refresh_token'] ?? ''));
+            if ($refreshToken === '' || strlen($refreshToken) > 8192) {
+                echo json_encode(['status' => 'error', 'message' => 'A valid Google Ads refresh token is required.']);
+                break;
+            }
+
+            $created = 0;
+            $updated = 0;
+            try {
+                $existing = [];
+                $stmt = $pdo->query("SELECT id, credentials_json FROM aggregator_connections WHERE engine = 'google_ads' ORDER BY id ASC");
+                foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                    $credentials = json_decode((string) ($row['credentials_json'] ?? ''), true);
+                    if (!is_array($credentials)) {
+                        continue;
+                    }
+                    $cid = orbitraGoogleAdsCidDigits((string) ($credentials['customer_id'] ?? ''));
+                    if ($cid !== '' && !isset($existing[$cid])) {
+                        $existing[$cid] = ['id' => (int) $row['id'], 'credentials' => $credentials];
+                    }
+                }
+
+                $pdo->beginTransaction();
+                $updateStmt = $pdo->prepare("UPDATE aggregator_connections SET name=?, auth_type='oauth', credentials_json=?, sync_interval_hours=?, is_active=1 WHERE id=?");
+                $insertStmt = $pdo->prepare("INSERT INTO aggregator_connections (name, engine, affiliate_network_id, auth_type, credentials_json, base_url, deal_type, baseline, click_id_param, field_mapping_json, sync_interval_hours, is_active) VALUES (?, 'google_ads', NULL, 'oauth', ?, '', 'cpa', 0, 'sub_id', '{}', ?, 1)");
+
+                foreach ($selectedAccounts as $cid => $account) {
+                    $credentials = $existing[$cid]['credentials'] ?? [];
+                    $credentials['developer_token'] = (string) ($flow['developer_token'] ?? '');
+                    $credentials['client_id'] = (string) ($flow['client_id'] ?? '');
+                    $credentials['client_secret'] = (string) ($flow['client_secret'] ?? '');
+                    $credentials['refresh_token'] = $refreshToken;
+                    $credentials['customer_id'] = $cid;
+                    $credentials['login_customer_id'] = (string) ($account['login_customer_id'] ?? '');
+                    $credentials['account_name'] = (string) ($account['name'] ?? '');
+                    $credentials['currency'] = (string) ($account['currency'] ?? '');
+                    $credentials['timezone'] = (string) ($account['timezone'] ?? '');
+                    $credentialsJson = json_encode($credentials, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+                    if (isset($existing[$cid])) {
+                        $updateStmt->execute([(string) ($account['name'] ?? $cid), $credentialsJson, $syncInterval, $existing[$cid]['id']]);
+                        $updated++;
+                    } else {
+                        $insertStmt->execute([(string) ($account['name'] ?? $cid), $credentialsJson, $syncInterval]);
+                        $created++;
+                    }
+                }
+
+                $pdo->commit();
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Could not save Google Ads accounts: ' . $e->getMessage()]);
+                break;
+            }
+
+            unset($_SESSION['google_ads_oauth_flows'][$flowId]);
+            logAudit($pdo, 'CREATE', 'Google Ads OAuth Connections', null, [
+                'connected_count' => count($selectedAccounts),
+                'created_count' => $created,
+                'updated_count' => $updated,
+            ]);
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'connected_count' => count($selectedAccounts),
+                    'created_count' => $created,
+                    'updated_count' => $updated,
                 ],
             ]);
             break;

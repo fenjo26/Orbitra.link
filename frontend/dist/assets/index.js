@@ -18876,7 +18876,8 @@ const ru = {
       "fbApiVersion": "Версия Facebook API",
       "fbAppId": "App ID (опционально, для некоторых токенов)",
       "fbAppSecret": "App Secret (опционально)",
-      "proxy": "Прокси (опционально) — scheme://user:pass@host:port"
+      "proxy": "Прокси (опционально) — scheme://user:pass@host:port",
+      "gaLoginCustomerId": "Login Customer ID (MCC, опционально, без дефисов)"
     }
   },
   "tiktokCosts": {
@@ -18896,7 +18897,87 @@ const ru = {
     "popupBlocked": "Окно входа TikTok заблокировано. Разрешите всплывающие окна для Orbitra и попробуйте снова.",
     "noDiscoveredAccounts": "Вход в TikTok выполнен, но доступных рекламных кабинетов не найдено.",
     "connectTikTok": "Подключить TikTok For Business",
-    "connectTikTokHint": "Вход через TikTok — авто-обнаружение кабинетов и пикселей, импорт в Pixel Vault и автоматическая синхронизация расходов"
+    "connectTikTokHint": "Вход через TikTok — авто-обнаружение кабинетов и пикселей, импорт в Pixel Vault и автоматическая синхронизация расходов",
+    "title": "TikTok Costs",
+    "description": "Импортирует расход из рекламных кабинетов TikTok и привязывает его к кликам по Campaign ID, Adset ID и Ad ID.",
+    "addAccount": "Добавить аккаунт TikTok",
+    "editAccount": "Редактировать аккаунт",
+    "findAccount": "Поиск по названию или Advertiser ID",
+    "name": "Название аккаунта",
+    "namePlaceholder": "Название кабинета / аккаунта",
+    "interval": "Обновлять расходы каждые",
+    "manualSection": "или подключите вручную",
+    "testConnection": "Проверить подключение",
+    "testing": "Проверяем…",
+    "saved": "Аккаунт сохранён",
+    "cloned": "Аккаунт склонирован — копия на паузе, пока вы её не включите",
+    "deleted": "Аккаунт удалён",
+    "confirmDelete": "Удалить этот аккаунт? Импортированный расход останется в отчётах.",
+    "syncNow": "Обновить расходы",
+    "syncedOk": "Синхронизировано: получено записей — {n}, привязано к кликам — {m}.",
+    "syncedNoMatch": "Получено записей: {n}, но привязать не удалось ни одной — проверьте, что ссылка кампании передаёт ad_id / adset_id / campaign_id.",
+    "syncFailed": "Синхронизация не удалась",
+    "nextUpdate": "Следующее обновление",
+    "lastSync": "Последняя синхронизация",
+    "paused": "Остановлено",
+    "pause": "Остановить",
+    "resume": "Возобновить",
+    "clone": "Клонировать",
+    "onNextCron": "При следующем запуске cron",
+    "due": "Пора обновлять",
+    "error": "Ошибка",
+    "ok": "Работает",
+    "neverSynced": "Ещё не синхронизировано",
+    "noAccounts": "Кабинеты TikTok не подключены. Добавьте аккаунт, чтобы импортировать расход из TikTok."
+  },
+  "googleAdsCosts": {
+    "title": "Google Ads Costs",
+    "description": "Импорт расходов из Google Ads и клиентских кабинетов MCC. Атрибуция расходов к кликам по ValueTrack {campaignid} и {creative}.",
+    "oneClickTitle": "1-Click подключение Google Ads",
+    "oneClickDesc": "Войдите через Google — Orbitra найдёт прямые аккаунты и дочерние кабинеты MCC и настроит синхронизацию расходов.",
+    "loginWithGoogle": "Войти через Google",
+    "oauthConnecting": "Подключаемся к Google…",
+    "selectAccounts": "Выберите рекламные аккаунты или группы MCC для подключения",
+    "directAccounts": "Прямые аккаунты",
+    "mccManager": "Управляющий аккаунт (MCC)",
+    "selectAllInMcc": "Выбрать все",
+    "syncEvery": "Обновлять расходы каждые",
+    "connectSelected": "Подключить выбранные аккаунты",
+    "connecting": "Подключаем аккаунты…",
+    "connectedAccounts": "Подключено аккаунтов Google Ads: {n}.",
+    "oauthFailed": "Не удалось подключить Google Ads. Попробуйте ещё раз.",
+    "popupBlocked": "Окно входа Google заблокировано. Разрешите всплывающие окна для Orbitra и попробуйте снова.",
+    "noDiscoveredAccounts": "Вход в Google выполнен, но доступных рекламных аккаунтов не найдено.",
+    "addAccount": "Добавить аккаунт Google Ads",
+    "editAccount": "Редактировать аккаунт",
+    "findAccount": "Поиск по названию или Customer ID",
+    "name": "Название аккаунта",
+    "namePlaceholder": "Название аккаунта",
+    "interval": "Обновлять расходы каждые",
+    "manualSection": "или подключите вручную (своё приложение)",
+    "testConnection": "Проверить подключение",
+    "testing": "Проверяем…",
+    "saved": "Аккаунт сохранён",
+    "cloned": "Аккаунт склонирован — копия на паузе, пока вы её не включите",
+    "deleted": "Аккаунт удалён",
+    "confirmDelete": "Удалить этот аккаунт? Импортированный расход останется в отчётах.",
+    "syncNow": "Обновить расходы",
+    "syncedOk": "Синхронизировано: получено записей — {n}, привязано к кликам — {m}.",
+    "syncedNoMatch": "Получено записей: {n}, но привязать не удалось ни одной — проверьте, что ссылка кампании передаёт campaignid / creative.",
+    "syncFailed": "Синхронизация не удалась",
+    "nextUpdate": "Следующее обновление",
+    "lastSync": "Последняя синхронизация",
+    "paused": "Остановлено",
+    "pause": "Остановить",
+    "resume": "Возобновить",
+    "clone": "Клонировать",
+    "onNextCron": "При следующем запуске cron",
+    "due": "Пора обновлять",
+    "error": "Ошибка",
+    "ok": "Работает",
+    "neverSynced": "Ещё не синхронизировано",
+    "noAccounts": "Аккаунты Google Ads не подключены. Добавьте аккаунт, чтобы импортировать расход из Google Ads.",
+    "mccSubAccount": "Дочерний кабинет MCC"
   },
   "fbCosts": {
     "title": "Facebook Costs",
@@ -21931,7 +22012,8 @@ const en = {
       "fbApiVersion": "Facebook API version",
       "fbAppId": "App ID (optional, for some tokens)",
       "fbAppSecret": "App Secret (optional)",
-      "proxy": "Proxy (optional) — scheme://user:pass@host:port"
+      "proxy": "Proxy (optional) — scheme://user:pass@host:port",
+      "gaLoginCustomerId": "Login Customer ID (MCC, optional, no dashes)"
     }
   },
   "tiktokCosts": {
@@ -21951,7 +22033,87 @@ const en = {
     "popupBlocked": "The TikTok login window was blocked. Allow popups for Orbitra and try again.",
     "noDiscoveredAccounts": "TikTok login succeeded, but no accessible ad accounts were found.",
     "connectTikTok": "Connect TikTok For Business",
-    "connectTikTokHint": "Log in with TikTok: discovers ad accounts and pixels, imports them into the Pixel Vault and enables automatic spend sync"
+    "connectTikTokHint": "Log in with TikTok: discovers ad accounts and pixels, imports them into the Pixel Vault and enables automatic spend sync",
+    "title": "TikTok Costs",
+    "description": "Imports spend from TikTok ad accounts and attributes it to clicks by Campaign ID, Adset ID and Ad ID.",
+    "addAccount": "Add TikTok Account",
+    "editAccount": "Edit Account",
+    "findAccount": "Find by name or Advertiser ID",
+    "name": "Account name",
+    "namePlaceholder": "Cabinet / account name",
+    "interval": "Sync spend every",
+    "manualSection": "or connect manually",
+    "testConnection": "Test Connection",
+    "testing": "Testing…",
+    "saved": "Account saved",
+    "cloned": "Account cloned — the copy is paused until you enable it",
+    "deleted": "Account deleted",
+    "confirmDelete": "Delete this account? Imported spend stays in the reports.",
+    "syncNow": "Sync Now",
+    "syncedOk": "Synced: {n} records fetched, {m} matched to clicks.",
+    "syncedNoMatch": "Fetched {n} records but matched none — check that the campaign URL passes ad_id / adset_id / campaign_id.",
+    "syncFailed": "Sync failed",
+    "nextUpdate": "Next update",
+    "lastSync": "Last sync",
+    "paused": "Paused",
+    "pause": "Pause",
+    "resume": "Resume",
+    "clone": "Clone",
+    "onNextCron": "On next cron run",
+    "due": "Due now",
+    "error": "Error",
+    "ok": "OK",
+    "neverSynced": "Never synced",
+    "noAccounts": "No TikTok ad accounts connected. Add an account to import spend from TikTok."
+  },
+  "googleAdsCosts": {
+    "title": "Google Ads Costs",
+    "description": "Imports spend from Google Ads and MCC client accounts. Spend is attributed to clicks by ValueTrack {campaignid} and {creative}.",
+    "oneClickTitle": "1-Click Google Ads integration",
+    "oneClickDesc": "Sign in with Google — Orbitra will discover your direct accounts and MCC client accounts and set up spend sync.",
+    "loginWithGoogle": "Sign in with Google",
+    "oauthConnecting": "Connecting to Google…",
+    "selectAccounts": "Select ad accounts or MCC groups to connect",
+    "directAccounts": "Direct accounts",
+    "mccManager": "Manager account (MCC)",
+    "selectAllInMcc": "Select all",
+    "syncEvery": "Sync spend every",
+    "connectSelected": "Connect Selected Accounts",
+    "connecting": "Connecting accounts…",
+    "connectedAccounts": "Connected Google Ads accounts: {n}.",
+    "oauthFailed": "Google Ads connection failed. Please try again.",
+    "popupBlocked": "The Google login window was blocked. Allow popups for Orbitra and try again.",
+    "noDiscoveredAccounts": "Google login succeeded, but no accessible ad accounts were found.",
+    "addAccount": "Add Google Ads Account",
+    "editAccount": "Edit Account",
+    "findAccount": "Find by name or Customer ID",
+    "name": "Account name",
+    "namePlaceholder": "Account name",
+    "interval": "Sync spend every",
+    "manualSection": "or connect manually (your own developer app)",
+    "testConnection": "Test Connection",
+    "testing": "Testing…",
+    "saved": "Account saved",
+    "cloned": "Account cloned — the copy is paused until you enable it",
+    "deleted": "Account deleted",
+    "confirmDelete": "Delete this account? Imported spend stays in the reports.",
+    "syncNow": "Sync Now",
+    "syncedOk": "Synced: {n} records fetched, {m} matched to clicks.",
+    "syncedNoMatch": "Fetched {n} records but matched none — check that the campaign URL passes campaignid / creative.",
+    "syncFailed": "Sync failed",
+    "nextUpdate": "Next update",
+    "lastSync": "Last sync",
+    "paused": "Paused",
+    "pause": "Pause",
+    "resume": "Resume",
+    "clone": "Clone",
+    "onNextCron": "On next cron run",
+    "due": "Due now",
+    "error": "Error",
+    "ok": "OK",
+    "neverSynced": "Never synced",
+    "noAccounts": "No Google Ads accounts connected. Add an account to import spend from Google Ads.",
+    "mccSubAccount": "MCC sub-account"
   },
   "fbCosts": {
     "title": "Facebook Costs",
@@ -24986,7 +25148,8 @@ const uk = {
       "fbApiVersion": "Версія Facebook API",
       "fbAppId": "App ID (опційно, для деяких токенів)",
       "fbAppSecret": "App Secret (опційно)",
-      "proxy": "Проксі (опційно) — scheme://user:pass@host:port"
+      "proxy": "Проксі (опційно) — scheme://user:pass@host:port",
+      "gaLoginCustomerId": "Login Customer ID (MCC, опційно, без дефісів)"
     }
   },
   "tiktokCosts": {
@@ -25006,7 +25169,87 @@ const uk = {
     "popupBlocked": "Вікно входу TikTok заблоковано. Дозвольте спливаючі вікна для Orbitra та спробуйте ще раз.",
     "noDiscoveredAccounts": "Вхід у TikTok виконано, але доступних рекламних кабінетів не знайдено.",
     "connectTikTok": "Підключити TikTok For Business",
-    "connectTikTokHint": "Вхід через TikTok — авто-виявлення кабінетів і пікселів, імпорт у Pixel Vault та автоматична синхронізація витрат"
+    "connectTikTokHint": "Вхід через TikTok — авто-виявлення кабінетів і пікселів, імпорт у Pixel Vault та автоматична синхронізація витрат",
+    "title": "TikTok Costs",
+    "description": "Імпортує витрати з рекламних кабінетів TikTok і прив'язує їх до кліків за Campaign ID, Adset ID та Ad ID.",
+    "addAccount": "Додати аккаунт TikTok",
+    "editAccount": "Редагувати аккаунт",
+    "findAccount": "Пошук за назвою або Advertiser ID",
+    "name": "Назва аккаунта",
+    "namePlaceholder": "Назва кабінету / аккаунта",
+    "interval": "Оновлювати витрати кожні",
+    "manualSection": "або підключіть вручну",
+    "testConnection": "Перевірити підключення",
+    "testing": "Перевіряємо…",
+    "saved": "Аккаунт збережено",
+    "cloned": "Аккаунт клоновано — копія на паузі, доки ви її не увімкнете",
+    "deleted": "Аккаунт видалено",
+    "confirmDelete": "Видалити цей аккаунт? Імпортовані витрати залишаться у звітах.",
+    "syncNow": "Оновити витрати",
+    "syncedOk": "Синхронізовано: отримано записів — {n}, прив’язано до кліків — {m}.",
+    "syncedNoMatch": "Отримано записів: {n}, але прив’язати не вдалося жодного — перевірте, що посилання кампанії передає ad_id / adset_id / campaign_id.",
+    "syncFailed": "Синхронізація не вдалася",
+    "nextUpdate": "Наступне оновлення",
+    "lastSync": "Остання синхронізація",
+    "paused": "Зупинено",
+    "pause": "Зупинити",
+    "resume": "Відновити",
+    "clone": "Клонувати",
+    "onNextCron": "При наступному запуску cron",
+    "due": "Час оновлювати",
+    "error": "Помилка",
+    "ok": "Працює",
+    "neverSynced": "Ще не синхронізовано",
+    "noAccounts": "Кабінети TikTok не підключено. Додайте аккаунт, щоб імпортувати витрати з TikTok."
+  },
+  "googleAdsCosts": {
+    "title": "Google Ads Costs",
+    "description": "Імпорт витрат із Google Ads та клієнтських кабінетів MCC. Атрибуція витрат до кліків за ValueTrack {campaignid} та {creative}.",
+    "oneClickTitle": "1-Click підключення Google Ads",
+    "oneClickDesc": "Увійдіть через Google — Orbitra знайде прямі аккаунти та дочірні кабінети MCC і налаштує синхронізацію витрат.",
+    "loginWithGoogle": "Увійти через Google",
+    "oauthConnecting": "Підключаємося до Google…",
+    "selectAccounts": "Виберіть рекламні аккаунти або групи MCC для підключення",
+    "directAccounts": "Прямі аккаунти",
+    "mccManager": "Керуючий аккаунт (MCC)",
+    "selectAllInMcc": "Вибрати всі",
+    "syncEvery": "Оновлювати витрати кожні",
+    "connectSelected": "Підключити вибрані аккаунти",
+    "connecting": "Підключаємо аккаунти…",
+    "connectedAccounts": "Підключено аккаунтів Google Ads: {n}.",
+    "oauthFailed": "Не вдалося підключити Google Ads. Спробуйте ще раз.",
+    "popupBlocked": "Вікно входу Google заблоковано. Дозвольте спливаючі вікна для Orbitra і спробуйте ще раз.",
+    "noDiscoveredAccounts": "Вхід у Google виконано, але доступних рекламних аккаунтів не знайдено.",
+    "addAccount": "Додати аккаунт Google Ads",
+    "editAccount": "Редагувати аккаунт",
+    "findAccount": "Пошук за назвою або Customer ID",
+    "name": "Назва аккаунта",
+    "namePlaceholder": "Назва аккаунта",
+    "interval": "Оновлювати витрати кожні",
+    "manualSection": "або підключіть вручну (власний додаток)",
+    "testConnection": "Перевірити підключення",
+    "testing": "Перевіряємо…",
+    "saved": "Аккаунт збережено",
+    "cloned": "Аккаунт клоновано — копія на паузі, доки ви її не увімкнете",
+    "deleted": "Аккаунт видалено",
+    "confirmDelete": "Видалити цей аккаунт? Імпортовані витрати залишаться у звітах.",
+    "syncNow": "Оновити витрати",
+    "syncedOk": "Синхронізовано: отримано записів — {n}, прив’язано до кліків — {m}.",
+    "syncedNoMatch": "Отримано записів: {n}, але прив’язати не вдалося жодного — перевірте, що посилання кампанії передає campaignid / creative.",
+    "syncFailed": "Синхронізація не вдалася",
+    "nextUpdate": "Наступне оновлення",
+    "lastSync": "Остання синхронізація",
+    "paused": "Зупинено",
+    "pause": "Зупинити",
+    "resume": "Відновити",
+    "clone": "Клонувати",
+    "onNextCron": "При наступному запуску cron",
+    "due": "Час оновлювати",
+    "error": "Помилка",
+    "ok": "Працює",
+    "neverSynced": "Ще не синхронізовано",
+    "noAccounts": "Аккаунти Google Ads не підключено. Додайте аккаунт, щоб імпортувати витрати з Google Ads.",
+    "mccSubAccount": "Дочірній кабінет MCC"
   },
   "fbCosts": {
     "title": "Facebook Costs",
@@ -28041,7 +28284,8 @@ const es = {
       "fbApiVersion": "Versión de la API de Facebook",
       "fbAppId": "App ID (opcional, para algunos tokens)",
       "fbAppSecret": "App Secret (opcional)",
-      "proxy": "Proxy (opcional) — scheme://user:pass@host:port"
+      "proxy": "Proxy (opcional) — scheme://user:pass@host:port",
+      "gaLoginCustomerId": "Login Customer ID (MCC, opcional, sin guiones)"
     }
   },
   "tiktokCosts": {
@@ -28061,7 +28305,87 @@ const es = {
     "popupBlocked": "La ventana de inicio de sesión de TikTok fue bloqueada. Permite las ventanas emergentes para Orbitra e inténtalo de nuevo.",
     "noDiscoveredAccounts": "El inicio de sesión en TikTok funcionó, pero no se encontraron cuentas publicitarias accesibles.",
     "connectTikTok": "Conectar TikTok For Business",
-    "connectTikTokHint": "Inicio de sesión con TikTok — detecta cuentas y píxeles, los importa al Pixel Vault y activa la sincronización automática de gastos"
+    "connectTikTokHint": "Inicio de sesión con TikTok — detecta cuentas y píxeles, los importa al Pixel Vault y activa la sincronización automática de gastos",
+    "title": "TikTok Costs",
+    "description": "Importa el gasto de las cuentas publicitarias de TikTok y lo atribuye a los clics por Campaign ID, Adset ID y Ad ID.",
+    "addAccount": "Añadir cuenta de TikTok",
+    "editAccount": "Editar cuenta",
+    "findAccount": "Buscar por nombre o Advertiser ID",
+    "name": "Nombre de la cuenta",
+    "namePlaceholder": "Nombre del gabinete / cuenta",
+    "interval": "Sincronizar gasto cada",
+    "manualSection": "o conecta manualmente",
+    "testConnection": "Probar conexión",
+    "testing": "Probando…",
+    "saved": "Cuenta guardada",
+    "cloned": "Cuenta clonada — la copia queda en pausa hasta que la actives",
+    "deleted": "Cuenta eliminada",
+    "confirmDelete": "¿Eliminar esta cuenta? El gasto importado se queda en los informes.",
+    "syncNow": "Sincronizar ahora",
+    "syncedOk": "Sincronizado: {n} registros obtenidos, {m} vinculados a clics.",
+    "syncedNoMatch": "Se obtuvieron {n} registros pero ninguno se vinculó — comprueba que la URL de la campaña pase ad_id / adset_id / campaign_id.",
+    "syncFailed": "Sincronización fallida",
+    "nextUpdate": "Próxima actualización",
+    "lastSync": "Última sincronización",
+    "paused": "En pausa",
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "clone": "Clonar",
+    "onNextCron": "En el próximo ciclo de cron",
+    "due": "Pendiente ahora",
+    "error": "Error",
+    "ok": "Funciona",
+    "neverSynced": "Nunca sincronizado",
+    "noAccounts": "No hay cuentas de TikTok conectadas. Añade una cuenta para importar el gasto de TikTok."
+  },
+  "googleAdsCosts": {
+    "title": "Google Ads Costs",
+    "description": "Importa el gasto de Google Ads y de cuentas cliente de MCC. El gasto se atribuye a los clics por ValueTrack {campaignid} y {creative}.",
+    "oneClickTitle": "Integración 1-Click de Google Ads",
+    "oneClickDesc": "Inicia sesión con Google — Orbitra detectará tus cuentas directas y los cabinets cliente del MCC y configurará la sincronización de gastos.",
+    "loginWithGoogle": "Iniciar sesión con Google",
+    "oauthConnecting": "Conectando a Google…",
+    "selectAccounts": "Selecciona cuentas publicitarias o grupos MCC para conectar",
+    "directAccounts": "Cuentas directas",
+    "mccManager": "Cuenta administradora (MCC)",
+    "selectAllInMcc": "Seleccionar todo",
+    "syncEvery": "Sincronizar gasto cada",
+    "connectSelected": "Conectar cuentas seleccionadas",
+    "connecting": "Conectando cuentas…",
+    "connectedAccounts": "Cuentas de Google Ads conectadas: {n}.",
+    "oauthFailed": "No se pudo conectar Google Ads. Inténtalo de nuevo.",
+    "popupBlocked": "La ventana de inicio de sesión de Google fue bloqueada. Permite las ventanas emergentes para Orbitra e inténtalo de nuevo.",
+    "noDiscoveredAccounts": "El inicio de sesión en Google funcionó, pero no se encontraron cuentas publicitarias accesibles.",
+    "addAccount": "Añadir cuenta de Google Ads",
+    "editAccount": "Editar cuenta",
+    "findAccount": "Buscar por nombre o Customer ID",
+    "name": "Nombre de la cuenta",
+    "namePlaceholder": "Nombre de la cuenta",
+    "interval": "Sincronizar gasto cada",
+    "manualSection": "o conecta manualmente (tu propia app de desarrollador)",
+    "testConnection": "Probar conexión",
+    "testing": "Probando…",
+    "saved": "Cuenta guardada",
+    "cloned": "Cuenta clonada — la copia queda en pausa hasta que la actives",
+    "deleted": "Cuenta eliminada",
+    "confirmDelete": "¿Eliminar esta cuenta? El gasto importado se queda en los informes.",
+    "syncNow": "Sincronizar ahora",
+    "syncedOk": "Sincronizado: {n} registros obtenidos, {m} vinculados a clics.",
+    "syncedNoMatch": "Se obtuvieron {n} registros pero ninguno se vinculó — comprueba que la URL de la campaña pase campaignid / creative.",
+    "syncFailed": "Sincronización fallida",
+    "nextUpdate": "Próxima actualización",
+    "lastSync": "Última sincronización",
+    "paused": "En pausa",
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "clone": "Clonar",
+    "onNextCron": "En el próximo ciclo de cron",
+    "due": "Pendiente ahora",
+    "error": "Error",
+    "ok": "Funciona",
+    "neverSynced": "Nunca sincronizado",
+    "noAccounts": "No hay cuentas de Google Ads conectadas. Añade una cuenta para importar el gasto de Google Ads.",
+    "mccSubAccount": "Subcuenta de MCC"
   },
   "fbCosts": {
     "title": "Facebook Costs",
@@ -31096,7 +31420,8 @@ const zh = {
       "fbApiVersion": "Facebook API 版本",
       "fbAppId": "App ID（可选，部分令牌需要）",
       "fbAppSecret": "App Secret（可选）",
-      "proxy": "代理（可选）— scheme://user:pass@host:port"
+      "proxy": "代理（可选）— scheme://user:pass@host:port",
+      "gaLoginCustomerId": "Login Customer ID（MCC，可选，无连字符）"
     }
   },
   "tiktokCosts": {
@@ -31116,7 +31441,87 @@ const zh = {
     "popupBlocked": "TikTok 登录窗口被拦截。请允许 Orbitra 的弹窗后重试。",
     "noDiscoveredAccounts": "TikTok 登录成功，但未找到可访问的广告账户。",
     "connectTikTok": "一键关联 TikTok 商业广告",
-    "connectTikTokHint": "通过 TikTok 登录：自动发现广告账户与像素，导入 Pixel Vault 并开启消耗自动同步"
+    "connectTikTokHint": "通过 TikTok 登录：自动发现广告账户与像素，导入 Pixel Vault 并开启消耗自动同步",
+    "title": "TikTok Costs",
+    "description": "从 TikTok 广告账户导入消耗，并按 Campaign ID、Adset ID 和 Ad ID 归因到点击。",
+    "addAccount": "添加 TikTok 账户",
+    "editAccount": "编辑账户",
+    "findAccount": "按名称或 Advertiser ID 搜索",
+    "name": "账户名称",
+    "namePlaceholder": " cabinet / 账户名称",
+    "interval": "消耗同步间隔",
+    "manualSection": "或手动接入",
+    "testConnection": "测试连接",
+    "testing": "测试中…",
+    "saved": "账户已保存",
+    "cloned": "账户已克隆 — 副本处于暂停状态，启用后才开始同步",
+    "deleted": "账户已删除",
+    "confirmDelete": "删除该账户？已导入的消耗仍保留在报表中。",
+    "syncNow": "立即同步",
+    "syncedOk": "已同步：获取 {n} 条记录，匹配到点击 {m} 条。",
+    "syncedNoMatch": "获取了 {n} 条记录但无一匹配 — 请检查活动链接是否传递 ad_id / adset_id / campaign_id。",
+    "syncFailed": "同步失败",
+    "nextUpdate": "下次更新",
+    "lastSync": "上次同步",
+    "paused": "已暂停",
+    "pause": "暂停",
+    "resume": "恢复",
+    "clone": "克隆",
+    "onNextCron": "下次 cron 运行时",
+    "due": "待更新",
+    "error": "错误",
+    "ok": "正常",
+    "neverSynced": "从未同步",
+    "noAccounts": "尚未连接 TikTok 广告账户。添加账户以从 TikTok 导入消耗。"
+  },
+  "googleAdsCosts": {
+    "title": "Google Ads Costs",
+    "description": "从 Google Ads 及 MCC 客户账户导入消耗，按 ValueTrack {campaignid} 和 {creative} 归因到点击。",
+    "oneClickTitle": "Google Ads 一键集成",
+    "oneClickDesc": "使用 Google 登录 — Orbitra 会自动发现直连账户和 MCC 子账户，并配置消耗同步。",
+    "loginWithGoogle": "使用 Google 登录",
+    "oauthConnecting": "正在连接 Google…",
+    "selectAccounts": "选择要连接的广告账户或 MCC 分组",
+    "directAccounts": "直连账户",
+    "mccManager": "管理账户 (MCC)",
+    "selectAllInMcc": "全选",
+    "syncEvery": "消耗同步间隔",
+    "connectSelected": "连接所选账户",
+    "connecting": "正在连接账户…",
+    "connectedAccounts": "已连接 Google Ads 账户：{n}。",
+    "oauthFailed": "Google Ads 连接失败，请重试。",
+    "popupBlocked": "Google 登录窗口被拦截。请允许 Orbitra 的弹窗后重试。",
+    "noDiscoveredAccounts": "Google 登录成功，但未找到可访问的广告账户。",
+    "addAccount": "添加 Google Ads 账户",
+    "editAccount": "编辑账户",
+    "findAccount": "按名称或 Customer ID 搜索",
+    "name": "账户名称",
+    "namePlaceholder": "账户名称",
+    "interval": "消耗同步间隔",
+    "manualSection": "或手动接入（自建开发者应用）",
+    "testConnection": "测试连接",
+    "testing": "测试中…",
+    "saved": "账户已保存",
+    "cloned": "账户已克隆 — 副本处于暂停状态，启用后才开始同步",
+    "deleted": "账户已删除",
+    "confirmDelete": "删除该账户？已导入的消耗仍保留在报表中。",
+    "syncNow": "立即同步",
+    "syncedOk": "已同步：获取 {n} 条记录，匹配到点击 {m} 条。",
+    "syncedNoMatch": "获取了 {n} 条记录但无一匹配 — 请检查活动链接是否传递 campaignid / creative。",
+    "syncFailed": "同步失败",
+    "nextUpdate": "下次更新",
+    "lastSync": "上次同步",
+    "paused": "已暂停",
+    "pause": "暂停",
+    "resume": "恢复",
+    "clone": "克隆",
+    "onNextCron": "下次 cron 运行时",
+    "due": "待更新",
+    "error": "错误",
+    "ok": "正常",
+    "neverSynced": "从未同步",
+    "noAccounts": "尚未连接 Google Ads 账户。添加账户以从 Google Ads 导入消耗。",
+    "mccSubAccount": "MCC 子账户"
   },
   "fbCosts": {
     "title": "Facebook Costs",
@@ -34153,7 +34558,8 @@ const fr = {
       "fbApiVersion": "Version de l'API Facebook",
       "fbAppId": "App ID (optionnel, pour certains jetons)",
       "fbAppSecret": "App Secret (optionnel)",
-      "proxy": "Proxy (optionnel) — scheme://user:pass@host:port"
+      "proxy": "Proxy (optionnel) — scheme://user:pass@host:port",
+      "gaLoginCustomerId": "Login Customer ID (MCC, optionnel, sans tirets)"
     }
   },
   "tiktokCosts": {
@@ -34173,7 +34579,87 @@ const fr = {
     "popupBlocked": "La fenêtre de connexion TikTok a été bloquée. Autorisez les popups pour Orbitra et réessayez.",
     "noDiscoveredAccounts": "Connexion TikTok réussie, mais aucun compte publicitaire accessible n’a été trouvé.",
     "connectTikTok": "Connecter TikTok For Business",
-    "connectTikTokHint": "Connexion via TikTok — découvre les comptes et les pixels, les importe dans le Pixel Vault et active la synchronisation automatique des dépenses"
+    "connectTikTokHint": "Connexion via TikTok — découvre les comptes et les pixels, les importe dans le Pixel Vault et active la synchronisation automatique des dépenses",
+    "title": "TikTok Costs",
+    "description": "Importe les dépenses des comptes publicitaires TikTok et les attribue aux clics par Campaign ID, Adset ID et Ad ID.",
+    "addAccount": "Ajouter un compte TikTok",
+    "editAccount": "Modifier le compte",
+    "findAccount": "Rechercher par nom ou Advertiser ID",
+    "name": "Nom du compte",
+    "namePlaceholder": "Nom du cabinet / compte",
+    "interval": "Synchroniser les dépenses toutes les",
+    "manualSection": "ou connectez-vous manuellement",
+    "testConnection": "Tester la connexion",
+    "testing": "Test en cours…",
+    "saved": "Compte enregistré",
+    "cloned": "Compte cloné — la copie est en pause jusqu’à son activation",
+    "deleted": "Compte supprimé",
+    "confirmDelete": "Supprimer ce compte ? Les dépenses importées restent dans les rapports.",
+    "syncNow": "Synchroniser maintenant",
+    "syncedOk": "Synchronisé : {n} enregistrements récupérés, {m} rattachés aux clics.",
+    "syncedNoMatch": "{n} enregistrements récupérés mais aucun rattaché — vérifiez que l’URL de la campagne transmet ad_id / adset_id / campaign_id.",
+    "syncFailed": "Échec de la synchronisation",
+    "nextUpdate": "Prochaine mise à jour",
+    "lastSync": "Dernière synchronisation",
+    "paused": "En pause",
+    "pause": "Mettre en pause",
+    "resume": "Reprendre",
+    "clone": "Cloner",
+    "onNextCron": "Au prochain passage du cron",
+    "due": "Dès maintenant",
+    "error": "Erreur",
+    "ok": "Actif",
+    "neverSynced": "Jamais synchronisé",
+    "noAccounts": "Aucun compte TikTok connecté. Ajoutez un compte pour importer les dépenses de TikTok."
+  },
+  "googleAdsCosts": {
+    "title": "Google Ads Costs",
+    "description": "Importe les dépenses de Google Ads et des comptes clients MCC. Les dépenses sont attribuées aux clics via ValueTrack {campaignid} et {creative}.",
+    "oneClickTitle": "Intégration Google Ads en 1 clic",
+    "oneClickDesc": "Connectez-vous avec Google — Orbitra découvrira vos comptes directs et les comptes clients MCC, puis configurera la synchronisation des dépenses.",
+    "loginWithGoogle": "Se connecter avec Google",
+    "oauthConnecting": "Connexion à Google…",
+    "selectAccounts": "Sélectionnez les comptes publicitaires ou groupes MCC à connecter",
+    "directAccounts": "Comptes directs",
+    "mccManager": "Compte administrateur (MCC)",
+    "selectAllInMcc": "Tout sélectionner",
+    "syncEvery": "Synchroniser les dépenses toutes les",
+    "connectSelected": "Connecter les comptes sélectionnés",
+    "connecting": "Connexion des comptes…",
+    "connectedAccounts": "Comptes Google Ads connectés : {n}.",
+    "oauthFailed": "Échec de la connexion Google Ads. Veuillez réessayer.",
+    "popupBlocked": "La fenêtre de connexion Google a été bloquée. Autorisez les popups pour Orbitra et réessayez.",
+    "noDiscoveredAccounts": "Connexion Google réussie, mais aucun compte publicitaire accessible n’a été trouvé.",
+    "addAccount": "Ajouter un compte Google Ads",
+    "editAccount": "Modifier le compte",
+    "findAccount": "Rechercher par nom ou Customer ID",
+    "name": "Nom du compte",
+    "namePlaceholder": "Nom du compte",
+    "interval": "Synchroniser les dépenses toutes les",
+    "manualSection": "ou connectez-vous manuellement (votre propre app développeur)",
+    "testConnection": "Tester la connexion",
+    "testing": "Test en cours…",
+    "saved": "Compte enregistré",
+    "cloned": "Compte cloné — la copie est en pause jusqu’à son activation",
+    "deleted": "Compte supprimé",
+    "confirmDelete": "Supprimer ce compte ? Les dépenses importées restent dans les rapports.",
+    "syncNow": "Synchroniser maintenant",
+    "syncedOk": "Synchronisé : {n} enregistrements récupérés, {m} rattachés aux clics.",
+    "syncedNoMatch": "{n} enregistrements récupérés mais aucun rattaché — vérifiez que l’URL de la campagne transmet campaignid / creative.",
+    "syncFailed": "Échec de la synchronisation",
+    "nextUpdate": "Prochaine mise à jour",
+    "lastSync": "Dernière synchronisation",
+    "paused": "En pause",
+    "pause": "Mettre en pause",
+    "resume": "Reprendre",
+    "clone": "Cloner",
+    "onNextCron": "Au prochain passage du cron",
+    "due": "Dès maintenant",
+    "error": "Erreur",
+    "ok": "Actif",
+    "neverSynced": "Jamais synchronisé",
+    "noAccounts": "Aucun compte Google Ads connecté. Ajoutez un compte pour importer les dépenses de Google Ads.",
+    "mccSubAccount": "Sous-compte MCC"
   },
   "fbCosts": {
     "title": "Facebook Costs",
@@ -37208,7 +37694,8 @@ const de = {
       "fbApiVersion": "Facebook-API-Version",
       "fbAppId": "App-ID (optional, für manche Token)",
       "fbAppSecret": "App Secret (optional)",
-      "proxy": "Proxy (optional) — scheme://user:pass@host:port"
+      "proxy": "Proxy (optional) — scheme://user:pass@host:port",
+      "gaLoginCustomerId": "Login Customer ID (MCC, optional, ohne Bindestriche)"
     }
   },
   "tiktokCosts": {
@@ -37228,7 +37715,87 @@ const de = {
     "popupBlocked": "Das TikTok-Anmeldefenster wurde blockiert. Erlauben Sie Popups für Orbitra und versuchen Sie es erneut.",
     "noDiscoveredAccounts": "TikTok-Anmeldung erfolgreich, aber keine zugänglichen Werbekonten gefunden.",
     "connectTikTok": "TikTok For Business verbinden",
-    "connectTikTokHint": "Anmeldung über TikTok — erkennt Werbekonten und Pixel automatisch, importiert sie in den Pixel Vault und aktiviert die automatische Kosten-Synchronisierung"
+    "connectTikTokHint": "Anmeldung über TikTok — erkennt Werbekonten und Pixel automatisch, importiert sie in den Pixel Vault und aktiviert die automatische Kosten-Synchronisierung",
+    "title": "TikTok Costs",
+    "description": "Importiert Ausgaben aus TikTok-Werbekonten und ordnet sie Klicks über Campaign ID, Adset ID und Ad ID zu.",
+    "addAccount": "TikTok-Konto hinzufügen",
+    "editAccount": "Konto bearbeiten",
+    "findAccount": "Nach Name oder Advertiser ID suchen",
+    "name": "Kontoname",
+    "namePlaceholder": "Name des Kontos",
+    "interval": "Ausgaben synchronisieren alle",
+    "manualSection": "oder manuell verbinden",
+    "testConnection": "Verbindung testen",
+    "testing": "Testen…",
+    "saved": "Konto gespeichert",
+    "cloned": "Konto geklont — die Kopie ist pausiert, bis Sie sie aktivieren",
+    "deleted": "Konto gelöscht",
+    "confirmDelete": "Dieses Konto löschen? Importierte Ausgaben bleiben in den Berichten.",
+    "syncNow": "Jetzt synchronisieren",
+    "syncedOk": "Synchronisiert: {n} Datensätze geholt, {m} Klicks zugeordnet.",
+    "syncedNoMatch": "{n} Datensätze geholt, aber keinem Klick zugeordnet — prüfen Sie, dass die Kampagnen-URL ad_id / adset_id / campaign_id übergibt.",
+    "syncFailed": "Synchronisierung fehlgeschlagen",
+    "nextUpdate": "Nächste Aktualisierung",
+    "lastSync": "Letzte Synchronisierung",
+    "paused": "Pausiert",
+    "pause": "Pausieren",
+    "resume": "Fortsetzen",
+    "clone": "Klonen",
+    "onNextCron": "Beim nächsten Cron-Lauf",
+    "due": "Jetzt fällig",
+    "error": "Fehler",
+    "ok": "Läuft",
+    "neverSynced": "Nie synchronisiert",
+    "noAccounts": "Keine TikTok-Werbekonten verbunden. Fügen Sie ein Konto hinzu, um Ausgaben aus TikTok zu importieren."
+  },
+  "googleAdsCosts": {
+    "title": "Google Ads Costs",
+    "description": "Importiert Ausgaben aus Google Ads und MCC-Client-Konten. Die Zuordnung zu Klicks erfolgt über ValueTrack {campaignid} und {creative}.",
+    "oneClickTitle": "1-Click-Integration für Google Ads",
+    "oneClickDesc": "Melden Sie sich bei Google an — Orbitra findet direkte Konten und MCC-Client-Konten und richtet die Ausgaben-Synchronisierung ein.",
+    "loginWithGoogle": "Mit Google anmelden",
+    "oauthConnecting": "Verbindung zu Google…",
+    "selectAccounts": "Wählen Sie Werbekonten oder MCC-Gruppen zum Verbinden",
+    "directAccounts": "Direkte Konten",
+    "mccManager": "Verwaltungskonto (MCC)",
+    "selectAllInMcc": "Alle auswählen",
+    "syncEvery": "Ausgaben synchronisieren alle",
+    "connectSelected": "Ausgewählte Konten verbinden",
+    "connecting": "Konten werden verbunden…",
+    "connectedAccounts": "Verbundene Google-Ads-Konten: {n}.",
+    "oauthFailed": "Google-Ads-Verbindung fehlgeschlagen. Bitte erneut versuchen.",
+    "popupBlocked": "Das Google-Anmeldefenster wurde blockiert. Erlauben Sie Popups für Orbitra und versuchen Sie es erneut.",
+    "noDiscoveredAccounts": "Google-Anmeldung erfolgreich, aber keine zugänglichen Werbekonten gefunden.",
+    "addAccount": "Google-Ads-Konto hinzufügen",
+    "editAccount": "Konto bearbeiten",
+    "findAccount": "Nach Name oder Customer ID suchen",
+    "name": "Kontoname",
+    "namePlaceholder": "Kontoname",
+    "interval": "Ausgaben synchronisieren alle",
+    "manualSection": "oder manuell verbinden (eigene Entwickler-App)",
+    "testConnection": "Verbindung testen",
+    "testing": "Testen…",
+    "saved": "Konto gespeichert",
+    "cloned": "Konto geklont — die Kopie ist pausiert, bis Sie sie aktivieren",
+    "deleted": "Konto gelöscht",
+    "confirmDelete": "Dieses Konto löschen? Importierte Ausgaben bleiben in den Berichten.",
+    "syncNow": "Jetzt synchronisieren",
+    "syncedOk": "Synchronisiert: {n} Datensätze geholt, {m} Klicks zugeordnet.",
+    "syncedNoMatch": "{n} Datensätze geholt, aber keinem Klick zugeordnet — prüfen Sie, dass die Kampagnen-URL campaignid / creative übergibt.",
+    "syncFailed": "Synchronisierung fehlgeschlagen",
+    "nextUpdate": "Nächste Aktualisierung",
+    "lastSync": "Letzte Synchronisierung",
+    "paused": "Pausiert",
+    "pause": "Pausieren",
+    "resume": "Fortsetzen",
+    "clone": "Klonen",
+    "onNextCron": "Beim nächsten Cron-Lauf",
+    "due": "Jetzt fällig",
+    "error": "Fehler",
+    "ok": "Läuft",
+    "neverSynced": "Nie synchronisiert",
+    "noAccounts": "Keine Google-Ads-Konten verbunden. Fügen Sie ein Konto hinzu, um Ausgaben aus Google Ads zu importieren.",
+    "mccSubAccount": "MCC-Unterkonto"
   },
   "fbCosts": {
     "title": "Facebook Costs",
@@ -68230,7 +68797,22 @@ const IntegrationsPage = () => {
   const [fbOAuthConnecting, setFbOAuthConnecting] = reactExports.useState(false);
   const fbOAuthPopupRef = reactExports.useRef(null);
   const fbOAuthPollRef = reactExports.useRef(null);
-  const [ttModalOpen, setTtModalOpen] = reactExports.useState(false);
+  const emptyTtForm = {
+    name: "",
+    sync_interval_hours: 2,
+    is_active: 1,
+    credentials: { access_token: "", advertiser_id: "", app_id: "", app_secret: "", proxy_url: "" },
+    field_mapping: { ad_id_param: "", adset_id_param: "", campaign_id_param: "" }
+  };
+  const [ttConnections, setTtConnections] = reactExports.useState([]);
+  const [ttLoading, setTtLoading] = reactExports.useState(false);
+  const [ttSearch, setTtSearch] = reactExports.useState("");
+  const [ttEditing, setTtEditing] = reactExports.useState(null);
+  const [ttForm, setTtForm] = reactExports.useState(emptyTtForm);
+  const [ttFields, setTtFields] = reactExports.useState([]);
+  const [ttTest, setTtTest] = reactExports.useState(null);
+  const [ttTesting, setTtTesting] = reactExports.useState(false);
+  const [ttBusyId, setTtBusyId] = reactExports.useState(null);
   const [ttDiscoveredAccounts, setTtDiscoveredAccounts] = reactExports.useState([]);
   const [ttDiscoveredPixels, setTtDiscoveredPixels] = reactExports.useState([]);
   const [ttSelectedAccounts, setTtSelectedAccounts] = reactExports.useState([]);
@@ -68242,6 +68824,32 @@ const IntegrationsPage = () => {
   const [ttMessage, setTtMessage] = reactExports.useState(null);
   const ttPopupRef = reactExports.useRef(null);
   const ttPollRef = reactExports.useRef(null);
+  const emptyGaForm = {
+    name: "",
+    sync_interval_hours: 2,
+    is_active: 1,
+    credentials: { developer_token: "", client_id: "", client_secret: "", refresh_token: "", customer_id: "", login_customer_id: "", proxy_url: "" },
+    field_mapping: { ad_id_param: "", adset_id_param: "", campaign_id_param: "" }
+  };
+  const [gaConnections, setGaConnections] = reactExports.useState([]);
+  const [gaLoading, setGaLoading] = reactExports.useState(false);
+  const [gaSearch, setGaSearch] = reactExports.useState("");
+  const [gaEditing, setGaEditing] = reactExports.useState(null);
+  const [gaForm, setGaForm] = reactExports.useState(emptyGaForm);
+  const [gaFields, setGaFields] = reactExports.useState([]);
+  const [gaTest, setGaTest] = reactExports.useState(null);
+  const [gaTesting, setGaTesting] = reactExports.useState(false);
+  const [gaBusyId, setGaBusyId] = reactExports.useState(null);
+  const [gaMessage, setGaMessage] = reactExports.useState(null);
+  const [gaDiscoveredManagers, setGaDiscoveredManagers] = reactExports.useState([]);
+  const [gaDiscoveredAccounts, setGaDiscoveredAccounts] = reactExports.useState([]);
+  const [gaSelectedAccounts, setGaSelectedAccounts] = reactExports.useState([]);
+  const [gaOAuthFlowId, setGaOAuthFlowId] = reactExports.useState("");
+  const [gaOAuthLoading, setGaOAuthLoading] = reactExports.useState(false);
+  const [gaConnecting, setGaConnecting] = reactExports.useState(false);
+  const [gaSyncInterval, setGaSyncInterval] = reactExports.useState(2);
+  const gaPopupRef = reactExports.useRef(null);
+  const gaPollRef = reactExports.useRef(null);
   const emptyCapiForm = {
     campaign_id: "",
     pixel_profile_id: "",
@@ -68662,6 +69270,48 @@ const IntegrationsPage = () => {
       console.error(err);
     }
   }, []);
+  const fetchTtConnections = reactExports.useCallback(async () => {
+    setTtLoading(true);
+    try {
+      const res = await axios.get(`${API_URL$b}?action=aggregator_connections`);
+      if (res.data.status === "success") {
+        setTtConnections((res.data.data || []).filter((c) => c.engine === "tiktok"));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setTtLoading(false);
+    }
+  }, []);
+  const fetchTtFields = reactExports.useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_URL$b}?action=aggregator_engine_fields&engine=tiktok`);
+      if (res.data.status === "success") setTtFields(res.data.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+  const fetchGaConnections = reactExports.useCallback(async () => {
+    setGaLoading(true);
+    try {
+      const res = await axios.get(`${API_URL$b}?action=aggregator_connections`);
+      if (res.data.status === "success") {
+        setGaConnections((res.data.data || []).filter((c) => c.engine === "google_ads"));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setGaLoading(false);
+    }
+  }, []);
+  const fetchGaFields = reactExports.useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_URL$b}?action=aggregator_engine_fields&engine=google_ads`);
+      if (res.data.status === "success") setGaFields(res.data.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
   const fetchCapiPixels = reactExports.useCallback(async () => {
     setCapiLoading(true);
     try {
@@ -68696,6 +69346,14 @@ const IntegrationsPage = () => {
     if (activeTab === "facebook_costs") {
       fetchFbConnections();
       fetchFbFields();
+    }
+    if (activeTab === "tiktok_costs") {
+      fetchTtConnections();
+      fetchTtFields();
+    }
+    if (activeTab === "google_ads_costs") {
+      fetchGaConnections();
+      fetchGaFields();
     }
     if (activeTab === "facebook_conversions") {
       fetchCapiPixels();
@@ -68736,7 +69394,7 @@ const IntegrationsPage = () => {
       }).catch(() => {
       });
     }
-  }, [activeTab, fetchFbConnections, fetchFbFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles]);
+  }, [activeTab, fetchFbConnections, fetchFbFields, fetchTtConnections, fetchTtFields, fetchGaConnections, fetchGaFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles]);
   reactExports.useEffect(() => {
     const handleFacebookOAuthMessage = (event) => {
       if (event.origin !== window.location.origin || event.data?.type !== "orbitra.facebook_oauth") return;
@@ -68812,6 +69470,45 @@ const IntegrationsPage = () => {
       ttPopupRef.current = null;
     };
   }, []);
+  reactExports.useEffect(() => {
+    const handleGoogleAdsOAuthMessage = (event) => {
+      if (event.origin !== window.location.origin || event.data?.type !== "orbitra.google_ads_oauth") return;
+      if (!gaPopupRef.current || event.source !== gaPopupRef.current) return;
+      setGaOAuthLoading(false);
+      if (gaPollRef.current) {
+        window.clearInterval(gaPollRef.current);
+        gaPollRef.current = null;
+      }
+      gaPopupRef.current = null;
+      if (event.data.status !== "success") {
+        setGaDiscoveredManagers([]);
+        setGaDiscoveredAccounts([]);
+        setGaSelectedAccounts([]);
+        setGaOAuthFlowId("");
+        setGaMessage({ type: "error", text: event.data.message || translationRef.current("googleAdsCosts.oauthFailed") });
+        return;
+      }
+      const accounts = Array.isArray(event.data.accounts) ? event.data.accounts : [];
+      const managers = Array.isArray(event.data.managers) ? event.data.managers : [];
+      setGaDiscoveredManagers(managers);
+      setGaDiscoveredAccounts(accounts);
+      setGaSelectedAccounts(accounts.map((account) => account.cid));
+      setGaOAuthFlowId(event.data.flow_id || "");
+      setGaMessage(accounts.length === 0 ? { type: "error", text: translationRef.current("googleAdsCosts.noDiscoveredAccounts") } : null);
+    };
+    window.addEventListener("message", handleGoogleAdsOAuthMessage);
+    return () => {
+      window.removeEventListener("message", handleGoogleAdsOAuthMessage);
+      if (gaPollRef.current) {
+        window.clearInterval(gaPollRef.current);
+        gaPollRef.current = null;
+      }
+      if (gaPopupRef.current && !gaPopupRef.current.closed) {
+        gaPopupRef.current.close();
+      }
+      gaPopupRef.current = null;
+    };
+  }, []);
   const loadFbConnection = async (id) => {
     try {
       const res = await axios.get(`${API_URL$b}?action=aggregator_connection_detail&id=${id}`);
@@ -68837,6 +69534,52 @@ const IntegrationsPage = () => {
       deal_type: "cpa",
       click_id_param: "sub_id"
     };
+    if (id && id !== "new") payload.id = id;
+    const res = await axios.post(`${API_URL$b}?action=aggregator_connections`, payload);
+    return res.data.status === "success";
+  };
+  const loadTtConnection = async (id) => {
+    try {
+      const res = await axios.get(`${API_URL$b}?action=aggregator_connection_detail&id=${id}`);
+      if (res.data.status !== "success" || !res.data.data) return null;
+      const conn = res.data.data;
+      return {
+        name: conn.name || "",
+        sync_interval_hours: conn.sync_interval_hours || 2,
+        is_active: conn.is_active ? 1 : 0,
+        credentials: { ...emptyTtForm.credentials, ...conn.credentials || {} },
+        field_mapping: { ...emptyTtForm.field_mapping, ...conn.field_mapping || {} }
+      };
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  };
+  const saveTtConnection = async (form, id) => {
+    const payload = { ...form, engine: "tiktok", auth_type: "token", deal_type: "cpa", click_id_param: "sub_id" };
+    if (id && id !== "new") payload.id = id;
+    const res = await axios.post(`${API_URL$b}?action=aggregator_connections`, payload);
+    return res.data.status === "success";
+  };
+  const loadGaConnection = async (id) => {
+    try {
+      const res = await axios.get(`${API_URL$b}?action=aggregator_connection_detail&id=${id}`);
+      if (res.data.status !== "success" || !res.data.data) return null;
+      const conn = res.data.data;
+      return {
+        name: conn.name || "",
+        sync_interval_hours: conn.sync_interval_hours || 2,
+        is_active: conn.is_active ? 1 : 0,
+        credentials: { ...emptyGaForm.credentials, ...conn.credentials || {} },
+        field_mapping: { ...emptyGaForm.field_mapping, ...conn.field_mapping || {} }
+      };
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  };
+  const saveGaConnection = async (form, id) => {
+    const payload = { ...form, engine: "google_ads", auth_type: "token", deal_type: "cpa", click_id_param: "sub_id" };
     if (id && id !== "new") payload.id = id;
     const res = await axios.post(`${API_URL$b}?action=aggregator_connections`, payload);
     return res.data.status === "success";
@@ -68912,13 +69655,6 @@ const IntegrationsPage = () => {
     setTtOAuthLoading(false);
     setTtConnecting(false);
   };
-  const openTikTokModal = () => {
-    resetTikTokOAuth();
-    setTtMessage(null);
-    setTtImportPixels(true);
-    setTtSyncInterval(2);
-    setTtModalOpen(true);
-  };
   const handleStartTikTokOAuth = () => {
     setTtMessage(null);
     setTtDiscoveredAccounts([]);
@@ -68979,11 +69715,11 @@ const IntegrationsPage = () => {
       const connected = res.data.data?.connected_count ?? accounts.length;
       const imported = res.data.data?.imported_pixels ?? 0;
       const summary = t("tiktokCosts.connectedAccounts").replace("{n}", connected).replace("{m}", imported);
-      setPixelProfileMessage({ type: "success", text: summary });
       setTtMessage({ type: "success", text: summary });
       resetTikTokOAuth();
+      setTtEditing(null);
+      fetchTtConnections();
       fetchPixelProfiles();
-      setTtModalOpen(false);
     } catch (err) {
       setTtMessage({ type: "error", text: err.response?.data?.message || err.message || t("tiktokCosts.oauthFailed") });
     } finally {
@@ -69117,21 +69853,257 @@ const IntegrationsPage = () => {
     setFbMessage({ type: "success", text: t("fbCosts.deleted") });
     fetchFbConnections();
   };
-  const fbNextUpdate = (conn) => {
-    if (!conn.is_active) return t("fbCosts.paused");
-    if (!conn.last_sync_at) return t("fbCosts.onNextCron");
+  const handleTtSave = async () => {
+    if (!ttForm.name || !ttForm.credentials.access_token || !ttForm.credentials.advertiser_id) return;
+    try {
+      const ok = await saveTtConnection(ttForm, ttEditing);
+      if (ok) {
+        setTtMessage({ type: "success", text: t("tiktokCosts.saved") });
+        setTtEditing(null);
+        setTtTest(null);
+        resetTikTokOAuth();
+        fetchTtConnections();
+      }
+    } catch (err) {
+      setTtMessage({ type: "error", text: err.message });
+    }
+  };
+  const handleTtTest = async () => {
+    setTtTesting(true);
+    setTtTest(null);
+    try {
+      const res = await axios.post(`${API_URL$b}?action=aggregator_test_connection`, {
+        engine: "tiktok",
+        credentials: ttForm.credentials
+      });
+      setTtTest(res.data.data || { success: false, message: "No response" });
+    } catch (err) {
+      setTtTest({ success: false, message: err.message });
+    } finally {
+      setTtTesting(false);
+    }
+  };
+  const handleTtSyncNow = async (conn) => {
+    setTtBusyId(conn.id);
+    setTtMessage(null);
+    try {
+      const res = await axios.post(`${API_URL$b}?action=aggregator_sync`, {
+        connection_id: conn.id,
+        date_from: new Date(Date.now() - (conn.last_sync_at ? 5 : 30) * 864e5).toISOString().slice(0, 10),
+        date_to: (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)
+      });
+      const d = res.data;
+      if (d.status === "success") {
+        const matched = d.matched ?? d.data?.matched ?? 0;
+        const fetched = d.fetched ?? d.data?.fetched ?? 0;
+        setTtMessage({
+          type: matched === 0 && fetched > 0 ? "error" : "success",
+          text: matched === 0 && fetched > 0 ? t("tiktokCosts.syncedNoMatch").replace("{n}", fetched) : t("tiktokCosts.syncedOk").replace("{n}", fetched).replace("{m}", matched)
+        });
+      } else {
+        setTtMessage({ type: "error", text: d.message || t("tiktokCosts.syncFailed") });
+      }
+      fetchTtConnections();
+    } catch (err) {
+      setTtMessage({ type: "error", text: err.message });
+    } finally {
+      setTtBusyId(null);
+    }
+  };
+  const handleTtToggle = async (conn) => {
+    const full = await loadTtConnection(conn.id);
+    if (!full) return;
+    await saveTtConnection({ ...full, is_active: conn.is_active ? 0 : 1 }, conn.id);
+    fetchTtConnections();
+  };
+  const handleTtClone = async (conn) => {
+    const full = await loadTtConnection(conn.id);
+    if (!full) return;
+    await saveTtConnection({ ...full, name: `${full.name} copy`, is_active: 0 }, "new");
+    setTtMessage({ type: "success", text: t("tiktokCosts.cloned") });
+    fetchTtConnections();
+  };
+  const handleTtDelete = async (conn) => {
+    if (!confirm(t("tiktokCosts.confirmDelete"))) return;
+    await axios.post(`${API_URL$b}?action=aggregator_connections`, { action: "delete", id: conn.id });
+    setTtMessage({ type: "success", text: t("tiktokCosts.deleted") });
+    fetchTtConnections();
+  };
+  const resetGoogleAdsOAuth = () => {
+    if (gaPollRef.current) {
+      window.clearInterval(gaPollRef.current);
+      gaPollRef.current = null;
+    }
+    if (gaPopupRef.current && !gaPopupRef.current.closed) {
+      gaPopupRef.current.close();
+    }
+    gaPopupRef.current = null;
+    setGaDiscoveredManagers([]);
+    setGaDiscoveredAccounts([]);
+    setGaSelectedAccounts([]);
+    setGaOAuthFlowId("");
+    setGaOAuthLoading(false);
+    setGaConnecting(false);
+  };
+  const handleStartGaOAuth = () => {
+    setGaMessage(null);
+    setGaDiscoveredManagers([]);
+    setGaDiscoveredAccounts([]);
+    setGaSelectedAccounts([]);
+    setGaOAuthFlowId("");
+    if (gaPopupRef.current && !gaPopupRef.current.closed) {
+      gaPopupRef.current.close();
+    }
+    if (gaPollRef.current) {
+      window.clearInterval(gaPollRef.current);
+    }
+    const width = 640;
+    const height = 720;
+    const left = Math.max(0, window.screenX + Math.round((window.outerWidth - width) / 2));
+    const top = Math.max(0, window.screenY + Math.round((window.outerHeight - height) / 2));
+    const popup = window.open(
+      `${API_URL$b}?action=google_ads_oauth_start`,
+      "orbitra-google-ads-oauth",
+      `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+    );
+    if (!popup) {
+      setGaOAuthLoading(false);
+      setGaMessage({ type: "error", text: t("googleAdsCosts.popupBlocked") });
+      return;
+    }
+    gaPopupRef.current = popup;
+    setGaOAuthLoading(true);
+    popup.focus();
+    gaPollRef.current = window.setInterval(() => {
+      if (popup.closed) {
+        window.clearInterval(gaPollRef.current);
+        gaPollRef.current = null;
+        gaPopupRef.current = null;
+        setGaOAuthLoading(false);
+      }
+    }, 500);
+  };
+  const toggleGaAccount = (cid2, checked) => {
+    setGaSelectedAccounts((current) => checked ? [.../* @__PURE__ */ new Set([...current, cid2])] : current.filter((id) => id !== cid2));
+  };
+  const handleConnectGaAccounts = async () => {
+    if (!gaOAuthFlowId || gaSelectedAccounts.length === 0) return;
+    setGaConnecting(true);
+    setGaMessage(null);
+    try {
+      const accounts = gaDiscoveredAccounts.filter((account) => gaSelectedAccounts.includes(account.cid)).map((account) => ({ id: account.cid }));
+      const res = await axios.post(`${API_URL$b}?action=google_ads_connect_accounts`, {
+        flow_id: gaOAuthFlowId,
+        accounts,
+        sync_interval_hours: gaSyncInterval || 2
+      });
+      if (res.data.status !== "success") {
+        setGaMessage({ type: "error", text: res.data.message || t("googleAdsCosts.oauthFailed") });
+        return;
+      }
+      const connected = res.data.data?.connected_count ?? accounts.length;
+      setGaMessage({ type: "success", text: t("googleAdsCosts.connectedAccounts").replace("{n}", connected) });
+      resetGoogleAdsOAuth();
+      setGaEditing(null);
+      fetchGaConnections();
+    } catch (err) {
+      setGaMessage({ type: "error", text: err.response?.data?.message || err.message || t("googleAdsCosts.oauthFailed") });
+    } finally {
+      setGaConnecting(false);
+    }
+  };
+  const handleGaSave = async () => {
+    if (!gaManualValid()) return;
+    try {
+      const ok = await saveGaConnection(gaForm, gaEditing);
+      if (ok) {
+        setGaMessage({ type: "success", text: t("googleAdsCosts.saved") });
+        setGaEditing(null);
+        setGaTest(null);
+        resetGoogleAdsOAuth();
+        fetchGaConnections();
+      }
+    } catch (err) {
+      setGaMessage({ type: "error", text: err.message });
+    }
+  };
+  const gaManualValid = () => !!(gaForm.name && gaForm.credentials.developer_token && gaForm.credentials.client_id && gaForm.credentials.client_secret && gaForm.credentials.refresh_token && gaForm.credentials.customer_id);
+  const handleGaTest = async () => {
+    setGaTesting(true);
+    setGaTest(null);
+    try {
+      const res = await axios.post(`${API_URL$b}?action=aggregator_test_connection`, {
+        engine: "google_ads",
+        credentials: gaForm.credentials
+      });
+      setGaTest(res.data.data || { success: false, message: "No response" });
+    } catch (err) {
+      setGaTest({ success: false, message: err.message });
+    } finally {
+      setGaTesting(false);
+    }
+  };
+  const handleGaSyncNow = async (conn) => {
+    setGaBusyId(conn.id);
+    setGaMessage(null);
+    try {
+      const res = await axios.post(`${API_URL$b}?action=aggregator_sync`, {
+        connection_id: conn.id,
+        date_from: new Date(Date.now() - (conn.last_sync_at ? 5 : 30) * 864e5).toISOString().slice(0, 10),
+        date_to: (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)
+      });
+      const d = res.data;
+      if (d.status === "success") {
+        const matched = d.matched ?? d.data?.matched ?? 0;
+        const fetched = d.fetched ?? d.data?.fetched ?? 0;
+        setGaMessage({
+          type: matched === 0 && fetched > 0 ? "error" : "success",
+          text: matched === 0 && fetched > 0 ? t("googleAdsCosts.syncedNoMatch").replace("{n}", fetched) : t("googleAdsCosts.syncedOk").replace("{n}", fetched).replace("{m}", matched)
+        });
+      } else {
+        setGaMessage({ type: "error", text: d.message || t("googleAdsCosts.syncFailed") });
+      }
+      fetchGaConnections();
+    } catch (err) {
+      setGaMessage({ type: "error", text: err.message });
+    } finally {
+      setGaBusyId(null);
+    }
+  };
+  const handleGaToggle = async (conn) => {
+    const full = await loadGaConnection(conn.id);
+    if (!full) return;
+    await saveGaConnection({ ...full, is_active: conn.is_active ? 0 : 1 }, conn.id);
+    fetchGaConnections();
+  };
+  const handleGaClone = async (conn) => {
+    const full = await loadGaConnection(conn.id);
+    if (!full) return;
+    await saveGaConnection({ ...full, name: `${full.name} copy`, is_active: 0 }, "new");
+    setGaMessage({ type: "success", text: t("googleAdsCosts.cloned") });
+    fetchGaConnections();
+  };
+  const handleGaDelete = async (conn) => {
+    if (!confirm(t("googleAdsCosts.confirmDelete"))) return;
+    await axios.post(`${API_URL$b}?action=aggregator_connections`, { action: "delete", id: conn.id });
+    setGaMessage({ type: "success", text: t("googleAdsCosts.deleted") });
+    fetchGaConnections();
+  };
+  const costNextUpdate = (conn, prefix) => {
+    if (!conn.is_active) return t(`${prefix}.paused`);
+    if (!conn.last_sync_at) return t(`${prefix}.onNextCron`);
     const last = (/* @__PURE__ */ new Date(conn.last_sync_at.replace(" ", "T") + "Z")).getTime();
     const next = last + (conn.sync_interval_hours || 2) * 36e5;
     const diff = next - Date.now();
-    if (diff <= 0) return t("fbCosts.due");
+    if (diff <= 0) return t(`${prefix}.due`);
     const mins = Math.round(diff / 6e4);
     return mins >= 60 ? `${Math.floor(mins / 60)} h ${mins % 60} min` : `${mins} min`;
   };
-  const fbStatusBadge = (conn) => {
-    if (!conn.is_active) return { label: t("fbCosts.paused"), bg: "#e5e7eb", fg: "#374151" };
-    if (conn.last_sync_status === "error") return { label: t("fbCosts.error"), bg: "#fee2e2", fg: "#991b1b" };
-    if (!conn.last_sync_at) return { label: t("fbCosts.neverSynced"), bg: "#fef3c7", fg: "#92400e" };
-    return { label: t("fbCosts.ok"), bg: "#dcfce7", fg: "#166534" };
+  const costStatusBadge = (conn, prefix) => {
+    if (!conn.is_active) return { label: t(`${prefix}.paused`), bg: "#e5e7eb", fg: "#374151" };
+    if (conn.last_sync_status === "error") return { label: t(`${prefix}.error`), bg: "#fee2e2", fg: "#991b1b" };
+    if (!conn.last_sync_at) return { label: t(`${prefix}.neverSynced`), bg: "#fef3c7", fg: "#92400e" };
+    return { label: t(`${prefix}.ok`), bg: "#dcfce7", fg: "#166534" };
   };
   const renderFacebookCostsPanel = () => {
     const visible = fbConnections.filter((c) => !fbSearch || (c.name || "").toLowerCase().includes(fbSearch.toLowerCase()));
@@ -69487,7 +70459,7 @@ const IntegrationsPage = () => {
       ] }),
       fbLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", style: { marginTop: fbEditing ? "20px" : 0 }, children: [
         visible.map((conn) => {
-          const badge = fbStatusBadge(conn);
+          const badge = costStatusBadge(conn, "fbCosts");
           return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
             border: "1px solid var(--color-border)",
             borderRadius: "16px",
@@ -69501,7 +70473,7 @@ const IntegrationsPage = () => {
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "12px", color: "var(--color-text-muted)" }, children: [
                   t("fbCosts.nextUpdate"),
                   ": ",
-                  fbNextUpdate(conn),
+                  costNextUpdate(conn, "fbCosts"),
                   conn.last_sync_at && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                     " · ",
                     t("fbCosts.lastSync"),
@@ -69547,6 +70519,753 @@ const IntegrationsPage = () => {
           ] }, conn.id);
         }),
         visible.length === 0 && !fbEditing && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", padding: "30px 0" }, children: t("fbCosts.noAccounts") })
+      ] })
+    ] });
+  };
+  const renderTikTokCostsPanel = () => {
+    const visible = ttConnections.filter((c) => !ttSearch || (c.name || "").toLowerCase().includes(ttSearch.toLowerCase()) || String(c.id).includes(ttSearch));
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: [
+      ttMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        padding: "10px 14px",
+        borderRadius: "10px",
+        fontSize: "13px",
+        marginBottom: "16px",
+        background: ttMessage.type === "success" ? "#dcfce7" : "#fee2e2",
+        color: ttMessage.type === "success" ? "#166534" : "#991b1b",
+        border: `1px solid ${ttMessage.type === "success" ? "#86efac" : "#fca5a5"}`
+      }, children: ttMessage.text }),
+      ttEditing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px solid var(--color-primary)", borderRadius: "16px", padding: "20px", background: "var(--color-bg-card)", maxWidth: "760px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px" }, children: ttEditing === "new" ? t("tiktokCosts.addAccount") : t("tiktokCosts.editAccount") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+          ttEditing === "new" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "p-5 rounded-2xl border text-center flex flex-col items-center gap-3",
+                style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "div",
+                    {
+                      className: "w-12 h-12 rounded-2xl flex items-center justify-center",
+                      style: { backgroundColor: "rgba(254, 44, 85, 0.12)", color: "#FE2C55" },
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { size: 22 })
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold m-0", style: { color: "var(--color-text-primary)" }, children: t("tiktokCosts.oneClickTitle") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs m-0 mt-1 max-w-md", style: { color: "var(--color-text-muted)" }, children: t("tiktokCosts.oneClickDesc") })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: handleStartTikTokOAuth,
+                      disabled: ttOAuthLoading || ttConnecting,
+                      className: "btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]",
+                      style: { backgroundColor: "#FE2C55", color: "#ffffff", boxShadow: "0 4px 14px rgba(254, 44, 85, 0.3)", opacity: ttOAuthLoading ? 0.75 : 1 },
+                      children: [
+                        ttOAuthLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { size: 16 }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: ttOAuthLoading ? t("tiktokCosts.oauthConnecting") : t("tiktokCosts.loginWithTikTok") })
+                      ]
+                    }
+                  )
+                ]
+              }
+            ),
+            ttDiscoveredAccounts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "p-4 rounded-2xl border space-y-3",
+                style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-success)" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center gap-3", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold", style: { color: "var(--color-text-primary)" }, children: [
+                      t("tiktokCosts.selectAccounts"),
+                      ":"
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => setTtSelectedAccounts(ttDiscoveredAccounts.map((account) => account.id)),
+                        className: "text-xs hover:underline",
+                        style: { color: "var(--color-primary)" },
+                        children: t("common.selectAll")
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2 max-h-48 overflow-y-auto", children: ttDiscoveredAccounts.map((account) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "label",
+                    {
+                      className: "flex items-center justify-between gap-3 p-2.5 rounded-xl border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5",
+                      style: { borderColor: "var(--color-border)" },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5 min-w-0", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "input",
+                            {
+                              type: "checkbox",
+                              checked: ttSelectedAccounts.includes(account.id),
+                              onChange: (event) => toggleTikTokAccount(account.id, event.target.checked),
+                              className: "rounded"
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold truncate", style: { color: "var(--color-text-primary)" }, children: account.name }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] font-mono", style: { color: "var(--color-text-muted)" }, children: account.id })
+                          ] })
+                        ] }),
+                        account.currency && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "span",
+                          {
+                            className: "text-xs font-semibold px-2 py-0.5 rounded shrink-0",
+                            style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-secondary)" },
+                            children: account.currency
+                          }
+                        )
+                      ]
+                    },
+                    account.id
+                  )) }),
+                  ttDiscoveredPixels.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-semibold mb-2", style: { color: "var(--color-text-primary)" }, children: [
+                      t("tiktokCosts.discoveredPixels"),
+                      " (",
+                      ttDiscoveredPixels.length,
+                      "):"
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1 mb-2 max-h-28 overflow-y-auto", children: ttDiscoveredPixels.map((pixel) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[11px] font-mono truncate", style: { color: "var(--color-text-muted)" }, children: [
+                      pixel.pixel_id,
+                      " — ",
+                      pixel.name,
+                      " (",
+                      pixel.advertiser_name,
+                      ")"
+                    ] }, pixel.pixel_id)) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs cursor-pointer", style: { color: "var(--color-text-secondary)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          checked: ttImportPixels,
+                          onChange: (event) => setTtImportPixels(event.target.checked),
+                          className: "rounded"
+                        }
+                      ),
+                      t("tiktokCosts.importPixels")
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs whitespace-nowrap", style: { color: "var(--color-text-secondary)" }, children: [
+                      t("tiktokCosts.syncEvery"),
+                      ":"
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "select",
+                      {
+                        className: "form-select text-xs",
+                        style: { maxWidth: "120px" },
+                        value: ttSyncInterval,
+                        onChange: (e) => setTtSyncInterval(Number(e.target.value)),
+                        children: [1, 2, 6, 12, 24].map((hours) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: hours, children: [
+                          hours,
+                          "h"
+                        ] }, hours))
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: handleConnectTikTokAccounts,
+                      disabled: ttConnecting || ttSelectedAccounts.length === 0,
+                      className: "btn btn-primary w-full py-2 rounded-xl text-xs font-semibold",
+                      children: [
+                        ttConnecting ? t("tiktokCosts.connecting") : t("tiktokCosts.connectSelected"),
+                        " (",
+                        ttSelectedAccounts.length,
+                        ")"
+                      ]
+                    }
+                  )
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px", margin: "4px 0" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, height: "1px", background: "var(--color-border)" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px", color: "var(--color-text-muted)", whiteSpace: "nowrap" }, children: t("tiktokCosts.manualSection") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, height: "1px", background: "var(--color-border)" } })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+              t("tiktokCosts.name"),
+              " *"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                className: "form-input",
+                type: "text",
+                value: ttForm.name,
+                placeholder: t("tiktokCosts.namePlaceholder", "Cabinet / account name"),
+                onChange: (e) => setTtForm({ ...ttForm, name: e.target.value })
+              }
+            )
+          ] }),
+          ttFields.map((field) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: field.key === "proxy_url" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ProxyInput,
+            {
+              label: field.label_key ? t(field.label_key, field.label) : field.label,
+              value: ttForm.credentials.proxy_url || "",
+              onChange: (val) => setTtForm({ ...ttForm, credentials: { ...ttForm.credentials, proxy_url: val } })
+            }
+          ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+              field.label_key ? t(field.label_key, field.label) : field.label,
+              field.required && " *"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                className: "form-input",
+                type: field.type === "password" ? "password" : "text",
+                value: ttForm.credentials[field.key] || "",
+                placeholder: field.placeholder || "",
+                onChange: (e) => setTtForm({ ...ttForm, credentials: { ...ttForm.credentials, [field.key]: e.target.value } })
+              }
+            )
+          ] }) }, field.key)),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tiktokCosts.interval") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "select",
+              {
+                className: "form-select",
+                value: ttForm.sync_interval_hours,
+                onChange: (e) => setTtForm({ ...ttForm, sync_interval_hours: parseInt(e.target.value, 10) }),
+                children: [1, 2, 4, 6, 12, 24].map((h) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: h, children: [
+                  h,
+                  " h"
+                ] }, h))
+              }
+            )
+          ] }),
+          ttTest && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            padding: "10px 14px",
+            borderRadius: "10px",
+            fontSize: "13px",
+            background: ttTest.success ? "#dcfce7" : "#fee2e2",
+            color: ttTest.success ? "#166534" : "#991b1b",
+            border: `1px solid ${ttTest.success ? "#86efac" : "#fca5a5"}`
+          }, children: ttTest.message }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", justifyContent: "space-between" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: handleTtTest,
+                className: "btn btn-secondary btn-sm",
+                disabled: ttTesting || !ttForm.credentials.access_token || !ttForm.credentials.advertiser_id,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }),
+                  " ",
+                  ttTesting ? t("tiktokCosts.testing") : t("tiktokCosts.testConnection")
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                setTtEditing(null);
+                setTtTest(null);
+                resetTikTokOAuth();
+              }, className: "btn btn-secondary btn-sm", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
+                " ",
+                t("common.cancel")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: handleTtSave,
+                  className: "btn btn-primary btn-sm",
+                  disabled: !ttForm.name || !ttForm.credentials.access_token || !ttForm.credentials.advertiser_id,
+                  children: t("common.save")
+                }
+              )
+            ] })
+          ] })
+        ] })
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center", marginBottom: "16px", flexWrap: "wrap" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+          setTtForm(emptyTtForm);
+          setTtTest(null);
+          resetTikTokOAuth();
+          setTtImportPixels(true);
+          setTtSyncInterval(2);
+          setTtMessage(null);
+          setTtEditing("new");
+        }, className: "btn btn-primary", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+          " ",
+          t("tiktokCosts.addAccount")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            className: "form-input",
+            style: { maxWidth: "240px" },
+            placeholder: t("tiktokCosts.findAccount"),
+            value: ttSearch,
+            onChange: (e) => setTtSearch(e.target.value)
+          }
+        )
+      ] }),
+      ttLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", style: { marginTop: ttEditing ? "20px" : 0 }, children: [
+        visible.map((conn) => {
+          const badge = costStatusBadge(conn, "tiktokCosts");
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            border: "1px solid var(--color-border)",
+            borderRadius: "16px",
+            padding: "16px",
+            background: conn.is_active ? "var(--color-bg-card)" : "var(--color-bg-soft)",
+            opacity: conn.is_active ? 1 : 0.7
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px", gap: "12px", flexWrap: "wrap" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600, fontSize: "14px" }, children: conn.name }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "12px", color: "var(--color-text-muted)" }, children: [
+                  t("tiktokCosts.nextUpdate"),
+                  ": ",
+                  costNextUpdate(conn, "tiktokCosts"),
+                  conn.last_sync_at && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    " · ",
+                    t("tiktokCosts.lastSync"),
+                    ": ",
+                    conn.last_sync_at
+                  ] })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px", padding: "2px 8px", borderRadius: "6px", background: badge.bg, color: badge.fg, whiteSpace: "nowrap" }, children: badge.label })
+            ] }),
+            conn.last_sync_status === "error" && conn.last_sync_error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "#ef4444", marginBottom: "10px", wordBreak: "break-word" }, children: conn.last_sync_error }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "6px", flexWrap: "wrap" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleTtSyncNow(conn), className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, disabled: ttBusyId === conn.id, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 12, className: ttBusyId === conn.id ? "animate-spin" : "" }),
+                " ",
+                t("tiktokCosts.syncNow")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: async () => {
+                const full = await loadTtConnection(conn.id);
+                if (full) {
+                  setTtForm(full);
+                  setTtTest(null);
+                  setTtEditing(conn.id);
+                }
+              }, className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 12 }),
+                " ",
+                t("common.edit")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleTtToggle(conn), className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Power, { size: 12 }),
+                " ",
+                conn.is_active ? t("tiktokCosts.pause") : t("tiktokCosts.resume")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleTtClone(conn), className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 }),
+                " ",
+                t("tiktokCosts.clone")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleTtDelete(conn), className: "btn btn-secondary btn-sm", style: { fontSize: "11px", color: "#ef4444" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 12 }) })
+            ] })
+          ] }, conn.id);
+        }),
+        visible.length === 0 && !ttEditing && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", padding: "30px 0" }, children: t("tiktokCosts.noAccounts") })
+      ] })
+    ] });
+  };
+  const renderGoogleAdsCostsPanel = () => {
+    const visible = gaConnections.filter((c) => !gaSearch || (c.name || "").toLowerCase().includes(gaSearch.toLowerCase()) || String(c.id).includes(gaSearch));
+    const directAccounts = gaDiscoveredAccounts.filter((account) => !account.login_customer_id);
+    const mccGroups = gaDiscoveredManagers.map((manager) => ({
+      manager,
+      accounts: gaDiscoveredAccounts.filter((account) => account.login_customer_id === manager.cid)
+    })).filter((group) => group.accounts.length > 0);
+    const renderGaAccountRow = (account) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "label",
+      {
+        className: "flex items-center justify-between gap-3 p-2.5 rounded-xl border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5",
+        style: { borderColor: "var(--color-border)" },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5 min-w-0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: gaSelectedAccounts.includes(account.cid),
+                onChange: (event) => toggleGaAccount(account.cid, event.target.checked),
+                className: "rounded"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold truncate", style: { color: "var(--color-text-primary)" }, children: account.name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[11px] font-mono", style: { color: "var(--color-text-muted)" }, children: [
+                account.display_cid || account.cid,
+                account.manager ? " · MCC" : ""
+              ] })
+            ] })
+          ] }),
+          account.currency && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: "text-xs font-semibold px-2 py-0.5 rounded shrink-0",
+              style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-secondary)" },
+              children: account.currency
+            }
+          )
+        ]
+      },
+      account.cid
+    );
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: [
+      gaMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        padding: "10px 14px",
+        borderRadius: "10px",
+        fontSize: "13px",
+        marginBottom: "16px",
+        background: gaMessage.type === "success" ? "#dcfce7" : "#fee2e2",
+        color: gaMessage.type === "success" ? "#166534" : "#991b1b",
+        border: `1px solid ${gaMessage.type === "success" ? "#86efac" : "#fca5a5"}`
+      }, children: gaMessage.text }),
+      gaEditing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px solid var(--color-primary)", borderRadius: "16px", padding: "20px", background: "var(--color-bg-card)", maxWidth: "760px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px" }, children: gaEditing === "new" ? t("googleAdsCosts.addAccount") : t("googleAdsCosts.editAccount") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+          gaEditing === "new" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "p-5 rounded-2xl border text-center flex flex-col items-center gap-3",
+                style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "div",
+                    {
+                      className: "w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-2xl",
+                      style: { backgroundColor: "rgba(66, 133, 244, 0.12)", color: "#4285F4" },
+                      children: "G"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold m-0", style: { color: "var(--color-text-primary)" }, children: t("googleAdsCosts.oneClickTitle") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs m-0 mt-1 max-w-md", style: { color: "var(--color-text-muted)" }, children: t("googleAdsCosts.oneClickDesc") })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: handleStartGaOAuth,
+                      disabled: gaOAuthLoading || gaConnecting,
+                      className: "btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]",
+                      style: { backgroundColor: "#4285F4", color: "#ffffff", boxShadow: "0 4px 14px rgba(66, 133, 244, 0.3)", opacity: gaOAuthLoading ? 0.75 : 1 },
+                      children: [
+                        gaOAuthLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 16 }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: gaOAuthLoading ? t("googleAdsCosts.oauthConnecting") : t("googleAdsCosts.loginWithGoogle") })
+                      ]
+                    }
+                  )
+                ]
+              }
+            ),
+            gaDiscoveredAccounts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "p-4 rounded-2xl border space-y-3",
+                style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-success)" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center gap-3", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold", style: { color: "var(--color-text-primary)" }, children: [
+                      t("googleAdsCosts.selectAccounts"),
+                      ":"
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => setGaSelectedAccounts(gaDiscoveredAccounts.map((account) => account.cid)),
+                        className: "text-xs hover:underline",
+                        style: { color: "var(--color-primary)" },
+                        children: t("common.selectAll")
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 max-h-72 overflow-y-auto", children: [
+                    directAccounts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] font-bold uppercase tracking-wide", style: { color: "var(--color-text-muted)" }, children: t("googleAdsCosts.directAccounts") }),
+                      directAccounts.map(renderGaAccountRow)
+                    ] }),
+                    mccGroups.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center gap-2", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[11px] font-bold uppercase tracking-wide", style: { color: "var(--color-text-muted)" }, children: [
+                          t("googleAdsCosts.mccManager"),
+                          ": ",
+                          group.manager.name,
+                          " ",
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono normal-case", children: [
+                            "(",
+                            group.manager.display_cid,
+                            ")"
+                          ] })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "button",
+                          {
+                            type: "button",
+                            onClick: () => setGaSelectedAccounts((current) => {
+                              const groupCids = group.accounts.map((account) => account.cid);
+                              const allSelected = groupCids.every((cid2) => current.includes(cid2));
+                              return allSelected ? current.filter((cid2) => !groupCids.includes(cid2)) : [.../* @__PURE__ */ new Set([...current, ...groupCids])];
+                            }),
+                            className: "text-[11px] hover:underline whitespace-nowrap",
+                            style: { color: "var(--color-primary)" },
+                            children: t("googleAdsCosts.selectAllInMcc")
+                          }
+                        )
+                      ] }),
+                      group.accounts.map(renderGaAccountRow)
+                    ] }, group.manager.cid))
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs whitespace-nowrap", style: { color: "var(--color-text-secondary)" }, children: [
+                      t("googleAdsCosts.syncEvery"),
+                      ":"
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "select",
+                      {
+                        className: "form-select text-xs",
+                        style: { maxWidth: "120px" },
+                        value: gaSyncInterval,
+                        onChange: (e) => setGaSyncInterval(Number(e.target.value)),
+                        children: [1, 2, 6, 12, 24].map((hours) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: hours, children: [
+                          hours,
+                          "h"
+                        ] }, hours))
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: handleConnectGaAccounts,
+                      disabled: gaConnecting || gaSelectedAccounts.length === 0,
+                      className: "btn btn-primary w-full py-2 rounded-xl text-xs font-semibold",
+                      children: [
+                        gaConnecting ? t("googleAdsCosts.connecting") : t("googleAdsCosts.connectSelected"),
+                        " (",
+                        gaSelectedAccounts.length,
+                        ")"
+                      ]
+                    }
+                  )
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px", margin: "4px 0" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, height: "1px", background: "var(--color-border)" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px", color: "var(--color-text-muted)", whiteSpace: "nowrap" }, children: t("googleAdsCosts.manualSection") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, height: "1px", background: "var(--color-border)" } })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+              t("googleAdsCosts.name"),
+              " *"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                className: "form-input",
+                type: "text",
+                value: gaForm.name,
+                placeholder: t("googleAdsCosts.namePlaceholder", "Account name"),
+                onChange: (e) => setGaForm({ ...gaForm, name: e.target.value })
+              }
+            )
+          ] }),
+          gaFields.map((field) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: field.key === "proxy_url" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ProxyInput,
+            {
+              label: field.label_key ? t(field.label_key, field.label) : field.label,
+              value: gaForm.credentials.proxy_url || "",
+              onChange: (val) => setGaForm({ ...gaForm, credentials: { ...gaForm.credentials, proxy_url: val } })
+            }
+          ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+              field.label_key ? t(field.label_key, field.label) : field.label,
+              field.required && " *"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                className: "form-input",
+                type: field.type === "password" ? "password" : "text",
+                value: gaForm.credentials[field.key] || "",
+                placeholder: field.placeholder || "",
+                onChange: (e) => setGaForm({ ...gaForm, credentials: { ...gaForm.credentials, [field.key]: e.target.value } })
+              }
+            )
+          ] }) }, field.key)),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("googleAdsCosts.interval") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "select",
+              {
+                className: "form-select",
+                value: gaForm.sync_interval_hours,
+                onChange: (e) => setGaForm({ ...gaForm, sync_interval_hours: parseInt(e.target.value, 10) }),
+                children: [1, 2, 4, 6, 12, 24].map((h) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: h, children: [
+                  h,
+                  " h"
+                ] }, h))
+              }
+            )
+          ] }),
+          gaTest && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            padding: "10px 14px",
+            borderRadius: "10px",
+            fontSize: "13px",
+            background: gaTest.success ? "#dcfce7" : "#fee2e2",
+            color: gaTest.success ? "#166534" : "#991b1b",
+            border: `1px solid ${gaTest.success ? "#86efac" : "#fca5a5"}`
+          }, children: gaTest.message }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", justifyContent: "space-between" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: handleGaTest,
+                className: "btn btn-secondary btn-sm",
+                disabled: gaTesting || !gaManualValid(),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }),
+                  " ",
+                  gaTesting ? t("googleAdsCosts.testing") : t("googleAdsCosts.testConnection")
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                setGaEditing(null);
+                setGaTest(null);
+                resetGoogleAdsOAuth();
+              }, className: "btn btn-secondary btn-sm", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
+                " ",
+                t("common.cancel")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleGaSave, className: "btn btn-primary btn-sm", disabled: !gaManualValid(), children: t("common.save") })
+            ] })
+          ] })
+        ] })
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center", marginBottom: "16px", flexWrap: "wrap" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+          setGaForm(emptyGaForm);
+          setGaTest(null);
+          resetGoogleAdsOAuth();
+          setGaSyncInterval(2);
+          setGaMessage(null);
+          setGaEditing("new");
+        }, className: "btn btn-primary", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+          " ",
+          t("googleAdsCosts.addAccount")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            className: "form-input",
+            style: { maxWidth: "240px" },
+            placeholder: t("googleAdsCosts.findAccount"),
+            value: gaSearch,
+            onChange: (e) => setGaSearch(e.target.value)
+          }
+        )
+      ] }),
+      gaLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", style: { marginTop: gaEditing ? "20px" : 0 }, children: [
+        visible.map((conn) => {
+          const badge = costStatusBadge(conn, "googleAdsCosts");
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            border: "1px solid var(--color-border)",
+            borderRadius: "16px",
+            padding: "16px",
+            background: conn.is_active ? "var(--color-bg-card)" : "var(--color-bg-soft)",
+            opacity: conn.is_active ? 1 : 0.7
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px", gap: "12px", flexWrap: "wrap" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontWeight: 600, fontSize: "14px", display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }, children: [
+                  conn.name,
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+                    fontSize: "10px",
+                    padding: "1px 6px",
+                    borderRadius: "6px",
+                    background: "color-mix(in srgb, var(--color-primary) 12%, transparent)",
+                    color: "var(--color-primary)",
+                    whiteSpace: "nowrap"
+                  }, children: t("googleAdsCosts.mccSubAccount") })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "12px", color: "var(--color-text-muted)" }, children: [
+                  t("googleAdsCosts.nextUpdate"),
+                  ": ",
+                  costNextUpdate(conn, "googleAdsCosts"),
+                  conn.last_sync_at && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    " · ",
+                    t("googleAdsCosts.lastSync"),
+                    ": ",
+                    conn.last_sync_at
+                  ] })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px", padding: "2px 8px", borderRadius: "6px", background: badge.bg, color: badge.fg, whiteSpace: "nowrap" }, children: badge.label })
+            ] }),
+            conn.last_sync_status === "error" && conn.last_sync_error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", color: "#ef4444", marginBottom: "10px", wordBreak: "break-word" }, children: conn.last_sync_error }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "6px", flexWrap: "wrap" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleGaSyncNow(conn), className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, disabled: gaBusyId === conn.id, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 12, className: gaBusyId === conn.id ? "animate-spin" : "" }),
+                " ",
+                t("googleAdsCosts.syncNow")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: async () => {
+                const full = await loadGaConnection(conn.id);
+                if (full) {
+                  setGaForm(full);
+                  setGaTest(null);
+                  setGaEditing(conn.id);
+                }
+              }, className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 12 }),
+                " ",
+                t("common.edit")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleGaToggle(conn), className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Power, { size: 12 }),
+                " ",
+                conn.is_active ? t("googleAdsCosts.pause") : t("googleAdsCosts.resume")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => handleGaClone(conn), className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 }),
+                " ",
+                t("googleAdsCosts.clone")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleGaDelete(conn), className: "btn btn-secondary btn-sm", style: { fontSize: "11px", color: "#ef4444" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 12 }) })
+            ] })
+          ] }, conn.id);
+        }),
+        visible.length === 0 && !gaEditing && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", padding: "30px 0" }, children: t("googleAdsCosts.noAccounts") })
       ] })
     ] });
   };
@@ -69990,191 +71709,7 @@ const IntegrationsPage = () => {
           }) })
         ] }, niche)),
         visible.length === 0 && !pixelProfileEditing && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", padding: "34px 0" }, children: t("pixelVault.noProfiles") })
-      ] }),
-      ttModalOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => {
-        resetTikTokOAuth();
-        setTtModalOpen(false);
-      }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "560px" }, onClick: (e) => e.stopPropagation(), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header px-6 pt-5", style: { flexShrink: 0 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "modal-title font-bold text-base m-0", children: [
-            "🎵 ",
-            t("tiktokCosts.modalTitle")
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "action-btn", onClick: () => {
-            resetTikTokOAuth();
-            setTtModalOpen(false);
-          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16 }) })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6 space-y-4", style: { overflowY: "auto" }, children: [
-          ttMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-            padding: "10px 14px",
-            borderRadius: "10px",
-            fontSize: "13px",
-            background: ttMessage.type === "success" ? "#dcfce7" : "#fee2e2",
-            color: ttMessage.type === "success" ? "#166534" : "#991b1b",
-            border: `1px solid ${ttMessage.type === "success" ? "#86efac" : "#fca5a5"}`
-          }, children: ttMessage.text }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "div",
-            {
-              className: "p-5 rounded-2xl border text-center flex flex-col items-center gap-3",
-              style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
-                  {
-                    className: "w-12 h-12 rounded-2xl flex items-center justify-center",
-                    style: { backgroundColor: "rgba(254, 44, 85, 0.12)", color: "#FE2C55" },
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { size: 22 })
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold m-0", style: { color: "var(--color-text-primary)" }, children: t("tiktokCosts.oneClickTitle") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs m-0 mt-1 max-w-md", style: { color: "var(--color-text-muted)" }, children: t("tiktokCosts.oneClickDesc") })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: handleStartTikTokOAuth,
-                    disabled: ttOAuthLoading || ttConnecting,
-                    className: "btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]",
-                    style: { backgroundColor: "#FE2C55", color: "#ffffff", boxShadow: "0 4px 14px rgba(254, 44, 85, 0.3)", opacity: ttOAuthLoading ? 0.75 : 1 },
-                    children: [
-                      ttOAuthLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { size: 16 }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: ttOAuthLoading ? t("tiktokCosts.oauthConnecting") : t("tiktokCosts.loginWithTikTok") })
-                    ]
-                  }
-                )
-              ]
-            }
-          ),
-          ttDiscoveredAccounts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "div",
-            {
-              className: "p-4 rounded-2xl border space-y-3",
-              style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-success)" },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center gap-3", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold", style: { color: "var(--color-text-primary)" }, children: [
-                    t("tiktokCosts.selectAccounts"),
-                    ":"
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "button",
-                    {
-                      type: "button",
-                      onClick: () => setTtSelectedAccounts(ttDiscoveredAccounts.map((account) => account.id)),
-                      className: "text-xs hover:underline",
-                      style: { color: "var(--color-primary)" },
-                      children: t("common.selectAll")
-                    }
-                  )
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2 max-h-48 overflow-y-auto", children: ttDiscoveredAccounts.map((account) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "label",
-                  {
-                    className: "flex items-center justify-between gap-3 p-2.5 rounded-xl border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5",
-                    style: { borderColor: "var(--color-border)" },
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5 min-w-0", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "input",
-                          {
-                            type: "checkbox",
-                            checked: ttSelectedAccounts.includes(account.id),
-                            onChange: (event) => toggleTikTokAccount(account.id, event.target.checked),
-                            className: "rounded"
-                          }
-                        ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold truncate", style: { color: "var(--color-text-primary)" }, children: account.name }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] font-mono", style: { color: "var(--color-text-muted)" }, children: account.id })
-                        ] })
-                      ] }),
-                      account.currency && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "span",
-                        {
-                          className: "text-xs font-semibold px-2 py-0.5 rounded shrink-0",
-                          style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-secondary)" },
-                          children: account.currency
-                        }
-                      )
-                    ]
-                  },
-                  account.id
-                )) }),
-                ttDiscoveredPixels.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-semibold mb-2", style: { color: "var(--color-text-primary)" }, children: [
-                    t("tiktokCosts.discoveredPixels"),
-                    " (",
-                    ttDiscoveredPixels.length,
-                    "):"
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1 mb-2 max-h-28 overflow-y-auto", children: ttDiscoveredPixels.map((pixel) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[11px] font-mono truncate", style: { color: "var(--color-text-muted)" }, children: [
-                    pixel.pixel_id,
-                    " — ",
-                    pixel.name,
-                    " (",
-                    pixel.advertiser_name,
-                    ")"
-                  ] }, pixel.pixel_id)) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs cursor-pointer", style: { color: "var(--color-text-secondary)" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "input",
-                      {
-                        type: "checkbox",
-                        checked: ttImportPixels,
-                        onChange: (event) => setTtImportPixels(event.target.checked),
-                        className: "rounded"
-                      }
-                    ),
-                    t("tiktokCosts.importPixels")
-                  ] })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs whitespace-nowrap", style: { color: "var(--color-text-secondary)" }, children: [
-                    t("tiktokCosts.syncEvery"),
-                    ":"
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "select",
-                    {
-                      className: "form-select text-xs",
-                      style: { maxWidth: "120px" },
-                      value: ttSyncInterval,
-                      onChange: (e) => setTtSyncInterval(Number(e.target.value)),
-                      children: [1, 2, 6, 12, 24].map((hours) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: hours, children: [
-                        hours,
-                        "h"
-                      ] }, hours))
-                    }
-                  )
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: handleConnectTikTokAccounts,
-                    disabled: ttConnecting || ttSelectedAccounts.length === 0,
-                    className: "btn btn-primary w-full py-2 rounded-xl text-xs font-semibold",
-                    children: [
-                      ttConnecting ? t("tiktokCosts.connecting") : t("tiktokCosts.connectSelected"),
-                      " (",
-                      ttSelectedAccounts.length,
-                      ")"
-                    ]
-                  }
-                )
-              ]
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-end gap-2 px-6 pb-6", style: { flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary btn-sm", onClick: () => {
-          resetTikTokOAuth();
-          setTtModalOpen(false);
-        }, children: t("common.cancel") }) })
-      ] }) })
+      ] })
     ] });
   };
   const handleCapiSave = async () => {
@@ -70614,6 +72149,18 @@ var pixel = matches ? decodeURIComponent(matches[1]) : undefined;
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-5 h-5" }),
       description: t("fbCosts.description"),
       isFacebookCosts: true
+    },
+    tiktok_costs: {
+      title: t("tiktokCosts.title", "TikTok Costs"),
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { className: "w-5 h-5" }),
+      description: t("tiktokCosts.description"),
+      isTikTokCosts: true
+    },
+    google_ads_costs: {
+      title: t("googleAdsCosts.title", "Google Ads Costs"),
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "w-5 h-5" }),
+      description: t("googleAdsCosts.description"),
+      isGoogleAdsCosts: true
     },
     facebook_conversions: {
       title: t("fbConv.title"),
@@ -71952,7 +73499,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
         borderRadius: "24px 0 0 24px"
       }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("nav", { style: { padding: "8px", overflowY: "auto" }, children: (() => {
         const groups = [
-          { label: t("integrations.groupAds", "Ad networks"), ids: ["pixel_vault", "facebook_costs", "facebook_conversions", "dolphin_fbtool", "chrome_extension"] },
+          { label: t("integrations.groupAds", "Ad networks"), ids: ["pixel_vault", "facebook_costs", "tiktok_costs", "google_ads_costs", "facebook_conversions", "dolphin_fbtool", "chrome_extension"] },
           { label: t("integrations.groupDomains", "Domains & SSL"), ids: ["cloudflare", "namecheap"] },
           { label: t("integrations.groupSites", "Sites & landings"), ids: ["kclient_php", "kclient_js", "tracking_pixel", "tiktok_pixel", "js_banner", "wordpress", "wordpress_plugin", "static_site", "geo_redirect", "device_redirect"] },
           { label: t("integrations.groupTools", "Tools"), ids: ["countdown_timer", "back_button_trap", "exit_popup", "app_config", "recaptcha", "telegram"] }
@@ -72045,37 +73592,22 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
               margin: "8px 0 0 0"
             }, children: activeObj.description })
           ] }),
-          activeObj.isPixelVault && !pixelProfileEditing && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                className: "btn btn-secondary",
-                onClick: openTikTokModal,
-                title: t("tiktokCosts.connectTikTokHint"),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { size: 16 }),
-                  " ",
-                  t("tiktokCosts.connectTikTok")
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                className: "btn btn-primary",
-                onClick: () => {
-                  setPixelProfileForm(emptyPixelProfileForm);
-                  setPixelProfileEditing("new");
-                  setPixelProfileMessage(null);
-                },
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
-                  " ",
-                  t("pixelVault.addNewPixel")
-                ]
-              }
-            )
-          ] })
+          activeObj.isPixelVault && !pixelProfileEditing && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              className: "btn btn-primary",
+              onClick: () => {
+                setPixelProfileForm(emptyPixelProfileForm);
+                setPixelProfileEditing("new");
+                setPixelProfileMessage(null);
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+                " ",
+                t("pixelVault.addNewPixel")
+              ]
+            }
+          ) })
         ] }),
         activeObj.isCloudflare ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "620px", display: "flex", flexDirection: "column", gap: "20px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
@@ -72565,7 +74097,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
               children: rcMessage.text
             }
           )
-        ] }) }) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isPixelVault ? renderPixelVaultPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 24px", flex: 1, display: "flex", flexDirection: "column" }, children: [
+        ] }) }) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isPixelVault ? renderPixelVaultPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isTikTokCosts ? renderTikTokCostsPanel() : activeObj.isGoogleAdsCosts ? renderGoogleAdsCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 24px", flex: 1, display: "flex", flexDirection: "column" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: t("integrations.codeToInsert") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(

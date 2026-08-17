@@ -1050,6 +1050,10 @@
     max-height: calc(var(--spacing) * 64);
   }
 
+  .max-h-72 {
+    max-height: calc(var(--spacing) * 72);
+  }
+
   .max-h-80 {
     max-height: calc(var(--spacing) * 80);
   }
@@ -2389,10 +2393,6 @@
     padding-bottom: calc(var(--spacing) * 5);
   }
 
-  .pb-6 {
-    padding-bottom: calc(var(--spacing) * 6);
-  }
-
   .pb-10 {
     padding-bottom: calc(var(--spacing) * 10);
   }
@@ -2800,6 +2800,10 @@
 
   .lowercase {
     text-transform: lowercase;
+  }
+
+  .normal-case {
+    text-transform: none;
   }
 
   .uppercase {

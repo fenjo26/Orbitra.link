@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
-import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud, Database, Tag, Music2 } from 'lucide-react';
+import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud, Database, Tag, Music2, Search } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard as copyUtil } from '../utils/clipboard';
@@ -75,10 +75,28 @@ const IntegrationsPage = () => {
     const fbOAuthPopupRef = useRef(null);
     const fbOAuthPollRef = useRef(null);
 
-    // TikTok 1-click OAuth — mirrors the Facebook flow. The discovery modal
-    // imports pixels into the vault and creates one spend-sync connection per
-    // selected ad account (engine 'tiktok', refreshed by cron).
-    const [ttModalOpen, setTtModalOpen] = useState(false);
+    // TikTok Costs state — engine 'tiktok' spend-sync connections. The 1-click
+    // OAuth flow (discovery, pixel import) lives in this panel; before it sat in
+    // a Pixel Vault modal.
+    const emptyTtForm = {
+        name: '',
+        sync_interval_hours: 2,
+        is_active: 1,
+        credentials: { access_token: '', advertiser_id: '', app_id: '', app_secret: '', proxy_url: '' },
+        field_mapping: { ad_id_param: '', adset_id_param: '', campaign_id_param: '' }
+    };
+    const [ttConnections, setTtConnections] = useState([]);
+    const [ttLoading, setTtLoading] = useState(false);
+    const [ttSearch, setTtSearch] = useState('');
+    const [ttEditing, setTtEditing] = useState(null);
+    const [ttForm, setTtForm] = useState(emptyTtForm);
+    const [ttFields, setTtFields] = useState([]);
+    const [ttTest, setTtTest] = useState(null);
+    const [ttTesting, setTtTesting] = useState(false);
+    const [ttBusyId, setTtBusyId] = useState(null);
+    // TikTok 1-click OAuth — mirrors the Facebook flow. Discovery imports
+    // pixels into the vault and creates one spend-sync connection per selected
+    // ad account (engine 'tiktok', refreshed by cron).
     const [ttDiscoveredAccounts, setTtDiscoveredAccounts] = useState([]);
     const [ttDiscoveredPixels, setTtDiscoveredPixels] = useState([]);
     const [ttSelectedAccounts, setTtSelectedAccounts] = useState([]);
@@ -90,6 +108,37 @@ const IntegrationsPage = () => {
     const [ttMessage, setTtMessage] = useState(null);
     const ttPopupRef = useRef(null);
     const ttPollRef = useRef(null);
+
+    // Google Ads Costs state — engine 'google_ads' connections: 1-Click Google
+    // OAuth with MCC discovery plus the manual developer-app form.
+    const emptyGaForm = {
+        name: '',
+        sync_interval_hours: 2,
+        is_active: 1,
+        credentials: { developer_token: '', client_id: '', client_secret: '', refresh_token: '', customer_id: '', login_customer_id: '', proxy_url: '' },
+        field_mapping: { ad_id_param: '', adset_id_param: '', campaign_id_param: '' }
+    };
+    const [gaConnections, setGaConnections] = useState([]);
+    const [gaLoading, setGaLoading] = useState(false);
+    const [gaSearch, setGaSearch] = useState('');
+    const [gaEditing, setGaEditing] = useState(null);
+    const [gaForm, setGaForm] = useState(emptyGaForm);
+    const [gaFields, setGaFields] = useState([]);
+    const [gaTest, setGaTest] = useState(null);
+    const [gaTesting, setGaTesting] = useState(false);
+    const [gaBusyId, setGaBusyId] = useState(null);
+    const [gaMessage, setGaMessage] = useState(null);
+    // 1-click OAuth: managers = MCC directory for group headers, accounts =
+    // flat list grouped by login_customer_id on render.
+    const [gaDiscoveredManagers, setGaDiscoveredManagers] = useState([]);
+    const [gaDiscoveredAccounts, setGaDiscoveredAccounts] = useState([]);
+    const [gaSelectedAccounts, setGaSelectedAccounts] = useState([]);
+    const [gaOAuthFlowId, setGaOAuthFlowId] = useState('');
+    const [gaOAuthLoading, setGaOAuthLoading] = useState(false);
+    const [gaConnecting, setGaConnecting] = useState(false);
+    const [gaSyncInterval, setGaSyncInterval] = useState(2);
+    const gaPopupRef = useRef(null);
+    const gaPollRef = useRef(null);
 
     // Facebook Conversions state — campaign_pixels rows of type 'facebook' that
     // carry a Conversions API token.
@@ -517,6 +566,42 @@ const IntegrationsPage = () => {
         } catch (err) { console.error(err); }
     }, []);
 
+    const fetchTtConnections = useCallback(async () => {
+        setTtLoading(true);
+        try {
+            const res = await axios.get(`${API_URL}?action=aggregator_connections`);
+            if (res.data.status === 'success') {
+                setTtConnections((res.data.data || []).filter(c => c.engine === 'tiktok'));
+            }
+        } catch (err) { console.error(err); }
+        finally { setTtLoading(false); }
+    }, []);
+
+    const fetchTtFields = useCallback(async () => {
+        try {
+            const res = await axios.get(`${API_URL}?action=aggregator_engine_fields&engine=tiktok`);
+            if (res.data.status === 'success') setTtFields(res.data.data || []);
+        } catch (err) { console.error(err); }
+    }, []);
+
+    const fetchGaConnections = useCallback(async () => {
+        setGaLoading(true);
+        try {
+            const res = await axios.get(`${API_URL}?action=aggregator_connections`);
+            if (res.data.status === 'success') {
+                setGaConnections((res.data.data || []).filter(c => c.engine === 'google_ads'));
+            }
+        } catch (err) { console.error(err); }
+        finally { setGaLoading(false); }
+    }, []);
+
+    const fetchGaFields = useCallback(async () => {
+        try {
+            const res = await axios.get(`${API_URL}?action=aggregator_engine_fields&engine=google_ads`);
+            if (res.data.status === 'success') setGaFields(res.data.data || []);
+        } catch (err) { console.error(err); }
+    }, []);
+
     const fetchCapiPixels = useCallback(async () => {
         setCapiLoading(true);
         try {
@@ -544,6 +629,8 @@ const IntegrationsPage = () => {
 
     useEffect(() => {
         if (activeTab === 'facebook_costs') { fetchFbConnections(); fetchFbFields(); }
+        if (activeTab === 'tiktok_costs') { fetchTtConnections(); fetchTtFields(); }
+        if (activeTab === 'google_ads_costs') { fetchGaConnections(); fetchGaFields(); }
         if (activeTab === 'facebook_conversions') { fetchCapiPixels(); fetchCapiMeta(); fetchCampaigns(); }
         if (activeTab === 'pixel_vault') fetchPixelProfiles();
         if (activeTab === 'cloudflare') {
@@ -579,7 +666,7 @@ const IntegrationsPage = () => {
                 })
                 .catch(() => {});
         }
-    }, [activeTab, fetchFbConnections, fetchFbFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles]);
+    }, [activeTab, fetchFbConnections, fetchFbFields, fetchTtConnections, fetchTtFields, fetchGaConnections, fetchGaFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles]);
 
     useEffect(() => {
         const handleFacebookOAuthMessage = (event) => {
@@ -672,6 +759,55 @@ const IntegrationsPage = () => {
         };
     }, []);
 
+    // Same popup handshake for Google Ads: the callback page posts the
+    // discovered account tree (direct accounts + MCC sub-accounts); the refresh
+    // token stays server-side behind the flow id.
+    useEffect(() => {
+        const handleGoogleAdsOAuthMessage = (event) => {
+            if (event.origin !== window.location.origin || event.data?.type !== 'orbitra.google_ads_oauth') return;
+            if (!gaPopupRef.current || event.source !== gaPopupRef.current) return;
+
+            setGaOAuthLoading(false);
+            if (gaPollRef.current) {
+                window.clearInterval(gaPollRef.current);
+                gaPollRef.current = null;
+            }
+            gaPopupRef.current = null;
+
+            if (event.data.status !== 'success') {
+                setGaDiscoveredManagers([]);
+                setGaDiscoveredAccounts([]);
+                setGaSelectedAccounts([]);
+                setGaOAuthFlowId('');
+                setGaMessage({ type: 'error', text: event.data.message || translationRef.current('googleAdsCosts.oauthFailed') });
+                return;
+            }
+
+            const accounts = Array.isArray(event.data.accounts) ? event.data.accounts : [];
+            const managers = Array.isArray(event.data.managers) ? event.data.managers : [];
+            setGaDiscoveredManagers(managers);
+            setGaDiscoveredAccounts(accounts);
+            setGaSelectedAccounts(accounts.map(account => account.cid));
+            setGaOAuthFlowId(event.data.flow_id || '');
+            setGaMessage(accounts.length === 0
+                ? { type: 'error', text: translationRef.current('googleAdsCosts.noDiscoveredAccounts') }
+                : null);
+        };
+
+        window.addEventListener('message', handleGoogleAdsOAuthMessage);
+        return () => {
+            window.removeEventListener('message', handleGoogleAdsOAuthMessage);
+            if (gaPollRef.current) {
+                window.clearInterval(gaPollRef.current);
+                gaPollRef.current = null;
+            }
+            if (gaPopupRef.current && !gaPopupRef.current.closed) {
+                gaPopupRef.current.close();
+            }
+            gaPopupRef.current = null;
+        };
+    }, []);
+
     // The list endpoint strips credentials, so editing has to re-read the row.
     const loadFbConnection = async (id) => {
         try {
@@ -696,6 +832,52 @@ const IntegrationsPage = () => {
             deal_type: 'cpa',
             click_id_param: 'sub_id'
         };
+        if (id && id !== 'new') payload.id = id;
+        const res = await axios.post(`${API_URL}?action=aggregator_connections`, payload);
+        return res.data.status === 'success';
+    };
+
+    // TikTok / Google Ads Costs share the aggregator connection API with the
+    // Facebook panel — only the engine name and the credential shape differ.
+    const loadTtConnection = async (id) => {
+        try {
+            const res = await axios.get(`${API_URL}?action=aggregator_connection_detail&id=${id}`);
+            if (res.data.status !== 'success' || !res.data.data) return null;
+            const conn = res.data.data;
+            return {
+                name: conn.name || '',
+                sync_interval_hours: conn.sync_interval_hours || 2,
+                is_active: conn.is_active ? 1 : 0,
+                credentials: { ...emptyTtForm.credentials, ...(conn.credentials || {}) },
+                field_mapping: { ...emptyTtForm.field_mapping, ...(conn.field_mapping || {}) }
+            };
+        } catch (err) { console.error(err); return null; }
+    };
+
+    const saveTtConnection = async (form, id) => {
+        const payload = { ...form, engine: 'tiktok', auth_type: 'token', deal_type: 'cpa', click_id_param: 'sub_id' };
+        if (id && id !== 'new') payload.id = id;
+        const res = await axios.post(`${API_URL}?action=aggregator_connections`, payload);
+        return res.data.status === 'success';
+    };
+
+    const loadGaConnection = async (id) => {
+        try {
+            const res = await axios.get(`${API_URL}?action=aggregator_connection_detail&id=${id}`);
+            if (res.data.status !== 'success' || !res.data.data) return null;
+            const conn = res.data.data;
+            return {
+                name: conn.name || '',
+                sync_interval_hours: conn.sync_interval_hours || 2,
+                is_active: conn.is_active ? 1 : 0,
+                credentials: { ...emptyGaForm.credentials, ...(conn.credentials || {}) },
+                field_mapping: { ...emptyGaForm.field_mapping, ...(conn.field_mapping || {}) }
+            };
+        } catch (err) { console.error(err); return null; }
+    };
+
+    const saveGaConnection = async (form, id) => {
+        const payload = { ...form, engine: 'google_ads', auth_type: 'token', deal_type: 'cpa', click_id_param: 'sub_id' };
         if (id && id !== 'new') payload.id = id;
         const res = await axios.post(`${API_URL}?action=aggregator_connections`, payload);
         return res.data.status === 'success';
@@ -781,14 +963,6 @@ const IntegrationsPage = () => {
         setTtConnecting(false);
     };
 
-    const openTikTokModal = () => {
-        resetTikTokOAuth();
-        setTtMessage(null);
-        setTtImportPixels(true);
-        setTtSyncInterval(2);
-        setTtModalOpen(true);
-    };
-
     const handleStartTikTokOAuth = () => {
         setTtMessage(null);
         setTtDiscoveredAccounts([]);
@@ -859,12 +1033,12 @@ const IntegrationsPage = () => {
             const summary = t('tiktokCosts.connectedAccounts')
                 .replace('{n}', connected)
                 .replace('{m}', imported);
-            // The modal closes right after, so the summary lands in the vault banner.
-            setPixelProfileMessage({ type: 'success', text: summary });
             setTtMessage({ type: 'success', text: summary });
             resetTikTokOAuth();
+            setTtEditing(null);
+            // Imported pixels show up in the vault, not in this panel.
+            fetchTtConnections();
             fetchPixelProfiles();
-            setTtModalOpen(false);
         } catch (err) {
             setTtMessage({ type: 'error', text: err.response?.data?.message || err.message || t('tiktokCosts.oauthFailed') });
         } finally {
@@ -1008,22 +1182,285 @@ const IntegrationsPage = () => {
         fetchFbConnections();
     };
 
-    const fbNextUpdate = (conn) => {
-        if (!conn.is_active) return t('fbCosts.paused');
-        if (!conn.last_sync_at) return t('fbCosts.onNextCron');
+    // ==================== TikTok Costs (rows) ====================
+
+    const handleTtSave = async () => {
+        if (!ttForm.name || !ttForm.credentials.access_token || !ttForm.credentials.advertiser_id) return;
+        try {
+            const ok = await saveTtConnection(ttForm, ttEditing);
+            if (ok) {
+                setTtMessage({ type: 'success', text: t('tiktokCosts.saved') });
+                setTtEditing(null);
+                setTtTest(null);
+                resetTikTokOAuth();
+                fetchTtConnections();
+            }
+        } catch (err) { setTtMessage({ type: 'error', text: err.message }); }
+    };
+
+    const handleTtTest = async () => {
+        setTtTesting(true);
+        setTtTest(null);
+        try {
+            const res = await axios.post(`${API_URL}?action=aggregator_test_connection`, {
+                engine: 'tiktok', credentials: ttForm.credentials
+            });
+            setTtTest(res.data.data || { success: false, message: 'No response' });
+        } catch (err) { setTtTest({ success: false, message: err.message }); }
+        finally { setTtTesting(false); }
+    };
+
+    const handleTtSyncNow = async (conn) => {
+        setTtBusyId(conn.id);
+        setTtMessage(null);
+        try {
+            const res = await axios.post(`${API_URL}?action=aggregator_sync`, {
+                connection_id: conn.id,
+                date_from: new Date(Date.now() - (conn.last_sync_at ? 5 : 30) * 86400000).toISOString().slice(0, 10),
+                date_to: new Date().toISOString().slice(0, 10)
+            });
+            const d = res.data;
+            if (d.status === 'success') {
+                const matched = d.matched ?? d.data?.matched ?? 0;
+                const fetched = d.fetched ?? d.data?.fetched ?? 0;
+                setTtMessage({
+                    type: matched === 0 && fetched > 0 ? 'error' : 'success',
+                    text: matched === 0 && fetched > 0
+                        ? t('tiktokCosts.syncedNoMatch').replace('{n}', fetched)
+                        : t('tiktokCosts.syncedOk').replace('{n}', fetched).replace('{m}', matched)
+                });
+            } else {
+                setTtMessage({ type: 'error', text: d.message || t('tiktokCosts.syncFailed') });
+            }
+            fetchTtConnections();
+        } catch (err) { setTtMessage({ type: 'error', text: err.message }); }
+        finally { setTtBusyId(null); }
+    };
+
+    const handleTtToggle = async (conn) => {
+        // Re-read first: the save endpoint rewrites credentials from the payload,
+        // so posting a partial row would wipe the token.
+        const full = await loadTtConnection(conn.id);
+        if (!full) return;
+        await saveTtConnection({ ...full, is_active: conn.is_active ? 0 : 1 }, conn.id);
+        fetchTtConnections();
+    };
+
+    const handleTtClone = async (conn) => {
+        const full = await loadTtConnection(conn.id);
+        if (!full) return;
+        await saveTtConnection({ ...full, name: `${full.name} copy`, is_active: 0 }, 'new');
+        setTtMessage({ type: 'success', text: t('tiktokCosts.cloned') });
+        fetchTtConnections();
+    };
+
+    const handleTtDelete = async (conn) => {
+        if (!confirm(t('tiktokCosts.confirmDelete'))) return;
+        await axios.post(`${API_URL}?action=aggregator_connections`, { action: 'delete', id: conn.id });
+        setTtMessage({ type: 'success', text: t('tiktokCosts.deleted') });
+        fetchTtConnections();
+    };
+
+    // ==================== Google Ads Costs ====================
+
+    const resetGoogleAdsOAuth = () => {
+        if (gaPollRef.current) {
+            window.clearInterval(gaPollRef.current);
+            gaPollRef.current = null;
+        }
+        if (gaPopupRef.current && !gaPopupRef.current.closed) {
+            gaPopupRef.current.close();
+        }
+        gaPopupRef.current = null;
+        setGaDiscoveredManagers([]);
+        setGaDiscoveredAccounts([]);
+        setGaSelectedAccounts([]);
+        setGaOAuthFlowId('');
+        setGaOAuthLoading(false);
+        setGaConnecting(false);
+    };
+
+    const handleStartGaOAuth = () => {
+        setGaMessage(null);
+        setGaDiscoveredManagers([]);
+        setGaDiscoveredAccounts([]);
+        setGaSelectedAccounts([]);
+        setGaOAuthFlowId('');
+
+        if (gaPopupRef.current && !gaPopupRef.current.closed) {
+            gaPopupRef.current.close();
+        }
+        if (gaPollRef.current) {
+            window.clearInterval(gaPollRef.current);
+        }
+
+        const width = 640;
+        const height = 720;
+        const left = Math.max(0, window.screenX + Math.round((window.outerWidth - width) / 2));
+        const top = Math.max(0, window.screenY + Math.round((window.outerHeight - height) / 2));
+        const popup = window.open(
+            `${API_URL}?action=google_ads_oauth_start`,
+            'orbitra-google-ads-oauth',
+            `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+        if (!popup) {
+            setGaOAuthLoading(false);
+            setGaMessage({ type: 'error', text: t('googleAdsCosts.popupBlocked') });
+            return;
+        }
+
+        gaPopupRef.current = popup;
+        setGaOAuthLoading(true);
+        popup.focus();
+        gaPollRef.current = window.setInterval(() => {
+            if (popup.closed) {
+                window.clearInterval(gaPollRef.current);
+                gaPollRef.current = null;
+                gaPopupRef.current = null;
+                setGaOAuthLoading(false);
+            }
+        }, 500);
+    };
+
+    const toggleGaAccount = (cid, checked) => {
+        setGaSelectedAccounts(current => checked
+            ? [...new Set([...current, cid])]
+            : current.filter(id => id !== cid));
+    };
+
+    const handleConnectGaAccounts = async () => {
+        if (!gaOAuthFlowId || gaSelectedAccounts.length === 0) return;
+        setGaConnecting(true);
+        setGaMessage(null);
+        try {
+            const accounts = gaDiscoveredAccounts
+                .filter(account => gaSelectedAccounts.includes(account.cid))
+                .map(account => ({ id: account.cid }));
+            const res = await axios.post(`${API_URL}?action=google_ads_connect_accounts`, {
+                flow_id: gaOAuthFlowId,
+                accounts,
+                sync_interval_hours: gaSyncInterval || 2
+            });
+            if (res.data.status !== 'success') {
+                setGaMessage({ type: 'error', text: res.data.message || t('googleAdsCosts.oauthFailed') });
+                return;
+            }
+
+            const connected = res.data.data?.connected_count ?? accounts.length;
+            setGaMessage({ type: 'success', text: t('googleAdsCosts.connectedAccounts').replace('{n}', connected) });
+            resetGoogleAdsOAuth();
+            setGaEditing(null);
+            fetchGaConnections();
+        } catch (err) {
+            setGaMessage({ type: 'error', text: err.response?.data?.message || err.message || t('googleAdsCosts.oauthFailed') });
+        } finally {
+            setGaConnecting(false);
+        }
+    };
+
+    const handleGaSave = async () => {
+        if (!gaManualValid()) return;
+        try {
+            const ok = await saveGaConnection(gaForm, gaEditing);
+            if (ok) {
+                setGaMessage({ type: 'success', text: t('googleAdsCosts.saved') });
+                setGaEditing(null);
+                setGaTest(null);
+                resetGoogleAdsOAuth();
+                fetchGaConnections();
+            }
+        } catch (err) { setGaMessage({ type: 'error', text: err.message }); }
+    };
+
+    const gaManualValid = () =>
+        !!(gaForm.name
+            && gaForm.credentials.developer_token
+            && gaForm.credentials.client_id
+            && gaForm.credentials.client_secret
+            && gaForm.credentials.refresh_token
+            && gaForm.credentials.customer_id);
+
+    const handleGaTest = async () => {
+        setGaTesting(true);
+        setGaTest(null);
+        try {
+            const res = await axios.post(`${API_URL}?action=aggregator_test_connection`, {
+                engine: 'google_ads', credentials: gaForm.credentials
+            });
+            setGaTest(res.data.data || { success: false, message: 'No response' });
+        } catch (err) { setGaTest({ success: false, message: err.message }); }
+        finally { setGaTesting(false); }
+    };
+
+    const handleGaSyncNow = async (conn) => {
+        setGaBusyId(conn.id);
+        setGaMessage(null);
+        try {
+            const res = await axios.post(`${API_URL}?action=aggregator_sync`, {
+                connection_id: conn.id,
+                date_from: new Date(Date.now() - (conn.last_sync_at ? 5 : 30) * 86400000).toISOString().slice(0, 10),
+                date_to: new Date().toISOString().slice(0, 10)
+            });
+            const d = res.data;
+            if (d.status === 'success') {
+                const matched = d.matched ?? d.data?.matched ?? 0;
+                const fetched = d.fetched ?? d.data?.fetched ?? 0;
+                setGaMessage({
+                    type: matched === 0 && fetched > 0 ? 'error' : 'success',
+                    text: matched === 0 && fetched > 0
+                        ? t('googleAdsCosts.syncedNoMatch').replace('{n}', fetched)
+                        : t('googleAdsCosts.syncedOk').replace('{n}', fetched).replace('{m}', matched)
+                });
+            } else {
+                setGaMessage({ type: 'error', text: d.message || t('googleAdsCosts.syncFailed') });
+            }
+            fetchGaConnections();
+        } catch (err) { setGaMessage({ type: 'error', text: err.message }); }
+        finally { setGaBusyId(null); }
+    };
+
+    const handleGaToggle = async (conn) => {
+        // Re-read first: the save endpoint rewrites credentials from the payload,
+        // so posting a partial row would wipe the refresh token.
+        const full = await loadGaConnection(conn.id);
+        if (!full) return;
+        await saveGaConnection({ ...full, is_active: conn.is_active ? 0 : 1 }, conn.id);
+        fetchGaConnections();
+    };
+
+    const handleGaClone = async (conn) => {
+        const full = await loadGaConnection(conn.id);
+        if (!full) return;
+        await saveGaConnection({ ...full, name: `${full.name} copy`, is_active: 0 }, 'new');
+        setGaMessage({ type: 'success', text: t('googleAdsCosts.cloned') });
+        fetchGaConnections();
+    };
+
+    const handleGaDelete = async (conn) => {
+        if (!confirm(t('googleAdsCosts.confirmDelete'))) return;
+        await axios.post(`${API_URL}?action=aggregator_connections`, { action: 'delete', id: conn.id });
+        setGaMessage({ type: 'success', text: t('googleAdsCosts.deleted') });
+        fetchGaConnections();
+    };
+
+    // Shared across the Facebook / TikTok / Google Ads cost panels — the row
+    // shape (sync_interval_hours, last_sync_*) and the locale keys are the same.
+    const costNextUpdate = (conn, prefix) => {
+        if (!conn.is_active) return t(`${prefix}.paused`);
+        if (!conn.last_sync_at) return t(`${prefix}.onNextCron`);
         const last = new Date(conn.last_sync_at.replace(' ', 'T') + 'Z').getTime();
         const next = last + (conn.sync_interval_hours || 2) * 3600000;
         const diff = next - Date.now();
-        if (diff <= 0) return t('fbCosts.due');
+        if (diff <= 0) return t(`${prefix}.due`);
         const mins = Math.round(diff / 60000);
         return mins >= 60 ? `${Math.floor(mins / 60)} h ${mins % 60} min` : `${mins} min`;
     };
 
-    const fbStatusBadge = (conn) => {
-        if (!conn.is_active) return { label: t('fbCosts.paused'), bg: '#e5e7eb', fg: '#374151' };
-        if (conn.last_sync_status === 'error') return { label: t('fbCosts.error'), bg: '#fee2e2', fg: '#991b1b' };
-        if (!conn.last_sync_at) return { label: t('fbCosts.neverSynced'), bg: '#fef3c7', fg: '#92400e' };
-        return { label: t('fbCosts.ok'), bg: '#dcfce7', fg: '#166534' };
+    const costStatusBadge = (conn, prefix) => {
+        if (!conn.is_active) return { label: t(`${prefix}.paused`), bg: '#e5e7eb', fg: '#374151' };
+        if (conn.last_sync_status === 'error') return { label: t(`${prefix}.error`), bg: '#fee2e2', fg: '#991b1b' };
+        if (!conn.last_sync_at) return { label: t(`${prefix}.neverSynced`), bg: '#fef3c7', fg: '#92400e' };
+        return { label: t(`${prefix}.ok`), bg: '#dcfce7', fg: '#166534' };
     };
 
     const renderFacebookCostsPanel = () => {
@@ -1280,7 +1717,7 @@ const IntegrationsPage = () => {
                 ) : (
                     <div className="space-y-3" style={{ marginTop: fbEditing ? '20px' : 0 }}>
                         {visible.map(conn => {
-                            const badge = fbStatusBadge(conn);
+                            const badge = costStatusBadge(conn, 'fbCosts');
                             return (
                                 <div key={conn.id} style={{
                                     border: '1px solid var(--color-border)', borderRadius: '16px', padding: '16px',
@@ -1291,7 +1728,7 @@ const IntegrationsPage = () => {
                                         <div>
                                             <div style={{ fontWeight: 600, fontSize: '14px' }}>{conn.name}</div>
                                             <div style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
-                                                {t('fbCosts.nextUpdate')}: {fbNextUpdate(conn)}
+                                                {t('fbCosts.nextUpdate')}: {costNextUpdate(conn, 'fbCosts')}
                                                 {conn.last_sync_at && <> · {t('fbCosts.lastSync')}: {conn.last_sync_at}</>}
                                             </div>
                                         </div>
@@ -1339,6 +1776,627 @@ const IntegrationsPage = () => {
                         {visible.length === 0 && !fbEditing && (
                             <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '13px', padding: '30px 0' }}>
                                 {t('fbCosts.noAccounts')}
+                            </p>
+                        )}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    // ==================== TikTok Costs ====================
+
+    const renderTikTokCostsPanel = () => {
+        const visible = ttConnections.filter(c => !ttSearch
+            || (c.name || '').toLowerCase().includes(ttSearch.toLowerCase())
+            || String(c.id).includes(ttSearch));
+        return (
+            <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
+                {ttMessage && (
+                    <div style={{
+                        padding: '10px 14px', borderRadius: '10px', fontSize: '13px', marginBottom: '16px',
+                        background: ttMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
+                        color: ttMessage.type === 'success' ? '#166534' : '#991b1b',
+                        border: `1px solid ${ttMessage.type === 'success' ? '#86efac' : '#fca5a5'}`
+                    }}>{ttMessage.text}</div>
+                )}
+
+                {ttEditing ? (
+                    <div style={{ border: '1px solid var(--color-primary)', borderRadius: '16px', padding: '20px', background: 'var(--color-bg-card)', maxWidth: '760px' }}>
+                        <h4 style={{ fontWeight: 600, marginBottom: '16px' }}>
+                            {ttEditing === 'new' ? t('tiktokCosts.addAccount') : t('tiktokCosts.editAccount')}
+                        </h4>
+                        <div className="space-y-3">
+                            {ttEditing === 'new' && (
+                                <>
+                                    <div
+                                        className="p-5 rounded-2xl border text-center flex flex-col items-center gap-3"
+                                        style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}
+                                    >
+                                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                                            style={{ backgroundColor: 'rgba(254, 44, 85, 0.12)', color: '#FE2C55' }}>
+                                            <Music2 size={22} />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold m-0" style={{ color: 'var(--color-text-primary)' }}>
+                                                {t('tiktokCosts.oneClickTitle')}
+                                            </h4>
+                                            <p className="text-xs m-0 mt-1 max-w-md" style={{ color: 'var(--color-text-muted)' }}>
+                                                {t('tiktokCosts.oneClickDesc')}
+                                            </p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleStartTikTokOAuth}
+                                            disabled={ttOAuthLoading || ttConnecting}
+                                            className="btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]"
+                                            style={{ backgroundColor: '#FE2C55', color: '#ffffff', boxShadow: '0 4px 14px rgba(254, 44, 85, 0.3)', opacity: ttOAuthLoading ? 0.75 : 1 }}
+                                        >
+                                            {ttOAuthLoading ? <RefreshCw size={16} className="animate-spin" /> : <Music2 size={16} />}
+                                            <span>{ttOAuthLoading ? t('tiktokCosts.oauthConnecting') : t('tiktokCosts.loginWithTikTok')}</span>
+                                        </button>
+                                    </div>
+
+                                    {ttDiscoveredAccounts.length > 0 && (
+                                        <div className="p-4 rounded-2xl border space-y-3"
+                                            style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-success)' }}>
+                                            <div className="flex justify-between items-center gap-3">
+                                                <span className="text-xs font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                                                    {t('tiktokCosts.selectAccounts')}:
+                                                </span>
+                                                <button type="button" onClick={() => setTtSelectedAccounts(ttDiscoveredAccounts.map(account => account.id))}
+                                                    className="text-xs hover:underline" style={{ color: 'var(--color-primary)' }}>
+                                                    {t('common.selectAll')}
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-2 max-h-48 overflow-y-auto">
+                                                {ttDiscoveredAccounts.map(account => (
+                                                    <label key={account.id}
+                                                        className="flex items-center justify-between gap-3 p-2.5 rounded-xl border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
+                                                        style={{ borderColor: 'var(--color-border)' }}>
+                                                        <div className="flex items-center gap-2.5 min-w-0">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={ttSelectedAccounts.includes(account.id)}
+                                                                onChange={event => toggleTikTokAccount(account.id, event.target.checked)}
+                                                                className="rounded"
+                                                            />
+                                                            <div className="min-w-0">
+                                                                <div className="text-xs font-semibold truncate" style={{ color: 'var(--color-text-primary)' }}>{account.name}</div>
+                                                                <div className="text-[11px] font-mono" style={{ color: 'var(--color-text-muted)' }}>{account.id}</div>
+                                                            </div>
+                                                        </div>
+                                                        {account.currency && (
+                                                            <span className="text-xs font-semibold px-2 py-0.5 rounded shrink-0"
+                                                                style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)' }}>
+                                                                {account.currency}
+                                                            </span>
+                                                        )}
+                                                    </label>
+                                                ))}
+                                            </div>
+
+                                            {ttDiscoveredPixels.length > 0 && (
+                                                <div className="p-3 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
+                                                    <div className="text-xs font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                                                        {t('tiktokCosts.discoveredPixels')} ({ttDiscoveredPixels.length}):
+                                                    </div>
+                                                    <div className="space-y-1 mb-2 max-h-28 overflow-y-auto">
+                                                        {ttDiscoveredPixels.map(pixel => (
+                                                            <div key={pixel.pixel_id} className="text-[11px] font-mono truncate" style={{ color: 'var(--color-text-muted)' }}>
+                                                                {pixel.pixel_id} — {pixel.name} ({pixel.advertiser_name})
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <label className="flex items-center gap-2 text-xs cursor-pointer" style={{ color: 'var(--color-text-secondary)' }}>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={ttImportPixels}
+                                                            onChange={event => setTtImportPixels(event.target.checked)}
+                                                            className="rounded"
+                                                        />
+                                                        {t('tiktokCosts.importPixels')}
+                                                    </label>
+                                                </div>
+                                            )}
+
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs whitespace-nowrap" style={{ color: 'var(--color-text-secondary)' }}>
+                                                    {t('tiktokCosts.syncEvery')}:
+                                                </span>
+                                                <select className="form-select text-xs" style={{ maxWidth: '120px' }}
+                                                    value={ttSyncInterval} onChange={e => setTtSyncInterval(Number(e.target.value))}>
+                                                    {[1, 2, 6, 12, 24].map(hours => (
+                                                        <option key={hours} value={hours}>{hours}h</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            <button type="button" onClick={handleConnectTikTokAccounts}
+                                                disabled={ttConnecting || ttSelectedAccounts.length === 0}
+                                                className="btn btn-primary w-full py-2 rounded-xl text-xs font-semibold">
+                                                {ttConnecting ? t('tiktokCosts.connecting') : t('tiktokCosts.connectSelected')} ({ttSelectedAccounts.length})
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0' }}>
+                                        <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
+                                        <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>{t('tiktokCosts.manualSection')}</span>
+                                        <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
+                                    </div>
+                                </>
+                            )}
+
+                            <div>
+                                <label className="form-label">{t('tiktokCosts.name')} *</label>
+                                <input className="form-input" type="text"
+                                    value={ttForm.name}
+                                    placeholder={t('tiktokCosts.namePlaceholder', 'Cabinet / account name')}
+                                    onChange={e => setTtForm({ ...ttForm, name: e.target.value })} />
+                            </div>
+
+                            {ttFields.map(field => (
+                                <div key={field.key}>
+                                    {field.key === 'proxy_url' ? (
+                                        <ProxyInput
+                                            label={field.label_key ? t(field.label_key, field.label) : field.label}
+                                            value={ttForm.credentials.proxy_url || ''}
+                                            onChange={(val) => setTtForm({ ...ttForm, credentials: { ...ttForm.credentials, proxy_url: val } })}
+                                        />
+                                    ) : (
+                                        <>
+                                            <label className="form-label">
+                                                {field.label_key ? t(field.label_key, field.label) : field.label}{field.required && ' *'}
+                                            </label>
+                                            <input className="form-input" type={field.type === 'password' ? 'password' : 'text'}
+                                                value={ttForm.credentials[field.key] || ''}
+                                                placeholder={field.placeholder || ''}
+                                                onChange={e => setTtForm({ ...ttForm, credentials: { ...ttForm.credentials, [field.key]: e.target.value } })} />
+                                        </>
+                                    )}
+                                </div>
+                            ))}
+
+                            <div>
+                                <label className="form-label">{t('tiktokCosts.interval')}</label>
+                                <select className="form-select" value={ttForm.sync_interval_hours}
+                                    onChange={e => setTtForm({ ...ttForm, sync_interval_hours: parseInt(e.target.value, 10) })}>
+                                    {[1, 2, 4, 6, 12, 24].map(h => <option key={h} value={h}>{h} h</option>)}
+                                </select>
+                            </div>
+
+                            {ttTest && (
+                                <div style={{
+                                    padding: '10px 14px', borderRadius: '10px', fontSize: '13px',
+                                    background: ttTest.success ? '#dcfce7' : '#fee2e2',
+                                    color: ttTest.success ? '#166534' : '#991b1b',
+                                    border: `1px solid ${ttTest.success ? '#86efac' : '#fca5a5'}`
+                                }}>{ttTest.message}</div>
+                            )}
+
+                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
+                                <button onClick={handleTtTest} className="btn btn-secondary btn-sm"
+                                    disabled={ttTesting || !ttForm.credentials.access_token || !ttForm.credentials.advertiser_id}>
+                                    <Zap size={14} /> {ttTesting ? t('tiktokCosts.testing') : t('tiktokCosts.testConnection')}
+                                </button>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button onClick={() => { setTtEditing(null); setTtTest(null); resetTikTokOAuth(); }} className="btn btn-secondary btn-sm">
+                                        <X size={14} /> {t('common.cancel')}
+                                    </button>
+                                    <button onClick={handleTtSave} className="btn btn-primary btn-sm"
+                                        disabled={!ttForm.name || !ttForm.credentials.access_token || !ttForm.credentials.advertiser_id}>
+                                        {t('common.save')}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
+                        <button onClick={() => {
+                            setTtForm(emptyTtForm);
+                            setTtTest(null);
+                            resetTikTokOAuth();
+                            setTtImportPixels(true);
+                            setTtSyncInterval(2);
+                            setTtMessage(null);
+                            setTtEditing('new');
+                        }} className="btn btn-primary">
+                            <Plus size={16} /> {t('tiktokCosts.addAccount')}
+                        </button>
+                        <input type="text" className="form-input" style={{ maxWidth: '240px' }}
+                            placeholder={t('tiktokCosts.findAccount')} value={ttSearch}
+                            onChange={e => setTtSearch(e.target.value)} />
+                    </div>
+                )}
+
+                {ttLoading ? (
+                    <div className="flex justify-center py-10">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: 'var(--color-primary)' }}></div>
+                    </div>
+                ) : (
+                    <div className="space-y-3" style={{ marginTop: ttEditing ? '20px' : 0 }}>
+                        {visible.map(conn => {
+                            const badge = costStatusBadge(conn, 'tiktokCosts');
+                            return (
+                                <div key={conn.id} style={{
+                                    border: '1px solid var(--color-border)', borderRadius: '16px', padding: '16px',
+                                    background: conn.is_active ? 'var(--color-bg-card)' : 'var(--color-bg-soft)',
+                                    opacity: conn.is_active ? 1 : 0.7
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px', gap: '12px', flexWrap: 'wrap' }}>
+                                        <div>
+                                            <div style={{ fontWeight: 600, fontSize: '14px' }}>{conn.name}</div>
+                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                                                {t('tiktokCosts.nextUpdate')}: {costNextUpdate(conn, 'tiktokCosts')}
+                                                {conn.last_sync_at && <> · {t('tiktokCosts.lastSync')}: {conn.last_sync_at}</>}
+                                            </div>
+                                        </div>
+                                        <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px', background: badge.bg, color: badge.fg, whiteSpace: 'nowrap' }}>
+                                            {badge.label}
+                                        </span>
+                                    </div>
+
+                                    {conn.last_sync_status === 'error' && conn.last_sync_error && (
+                                        <div style={{ fontSize: '12px', color: '#ef4444', marginBottom: '10px', wordBreak: 'break-word' }}>
+                                            {conn.last_sync_error}
+                                        </div>
+                                    )}
+
+                                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                        <button onClick={() => handleTtSyncNow(conn)} className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }} disabled={ttBusyId === conn.id}>
+                                            <RefreshCw size={12} className={ttBusyId === conn.id ? 'animate-spin' : ''} /> {t('tiktokCosts.syncNow')}
+                                        </button>
+                                        <button onClick={async () => {
+                                            const full = await loadTtConnection(conn.id);
+                                            if (full) {
+                                                setTtForm(full);
+                                                setTtTest(null);
+                                                setTtEditing(conn.id);
+                                            }
+                                        }} className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }}>
+                                            <Edit2 size={12} /> {t('common.edit')}
+                                        </button>
+                                        <button onClick={() => handleTtToggle(conn)} className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }}>
+                                            <Power size={12} /> {conn.is_active ? t('tiktokCosts.pause') : t('tiktokCosts.resume')}
+                                        </button>
+                                        <button onClick={() => handleTtClone(conn)} className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }}>
+                                            <Copy size={12} /> {t('tiktokCosts.clone')}
+                                        </button>
+                                        <button onClick={() => handleTtDelete(conn)} className="btn btn-secondary btn-sm" style={{ fontSize: '11px', color: '#ef4444' }}>
+                                            <Trash2 size={12} />
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                        {visible.length === 0 && !ttEditing && (
+                            <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '13px', padding: '30px 0' }}>
+                                {t('tiktokCosts.noAccounts')}
+                            </p>
+                        )}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    // ==================== Google Ads Costs ====================
+
+    const renderGoogleAdsCostsPanel = () => {
+        const visible = gaConnections.filter(c => !gaSearch
+            || (c.name || '').toLowerCase().includes(gaSearch.toLowerCase())
+            || String(c.id).includes(gaSearch));
+        const directAccounts = gaDiscoveredAccounts.filter(account => !account.login_customer_id);
+        const mccGroups = gaDiscoveredManagers.map(manager => ({
+            manager,
+            accounts: gaDiscoveredAccounts.filter(account => account.login_customer_id === manager.cid),
+        })).filter(group => group.accounts.length > 0);
+
+        const renderGaAccountRow = (account) => (
+            <label key={account.cid}
+                className="flex items-center justify-between gap-3 p-2.5 rounded-xl border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
+                style={{ borderColor: 'var(--color-border)' }}>
+                <div className="flex items-center gap-2.5 min-w-0">
+                    <input
+                        type="checkbox"
+                        checked={gaSelectedAccounts.includes(account.cid)}
+                        onChange={event => toggleGaAccount(account.cid, event.target.checked)}
+                        className="rounded"
+                    />
+                    <div className="min-w-0">
+                        <div className="text-xs font-semibold truncate" style={{ color: 'var(--color-text-primary)' }}>{account.name}</div>
+                        <div className="text-[11px] font-mono" style={{ color: 'var(--color-text-muted)' }}>
+                            {account.display_cid || account.cid}{account.manager ? ' · MCC' : ''}
+                        </div>
+                    </div>
+                </div>
+                {account.currency && (
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded shrink-0"
+                        style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)' }}>
+                        {account.currency}
+                    </span>
+                )}
+            </label>
+        );
+
+        return (
+            <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
+                {gaMessage && (
+                    <div style={{
+                        padding: '10px 14px', borderRadius: '10px', fontSize: '13px', marginBottom: '16px',
+                        background: gaMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
+                        color: gaMessage.type === 'success' ? '#166534' : '#991b1b',
+                        border: `1px solid ${gaMessage.type === 'success' ? '#86efac' : '#fca5a5'}`
+                    }}>{gaMessage.text}</div>
+                )}
+
+                {gaEditing ? (
+                    <div style={{ border: '1px solid var(--color-primary)', borderRadius: '16px', padding: '20px', background: 'var(--color-bg-card)', maxWidth: '760px' }}>
+                        <h4 style={{ fontWeight: 600, marginBottom: '16px' }}>
+                            {gaEditing === 'new' ? t('googleAdsCosts.addAccount') : t('googleAdsCosts.editAccount')}
+                        </h4>
+                        <div className="space-y-3">
+                            {gaEditing === 'new' && (
+                                <>
+                                    <div
+                                        className="p-5 rounded-2xl border text-center flex flex-col items-center gap-3"
+                                        style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}
+                                    >
+                                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-2xl"
+                                            style={{ backgroundColor: 'rgba(66, 133, 244, 0.12)', color: '#4285F4' }}>
+                                            G
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold m-0" style={{ color: 'var(--color-text-primary)' }}>
+                                                {t('googleAdsCosts.oneClickTitle')}
+                                            </h4>
+                                            <p className="text-xs m-0 mt-1 max-w-md" style={{ color: 'var(--color-text-muted)' }}>
+                                                {t('googleAdsCosts.oneClickDesc')}
+                                            </p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleStartGaOAuth}
+                                            disabled={gaOAuthLoading || gaConnecting}
+                                            className="btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]"
+                                            style={{ backgroundColor: '#4285F4', color: '#ffffff', boxShadow: '0 4px 14px rgba(66, 133, 244, 0.3)', opacity: gaOAuthLoading ? 0.75 : 1 }}
+                                        >
+                                            {gaOAuthLoading ? <RefreshCw size={16} className="animate-spin" /> : <Search size={16} />}
+                                            <span>{gaOAuthLoading ? t('googleAdsCosts.oauthConnecting') : t('googleAdsCosts.loginWithGoogle')}</span>
+                                        </button>
+                                    </div>
+
+                                    {gaDiscoveredAccounts.length > 0 && (
+                                        <div className="p-4 rounded-2xl border space-y-3"
+                                            style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-success)' }}>
+                                            <div className="flex justify-between items-center gap-3">
+                                                <span className="text-xs font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                                                    {t('googleAdsCosts.selectAccounts')}:
+                                                </span>
+                                                <button type="button" onClick={() => setGaSelectedAccounts(gaDiscoveredAccounts.map(account => account.cid))}
+                                                    className="text-xs hover:underline" style={{ color: 'var(--color-primary)' }}>
+                                                    {t('common.selectAll')}
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-3 max-h-72 overflow-y-auto">
+                                                {directAccounts.length > 0 && (
+                                                    <div className="space-y-2">
+                                                        <div className="text-[11px] font-bold uppercase tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
+                                                            {t('googleAdsCosts.directAccounts')}
+                                                        </div>
+                                                        {directAccounts.map(renderGaAccountRow)}
+                                                    </div>
+                                                )}
+                                                {mccGroups.map(group => (
+                                                    <div key={group.manager.cid} className="space-y-2">
+                                                        <div className="flex justify-between items-center gap-2">
+                                                            <div className="text-[11px] font-bold uppercase tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
+                                                                {t('googleAdsCosts.mccManager')}: {group.manager.name} <span className="font-mono normal-case">({group.manager.display_cid})</span>
+                                                            </div>
+                                                            <button type="button"
+                                                                onClick={() => setGaSelectedAccounts(current => {
+                                                                    const groupCids = group.accounts.map(account => account.cid);
+                                                                    const allSelected = groupCids.every(cid => current.includes(cid));
+                                                                    return allSelected
+                                                                        ? current.filter(cid => !groupCids.includes(cid))
+                                                                        : [...new Set([...current, ...groupCids])];
+                                                                })}
+                                                                className="text-[11px] hover:underline whitespace-nowrap" style={{ color: 'var(--color-primary)' }}>
+                                                                {t('googleAdsCosts.selectAllInMcc')}
+                                                            </button>
+                                                        </div>
+                                                        {group.accounts.map(renderGaAccountRow)}
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs whitespace-nowrap" style={{ color: 'var(--color-text-secondary)' }}>
+                                                    {t('googleAdsCosts.syncEvery')}:
+                                                </span>
+                                                <select className="form-select text-xs" style={{ maxWidth: '120px' }}
+                                                    value={gaSyncInterval} onChange={e => setGaSyncInterval(Number(e.target.value))}>
+                                                    {[1, 2, 6, 12, 24].map(hours => (
+                                                        <option key={hours} value={hours}>{hours}h</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            <button type="button" onClick={handleConnectGaAccounts}
+                                                disabled={gaConnecting || gaSelectedAccounts.length === 0}
+                                                className="btn btn-primary w-full py-2 rounded-xl text-xs font-semibold">
+                                                {gaConnecting ? t('googleAdsCosts.connecting') : t('googleAdsCosts.connectSelected')} ({gaSelectedAccounts.length})
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0' }}>
+                                        <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
+                                        <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>{t('googleAdsCosts.manualSection')}</span>
+                                        <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
+                                    </div>
+                                </>
+                            )}
+
+                            <div>
+                                <label className="form-label">{t('googleAdsCosts.name')} *</label>
+                                <input className="form-input" type="text"
+                                    value={gaForm.name}
+                                    placeholder={t('googleAdsCosts.namePlaceholder', 'Account name')}
+                                    onChange={e => setGaForm({ ...gaForm, name: e.target.value })} />
+                            </div>
+
+                            {gaFields.map(field => (
+                                <div key={field.key}>
+                                    {field.key === 'proxy_url' ? (
+                                        <ProxyInput
+                                            label={field.label_key ? t(field.label_key, field.label) : field.label}
+                                            value={gaForm.credentials.proxy_url || ''}
+                                            onChange={(val) => setGaForm({ ...gaForm, credentials: { ...gaForm.credentials, proxy_url: val } })}
+                                        />
+                                    ) : (
+                                        <>
+                                            <label className="form-label">
+                                                {field.label_key ? t(field.label_key, field.label) : field.label}{field.required && ' *'}
+                                            </label>
+                                            <input className="form-input" type={field.type === 'password' ? 'password' : 'text'}
+                                                value={gaForm.credentials[field.key] || ''}
+                                                placeholder={field.placeholder || ''}
+                                                onChange={e => setGaForm({ ...gaForm, credentials: { ...gaForm.credentials, [field.key]: e.target.value } })} />
+                                        </>
+                                    )}
+                                </div>
+                            ))}
+
+                            <div>
+                                <label className="form-label">{t('googleAdsCosts.interval')}</label>
+                                <select className="form-select" value={gaForm.sync_interval_hours}
+                                    onChange={e => setGaForm({ ...gaForm, sync_interval_hours: parseInt(e.target.value, 10) })}>
+                                    {[1, 2, 4, 6, 12, 24].map(h => <option key={h} value={h}>{h} h</option>)}
+                                </select>
+                            </div>
+
+                            {gaTest && (
+                                <div style={{
+                                    padding: '10px 14px', borderRadius: '10px', fontSize: '13px',
+                                    background: gaTest.success ? '#dcfce7' : '#fee2e2',
+                                    color: gaTest.success ? '#166534' : '#991b1b',
+                                    border: `1px solid ${gaTest.success ? '#86efac' : '#fca5a5'}`
+                                }}>{gaTest.message}</div>
+                            )}
+
+                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
+                                <button onClick={handleGaTest} className="btn btn-secondary btn-sm"
+                                    disabled={gaTesting || !gaManualValid()}>
+                                    <Zap size={14} /> {gaTesting ? t('googleAdsCosts.testing') : t('googleAdsCosts.testConnection')}
+                                </button>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button onClick={() => { setGaEditing(null); setGaTest(null); resetGoogleAdsOAuth(); }} className="btn btn-secondary btn-sm">
+                                        <X size={14} /> {t('common.cancel')}
+                                    </button>
+                                    <button onClick={handleGaSave} className="btn btn-primary btn-sm" disabled={!gaManualValid()}>
+                                        {t('common.save')}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
+                        <button onClick={() => {
+                            setGaForm(emptyGaForm);
+                            setGaTest(null);
+                            resetGoogleAdsOAuth();
+                            setGaSyncInterval(2);
+                            setGaMessage(null);
+                            setGaEditing('new');
+                        }} className="btn btn-primary">
+                            <Plus size={16} /> {t('googleAdsCosts.addAccount')}
+                        </button>
+                        <input type="text" className="form-input" style={{ maxWidth: '240px' }}
+                            placeholder={t('googleAdsCosts.findAccount')} value={gaSearch}
+                            onChange={e => setGaSearch(e.target.value)} />
+                    </div>
+                )}
+
+                {gaLoading ? (
+                    <div className="flex justify-center py-10">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: 'var(--color-primary)' }}></div>
+                    </div>
+                ) : (
+                    <div className="space-y-3" style={{ marginTop: gaEditing ? '20px' : 0 }}>
+                        {visible.map(conn => {
+                            const badge = costStatusBadge(conn, 'googleAdsCosts');
+                            return (
+                                <div key={conn.id} style={{
+                                    border: '1px solid var(--color-border)', borderRadius: '16px', padding: '16px',
+                                    background: conn.is_active ? 'var(--color-bg-card)' : 'var(--color-bg-soft)',
+                                    opacity: conn.is_active ? 1 : 0.7
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px', gap: '12px', flexWrap: 'wrap' }}>
+                                        <div>
+                                            <div style={{ fontWeight: 600, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                                {conn.name}
+                                                <span style={{
+                                                    fontSize: '10px', padding: '1px 6px', borderRadius: '6px',
+                                                    background: 'color-mix(in srgb, var(--color-primary) 12%, transparent)',
+                                                    color: 'var(--color-primary)', whiteSpace: 'nowrap'
+                                                }}>
+                                                    {t('googleAdsCosts.mccSubAccount')}
+                                                </span>
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                                                {t('googleAdsCosts.nextUpdate')}: {costNextUpdate(conn, 'googleAdsCosts')}
+                                                {conn.last_sync_at && <> · {t('googleAdsCosts.lastSync')}: {conn.last_sync_at}</>}
+                                            </div>
+                                        </div>
+                                        <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px', background: badge.bg, color: badge.fg, whiteSpace: 'nowrap' }}>
+                                            {badge.label}
+                                        </span>
+                                    </div>
+
+                                    {conn.last_sync_status === 'error' && conn.last_sync_error && (
+                                        <div style={{ fontSize: '12px', color: '#ef4444', marginBottom: '10px', wordBreak: 'break-word' }}>
+                                            {conn.last_sync_error}
+                                        </div>
+                                    )}
+
+                                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                        <button onClick={() => handleGaSyncNow(conn)} className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }} disabled={gaBusyId === conn.id}>
+                                            <RefreshCw size={12} className={gaBusyId === conn.id ? 'animate-spin' : ''} /> {t('googleAdsCosts.syncNow')}
+                                        </button>
+                                        <button onClick={async () => {
+                                            const full = await loadGaConnection(conn.id);
+                                            if (full) {
+                                                setGaForm(full);
+                                                setGaTest(null);
+                                                setGaEditing(conn.id);
+                                            }
+                                        }} className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }}>
+                                            <Edit2 size={12} /> {t('common.edit')}
+                                        </button>
+                                        <button onClick={() => handleGaToggle(conn)} className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }}>
+                                            <Power size={12} /> {conn.is_active ? t('googleAdsCosts.pause') : t('googleAdsCosts.resume')}
+                                        </button>
+                                        <button onClick={() => handleGaClone(conn)} className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }}>
+                                            <Copy size={12} /> {t('googleAdsCosts.clone')}
+                                        </button>
+                                        <button onClick={() => handleGaDelete(conn)} className="btn btn-secondary btn-sm" style={{ fontSize: '11px', color: '#ef4444' }}>
+                                            <Trash2 size={12} />
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                        {visible.length === 0 && !gaEditing && (
+                            <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '13px', padding: '30px 0' }}>
+                                {t('googleAdsCosts.noAccounts')}
                             </p>
                         )}
                     </div>
@@ -1681,146 +2739,6 @@ const IntegrationsPage = () => {
                         )}
                     </div>
                 )}
-
-                {ttModalOpen && (
-                    <div className="modal-overlay" onClick={() => { resetTikTokOAuth(); setTtModalOpen(false); }}>
-                        <div className="modal-content" style={{ maxWidth: '560px' }} onClick={e => e.stopPropagation()}>
-                            <div className="modal-header px-6 pt-5" style={{ flexShrink: 0 }}>
-                                <h4 className="modal-title font-bold text-base m-0">🎵 {t('tiktokCosts.modalTitle')}</h4>
-                                <button type="button" className="action-btn" onClick={() => { resetTikTokOAuth(); setTtModalOpen(false); }}>
-                                    <X size={16} />
-                                </button>
-                            </div>
-                            <div className="p-6 space-y-4" style={{ overflowY: 'auto' }}>
-                                {ttMessage && (
-                                    <div style={{
-                                        padding: '10px 14px', borderRadius: '10px', fontSize: '13px',
-                                        background: ttMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
-                                        color: ttMessage.type === 'success' ? '#166534' : '#991b1b',
-                                        border: `1px solid ${ttMessage.type === 'success' ? '#86efac' : '#fca5a5'}`
-                                    }}>{ttMessage.text}</div>
-                                )}
-
-                                <div
-                                    className="p-5 rounded-2xl border text-center flex flex-col items-center gap-3"
-                                    style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}
-                                >
-                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                                        style={{ backgroundColor: 'rgba(254, 44, 85, 0.12)', color: '#FE2C55' }}>
-                                        <Music2 size={22} />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-sm font-bold m-0" style={{ color: 'var(--color-text-primary)' }}>
-                                            {t('tiktokCosts.oneClickTitle')}
-                                        </h4>
-                                        <p className="text-xs m-0 mt-1 max-w-md" style={{ color: 'var(--color-text-muted)' }}>
-                                            {t('tiktokCosts.oneClickDesc')}
-                                        </p>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={handleStartTikTokOAuth}
-                                        disabled={ttOAuthLoading || ttConnecting}
-                                        className="btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]"
-                                        style={{ backgroundColor: '#FE2C55', color: '#ffffff', boxShadow: '0 4px 14px rgba(254, 44, 85, 0.3)', opacity: ttOAuthLoading ? 0.75 : 1 }}
-                                    >
-                                        {ttOAuthLoading ? <RefreshCw size={16} className="animate-spin" /> : <Music2 size={16} />}
-                                        <span>{ttOAuthLoading ? t('tiktokCosts.oauthConnecting') : t('tiktokCosts.loginWithTikTok')}</span>
-                                    </button>
-                                </div>
-
-                                {ttDiscoveredAccounts.length > 0 && (
-                                    <div className="p-4 rounded-2xl border space-y-3"
-                                        style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-success)' }}>
-                                        <div className="flex justify-between items-center gap-3">
-                                            <span className="text-xs font-bold" style={{ color: 'var(--color-text-primary)' }}>
-                                                {t('tiktokCosts.selectAccounts')}:
-                                            </span>
-                                            <button type="button" onClick={() => setTtSelectedAccounts(ttDiscoveredAccounts.map(account => account.id))}
-                                                className="text-xs hover:underline" style={{ color: 'var(--color-primary)' }}>
-                                                {t('common.selectAll')}
-                                            </button>
-                                        </div>
-
-                                        <div className="space-y-2 max-h-48 overflow-y-auto">
-                                            {ttDiscoveredAccounts.map(account => (
-                                                <label key={account.id}
-                                                    className="flex items-center justify-between gap-3 p-2.5 rounded-xl border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
-                                                    style={{ borderColor: 'var(--color-border)' }}>
-                                                    <div className="flex items-center gap-2.5 min-w-0">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={ttSelectedAccounts.includes(account.id)}
-                                                            onChange={event => toggleTikTokAccount(account.id, event.target.checked)}
-                                                            className="rounded"
-                                                        />
-                                                        <div className="min-w-0">
-                                                            <div className="text-xs font-semibold truncate" style={{ color: 'var(--color-text-primary)' }}>{account.name}</div>
-                                                            <div className="text-[11px] font-mono" style={{ color: 'var(--color-text-muted)' }}>{account.id}</div>
-                                                        </div>
-                                                    </div>
-                                                    {account.currency && (
-                                                        <span className="text-xs font-semibold px-2 py-0.5 rounded shrink-0"
-                                                            style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)' }}>
-                                                            {account.currency}
-                                                        </span>
-                                                    )}
-                                                </label>
-                                            ))}
-                                        </div>
-
-                                        {ttDiscoveredPixels.length > 0 && (
-                                            <div className="p-3 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
-                                                <div className="text-xs font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                                                    {t('tiktokCosts.discoveredPixels')} ({ttDiscoveredPixels.length}):
-                                                </div>
-                                                <div className="space-y-1 mb-2 max-h-28 overflow-y-auto">
-                                                    {ttDiscoveredPixels.map(pixel => (
-                                                        <div key={pixel.pixel_id} className="text-[11px] font-mono truncate" style={{ color: 'var(--color-text-muted)' }}>
-                                                            {pixel.pixel_id} — {pixel.name} ({pixel.advertiser_name})
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                <label className="flex items-center gap-2 text-xs cursor-pointer" style={{ color: 'var(--color-text-secondary)' }}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={ttImportPixels}
-                                                        onChange={event => setTtImportPixels(event.target.checked)}
-                                                        className="rounded"
-                                                    />
-                                                    {t('tiktokCosts.importPixels')}
-                                                </label>
-                                            </div>
-                                        )}
-
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs whitespace-nowrap" style={{ color: 'var(--color-text-secondary)' }}>
-                                                {t('tiktokCosts.syncEvery')}:
-                                            </span>
-                                            <select className="form-select text-xs" style={{ maxWidth: '120px' }}
-                                                value={ttSyncInterval} onChange={e => setTtSyncInterval(Number(e.target.value))}>
-                                                {[1, 2, 6, 12, 24].map(hours => (
-                                                    <option key={hours} value={hours}>{hours}h</option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        <button type="button" onClick={handleConnectTikTokAccounts}
-                                            disabled={ttConnecting || ttSelectedAccounts.length === 0}
-                                            className="btn btn-primary w-full py-2 rounded-xl text-xs font-semibold">
-                                            {ttConnecting ? t('tiktokCosts.connecting') : t('tiktokCosts.connectSelected')} ({ttSelectedAccounts.length})
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="flex justify-end gap-2 px-6 pb-6" style={{ flexShrink: 0 }}>
-                                <button type="button" className="btn btn-secondary btn-sm" onClick={() => { resetTikTokOAuth(); setTtModalOpen(false); }}>
-                                    {t('common.cancel')}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
         );
     };
@@ -2141,6 +3059,18 @@ const IntegrationsPage = () => {
             icon: <DollarSign className="w-5 h-5" />,
             description: t('fbCosts.description'),
             isFacebookCosts: true
+        },
+        tiktok_costs: {
+            title: t('tiktokCosts.title', 'TikTok Costs'),
+            icon: <Music2 className="w-5 h-5" />,
+            description: t('tiktokCosts.description'),
+            isTikTokCosts: true
+        },
+        google_ads_costs: {
+            title: t('googleAdsCosts.title', 'Google Ads Costs'),
+            icon: <Search className="w-5 h-5" />,
+            description: t('googleAdsCosts.description'),
+            isGoogleAdsCosts: true
         },
         facebook_conversions: {
             title: t('fbConv.title'),
@@ -3330,7 +4260,7 @@ global \$wpdb;
                                 // listed falls into a trailing group so a new entry can
                                 // never silently disappear from the menu.
                                 const groups = [
-                                    { label: t('integrations.groupAds', 'Ad networks'), ids: ['pixel_vault', 'facebook_costs', 'facebook_conversions', 'dolphin_fbtool', 'chrome_extension'] },
+                                    { label: t('integrations.groupAds', 'Ad networks'), ids: ['pixel_vault', 'facebook_costs', 'tiktok_costs', 'google_ads_costs', 'facebook_conversions', 'dolphin_fbtool', 'chrome_extension'] },
                                     { label: t('integrations.groupDomains', 'Domains & SSL'), ids: ['cloudflare', 'namecheap'] },
                                     { label: t('integrations.groupSites', 'Sites & landings'), ids: ['kclient_php', 'kclient_js', 'tracking_pixel', 'tiktok_pixel', 'js_banner', 'wordpress', 'wordpress_plugin', 'static_site', 'geo_redirect', 'device_redirect'] },
                                     { label: t('integrations.groupTools', 'Tools'), ids: ['countdown_timer', 'back_button_trap', 'exit_popup', 'app_config', 'recaptcha', 'telegram'] },
@@ -3438,13 +4368,6 @@ global \$wpdb;
                             </div>
                             {activeObj.isPixelVault && !pixelProfileEditing && (
                                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                                    <button
-                                        className="btn btn-secondary"
-                                        onClick={openTikTokModal}
-                                        title={t('tiktokCosts.connectTikTokHint')}
-                                    >
-                                        <Music2 size={16} /> {t('tiktokCosts.connectTikTok')}
-                                    </button>
                                     <button
                                         className="btn btn-primary"
                                         onClick={() => {
@@ -3925,7 +4848,7 @@ global \$wpdb;
                                     )}
                                 </div>
                             </div>
-                        ) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isPixelVault ? renderPixelVaultPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : (
+                        ) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isPixelVault ? renderPixelVaultPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isTikTokCosts ? renderTikTokCostsPanel() : activeObj.isGoogleAdsCosts ? renderGoogleAdsCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : (
                             <div style={{ padding: '20px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                                     <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>
