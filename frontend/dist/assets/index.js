@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1J = [
+const __iconNode$1L = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$1J = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1J);
-const __iconNode$1I = [
+const Activity = createLucideIcon("activity", __iconNode$1L);
+const __iconNode$1K = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1I);
-const __iconNode$1H = [
+const Archive = createLucideIcon("archive", __iconNode$1K);
+const __iconNode$1J = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1H);
-const __iconNode$1G = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1J);
+const __iconNode$1I = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1G);
-const __iconNode$1F = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1I);
+const __iconNode$1H = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1F);
-const __iconNode$1E = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1H);
+const __iconNode$1G = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$1E = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1E);
-const __iconNode$1D = [
+const BellOff = createLucideIcon("bell-off", __iconNode$1G);
+const __iconNode$1F = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$1D = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1D);
-const __iconNode$1C = [
+const Bell = createLucideIcon("bell", __iconNode$1F);
+const __iconNode$1E = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1C);
-const __iconNode$1B = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$1E);
+const __iconNode$1D = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1B);
-const __iconNode$1A = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1D);
+const __iconNode$1C = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1A);
-const __iconNode$1z = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1C);
+const __iconNode$1B = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$1z = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1z);
-const __iconNode$1y = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1y);
-const __iconNode$1x = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1x);
-const __iconNode$1w = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1w);
-const __iconNode$1v = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1v);
-const __iconNode$1u = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1u);
-const __iconNode$1t = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1B);
+const __iconNode$1A = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1A);
+const __iconNode$1z = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1z);
+const __iconNode$1y = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1y);
+const __iconNode$1x = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1x);
+const __iconNode$1w = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1w);
+const __iconNode$1v = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1t);
-const __iconNode$1s = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1v);
+const __iconNode$1u = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1s);
-const __iconNode$1r = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1u);
+const __iconNode$1t = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1r);
-const __iconNode$1q = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1t);
+const __iconNode$1s = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1q);
-const __iconNode$1p = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1s);
+const __iconNode$1r = [
   [
     "path",
     {
@@ -15240,39 +15240,39 @@ const __iconNode$1p = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1p);
-const __iconNode$1o = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1r);
+const __iconNode$1q = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1o);
-const __iconNode$1n = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1q);
+const __iconNode$1p = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1n);
-const __iconNode$1m = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1p);
+const __iconNode$1o = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1m);
-const __iconNode$1l = [
+const Clock = createLucideIcon("clock", __iconNode$1o);
+const __iconNode$1n = [
   ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1l);
-const __iconNode$1k = [
+const Cloud = createLucideIcon("cloud", __iconNode$1n);
+const __iconNode$1m = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1k);
-const __iconNode$1j = [
+const Code = createLucideIcon("code", __iconNode$1m);
+const __iconNode$1l = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1j);
-const __iconNode$1i = [
+const Copy = createLucideIcon("copy", __iconNode$1l);
+const __iconNode$1k = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15288,25 +15288,25 @@ const __iconNode$1i = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1i);
-const __iconNode$1h = [
+const Cpu = createLucideIcon("cpu", __iconNode$1k);
+const __iconNode$1j = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1h);
-const __iconNode$1g = [
+const Database = createLucideIcon("database", __iconNode$1j);
+const __iconNode$1i = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$1g);
-const __iconNode$1f = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1i);
+const __iconNode$1h = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$1f);
-const __iconNode$1e = [
+const Download = createLucideIcon("download", __iconNode$1h);
+const __iconNode$1g = [
   [
     "path",
     {
@@ -15315,20 +15315,20 @@ const __iconNode$1e = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$1e);
-const __iconNode$1d = [
+const Droplet = createLucideIcon("droplet", __iconNode$1g);
+const __iconNode$1f = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1d);
-const __iconNode$1c = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1f);
+const __iconNode$1e = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$1c);
-const __iconNode$1b = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$1e);
+const __iconNode$1d = [
   [
     "path",
     {
@@ -15346,8 +15346,8 @@ const __iconNode$1b = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$1b);
-const __iconNode$1a = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$1d);
+const __iconNode$1c = [
   [
     "path",
     {
@@ -15357,8 +15357,8 @@ const __iconNode$1a = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$1a);
-const __iconNode$19 = [
+const Eye = createLucideIcon("eye", __iconNode$1c);
+const __iconNode$1b = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15369,8 +15369,8 @@ const __iconNode$19 = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$19);
-const __iconNode$18 = [
+const FileStack = createLucideIcon("file-stack", __iconNode$1b);
+const __iconNode$1a = [
   [
     "path",
     {
@@ -15383,8 +15383,8 @@ const __iconNode$18 = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$18);
-const __iconNode$17 = [
+const FileText = createLucideIcon("file-text", __iconNode$1a);
+const __iconNode$19 = [
   [
     "path",
     {
@@ -15393,22 +15393,22 @@ const __iconNode$17 = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$17);
-const __iconNode$16 = [
+const Funnel = createLucideIcon("funnel", __iconNode$19);
+const __iconNode$18 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$16);
-const __iconNode$15 = [
+const Globe = createLucideIcon("globe", __iconNode$18);
+const __iconNode$17 = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }],
   ["path", { d: "M9 3v18", key: "fh3hqa" }],
   ["path", { d: "M15 3v18", key: "14nvp0" }]
 ];
-const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$15);
-const __iconNode$14 = [
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$17);
+const __iconNode$16 = [
   ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
   ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
   ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
@@ -15416,8 +15416,8 @@ const __iconNode$14 = [
   ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
   ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
 ];
-const GripVertical = createLucideIcon("grip-vertical", __iconNode$14);
-const __iconNode$13 = [
+const GripVertical = createLucideIcon("grip-vertical", __iconNode$16);
+const __iconNode$15 = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15429,8 +15429,8 @@ const __iconNode$13 = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$13);
-const __iconNode$12 = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$15);
+const __iconNode$14 = [
   [
     "path",
     {
@@ -15439,20 +15439,20 @@ const __iconNode$12 = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$12);
-const __iconNode$11 = [
+const Heart = createLucideIcon("heart", __iconNode$14);
+const __iconNode$13 = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$11);
-const __iconNode$10 = [
+const Image = createLucideIcon("image", __iconNode$13);
+const __iconNode$12 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$10);
-const __iconNode$$ = [
+const Info = createLucideIcon("info", __iconNode$12);
+const __iconNode$11 = [
   [
     "path",
     {
@@ -15462,14 +15462,14 @@ const __iconNode$$ = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$$);
-const __iconNode$_ = [
+const KeyRound = createLucideIcon("key-round", __iconNode$11);
+const __iconNode$10 = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$_);
-const __iconNode$Z = [
+const Key = createLucideIcon("key", __iconNode$10);
+const __iconNode$$ = [
   [
     "path",
     {
@@ -15492,15 +15492,22 @@ const __iconNode$Z = [
     }
   ]
 ];
-const Layers = createLucideIcon("layers", __iconNode$Z);
-const __iconNode$Y = [
+const Layers = createLucideIcon("layers", __iconNode$$);
+const __iconNode$_ = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$Y);
-const __iconNode$X = [
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$_);
+const __iconNode$Z = [
+  ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
+  ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
+  ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
+  ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
+];
+const LayoutGrid = createLucideIcon("layout-grid", __iconNode$Z);
+const __iconNode$Y = [
   [
     "path",
     {
@@ -15511,19 +15518,19 @@ const __iconNode$X = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$X);
-const __iconNode$W = [
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$Y);
+const __iconNode$X = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-const Link2 = createLucideIcon("link-2", __iconNode$W);
-const __iconNode$V = [
+const Link2 = createLucideIcon("link-2", __iconNode$X);
+const __iconNode$W = [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ];
-const Link = createLucideIcon("link", __iconNode$V);
-const __iconNode$U = [
+const Link = createLucideIcon("link", __iconNode$W);
+const __iconNode$V = [
   ["path", { d: "M12 2v4", key: "3427ic" }],
   ["path", { d: "m16.2 7.8 2.9-2.9", key: "r700ao" }],
   ["path", { d: "M18 12h4", key: "wj9ykh" }],
@@ -15533,24 +15540,24 @@ const __iconNode$U = [
   ["path", { d: "M2 12h4", key: "j09sii" }],
   ["path", { d: "m4.9 4.9 2.9 2.9", key: "giyufr" }]
 ];
-const Loader = createLucideIcon("loader", __iconNode$U);
-const __iconNode$T = [
+const Loader = createLucideIcon("loader", __iconNode$V);
+const __iconNode$U = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$T);
-const __iconNode$S = [
+const Lock = createLucideIcon("lock", __iconNode$U);
+const __iconNode$T = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$S);
-const __iconNode$R = [
+const LogOut = createLucideIcon("log-out", __iconNode$T);
+const __iconNode$S = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Mail = createLucideIcon("mail", __iconNode$R);
-const __iconNode$Q = [
+const Mail = createLucideIcon("mail", __iconNode$S);
+const __iconNode$R = [
   [
     "path",
     {
@@ -15560,8 +15567,8 @@ const __iconNode$Q = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$Q);
-const __iconNode$P = [
+const MapPin = createLucideIcon("map-pin", __iconNode$R);
+const __iconNode$Q = [
   [
     "path",
     {
@@ -15572,14 +15579,14 @@ const __iconNode$P = [
   ["path", { d: "M15 5.764v15", key: "1pn4in" }],
   ["path", { d: "M9 3.236v15", key: "1uimfh" }]
 ];
-const Map$1 = createLucideIcon("map", __iconNode$P);
-const __iconNode$O = [
+const Map$1 = createLucideIcon("map", __iconNode$Q);
+const __iconNode$P = [
   ["path", { d: "M4 5h16", key: "1tepv9" }],
   ["path", { d: "M4 12h16", key: "1lakjw" }],
   ["path", { d: "M4 19h16", key: "1djgab" }]
 ];
-const Menu = createLucideIcon("menu", __iconNode$O);
-const __iconNode$N = [
+const Menu = createLucideIcon("menu", __iconNode$P);
+const __iconNode$O = [
   [
     "path",
     {
@@ -15588,8 +15595,8 @@ const __iconNode$N = [
     }
   ]
 ];
-const MessageCircle = createLucideIcon("message-circle", __iconNode$N);
-const __iconNode$M = [
+const MessageCircle = createLucideIcon("message-circle", __iconNode$O);
+const __iconNode$N = [
   [
     "path",
     {
@@ -15598,14 +15605,14 @@ const __iconNode$M = [
     }
   ]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$M);
-const __iconNode$L = [
+const MessageSquare = createLucideIcon("message-square", __iconNode$N);
+const __iconNode$M = [
   ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
   ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
   ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
 ];
-const Monitor = createLucideIcon("monitor", __iconNode$L);
-const __iconNode$K = [
+const Monitor = createLucideIcon("monitor", __iconNode$M);
+const __iconNode$L = [
   [
     "path",
     {
@@ -15614,8 +15621,8 @@ const __iconNode$K = [
     }
   ]
 ];
-const Moon = createLucideIcon("moon", __iconNode$K);
-const __iconNode$J = [
+const Moon = createLucideIcon("moon", __iconNode$L);
+const __iconNode$K = [
   [
     "path",
     {
@@ -15628,8 +15635,8 @@ const __iconNode$J = [
   ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
   ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
 ];
-const Palette = createLucideIcon("palette", __iconNode$J);
-const __iconNode$I = [
+const Palette = createLucideIcon("palette", __iconNode$K);
+const __iconNode$J = [
   ["path", { d: "M13 21h8", key: "1jsn5i" }],
   [
     "path",
@@ -15639,8 +15646,8 @@ const __iconNode$I = [
     }
   ]
 ];
-const PenLine = createLucideIcon("pen-line", __iconNode$I);
-const __iconNode$H = [
+const PenLine = createLucideIcon("pen-line", __iconNode$J);
+const __iconNode$I = [
   [
     "path",
     {
@@ -15649,8 +15656,8 @@ const __iconNode$H = [
     }
   ]
 ];
-const Pen = createLucideIcon("pen", __iconNode$H);
-const __iconNode$G = [
+const Pen = createLucideIcon("pen", __iconNode$I);
+const __iconNode$H = [
   [
     "path",
     {
@@ -15660,8 +15667,8 @@ const __iconNode$G = [
   ],
   ["path", { d: "m15 5 4 4", key: "1mk7zo" }]
 ];
-const Pencil = createLucideIcon("pencil", __iconNode$G);
-const __iconNode$F = [
+const Pencil = createLucideIcon("pencil", __iconNode$H);
+const __iconNode$G = [
   [
     "path",
     {
@@ -15670,8 +15677,8 @@ const __iconNode$F = [
     }
   ]
 ];
-const Play = createLucideIcon("play", __iconNode$F);
-const __iconNode$E = [
+const Play = createLucideIcon("play", __iconNode$G);
+const __iconNode$F = [
   ["path", { d: "M12 22v-5", key: "1ega77" }],
   ["path", { d: "M15 8V2", key: "18g5xt" }],
   [
@@ -15680,30 +15687,30 @@ const __iconNode$E = [
   ],
   ["path", { d: "M9 8V2", key: "14iosj" }]
 ];
-const Plug = createLucideIcon("plug", __iconNode$E);
-const __iconNode$D = [
+const Plug = createLucideIcon("plug", __iconNode$F);
+const __iconNode$E = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ];
-const Plus = createLucideIcon("plus", __iconNode$D);
-const __iconNode$C = [
+const Plus = createLucideIcon("plus", __iconNode$E);
+const __iconNode$D = [
   ["path", { d: "M12 2v10", key: "mnfbl" }],
   ["path", { d: "M18.4 6.6a9 9 0 1 1-12.77.04", key: "obofu9" }]
 ];
-const Power = createLucideIcon("power", __iconNode$C);
-const __iconNode$B = [
+const Power = createLucideIcon("power", __iconNode$D);
+const __iconNode$C = [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
   ["path", { d: "M8 16H3v5", key: "1cv678" }]
 ];
-const RefreshCw = createLucideIcon("refresh-cw", __iconNode$B);
-const __iconNode$A = [
+const RefreshCw = createLucideIcon("refresh-cw", __iconNode$C);
+const __iconNode$B = [
   ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
   ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
 ];
-const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$A);
-const __iconNode$z = [
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$B);
+const __iconNode$A = [
   [
     "path",
     {
@@ -15714,13 +15721,13 @@ const __iconNode$z = [
   ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
   ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
 ];
-const Save = createLucideIcon("save", __iconNode$z);
-const __iconNode$y = [
+const Save = createLucideIcon("save", __iconNode$A);
+const __iconNode$z = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
-const Search = createLucideIcon("search", __iconNode$y);
-const __iconNode$x = [
+const Search = createLucideIcon("search", __iconNode$z);
+const __iconNode$y = [
   [
     "path",
     {
@@ -15730,8 +15737,8 @@ const __iconNode$x = [
   ],
   ["path", { d: "m21.854 2.147-10.94 10.939", key: "12cjpa" }]
 ];
-const Send = createLucideIcon("send", __iconNode$x);
-const __iconNode$w = [
+const Send = createLucideIcon("send", __iconNode$y);
+const __iconNode$x = [
   [
     "path",
     {
@@ -15750,22 +15757,22 @@ const __iconNode$w = [
   ["path", { d: "M6 18h.01", key: "uhywen" }],
   ["path", { d: "m13 6-4 6h6l-4 6", key: "14hqih" }]
 ];
-const ServerCrash = createLucideIcon("server-crash", __iconNode$w);
-const __iconNode$v = [
+const ServerCrash = createLucideIcon("server-crash", __iconNode$x);
+const __iconNode$w = [
   ["rect", { width: "20", height: "8", x: "2", y: "2", rx: "2", ry: "2", key: "ngkwjq" }],
   ["rect", { width: "20", height: "8", x: "2", y: "14", rx: "2", ry: "2", key: "iecqi9" }],
   ["line", { x1: "6", x2: "6.01", y1: "6", y2: "6", key: "16zg32" }],
   ["line", { x1: "6", x2: "6.01", y1: "18", y2: "18", key: "nzw8ys" }]
 ];
-const Server = createLucideIcon("server", __iconNode$v);
-const __iconNode$u = [
+const Server = createLucideIcon("server", __iconNode$w);
+const __iconNode$v = [
   ["path", { d: "M14 17H5", key: "gfn3mx" }],
   ["path", { d: "M19 7h-9", key: "6i9tg" }],
   ["circle", { cx: "17", cy: "17", r: "3", key: "18b49y" }],
   ["circle", { cx: "7", cy: "7", r: "3", key: "dfmy0x" }]
 ];
-const Settings2 = createLucideIcon("settings-2", __iconNode$u);
-const __iconNode$t = [
+const Settings2 = createLucideIcon("settings-2", __iconNode$v);
+const __iconNode$u = [
   [
     "path",
     {
@@ -15775,8 +15782,8 @@ const __iconNode$t = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Settings$1 = createLucideIcon("settings", __iconNode$t);
-const __iconNode$s = [
+const Settings$1 = createLucideIcon("settings", __iconNode$u);
+const __iconNode$t = [
   [
     "path",
     {
@@ -15787,8 +15794,8 @@ const __iconNode$s = [
   ["path", { d: "M12 8v4", key: "1got3b" }],
   ["path", { d: "M12 16h.01", key: "1drbdi" }]
 ];
-const ShieldAlert = createLucideIcon("shield-alert", __iconNode$s);
-const __iconNode$r = [
+const ShieldAlert = createLucideIcon("shield-alert", __iconNode$t);
+const __iconNode$s = [
   [
     "path",
     {
@@ -15798,8 +15805,8 @@ const __iconNode$r = [
   ],
   ["path", { d: "m4.243 5.21 14.39 12.472", key: "1c9a7c" }]
 ];
-const ShieldBan = createLucideIcon("shield-ban", __iconNode$r);
-const __iconNode$q = [
+const ShieldBan = createLucideIcon("shield-ban", __iconNode$s);
+const __iconNode$r = [
   [
     "path",
     {
@@ -15808,8 +15815,8 @@ const __iconNode$q = [
     }
   ]
 ];
-const Shield = createLucideIcon("shield", __iconNode$q);
-const __iconNode$p = [
+const Shield = createLucideIcon("shield", __iconNode$r);
+const __iconNode$q = [
   ["circle", { cx: "8", cy: "21", r: "1", key: "jimo8o" }],
   ["circle", { cx: "19", cy: "21", r: "1", key: "13723u" }],
   [
@@ -15820,8 +15827,8 @@ const __iconNode$p = [
     }
   ]
 ];
-const ShoppingCart = createLucideIcon("shopping-cart", __iconNode$p);
-const __iconNode$o = [
+const ShoppingCart = createLucideIcon("shopping-cart", __iconNode$q);
+const __iconNode$p = [
   ["path", { d: "M10 5H3", key: "1qgfaw" }],
   ["path", { d: "M12 19H3", key: "yhmn1j" }],
   ["path", { d: "M14 3v4", key: "1sua03" }],
@@ -15832,7 +15839,19 @@ const __iconNode$o = [
   ["path", { d: "M8 10v4", key: "tgpxqk" }],
   ["path", { d: "M8 12H3", key: "a7s4jb" }]
 ];
-const SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode$o);
+const SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode$p);
+const __iconNode$o = [
+  ["path", { d: "M10 8h4", key: "1sr2af" }],
+  ["path", { d: "M12 21v-9", key: "17s77i" }],
+  ["path", { d: "M12 8V3", key: "13r4qs" }],
+  ["path", { d: "M17 16h4", key: "h1uq16" }],
+  ["path", { d: "M19 12V3", key: "o1uvq1" }],
+  ["path", { d: "M19 21v-5", key: "qua636" }],
+  ["path", { d: "M3 14h4", key: "bcjad9" }],
+  ["path", { d: "M5 10V3", key: "cb8scm" }],
+  ["path", { d: "M5 21v-7", key: "1w1uti" }]
+];
+const SlidersVertical = createLucideIcon("sliders-vertical", __iconNode$o);
 const __iconNode$n = [
   ["rect", { width: "14", height: "20", x: "5", y: "2", rx: "2", ry: "2", key: "1yt0o3" }],
   ["path", { d: "M12 18h.01", key: "mhygvu" }]
@@ -35788,8 +35807,8 @@ const canAccessTab = (user, tab) => {
 };
 const firstAllowedTab = (user) => ["campaigns", "offers", "landings", "sources", "networks", "domains", "dashboard"].find((tab) => canAccessTab(user, tab)) || "dashboard";
 const FINANCE_SEGMENTS = {
-  costs: [/^cost/, "cpc", "cpv", "cpa", "cps", "spend"],
-  revenue: [/^profit/, "revenue", "roi", "epc", "uepc"],
+  costs: [/^cost/, "cpc", "cpv", "cpa", "cpl", "cps", "spend"],
+  revenue: [/^profit/, "revenue", "roi", "epc", "uepc", "epv"],
   payout: [/^payout/]
 };
 const financeHiddenMetric = (id, visibility) => {
@@ -36677,14 +36696,15 @@ const SetupWizard = ({ onComplete }) => {
     ] })
   ] });
 };
-const formatNum = (num) => {
-  if (num === null || num === void 0) return "0";
-  return new Intl.NumberFormat("ru-RU").format(num);
-};
-const formatCurrency = (num) => {
-  if (num === null || num === void 0) return "$0.00";
-  return "$" + new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
-};
+const formatInteger = (num) => new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 0
+}).format(Number(num) || 0);
+const formatDecimal = (num) => new Intl.NumberFormat("en-US", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+}).format(Number(num) || 0);
+const formatCurrency = (num) => `$${formatDecimal(num)}`;
+const formatPercent = (num) => `${formatDecimal(num)}%`;
 const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics, user }) => {
   const { t } = useLanguage();
   const financeVis = financeVisibility(user);
@@ -36693,47 +36713,77 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics,
   const toggleMetric = (metricName) => {
     if (!setActiveMetrics) return;
     setActiveMetrics(
-      (prev) => prev.includes(metricName) ? prev.filter((m) => m !== metricName) : [...prev, metricName]
+      (prev) => prev.includes(metricName) ? prev.filter((metric) => metric !== metricName) : [...prev, metricName]
     );
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  const cards = [
+    // Traffic & volume
+    { id: "clicks", title: t("metrics.clicks"), value: formatInteger(metrics?.clicks), color: "--color-primary" },
+    { id: "unique_clicks", title: t("metrics.uniqueClicks"), value: formatInteger(metrics?.unique_clicks), color: "--color-accent-turquoise" },
+    { id: "conversions", title: t("metrics.conversions"), value: formatInteger(metrics?.conversions), color: "--color-success" },
+    { id: "leads", title: t("metrics.leads", "Leads"), value: formatInteger(metrics?.leads), color: "--color-accent-turquoise" },
+    { id: "sales", title: t("metrics.sales", "Sales"), value: formatInteger(metrics?.sales), color: "--color-success" },
+    { id: "bots", title: t("metrics.bots", "Bots"), value: formatInteger(metrics?.bots), color: "--color-danger" },
+    // Financials & profit
+    { id: "cost", title: t("metrics.cost"), value: formatCurrency(metrics?.cost), color: "--color-danger" },
+    { id: "revenue", title: t("metrics.revenue"), value: formatCurrency(metrics?.revenue), color: "--color-warning" },
+    { id: "profit", title: t("metrics.profit"), value: formatCurrency(metrics?.profit), color: "--color-info" },
+    { id: "roi", title: t("metrics.roi"), value: formatPercent(metrics?.roi), color: "--color-accent-purple" },
+    { id: "revenue_confirmed", title: t("metrics.revenueConfirmed", "Confirmed Revenue"), value: formatCurrency(metrics?.revenue_confirmed), color: "--color-success" },
+    { id: "profit_confirmed", title: t("metrics.profitConfirmed", "Confirmed Profit"), value: formatCurrency(metrics?.profit_confirmed), color: "--color-success" },
+    { id: "roi_confirmed", title: t("metrics.roiConfirmed", "Confirmed ROI"), value: formatPercent(metrics?.roi_confirmed), color: "--color-accent-purple" },
+    { id: "real_revenue", title: t("metrics.realRevenue"), value: formatCurrency(metrics?.real_revenue), color: "--color-real-rev" },
+    { id: "real_roi", title: t("metrics.realRoi"), value: formatPercent(metrics?.real_roi), color: "--color-real-roi" },
+    // Unit economics
+    { id: "cpa", title: t("metrics.cpa"), value: formatCurrency(metrics?.cpa), color: "--color-warning" },
+    { id: "cpc", title: t("metrics.cpc"), value: formatCurrency(metrics?.cpc), color: "--color-info" },
+    { id: "cpv", title: t("metrics.cpv", "CPV"), value: formatCurrency(metrics?.cpv), color: "--color-accent-turquoise" },
+    { id: "cpl", title: t("metrics.cpl", "CPL"), value: formatCurrency(metrics?.cpl), color: "--color-warning" },
+    { id: "cps", title: t("metrics.cps", "CPS"), value: formatCurrency(metrics?.cps), color: "--color-primary" },
+    { id: "epc", title: t("metrics.epc"), value: formatCurrency(metrics?.epc), color: "--color-success" },
+    { id: "epv", title: t("metrics.epv", "EPV"), value: formatCurrency(metrics?.epv), color: "--color-success" },
+    // Rates
+    { id: "cr", title: t("metrics.cr", "CR %"), value: formatPercent(metrics?.cr), color: "--color-ctr" },
+    { id: "approve_rate", title: t("metrics.approveRate", "Approve %"), value: formatPercent(metrics?.approve_rate), color: "--color-success" },
+    { id: "lp_ctr", title: t("metrics.lpCtr", "LP CTR %"), value: formatPercent(metrics?.lp_ctr), color: "--color-accent-purple" },
+    { id: "bot_rate", title: t("metrics.botRate", "Bot %"), value: formatPercent(metrics?.bot_rate), color: "--color-danger" },
+    { id: "ctr", title: t("metrics.ctr"), value: formatPercent(metrics?.ctr), color: "--color-ctr" }
+  ];
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "div",
     {
       className: "flex overflow-x-auto no-scrollbar gap-4 mt-6 mb-2 pt-5 pb-7 px-4 md:px-6 -mx-4 md:-mx-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)]",
       style: { WebkitOverflowScrolling: "touch" },
-      children: [
-        showCard("clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.clicks"), value: formatNum(metrics?.clicks), isActive: activeMetrics.includes("clicks"), onClick: () => toggleMetric("clicks"), colorVar: "--color-primary" }),
-        showCard("unique_clicks") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.uniqueClicks"), value: formatNum(metrics?.unique_clicks), isActive: activeMetrics.includes("unique_clicks"), onClick: () => toggleMetric("unique_clicks"), colorVar: "--color-accent-turquoise" }),
-        showCard("conversions") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.conversions"), value: formatNum(metrics?.conversions), isActive: activeMetrics.includes("conversions"), onClick: () => toggleMetric("conversions"), colorVar: "--color-success" }),
-        showCard("cost") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.cost"), value: formatCurrency(metrics?.cost), isActive: activeMetrics.includes("cost"), onClick: () => toggleMetric("cost"), colorVar: "--color-danger" }),
-        showCard("revenue") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.revenue"), value: formatCurrency(metrics?.revenue), isActive: activeMetrics.includes("revenue"), onClick: () => toggleMetric("revenue"), colorVar: "--color-warning" }),
-        showCard("profit") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.profit"), value: formatCurrency(metrics?.profit), isActive: activeMetrics.includes("profit"), onClick: () => toggleMetric("profit"), colorVar: "--color-info" }),
-        showCard("roi") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.roi"), value: `${formatNum(metrics?.roi ?? 0)}%`, isActive: activeMetrics.includes("roi"), onClick: () => toggleMetric("roi"), colorVar: "--color-accent-purple" }),
-        showCard("real_revenue") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.realRevenue") || "Real Rev", value: formatCurrency(metrics?.real_revenue), isActive: activeMetrics.includes("real_revenue"), onClick: () => toggleMetric("real_revenue"), colorVar: "--color-real-rev" }),
-        showCard("real_roi") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.realRoi") || "Real ROI", value: `${formatNum(metrics?.real_roi ?? 0)}%`, isActive: activeMetrics.includes("real_roi"), onClick: () => toggleMetric("real_roi"), colorVar: "--color-real-roi" }),
-        showCard("ctr") && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: t("metrics.ctr") || "CTR", value: `${formatNum(metrics?.ctr ?? 0)}%`, isActive: activeMetrics.includes("ctr"), onClick: () => toggleMetric("ctr"), colorVar: "--color-ctr" })
-      ]
+      children: cards.filter((card) => showCard(card.id)).map((card) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Card,
+        {
+          title: card.title,
+          value: card.value,
+          isActive: activeMetrics.includes(card.id),
+          onClick: () => toggleMetric(card.id),
+          colorVar: card.color
+        },
+        card.id
+      ))
     }
   );
 };
-const Card = ({ title, value, isActive, onClick, colorVar }) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "div",
-    {
-      onClick,
-      className: `card cursor-pointer select-none min-w-[140px] flex-1 flex flex-col justify-center transition-all ${isActive ? "relative z-10" : ""}`,
-      style: {
-        padding: "20px",
-        border: isActive ? `2px solid var(${colorVar})` : `2px solid transparent`,
-        boxShadow: isActive ? `0 8px 25px var(${colorVar}, rgba(0,0,0,0.1))` : "var(--shadow-main)"
-      },
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs uppercase font-semibold mb-2 tracking-wide text-[var(--color-text-muted)]", children: title }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold", style: { color: `var(${colorVar})` }, children: value })
-      ]
-    }
-  );
-};
+const Card = ({ title, value, isActive, onClick, colorVar }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "div",
+  {
+    onClick,
+    className: `card cursor-pointer select-none min-w-[140px] flex-1 flex flex-col justify-center transition-all ${isActive ? "relative z-10" : ""}`,
+    style: {
+      padding: "20px",
+      border: isActive ? `2px solid var(${colorVar})` : "2px solid transparent",
+      boxShadow: isActive ? `0 8px 25px var(${colorVar}, rgba(0,0,0,0.1))` : "var(--shadow-main)"
+    },
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs uppercase font-semibold mb-2 tracking-wide text-[var(--color-text-muted)]", children: title }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold", style: { color: `var(${colorVar})` }, children: value })
+    ]
+  }
+);
 function round$1(v) {
   return v + 0.5 | 0;
 }
@@ -48794,11 +48844,18 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
   }, [clickId, onClose]);
-  const SectionHeader = ({ title }) => /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-semibold text-[var(--color-text-primary)] border-b border-[var(--color-border)] pb-2 mb-3 mt-6 uppercase tracking-wide", children: title });
-  const DetailRow = ({ label, value }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row py-1.5 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition px-2 rounded", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-1/3 text-xs font-medium text-[var(--color-text-secondary)] truncate pr-4", children: label }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-2/3 text-sm text-[var(--color-text-primary)] break-all", children: value || "-" })
-  ] });
+  const SectionHeader = ({ title }) => /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-bold uppercase tracking-wider pb-2 mb-3 mt-6 border-b", style: { color: "var(--color-primary)", borderColor: "var(--color-border)" }, children: title });
+  const DetailRow = ({ label, value }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "flex flex-col sm:flex-row py-1.5 border-b last:border-0 transition px-2.5 rounded-lg",
+      style: { borderColor: "color-mix(in srgb, var(--color-border) 40%, transparent)" },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-1/3 text-xs font-medium text-[var(--color-text-secondary)] truncate pr-4", children: label }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-2/3 text-sm text-[var(--color-text-primary)] break-all", children: value || "-" })
+      ]
+    }
+  );
   const renderInPortal = (content) => {
     if (typeof document === "undefined") return null;
     return reactDomExports.createPortal(
@@ -48823,20 +48880,20 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
   };
   if (loading) {
     return renderInPortal(
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl p-8 flex flex-col items-center w-full max-w-sm", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Loader, { className: "w-8 h-8 text-blue-500 animate-spin mb-4" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl shadow-2xl p-8 flex flex-col items-center w-full max-w-sm border", style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Loader, { className: "w-8 h-8 animate-spin mb-4", style: { color: "var(--color-primary)" } }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[var(--color-text-secondary)] font-medium", children: t("clickDetails.loading") })
       ] })
     );
   }
   if (error || !data) {
     return renderInPortal(
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-md p-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl shadow-2xl w-full max-w-md p-6 border", style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-lg font-semibold text-red-600", children: t("clickDetails.error") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-base font-semibold text-[var(--color-danger,#ef4444)]", children: t("clickDetails.error") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "p-1 hover:bg-[var(--color-bg-soft)] rounded-full transition", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20, className: "text-[var(--color-text-secondary)]" }) })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-700", children: error || t("clickDetails.notFound") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: error || t("clickDetails.notFound") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-6 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "px-4 py-2 bg-[var(--color-bg-soft)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] rounded transition font-medium text-sm", children: t("clickDetails.close") }) })
       ] })
     );
@@ -48846,71 +48903,85 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
   };
   const profit = (parseFloat(data.revenue || 0) - parseFloat(data.cost || 0)).toFixed(2);
   return renderInPortal(
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[calc(100vh-3rem)] overflow-hidden", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-lg font-bold text-[var(--color-text-primary)] flex items-center gap-2", children: [
-          t("clickDetails.title"),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-mono bg-gray-200 text-[var(--color-text-secondary)] px-2 py-1 rounded-md ml-2 border border-gray-300", children: data.id })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "p-2 hover:bg-gray-200 rounded-full transition text-[var(--color-text-secondary)]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6 bg-white", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.data") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.campaign"), value: data.campaign_name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.campaignAlias"), value: data.campaign_alias }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.landing"), value: data.landing_name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.offer"), value: data.offer_name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.affiliateNetwork"), value: data.affiliate_network_name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.source"), value: data.source_name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.streamType"), value: data.stream_type }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.referer"), value: data.referer }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.id") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.clickId"), value: data.id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.campaignId"), value: data.campaign_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.offerId"), value: data.offer_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.landingId"), value: data.landing_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.streamId"), value: data.stream_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.sourceId"), value: data.source_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.connection") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.ip"), value: data.ip }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.botScanner"), value: t("clickDetails.noData") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.finance") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.cost"), value: formatMoney(data.cost) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.revenue"), value: formatMoney(data.revenue) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.profit"), value: formatMoney(profit) })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.parameters") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.keyword"), value: data.parameters?.keyword }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: "Cost", value: data.parameters?.cost }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: "Currency", value: data.parameters?.currency }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.externalId"), value: data.parameters?.external_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.creativeId"), value: data.parameters?.creative_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.adCampaignId"), value: data.parameters?.ad_campaign_id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.sourceParam"), value: data.parameters?.source }),
-          [...Array(30)].map((_, i) => data.parameters && data.parameters[`sub_id_${i + 1}`] ? /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: `Sub ID ${i + 1}`, value: data.parameters[`sub_id_${i + 1}`] }, i) : null),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.geoDevice") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.country"), value: data.country }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.region"), value: data.region }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.city"), value: data.city }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.zipcode"), value: data.zipcode }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.timezone"), value: data.timezone }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.language"), value: data.language }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.acceptLanguageRaw"), value: data.accept_language_raw }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.latitude"), value: data.latitude }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.longitude"), value: data.longitude }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.deviceType"), value: data.device_type }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.os"), value: data.os }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.browser"), value: data.browser }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.userAgent"), value: data.user_agent }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.calendar") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.dateTime"), value: data.created_at }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.conversion"), value: data.is_conversion ? t("clickDetails.yes") : t("clickDetails.no") })
-        ] })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "px-6 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded shadow-sm transition font-medium", children: t("clickDetails.close") }) })
-    ] })
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "rounded-2xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[calc(100vh-3rem)] overflow-hidden border",
+        style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-6 py-4 border-b", style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-lg font-bold text-[var(--color-text-primary)] flex items-center gap-2", children: [
+              t("clickDetails.title"),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  className: "text-xs font-mono px-2 py-0.5 rounded-lg border ml-2",
+                  style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" },
+                  children: data.id
+                }
+              )
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-soft)] transition", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", style: { backgroundColor: "var(--color-bg-card)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.data") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.campaign"), value: data.campaign_name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.campaignAlias"), value: data.campaign_alias }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.landing"), value: data.landing_name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.offer"), value: data.offer_name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.affiliateNetwork"), value: data.affiliate_network_name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.source"), value: data.source_name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.streamType"), value: data.stream_type }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.referer"), value: data.referer }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.id") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.clickId"), value: data.id }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.campaignId"), value: data.campaign_id }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.offerId"), value: data.offer_id }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.landingId"), value: data.landing_id }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.streamId"), value: data.stream_id }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.sourceId"), value: data.source_id }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.connection") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.ip"), value: data.ip }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.botScanner"), value: t("clickDetails.noData") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.finance") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.cost"), value: formatMoney(data.cost) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.revenue"), value: formatMoney(data.revenue) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.profit"), value: formatMoney(profit) })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.parameters") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.keyword"), value: data.parameters?.keyword }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: "Cost", value: data.parameters?.cost }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: "Currency", value: data.parameters?.currency }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.externalId"), value: data.parameters?.external_id }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.creativeId"), value: data.parameters?.creative_id }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.adCampaignId"), value: data.parameters?.ad_campaign_id }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.sourceParam"), value: data.parameters?.source }),
+              [...Array(30)].map((_, i) => data.parameters && data.parameters[`sub_id_${i + 1}`] ? /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: `Sub ID ${i + 1}`, value: data.parameters[`sub_id_${i + 1}`] }, i) : null),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.geoDevice") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.country"), value: data.country }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.region"), value: data.region }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.city"), value: data.city }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.zipcode"), value: data.zipcode }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.timezone"), value: data.timezone }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.language"), value: data.language }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.acceptLanguageRaw"), value: data.accept_language_raw }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.latitude"), value: data.latitude }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.longitude"), value: data.longitude }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.deviceType"), value: data.device_type }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.os"), value: data.os }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.browser"), value: data.browser }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.userAgent"), value: data.user_agent }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.calendar") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.dateTime"), value: data.created_at }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.conversion"), value: data.is_conversion ? t("clickDetails.yes") : t("clickDetails.no") })
+            ] })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t flex justify-end", style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "btn btn-secondary text-xs py-2 px-5 rounded-xl font-medium", children: t("clickDetails.close") }) })
+        ]
+      }
+    )
   );
 };
 const INITIAL_LIMIT = 10;
@@ -85677,55 +85748,81 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
     ] })
   );
 };
+const DEFAULT_METRICS = [
+  "clicks",
+  "unique_clicks",
+  "conversions",
+  "cost",
+  "revenue",
+  "profit",
+  "roi",
+  "cpc",
+  "cpa"
+];
+const METRIC_PRESETS = {
+  general: DEFAULT_METRICS,
+  cod: ["leads", "sales", "cpl", "cps", "cost", "revenue_confirmed", "profit_confirmed", "roi_confirmed", "approve_rate"],
+  media_buying: ["clicks", "unique_clicks", "cpv", "cpc", "epc", "cpa", "cost", "revenue", "profit", "roi", "cr"]
+};
 const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
   const { t } = useLanguage();
   const [localPrefs, setLocalPrefs] = reactExports.useState(() => ({
-    visible_metrics: preferences?.visible_metrics || ["clicks", "unique_clicks", "conversions", "revenue", "cost", "profit", "roi", "real_revenue", "real_roi", "ctr", "cpc", "cpa"],
+    visible_metrics: preferences?.visible_metrics || DEFAULT_METRICS,
     visible_blocks: preferences?.visible_blocks || ["campaigns", "offers", "landings", "sources"],
     click_columns: preferences?.click_columns || ["created_at", "campaign_name", "country_code", "ip", "device_type", "user_agent", "redirect_url"]
   }));
-  const toggleArrayItem = (array, item) => {
-    if (!array) array = [];
-    if (array.includes(item)) {
-      return array.filter((i) => i !== item);
+  const metricGroups = [
+    {
+      id: "traffic",
+      title: t("dashboard.groupTraffic", "Traffic & Volume"),
+      metrics: [
+        { id: "clicks", label: t("metrics.clicks") },
+        { id: "unique_clicks", label: t("metrics.uniqueClicks") },
+        { id: "conversions", label: t("metrics.conversions") },
+        { id: "leads", label: t("metrics.leads", "Leads") },
+        { id: "sales", label: t("metrics.sales", "Sales") },
+        { id: "bots", label: t("metrics.bots", "Bots") }
+      ]
+    },
+    {
+      id: "financial",
+      title: t("dashboard.groupFinancial", "Financials & Profit"),
+      metrics: [
+        { id: "cost", label: t("metrics.cost") },
+        { id: "revenue", label: t("metrics.revenue") },
+        { id: "profit", label: t("metrics.profit") },
+        { id: "roi", label: t("metrics.roi") },
+        { id: "revenue_confirmed", label: t("metrics.revenueConfirmed", "Confirmed Revenue") },
+        { id: "profit_confirmed", label: t("metrics.profitConfirmed", "Confirmed Profit") },
+        { id: "roi_confirmed", label: t("metrics.roiConfirmed", "Confirmed ROI") },
+        { id: "real_revenue", label: t("metrics.realRevenue") },
+        { id: "real_roi", label: t("metrics.realRoi") }
+      ]
+    },
+    {
+      id: "unit_economics",
+      title: t("dashboard.groupUnitEconomics", "Unit Economics"),
+      metrics: [
+        { id: "cpa", label: t("metrics.cpa") },
+        { id: "cpc", label: t("metrics.cpc") },
+        { id: "cpv", label: t("metrics.cpv", "CPV") },
+        { id: "cpl", label: t("metrics.cpl", "CPL") },
+        { id: "cps", label: t("metrics.cps", "CPS") },
+        { id: "epc", label: t("metrics.epc") },
+        { id: "epv", label: t("metrics.epv", "EPV") }
+      ]
+    },
+    {
+      id: "rates",
+      title: t("dashboard.groupRates", "Rates & Percentages"),
+      metrics: [
+        { id: "cr", label: t("metrics.cr", "CR %") },
+        { id: "approve_rate", label: t("metrics.approveRate", "Approve %") },
+        { id: "lp_ctr", label: t("metrics.lpCtr", "LP CTR %") },
+        { id: "bot_rate", label: t("metrics.botRate", "Bot %") },
+        { id: "ctr", label: t("metrics.ctr") }
+      ]
     }
-    return [...array, item];
-  };
-  const handleToggleMetric = (id) => {
-    setLocalPrefs((prev) => ({
-      ...prev,
-      visible_metrics: toggleArrayItem(prev.visible_metrics, id)
-    }));
-  };
-  const handleToggleBlock = (id) => {
-    setLocalPrefs((prev) => ({
-      ...prev,
-      visible_blocks: toggleArrayItem(prev.visible_blocks, id)
-    }));
-  };
-  const handleToggleColumn = (id) => {
-    setLocalPrefs((prev) => ({
-      ...prev,
-      click_columns: toggleArrayItem(prev.click_columns, id)
-    }));
-  };
-  const handleSave = () => {
-    setPreferences(localPrefs);
-    onClose();
-  };
-  const metricsList = [
-    { id: "clicks", label: t("metrics.clicks") },
-    { id: "unique_clicks", label: t("metrics.uniqueClicks") },
-    { id: "conversions", label: t("metrics.conversions") },
-    { id: "revenue", label: t("metrics.revenue") },
-    { id: "cost", label: t("metrics.cost") },
-    { id: "profit", label: t("metrics.profit") },
-    { id: "roi", label: t("metrics.roi") },
-    { id: "real_revenue", label: t("metrics.realRevenue") || "Real Rev" },
-    { id: "real_roi", label: t("metrics.realRoi") || "Real ROI" },
-    { id: "ctr", label: t("metrics.ctr") || "CTR" },
-    { id: "cpc", label: t("metrics.cpc") },
-    { id: "cpa", label: t("metrics.cpa") }
   ];
   const blocksList = [
     { id: "campaigns", label: t("nav.campaigns") },
@@ -85742,61 +85839,222 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
     { id: "user_agent", label: t("dashboard.colUa") },
     { id: "redirect_url", label: t("dashboard.colUrl") }
   ];
-  const CheckboxItem = ({ checked, onChange, label }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { onClick: (e) => {
-    e.preventDefault();
-    onChange();
-  }, className: "flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer transition select-none", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `w-5 h-5 rounded border flex items-center justify-center transition-colors ${checked ? "bg-blue-600 border-blue-600" : "border-gray-300 bg-white"}`, children: checked && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14, className: "text-white" }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-700 text-sm font-medium", children: label })
-  ] });
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-[1100] flex items-center justify-center bg-black bg-opacity-50 p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center p-5 border-b border-gray-100", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-bold text-[var(--color-text-primary)]", children: t("dashboard.dashboardSettings") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "text-gray-400 hover:text-gray-600 p-1 rounded transition", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 24 }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "overflow-y-auto p-6 space-y-8 flex-1", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100", children: t("dashboard.metricsCards") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 sm:grid-cols-3 gap-2", children: metricsList.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-          CheckboxItem,
+  const toggleArrayItem = (array, item) => {
+    const current = array || [];
+    return current.includes(item) ? current.filter((i) => i !== item) : [...current, item];
+  };
+  const updatePreferenceList = (key, id) => {
+    setLocalPrefs((prev) => ({
+      ...prev,
+      [key]: toggleArrayItem(prev[key], id)
+    }));
+  };
+  const applyPreset = (presetKey) => {
+    setLocalPrefs((prev) => ({
+      ...prev,
+      visible_metrics: [...METRIC_PRESETS[presetKey] || DEFAULT_METRICS]
+    }));
+  };
+  const handleSave = () => {
+    setPreferences(localPrefs);
+    onClose();
+  };
+  const CheckboxItem = ({ checked, onChange, label }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "label",
+    {
+      onClick: (event) => {
+        event.preventDefault();
+        onChange();
+      },
+      className: "flex items-center gap-2.5 p-2 rounded-xl cursor-pointer transition select-none border",
+      style: {
+        borderColor: checked ? "var(--color-primary)" : "var(--color-border)",
+        backgroundColor: checked ? "color-mix(in srgb, var(--color-primary) 8%, var(--color-bg-card))" : "var(--color-bg-card)"
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
           {
-            label: m.label,
-            checked: localPrefs.visible_metrics?.includes(m.id),
-            onChange: () => handleToggleMetric(m.id)
-          },
-          m.id
-        )) })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100", children: t("dashboard.dataBlocks") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: blocksList.map((b) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-          CheckboxItem,
+            className: "w-4 h-4 rounded flex items-center justify-center transition-colors flex-shrink-0",
+            style: {
+              backgroundColor: checked ? "var(--color-primary)" : "transparent",
+              border: checked ? "none" : "1px solid var(--color-border)"
+            },
+            children: checked && /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 12, style: { color: "var(--color-text-inverse)" } })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "span",
           {
-            label: b.label,
-            checked: localPrefs.visible_blocks?.includes(b.id),
-            onChange: () => handleToggleBlock(b.id)
-          },
-          b.id
-        )) })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100", children: t("dashboard.recentClicksColumns") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: columnsList.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-          CheckboxItem,
-          {
-            label: c.label,
-            checked: localPrefs.click_columns?.includes(c.id),
-            onChange: () => handleToggleColumn(c.id)
-          },
-          c.id
-        )) })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-5 border-t border-gray-100 bg-gray-50 flex justify-end gap-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "px-5 py-2 text-gray-700 bg-white border border-gray-300 rounded font-medium hover:bg-gray-50 transition", children: t("common.cancel") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, className: "px-5 py-2 text-white bg-blue-600 rounded font-medium hover:bg-blue-700 transition shadow-sm", children: t("dashboard.saveSettings") })
-    ] })
-  ] }) });
+            className: "text-xs font-medium truncate",
+            style: { color: checked ? "var(--color-text-primary)" : "var(--color-text-secondary)" },
+            children: label
+          }
+        )
+      ]
+    }
+  );
+  const selectedLabel = t("dashboard.selectedMetrics", "{count} selected").replace("{count}", String(localPrefs.visible_metrics?.length || 0));
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      className: "fixed inset-0 z-[1100] flex items-center justify-center p-4",
+      style: { backgroundColor: "rgba(0, 0, 0, 0.65)", backdropFilter: "blur(4px)" },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: "w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl border overflow-hidden",
+          style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "flex justify-between items-center p-5 border-b gap-4",
+                style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-soft)" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5 min-w-0", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "div",
+                      {
+                        className: "p-2 rounded-xl border flex-shrink-0",
+                        style: { color: "var(--color-primary)", backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" },
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(SlidersVertical, { className: "w-5 h-5" })
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-base font-bold", style: { color: "var(--color-text-primary)" }, children: t("dashboard.dashboardSettings") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs truncate", style: { color: "var(--color-text-muted)" }, children: t("dashboard.settingsSubtitle", "Customize metric cards, data blocks, and recent click columns") })
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: onClose,
+                      className: "p-1.5 rounded-lg flex-shrink-0",
+                      style: { color: "var(--color-text-muted)" },
+                      "aria-label": t("common.close", "Close"),
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 })
+                    }
+                  )
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "overflow-y-auto p-6 space-y-6 flex-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  className: "p-3 rounded-xl border flex flex-wrap items-center justify-between gap-2",
+                  style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold uppercase", style: { color: "var(--color-text-secondary)" }, children: [
+                      t("dashboard.quickPresets", "Quick Presets"),
+                      ":"
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => applyPreset("general"), className: "btn btn-secondary btn-sm", children: t("dashboard.presetGeneral", "General") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => applyPreset("cod"), className: "btn btn-secondary btn-sm", children: t("dashboard.presetCod", "COD / Nutra") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => applyPreset("media_buying"), className: "btn btn-secondary btn-sm", children: t("dashboard.presetMediaBuying", "Media Buying") })
+                    ] })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "space-y-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "div",
+                  {
+                    className: "flex items-center justify-between gap-3 border-b pb-1.5",
+                    style: { borderColor: "var(--color-border)" },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider", style: { color: "var(--color-text-muted)" }, children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutGrid, { size: 14 }),
+                        " ",
+                        t("dashboard.metricsCards")
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: selectedLabel })
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: metricGroups.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "div",
+                  {
+                    className: "p-3 rounded-xl border",
+                    style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold mb-2.5", style: { color: "var(--color-text-primary)" }, children: group.title }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-1.5", children: group.metrics.map((metric) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        CheckboxItem,
+                        {
+                          label: metric.label,
+                          checked: localPrefs.visible_metrics?.includes(metric.id),
+                          onChange: () => updatePreferenceList("visible_metrics", metric.id)
+                        },
+                        metric.id
+                      )) })
+                    ]
+                  },
+                  group.id
+                )) })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "h3",
+                  {
+                    className: "text-xs font-bold uppercase tracking-wider border-b pb-1.5 mb-3",
+                    style: { color: "var(--color-text-muted)", borderColor: "var(--color-border)" },
+                    children: t("dashboard.dataBlocks")
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 sm:grid-cols-4 gap-2", children: blocksList.map((block) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  CheckboxItem,
+                  {
+                    label: block.label,
+                    checked: localPrefs.visible_blocks?.includes(block.id),
+                    onChange: () => updatePreferenceList("visible_blocks", block.id)
+                  },
+                  block.id
+                )) })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "h3",
+                  {
+                    className: "flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider border-b pb-1.5 mb-3",
+                    style: { color: "var(--color-text-muted)", borderColor: "var(--color-border)" },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { size: 14 }),
+                      " ",
+                      t("dashboard.recentClicksColumns")
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 sm:grid-cols-3 gap-2", children: columnsList.map((column) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  CheckboxItem,
+                  {
+                    label: column.label,
+                    checked: localPrefs.click_columns?.includes(column.id),
+                    onChange: () => updatePreferenceList("click_columns", column.id)
+                  },
+                  column.id
+                )) })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "p-4 border-t flex justify-end gap-3",
+                style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-soft)" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onClose, className: "btn btn-secondary btn-sm", children: t("common.cancel") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: handleSave, className: "btn btn-primary btn-sm", children: t("dashboard.saveSettings") })
+                ]
+              }
+            )
+          ]
+        }
+      )
+    }
+  );
 };
 const API_URL = "/api.php";
 const DEFAULT_ACTIVE_METRICS = [

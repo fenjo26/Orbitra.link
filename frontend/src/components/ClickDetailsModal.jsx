@@ -59,13 +59,16 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     }, [clickId, onClose]);
 
     const SectionHeader = ({ title }) => (
-        <h3 className="text-sm font-semibold text-[var(--color-text-primary)] border-b border-[var(--color-border)] pb-2 mb-3 mt-6 uppercase tracking-wide">
+        <h3 className="text-xs font-bold uppercase tracking-wider pb-2 mb-3 mt-6 border-b" style={{ color: 'var(--color-primary)', borderColor: 'var(--color-border)' }}>
             {title}
         </h3>
     );
 
     const DetailRow = ({ label, value }) => (
-        <div className="flex flex-col sm:flex-row py-1.5 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition px-2 rounded">
+        <div
+            className="flex flex-col sm:flex-row py-1.5 border-b last:border-0 transition px-2.5 rounded-lg"
+            style={{ borderColor: 'color-mix(in srgb, var(--color-border) 40%, transparent)' }}
+        >
             <span className="w-1/3 text-xs font-medium text-[var(--color-text-secondary)] truncate pr-4">{label}</span>
             <span className="w-2/3 text-sm text-[var(--color-text-primary)] break-all">{value || '-'}</span>
         </div>
@@ -92,8 +95,8 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
 
     if (loading) {
         return renderInPortal(
-            <div className="bg-white rounded-lg shadow-xl p-8 flex flex-col items-center w-full max-w-sm">
-                <Loader className="w-8 h-8 text-blue-500 animate-spin mb-4" />
+            <div className="rounded-2xl shadow-2xl p-8 flex flex-col items-center w-full max-w-sm border" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
+                <Loader className="w-8 h-8 animate-spin mb-4" style={{ color: 'var(--color-primary)' }} />
                 <p className="text-[var(--color-text-secondary)] font-medium">{t('clickDetails.loading')}</p>
             </div>
         );
@@ -101,12 +104,12 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
 
     if (error || !data) {
         return renderInPortal(
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <div className="rounded-2xl shadow-2xl w-full max-w-md p-6 border" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold text-red-600">{t('clickDetails.error')}</h2>
+                    <h2 className="text-base font-semibold text-[var(--color-danger,#ef4444)]">{t('clickDetails.error')}</h2>
                     <button onClick={onClose} className="p-1 hover:bg-[var(--color-bg-soft)] rounded-full transition"><X size={20} className="text-[var(--color-text-secondary)]" /></button>
                 </div>
-                <p className="text-gray-700">{error || t('clickDetails.notFound')}</p>
+                <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{error || t('clickDetails.notFound')}</p>
                 <div className="mt-6 flex justify-end">
                     <button onClick={onClose} className="px-4 py-2 bg-[var(--color-bg-soft)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] rounded transition font-medium text-sm">{t('clickDetails.close')}</button>
                 </div>
@@ -121,24 +124,30 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     const profit = (parseFloat(data.revenue || 0) - parseFloat(data.cost || 0)).toFixed(2);
 
     return renderInPortal(
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[calc(100vh-3rem)] overflow-hidden">
+        <div
+            className="rounded-2xl shadow-2xl w-full max-w-5xl flex flex-col max-h-[calc(100vh-3rem)] overflow-hidden border"
+            style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
+        >
                 {/* Header */}
-                <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50">
+                <div className="flex justify-between items-center px-6 py-4 border-b" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
                     <div>
                         <h2 className="text-lg font-bold text-[var(--color-text-primary)] flex items-center gap-2">
                             {t('clickDetails.title')}
-                            <span className="text-xs font-mono bg-gray-200 text-[var(--color-text-secondary)] px-2 py-1 rounded-md ml-2 border border-gray-300">
+                            <span
+                                className="text-xs font-mono px-2 py-0.5 rounded-lg border ml-2"
+                                style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
+                            >
                                 {data.id}
                             </span>
                         </h2>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition text-[var(--color-text-secondary)]">
+                    <button onClick={onClose} className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-soft)] transition">
                         <X size={20} />
                     </button>
                 </div>
 
                 {/* Body - Grid Layout */}
-                <div className="flex-1 overflow-y-auto p-6 bg-white">
+                <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: 'var(--color-bg-card)' }}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
 
                         {/* Column 1 */}
@@ -212,8 +221,8 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
-                    <button onClick={onClose} className="px-6 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded shadow-sm transition font-medium">{t('clickDetails.close')}</button>
+                <div className="px-6 py-4 border-t flex justify-end" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
+                    <button onClick={onClose} className="btn btn-secondary text-xs py-2 px-5 rounded-xl font-medium">{t('clickDetails.close')}</button>
                 </div>
         </div>
     );
