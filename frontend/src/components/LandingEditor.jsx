@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Save, X, Upload, FileText, FileCode, Image as ImageIcon, Palette, Code, Check, Plus, Eye, ExternalLink, LayoutTemplate, HardDrive, Layers3, Zap, Columns2, WandSparkles, Maximize2, Minimize2, Link2, Undo2 } from 'lucide-react';
+import { Save, X, Upload, FileText, FileCode, Image as ImageIcon, Palette, Code, Check, Plus, Eye, ExternalLink, LayoutTemplate, HardDrive, Layers3, Zap, Columns2, WandSparkles, Maximize2, Minimize2, Link2, Undo2, Search } from 'lucide-react';
 import axios from 'axios';
 import GroupsModal from './GroupsModal';
 import SegmentedControl from './common/SegmentedControl';
@@ -1108,6 +1108,9 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                                     </button>
                                     <button type="button" className="btn btn-secondary btn-sm" onClick={handleBeautify}>
                                         <WandSparkles className="h-3.5 w-3.5" /> {t('landingEditor.formatCode', 'Format')}
+                                    </button>
+                                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => codeEditorRef.current?.openFind()} title="Ctrl/Cmd+F · Ctrl/Cmd+H">
+                                        <Search className="h-3.5 w-3.5" /> {t('landingEditor.findReplace', 'Find & Replace')}
                                     </button>
                                     <span className="ml-auto text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
                                         {t('landingEditor.quickInsertHint', 'Snippets are inserted at the cursor; adapter and back trap are placed before closing tags.')}
