@@ -7,6 +7,41 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.3] — 2026-08-17
+
+Editor tooling, layout consistency and worldwide GEO coverage.
+
+### Added
+- 🔍 **Find & Replace in the landing code editor** — a VS Code-style widget
+  over the textarea: `Ctrl/Cmd+F` find, `Ctrl/Cmd+H` replace, `Aa` / `\b` /
+  `.*` modifiers, live `N of M` counter, Enter/Shift+Enter navigation with
+  scroll-to-match (exact vertical math for the fixed line height, measured
+  horizontal reveal for minified one-liners), single Replace and
+  count-verified Replace All (literal mode splices the match list, so an
+  empty-matching regex never smears the replacement between characters), and
+  the query is pre-seeded from the editor selection.
+- 🌍 **79-GEO phone-mask coverage** — `geoMasks()` grows from 13 to 79
+  countries with mobile patterns and digit bounds; the LeadForge picker
+  mirrors it grouped by Europe / Americas / Asia / MENA & Africa
+  (`optgroup`s, localized region labels). Masks feed order.php generation,
+  adapter validation and Auto QA scoring.
+- 🧾 **CRM hover-copy** — SubID and phone copy buttons on row hover with
+  check-mark feedback; Approval Rate moved under the Approved Sales KPI
+  card; the Shave Suspects card got a rose tint and reports only
+  lost-in-transit.
+
+### Changed
+- 🖥️ **Full-width CRM & LeadForge** — `max-w-7xl` dropped (the only two
+  capped pages in the app), matching the dashboard; App.jsx no longer
+  renders its generic `h1` above their hero headers.
+
+### Fixed
+- 🔐 **API key + browser session coexistence** — a key arriving on a
+  signed-in browser request is honored only when it belongs to the same
+  user (403 otherwise); the live session is never re-identified as
+  `api_key`, so `extension_credentials` stays reachable for the panel
+  browser; invalid keys now 401 even alongside a session.
+
 ## [1.0.2] — 2026-08-17
 
 LeadForge grows from a one-shot forge into a two-stage compiler, and the CRM

@@ -17729,6 +17729,22 @@ const ru = {
     "imageLoadError": "Не удалось загрузить изображение",
     "formatCode": "Форматировать",
     "quickInsertHint": "Сниппеты вставляются в позицию курсора; адаптер и Back Trap — перед закрывающими тегами.",
+    "findReplace": "Поиск и замена",
+    "findPlaceholder": "Найти текст или regex…",
+    "replacePlaceholder": "Заменить на (напр. {offer})…",
+    "matchCase": "Учитывать регистр",
+    "wholeWord": "Слово целиком",
+    "useRegex": "Регулярные выражения",
+    "noMatches": "Нет совпадений",
+    "invalidRegex": "Некорректный regex",
+    "matchCount": "{current} из {total}",
+    "replaceBtn": "Заменить",
+    "replaceAllBtn": "Заменить все",
+    "replacedCount": "Заменено: {count}",
+    "findNext": "Следующее совпадение (Enter)",
+    "findPrev": "Предыдущее совпадение (Shift+Enter)",
+    "closeFind": "Закрыть (Esc)",
+    "toggleReplace": "Показать/скрыть замену",
     "fullscreen": "На весь экран",
     "exitFullscreen": "Выйти из полноэкранного режима",
     "openInTab": "Открыть в новой вкладке",
@@ -19350,6 +19366,10 @@ const ru = {
     "apiKey": "API-ключ / Client Token",
     "offerId": "ID оффера / Flow Token",
     "targetGeo": "Целевое ГЕО / Страна",
+    "geoEurope": "Европа",
+    "geoAmericas": "Америки",
+    "geoAsia": "Азия",
+    "geoMena": "Ближний Восток и Африка",
     "currency": "Валюта",
     "payout": "Выплата по умолчанию",
     "landingGroup": "Группа лендингов",
@@ -19432,6 +19452,9 @@ const ru = {
     "suspects": "Подозрения на шейв",
     "lostWord": "потеряно в пути",
     "qaCount": "QA-тесты",
+    "copySubid": "Копировать SubID",
+    "copyPhone": "Копировать телефон",
+    "copied": "Скопировано",
     "networkCol": "Сеть",
     "phoneCol": "Телефон (сырой → E.164)",
     "inspect": "Инспекция доказательств",
@@ -20947,6 +20970,22 @@ const en = {
     "imageLoadError": "Could not load this image",
     "formatCode": "Format",
     "quickInsertHint": "Snippets are inserted at the cursor; adapter and back trap are placed before closing tags.",
+    "findReplace": "Find & Replace",
+    "findPlaceholder": "Find text or regex…",
+    "replacePlaceholder": "Replace with (e.g. {offer})…",
+    "matchCase": "Match case",
+    "wholeWord": "Match whole word",
+    "useRegex": "Use regular expression",
+    "noMatches": "No matches",
+    "invalidRegex": "Invalid regex",
+    "matchCount": "{current} of {total}",
+    "replaceBtn": "Replace",
+    "replaceAllBtn": "Replace all",
+    "replacedCount": "Replaced: {count}",
+    "findNext": "Next match (Enter)",
+    "findPrev": "Previous match (Shift+Enter)",
+    "closeFind": "Close (Esc)",
+    "toggleReplace": "Toggle replace",
     "fullscreen": "Fullscreen",
     "exitFullscreen": "Exit fullscreen",
     "openInTab": "Open in a new tab",
@@ -22568,6 +22607,10 @@ const en = {
     "apiKey": "API Key / Client Token",
     "offerId": "Offer ID / Flow Token",
     "targetGeo": "Target GEO / Country",
+    "geoEurope": "Europe",
+    "geoAmericas": "Americas",
+    "geoAsia": "Asia",
+    "geoMena": "MENA & Africa",
     "currency": "Currency",
     "payout": "Default Payout",
     "landingGroup": "Landing Group",
@@ -22650,6 +22693,9 @@ const en = {
     "suspects": "Shave Suspects",
     "lostWord": "lost in transit",
     "qaCount": "QA tests",
+    "copySubid": "Copy SubID",
+    "copyPhone": "Copy phone",
+    "copied": "Copied",
     "networkCol": "Network",
     "phoneCol": "Phone (raw → E.164)",
     "inspect": "Inspect Lead Evidence",
@@ -24165,6 +24211,22 @@ const uk = {
     "imageLoadError": "Не вдалося завантажити зображення",
     "formatCode": "Форматувати",
     "quickInsertHint": "Сніпети вставляються в позицію курсора; адаптер і Back Trap — перед закривальними тегами.",
+    "findReplace": "Пошук і заміна",
+    "findPlaceholder": "Знайти текст або regex…",
+    "replacePlaceholder": "Замінити на (напр. {offer})…",
+    "matchCase": "Враховувати регістр",
+    "wholeWord": "Слово цілком",
+    "useRegex": "Регулярні вирази",
+    "noMatches": "Немає збігів",
+    "invalidRegex": "Некоректний regex",
+    "matchCount": "{current} із {total}",
+    "replaceBtn": "Замінити",
+    "replaceAllBtn": "Замінити все",
+    "replacedCount": "Замінено: {count}",
+    "findNext": "Наступний збіг (Enter)",
+    "findPrev": "Попередній збіг (Shift+Enter)",
+    "closeFind": "Закрити (Esc)",
+    "toggleReplace": "Показати/приховати заміну",
     "fullscreen": "На весь екран",
     "exitFullscreen": "Вийти з повноекранного режиму",
     "openInTab": "Відкрити в новій вкладці",
@@ -25786,6 +25848,10 @@ const uk = {
     "apiKey": "API-ключ / Client Token",
     "offerId": "ID оффера / Flow Token",
     "targetGeo": "Цільове ГЕО / Країна",
+    "geoEurope": "Європа",
+    "geoAmericas": "Америки",
+    "geoAsia": "Азія",
+    "geoMena": "Близький Схід та Африка",
     "currency": "Валюта",
     "payout": "Виплата за замовчуванням",
     "landingGroup": "Група лендінгів",
@@ -25868,6 +25934,9 @@ const uk = {
     "suspects": "Підозри на шейв",
     "lostWord": "втрачено в дорозі",
     "qaCount": "QA-тести",
+    "copySubid": "Копіювати SubID",
+    "copyPhone": "Копіювати телефон",
+    "copied": "Скопійовано",
     "networkCol": "Мережа",
     "phoneCol": "Телефон (сировий → E.164)",
     "inspect": "Інспекція доказів",
@@ -27383,6 +27452,22 @@ const es = {
     "imageLoadError": "No se pudo cargar la imagen",
     "formatCode": "Formatear",
     "quickInsertHint": "Los fragmentos se insertan en el cursor; el adaptador y Back Trap antes de las etiquetas de cierre.",
+    "findReplace": "Buscar y reemplazar",
+    "findPlaceholder": "Buscar texto o regex…",
+    "replacePlaceholder": "Reemplazar con (p. ej. {offer})…",
+    "matchCase": "Distinguir mayúsculas",
+    "wholeWord": "Palabra completa",
+    "useRegex": "Expresiones regulares",
+    "noMatches": "Sin coincidencias",
+    "invalidRegex": "Regex no válido",
+    "matchCount": "{current} de {total}",
+    "replaceBtn": "Reemplazar",
+    "replaceAllBtn": "Reemplazar todo",
+    "replacedCount": "Reemplazado: {count}",
+    "findNext": "Coincidencia siguiente (Enter)",
+    "findPrev": "Coincidencia anterior (Shift+Enter)",
+    "closeFind": "Cerrar (Esc)",
+    "toggleReplace": "Mostrar/ocultar reemplazo",
     "fullscreen": "Pantalla completa",
     "exitFullscreen": "Salir de pantalla completa",
     "openInTab": "Abrir en una pestaña nueva",
@@ -29004,6 +29089,10 @@ const es = {
     "apiKey": "Clave API / Token de cliente",
     "offerId": "ID de oferta / Token de flujo",
     "targetGeo": "GEO de destino / País",
+    "geoEurope": "Europa",
+    "geoAmericas": "América",
+    "geoAsia": "Asia",
+    "geoMena": "Oriente Medio y África",
     "currency": "Moneda",
     "payout": "Pago predeterminado",
     "landingGroup": "Grupo de landings",
@@ -29086,6 +29175,9 @@ const es = {
     "suspects": "Sospechas de shave",
     "lostWord": "perdidos en tránsito",
     "qaCount": "Pruebas QA",
+    "copySubid": "Copiar SubID",
+    "copyPhone": "Copiar teléfono",
+    "copied": "Copiado",
     "networkCol": "Red",
     "phoneCol": "Teléfono (bruto → E.164)",
     "inspect": "Inspeccionar evidencia del lead",
@@ -30601,6 +30693,22 @@ const zh = {
     "imageLoadError": "无法加载此图片",
     "formatCode": "格式化",
     "quickInsertHint": "代码片段插入到光标处；适配器和 Back Trap 插入到结束标签之前。",
+    "findReplace": "查找和替换",
+    "findPlaceholder": "查找文本或正则表达式…",
+    "replacePlaceholder": "替换为（如 {offer}）…",
+    "matchCase": "区分大小写",
+    "wholeWord": "全字匹配",
+    "useRegex": "使用正则表达式",
+    "noMatches": "无匹配",
+    "invalidRegex": "无效的正则表达式",
+    "matchCount": "第 {current} 个，共 {total} 个",
+    "replaceBtn": "替换",
+    "replaceAllBtn": "全部替换",
+    "replacedCount": "已替换：{count}",
+    "findNext": "下一个匹配 (Enter)",
+    "findPrev": "上一个匹配 (Shift+Enter)",
+    "closeFind": "关闭 (Esc)",
+    "toggleReplace": "切换替换栏",
     "fullscreen": "全屏",
     "exitFullscreen": "退出全屏",
     "openInTab": "在新标签页中打开",
@@ -32222,6 +32330,10 @@ const zh = {
     "apiKey": "API 密钥 / 令牌",
     "offerId": "优惠 ID / 流量 Token",
     "targetGeo": "目标国家 / GEO",
+    "geoEurope": "欧洲",
+    "geoAmericas": "美洲",
+    "geoAsia": "亚洲",
+    "geoMena": "中东和非洲",
     "currency": "货币",
     "payout": "默认单价",
     "landingGroup": "着陆页分组",
@@ -32304,6 +32416,9 @@ const zh = {
     "suspects": "疑似刷单",
     "lostWord": "在途中丢失",
     "qaCount": "QA 测试",
+    "copySubid": "复制 SubID",
+    "copyPhone": "复制电话",
+    "copied": "已复制",
     "networkCol": "联盟",
     "phoneCol": "电话（原始 → E.164）",
     "inspect": "检查线索证据",
@@ -33819,6 +33934,22 @@ const fr = {
     "imageLoadError": "Impossible de charger l’image",
     "formatCode": "Formater",
     "quickInsertHint": "Les extraits sont insérés au curseur ; l’adaptateur et Back Trap avant les balises de fermeture.",
+    "findReplace": "Rechercher et remplacer",
+    "findPlaceholder": "Rechercher texte ou regex…",
+    "replacePlaceholder": "Remplacer par (ex. {offer})…",
+    "matchCase": "Respecter la casse",
+    "wholeWord": "Mot entier",
+    "useRegex": "Expressions régulières",
+    "noMatches": "Aucun résultat",
+    "invalidRegex": "Regex invalide",
+    "matchCount": "{current} sur {total}",
+    "replaceBtn": "Remplacer",
+    "replaceAllBtn": "Tout remplacer",
+    "replacedCount": "Remplacé : {count}",
+    "findNext": "Résultat suivant (Entrée)",
+    "findPrev": "Résultat précédent (Maj+Entrée)",
+    "closeFind": "Fermer (Échap)",
+    "toggleReplace": "Afficher/masquer le remplacement",
     "fullscreen": "Plein écran",
     "exitFullscreen": "Quitter le plein écran",
     "openInTab": "Ouvrir dans un nouvel onglet",
@@ -35442,6 +35573,10 @@ const fr = {
     "apiKey": "Clé API / Token",
     "offerId": "ID de l'offre / Token de flux",
     "targetGeo": "GÉO cible / Pays",
+    "geoEurope": "Europe",
+    "geoAmericas": "Amériques",
+    "geoAsia": "Asie",
+    "geoMena": "Moyen-Orient et Afrique",
     "currency": "Devise",
     "payout": "Paiement par défaut",
     "landingGroup": "Groupe de landings",
@@ -35524,6 +35659,9 @@ const fr = {
     "suspects": "Suspicions de shave",
     "lostWord": "perdus en transit",
     "qaCount": "Tests QA",
+    "copySubid": "Copier le SubID",
+    "copyPhone": "Copier le téléphone",
+    "copied": "Copié",
     "networkCol": "Réseau",
     "phoneCol": "Téléphone (brut → E.164)",
     "inspect": "Inspecter les preuves du lead",
@@ -37039,6 +37177,22 @@ const de = {
     "imageLoadError": "Das Bild konnte nicht geladen werden",
     "formatCode": "Formatieren",
     "quickInsertHint": "Snippets werden an der Cursorposition eingefügt; Adapter und Back Trap vor den schließenden Tags.",
+    "findReplace": "Suchen & Ersetzen",
+    "findPlaceholder": "Text oder Regex suchen…",
+    "replacePlaceholder": "Ersetzen durch (z. B. {offer})…",
+    "matchCase": "Groß-/Kleinschreibung beachten",
+    "wholeWord": "Ganzes Wort",
+    "useRegex": "Reguläre Ausdrücke",
+    "noMatches": "Keine Treffer",
+    "invalidRegex": "Ungültiger Regex",
+    "matchCount": "{current} von {total}",
+    "replaceBtn": "Ersetzen",
+    "replaceAllBtn": "Alle ersetzen",
+    "replacedCount": "Ersetzt: {count}",
+    "findNext": "Nächster Treffer (Enter)",
+    "findPrev": "Vorheriger Treffer (Shift+Enter)",
+    "closeFind": "Schließen (Esc)",
+    "toggleReplace": "Ersetzen ein-/ausblenden",
     "fullscreen": "Vollbild",
     "exitFullscreen": "Vollbild beenden",
     "openInTab": "In neuem Tab öffnen",
@@ -38660,6 +38814,10 @@ const de = {
     "apiKey": "API-Schlüssel / Token",
     "offerId": "Angebots-ID / Flow-Token",
     "targetGeo": "Ziel-GEO / Land",
+    "geoEurope": "Europa",
+    "geoAmericas": "Amerika",
+    "geoAsia": "Asien",
+    "geoMena": "Naher Osten & Afrika",
     "currency": "Währung",
     "payout": "Standard-Auszahlung",
     "landingGroup": "Landingpage-Gruppe",
@@ -38742,6 +38900,9 @@ const de = {
     "suspects": "Shave-Verdächtige",
     "lostWord": "auf dem Weg verloren",
     "qaCount": "QA-Tests",
+    "copySubid": "SubID kopieren",
+    "copyPhone": "Telefonnummer kopieren",
+    "copied": "Kopiert",
     "networkCol": "Netzwerk",
     "phoneCol": "Telefon (roh → E.164)",
     "inspect": "Lead-Beweise prüfen",
@@ -41788,10 +41949,10 @@ function addRoundedRectPath(ctx, rect) {
   ctx.arc(x + w - radius.topRight, y + radius.topRight, radius.topRight, 0, -HALF_PI, true);
   ctx.lineTo(x + radius.topLeft, y);
 }
-const LINE_HEIGHT = /^(normal|(\d+(?:\.\d+)?)(px|em|%)?)$/;
+const LINE_HEIGHT$1 = /^(normal|(\d+(?:\.\d+)?)(px|em|%)?)$/;
 const FONT_STYLE = /^(normal|italic|initial|inherit|unset|(oblique( -?[0-9]?[0-9]deg)?))$/;
 function toLineHeight(value, size) {
-  const matches = ("" + value).match(LINE_HEIGHT);
+  const matches = ("" + value).match(LINE_HEIGHT$1);
   if (!matches || matches[1] === "normal") {
     return size * 1.2;
   }
@@ -58387,6 +58548,8 @@ const CodeSnippetCard = ({
   }
 );
 const INDENT = "  ";
+const LINE_HEIGHT = 21;
+const FIND_MATCH_CAP = 9999;
 const VOID_HTML_TAGS$1 = /* @__PURE__ */ new Set([
   "area",
   "base",
@@ -58412,6 +58575,27 @@ const shouldIndentNextLine = (line, language) => {
   if (!match2 || trimmed.endsWith("/>")) return false;
   return !VOID_HTML_TAGS$1.has(match2[1].toLowerCase());
 };
+const buildFindRegex = (query, { matchCase, wholeWord, useRegex }) => {
+  if (!query) return null;
+  try {
+    let source = query;
+    if (!useRegex) source = source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    if (wholeWord) source = `\\b(?:${source})\\b`;
+    return { source, flags: matchCase ? "g" : "gi" };
+  } catch (e) {
+    return { invalid: true };
+  }
+};
+const escapeReplacement = (replacement, useRegex) => useRegex ? replacement : replacement.replace(/\$/g, "$$$$");
+const replaceAllLiteral = (text, matches, replacement) => {
+  let result = "";
+  let last = 0;
+  for (const match2 of matches) {
+    result += text.slice(last, match2.start) + replacement;
+    last = match2.end;
+  }
+  return result + text.slice(last);
+};
 const CodeEditor = reactExports.forwardRef(function CodeEditor2({
   value = "",
   onChange,
@@ -58419,10 +58603,57 @@ const CodeEditor = reactExports.forwardRef(function CodeEditor2({
   language = "text",
   ariaLabel = "Code editor"
 }, forwardedRef) {
+  const { t } = useLanguage();
   const textareaRef = reactExports.useRef(null);
   const gutterContentRef = reactExports.useRef(null);
+  const findInputRef = reactExports.useRef(null);
+  const replaceInputRef = reactExports.useRef(null);
+  const revealNextMatch = reactExports.useRef(false);
   const text = String(value ?? "");
   const lineCount = Math.max(1, text.split("\n").length);
+  const [findOpen, setFindOpen] = reactExports.useState(false);
+  const [showReplace, setShowReplace] = reactExports.useState(false);
+  const [findQuery, setFindQuery] = reactExports.useState("");
+  const [replaceQuery, setReplaceQuery] = reactExports.useState("");
+  const [matchCase, setMatchCase] = reactExports.useState(false);
+  const [wholeWord, setWholeWord] = reactExports.useState(false);
+  const [useRegex, setUseRegex] = reactExports.useState(false);
+  const [activeIndex, setActiveIndex] = reactExports.useState(0);
+  const [findNotice, setFindNotice] = reactExports.useState("");
+  const interpolate2 = reactExports.useCallback((key, fallback, params) => {
+    let str = t(key, fallback);
+    Object.entries(params || {}).forEach(([name, val]) => {
+      str = str.split(`{${name}}`).join(String(val));
+    });
+    return str;
+  }, [t]);
+  const regexInfo = reactExports.useMemo(
+    () => buildFindRegex(findQuery, { matchCase, wholeWord, useRegex }),
+    [findQuery, matchCase, wholeWord, useRegex]
+  );
+  const matches = reactExports.useMemo(() => {
+    if (!findQuery || !regexInfo || regexInfo.invalid) return [];
+    try {
+      const regex = new RegExp(regexInfo.source, regexInfo.flags);
+      const found = [];
+      let m;
+      while ((m = regex.exec(text)) !== null && found.length < FIND_MATCH_CAP) {
+        if (m[0]) found.push({ start: m.index, end: m.index + m[0].length });
+        else regex.lastIndex++;
+      }
+      return found;
+    } catch (e) {
+      return [];
+    }
+  }, [text, findQuery, regexInfo]);
+  reactExports.useEffect(() => {
+    setActiveIndex((index2) => Math.min(index2, Math.max(0, matches.length - 1)));
+  }, [matches.length]);
+  reactExports.useEffect(() => {
+    if (!findNotice) return void 0;
+    const timer = window.setTimeout(() => setFindNotice(""), 2500);
+    return () => window.clearTimeout(timer);
+  }, [findNotice]);
   const restoreSelection = reactExports.useCallback((start, end = start) => {
     window.requestAnimationFrame(() => {
       const textarea = textareaRef.current;
@@ -58431,6 +58662,85 @@ const CodeEditor = reactExports.forwardRef(function CodeEditor2({
       textarea.setSelectionRange(start, end);
     });
   }, []);
+  const revealOffset = reactExports.useCallback((start, end = start) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.setSelectionRange(start, end);
+    const before = text.slice(0, start).split("\n");
+    const rowNum = before.length - 1;
+    textarea.scrollTop = Math.max(0, rowNum * LINE_HEIGHT - Math.max(0, (textarea.clientHeight - LINE_HEIGHT) / 2));
+    const col = before[before.length - 1].replace(/\t/g, "  ").length;
+    const styles = window.getComputedStyle(textarea);
+    const probe = document.createElement("span");
+    probe.style.visibility = "hidden";
+    probe.style.position = "absolute";
+    probe.style.whiteSpace = "pre";
+    probe.style.fontFamily = styles.fontFamily;
+    probe.style.fontSize = styles.fontSize;
+    probe.style.fontWeight = styles.fontWeight;
+    probe.style.letterSpacing = styles.letterSpacing;
+    probe.textContent = "M".repeat(col);
+    document.body.appendChild(probe);
+    const offsetLeft = probe.getBoundingClientRect().width;
+    probe.remove();
+    if (offsetLeft < textarea.scrollLeft || offsetLeft > textarea.scrollLeft + textarea.clientWidth - 80) {
+      textarea.scrollLeft = Math.max(0, offsetLeft - textarea.clientWidth / 2);
+    }
+  }, [text]);
+  const gotoMatch = reactExports.useCallback((index2) => {
+    if (!matches.length) return;
+    const next = (index2 % matches.length + matches.length) % matches.length;
+    setActiveIndex(next);
+    revealOffset(matches[next].start, matches[next].end);
+  }, [matches, revealOffset]);
+  const openFind = reactExports.useCallback((opts = {}) => {
+    setFindOpen(true);
+    if (opts.replace) setShowReplace(true);
+    const textarea = textareaRef.current;
+    if (textarea && textarea.selectionStart !== textarea.selectionEnd) {
+      const chosen = textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
+      if (chosen && chosen.length <= 200 && !chosen.includes("\n")) {
+        setFindQuery(chosen);
+        setActiveIndex(0);
+      }
+    }
+    window.requestAnimationFrame(() => {
+      const input = opts.replace ? replaceInputRef.current : findInputRef.current;
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    });
+  }, []);
+  const closeFind = reactExports.useCallback(() => {
+    setFindOpen(false);
+    setFindNotice("");
+    textareaRef.current?.focus();
+  }, []);
+  const replaceOne = reactExports.useCallback(() => {
+    const match2 = matches[activeIndex];
+    if (!match2) return;
+    const replacement = escapeReplacement(replaceQuery, useRegex);
+    const nextText = text.slice(0, match2.start) + replacement + text.slice(match2.end);
+    revealNextMatch.current = true;
+    onChange?.(nextText);
+  }, [matches, activeIndex, replaceQuery, useRegex, text, onChange]);
+  const replaceAll = reactExports.useCallback(() => {
+    if (!matches.length || !regexInfo || regexInfo.invalid) return;
+    const count2 = matches.length;
+    const nextText = useRegex ? text.replace(new RegExp(regexInfo.source, regexInfo.flags), replaceQuery) : replaceAllLiteral(text, matches, replaceQuery);
+    onChange?.(nextText);
+    setActiveIndex(0);
+    setFindNotice(interpolate2("landingEditor.replacedCount", "Replaced: {count}", { count: count2 }));
+  }, [matches, regexInfo, replaceQuery, useRegex, text, onChange, interpolate2]);
+  reactExports.useEffect(() => {
+    if (!revealNextMatch.current) return;
+    revealNextMatch.current = false;
+    if (!matches.length) return;
+    const index2 = Math.min(activeIndex, matches.length - 1);
+    setActiveIndex(index2);
+    revealOffset(matches[index2].start, matches[index2].end);
+  }, [matches, activeIndex, revealOffset]);
   const replaceRange = reactExports.useCallback((replacement, start, end) => {
     const textarea = textareaRef.current;
     const rangeStart = Number.isInteger(start) ? start : textarea?.selectionStart ?? text.length;
@@ -58448,8 +58758,10 @@ const CodeEditor = reactExports.forwardRef(function CodeEditor2({
       start: textareaRef.current?.selectionStart ?? 0,
       end: textareaRef.current?.selectionEnd ?? 0
     }),
-    setSelection: restoreSelection
-  }), [replaceRange, restoreSelection]);
+    setSelection: restoreSelection,
+    openFind,
+    closeFind
+  }), [replaceRange, restoreSelection, openFind, closeFind]);
   const handleScroll = () => {
     const textarea = textareaRef.current;
     const gutter = gutterContentRef.current;
@@ -58482,10 +58794,23 @@ const CodeEditor = reactExports.forwardRef(function CodeEditor2({
     restoreSelection(blockStart, blockStart + nextBlock.length);
   };
   const handleKeyDown = (event) => {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
-      event.preventDefault();
-      onSave?.();
-      return;
+    if ((event.ctrlKey || event.metaKey) && !event.altKey) {
+      const key = event.key.toLowerCase();
+      if (key === "f") {
+        event.preventDefault();
+        openFind();
+        return;
+      }
+      if (key === "h") {
+        event.preventDefault();
+        openFind({ replace: true });
+        return;
+      }
+      if (key === "s") {
+        event.preventDefault();
+        onSave?.();
+        return;
+      }
     }
     if (event.key === "Tab") {
       event.preventDefault();
@@ -58504,10 +58829,77 @@ const CodeEditor = reactExports.forwardRef(function CodeEditor2({
 ${nextIndent}`, start, end);
     }
   };
+  const handleWidgetKeyDown = (event) => {
+    if (event.nativeEvent.isComposing) return;
+    const meta = event.ctrlKey || event.metaKey;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      closeFind();
+      return;
+    }
+    if (meta && event.key.toLowerCase() === "f") {
+      event.preventDefault();
+      findInputRef.current?.focus();
+      findInputRef.current?.select();
+      return;
+    }
+    if (meta && event.key.toLowerCase() === "h") {
+      event.preventDefault();
+      setShowReplace(true);
+      window.requestAnimationFrame(() => replaceInputRef.current?.focus());
+      return;
+    }
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (event.shiftKey) {
+        gotoMatch(activeIndex - 1);
+      } else if (event.target === replaceInputRef.current) {
+        replaceOne();
+      } else {
+        gotoMatch(activeIndex + 1);
+      }
+    }
+  };
+  const renderModifierToggle = (active, label, title, onToggle) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "button",
+    {
+      type: "button",
+      onClick: onToggle,
+      title,
+      "aria-pressed": active,
+      className: "flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md font-mono text-[10px] font-semibold transition",
+      style: {
+        backgroundColor: active ? "rgba(56, 139, 253, 0.18)" : "transparent",
+        border: `1px solid ${active ? "#58a6ff" : "transparent"}`,
+        color: active ? "#79c0ff" : "#8b949e"
+      },
+      children: label
+    }
+  );
+  const renderIconButton = (Icon2, title, onClick, disabled = false) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "button",
+    {
+      type: "button",
+      onClick,
+      disabled,
+      title,
+      className: "flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md transition",
+      style: { color: disabled ? "#484f58" : "#8b949e" },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-3.5 w-3.5" })
+    }
+  );
+  const counter = !findQuery ? { text: "", color: "#8b949e" } : regexInfo?.invalid ? { text: t("landingEditor.invalidRegex", "Invalid regex"), color: "#f85149" } : !matches.length ? { text: t("landingEditor.noMatches", "No matches"), color: "#f85149" } : {
+    text: interpolate2("landingEditor.matchCount", "{current} of {total}", {
+      current: Math.min(activeIndex + 1, matches.length),
+      total: matches.length
+    }),
+    color: "#8b949e"
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
-      className: "flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl border font-mono text-[13px]",
+      className: "relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl border font-mono text-[13px]",
       style: { backgroundColor: "#141619", borderColor: "#30363d", color: "#e6edf3" },
       "data-language": language,
       children: [
@@ -58537,6 +58929,103 @@ ${nextIndent}`, start, end);
             }
           )
         ] }),
+        findOpen && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: "absolute right-2 top-2 z-20 flex w-[min(440px,calc(100%-70px))] flex-col gap-1 rounded-lg p-1.5 shadow-2xl",
+            style: { backgroundColor: "#161b22", border: "1px solid #30363d" },
+            onKeyDown: handleWidgetKeyDown,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => setShowReplace((v) => !v),
+                    title: t("landingEditor.toggleReplace", "Toggle replace"),
+                    "aria-expanded": showReplace,
+                    className: "flex h-6 w-5 flex-shrink-0 items-center justify-center rounded transition",
+                    style: { color: "#8b949e" },
+                    children: showReplace ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "h-3.5 w-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-3.5 w-3.5" })
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    ref: findInputRef,
+                    type: "text",
+                    value: findQuery,
+                    onChange: (event) => {
+                      setFindQuery(event.target.value);
+                      setActiveIndex(0);
+                    },
+                    placeholder: t("landingEditor.findPlaceholder", "Find text or regex…"),
+                    spellCheck: false,
+                    "aria-label": t("landingEditor.findPlaceholder", "Find text or regex…"),
+                    className: "h-7 min-w-0 flex-1 rounded-md px-2 text-xs outline-none",
+                    style: { backgroundColor: "#0d1117", border: "1px solid #30363d", color: "#e6edf3" }
+                  }
+                ),
+                renderModifierToggle(matchCase, "Aa", t("landingEditor.matchCase", "Match case"), () => setMatchCase((v) => !v)),
+                renderModifierToggle(wholeWord, "\\b", t("landingEditor.wholeWord", "Match whole word"), () => setWholeWord((v) => !v)),
+                renderModifierToggle(useRegex, ".*", t("landingEditor.useRegex", "Use regular expression"), () => setUseRegex((v) => !v)),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "min-w-[54px] flex-shrink-0 text-right text-[10px]", style: { color: counter.color }, children: counter.text }),
+                renderIconButton(ChevronUp, t("landingEditor.findPrev", "Previous match (Shift+Enter)"), () => gotoMatch(activeIndex - 1), !matches.length),
+                renderIconButton(ChevronDown, t("landingEditor.findNext", "Next match (Enter)"), () => gotoMatch(activeIndex + 1), !matches.length),
+                renderIconButton(X, t("landingEditor.closeFind", "Close (Esc)"), closeFind)
+              ] }),
+              showReplace && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-5 flex-shrink-0" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    ref: replaceInputRef,
+                    type: "text",
+                    value: replaceQuery,
+                    onChange: (event) => setReplaceQuery(event.target.value),
+                    placeholder: t("landingEditor.replacePlaceholder", "Replace with (e.g. {offer})…"),
+                    spellCheck: false,
+                    "aria-label": t("landingEditor.replacePlaceholder", "Replace with (e.g. {offer})…"),
+                    className: "h-7 min-w-0 flex-1 rounded-md px-2 text-xs outline-none",
+                    style: { backgroundColor: "#0d1117", border: "1px solid #30363d", color: "#e6edf3" }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: replaceOne,
+                    disabled: !matches.length,
+                    className: "h-7 flex-shrink-0 rounded-md px-2 text-[10px] font-semibold transition",
+                    style: {
+                      backgroundColor: "#21262d",
+                      border: "1px solid #30363d",
+                      color: matches.length ? "#e6edf3" : "#484f58"
+                    },
+                    children: t("landingEditor.replaceBtn", "Replace")
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: replaceAll,
+                    disabled: !matches.length,
+                    className: "h-7 flex-shrink-0 rounded-md px-2 text-[10px] font-semibold transition",
+                    style: {
+                      backgroundColor: matches.length ? "#1f6feb" : "#21262d",
+                      border: "1px solid",
+                      borderColor: matches.length ? "#1f6feb" : "#30363d",
+                      color: matches.length ? "#ffffff" : "#484f58"
+                    },
+                    children: t("landingEditor.replaceAllBtn", "Replace all")
+                  }
+                )
+              ] }),
+              findNotice && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-1 text-[10px]", style: { color: "#3fb950" }, children: findNotice })
+            ]
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
@@ -59587,6 +60076,11 @@ ${file}`)) return;
                       /* @__PURE__ */ jsxRuntimeExports.jsx(WandSparkles, { className: "h-3.5 w-3.5" }),
                       " ",
                       t("landingEditor.formatCode", "Format")
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "btn btn-secondary btn-sm", onClick: () => codeEditorRef.current?.openFind(), title: "Ctrl/Cmd+F · Ctrl/Cmd+H", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "h-3.5 w-3.5" }),
+                      " ",
+                      t("landingEditor.findReplace", "Find & Replace")
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto text-[10px]", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.quickInsertHint", "Snippets are inserted at the cursor; adapter and back trap are placed before closing tags.") })
                   ] }),
@@ -93999,20 +94493,96 @@ const CPA_NETWORKS = [
   { id: "monsterleads", name: "MonsterLeads", defaultCurrency: "USD", defaultPayout: 21, placeholder: "Offer ID (e.g. 1102)" },
   { id: "custom", name: "Custom API / Webhook", defaultCurrency: "USD", defaultPayout: 20, placeholder: "https://api.domain.com/lead/create" }
 ];
+const GEO_REGIONS = [
+  { id: "europe", labelKey: "leadforge.geoEurope", fallback: "Europe" },
+  { id: "americas", labelKey: "leadforge.geoAmericas", fallback: "Americas" },
+  { id: "asia", labelKey: "leadforge.geoAsia", fallback: "Asia" },
+  { id: "mena", labelKey: "leadforge.geoMena", fallback: "MENA & Africa" }
+];
 const GEO_PRESETS = [
-  { code: "IT", name: "Italy (+39)", flag: "🇮🇹" },
-  { code: "ES", name: "Spain (+34)", flag: "🇪🇸" },
-  { code: "DE", name: "Germany (+49)", flag: "🇩🇪" },
-  { code: "FR", name: "France (+33)", flag: "🇫🇷" },
-  { code: "PL", name: "Poland (+48)", flag: "🇵🇱" },
-  { code: "RO", name: "Romania (+40)", flag: "🇷🇴" },
-  { code: "GR", name: "Greece (+30)", flag: "🇬🇷" },
-  { code: "RU", name: "Russia (+7)", flag: "🇷🇺" },
-  { code: "UA", name: "Ukraine (+380)", flag: "🇺🇦" },
-  { code: "KZ", name: "Kazakhstan (+7)", flag: "🇰🇿" },
-  { code: "US", name: "United States (+1)", flag: "🇺🇸" },
-  { code: "MX", name: "Mexico (+52)", flag: "🇲🇽" },
-  { code: "CO", name: "Colombia (+57)", flag: "🇨🇴" }
+  // Europe
+  { code: "IT", region: "europe", name: "Italy (+39)", flag: "🇮🇹" },
+  { code: "ES", region: "europe", name: "Spain (+34)", flag: "🇪🇸" },
+  { code: "DE", region: "europe", name: "Germany (+49)", flag: "🇩🇪" },
+  { code: "FR", region: "europe", name: "France (+33)", flag: "🇫🇷" },
+  { code: "PL", region: "europe", name: "Poland (+48)", flag: "🇵🇱" },
+  { code: "RO", region: "europe", name: "Romania (+40)", flag: "🇷🇴" },
+  { code: "GR", region: "europe", name: "Greece (+30)", flag: "🇬🇷" },
+  { code: "GB", region: "europe", name: "United Kingdom (+44)", flag: "🇬🇧" },
+  { code: "PT", region: "europe", name: "Portugal (+351)", flag: "🇵🇹" },
+  { code: "NL", region: "europe", name: "Netherlands (+31)", flag: "🇳🇱" },
+  { code: "BE", region: "europe", name: "Belgium (+32)", flag: "🇧🇪" },
+  { code: "AT", region: "europe", name: "Austria (+43)", flag: "🇦🇹" },
+  { code: "CH", region: "europe", name: "Switzerland (+41)", flag: "🇨🇭" },
+  { code: "CZ", region: "europe", name: "Czechia (+420)", flag: "🇨🇿" },
+  { code: "SK", region: "europe", name: "Slovakia (+421)", flag: "🇸🇰" },
+  { code: "HU", region: "europe", name: "Hungary (+36)", flag: "🇭🇺" },
+  { code: "BG", region: "europe", name: "Bulgaria (+359)", flag: "🇧🇬" },
+  { code: "RS", region: "europe", name: "Serbia (+381)", flag: "🇷🇸" },
+  { code: "HR", region: "europe", name: "Croatia (+385)", flag: "🇭🇷" },
+  { code: "SI", region: "europe", name: "Slovenia (+386)", flag: "🇸🇮" },
+  { code: "LT", region: "europe", name: "Lithuania (+370)", flag: "🇱🇹" },
+  { code: "LV", region: "europe", name: "Latvia (+371)", flag: "🇱🇻" },
+  { code: "EE", region: "europe", name: "Estonia (+372)", flag: "🇪🇪" },
+  { code: "DK", region: "europe", name: "Denmark (+45)", flag: "🇩🇰" },
+  { code: "SE", region: "europe", name: "Sweden (+46)", flag: "🇸🇪" },
+  { code: "NO", region: "europe", name: "Norway (+47)", flag: "🇳🇴" },
+  { code: "FI", region: "europe", name: "Finland (+358)", flag: "🇫🇮" },
+  { code: "IE", region: "europe", name: "Ireland (+353)", flag: "🇮🇪" },
+  { code: "CY", region: "europe", name: "Cyprus (+357)", flag: "🇨🇾" },
+  { code: "MD", region: "europe", name: "Moldova (+373)", flag: "🇲🇩" },
+  { code: "BY", region: "europe", name: "Belarus (+375)", flag: "🇧🇾" },
+  { code: "TR", region: "europe", name: "Türkiye (+90)", flag: "🇹🇷" },
+  { code: "UA", region: "europe", name: "Ukraine (+380)", flag: "🇺🇦" },
+  { code: "RU", region: "europe", name: "Russia (+7)", flag: "🇷🇺" },
+  // Americas
+  { code: "US", region: "americas", name: "United States (+1)", flag: "🇺🇸" },
+  { code: "MX", region: "americas", name: "Mexico (+52)", flag: "🇲🇽" },
+  { code: "CO", region: "americas", name: "Colombia (+57)", flag: "🇨🇴" },
+  { code: "BR", region: "americas", name: "Brazil (+55)", flag: "🇧🇷" },
+  { code: "AR", region: "americas", name: "Argentina (+54)", flag: "🇦🇷" },
+  { code: "CL", region: "americas", name: "Chile (+56)", flag: "🇨🇱" },
+  { code: "PE", region: "americas", name: "Peru (+51)", flag: "🇵🇪" },
+  { code: "EC", region: "americas", name: "Ecuador (+593)", flag: "🇪🇨" },
+  { code: "VE", region: "americas", name: "Venezuela (+58)", flag: "🇻🇪" },
+  { code: "UY", region: "americas", name: "Uruguay (+598)", flag: "🇺🇾" },
+  { code: "PY", region: "americas", name: "Paraguay (+595)", flag: "🇵🇾" },
+  { code: "BO", region: "americas", name: "Bolivia (+591)", flag: "🇧🇴" },
+  { code: "CR", region: "americas", name: "Costa Rica (+506)", flag: "🇨🇷" },
+  { code: "PA", region: "americas", name: "Panama (+507)", flag: "🇵🇦" },
+  { code: "GT", region: "americas", name: "Guatemala (+502)", flag: "🇬🇹" },
+  { code: "DO", region: "americas", name: "Dominican Rep. (+1)", flag: "🇩🇴" },
+  { code: "SV", region: "americas", name: "El Salvador (+503)", flag: "🇸🇻" },
+  { code: "HN", region: "americas", name: "Honduras (+504)", flag: "🇭🇳" },
+  { code: "NI", region: "americas", name: "Nicaragua (+505)", flag: "🇳🇮" },
+  // Asia
+  { code: "KZ", region: "asia", name: "Kazakhstan (+7)", flag: "🇰🇿" },
+  { code: "ID", region: "asia", name: "Indonesia (+62)", flag: "🇮🇩" },
+  { code: "TH", region: "asia", name: "Thailand (+66)", flag: "🇹🇭" },
+  { code: "VN", region: "asia", name: "Vietnam (+84)", flag: "🇻🇳" },
+  { code: "MY", region: "asia", name: "Malaysia (+60)", flag: "🇲🇾" },
+  { code: "PH", region: "asia", name: "Philippines (+63)", flag: "🇵🇭" },
+  { code: "IN", region: "asia", name: "India (+91)", flag: "🇮🇳" },
+  { code: "KH", region: "asia", name: "Cambodia (+855)", flag: "🇰🇭" },
+  { code: "JP", region: "asia", name: "Japan (+81)", flag: "🇯🇵" },
+  { code: "KR", region: "asia", name: "South Korea (+82)", flag: "🇰🇷" },
+  { code: "CN", region: "asia", name: "China (+86)", flag: "🇨🇳" },
+  { code: "PK", region: "asia", name: "Pakistan (+92)", flag: "🇵🇰" },
+  { code: "BD", region: "asia", name: "Bangladesh (+880)", flag: "🇧🇩" },
+  // MENA & Africa
+  { code: "MA", region: "mena", name: "Morocco (+212)", flag: "🇲🇦" },
+  { code: "DZ", region: "mena", name: "Algeria (+213)", flag: "🇩🇿" },
+  { code: "TN", region: "mena", name: "Tunisia (+216)", flag: "🇹🇳" },
+  { code: "EG", region: "mena", name: "Egypt (+20)", flag: "🇪🇬" },
+  { code: "ZA", region: "mena", name: "South Africa (+27)", flag: "🇿🇦" },
+  { code: "NG", region: "mena", name: "Nigeria (+234)", flag: "🇳🇬" },
+  { code: "KE", region: "mena", name: "Kenya (+254)", flag: "🇰🇪" },
+  { code: "GH", region: "mena", name: "Ghana (+233)", flag: "🇬🇭" },
+  { code: "SN", region: "mena", name: "Senegal (+221)", flag: "🇸🇳" },
+  { code: "CI", region: "mena", name: "Côte d’Ivoire (+225)", flag: "🇨🇮" },
+  { code: "SA", region: "mena", name: "Saudi Arabia (+966)", flag: "🇸🇦" },
+  { code: "AE", region: "mena", name: "UAE (+971)", flag: "🇦🇪" },
+  { code: "IL", region: "mena", name: "Israel (+972)", flag: "🇮🇱" }
 ];
 const MODES = [
   { id: "auto", label: "Auto", sub: "Detect + route", icon: ScanSearch },
@@ -94240,7 +94810,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     "cross-network": t("leadforge.modeCrossHint", "Network swap: the old network's handlers (order.php, send.php, api.php…) and its hardcoded keys are cut out, and the landing is re-seated on the target network you pick below."),
     "raw": t("leadforge.modeRawHint", "Clone patch: foreign counters (FB/TikTok/GA/Yandex) and hostile scripts are stripped, the ClickID bridge and {offer} macros are injected — no server-side order.php is generated.")
   }[mode];
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 max-w-7xl mx-auto pb-12", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 w-full pb-12", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border bg-[var(--color-bg-card)] border-[var(--color-border)]", style: { boxShadow: "var(--shadow-main)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -94593,11 +95163,11 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                   onChange: (e) => setSelectedGeo(e.target.value),
                   className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
                   style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
-                  children: GEO_PRESETS.map((geo) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: geo.code, children: [
+                  children: GEO_REGIONS.map((region) => /* @__PURE__ */ jsxRuntimeExports.jsx("optgroup", { label: t(region.labelKey, region.fallback), children: GEO_PRESETS.filter((geo) => geo.region === region.id).map((geo) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: geo.code, children: [
                     geo.flag,
                     " ",
                     geo.name
-                  ] }, geo.code))
+                  ] }, geo.code)) }, region.id))
                 }
               )
             ] }),
@@ -94873,6 +95443,12 @@ const CRMPage = ({ setActiveTab, user }) => {
     payout: "25",
     currency: "USD"
   });
+  const [copiedField, setCopiedField] = reactExports.useState("");
+  const handleCopyField = async (key, value) => {
+    if (!value || !await copyToClipboard(value)) return;
+    setCopiedField(key);
+    setTimeout(() => setCopiedField(""), 1500);
+  };
   const fetchLeads = reactExports.useCallback(async () => {
     setLoading(true);
     try {
@@ -94985,7 +95561,7 @@ const CRMPage = ({ setActiveTab, user }) => {
     link.click();
     document.body.removeChild(link);
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 max-w-7xl mx-auto pb-12", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 w-full pb-12", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border bg-[var(--color-bg-card)] border-[var(--color-border)]", style: { boxShadow: "var(--shadow-main)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -95055,20 +95631,30 @@ const CRMPage = ({ setActiveTab, user }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-emerald-600 dark:text-emerald-400", children: t("crm.approved", "Approved Sales") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400", children: kpi.approved })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400", children: kpi.approved }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[10px] text-[var(--color-text-muted)]", children: [
+          t("crm.approvalRate", "Approval Rate"),
+          ": ",
+          kpi.total > 0 ? Math.round(kpi.approved / Math.max(1, kpi.total - kpi.qa) * 100) : 0,
+          "%"
+        ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-rose-600 dark:text-rose-400", children: t("crm.rejected", "Rejected") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-rose-600 dark:text-rose-400", children: kpi.rejected })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-rose-300 dark:border-rose-900 rounded-2xl p-4 shadow-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-rose-50/60 dark:bg-rose-950/20 border border-rose-300 dark:border-rose-900 rounded-2xl p-4 shadow-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-1.5", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { size: 13 }),
           " ",
           t("crm.suspects", "Shave Suspects")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-rose-600 dark:text-rose-400", children: kpi.suspects }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] text-[var(--color-text-muted)]", children: kpi.lost > 0 ? `${kpi.lost} ${t("crm.lostWord", "lost in transit")}` : `${t("crm.approvalRate", "Approval Rate")}: ${kpi.total > 0 ? Math.round(kpi.approved / Math.max(1, kpi.total - kpi.qa) * 100) : 0}%` })
+        kpi.lost > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[10px] text-[var(--color-text-muted)]", children: [
+          kpi.lost,
+          " ",
+          t("crm.lostWord", "lost in transit")
+        ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-[var(--color-text-secondary)]", children: t("crm.revenue", "Earned Revenue") }),
@@ -95146,10 +95732,22 @@ const CRMPage = ({ setActiveTab, user }) => {
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "tr",
           {
-            className: `hover:bg-[var(--color-bg-hover)] transition ${lead.shave_suspect || lead.lost_in_transit ? "bg-rose-50 dark:bg-rose-950/20" : ""}`,
+            className: `group hover:bg-[var(--color-bg-hover)] transition ${lead.shave_suspect || lead.lost_in_transit ? "bg-rose-50 dark:bg-rose-950/20" : ""}`,
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3 font-mono font-medium whitespace-nowrap", style: { color: "var(--color-text-primary)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-1.5", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate max-w-[160px]", title: lead.click_id, children: lead.click_id }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate max-w-[160px]", title: lead.click_id, children: lead.click_id }),
+                  lead.click_id && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => handleCopyField(`${lead.id}:subid`, lead.click_id),
+                      className: "opacity-0 group-hover:opacity-100 transition cursor-pointer text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
+                      title: copiedField === `${lead.id}:subid` ? t("crm.copied", "Copied") : t("crm.copySubid", "Copy SubID"),
+                      children: copiedField === `${lead.id}:subid` ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12, className: "text-emerald-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 })
+                    }
+                  )
+                ] }),
                 lead.campaign_name && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] text-[var(--color-text-muted)] truncate max-w-[160px]", children: lead.campaign_name })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3 whitespace-nowrap", style: { color: "var(--color-text-primary)" }, children: [
@@ -95159,7 +95757,17 @@ const CRMPage = ({ setActiveTab, user }) => {
               /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3 whitespace-nowrap", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", style: { color: "var(--color-text-primary)" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Phone, { size: 12, className: "text-[var(--color-text-muted)]" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: lead.raw_phone || "—" })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: lead.raw_phone || "—" }),
+                  lead.raw_phone && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => handleCopyField(`${lead.id}:phone`, lead.raw_phone),
+                      className: "opacity-0 group-hover:opacity-100 transition cursor-pointer text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
+                      title: copiedField === `${lead.id}:phone` ? t("crm.copied", "Copied") : t("crm.copyPhone", "Copy phone"),
+                      children: copiedField === `${lead.id}:phone` ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12, className: "text-emerald-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 })
+                    }
+                  )
                 ] }),
                 lead.clean_phone && lead.clean_phone !== lead.raw_phone && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[10px] font-mono text-emerald-600 dark:text-emerald-400", children: [
                   "→ ",
@@ -95847,7 +96455,7 @@ function App() {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-h-screen relative pb-10", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Navbar, { activeTab, setActiveTab, user, onLogout: handleLogout }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("main", { className: "pt-32 px-4 md:px-6 w-full mx-auto", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center h-64", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
+      !["leadforge", "crm"].includes(activeTab) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl font-bold", style: { color: "var(--color-text-primary)" }, children: [
           activeTab === "dashboard" && t("app.dashboard"),
           activeTab === "domains" && t("app.domains"),

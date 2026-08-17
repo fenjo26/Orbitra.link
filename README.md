@@ -1,4 +1,4 @@
-# Orbitra v1.0.2 Tracker
+# Orbitra v1.0.3 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -422,15 +422,14 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.0.2 (2026-08-17)
-- 🔬 **LeadForge 2.0: Analyze → Build** — inspect up to 15 bundles without touching a byte (network detection across 13 CPA signatures, forms, foreign counters, encoding, GEO), then compile the selected ones through a live execution console
-- 🔀 **Auto / Cross-Network / Raw modes** — route to the detected network, swap the old network's handlers for a new one, or clone-patch with counters stripped and the ClickID bridge injected
-- 🛡️ **Live Auto QA** — a QA-Test-Lead is posted through the real order.php bridge after every build and scored 0–100% (structure, bridge, dual logging, thank-you redirect); QA traffic never touches analytics
-- 🗄️ **CRM Anti-Shaving Vault** — every lead stored with the raw phone as typed vs the E.164 delivered, UTM/adset/ad attribution, and the exact network request/response dump; fed in-process, via the public /crm-ingest endpoint, or manually
-- 🚨 **Shave detection** — rejected-after-200-with-valid-E.164 leads flag as Suspected Shave with an evidence pack for the network's support; 24h-silent leads flag as Missing Network ACK, same-phone repeats as Duplicates
-- 🧯 **Fixed: order.php bridge timeout** — the 3s PHP-landing budget killed handlers mid-network-call (now max(timeout, 25s)); router.php no longer swallows /postback.php, /order.php, /crm-ingest on the dev server; both suite pages follow the global theme system
+### Current release — v1.0.3 (2026-08-17)
+- 🔍 **Find & Replace in the code editor** — Ctrl/Cmd+F / Ctrl/Cmd+H opens a VS Code-style widget over the landing editor: case, whole-word and regex modifiers, a live `N of M` counter, Enter/Shift+Enter navigation that scrolls to each match (minified one-liners included), single Replace and count-verified Replace All, query seeded from the selection
+- 🖥️ **Full-width CRM & LeadForge** — the 1280px cap and its side voids are gone (both pages match the dashboard now), and the duplicated page title above their hero headers no longer renders
+- 🧾 **CRM polish** — Approval Rate under the Approved Sales card, a rose-tinted Shave Suspects card reporting only lost-in-transit, hover copy buttons for SubID and phone in the leads table
+- 🌍 **79-GEO coverage** — the LeadForge country picker grows from 13 to 79 countries grouped by Europe / Americas / Asia / MENA & Africa, with matching mobile phone masks in the build engine (order.php generation, adapter validation, Auto QA scoring)
+- 🔐 **Fix: API key + session coexistence** — a key arriving on a signed-in browser request is honored only when it belongs to the same user (403 otherwise); the live panel session is never re-identified as api_key
 
-Previous release — v1.0.1: 1-Click TikTok For Business (OAuth + auto-discovery + spend sync with 24h token auto-refresh), Pixel Vault source tabs, TikTok pixel snippet; Campaigns TDZ white screen fix.
+Previous release — v1.0.2: LeadForge 2.0 (Analyze→Build, Auto/Cross/Raw modes, Live Auto QA) + CRM Anti-Shaving Vault with shave detection; order.php bridge timeout + router.php fixes.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 
