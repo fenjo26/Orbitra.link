@@ -752,8 +752,11 @@ function checkRateLimit($key, $maxRequests = 5, $window = 300)
 // === API KEY AUTHENTICATION (for MCP / headless clients) ===
 // Allows programmatic clients (e.g. the Orbitra MCP server) to authenticate with a
 // personal API key instead of a browser session + CSRF token. The key is looked up in
-// `user_api_keys`; when found we populate the session context in-memory for this request
-// only, so all downstream handlers keep working unchanged.
+// `user_api_keys`; when found we authenticate the request through $apiKeyAuth. If no
+// browser session is present we also populate the session context in-memory for this
+// request only, so all downstream handlers keep working unchanged. When a panel
+// session coexists with the key (the browser extension does this) the key must
+// belong to the same user, and the live session is left untouched.
 //   Header options:  Authorization: Bearer <api_key>   OR   X-Api-Key: <api_key>
 //   Permissions:     'read'  -> GET (read-only) actions only
 //                    'write' | 'full' -> read + write (POST) actions
@@ -791,7 +794,7 @@ if (in_array($action, $extensionReadOnlyActions, true)) {
 }
 
 $apiKeyAuth = null; // ['id','user_id','permissions','role'] when authenticated via API key
-if ($apiKeyProvided !== '' && !isset($_SESSION['user_id'])) {
+if ($apiKeyProvided !== '') {
     try {
         $stmtKey = $pdo->prepare(
             "SELECT k.id, k.user_id, k.permissions, u.role
@@ -800,21 +803,38 @@ if ($apiKeyProvided !== '' && !isset($_SESSION['user_id'])) {
         );
         $stmtKey->execute([$apiKeyProvided]);
         $keyRow = $stmtKey->fetch(PDO::FETCH_ASSOC);
-        if ($keyRow) {
-            $apiKeyAuth = $keyRow;
-            // Populate request-scoped auth context (not persisted — API clients are stateless).
-            $_SESSION['user_id'] = (int) $keyRow['user_id'];
-            $_SESSION['role'] = $keyRow['role'] ?? 'user';
-            $_SESSION['auth_via'] = 'api_key';
-            try {
-                $pdo->prepare("UPDATE user_api_keys SET last_used = datetime('now') WHERE id = ?")
-                    ->execute([$keyRow['id']]);
-            } catch (\Exception $e) {
-            }
-        } else {
+        if (!$keyRow) {
             http_response_code(401);
             echo json_encode(['status' => 'error', 'message' => 'Invalid API key']);
             exit;
+        }
+
+        // The extension calls api.php from a browser that may also be signed in
+        // to the panel, so a session cookie and an API key can arrive on the
+        // same request. Accept that only when both resolve to the same user:
+        // never re-identify a live session, and never let one account's key
+        // act under another account's session.
+        $apiKeySessionUser = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
+        if ($apiKeySessionUser !== null && $apiKeySessionUser !== (int) $keyRow['user_id']) {
+            http_response_code(403);
+            echo json_encode(['status' => 'error', 'message' => 'API key does not belong to the signed-in user']);
+            exit;
+        }
+
+        $apiKeyAuth = $keyRow;
+        if ($apiKeySessionUser === null) {
+            // Request-scoped auth context for cookie-less clients only. Writing
+            // these into a real browser session would persist auth_via and flip
+            // the panel session to API-key identity — extension_credentials
+            // must stay reachable for a signed-in browser.
+            $_SESSION['user_id'] = (int) $keyRow['user_id'];
+            $_SESSION['role'] = $keyRow['role'] ?? 'user';
+            $_SESSION['auth_via'] = 'api_key';
+        }
+        try {
+            $pdo->prepare("UPDATE user_api_keys SET last_used = datetime('now') WHERE id = ?")
+                ->execute([$keyRow['id']]);
+        } catch (\Exception $e) {
         }
     } catch (\Exception $e) {
     }
