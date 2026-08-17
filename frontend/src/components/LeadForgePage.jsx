@@ -24,20 +24,100 @@ const CPA_NETWORKS = [
     { id: 'custom', name: 'Custom API / Webhook', defaultCurrency: 'USD', defaultPayout: 20, placeholder: 'https://api.domain.com/lead/create' }
 ];
 
+// Must stay in sync with core/LeadForge.php::geoMasks() — the backend owns
+// the actual phone masks; this list only feeds the GEO picker (regions, flags,
+// labels). A GEO missing from the backend map falls back to a generic mask.
+const GEO_REGIONS = [
+    { id: 'europe', labelKey: 'leadforge.geoEurope', fallback: 'Europe' },
+    { id: 'americas', labelKey: 'leadforge.geoAmericas', fallback: 'Americas' },
+    { id: 'asia', labelKey: 'leadforge.geoAsia', fallback: 'Asia' },
+    { id: 'mena', labelKey: 'leadforge.geoMena', fallback: 'MENA & Africa' },
+];
+
 const GEO_PRESETS = [
-    { code: 'IT', name: 'Italy (+39)', flag: '🇮🇹' },
-    { code: 'ES', name: 'Spain (+34)', flag: '🇪🇸' },
-    { code: 'DE', name: 'Germany (+49)', flag: '🇩🇪' },
-    { code: 'FR', name: 'France (+33)', flag: '🇫🇷' },
-    { code: 'PL', name: 'Poland (+48)', flag: '🇵🇱' },
-    { code: 'RO', name: 'Romania (+40)', flag: '🇷🇴' },
-    { code: 'GR', name: 'Greece (+30)', flag: '🇬🇷' },
-    { code: 'RU', name: 'Russia (+7)', flag: '🇷🇺' },
-    { code: 'UA', name: 'Ukraine (+380)', flag: '🇺🇦' },
-    { code: 'KZ', name: 'Kazakhstan (+7)', flag: '🇰🇿' },
-    { code: 'US', name: 'United States (+1)', flag: '🇺🇸' },
-    { code: 'MX', name: 'Mexico (+52)', flag: '🇲🇽' },
-    { code: 'CO', name: 'Colombia (+57)', flag: '🇨🇴' }
+    // Europe
+    { code: 'IT', region: 'europe', name: 'Italy (+39)', flag: '🇮🇹' },
+    { code: 'ES', region: 'europe', name: 'Spain (+34)', flag: '🇪🇸' },
+    { code: 'DE', region: 'europe', name: 'Germany (+49)', flag: '🇩🇪' },
+    { code: 'FR', region: 'europe', name: 'France (+33)', flag: '🇫🇷' },
+    { code: 'PL', region: 'europe', name: 'Poland (+48)', flag: '🇵🇱' },
+    { code: 'RO', region: 'europe', name: 'Romania (+40)', flag: '🇷🇴' },
+    { code: 'GR', region: 'europe', name: 'Greece (+30)', flag: '🇬🇷' },
+    { code: 'GB', region: 'europe', name: 'United Kingdom (+44)', flag: '🇬🇧' },
+    { code: 'PT', region: 'europe', name: 'Portugal (+351)', flag: '🇵🇹' },
+    { code: 'NL', region: 'europe', name: 'Netherlands (+31)', flag: '🇳🇱' },
+    { code: 'BE', region: 'europe', name: 'Belgium (+32)', flag: '🇧🇪' },
+    { code: 'AT', region: 'europe', name: 'Austria (+43)', flag: '🇦🇹' },
+    { code: 'CH', region: 'europe', name: 'Switzerland (+41)', flag: '🇨🇭' },
+    { code: 'CZ', region: 'europe', name: 'Czechia (+420)', flag: '🇨🇿' },
+    { code: 'SK', region: 'europe', name: 'Slovakia (+421)', flag: '🇸🇰' },
+    { code: 'HU', region: 'europe', name: 'Hungary (+36)', flag: '🇭🇺' },
+    { code: 'BG', region: 'europe', name: 'Bulgaria (+359)', flag: '🇧🇬' },
+    { code: 'RS', region: 'europe', name: 'Serbia (+381)', flag: '🇷🇸' },
+    { code: 'HR', region: 'europe', name: 'Croatia (+385)', flag: '🇭🇷' },
+    { code: 'SI', region: 'europe', name: 'Slovenia (+386)', flag: '🇸🇮' },
+    { code: 'LT', region: 'europe', name: 'Lithuania (+370)', flag: '🇱🇹' },
+    { code: 'LV', region: 'europe', name: 'Latvia (+371)', flag: '🇱🇻' },
+    { code: 'EE', region: 'europe', name: 'Estonia (+372)', flag: '🇪🇪' },
+    { code: 'DK', region: 'europe', name: 'Denmark (+45)', flag: '🇩🇰' },
+    { code: 'SE', region: 'europe', name: 'Sweden (+46)', flag: '🇸🇪' },
+    { code: 'NO', region: 'europe', name: 'Norway (+47)', flag: '🇳🇴' },
+    { code: 'FI', region: 'europe', name: 'Finland (+358)', flag: '🇫🇮' },
+    { code: 'IE', region: 'europe', name: 'Ireland (+353)', flag: '🇮🇪' },
+    { code: 'CY', region: 'europe', name: 'Cyprus (+357)', flag: '🇨🇾' },
+    { code: 'MD', region: 'europe', name: 'Moldova (+373)', flag: '🇲🇩' },
+    { code: 'BY', region: 'europe', name: 'Belarus (+375)', flag: '🇧🇾' },
+    { code: 'TR', region: 'europe', name: 'Türkiye (+90)', flag: '🇹🇷' },
+    { code: 'UA', region: 'europe', name: 'Ukraine (+380)', flag: '🇺🇦' },
+    { code: 'RU', region: 'europe', name: 'Russia (+7)', flag: '🇷🇺' },
+    // Americas
+    { code: 'US', region: 'americas', name: 'United States (+1)', flag: '🇺🇸' },
+    { code: 'MX', region: 'americas', name: 'Mexico (+52)', flag: '🇲🇽' },
+    { code: 'CO', region: 'americas', name: 'Colombia (+57)', flag: '🇨🇴' },
+    { code: 'BR', region: 'americas', name: 'Brazil (+55)', flag: '🇧🇷' },
+    { code: 'AR', region: 'americas', name: 'Argentina (+54)', flag: '🇦🇷' },
+    { code: 'CL', region: 'americas', name: 'Chile (+56)', flag: '🇨🇱' },
+    { code: 'PE', region: 'americas', name: 'Peru (+51)', flag: '🇵🇪' },
+    { code: 'EC', region: 'americas', name: 'Ecuador (+593)', flag: '🇪🇨' },
+    { code: 'VE', region: 'americas', name: 'Venezuela (+58)', flag: '🇻🇪' },
+    { code: 'UY', region: 'americas', name: 'Uruguay (+598)', flag: '🇺🇾' },
+    { code: 'PY', region: 'americas', name: 'Paraguay (+595)', flag: '🇵🇾' },
+    { code: 'BO', region: 'americas', name: 'Bolivia (+591)', flag: '🇧🇴' },
+    { code: 'CR', region: 'americas', name: 'Costa Rica (+506)', flag: '🇨🇷' },
+    { code: 'PA', region: 'americas', name: 'Panama (+507)', flag: '🇵🇦' },
+    { code: 'GT', region: 'americas', name: 'Guatemala (+502)', flag: '🇬🇹' },
+    { code: 'DO', region: 'americas', name: 'Dominican Rep. (+1)', flag: '🇩🇴' },
+    { code: 'SV', region: 'americas', name: 'El Salvador (+503)', flag: '🇸🇻' },
+    { code: 'HN', region: 'americas', name: 'Honduras (+504)', flag: '🇭🇳' },
+    { code: 'NI', region: 'americas', name: 'Nicaragua (+505)', flag: '🇳🇮' },
+    // Asia
+    { code: 'KZ', region: 'asia', name: 'Kazakhstan (+7)', flag: '🇰🇿' },
+    { code: 'ID', region: 'asia', name: 'Indonesia (+62)', flag: '🇮🇩' },
+    { code: 'TH', region: 'asia', name: 'Thailand (+66)', flag: '🇹🇭' },
+    { code: 'VN', region: 'asia', name: 'Vietnam (+84)', flag: '🇻🇳' },
+    { code: 'MY', region: 'asia', name: 'Malaysia (+60)', flag: '🇲🇾' },
+    { code: 'PH', region: 'asia', name: 'Philippines (+63)', flag: '🇵🇭' },
+    { code: 'IN', region: 'asia', name: 'India (+91)', flag: '🇮🇳' },
+    { code: 'KH', region: 'asia', name: 'Cambodia (+855)', flag: '🇰🇭' },
+    { code: 'JP', region: 'asia', name: 'Japan (+81)', flag: '🇯🇵' },
+    { code: 'KR', region: 'asia', name: 'South Korea (+82)', flag: '🇰🇷' },
+    { code: 'CN', region: 'asia', name: 'China (+86)', flag: '🇨🇳' },
+    { code: 'PK', region: 'asia', name: 'Pakistan (+92)', flag: '🇵🇰' },
+    { code: 'BD', region: 'asia', name: 'Bangladesh (+880)', flag: '🇧🇩' },
+    // MENA & Africa
+    { code: 'MA', region: 'mena', name: 'Morocco (+212)', flag: '🇲🇦' },
+    { code: 'DZ', region: 'mena', name: 'Algeria (+213)', flag: '🇩🇿' },
+    { code: 'TN', region: 'mena', name: 'Tunisia (+216)', flag: '🇹🇳' },
+    { code: 'EG', region: 'mena', name: 'Egypt (+20)', flag: '🇪🇬' },
+    { code: 'ZA', region: 'mena', name: 'South Africa (+27)', flag: '🇿🇦' },
+    { code: 'NG', region: 'mena', name: 'Nigeria (+234)', flag: '🇳🇬' },
+    { code: 'KE', region: 'mena', name: 'Kenya (+254)', flag: '🇰🇪' },
+    { code: 'GH', region: 'mena', name: 'Ghana (+233)', flag: '🇬🇭' },
+    { code: 'SN', region: 'mena', name: 'Senegal (+221)', flag: '🇸🇳' },
+    { code: 'CI', region: 'mena', name: 'Côte d’Ivoire (+225)', flag: '🇨🇮' },
+    { code: 'SA', region: 'mena', name: 'Saudi Arabia (+966)', flag: '🇸🇦' },
+    { code: 'AE', region: 'mena', name: 'UAE (+971)', flag: '🇦🇪' },
+    { code: 'IL', region: 'mena', name: 'Israel (+972)', flag: '🇮🇱' },
 ];
 
 const MODES = [
@@ -307,7 +387,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     }[mode];
 
     return (
-        <div className="space-y-6 max-w-7xl mx-auto pb-12">
+        <div className="space-y-6 w-full pb-12">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border bg-[var(--color-bg-card)] border-[var(--color-border)]" style={{ boxShadow: 'var(--shadow-main)' }}>
                 <div className="flex items-center gap-4">
@@ -691,8 +771,12 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                                             className="w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                                             style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                                         >
-                                            {GEO_PRESETS.map(geo => (
-                                                <option key={geo.code} value={geo.code}>{geo.flag} {geo.name}</option>
+                                            {GEO_REGIONS.map(region => (
+                                                <optgroup key={region.id} label={t(region.labelKey, region.fallback)}>
+                                                    {GEO_PRESETS.filter(geo => geo.region === region.id).map(geo => (
+                                                        <option key={geo.code} value={geo.code}>{geo.flag} {geo.name}</option>
+                                                    ))}
+                                                </optgroup>
                                             ))}
                                         </select>
                                     </div>

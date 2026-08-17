@@ -3,9 +3,10 @@ import axios from 'axios';
 import {
     Layers, Search, Download, Plus, RefreshCw, Eye, CheckCircle2,
     XCircle, Clock, AlertTriangle, X, Phone, WifiOff,
-    FileSearch, Network, Crosshair, ShieldAlert, Repeat2
+    FileSearch, Network, Crosshair, ShieldAlert, Repeat2, Copy
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { copyToClipboard } from '../utils/clipboard';
 
 const API_URL = '/api.php';
 
@@ -61,6 +62,14 @@ const CRMPage = ({ setActiveTab, user }) => {
     const [newLeadData, setNewLeadData] = useState({
         name: '', phone: '', subid: '', campaign_id: '', status: 'lead', payout: '25', currency: 'USD'
     });
+    // "<leadId>:<field>" of the value copied from a table row, for the check-mark feedback
+    const [copiedField, setCopiedField] = useState('');
+
+    const handleCopyField = async (key, value) => {
+        if (!value || !await copyToClipboard(value)) return;
+        setCopiedField(key);
+        setTimeout(() => setCopiedField(''), 1500);
+    };
 
     const fetchLeads = useCallback(async () => {
         setLoading(true);
@@ -192,7 +201,7 @@ const CRMPage = ({ setActiveTab, user }) => {
     };
 
     return (
-        <div className="space-y-6 max-w-7xl mx-auto pb-12">
+        <div className="space-y-6 w-full pb-12">
             {/* Hero Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border bg-[var(--color-bg-card)] border-[var(--color-border)]" style={{ boxShadow: 'var(--shadow-main)' }}>
                 <div className="flex items-center gap-4">
@@ -259,21 +268,24 @@ const CRMPage = ({ setActiveTab, user }) => {
                 <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm">
                     <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{t('crm.approved', 'Approved Sales')}</span>
                     <div className="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">{kpi.approved}</div>
+                    <span className="text-[10px] text-[var(--color-text-muted)]">
+                        {t('crm.approvalRate', 'Approval Rate')}: {kpi.total > 0 ? Math.round((kpi.approved / Math.max(1, kpi.total - kpi.qa)) * 100) : 0}%
+                    </span>
                 </div>
                 <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm">
                     <span className="text-xs font-semibold text-rose-600 dark:text-rose-400">{t('crm.rejected', 'Rejected')}</span>
                     <div className="text-2xl font-bold mt-1 text-rose-600 dark:text-rose-400">{kpi.rejected}</div>
                 </div>
-                <div className="bg-[var(--color-bg-card)] border border-rose-300 dark:border-rose-900 rounded-2xl p-4 shadow-sm">
+                <div className="bg-rose-50/60 dark:bg-rose-950/20 border border-rose-300 dark:border-rose-900 rounded-2xl p-4 shadow-sm">
                     <span className="text-xs font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
                         <ShieldAlert size={13} /> {t('crm.suspects', 'Shave Suspects')}
                     </span>
                     <div className="text-2xl font-bold mt-1 text-rose-600 dark:text-rose-400">{kpi.suspects}</div>
-                    <span className="text-[10px] text-[var(--color-text-muted)]">
-                        {kpi.lost > 0
-                            ? `${kpi.lost} ${t('crm.lostWord', 'lost in transit')}`
-                            : `${t('crm.approvalRate', 'Approval Rate')}: ${kpi.total > 0 ? Math.round((kpi.approved / Math.max(1, kpi.total - kpi.qa)) * 100) : 0}%`}
-                    </span>
+                    {kpi.lost > 0 && (
+                        <span className="text-[10px] text-[var(--color-text-muted)]">
+                            {kpi.lost} {t('crm.lostWord', 'lost in transit')}
+                        </span>
+                    )}
                 </div>
                 <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm">
                     <span className="text-xs font-semibold text-[var(--color-text-secondary)]">{t('crm.revenue', 'Earned Revenue')}</span>
@@ -370,13 +382,23 @@ const CRMPage = ({ setActiveTab, user }) => {
                                     return (
                                         <tr
                                             key={lead.id || idx}
-                                            className={`hover:bg-[var(--color-bg-hover)] transition ${
+                                            className={`group hover:bg-[var(--color-bg-hover)] transition ${
                                                 (lead.shave_suspect || lead.lost_in_transit) ? 'bg-rose-50 dark:bg-rose-950/20' : ''
                                             }`}
                                         >
                                             <td className="px-4 py-3 font-mono font-medium whitespace-nowrap" style={{ color: 'var(--color-text-primary)' }}>
                                                 <div className="flex items-center gap-1.5">
                                                     <span className="truncate max-w-[160px]" title={lead.click_id}>{lead.click_id}</span>
+                                                    {lead.click_id && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleCopyField(`${lead.id}:subid`, lead.click_id)}
+                                                            className="opacity-0 group-hover:opacity-100 transition cursor-pointer text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+                                                            title={copiedField === `${lead.id}:subid` ? t('crm.copied', 'Copied') : t('crm.copySubid', 'Copy SubID')}
+                                                        >
+                                                            {copiedField === `${lead.id}:subid` ? <CheckCircle2 size={12} className="text-emerald-500" /> : <Copy size={12} />}
+                                                        </button>
+                                                    )}
                                                 </div>
                                                 {lead.campaign_name && (
                                                     <div className="text-[10px] text-[var(--color-text-muted)] truncate max-w-[160px]">{lead.campaign_name}</div>
@@ -390,6 +412,16 @@ const CRMPage = ({ setActiveTab, user }) => {
                                                 <div className="flex items-center gap-1.5" style={{ color: 'var(--color-text-primary)' }}>
                                                     <Phone size={12} className="text-[var(--color-text-muted)]" />
                                                     <span className="font-mono">{lead.raw_phone || '—'}</span>
+                                                    {lead.raw_phone && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleCopyField(`${lead.id}:phone`, lead.raw_phone)}
+                                                            className="opacity-0 group-hover:opacity-100 transition cursor-pointer text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+                                                            title={copiedField === `${lead.id}:phone` ? t('crm.copied', 'Copied') : t('crm.copyPhone', 'Copy phone')}
+                                                        >
+                                                            {copiedField === `${lead.id}:phone` ? <CheckCircle2 size={12} className="text-emerald-500" /> : <Copy size={12} />}
+                                                        </button>
+                                                    )}
                                                 </div>
                                                 {lead.clean_phone && lead.clean_phone !== lead.raw_phone && (
                                                     <div className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">→ {lead.clean_phone}</div>

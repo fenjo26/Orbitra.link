@@ -452,6 +452,9 @@ function App() {
           </div>
         ) : (
           <>
+            {/* CRM and LeadForge carry their own hero headers with actions —
+                rendering this generic h1 on top duplicated the title twice. */}
+            {!['leadforge', 'crm'].includes(activeTab) && (
             <div className="flex justify-between items-center mb-2">
               <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
                 {activeTab === 'dashboard' && t('app.dashboard')}
@@ -474,6 +477,7 @@ function App() {
                 </div>
               )}
             </div>
+            )}
 
             {/* Update Available Banner */}
             {updateAvailable && !dismissUpdate && (

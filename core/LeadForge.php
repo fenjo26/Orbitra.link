@@ -58,10 +58,16 @@ class LeadForge
     /** Legacy order-handler filenames Cross mode removes from the bundle root. */
     public const LEGACY_HANDLERS = ['order.php', 'send.php', 'api.php', 'sender.php', 'submit.php', 'order_ajax.php', 'ajax.php'];
 
-    /** GEO phone masks shared by the adapter generator and Auto QA. */
+    /**
+     * GEO phone masks shared by the adapter generator and Auto QA.
+     * Must stay in sync with GEO_PRESETS in frontend/src/components/LeadForgePage.jsx —
+     * this map is the source of truth for the masks themselves; a GEO missing
+     * here falls back to a generic +1 prefix with loose 7–15 digit bounds.
+     */
     public static function geoMasks(): array
     {
         return [
+            // --- Europe -------------------------------------------------
             'IT' => ['code' => '+39', 'pattern' => '+39 3## ### ####', 'min' => 9, 'max' => 11],
             'ES' => ['code' => '+34', 'pattern' => '+34 6## ### ###', 'min' => 9, 'max' => 9],
             'DE' => ['code' => '+49', 'pattern' => '+49 1## #######', 'min' => 10, 'max' => 12],
@@ -69,12 +75,82 @@ class LeadForge
             'PL' => ['code' => '+48', 'pattern' => '+48 ### ### ###', 'min' => 9, 'max' => 9],
             'RO' => ['code' => '+40', 'pattern' => '+40 7## ### ###', 'min' => 9, 'max' => 9],
             'GR' => ['code' => '+30', 'pattern' => '+30 69# ### ####', 'min' => 10, 'max' => 10],
-            'RU' => ['code' => '+7',  'pattern' => '+7 (9##) ###-##-##', 'min' => 10, 'max' => 10],
-            'UA' => ['code' => '+380', 'pattern' => '+380 (##) ###-##-##', 'min' => 9, 'max' => 9],
-            'KZ' => ['code' => '+7',  'pattern' => '+7 (7##) ###-##-##', 'min' => 10, 'max' => 10],
+            'GB' => ['code' => '+44', 'pattern' => '+44 7### ######', 'min' => 10, 'max' => 10],
+            'PT' => ['code' => '+351', 'pattern' => '+351 9## ### ###', 'min' => 9, 'max' => 9],
+            'NL' => ['code' => '+31', 'pattern' => '+31 6 ## ## ## ##', 'min' => 9, 'max' => 9],
+            'BE' => ['code' => '+32', 'pattern' => '+32 4## ## ## ##', 'min' => 9, 'max' => 9],
+            'AT' => ['code' => '+43', 'pattern' => '+43 6## #######', 'min' => 10, 'max' => 11],
+            'CH' => ['code' => '+41', 'pattern' => '+41 7# ### ## ##', 'min' => 9, 'max' => 9],
+            'CZ' => ['code' => '+420', 'pattern' => '+420 ### ### ###', 'min' => 9, 'max' => 9],
+            'SK' => ['code' => '+421', 'pattern' => '+421 ### ### ###', 'min' => 9, 'max' => 9],
+            'HU' => ['code' => '+36', 'pattern' => '+36 ## ### ####', 'min' => 8, 'max' => 9],
+            'BG' => ['code' => '+359', 'pattern' => '+359 ### ### ###', 'min' => 8, 'max' => 9],
+            'RS' => ['code' => '+381', 'pattern' => '+381 6# ### ####', 'min' => 8, 'max' => 9],
+            'HR' => ['code' => '+385', 'pattern' => '+385 9# ### ####', 'min' => 8, 'max' => 9],
+            'SI' => ['code' => '+386', 'pattern' => '+386 3# ### ###', 'min' => 8, 'max' => 8],
+            'LT' => ['code' => '+370', 'pattern' => '+370 6## #####', 'min' => 8, 'max' => 8],
+            'LV' => ['code' => '+371', 'pattern' => '+371 2### ####', 'min' => 8, 'max' => 8],
+            'EE' => ['code' => '+372', 'pattern' => '+372 5### ####', 'min' => 7, 'max' => 8],
+            'DK' => ['code' => '+45', 'pattern' => '+45 ## ## ## ##', 'min' => 8, 'max' => 8],
+            'SE' => ['code' => '+46', 'pattern' => '+46 7# ### ## ##', 'min' => 9, 'max' => 9],
+            'NO' => ['code' => '+47', 'pattern' => '+47 ### ## ###', 'min' => 8, 'max' => 8],
+            'FI' => ['code' => '+358', 'pattern' => '+358 4# ### ####', 'min' => 9, 'max' => 10],
+            'IE' => ['code' => '+353', 'pattern' => '+353 8# ### ####', 'min' => 9, 'max' => 9],
+            'CY' => ['code' => '+357', 'pattern' => '+357 9# ######', 'min' => 8, 'max' => 8],
+            'MD' => ['code' => '+373', 'pattern' => '+373 6## #####', 'min' => 8, 'max' => 8],
+            'BY' => ['code' => '+375', 'pattern' => '+375 2# ### ## ##', 'min' => 9, 'max' => 9],
+            'TR' => ['code' => '+90', 'pattern' => '+90 5## ### ## ##', 'min' => 10, 'max' => 10],
+            // --- Americas ------------------------------------------------
             'US' => ['code' => '+1',  'pattern' => '+1 (###) ###-####', 'min' => 10, 'max' => 10],
             'MX' => ['code' => '+52', 'pattern' => '+52 1 ### ### ####', 'min' => 10, 'max' => 11],
             'CO' => ['code' => '+57', 'pattern' => '+57 3## ### ####', 'min' => 10, 'max' => 10],
+            'BR' => ['code' => '+55', 'pattern' => '+55 (##) 9 ####-####', 'min' => 10, 'max' => 11],
+            'AR' => ['code' => '+54', 'pattern' => '+54 9 ## ####-####', 'min' => 10, 'max' => 11],
+            'CL' => ['code' => '+56', 'pattern' => '+56 9 #### ####', 'min' => 9, 'max' => 9],
+            'PE' => ['code' => '+51', 'pattern' => '+51 ### ### ###', 'min' => 9, 'max' => 9],
+            'EC' => ['code' => '+593', 'pattern' => '+593 ## ### ####', 'min' => 9, 'max' => 9],
+            'VE' => ['code' => '+58', 'pattern' => '+58 4## ### ####', 'min' => 10, 'max' => 10],
+            'UY' => ['code' => '+598', 'pattern' => '+598 9# ### ###', 'min' => 8, 'max' => 8],
+            'PY' => ['code' => '+595', 'pattern' => '+595 9## ### ###', 'min' => 9, 'max' => 9],
+            'BO' => ['code' => '+591', 'pattern' => '+591 # ### ####', 'min' => 7, 'max' => 8],
+            'CR' => ['code' => '+506', 'pattern' => '+506 #### ####', 'min' => 8, 'max' => 8],
+            'PA' => ['code' => '+507', 'pattern' => '+507 6### ####', 'min' => 7, 'max' => 8],
+            'GT' => ['code' => '+502', 'pattern' => '+502 # ### ####', 'min' => 8, 'max' => 8],
+            'DO' => ['code' => '+1',  'pattern' => '+1 (###) ###-####', 'min' => 10, 'max' => 10],
+            'SV' => ['code' => '+503', 'pattern' => '+503 ####-####', 'min' => 7, 'max' => 8],
+            'HN' => ['code' => '+504', 'pattern' => '+504 ####-####', 'min' => 8, 'max' => 8],
+            'NI' => ['code' => '+505', 'pattern' => '+505 #### ####', 'min' => 8, 'max' => 8],
+            // --- Asia ----------------------------------------------------
+            'ID' => ['code' => '+62', 'pattern' => '+62 8## #### ####', 'min' => 9, 'max' => 12],
+            'TH' => ['code' => '+66', 'pattern' => '+66 # #### ####', 'min' => 9, 'max' => 9],
+            'VN' => ['code' => '+84', 'pattern' => '+84 3# ### ####', 'min' => 9, 'max' => 10],
+            'MY' => ['code' => '+60', 'pattern' => '+60 1#-### ####', 'min' => 9, 'max' => 10],
+            'PH' => ['code' => '+63', 'pattern' => '+63 9## ### ####', 'min' => 10, 'max' => 10],
+            'IN' => ['code' => '+91', 'pattern' => '+91 ##### #####', 'min' => 10, 'max' => 10],
+            'KH' => ['code' => '+855', 'pattern' => '+855 ## ### ###', 'min' => 8, 'max' => 9],
+            'JP' => ['code' => '+81', 'pattern' => '+81 9# #### ####', 'min' => 10, 'max' => 10],
+            'KR' => ['code' => '+82', 'pattern' => '+82 1# ### ####', 'min' => 9, 'max' => 10],
+            'CN' => ['code' => '+86', 'pattern' => '+86 1## #### ####', 'min' => 11, 'max' => 11],
+            'PK' => ['code' => '+92', 'pattern' => '+92 3## ### ####', 'min' => 10, 'max' => 10],
+            'BD' => ['code' => '+880', 'pattern' => '+880 1### ######', 'min' => 10, 'max' => 10],
+            // --- MENA & Africa -------------------------------------------
+            'MA' => ['code' => '+212', 'pattern' => '+212 6## ### ###', 'min' => 9, 'max' => 9],
+            'DZ' => ['code' => '+213', 'pattern' => '+213 5## ## ## ##', 'min' => 9, 'max' => 9],
+            'TN' => ['code' => '+216', 'pattern' => '+216 ## ### ###', 'min' => 8, 'max' => 8],
+            'EG' => ['code' => '+20', 'pattern' => '+20 1# ### ####', 'min' => 10, 'max' => 11],
+            'ZA' => ['code' => '+27', 'pattern' => '+27 8# ### ####', 'min' => 9, 'max' => 9],
+            'NG' => ['code' => '+234', 'pattern' => '+234 7## ### ####', 'min' => 10, 'max' => 10],
+            'KE' => ['code' => '+254', 'pattern' => '+254 7## ### ###', 'min' => 9, 'max' => 9],
+            'GH' => ['code' => '+233', 'pattern' => '+233 2# ### ####', 'min' => 9, 'max' => 9],
+            'SN' => ['code' => '+221', 'pattern' => '+221 7# ### ## ##', 'min' => 9, 'max' => 9],
+            'CI' => ['code' => '+225', 'pattern' => '+225 0# ## ## ## ##', 'min' => 8, 'max' => 10],
+            'SA' => ['code' => '+966', 'pattern' => '+966 5# ### ####', 'min' => 9, 'max' => 9],
+            'AE' => ['code' => '+971', 'pattern' => '+971 5# ### ####', 'min' => 9, 'max' => 9],
+            'IL' => ['code' => '+972', 'pattern' => '+972 5#-###-####', 'min' => 9, 'max' => 9],
+            // --- CIS (RU/KZ/UA above) ------------------------------------
+            'RU' => ['code' => '+7',  'pattern' => '+7 (9##) ###-##-##', 'min' => 10, 'max' => 10],
+            'UA' => ['code' => '+380', 'pattern' => '+380 (##) ###-##-##', 'min' => 9, 'max' => 9],
+            'KZ' => ['code' => '+7',  'pattern' => '+7 (7##) ###-##-##', 'min' => 10, 'max' => 10],
         ];
     }
 
