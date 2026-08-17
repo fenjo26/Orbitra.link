@@ -4,6 +4,7 @@ import { RefreshCw, Search, Download, ChevronLeft, ChevronRight, BarChart3 } fro
 import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
 import ClickDetailsModal from './ClickDetailsModal';
+import { resolveConversionColor } from '../utils/conversionColors';
 
 const API_URL = '/api.php';
 
@@ -13,6 +14,8 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
     const [loading, setLoading] = useState(true);
     const [pagination, setPagination] = useState({ total: 0, page: 1, per_page: 50, total_pages: 0 });
     const [selectedClickId, setSelectedClickId] = useState(null);
+    // Custom label colors from Settings → Conversion Types; empty until loaded.
+    const [conversionTypes, setConversionTypes] = useState([]);
 
     // Filters
     const [search, setSearch] = useState('');
@@ -50,6 +53,15 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
         fetchConversions(1);
     }, [statusFilter, dateFrom, dateTo, effectiveCampaignId]);
 
+    // Label colors live on the conversion_types rows — one fetch per mount.
+    useEffect(() => {
+        axios.get(`${API_URL}?action=conversion_types`)
+            .then(res => {
+                if (res.data.status === 'success') setConversionTypes(res.data.data || []);
+            })
+            .catch(() => {});
+    }, []);
+
     const handleSearch = () => {
         fetchConversions(1);
     };
@@ -86,22 +98,11 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
     };
 
     const getStatusBadge = (status) => {
-        const baseStyle = {
-            display: 'inline-flex',
-            padding: '4px 10px',
-            fontSize: '12px',
-            fontWeight: 500,
-            borderRadius: '12px',
-        };
-
-        const styles = {
-            lead: { background: 'var(--color-info-bg)', color: 'var(--color-info)' },
-            sale: { background: 'var(--color-success-bg)', color: 'var(--color-success)' },
-            rejected: { background: 'var(--color-danger-bg)', color: 'var(--color-danger)' },
-            registration: { background: 'var(--color-primary-light)', color: 'var(--color-primary)' },
-            deposit: { background: 'var(--color-warning-bg)', color: 'var(--color-warning)' },
-            trash: { background: 'var(--color-bg-soft)', color: 'var(--color-text-muted)' }
-        };
+        // Custom color from Settings → Conversion Types wins; the built-in
+        // palette covers the standard statuses, gray everything else. The
+        // color-mix translucency keeps the badge readable on light and dark
+        // themes alike.
+        const badgeColor = resolveConversionColor(status, conversionTypes);
 
         const statusLabels = {
             lead: t('conversions.lead'),
@@ -113,7 +114,25 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
         };
 
         return (
-            <span style={{ ...baseStyle, ...(styles[status] || styles.trash) }}>
+            <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '4px 10px',
+                fontSize: '12px',
+                fontWeight: 500,
+                borderRadius: '12px',
+                color: badgeColor,
+                backgroundColor: `color-mix(in srgb, ${badgeColor} 14%, transparent)`,
+                border: `1px solid color-mix(in srgb, ${badgeColor} 25%, transparent)`
+            }}>
+                <span style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: badgeColor,
+                    marginRight: '6px',
+                    flexShrink: 0
+                }} />
                 {statusLabels[status] || status}
             </span>
         );

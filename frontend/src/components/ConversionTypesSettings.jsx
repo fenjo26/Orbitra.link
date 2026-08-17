@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Plus, Edit2, Trash2, RefreshCw } from 'lucide-react';
+import { Save, Plus, Edit2, Trash2, RefreshCw, Pipette } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { CONVERSION_COLOR_SWATCHES, FALLBACK_CONVERSION_COLOR } from '../utils/conversionColors';
 
 const API_URL = '/api.php';
 
@@ -12,7 +13,14 @@ const emptyForm = {
     record_conversion: 1,
     record_revenue: 1,
     send_postback: 1,
-    affect_cap: 1
+    affect_cap: 1,
+    color: ''
+};
+
+// Valid hex or "not customized" — the API applies the same rule.
+const normalizeColor = value => {
+    const color = String(value || '').trim();
+    return /^#[0-9a-fA-F]{6}$/.test(color) ? color : '';
 };
 
 const ConversionTypesSettings = () => {
@@ -152,7 +160,19 @@ const ConversionTypesSettings = () => {
                                 ) : (
                                     types.map(type => (
                                         <tr key={type.id}>
-                                            <td style={{ fontWeight: 500 }}>{type.name}</td>
+                                            <td style={{ fontWeight: 500 }}>
+                                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                                                    <span title={normalizeColor(type.color) || t('conversionTypes.colorNotSet')} style={{
+                                                        width: '10px',
+                                                        height: '10px',
+                                                        borderRadius: '50%',
+                                                        flexShrink: 0,
+                                                        backgroundColor: normalizeColor(type.color) || 'transparent',
+                                                        border: normalizeColor(type.color) ? 'none' : '2px dashed var(--color-border)'
+                                                    }} />
+                                                    {type.name}
+                                                </span>
+                                            </td>
                                             <td style={{ fontFamily: 'monospace', fontSize: '12px', color: 'var(--color-text-secondary)' }}>{type.status_values}</td>
                                             <td className="text-center">{type.record_conversion === 1 ? '✅' : '❌'}</td>
                                             <td className="text-center">{type.record_revenue === 1 ? '✅' : '❌'}</td>
@@ -208,6 +228,90 @@ const ConversionTypesSettings = () => {
                                 <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '6px' }}>
                                     {t('conversionTypes.expectedMacrosHint')}
                                 </p>
+                            </div>
+
+                            <div>
+                                <label className="form-label">{t('conversionTypes.labelColor')}</label>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                                    {CONVERSION_COLOR_SWATCHES.map(swatch => {
+                                        const selected = normalizeColor(formData.color) === swatch;
+                                        return (
+                                            <button
+                                                key={swatch}
+                                                type="button"
+                                                title={swatch}
+                                                onClick={() => setFormData(prev => ({ ...prev, color: selected ? '' : swatch }))}
+                                                style={{
+                                                    width: '24px',
+                                                    height: '24px',
+                                                    borderRadius: '50%',
+                                                    backgroundColor: swatch,
+                                                    cursor: 'pointer',
+                                                    padding: 0,
+                                                    border: 'none',
+                                                    // Contrast ring instead of a fixed white one —
+                                                    // the swatch grid sits on both light and dark themes.
+                                                    outline: selected ? `2px solid var(--color-text-primary)` : `1px solid var(--color-border)`,
+                                                    outlineOffset: selected ? '2px' : '0',
+                                                    transform: selected ? 'scale(1.1)' : 'none'
+                                                }}
+                                            />
+                                        );
+                                    })}
+                                    <label
+                                        title={t('conversionTypes.customColor')}
+                                        style={{
+                                            width: '24px',
+                                            height: '24px',
+                                            borderRadius: '50%',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            background: 'var(--color-bg-soft)',
+                                            border: '1px dashed var(--color-border)',
+                                            flexShrink: 0
+                                        }}
+                                    >
+                                        <Pipette size={12} style={{ color: 'var(--color-text-secondary)' }} />
+                                        <input
+                                            type="color"
+                                            value={normalizeColor(formData.color) || FALLBACK_CONVERSION_COLOR}
+                                            onChange={e => setFormData(prev => ({ ...prev, color: e.target.value }))}
+                                            style={{ opacity: 0, width: 0, height: 0, border: 'none', padding: 0, position: 'absolute' }}
+                                        />
+                                    </label>
+                                </div>
+                                {/* Live preview: the exact badge shape the conversions log renders. */}
+                                <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        padding: '3px 10px',
+                                        fontSize: '12px',
+                                        fontWeight: 600,
+                                        borderRadius: '12px',
+                                        color: normalizeColor(formData.color) || 'var(--color-text-secondary)',
+                                        backgroundColor: normalizeColor(formData.color)
+                                            ? `color-mix(in srgb, ${normalizeColor(formData.color)} 14%, transparent)`
+                                            : 'var(--color-bg-soft)',
+                                        border: normalizeColor(formData.color)
+                                            ? `1px solid color-mix(in srgb, ${normalizeColor(formData.color)} 25%, transparent)`
+                                            : '1px solid var(--color-border)'
+                                    }}>
+                                        <span style={{
+                                            width: '6px',
+                                            height: '6px',
+                                            borderRadius: '50%',
+                                            backgroundColor: normalizeColor(formData.color) || 'var(--color-text-muted)',
+                                            marginRight: '6px'
+                                        }} />
+                                        {formData.name || t('conversionTypes.metricNamePlaceholder')}
+                                    </span>
+                                    <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                                        {normalizeColor(formData.color) || t('conversionTypes.colorNotSet')}
+                                    </span>
+                                </div>
                             </div>
 
                             <div style={{ paddingTop: '16px', borderTop: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: '16px' }}>

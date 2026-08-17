@@ -234,6 +234,7 @@ CREATE TABLE conversion_types (
         record_revenue INTEGER DEFAULT 1,
         send_postback INTEGER DEFAULT 1,
         affect_cap INTEGER DEFAULT 1,
+        color TEXT DEFAULT '',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 

@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1W = [
+const __iconNode$1X = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$1W = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1W);
-const __iconNode$1V = [
+const Activity = createLucideIcon("activity", __iconNode$1X);
+const __iconNode$1W = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1V);
-const __iconNode$1U = [
+const Archive = createLucideIcon("archive", __iconNode$1W);
+const __iconNode$1V = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1U);
-const __iconNode$1T = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1V);
+const __iconNode$1U = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1T);
-const __iconNode$1S = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1U);
+const __iconNode$1T = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1S);
-const __iconNode$1R = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1T);
+const __iconNode$1S = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$1R = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1R);
-const __iconNode$1Q = [
+const BellOff = createLucideIcon("bell-off", __iconNode$1S);
+const __iconNode$1R = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$1Q = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1Q);
-const __iconNode$1P = [
+const Bell = createLucideIcon("bell", __iconNode$1R);
+const __iconNode$1Q = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1P);
-const __iconNode$1O = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$1Q);
+const __iconNode$1P = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1O);
-const __iconNode$1N = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1P);
+const __iconNode$1O = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1N);
-const __iconNode$1M = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1O);
+const __iconNode$1N = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$1M = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1M);
-const __iconNode$1L = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1L);
-const __iconNode$1K = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1K);
-const __iconNode$1J = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1J);
-const __iconNode$1I = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1I);
-const __iconNode$1H = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1H);
-const __iconNode$1G = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1N);
+const __iconNode$1M = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1M);
+const __iconNode$1L = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1L);
+const __iconNode$1K = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1K);
+const __iconNode$1J = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1J);
+const __iconNode$1I = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1I);
+const __iconNode$1H = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1G);
-const __iconNode$1F = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1H);
+const __iconNode$1G = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1F);
-const __iconNode$1E = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1G);
+const __iconNode$1F = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1E);
-const __iconNode$1D = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1F);
+const __iconNode$1E = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1D);
-const __iconNode$1C = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1E);
+const __iconNode$1D = [
   [
     "path",
     {
@@ -15240,50 +15240,50 @@ const __iconNode$1C = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1C);
-const __iconNode$1B = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1D);
+const __iconNode$1C = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1B);
-const __iconNode$1A = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1C);
+const __iconNode$1B = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1A);
-const __iconNode$1z = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1B);
+const __iconNode$1A = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1z);
-const __iconNode$1y = [
+const Clock = createLucideIcon("clock", __iconNode$1A);
+const __iconNode$1z = [
   ["path", { d: "M12 13v8", key: "1l5pq0" }],
   ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
   ["path", { d: "m8 17 4-4 4 4", key: "1quai1" }]
 ];
-const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1y);
-const __iconNode$1x = [
+const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1z);
+const __iconNode$1y = [
   ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1x);
-const __iconNode$1w = [
+const Cloud = createLucideIcon("cloud", __iconNode$1y);
+const __iconNode$1x = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1w);
-const __iconNode$1v = [
+const Code = createLucideIcon("code", __iconNode$1x);
+const __iconNode$1w = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M12 3v18", key: "108xh3" }]
 ];
-const Columns2 = createLucideIcon("columns-2", __iconNode$1v);
-const __iconNode$1u = [
+const Columns2 = createLucideIcon("columns-2", __iconNode$1w);
+const __iconNode$1v = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1u);
-const __iconNode$1t = [
+const Copy = createLucideIcon("copy", __iconNode$1v);
+const __iconNode$1u = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15299,25 +15299,25 @@ const __iconNode$1t = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1t);
-const __iconNode$1s = [
+const Cpu = createLucideIcon("cpu", __iconNode$1u);
+const __iconNode$1t = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1s);
-const __iconNode$1r = [
+const Database = createLucideIcon("database", __iconNode$1t);
+const __iconNode$1s = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$1r);
-const __iconNode$1q = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1s);
+const __iconNode$1r = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$1q);
-const __iconNode$1p = [
+const Download = createLucideIcon("download", __iconNode$1r);
+const __iconNode$1q = [
   [
     "path",
     {
@@ -15326,20 +15326,20 @@ const __iconNode$1p = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$1p);
-const __iconNode$1o = [
+const Droplet = createLucideIcon("droplet", __iconNode$1q);
+const __iconNode$1p = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1o);
-const __iconNode$1n = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1p);
+const __iconNode$1o = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$1n);
-const __iconNode$1m = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$1o);
+const __iconNode$1n = [
   [
     "path",
     {
@@ -15357,8 +15357,8 @@ const __iconNode$1m = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$1m);
-const __iconNode$1l = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$1n);
+const __iconNode$1m = [
   [
     "path",
     {
@@ -15368,8 +15368,8 @@ const __iconNode$1l = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$1l);
-const __iconNode$1k = [
+const Eye = createLucideIcon("eye", __iconNode$1m);
+const __iconNode$1l = [
   [
     "path",
     {
@@ -15383,8 +15383,8 @@ const __iconNode$1k = [
   ["path", { d: "M8 7V6", key: "1nbb54" }],
   ["circle", { cx: "8", cy: "20", r: "2", key: "ckkr5m" }]
 ];
-const FileArchive = createLucideIcon("file-archive", __iconNode$1k);
-const __iconNode$1j = [
+const FileArchive = createLucideIcon("file-archive", __iconNode$1l);
+const __iconNode$1k = [
   [
     "path",
     {
@@ -15396,8 +15396,8 @@ const __iconNode$1j = [
   ["path", { d: "M10 12.5 8 15l2 2.5", key: "1tg20x" }],
   ["path", { d: "m14 12.5 2 2.5-2 2.5", key: "yinavb" }]
 ];
-const FileCode = createLucideIcon("file-code", __iconNode$1j);
-const __iconNode$1i = [
+const FileCode = createLucideIcon("file-code", __iconNode$1k);
+const __iconNode$1j = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15408,8 +15408,8 @@ const __iconNode$1i = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$1i);
-const __iconNode$1h = [
+const FileStack = createLucideIcon("file-stack", __iconNode$1j);
+const __iconNode$1i = [
   [
     "path",
     {
@@ -15422,8 +15422,8 @@ const __iconNode$1h = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$1h);
-const __iconNode$1g = [
+const FileText = createLucideIcon("file-text", __iconNode$1i);
+const __iconNode$1h = [
   [
     "path",
     {
@@ -15432,22 +15432,22 @@ const __iconNode$1g = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$1g);
-const __iconNode$1f = [
+const Funnel = createLucideIcon("funnel", __iconNode$1h);
+const __iconNode$1g = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$1f);
-const __iconNode$1e = [
+const Globe = createLucideIcon("globe", __iconNode$1g);
+const __iconNode$1f = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }],
   ["path", { d: "M9 3v18", key: "fh3hqa" }],
   ["path", { d: "M15 3v18", key: "14nvp0" }]
 ];
-const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1e);
-const __iconNode$1d = [
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1f);
+const __iconNode$1e = [
   ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
   ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
   ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
@@ -15455,8 +15455,8 @@ const __iconNode$1d = [
   ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
   ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
 ];
-const GripVertical = createLucideIcon("grip-vertical", __iconNode$1d);
-const __iconNode$1c = [
+const GripVertical = createLucideIcon("grip-vertical", __iconNode$1e);
+const __iconNode$1d = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15468,8 +15468,8 @@ const __iconNode$1c = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$1c);
-const __iconNode$1b = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$1d);
+const __iconNode$1c = [
   [
     "path",
     {
@@ -15478,20 +15478,20 @@ const __iconNode$1b = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$1b);
-const __iconNode$1a = [
+const Heart = createLucideIcon("heart", __iconNode$1c);
+const __iconNode$1b = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$1a);
-const __iconNode$19 = [
+const Image = createLucideIcon("image", __iconNode$1b);
+const __iconNode$1a = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$19);
-const __iconNode$18 = [
+const Info = createLucideIcon("info", __iconNode$1a);
+const __iconNode$19 = [
   [
     "path",
     {
@@ -15501,14 +15501,14 @@ const __iconNode$18 = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$18);
-const __iconNode$17 = [
+const KeyRound = createLucideIcon("key-round", __iconNode$19);
+const __iconNode$18 = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$17);
-const __iconNode$16 = [
+const Key = createLucideIcon("key", __iconNode$18);
+const __iconNode$17 = [
   [
     "path",
     {
@@ -15531,28 +15531,28 @@ const __iconNode$16 = [
     }
   ]
 ];
-const Layers = createLucideIcon("layers", __iconNode$16);
-const __iconNode$15 = [
+const Layers = createLucideIcon("layers", __iconNode$17);
+const __iconNode$16 = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$15);
-const __iconNode$14 = [
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$16);
+const __iconNode$15 = [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
   ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
   ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
 ];
-const LayoutGrid = createLucideIcon("layout-grid", __iconNode$14);
-const __iconNode$13 = [
+const LayoutGrid = createLucideIcon("layout-grid", __iconNode$15);
+const __iconNode$14 = [
   ["rect", { width: "18", height: "7", x: "3", y: "3", rx: "1", key: "f1a2em" }],
   ["rect", { width: "9", height: "7", x: "3", y: "14", rx: "1", key: "jqznyg" }],
   ["rect", { width: "5", height: "7", x: "16", y: "14", rx: "1", key: "q5h2i8" }]
 ];
-const LayoutTemplate = createLucideIcon("layout-template", __iconNode$13);
-const __iconNode$12 = [
+const LayoutTemplate = createLucideIcon("layout-template", __iconNode$14);
+const __iconNode$13 = [
   [
     "path",
     {
@@ -15563,19 +15563,19 @@ const __iconNode$12 = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$12);
-const __iconNode$11 = [
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$13);
+const __iconNode$12 = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-const Link2 = createLucideIcon("link-2", __iconNode$11);
-const __iconNode$10 = [
+const Link2 = createLucideIcon("link-2", __iconNode$12);
+const __iconNode$11 = [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ];
-const Link = createLucideIcon("link", __iconNode$10);
-const __iconNode$$ = [
+const Link = createLucideIcon("link", __iconNode$11);
+const __iconNode$10 = [
   ["path", { d: "M12 2v4", key: "3427ic" }],
   ["path", { d: "m16.2 7.8 2.9-2.9", key: "r700ao" }],
   ["path", { d: "M18 12h4", key: "wj9ykh" }],
@@ -15585,24 +15585,24 @@ const __iconNode$$ = [
   ["path", { d: "M2 12h4", key: "j09sii" }],
   ["path", { d: "m4.9 4.9 2.9 2.9", key: "giyufr" }]
 ];
-const Loader = createLucideIcon("loader", __iconNode$$);
-const __iconNode$_ = [
+const Loader = createLucideIcon("loader", __iconNode$10);
+const __iconNode$$ = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$_);
-const __iconNode$Z = [
+const Lock = createLucideIcon("lock", __iconNode$$);
+const __iconNode$_ = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$Z);
-const __iconNode$Y = [
+const LogOut = createLucideIcon("log-out", __iconNode$_);
+const __iconNode$Z = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Mail = createLucideIcon("mail", __iconNode$Y);
-const __iconNode$X = [
+const Mail = createLucideIcon("mail", __iconNode$Z);
+const __iconNode$Y = [
   [
     "path",
     {
@@ -15612,8 +15612,8 @@ const __iconNode$X = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$X);
-const __iconNode$W = [
+const MapPin = createLucideIcon("map-pin", __iconNode$Y);
+const __iconNode$X = [
   [
     "path",
     {
@@ -15624,21 +15624,21 @@ const __iconNode$W = [
   ["path", { d: "M15 5.764v15", key: "1pn4in" }],
   ["path", { d: "M9 3.236v15", key: "1uimfh" }]
 ];
-const Map$1 = createLucideIcon("map", __iconNode$W);
-const __iconNode$V = [
+const Map$1 = createLucideIcon("map", __iconNode$X);
+const __iconNode$W = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "m21 3-7 7", key: "1l2asr" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M9 21H3v-6", key: "wtvkvv" }]
 ];
-const Maximize2 = createLucideIcon("maximize-2", __iconNode$V);
-const __iconNode$U = [
+const Maximize2 = createLucideIcon("maximize-2", __iconNode$W);
+const __iconNode$V = [
   ["path", { d: "M4 5h16", key: "1tepv9" }],
   ["path", { d: "M4 12h16", key: "1lakjw" }],
   ["path", { d: "M4 19h16", key: "1djgab" }]
 ];
-const Menu = createLucideIcon("menu", __iconNode$U);
-const __iconNode$T = [
+const Menu = createLucideIcon("menu", __iconNode$V);
+const __iconNode$U = [
   [
     "path",
     {
@@ -15647,8 +15647,8 @@ const __iconNode$T = [
     }
   ]
 ];
-const MessageCircle = createLucideIcon("message-circle", __iconNode$T);
-const __iconNode$S = [
+const MessageCircle = createLucideIcon("message-circle", __iconNode$U);
+const __iconNode$T = [
   [
     "path",
     {
@@ -15657,21 +15657,21 @@ const __iconNode$S = [
     }
   ]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$S);
-const __iconNode$R = [
+const MessageSquare = createLucideIcon("message-square", __iconNode$T);
+const __iconNode$S = [
   ["path", { d: "m14 10 7-7", key: "oa77jy" }],
   ["path", { d: "M20 10h-6V4", key: "mjg0md" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M4 14h6v6", key: "rmj7iw" }]
 ];
-const Minimize2 = createLucideIcon("minimize-2", __iconNode$R);
-const __iconNode$Q = [
+const Minimize2 = createLucideIcon("minimize-2", __iconNode$S);
+const __iconNode$R = [
   ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
   ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
   ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
 ];
-const Monitor = createLucideIcon("monitor", __iconNode$Q);
-const __iconNode$P = [
+const Monitor = createLucideIcon("monitor", __iconNode$R);
+const __iconNode$Q = [
   [
     "path",
     {
@@ -15680,13 +15680,13 @@ const __iconNode$P = [
     }
   ]
 ];
-const Moon = createLucideIcon("moon", __iconNode$P);
-const __iconNode$O = [
+const Moon = createLucideIcon("moon", __iconNode$Q);
+const __iconNode$P = [
   ["circle", { cx: "8", cy: "18", r: "4", key: "1fc0mg" }],
   ["path", { d: "M12 18V2l7 4", key: "g04rme" }]
 ];
-const Music2 = createLucideIcon("music-2", __iconNode$O);
-const __iconNode$N = [
+const Music2 = createLucideIcon("music-2", __iconNode$P);
+const __iconNode$O = [
   ["path", { d: "M12 22v-9", key: "x3hkom" }],
   [
     "path",
@@ -15710,8 +15710,8 @@ const __iconNode$N = [
     }
   ]
 ];
-const PackageOpen = createLucideIcon("package-open", __iconNode$N);
-const __iconNode$M = [
+const PackageOpen = createLucideIcon("package-open", __iconNode$O);
+const __iconNode$N = [
   [
     "path",
     {
@@ -15724,8 +15724,8 @@ const __iconNode$M = [
   ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
   ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
 ];
-const Palette = createLucideIcon("palette", __iconNode$M);
-const __iconNode$L = [
+const Palette = createLucideIcon("palette", __iconNode$N);
+const __iconNode$M = [
   ["path", { d: "M13 21h8", key: "1jsn5i" }],
   [
     "path",
@@ -15735,8 +15735,8 @@ const __iconNode$L = [
     }
   ]
 ];
-const PenLine = createLucideIcon("pen-line", __iconNode$L);
-const __iconNode$K = [
+const PenLine = createLucideIcon("pen-line", __iconNode$M);
+const __iconNode$L = [
   [
     "path",
     {
@@ -15745,8 +15745,8 @@ const __iconNode$K = [
     }
   ]
 ];
-const Pen = createLucideIcon("pen", __iconNode$K);
-const __iconNode$J = [
+const Pen = createLucideIcon("pen", __iconNode$L);
+const __iconNode$K = [
   [
     "path",
     {
@@ -15756,7 +15756,25 @@ const __iconNode$J = [
   ],
   ["path", { d: "m15 5 4 4", key: "1mk7zo" }]
 ];
-const Pencil = createLucideIcon("pencil", __iconNode$J);
+const Pencil = createLucideIcon("pencil", __iconNode$K);
+const __iconNode$J = [
+  [
+    "path",
+    {
+      d: "m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12",
+      key: "1y3wsu"
+    }
+  ],
+  [
+    "path",
+    {
+      d: "m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z",
+      key: "110lr1"
+    }
+  ],
+  ["path", { d: "m2 22 .414-.414", key: "jhxm08" }]
+];
+const Pipette = createLucideIcon("pipette", __iconNode$J);
 const __iconNode$I = [
   [
     "path",
@@ -17422,6 +17440,9 @@ const ru = {
     "expectedMacros": "Ожидаемые макросы status (через запятую)",
     "expectedMacrosPlaceholder": "Например: upsell, upsell2",
     "expectedMacrosHint": "Оригинальные статусы, приходящие от партнерки.",
+    "labelColor": "Цвет метки",
+    "customColor": "Свой цвет (пипетка)",
+    "colorNotSet": "Цвет не задан — используется стандартный",
     "affectConversions": "Влияет на показатель «Конверсии»",
     "affectConversionsDesc": "Увеличивает счетчик конверсий",
     "affectProfit": "Влияет на показатель «Профит»",
@@ -19229,7 +19250,38 @@ const ru = {
     "consoleTitle": "Консоль процесса LeadForge",
     "downloadZip": "Скачать готовый ZIP",
     "openInTracker": "Открыть в трекере",
-    "noArchives": "Архивы не выбраны. Загрузите ZIP-архивы выше для начала пакетной подготовки."
+    "noArchives": "Архивы не выбраны. Загрузите ZIP-архивы выше для начала пакетной подготовки.",
+    "badge2": "2.0 Analyze → Build",
+    "subtitle2": "Компилятор лендингов Auto / Cross / Raw с синком в CRM-хранилище и Live Auto QA",
+    "pendingFiles": "Ожидают анализа",
+    "bundlesTitle": "Проанализированные бандлы",
+    "selectAll": "Выбрать / снять все",
+    "analyzeButton": "Analyze bundles",
+    "analyzing": "Анализ…",
+    "buildButton": "Build all selected bundles",
+    "building": "Сборка…",
+    "errorBadge": "Ошибка",
+    "buildingBadge": "Сборка…",
+    "notDetected": "Сеть не опознана",
+    "formsWord": "форм(ы)",
+    "foreignScript": "Чужой скрипт — будет вырезан в Raw/Cross",
+    "inputsLabel": "поля",
+    "integrationTitle": "Интеграция",
+    "modeLabel": "Режим сборки",
+    "modeAutoHint": "Detect + route: сеть-источник определяется автоматически, бандл пересобирается под неё. Формы переносятся на order.php, внедряется ClickID-мост.",
+    "modeCrossHint": "Network swap: обработчики старой сети (order.php, send.php, api.php…) и жёстко зашитые ключи вырезаются, лендинг пересаживается на выбранную ниже целевую сеть.",
+    "modeRawHint": "Clone patch: чужие счётчики (FB/TikTok/GA/Яндекс) и враждебные скрипты вырезаются, внедряется ClickID-мост и макросы {offer} — серверный order.php не генерируется.",
+    "apiKeyPlaceholder": "Вставьте API-ключ / токен CPA-сети…",
+    "apiKeyNote": "Сохраняется в браузере отдельно для каждой сети.",
+    "noGroup": "Без группы",
+    "safetyTitle": "Защита лидов",
+    "crmSync": "CRM sync",
+    "crmSyncOn": "Вкл — каждый лид отправляется в CRM-хранилище и локальный failsafe-лог (сырой телефон, запрос/ответ сети).",
+    "crmSyncOff": "Выкл — лид уходит только в CPA-сеть; трекер получает стандартный пиксель конверсии.",
+    "autoQa": "Auto QA",
+    "autoQaOn": "Вкл — после сборки тестовый QA-лид прогоняется по всей цепочке (order.php → хранилище → thank-you) и оценивается 0–100%.",
+    "autoQaOff": "Выкл — сначала сборка, проверка вручную.",
+    "rerunQa": "Повторить Live QA"
   },
   "crm": {
     "title": "CRM — Учет лидов и заказов",
@@ -19253,7 +19305,57 @@ const ru = {
     "date": "Дата / Время",
     "actions": "Действия",
     "saveStatus": "Сохранить статус",
-    "noLeads": "Лиды не найдены по выбранным критериям."
+    "noLeads": "Лиды не найдены по выбранным критериям.",
+    "title2": "CRM — заказы и Anti-Shaving хранилище",
+    "badge2": "Полные доказательства по лиду",
+    "subtitle2": "Каждый лид с точным номером, доставленным в сеть, сырым обменом с API и S2S-сверкой",
+    "refresh": "Обновить лиды",
+    "tabAll": "Все",
+    "tabQa": "QA-Test",
+    "tabSuspect": "Подозрение",
+    "tabLost": "Потерянные",
+    "suspects": "Подозрения на шейв",
+    "lostWord": "потеряно в пути",
+    "qaCount": "QA-тесты",
+    "networkCol": "Сеть",
+    "phoneCol": "Телефон (сырой → E.164)",
+    "inspect": "Инспекция доказательств",
+    "inspectorTitle": "Инспектор лида",
+    "tabRaw": "Сырые данные",
+    "tabNetwork": "Транзакция сети",
+    "tabTracking": "Атрибуция трафика",
+    "fCustomer": "Имя клиента",
+    "fProduct": "Продукт",
+    "fRawPhone": "Сырой номер (как ввёл клиент)",
+    "fCleanPhone": "E.164, доставленный сети",
+    "fPrice": "Цена",
+    "fPayout": "Выплата",
+    "fGeo": "ГЕО",
+    "fIp": "IP",
+    "fCreatedAt": "Отправлен",
+    "fLeadId": "Строка хранилища",
+    "fUserAgent": "User Agent",
+    "fNetRequest": "Запрос в сеть (в точности что отправили)",
+    "fNetResponse": "Ответ сети (в точности что пришло)",
+    "evidenceTitle": "Пакет доказательств шейва",
+    "evidenceText": "Лид доставлен с валидным E.164 номером, сеть приняла его с HTTP 200, но S2S-вердикт отрицателен или отсутствует. Экспортируйте эту строку (CSV) и откройте тикет в саппорт сети, указав SubID и network lead id.",
+    "fSubParams": "Sub-параметры, переданные кликом",
+    "setStatus": "Установить статус",
+    "saving": "Сохранение…",
+    "campaign": "Кампания",
+    "noCampaign": "Без кампании",
+    "currency": "Валюта",
+    "saveLead": "Сохранить лид",
+    "loading": "Загрузка заказов и лидов…",
+    "allCampaigns": "Все кампании",
+    "phoneNote": "Сохраняется сырым и нормализуется в E.164.",
+    "qaTest": "QA-Test",
+    "suspectBadge": "Подозрение на шейв",
+    "suspectHint": "Отклонён при доказуемо валидном E.164 после ответа сети 200 — откройте тикет с доказательствами ниже",
+    "lostBadge": "Нет ответа сети",
+    "lostHint2": "Сеть ответила 200, но S2S-постбек не пришёл за 24 часа",
+    "duplicateBadge": "Дубль",
+    "duplicateHint": "Тот же E.164 номер в той же сети за 30 дней"
   },
   "proxy": {
     "singleString": "Одной строкой",
@@ -20558,6 +20660,9 @@ const en = {
     "expectedMacros": "Expected status macros (comma-separated)",
     "expectedMacrosPlaceholder": "E.g.: upsell, upsell2",
     "expectedMacrosHint": "Original statuses coming from the affiliate network.",
+    "labelColor": "Label color",
+    "customColor": "Custom color (picker)",
+    "colorNotSet": "No color set — the built-in palette applies",
     "affectConversions": 'Affects "Conversions" metric',
     "affectConversionsDesc": "Increases conversion counter",
     "affectProfit": 'Affects "Profit" metric',
@@ -22365,7 +22470,38 @@ const en = {
     "consoleTitle": "Forge Execution Console",
     "downloadZip": "Download Prepared ZIP",
     "openInTracker": "Open in Tracker",
-    "noArchives": "No archives selected. Drop ZIP archives above to start batch preparation."
+    "noArchives": "No archives selected. Drop ZIP archives above to start batch preparation.",
+    "badge2": "2.0 Analyze → Build",
+    "subtitle2": "Auto / Cross / Raw landing compiler with CRM vault sync and Live Auto QA",
+    "pendingFiles": "Waiting for Analyze",
+    "bundlesTitle": "Analyzed bundles",
+    "selectAll": "Select / deselect all",
+    "analyzeButton": "Analyze bundles",
+    "analyzing": "Analyzing…",
+    "buildButton": "Build all selected bundles",
+    "building": "Building…",
+    "errorBadge": "Error",
+    "buildingBadge": "Building…",
+    "notDetected": "No network detected",
+    "formsWord": "form(s)",
+    "foreignScript": "Foreign script — will be stripped in Raw/Cross",
+    "inputsLabel": "inputs",
+    "integrationTitle": "Integration",
+    "modeLabel": "Build mode",
+    "modeAutoHint": "Detect + route: the source network is identified automatically and the bundle is rebuilt for it. Forms are re-wired to order.php, the ClickID bridge is injected.",
+    "modeCrossHint": "Network swap: the old network's handlers (order.php, send.php, api.php…) and its hardcoded keys are cut out, and the landing is re-seated on the target network you pick below.",
+    "modeRawHint": "Clone patch: foreign counters (FB/TikTok/GA/Yandex) and hostile scripts are stripped, the ClickID bridge and {offer} macros are injected — no server-side order.php is generated.",
+    "apiKeyPlaceholder": "Paste CPA network API Key / Token…",
+    "apiKeyNote": "Saved automatically per network in browser storage.",
+    "noGroup": "No Group",
+    "safetyTitle": "Lead Safety",
+    "crmSync": "CRM sync",
+    "crmSyncOn": "On — send every lead to the CRM vault and keep the local failsafe log (raw phone, network request/response).",
+    "crmSyncOff": "Off — the lead goes to the CPA network only; the tracker gets the standard conversion pixel.",
+    "autoQa": "Auto QA",
+    "autoQaOn": "On — after each build a QA-Test-Lead is posted end-to-end (order.php → vault → thank-you) and scored 0–100%.",
+    "autoQaOff": "Off — build first, verify manually.",
+    "rerunQa": "Re-run Live QA"
   },
   "crm": {
     "title": "CRM & Order Management",
@@ -22389,7 +22525,57 @@ const en = {
     "date": "Date / Time",
     "actions": "Actions",
     "saveStatus": "Update Status",
-    "noLeads": "No leads found matching current filters."
+    "noLeads": "No leads found matching current filters.",
+    "title2": "CRM — Orders & Anti-Shaving Vault",
+    "badge2": "Full Lead Evidence",
+    "subtitle2": "Every lead with the exact phone delivered to the network, the raw API exchange, and S2S reconciliation",
+    "refresh": "Refresh leads",
+    "tabAll": "All",
+    "tabQa": "QA-Test",
+    "tabSuspect": "Suspect",
+    "tabLost": "Lost",
+    "suspects": "Shave Suspects",
+    "lostWord": "lost in transit",
+    "qaCount": "QA tests",
+    "networkCol": "Network",
+    "phoneCol": "Phone (raw → E.164)",
+    "inspect": "Inspect Lead Evidence",
+    "inspectorTitle": "Lead Inspector",
+    "tabRaw": "Raw Lead Data",
+    "tabNetwork": "Network Transaction",
+    "tabTracking": "Tracking Attribution",
+    "fCustomer": "Customer name",
+    "fProduct": "Product",
+    "fRawPhone": "Raw phone (as typed)",
+    "fCleanPhone": "E.164 delivered to network",
+    "fPrice": "Price",
+    "fPayout": "Payout",
+    "fGeo": "GEO",
+    "fIp": "IP",
+    "fCreatedAt": "Submitted at",
+    "fLeadId": "Vault row",
+    "fUserAgent": "User Agent",
+    "fNetRequest": "Network request (exactly what we sent)",
+    "fNetResponse": "Network response (exactly what came back)",
+    "evidenceTitle": "Anti-shaving evidence pack",
+    "evidenceText": "This lead was delivered with a valid E.164 phone and the network accepted it with HTTP 200, yet the S2S verdict is negative or missing. Export this row (CSV) and open a ticket with the network support quoting the SubID and the network lead id.",
+    "fSubParams": "Sub parameters carried by the click",
+    "setStatus": "Set status",
+    "saving": "Saving…",
+    "campaign": "Campaign",
+    "noCampaign": "No campaign",
+    "currency": "Currency",
+    "saveLead": "Save Lead",
+    "loading": "Loading orders and leads…",
+    "allCampaigns": "All Campaigns",
+    "phoneNote": "Stored raw and normalized to E.164 in the vault.",
+    "qaTest": "QA-Test",
+    "suspectBadge": "Suspected Shave",
+    "suspectHint": "Rejected with a provably valid E.164 phone after the network answered 200 — open a ticket with the evidence below",
+    "lostBadge": "Missing Network ACK",
+    "lostHint2": "Network answered 200 but no S2S postback arrived within 24h",
+    "duplicateBadge": "Duplicate",
+    "duplicateHint": "Same E.164 phone on the same network within 30 days"
   },
   "proxy": {
     "singleString": "Single string",
@@ -23694,6 +23880,9 @@ const uk = {
     "expectedMacros": "Очікувані макроси стану (розділені комами)",
     "expectedMacrosPlaceholder": "Наприклад: upsell, upsell2",
     "expectedMacrosHint": "Оригінальні статуси з партнерської мережі.",
+    "labelColor": "Колір мітки",
+    "customColor": "Свій колір (піпетка)",
+    "colorNotSet": "Колір не задано — використовується стандартний",
     "affectConversions": 'Впливає на показник "Конверсії".',
     "affectConversionsDesc": "Збільшує лічильник конверсій",
     "affectProfit": 'Впливає на показник "Прибуток".',
@@ -25501,7 +25690,38 @@ const uk = {
     "consoleTitle": "Консоль процесу LeadForge",
     "downloadZip": "Завантажити готовий ZIP",
     "openInTracker": "Відкрити в трекері",
-    "noArchives": "Архіви не вибрано. Завантажте ZIP-архіви вище для початку пакетної підготовки."
+    "noArchives": "Архіви не вибрано. Завантажте ZIP-архіви вище для початку пакетної підготовки.",
+    "badge2": "2.0 Analyze → Build",
+    "subtitle2": "Компілятор лендінгів Auto / Cross / Raw із синком у CRM-сховище та Live Auto QA",
+    "pendingFiles": "Очікують аналізу",
+    "bundlesTitle": "Проаналізовані бандли",
+    "selectAll": "Вибрати / зняти всі",
+    "analyzeButton": "Analyze bundles",
+    "analyzing": "Аналіз…",
+    "buildButton": "Build all selected bundles",
+    "building": "Збірка…",
+    "errorBadge": "Помилка",
+    "buildingBadge": "Збірка…",
+    "notDetected": "Мережу не розпізнано",
+    "formsWord": "форм(и)",
+    "foreignScript": "Чужий скрипт — буде вирізано в Raw/Cross",
+    "inputsLabel": "поля",
+    "integrationTitle": "Інтеграція",
+    "modeLabel": "Режим збірки",
+    "modeAutoHint": "Detect + route: мережа-джерело визначається автоматично, бандл перезбирається під неї. Форми переносяться на order.php, впроваджується ClickID-міст.",
+    "modeCrossHint": "Network swap: обробники старої мережі (order.php, send.php, api.php…) та жорстко вшиті ключі вирізаються, лендінг пересідає на обрану нижче цільову мережу.",
+    "modeRawHint": "Clone patch: чужі лічильники (FB/TikTok/GA/Яндекс) та ворожі скрипти вирізаються, впроваджується ClickID-міст і макроси {offer} — серверний order.php не генерується.",
+    "apiKeyPlaceholder": "Вставте API-ключ / токен CPA-мережі…",
+    "apiKeyNote": "Зберігається у браузері окремо для кожної мережі.",
+    "noGroup": "Без групи",
+    "safetyTitle": "Захист лідів",
+    "crmSync": "CRM sync",
+    "crmSyncOn": "Увімк — кожен лід надсилається до CRM-сховища та локальний failsafe-лог (сировий телефон, запит/відповід мережі).",
+    "crmSyncOff": "Вимк — лід іде лише до CPA-мережі; трекер отримує стандартний піксель конверсії.",
+    "autoQa": "Auto QA",
+    "autoQaOn": "Увімк — після збірки тестовий QA-лід проганяється по всьому ланцюжку (order.php → сховище → thank-you) і оцінюється 0–100%.",
+    "autoQaOff": "Вимк — спочатку збірка, перевірка вручну.",
+    "rerunQa": "Повторити Live QA"
   },
   "crm": {
     "title": "CRM — Облік лідів та замовлень",
@@ -25525,7 +25745,57 @@ const uk = {
     "date": "Дата / Час",
     "actions": "Дії",
     "saveStatus": "Зберегти статус",
-    "noLeads": "Ліди не знайдено за вибраними критеріями."
+    "noLeads": "Ліди не знайдено за вибраними критеріями.",
+    "title2": "CRM — замовлення та Anti-Shaving сховище",
+    "badge2": "Повні докази по ліду",
+    "subtitle2": "Кожен лід із точним номером, доставленим у мережу, сирим обміном з API та S2S-звіркою",
+    "refresh": "Оновити ліди",
+    "tabAll": "Усі",
+    "tabQa": "QA-Test",
+    "tabSuspect": "Підозра",
+    "tabLost": "Втрачені",
+    "suspects": "Підозри на шейв",
+    "lostWord": "втрачено в дорозі",
+    "qaCount": "QA-тести",
+    "networkCol": "Мережа",
+    "phoneCol": "Телефон (сировий → E.164)",
+    "inspect": "Інспекція доказів",
+    "inspectorTitle": "Інспектор ліда",
+    "tabRaw": "Сирі дані",
+    "tabNetwork": "Транзакція мережі",
+    "tabTracking": "Атрибуція трафіку",
+    "fCustomer": "Ім'я клієнта",
+    "fProduct": "Продукт",
+    "fRawPhone": "Сирий номер (як увів клієнт)",
+    "fCleanPhone": "E.164, доставлений мережі",
+    "fPrice": "Ціна",
+    "fPayout": "Виплата",
+    "fGeo": "ГЕО",
+    "fIp": "IP",
+    "fCreatedAt": "Надіслано",
+    "fLeadId": "Рядок сховища",
+    "fUserAgent": "User Agent",
+    "fNetRequest": "Запит у мережу (точнісінько що надіслали)",
+    "fNetResponse": "Відповідь мережі (точнісінько що прийшло)",
+    "evidenceTitle": "Пакет доказів шейву",
+    "evidenceText": "Лід доставлено з валідним E.164 номером, мережа прийняла його з HTTP 200, але S2S-вердикт негативний або відсутній. Експортуйте цей рядок (CSV) і відкрийте тікет у сапорт мережі, вказавши SubID та network lead id.",
+    "fSubParams": "Sub-параметри, передані кліком",
+    "setStatus": "Встановити статус",
+    "saving": "Збереження…",
+    "campaign": "Кампанія",
+    "noCampaign": "Без кампанії",
+    "currency": "Валюта",
+    "saveLead": "Зберегти лід",
+    "loading": "Завантаження замовлень і лідів…",
+    "allCampaigns": "Усі кампанії",
+    "phoneNote": "Зберігається сирим і нормалізується в E.164.",
+    "qaTest": "QA-Test",
+    "suspectBadge": "Підозра на шейв",
+    "suspectHint": "Відхилений при доведено валідному E.164 після відповіді мережі 200 — відкрийте тікет із доказами",
+    "lostBadge": "Немає відповіді мережі",
+    "lostHint2": "Мережа відповіла 200, але S2S-постбек не прийшов за 24 години",
+    "duplicateBadge": "Дубль",
+    "duplicateHint": "Той самий E.164 номер у тій самій мережі за 30 днів"
   },
   "proxy": {
     "singleString": "Одним рядком",
@@ -26830,6 +27100,9 @@ const es = {
     "expectedMacros": "Macros de estado esperado (separadas por comas)",
     "expectedMacrosPlaceholder": "Por ejemplo: venta adicional, venta adicional2",
     "expectedMacrosHint": "Estados originales provenientes de la red de afiliados.",
+    "labelColor": "Color de la etiqueta",
+    "customColor": "Color personalizado (cuentagotas)",
+    "colorNotSet": "Sin color asignado — se aplica la paleta predeterminada",
     "affectConversions": 'Afecta a la métrica "Conversiones"',
     "affectConversionsDesc": "Aumenta el contador de conversiones",
     "affectProfit": 'Afecta la métrica "Beneficio"',
@@ -28637,7 +28910,38 @@ const es = {
     "consoleTitle": "Consola de ejecución de LeadForge",
     "downloadZip": "Descargar ZIP listo",
     "openInTracker": "Abrir en el tracker",
-    "noArchives": "No hay archivos seleccionados. Suba archivos ZIP arriba para comenzar."
+    "noArchives": "No hay archivos seleccionados. Suba archivos ZIP arriba para comenzar.",
+    "badge2": "2.0 Analyze → Build",
+    "subtitle2": "Compilador de landings Auto / Cross / Raw con sincronización al CRM y Live Auto QA",
+    "pendingFiles": "Esperando análisis",
+    "bundlesTitle": "Bundles analizados",
+    "selectAll": "Seleccionar / desmarcar todo",
+    "analyzeButton": "Analizar bundles",
+    "analyzing": "Analizando…",
+    "buildButton": "Compilar los bundles seleccionados",
+    "building": "Compilando…",
+    "errorBadge": "Error",
+    "buildingBadge": "Compilando…",
+    "notDetected": "Red no detectada",
+    "formsWord": "formulario(s)",
+    "foreignScript": "Script ajeno — se recorta en Raw/Cross",
+    "inputsLabel": "campos",
+    "integrationTitle": "Integración",
+    "modeLabel": "Modo de compilación",
+    "modeAutoHint": "Detect + route: la red de origen se identifica automáticamente y el bundle se reconstruye para ella. Los formularios pasan a order.php y se inyecta el puente ClickID.",
+    "modeCrossHint": "Network swap: los manejadores de la red antigua (order.php, send.php, api.php…) y sus claves incrustadas se eliminan, y el landing se transplanta a la red destino elegida abajo.",
+    "modeRawHint": "Clone patch: se eliminan contadores ajenos (FB/TikTok/GA/Yandex) y scripts hostiles; se inyecta el puente ClickID y los macros {offer} — sin order.php del servidor.",
+    "apiKeyPlaceholder": "Pega el API Key / Token de la red CPA…",
+    "apiKeyNote": "Se guarda automáticamente por red en el navegador.",
+    "noGroup": "Sin grupo",
+    "safetyTitle": "Seguridad de leads",
+    "crmSync": "Sincronización CRM",
+    "crmSyncOn": "Activado — cada lead se envía a la bóveda CRM y al log local de respaldo (teléfono en bruto, petición/respuesta de la red).",
+    "crmSyncOff": "Desactivado — el lead va solo a la red CPA; el tracker recibe el píxel de conversión estándar.",
+    "autoQa": "Auto QA",
+    "autoQaOn": "Activado — tras cada build se envía un QA-Test-Lead de extremo a extremo (order.php → bóveda → thank-you) y se puntúa 0–100 %.",
+    "autoQaOff": "Desactivado — compila primero y verifica manualmente.",
+    "rerunQa": "Repetir Live QA"
   },
   "crm": {
     "title": "CRM — Gestión de leads y pedidos",
@@ -28661,7 +28965,57 @@ const es = {
     "date": "Fecha / Hora",
     "actions": "Acciones",
     "saveStatus": "Guardar estado",
-    "noLeads": "No se encontraron leads con los filtros actuales."
+    "noLeads": "No se encontraron leads con los filtros actuales.",
+    "title2": "CRM — Pedidos y bóveda Anti-Shaving",
+    "badge2": "Evidencia completa del lead",
+    "subtitle2": "Cada lead con el teléfono exacto entregado a la red, el intercambio API en bruto y la conciliación S2S",
+    "refresh": "Actualizar leads",
+    "tabAll": "Todos",
+    "tabQa": "QA-Test",
+    "tabSuspect": "Sospecha",
+    "tabLost": "Perdidos",
+    "suspects": "Sospechas de shave",
+    "lostWord": "perdidos en tránsito",
+    "qaCount": "Pruebas QA",
+    "networkCol": "Red",
+    "phoneCol": "Teléfono (bruto → E.164)",
+    "inspect": "Inspeccionar evidencia del lead",
+    "inspectorTitle": "Inspector de lead",
+    "tabRaw": "Datos brutos",
+    "tabNetwork": "Transacción de red",
+    "tabTracking": "Atribución de tráfico",
+    "fCustomer": "Nombre del cliente",
+    "fProduct": "Producto",
+    "fRawPhone": "Teléfono bruto (tal como se escribió)",
+    "fCleanPhone": "E.164 entregado a la red",
+    "fPrice": "Precio",
+    "fPayout": "Pago",
+    "fGeo": "GEO",
+    "fIp": "IP",
+    "fCreatedAt": "Enviado",
+    "fLeadId": "Fila de la bóveda",
+    "fUserAgent": "User Agent",
+    "fNetRequest": "Petición a la red (exactamente lo enviado)",
+    "fNetResponse": "Respuesta de la red (exactamente lo recibido)",
+    "evidenceTitle": "Paquete de evidencia anti-shave",
+    "evidenceText": "Este lead se entregó con un teléfono E.164 válido y la red lo aceptó con HTTP 200, pero el veredicto S2S es negativo o no llegó. Exporta esta fila (CSV) y abre un ticket con el soporte de la red citando el SubID y el network lead id.",
+    "fSubParams": "Parámetros sub del clic",
+    "setStatus": "Cambiar estado",
+    "saving": "Guardando…",
+    "campaign": "Campaña",
+    "noCampaign": "Sin campaña",
+    "currency": "Moneda",
+    "saveLead": "Guardar lead",
+    "loading": "Cargando pedidos y leads…",
+    "allCampaigns": "Todas las campañas",
+    "phoneNote": "Se guarda en bruto y se normaliza a E.164.",
+    "qaTest": "QA-Test",
+    "suspectBadge": "Posible shave",
+    "suspectHint": "Rechazado con un teléfono E.164 demostrablemente válido tras un 200 de la red — abre ticket con la evidencia",
+    "lostBadge": "Falta ACK de red",
+    "lostHint2": "La red respondió 200 pero ningún postback S2S llegó en 24 h",
+    "duplicateBadge": "Duplicado",
+    "duplicateHint": "El mismo teléfono E.164 en la misma red dentro de 30 días"
   },
   "proxy": {
     "singleString": "Cadena única",
@@ -29966,6 +30320,9 @@ const zh = {
     "expectedMacros": "预期状态宏（以逗号分隔）",
     "expectedMacrosPlaceholder": "例如：追加销售、追加销售2",
     "expectedMacrosHint": "来自联属网络的原始状态。",
+    "labelColor": "标签颜色",
+    "customColor": "自定义颜色（取色器）",
+    "colorNotSet": "未设置颜色 — 使用内置配色",
     "affectConversions": "影响“转化”指标",
     "affectConversionsDesc": "增加转化计数器",
     "affectProfit": "影响“利润”指标",
@@ -31773,7 +32130,38 @@ const zh = {
     "consoleTitle": "LeadForge 执行控制台",
     "downloadZip": "下载处理后的 ZIP",
     "openInTracker": "在追踪器中打开",
-    "noArchives": "未选择压缩包。请在上方上传 ZIP 压缩包以开始批量准备。"
+    "noArchives": "未选择压缩包。请在上方上传 ZIP 压缩包以开始批量准备。",
+    "badge2": "2.0 Analyze → Build",
+    "subtitle2": "Auto / Cross / Raw 落地页编译器，带 CRM 保险库同步与 Live Auto QA",
+    "pendingFiles": "等待分析",
+    "bundlesTitle": "已分析的捆绑包",
+    "selectAll": "全选 / 取消全选",
+    "analyzeButton": "分析捆绑包",
+    "analyzing": "分析中…",
+    "buildButton": "构建所有选中的捆绑包",
+    "building": "构建中…",
+    "errorBadge": "错误",
+    "buildingBadge": "构建中…",
+    "notDetected": "未识别到联盟",
+    "formsWord": "个表单",
+    "foreignScript": "外部脚本 — Raw/Cross 模式下将被移除",
+    "inputsLabel": "字段",
+    "integrationTitle": "集成",
+    "modeLabel": "构建模式",
+    "modeAutoHint": "Detect + route：自动识别来源联盟并为其重建捆绑包。表单改指向 order.php，注入 ClickID 桥接。",
+    "modeCrossHint": "Network swap：切除旧联盟的处理器（order.php、send.php、api.php 等）及其硬编码密钥，将落地页移植到下方选择的目标联盟。",
+    "modeRawHint": "Clone patch：清除外部统计代码（FB/TikTok/GA/Yandex）与恶意脚本，注入 ClickID 桥接和 {offer} 宏 — 不生成服务端 order.php。",
+    "apiKeyPlaceholder": "粘贴 CPA 联盟的 API Key / Token…",
+    "apiKeyNote": "按联盟自动保存在浏览器中。",
+    "noGroup": "无分组",
+    "safetyTitle": "线索安全",
+    "crmSync": "CRM 同步",
+    "crmSyncOn": "开启 — 每条线索都发送到 CRM 保险库并保留本地兜底日志（原始电话、网络请求/响应）。",
+    "crmSyncOff": "关闭 — 线索只发往 CPA 联盟；跟踪器仅收到标准转化像素。",
+    "autoQa": "Auto QA",
+    "autoQaOn": "开启 — 每次构建后端到端提交 QA-Test-Lead（order.php → 保险库 → 感谢页）并按 0–100% 评分。",
+    "autoQaOff": "关闭 — 先构建，手动验证。",
+    "rerunQa": "重新运行 Live QA"
   },
   "crm": {
     "title": "CRM — 订单与销售线索管理",
@@ -31797,7 +32185,57 @@ const zh = {
     "date": "日期 / 时间",
     "actions": "操作",
     "saveStatus": "更新状态",
-    "noLeads": "未找到符合当前筛选条件的线索。"
+    "noLeads": "未找到符合当前筛选条件的线索。",
+    "title2": "CRM — 订单与 Anti-Shaving 保险库",
+    "badge2": "完整线索证据",
+    "subtitle2": "每条线索都带交付给网络的确切号码、原始 API 往来和 S2S 对账",
+    "refresh": "刷新线索",
+    "tabAll": "全部",
+    "tabQa": "QA-Test",
+    "tabSuspect": "疑似",
+    "tabLost": "丢失",
+    "suspects": "疑似刷单",
+    "lostWord": "在途中丢失",
+    "qaCount": "QA 测试",
+    "networkCol": "联盟",
+    "phoneCol": "电话（原始 → E.164）",
+    "inspect": "检查线索证据",
+    "inspectorTitle": "线索检查器",
+    "tabRaw": "原始线索数据",
+    "tabNetwork": "网络交易",
+    "tabTracking": "流量归因",
+    "fCustomer": "客户姓名",
+    "fProduct": "产品",
+    "fRawPhone": "原始电话（输入原样）",
+    "fCleanPhone": "交付网络的 E.164",
+    "fPrice": "价格",
+    "fPayout": "佣金",
+    "fGeo": "GEO",
+    "fIp": "IP",
+    "fCreatedAt": "提交时间",
+    "fLeadId": "保险库行",
+    "fUserAgent": "User Agent",
+    "fNetRequest": "网络请求（我们发送的原文）",
+    "fNetResponse": "网络响应（返回的原文）",
+    "evidenceTitle": "Anti-shaving 证据包",
+    "evidenceText": "该线索以有效的 E.164 号码交付，网络以 HTTP 200 接受，但 S2S 结论为负或缺失。导出此行（CSV），引用 SubID 和 network lead id 向网络客服开票。",
+    "fSubParams": "点击携带的 Sub 参数",
+    "setStatus": "设置状态",
+    "saving": "保存中…",
+    "campaign": "广告活动",
+    "noCampaign": "无广告活动",
+    "currency": "币种",
+    "saveLead": "保存线索",
+    "loading": "正在加载订单和线索…",
+    "allCampaigns": "所有广告活动",
+    "phoneNote": "按原始保存并规范化为 E.164。",
+    "qaTest": "QA-Test",
+    "suspectBadge": "疑似刷单",
+    "suspectHint": "网络返回 200 且 E.164 号码证明有效却遭拒 — 使用下方证据开票",
+    "lostBadge": "缺少网络 ACK",
+    "lostHint2": "网络返回 200 但 24 小时内无 S2S postback",
+    "duplicateBadge": "重复",
+    "duplicateHint": "30 天内同一网络同一 E.164 号码"
   },
   "proxy": {
     "singleString": "单行文本",
@@ -33102,6 +33540,9 @@ const fr = {
     "expectedMacros": "Macro d'état attendu (séparées par des virgules)",
     "expectedMacrosPlaceholder": "Exemple : vente incitative, vente incitative2",
     "expectedMacrosHint": "Statuts d'origine provenant du réseau d'affiliation.",
+    "labelColor": "Couleur de l’étiquette",
+    "customColor": "Couleur personnalisée (pipette)",
+    "colorNotSet": "Aucune couleur définie — la palette intégrée s’applique",
     "affectConversions": 'Affecte la mesure "Conversions"',
     "affectConversionsDesc": "Augmente le compteur de conversion",
     "affectProfit": 'Affecte la mesure "Profit"',
@@ -34911,7 +35352,38 @@ const fr = {
     "consoleTitle": "Console d'exécution LeadForge",
     "downloadZip": "Télécharger le ZIP prêt",
     "openInTracker": "Ouvrir dans le tracker",
-    "noArchives": "Aucune archive sélectionnée. Déposez des fichiers ZIP ci-dessus pour commencer."
+    "noArchives": "Aucune archive sélectionnée. Déposez des fichiers ZIP ci-dessus pour commencer.",
+    "badge2": "2.0 Analyze → Build",
+    "subtitle2": "Compilateur de landings Auto / Cross / Raw avec synchro vers le coffre-fort CRM et Live Auto QA",
+    "pendingFiles": "En attente d’analyse",
+    "bundlesTitle": "Bundles analysés",
+    "selectAll": "Tout sélectionner / désélectionner",
+    "analyzeButton": "Analyser les bundles",
+    "analyzing": "Analyse…",
+    "buildButton": "Compiler les bundles sélectionnés",
+    "building": "Compilation…",
+    "errorBadge": "Erreur",
+    "buildingBadge": "Compilation…",
+    "notDetected": "Aucun réseau détecté",
+    "formsWord": "formulaire(s)",
+    "foreignScript": "Script étranger — sera retiré en Raw/Cross",
+    "inputsLabel": "champs",
+    "integrationTitle": "Intégration",
+    "modeLabel": "Mode de compilation",
+    "modeAutoHint": "Detect + route — le réseau source est identifié automatiquement et le bundle est reconstruit pour lui. Les formulaires passent sur order.php et le pont ClickID est injecté.",
+    "modeCrossHint": "Network swap — les handlers de l’ancien réseau (order.php, send.php, api.php…) et ses clés en dur sont retirés, et le landing est greffé sur le réseau cible choisi ci-dessous.",
+    "modeRawHint": "Clone patch — les compteurs étrangers (FB/TikTok/GA/Yandex) et les scripts hostiles sont retirés ; le pont ClickID et les macros {offer} sont injectés, sans order.php côté serveur.",
+    "apiKeyPlaceholder": "Collez la clé API / le token du réseau CPA…",
+    "apiKeyNote": "Enregistré automatiquement par réseau dans le navigateur.",
+    "noGroup": "Aucun groupe",
+    "safetyTitle": "Sécurité des leads",
+    "crmSync": "Synchro CRM",
+    "crmSyncOn": "Activé — chaque lead est envoyé au coffre-fort CRM et au journal local de secours (téléphone brut, requête/réponse réseau).",
+    "crmSyncOff": "Désactivé — le part uniquement au réseau CPA ; le tracker reçoit le pixel de conversion standard.",
+    "autoQa": "Auto QA",
+    "autoQaOn": "Activé — après chaque build, un QA-Test-Lead est testé de bout en bout (order.php → coffre → thank-you) et noté 0–100 %.",
+    "autoQaOff": "Désactivé — compiler d’abord, vérifier manuellement.",
+    "rerunQa": "Relancer le Live QA"
   },
   "crm": {
     "title": "CRM — Gestion des leads et commandes",
@@ -34935,7 +35407,57 @@ const fr = {
     "date": "Date / Heure",
     "actions": "Actions",
     "saveStatus": "Enregistrer le statut",
-    "noLeads": "Aucun lead trouvé correspondant aux filtres."
+    "noLeads": "Aucun lead trouvé correspondant aux filtres.",
+    "title2": "CRM — Commandes et coffre Anti-Shaving",
+    "badge2": "Preuves complètes du lead",
+    "subtitle2": "Chaque lead avec le numéro exact livré au réseau, l’échange API brut et le rapprochement S2S",
+    "refresh": "Actualiser les leads",
+    "tabAll": "Tous",
+    "tabQa": "QA-Test",
+    "tabSuspect": "Suspect",
+    "tabLost": "Perdus",
+    "suspects": "Suspicions de shave",
+    "lostWord": "perdus en transit",
+    "qaCount": "Tests QA",
+    "networkCol": "Réseau",
+    "phoneCol": "Téléphone (brut → E.164)",
+    "inspect": "Inspecter les preuves du lead",
+    "inspectorTitle": "Inspecteur de lead",
+    "tabRaw": "Données brutes",
+    "tabNetwork": "Transaction réseau",
+    "tabTracking": "Attribution trafic",
+    "fCustomer": "Nom du client",
+    "fProduct": "Produit",
+    "fRawPhone": "Téléphone brut (tel que saisi)",
+    "fCleanPhone": "E.164 livré au réseau",
+    "fPrice": "Prix",
+    "fPayout": "Paiement",
+    "fGeo": "GEO",
+    "fIp": "IP",
+    "fCreatedAt": "Soumis",
+    "fLeadId": "Ligne du coffre",
+    "fUserAgent": "User Agent",
+    "fNetRequest": "Requête réseau (exactement ce qui a été envoyé)",
+    "fNetResponse": "Réponse réseau (exactement ce qui est revenu)",
+    "evidenceTitle": "Dossier de preuves anti-shave",
+    "evidenceText": "Ce lead a été livré avec un téléphone E.164 valide et le réseau l’a accepté en HTTP 200, pourtant le verdict S2S est négatif ou manquant. Exportez cette ligne (CSV) et ouvrez un ticket auprès du support du réseau en citant le SubID et le network lead id.",
+    "fSubParams": "Paramètres sub du clic",
+    "setStatus": "Définir le statut",
+    "saving": "Enregistrement…",
+    "campaign": "Campagne",
+    "noCampaign": "Aucune campagne",
+    "currency": "Devise",
+    "saveLead": "Enregistrer le lead",
+    "loading": "Chargement des commandes et leads…",
+    "allCampaigns": "Toutes les campagnes",
+    "phoneNote": "Stocké brut et normalisé en E.164.",
+    "qaTest": "QA-Test",
+    "suspectBadge": "Shave suspecté",
+    "suspectHint": "Rejeté avec un téléphone E.164 prouvablement valide après un 200 du réseau — ouvrez un ticket avec les preuves",
+    "lostBadge": "ACK réseau manquant",
+    "lostHint2": "Le réseau a répondu 200 mais aucun postback S2S en 24 h",
+    "duplicateBadge": "Doublon",
+    "duplicateHint": "Même téléphone E.164 sur le même réseau sous 30 jours"
   },
   "proxy": {
     "singleString": "Ligne unique",
@@ -36240,6 +36762,9 @@ const de = {
     "expectedMacros": "Erwartete Statusmakros (durch Kommas getrennt)",
     "expectedMacrosPlaceholder": "Beispiel: Upsell, Upsell2",
     "expectedMacrosHint": "Ursprüngliche Status stammen aus dem Affiliate-Netzwerk.",
+    "labelColor": "Farbe des Labels",
+    "customColor": "Eigene Farbe (Pipette)",
+    "colorNotSet": "Keine Farbe gesetzt — die Standardpalette gilt",
     "affectConversions": "Beeinflusst die Metrik „Conversions“",
     "affectConversionsDesc": "Erhöht den Conversion-Zähler",
     "affectProfit": "Beeinflusst die Metrik „Gewinn“",
@@ -38047,7 +38572,38 @@ const de = {
     "consoleTitle": "LeadForge Ausführungskonsole",
     "downloadZip": "Fertiges ZIP herunterladen",
     "openInTracker": "Im Tracker öffnen",
-    "noArchives": "Keine Archive ausgewählt. Ziehen Sie ZIP-Dateien hierher, um zu beginnen."
+    "noArchives": "Keine Archive ausgewählt. Ziehen Sie ZIP-Dateien hierher, um zu beginnen.",
+    "badge2": "2.0 Analyze → Build",
+    "subtitle2": "Auto-/Cross-/Raw-Landing-Compiler mit CRM-Vault-Sync und Live Auto QA",
+    "pendingFiles": "Warten auf Analyse",
+    "bundlesTitle": "Analysierte Bundles",
+    "selectAll": "Alle aus-/abwählen",
+    "analyzeButton": "Bundles analysieren",
+    "analyzing": "Analysiere…",
+    "buildButton": "Alle ausgewählten Bundles bauen",
+    "building": "Build läuft…",
+    "errorBadge": "Fehler",
+    "buildingBadge": "Build…",
+    "notDetected": "Kein Netzwerk erkannt",
+    "formsWord": "Formular(e)",
+    "foreignScript": "Fremdes Skript — wird im Raw-/Cross-Modus entfernt",
+    "inputsLabel": "Felder",
+    "integrationTitle": "Integration",
+    "modeLabel": "Build-Modus",
+    "modeAutoHint": "Detect + route: das Quell-Netzwerk wird automatisch erkannt und das Bundle dafür neu gebaut. Formulare werden auf order.php umgebogen, die ClickID-Bridge injiziert.",
+    "modeCrossHint": "Network swap: die Handler des alten Netzwerks (order.php, send.php, api.php…) und hart codierte Keys werden entfernt und das Landing auf das unten gewählte Ziel-Netzwerk umgesetzt.",
+    "modeRawHint": "Clone patch: fremde Zählpixel (FB/TikTok/GA/Yandex) und feindliche Skripte werden entfernt, ClickID-Bridge und {offer}-Makros injiziert — kein serverseitiges order.php.",
+    "apiKeyPlaceholder": "API-Key / Token des CPA-Netzwerks einfügen…",
+    "apiKeyNote": "Wird pro Netzwerk automatisch im Browser gespeichert.",
+    "noGroup": "Keine Gruppe",
+    "safetyTitle": "Lead-Sicherheit",
+    "crmSync": "CRM-Sync",
+    "crmSyncOn": "Ein — jeder Lead geht an den CRM-Vault und das lokale Failsafe-Log (Roh-Telefon, Request/Response).",
+    "crmSyncOff": "Aus — der Lead geht nur an das CPA-Netzwerk; der Tracker erhält das Standard-Conversions-Pixel.",
+    "autoQa": "Auto QA",
+    "autoQaOn": "Ein — nach jedem Build wird ein QA-Test-Lead end-to-end geprüft (order.php → Vault → Thank-you) und mit 0–100 % bewertet.",
+    "autoQaOff": "Aus — erst bauen, manuell prüfen.",
+    "rerunQa": "Live QA wiederholen"
   },
   "crm": {
     "title": "CRM — Lead- & Bestellverwaltung",
@@ -38071,7 +38627,57 @@ const de = {
     "date": "Datum / Zeit",
     "actions": "Aktionen",
     "saveStatus": "Status speichern",
-    "noLeads": "Keine Leads für die ausgewählten Filter gefunden."
+    "noLeads": "Keine Leads für die ausgewählten Filter gefunden.",
+    "title2": "CRM — Bestellungen & Anti-Shaving-Vault",
+    "badge2": "Vollständige Lead-Beweise",
+    "subtitle2": "Jeder Lead mit der exakt zugestellten Telefonnummer, dem rohen API-Austausch und S2S-Abgleich",
+    "refresh": "Leads aktualisieren",
+    "tabAll": "Alle",
+    "tabQa": "QA-Test",
+    "tabSuspect": "Verdacht",
+    "tabLost": "Verloren",
+    "suspects": "Shave-Verdächtige",
+    "lostWord": "auf dem Weg verloren",
+    "qaCount": "QA-Tests",
+    "networkCol": "Netzwerk",
+    "phoneCol": "Telefon (roh → E.164)",
+    "inspect": "Lead-Beweise prüfen",
+    "inspectorTitle": "Lead-Inspektor",
+    "tabRaw": "Rohe Lead-Daten",
+    "tabNetwork": "Netzwerk-Transaktion",
+    "tabTracking": "Tracking-Attribution",
+    "fCustomer": "Kundenname",
+    "fProduct": "Produkt",
+    "fRawPhone": "Rohe Telefonnummer (wie eingegeben)",
+    "fCleanPhone": "E.164 an das Netzwerk geliefert",
+    "fPrice": "Preis",
+    "fPayout": "Auszahlung",
+    "fGeo": "GEO",
+    "fIp": "IP",
+    "fCreatedAt": "Eingegangen",
+    "fLeadId": "Vault-Zeile",
+    "fUserAgent": "User Agent",
+    "fNetRequest": "Netzwerk-Request (exakt was wir gesendet haben)",
+    "fNetResponse": "Netzwerk-Antwort (exakt was zurückkam)",
+    "evidenceTitle": "Anti-Shaving-Beweispaket",
+    "evidenceText": "Dieser Lead wurde mit gültiger E.164-Nummer zugestellt und vom Netzwerk mit HTTP 200 angenommen, doch das S2S-Urteil ist negativ oder fehlt. Exportiere diese Zeile (CSV) und eröffne ein Ticket beim Netzwerk-Support mit SubID und Network-Lead-ID.",
+    "fSubParams": "Sub-Parameter des Klicks",
+    "setStatus": "Status setzen",
+    "saving": "Speichern…",
+    "campaign": "Kampagne",
+    "noCampaign": "Keine Kampagne",
+    "currency": "Währung",
+    "saveLead": "Lead speichern",
+    "loading": "Bestellungen und Leads werden geladen…",
+    "allCampaigns": "Alle Kampagnen",
+    "phoneNote": "Wird roh gespeichert und zu E.164 normalisiert.",
+    "qaTest": "QA-Test",
+    "suspectBadge": "Shave-Verdacht",
+    "suspectHint": "Abgelehnt trotz nachweislich gültiger E.164-Nummer nach HTTP 200 — Ticket mit den Beweisen unten eröffnen",
+    "lostBadge": "Netzwerk-ACK fehlt",
+    "lostHint2": "Netzwerk antwortete 200, aber innerhalb von 24 h kam kein S2S-Postback",
+    "duplicateBadge": "Duplikat",
+    "duplicateHint": "Gleiche E.164-Nummer im selben Netzwerk innerhalb von 30 Tagen"
   },
   "proxy": {
     "singleString": "Einzelne Zeile",
@@ -41916,7 +42522,7 @@ function normalizeSegment({ start, end, count: count2, loop, style }) {
 }
 function getSegment(segment, points, bounds) {
   const { property, start: startBound, end: endBound } = bounds;
-  const { between, normalize } = propertyFn(property);
+  const { between, normalize: normalize2 } = propertyFn(property);
   const count2 = points.length;
   let { start, end, loop } = segment;
   let i, ilen;
@@ -41924,7 +42530,7 @@ function getSegment(segment, points, bounds) {
     start += count2;
     end += count2;
     for (i = 0, ilen = count2; i < ilen; ++i) {
-      if (!between(normalize(points[start % count2][property]), startBound, endBound)) {
+      if (!between(normalize2(points[start % count2][property]), startBound, endBound)) {
         break;
       }
       start--;
@@ -41951,7 +42557,7 @@ function _boundSegment(segment, points, bounds) {
   }
   const { property, start: startBound, end: endBound } = bounds;
   const count2 = points.length;
-  const { compare, between, normalize } = propertyFn(property);
+  const { compare, between, normalize: normalize2 } = propertyFn(property);
   const { start, end, loop, style } = getSegment(segment, points, bounds);
   const result = [];
   let inside = false;
@@ -41966,7 +42572,7 @@ function _boundSegment(segment, points, bounds) {
     if (point.skip) {
       continue;
     }
-    value = normalize(point[property]);
+    value = normalize2(point[property]);
     if (value === prevValue) {
       continue;
     }
@@ -55386,8 +55992,63 @@ const ReportCustomizerModal = ({
     }
   ) });
 };
+const DEFAULT_CONVERSION_COLORS = {
+  lead: "#0ea5e9",
+  sale: "#10b981",
+  rejected: "#ef4444",
+  trash: "#6b7280",
+  registration: "#8b5cf6",
+  deposit: "#f59e0b"
+};
+const FALLBACK_CONVERSION_COLOR = "#6b7280";
+const CONVERSION_COLOR_SWATCHES = [
+  "#f97316",
+  "#f59e0b",
+  "#eab308",
+  "#84cc16",
+  "#22c55e",
+  "#10b981",
+  "#14b8a6",
+  "#06b6d4",
+  "#0ea5e9",
+  "#3b82f6",
+  "#6366f1",
+  "#8b5cf6",
+  "#a855f7",
+  "#d946ef",
+  "#ec4899",
+  "#ef4444"
+];
+const normalize = (value) => String(value || "").trim().toLowerCase();
+const resolveConversionColor = (status, types) => {
+  const needle = normalize(status);
+  if (!needle) {
+    return FALLBACK_CONVERSION_COLOR;
+  }
+  if (Array.isArray(types)) {
+    for (const type of types) {
+      if (!type) {
+        continue;
+      }
+      const values = String(type.status_values || "").split(",").map(normalize).filter(Boolean);
+      const matches = normalize(type.name) === needle || values.includes(needle);
+      if (matches && /^#[0-9a-fA-F]{6}$/.test(String(type.color || "").trim())) {
+        return String(type.color).trim();
+      }
+    }
+  }
+  return DEFAULT_CONVERSION_COLORS[needle] || FALLBACK_CONVERSION_COLOR;
+};
 const API_URL$A = "/api.php";
 const FB_HIERARCHY_LAYERS = ["ad_campaign_id", "adset_id", "ad_id"];
+const STATUS_COLUMN_STATUSES = {
+  leads: "lead",
+  sales: "sale",
+  registrations: "registration",
+  deposits: "deposit",
+  rejected: "rejected",
+  trash: "trash"
+};
 const REPORT_LAYER_PRESETS = [
   { id: "facebook_hierarchy", label: "Facebook Hierarchy", layers: FB_HIERARCHY_LAYERS },
   { id: "geo", label: "Geo (Country → City)", layers: ["country", "region", "city"] },
@@ -55412,6 +56073,13 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   const [entityStatus, setEntityStatus] = reactExports.useState({});
   const [togglingIds, setTogglingIds] = reactExports.useState(/* @__PURE__ */ new Set());
   const [toggleNotice, setToggleNotice] = reactExports.useState(null);
+  const [conversionTypes, setConversionTypes] = reactExports.useState([]);
+  reactExports.useEffect(() => {
+    axios.get(`${API_URL$A}?action=conversion_types`).then((res) => {
+      if (res.data.status === "success") setConversionTypes(res.data.data || []);
+    }).catch(() => {
+    });
+  }, []);
   const handleToggleEntityStatus = async (dimKey, row) => {
     const entityId = String(row.dimId ?? "").trim();
     if (!/^\d+$/.test(entityId) || togglingIds.has(entityId)) return;
@@ -56025,6 +56693,19 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                   },
                   children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center justify-end gap-1 w-full", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-30 -ml-1" }),
+                    STATUS_COLUMN_STATUSES[colId] && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "span",
+                      {
+                        title: def?.label || colId,
+                        style: {
+                          width: "7px",
+                          height: "7px",
+                          borderRadius: "50%",
+                          flexShrink: 0,
+                          backgroundColor: resolveConversionColor(STATUS_COLUMN_STATUSES[colId], conversionTypes)
+                        }
+                      }
+                    ),
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: def?.shortLabel || def?.label || colId })
                   ] })
                 },
@@ -63424,6 +64105,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
   const [loading, setLoading] = reactExports.useState(true);
   const [pagination, setPagination] = reactExports.useState({ total: 0, page: 1, per_page: 50, total_pages: 0 });
   const [selectedClickId, setSelectedClickId] = reactExports.useState(null);
+  const [conversionTypes, setConversionTypes] = reactExports.useState([]);
   const [search, setSearch] = reactExports.useState("");
   const [statusFilter, setStatusFilter] = reactExports.useState("");
   const [dateFrom, setDateFrom] = reactExports.useState("");
@@ -63453,6 +64135,12 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
   reactExports.useEffect(() => {
     fetchConversions(1);
   }, [statusFilter, dateFrom, dateTo, effectiveCampaignId]);
+  reactExports.useEffect(() => {
+    axios.get(`${API_URL$p}?action=conversion_types`).then((res) => {
+      if (res.data.status === "success") setConversionTypes(res.data.data || []);
+    }).catch(() => {
+    });
+  }, []);
   const handleSearch = () => {
     fetchConversions(1);
   };
@@ -63485,21 +64173,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
     a.click();
   };
   const getStatusBadge = (status) => {
-    const baseStyle = {
-      display: "inline-flex",
-      padding: "4px 10px",
-      fontSize: "12px",
-      fontWeight: 500,
-      borderRadius: "12px"
-    };
-    const styles = {
-      lead: { background: "var(--color-info-bg)", color: "var(--color-info)" },
-      sale: { background: "var(--color-success-bg)", color: "var(--color-success)" },
-      rejected: { background: "var(--color-danger-bg)", color: "var(--color-danger)" },
-      registration: { background: "var(--color-primary-light)", color: "var(--color-primary)" },
-      deposit: { background: "var(--color-warning-bg)", color: "var(--color-warning)" },
-      trash: { background: "var(--color-bg-soft)", color: "var(--color-text-muted)" }
-    };
+    const badgeColor = resolveConversionColor(status, conversionTypes);
     const statusLabels = {
       lead: t("conversions.lead"),
       sale: t("conversions.sale"),
@@ -63508,7 +64182,27 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
       deposit: t("conversions.deposit"),
       trash: t("conversions.trash")
     };
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { ...baseStyle, ...styles[status] || styles.trash }, children: statusLabels[status] || status });
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: {
+      display: "inline-flex",
+      alignItems: "center",
+      padding: "4px 10px",
+      fontSize: "12px",
+      fontWeight: 500,
+      borderRadius: "12px",
+      color: badgeColor,
+      backgroundColor: `color-mix(in srgb, ${badgeColor} 14%, transparent)`,
+      border: `1px solid color-mix(in srgb, ${badgeColor} 25%, transparent)`
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+        width: "6px",
+        height: "6px",
+        borderRadius: "50%",
+        backgroundColor: badgeColor,
+        marginRight: "6px",
+        flexShrink: 0
+      } }),
+      statusLabels[status] || status
+    ] });
   };
   const isModalMode = onClose !== void 0;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: isModalMode ? "" : "space-y-4", children: [
@@ -66748,7 +67442,12 @@ const emptyForm$1 = {
   record_conversion: 1,
   record_revenue: 1,
   send_postback: 1,
-  affect_cap: 1
+  affect_cap: 1,
+  color: ""
+};
+const normalizeColor = (value) => {
+  const color2 = String(value || "").trim();
+  return /^#[0-9a-fA-F]{6}$/.test(color2) ? color2 : "";
 };
 const ConversionTypesSettings = () => {
   const { t } = useLanguage();
@@ -66854,7 +67553,17 @@ const ConversionTypesSettings = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "80px" } })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: types.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center", style: { padding: "32px", color: "var(--color-text-muted)" }, children: t("conversionTypes.noTypes") }) }) : types.map((type) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: type.name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: "8px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: normalizeColor(type.color) || t("conversionTypes.colorNotSet"), style: {
+              width: "10px",
+              height: "10px",
+              borderRadius: "50%",
+              flexShrink: 0,
+              backgroundColor: normalizeColor(type.color) || "transparent",
+              border: normalizeColor(type.color) ? "none" : "2px dashed var(--color-border)"
+            } }),
+            type.name
+          ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontFamily: "monospace", fontSize: "12px", color: "var(--color-text-secondary)" }, children: type.status_values }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: type.record_conversion === 1 ? "✅" : "❌" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: type.record_revenue === 1 ? "✅" : "❌" }),
@@ -66901,6 +67610,90 @@ const ConversionTypesSettings = () => {
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px" }, children: t("conversionTypes.expectedMacrosHint") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversionTypes.labelColor") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }, children: [
+            CONVERSION_COLOR_SWATCHES.map((swatch) => {
+              const selected = normalizeColor(formData.color) === swatch;
+              return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  title: swatch,
+                  onClick: () => setFormData((prev) => ({ ...prev, color: selected ? "" : swatch })),
+                  style: {
+                    width: "24px",
+                    height: "24px",
+                    borderRadius: "50%",
+                    backgroundColor: swatch,
+                    cursor: "pointer",
+                    padding: 0,
+                    border: "none",
+                    // Contrast ring instead of a fixed white one —
+                    // the swatch grid sits on both light and dark themes.
+                    outline: selected ? `2px solid var(--color-text-primary)` : `1px solid var(--color-border)`,
+                    outlineOffset: selected ? "2px" : "0",
+                    transform: selected ? "scale(1.1)" : "none"
+                  }
+                },
+                swatch
+              );
+            }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "label",
+              {
+                title: t("conversionTypes.customColor"),
+                style: {
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  background: "var(--color-bg-soft)",
+                  border: "1px dashed var(--color-border)",
+                  flexShrink: 0
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Pipette, { size: 12, style: { color: "var(--color-text-secondary)" } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "color",
+                      value: normalizeColor(formData.color) || FALLBACK_CONVERSION_COLOR,
+                      onChange: (e) => setFormData((prev) => ({ ...prev, color: e.target.value })),
+                      style: { opacity: 0, width: 0, height: 0, border: "none", padding: 0, position: "absolute" }
+                    }
+                  )
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "10px", display: "flex", alignItems: "center", gap: "10px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: {
+              display: "inline-flex",
+              alignItems: "center",
+              padding: "3px 10px",
+              fontSize: "12px",
+              fontWeight: 600,
+              borderRadius: "12px",
+              color: normalizeColor(formData.color) || "var(--color-text-secondary)",
+              backgroundColor: normalizeColor(formData.color) ? `color-mix(in srgb, ${normalizeColor(formData.color)} 14%, transparent)` : "var(--color-bg-soft)",
+              border: normalizeColor(formData.color) ? `1px solid color-mix(in srgb, ${normalizeColor(formData.color)} 25%, transparent)` : "1px solid var(--color-border)"
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+                width: "6px",
+                height: "6px",
+                borderRadius: "50%",
+                backgroundColor: normalizeColor(formData.color) || "var(--color-text-muted)",
+                marginRight: "6px"
+              } }),
+              formData.name || t("conversionTypes.metricNamePlaceholder")
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "12px", color: "var(--color-text-muted)" }, children: normalizeColor(formData.color) || t("conversionTypes.colorNotSet") })
+          ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { paddingTop: "16px", borderTop: "1px solid var(--color-border)", display: "flex", flexDirection: "column", gap: "16px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "flex-start", gap: "12px", cursor: "pointer" }, children: [
@@ -82489,11 +83282,11 @@ function getTimezoneOffsetInMilliseconds(date) {
   return +date - +utcDate;
 }
 function normalizeDates(context, ...dates) {
-  const normalize = constructFrom.bind(
+  const normalize2 = constructFrom.bind(
     null,
     dates.find((date) => typeof date === "object")
   );
-  return dates.map(normalize);
+  return dates.map(normalize2);
 }
 function startOfDay(date, options) {
   const _date = toDate(date, options?.in);

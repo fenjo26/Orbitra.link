@@ -10994,13 +10994,47 @@ PHP;
                     $record_rev = isset($data['record_revenue']) ? (int) $data['record_revenue'] : 1;
                     $send_pb = isset($data['send_postback']) ? (int) $data['send_postback'] : 1;
                     $affect_cap = isset($data['affect_cap']) ? (int) $data['affect_cap'] : 1;
+                    // Label color for badges/markers; anything that is not a
+                    // #rrggbb hex is stored as "not customized".
+                    $color = strtoupper(trim((string) ($data['color'] ?? '')));
+                    if (!preg_match('/^#[0-9A-F]{6}$/', $color)) {
+                        $color = '';
+                    }
+
+                    // The color column arrives with migration 29 (or a fresh
+                    // database.sql install). Databases that have not run it yet
+                    // keep saving types without the color instead of failing.
+                    static $conversionTypesHasColor = null;
+                    if ($conversionTypesHasColor === null) {
+                        $conversionTypesHasColor = false;
+                        try {
+                            foreach ($pdo->query("PRAGMA table_info(conversion_types)")->fetchAll(PDO::FETCH_ASSOC) as $columnInfo) {
+                                if ((string) ($columnInfo['name'] ?? '') === 'color') {
+                                    $conversionTypesHasColor = true;
+                                    break;
+                                }
+                            }
+                        } catch (\Throwable $e) {
+                            $conversionTypesHasColor = false;
+                        }
+                    }
 
                     if ($id) {
-                        $stmt = $pdo->prepare("UPDATE conversion_types SET name=?, status_values=?, next_statuses=?, record_conversion=?, record_revenue=?, send_postback=?, affect_cap=? WHERE id=?");
-                        $stmt->execute([$name, $status_values, $next_statuses, $record_con, $record_rev, $send_pb, $affect_cap, $id]);
+                        if ($conversionTypesHasColor) {
+                            $stmt = $pdo->prepare("UPDATE conversion_types SET name=?, status_values=?, next_statuses=?, record_conversion=?, record_revenue=?, send_postback=?, affect_cap=?, color=? WHERE id=?");
+                            $stmt->execute([$name, $status_values, $next_statuses, $record_con, $record_rev, $send_pb, $affect_cap, $color, $id]);
+                        } else {
+                            $stmt = $pdo->prepare("UPDATE conversion_types SET name=?, status_values=?, next_statuses=?, record_conversion=?, record_revenue=?, send_postback=?, affect_cap=? WHERE id=?");
+                            $stmt->execute([$name, $status_values, $next_statuses, $record_con, $record_rev, $send_pb, $affect_cap, $id]);
+                        }
                     } else {
-                        $stmt = $pdo->prepare("INSERT INTO conversion_types (name, status_values, next_statuses, record_conversion, record_revenue, send_postback, affect_cap) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                        $stmt->execute([$name, $status_values, $next_statuses, $record_con, $record_rev, $send_pb, $affect_cap]);
+                        if ($conversionTypesHasColor) {
+                            $stmt = $pdo->prepare("INSERT INTO conversion_types (name, status_values, next_statuses, record_conversion, record_revenue, send_postback, affect_cap, color) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                            $stmt->execute([$name, $status_values, $next_statuses, $record_con, $record_rev, $send_pb, $affect_cap, $color]);
+                        } else {
+                            $stmt = $pdo->prepare("INSERT INTO conversion_types (name, status_values, next_statuses, record_conversion, record_revenue, send_postback, affect_cap) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                            $stmt->execute([$name, $status_values, $next_statuses, $record_con, $record_rev, $send_pb, $affect_cap]);
+                        }
                     }
                     echo json_encode(['status' => 'success']);
                 }

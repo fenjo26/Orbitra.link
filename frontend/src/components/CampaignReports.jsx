@@ -4,9 +4,19 @@ import { X, Download, Filter, BarChart3, Plus, Trash2, SlidersHorizontal, GripVe
 import { useLanguage } from '../contexts/LanguageContext';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, REPORT_DIMENSION_LABELS, getDimensionLabel, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
+import { resolveConversionColor } from '../utils/conversionColors';
 
 const API_URL = '/api.php';
 const FB_HIERARCHY_LAYERS = ['ad_campaign_id', 'adset_id', 'ad_id'];
+// Status-count columns whose header carries the conversion-type color marker.
+const STATUS_COLUMN_STATUSES = {
+    leads: 'lead',
+    sales: 'sale',
+    registrations: 'registration',
+    deposits: 'deposit',
+    rejected: 'rejected',
+    trash: 'trash',
+};
 const REPORT_LAYER_PRESETS = [
     { id: 'facebook_hierarchy', label: 'Facebook Hierarchy', layers: FB_HIERARCHY_LAYERS },
     { id: 'geo', label: 'Geo (Country → City)', layers: ['country', 'region', 'city'] },
@@ -37,6 +47,16 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const [entityStatus, setEntityStatus] = useState({});
     const [togglingIds, setTogglingIds] = useState(new Set());
     const [toggleNotice, setToggleNotice] = useState(null);
+    // Custom conversion-type colors for the status column header markers.
+    const [conversionTypes, setConversionTypes] = useState([]);
+
+    useEffect(() => {
+        axios.get(`${API_URL}?action=conversion_types`)
+            .then(res => {
+                if (res.data.status === 'success') setConversionTypes(res.data.data || []);
+            })
+            .catch(() => {});
+    }, []);
 
     const handleToggleEntityStatus = async (dimKey, row) => {
         const entityId = String(row.dimId ?? '').trim();
@@ -705,6 +725,18 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                 >
                                                     <div className="inline-flex items-center justify-end gap-1 w-full">
                                                         <GripVertical className="w-3 h-3 opacity-30 -ml-1" />
+                                                        {STATUS_COLUMN_STATUSES[colId] && (
+                                                            <span
+                                                                title={def?.label || colId}
+                                                                style={{
+                                                                    width: '7px',
+                                                                    height: '7px',
+                                                                    borderRadius: '50%',
+                                                                    flexShrink: 0,
+                                                                    backgroundColor: resolveConversionColor(STATUS_COLUMN_STATUSES[colId], conversionTypes)
+                                                                }}
+                                                            />
+                                                        )}
                                                         <span>{def?.shortLabel || def?.label || colId}</span>
                                                     </div>
                                                 </th>
