@@ -2827,6 +2827,8 @@ export default {
         "campaignColumnsTitle": "Personnaliser les colonnes des campagnes",
         "headerSubtitle": "Personnalisez les colonnes visibles, modifiez les préréglages ou faites glisser pour réorganiser",
         "presets": "Modèles",
+        "saveGroupTemplate": "Enregistrer comme modèle",
+        "groupTemplatePlaceholder": "ex. Pays → Région → Ville",
         "presetCod": "COD (Paiement à la livraison)",
         "presetLanderToOffer": "Lander vers Offre (Lander to Offer)",
         "presetBest": "Meilleures métriques (Best)",

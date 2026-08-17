@@ -541,6 +541,7 @@ CREATE INDEX idx_cost_records_conn ON cost_records(connection_id, external_id);
 CREATE INDEX idx_conversions_click ON conversions(click_id);
 CREATE INDEX idx_conversions_click_status ON conversions(click_id, status);
 CREATE INDEX idx_clicks_campaign_created ON clicks(campaign_id, created_at);
+CREATE INDEX idx_clicks_created_at ON clicks(created_at);
 CREATE INDEX idx_revenue_records_click ON revenue_records(click_id);
 CREATE INDEX idx_cost_records_date ON cost_records(click_date);
 CREATE INDEX idx_domains_dns_status ON domains(dns_status);

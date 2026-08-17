@@ -51,7 +51,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 26;
+    $LATEST_SCHEMA_VERSION = 27;
 
     $schemaVersion = 0;
     try {
@@ -1548,6 +1548,20 @@ try {
                         $pdo->exec($sql);
                     } catch (\Throwable $e) {
                     }
+                }
+            }
+
+            if ($schemaVersion < 27) {
+                // Migration 27: standalone date index on clicks.
+                //
+                // The composite (campaign_id, created_at) index covers campaign-
+                // scoped ranges, but global date filters (dashboard-wide reports,
+                // the campaigns list without a group) cannot use it — the leading
+                // column is unconstrained. This one serves those scans.
+                try {
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_clicks_created_at ON clicks(created_at)");
+                } catch (\Throwable $e) {
+                    // Table absent on an older install.
                 }
             }
 

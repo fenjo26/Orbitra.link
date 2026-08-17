@@ -2827,6 +2827,8 @@ export default {
         "campaignColumnsTitle": "自定义广告系列列",
         "headerSubtitle": "自定义可见列、切换预设模板或拖动调整排序",
         "presets": "预设模板",
+        "saveGroupTemplate": "保存为分组模板",
+        "groupTemplatePlaceholder": "例如：国家 → 城市 → 运营商",
         "presetCod": "COD (货到付款)",
         "presetLanderToOffer": "着陆页至优惠 (Lander to Offer)",
         "presetBest": "最佳指标 (Best)",

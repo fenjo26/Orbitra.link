@@ -2827,6 +2827,8 @@ export default {
         "campaignColumnsTitle": "Personalizar columnas de campañas",
         "headerSubtitle": "Personaliza las columnas visibles, cambia de plantilla o arrastra para reordenar",
         "presets": "Plantillas",
+        "saveGroupTemplate": "Guardar como plantilla",
+        "groupTemplatePlaceholder": "ej. País → Región → Ciudad",
         "presetCod": "COD (Pago contra entrega)",
         "presetLanderToOffer": "Lander a Oferta (Lander to Offer)",
         "presetBest": "Mejores métricas (Best)",

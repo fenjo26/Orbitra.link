@@ -18980,6 +18980,8 @@ const ru = {
     "campaignColumnsTitle": "Настройка колонок кампаний",
     "headerSubtitle": "Настройте отображение колонок, выберите шаблон или перетащите для изменения порядка",
     "presets": "Пресеты",
+    "saveGroupTemplate": "Сохранить как шаблон",
+    "groupTemplatePlaceholder": "например, Страна → Город → ISP",
     "presetCod": "COD (Оплата при доставке)",
     "presetLanderToOffer": "Лендинг → Оффер (Lander to Offer)",
     "presetBest": "Лучшие метрики (Best)",
@@ -21980,6 +21982,8 @@ const en = {
     "campaignColumnsTitle": "Customize Campaign Columns",
     "headerSubtitle": "Customize visible columns, change presets, or drag to reorder",
     "presets": "Presets",
+    "saveGroupTemplate": "Save as Template",
+    "groupTemplatePlaceholder": "e.g. Country → City → ISP",
     "presetCod": "COD",
     "presetLanderToOffer": "Lander to Offer via Link",
     "presetBest": "Best",
@@ -24980,6 +24984,8 @@ const uk = {
     "campaignColumnsTitle": "Налаштування колонок кампаній",
     "headerSubtitle": "Налаштуйте відображення колонок, оберіть шаблон або перетягніть для зміни порядку",
     "presets": "Пресети",
+    "saveGroupTemplate": "Зберегти як шаблон",
+    "groupTemplatePlaceholder": "наприклад, Країна → Місто → ISP",
     "presetCod": "COD (Оплата при отриманні)",
     "presetLanderToOffer": "Лендінг → Оффер (Lander to Offer)",
     "presetBest": "Кращі метрики (Best)",
@@ -27980,6 +27986,8 @@ const es = {
     "campaignColumnsTitle": "Personalizar columnas de campañas",
     "headerSubtitle": "Personaliza las columnas visibles, cambia de plantilla o arrastra para reordenar",
     "presets": "Plantillas",
+    "saveGroupTemplate": "Guardar como plantilla",
+    "groupTemplatePlaceholder": "ej. País → Región → Ciudad",
     "presetCod": "COD (Pago contra entrega)",
     "presetLanderToOffer": "Lander a Oferta (Lander to Offer)",
     "presetBest": "Mejores métricas (Best)",
@@ -30980,6 +30988,8 @@ const zh = {
     "campaignColumnsTitle": "自定义广告系列列",
     "headerSubtitle": "自定义可见列、切换预设模板或拖动调整排序",
     "presets": "预设模板",
+    "saveGroupTemplate": "保存为分组模板",
+    "groupTemplatePlaceholder": "例如：国家 → 城市 → 运营商",
     "presetCod": "COD (货到付款)",
     "presetLanderToOffer": "着陆页至优惠 (Lander to Offer)",
     "presetBest": "最佳指标 (Best)",
@@ -33982,6 +33992,8 @@ const fr = {
     "campaignColumnsTitle": "Personnaliser les colonnes des campagnes",
     "headerSubtitle": "Personnalisez les colonnes visibles, modifiez les préréglages ou faites glisser pour réorganiser",
     "presets": "Modèles",
+    "saveGroupTemplate": "Enregistrer comme modèle",
+    "groupTemplatePlaceholder": "ex. Pays → Région → Ville",
     "presetCod": "COD (Paiement à la livraison)",
     "presetLanderToOffer": "Lander vers Offre (Lander to Offer)",
     "presetBest": "Meilleures métriques (Best)",
@@ -36982,6 +36994,8 @@ const de = {
     "campaignColumnsTitle": "Kampagnenspalten anpassen",
     "headerSubtitle": "Passen Sie die Spalten an, wählen Sie Vorlagen oder ziehen Sie Spalten zum Neuanordnen",
     "presets": "Vorlagen",
+    "saveGroupTemplate": "Als Vorlage speichern",
+    "groupTemplatePlaceholder": "z.B. Land → Region → Stadt",
     "presetCod": "COD (Nachnahme)",
     "presetLanderToOffer": "Lander zu Offer (Lander to Offer)",
     "presetBest": "Beste Metriken (Best)",
@@ -53405,6 +53419,32 @@ const ReportCustomizerModal = ({
   const [orderedMetricIds, setOrderedMetricIds] = reactExports.useState(() => [...DEFAULT_METRIC_ORDER]);
   const [selectedSet, setSelectedSet] = reactExports.useState(() => new Set(PRESETS.best));
   const [layers, setLayers] = reactExports.useState([]);
+  const [customGroupTemplates, setCustomGroupTemplates] = reactExports.useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("orbitra_report_group_templates")) || [];
+    } catch {
+      return [];
+    }
+  });
+  const [groupSaveDialogOpen, setGroupSaveDialogOpen] = reactExports.useState(false);
+  const [groupTemplateName, setGroupTemplateName] = reactExports.useState("");
+  const persistGroupTemplates = (templates2) => {
+    setCustomGroupTemplates(templates2);
+    try {
+      localStorage.setItem("orbitra_report_group_templates", JSON.stringify(templates2));
+    } catch {
+    }
+  };
+  const handleSaveGroupTemplate = () => {
+    const name = groupTemplateName.trim();
+    if (!name || layers.length === 0) return;
+    persistGroupTemplates([...customGroupTemplates, { id: `gtpl_${Date.now()}`, name, layers: [...layers] }]);
+    setGroupSaveDialogOpen(false);
+    setGroupTemplateName("");
+  };
+  const handleDeleteGroupTemplate = (tplId) => {
+    persistGroupTemplates(customGroupTemplates.filter((tpl) => tpl.id !== tplId));
+  };
   const [filters, setFilters] = reactExports.useState([]);
   const [templates, setTemplates] = reactExports.useState([]);
   const [defaultTemplateId, setDefaultTemplateId] = reactExports.useState(null);
@@ -54048,7 +54088,7 @@ const ReportCustomizerModal = ({
               }
             )
           ] }),
-          layerPresets.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+          (layerPresets.length > 0 || customGroupTemplates.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: [
               t("reportCustomizer.presets", "Presets"),
               ":"
@@ -54071,7 +54111,98 @@ const ReportCustomizerModal = ({
                 },
                 preset.id
               );
-            })
+            }),
+            customGroupTemplates.map((tpl) => {
+              const active = arraysEqual(layers, tpl.layers);
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  onClick: () => setLayers([...tpl.layers]),
+                  className: "group inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl border transition-colors cursor-pointer",
+                  style: {
+                    backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                    borderColor: active ? "var(--color-primary)" : "var(--color-border)",
+                    color: active ? "var(--color-primary)" : "var(--color-text-primary)",
+                    fontWeight: active ? 600 : 400
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: tpl.name }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: (e) => {
+                          e.stopPropagation();
+                          handleDeleteGroupTemplate(tpl.id);
+                        },
+                        className: "p-0.5 opacity-0 group-hover:opacity-100 transition-opacity",
+                        style: { color: "var(--color-danger)" },
+                        title: t("common.delete"),
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3 h-3" })
+                      }
+                    )
+                  ]
+                },
+                tpl.id
+              );
+            }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                disabled: layers.length === 0,
+                onClick: () => setGroupSaveDialogOpen(true),
+                className: "text-xs px-3 py-1.5 rounded-xl border transition-colors flex items-center gap-1 font-semibold disabled:opacity-40",
+                style: {
+                  backgroundColor: "var(--color-bg-soft)",
+                  borderColor: "var(--color-border)",
+                  color: "var(--color-primary)"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3 h-3" }),
+                  t("reportCustomizer.saveGroupTemplate", "Save as Template")
+                ]
+              }
+            )
+          ] }),
+          groupSaveDialogOpen && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-xl border flex flex-col gap-2.5", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                autoFocus: true,
+                type: "text",
+                value: groupTemplateName,
+                onChange: (e) => setGroupTemplateName(e.target.value),
+                onKeyDown: (e) => {
+                  if (e.key === "Enter") handleSaveGroupTemplate();
+                  if (e.key === "Escape") setGroupSaveDialogOpen(false);
+                },
+                placeholder: t("reportCustomizer.groupTemplatePlaceholder", "e.g. Country → City → ISP"),
+                className: "form-input w-full",
+                style: { fontSize: "0.75rem", padding: "0.5rem 0.75rem" }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setGroupSaveDialogOpen(false),
+                  className: "btn btn-secondary text-xs py-1 px-3 rounded-xl",
+                  children: t("common.cancel")
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: handleSaveGroupTemplate,
+                  disabled: !groupTemplateName.trim(),
+                  className: "btn btn-primary text-xs py-1 px-4 rounded-xl font-bold",
+                  children: t("common.save")
+                }
+              )
+            ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: [
             "country",
@@ -54249,7 +54380,13 @@ const ReportCustomizerModal = ({
 const API_URL$A = "/api.php";
 const FB_HIERARCHY_LAYERS = ["ad_campaign_id", "adset_id", "ad_id"];
 const REPORT_LAYER_PRESETS = [
-  { id: "facebook_hierarchy", label: "Facebook Hierarchy", layers: FB_HIERARCHY_LAYERS }
+  { id: "facebook_hierarchy", label: "Facebook Hierarchy", layers: FB_HIERARCHY_LAYERS },
+  { id: "geo", label: "Geo (Country → City)", layers: ["country", "region", "city"] },
+  { id: "devices", label: "Devices", layers: ["device_type", "os", "browser"] },
+  { id: "funnel", label: "Funnel (Stream → Offer)", layers: ["stream_id", "landing_id", "offer_id"] },
+  { id: "time", label: "Time (Day → Hour)", layers: ["day", "hour"] },
+  { id: "subids", label: "Sub IDs", layers: ["sub_id_1", "sub_id_2", "sub_id_3"] },
+  { id: "google", label: "Google Ads", layers: ["campaign_id", "keyword", "creative_id"] }
 ];
 const ENTITY_TYPE_BY_DIMENSION = {
   campaign_id: "tracker_campaign",

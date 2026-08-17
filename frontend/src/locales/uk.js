@@ -2827,6 +2827,8 @@ export default {
         "campaignColumnsTitle": "Налаштування колонок кампаній",
         "headerSubtitle": "Налаштуйте відображення колонок, оберіть шаблон або перетягніть для зміни порядку",
         "presets": "Пресети",
+        "saveGroupTemplate": "Зберегти як шаблон",
+        "groupTemplatePlaceholder": "наприклад, Країна → Місто → ISP",
         "presetCod": "COD (Оплата при отриманні)",
         "presetLanderToOffer": "Лендінг → Оффер (Lander to Offer)",
         "presetBest": "Кращі метрики (Best)",

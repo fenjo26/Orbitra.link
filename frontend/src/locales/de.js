@@ -2827,6 +2827,8 @@ export default {
         "campaignColumnsTitle": "Kampagnenspalten anpassen",
         "headerSubtitle": "Passen Sie die Spalten an, wählen Sie Vorlagen oder ziehen Sie Spalten zum Neuanordnen",
         "presets": "Vorlagen",
+        "saveGroupTemplate": "Als Vorlage speichern",
+        "groupTemplatePlaceholder": "z.B. Land → Region → Stadt",
         "presetCod": "COD (Nachnahme)",
         "presetLanderToOffer": "Lander zu Offer (Lander to Offer)",
         "presetBest": "Beste Metriken (Best)",

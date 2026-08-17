@@ -194,6 +194,39 @@ const ReportCustomizerModal = ({
 
     // Layers (Group By)
     const [layers, setLayers] = useState([]);
+
+    // User-saved grouping combos (localStorage). System presets arrive via the
+    // layerPresets prop; these are the user's own hierarchies.
+    const [customGroupTemplates, setCustomGroupTemplates] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('orbitra_report_group_templates')) || [];
+        } catch {
+            return [];
+        }
+    });
+    const [groupSaveDialogOpen, setGroupSaveDialogOpen] = useState(false);
+    const [groupTemplateName, setGroupTemplateName] = useState('');
+
+    const persistGroupTemplates = (templates) => {
+        setCustomGroupTemplates(templates);
+        try {
+            localStorage.setItem('orbitra_report_group_templates', JSON.stringify(templates));
+        } catch {
+            // Private mode / quota — the in-memory copy still works this session.
+        }
+    };
+
+    const handleSaveGroupTemplate = () => {
+        const name = groupTemplateName.trim();
+        if (!name || layers.length === 0) return;
+        persistGroupTemplates([...customGroupTemplates, { id: `gtpl_${Date.now()}`, name, layers: [...layers] }]);
+        setGroupSaveDialogOpen(false);
+        setGroupTemplateName('');
+    };
+
+    const handleDeleteGroupTemplate = (tplId) => {
+        persistGroupTemplates(customGroupTemplates.filter((tpl) => tpl.id !== tplId));
+    };
     // Filters
     const [filters, setFilters] = useState([]);
 
@@ -854,7 +887,7 @@ const ReportCustomizerModal = ({
                             </button>
                         </div>
 
-                        {layerPresets.length > 0 && (
+                        {(layerPresets.length > 0 || customGroupTemplates.length > 0) && (
                             <div className="flex flex-wrap items-center gap-2">
                                 <span className="text-xs font-semibold uppercase" style={{ color: 'var(--color-text-muted)' }}>
                                     {t('reportCustomizer.presets', 'Presets')}:
@@ -878,6 +911,85 @@ const ReportCustomizerModal = ({
                                         </button>
                                     );
                                 })}
+                                {customGroupTemplates.map((tpl) => {
+                                    const active = arraysEqual(layers, tpl.layers);
+                                    return (
+                                        <div
+                                            key={tpl.id}
+                                            onClick={() => setLayers([...tpl.layers])}
+                                            className="group inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl border transition-colors cursor-pointer"
+                                            style={{
+                                                backgroundColor: active ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
+                                                borderColor: active ? 'var(--color-primary)' : 'var(--color-border)',
+                                                color: active ? 'var(--color-primary)' : 'var(--color-text-primary)',
+                                                fontWeight: active ? 600 : 400
+                                            }}
+                                        >
+                                            <span>{tpl.name}</span>
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteGroupTemplate(tpl.id);
+                                                }}
+                                                className="p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                style={{ color: 'var(--color-danger)' }}
+                                                title={t('common.delete')}
+                                            >
+                                                <Trash2 className="w-3 h-3" />
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                                <button
+                                    type="button"
+                                    disabled={layers.length === 0}
+                                    onClick={() => setGroupSaveDialogOpen(true)}
+                                    className="text-xs px-3 py-1.5 rounded-xl border transition-colors flex items-center gap-1 font-semibold disabled:opacity-40"
+                                    style={{
+                                        backgroundColor: 'var(--color-bg-soft)',
+                                        borderColor: 'var(--color-border)',
+                                        color: 'var(--color-primary)'
+                                    }}
+                                >
+                                    <Plus className="w-3 h-3" />
+                                    {t('reportCustomizer.saveGroupTemplate', 'Save as Template')}
+                                </button>
+                            </div>
+                        )}
+
+                        {groupSaveDialogOpen && (
+                            <div className="p-3 rounded-xl border flex flex-col gap-2.5" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
+                                <input
+                                    autoFocus
+                                    type="text"
+                                    value={groupTemplateName}
+                                    onChange={(e) => setGroupTemplateName(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') handleSaveGroupTemplate();
+                                        if (e.key === 'Escape') setGroupSaveDialogOpen(false);
+                                    }}
+                                    placeholder={t('reportCustomizer.groupTemplatePlaceholder', 'e.g. Country → City → ISP')}
+                                    className="form-input w-full"
+                                    style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem' }}
+                                />
+                                <div className="flex justify-end gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setGroupSaveDialogOpen(false)}
+                                        className="btn btn-secondary text-xs py-1 px-3 rounded-xl"
+                                    >
+                                        {t('common.cancel')}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleSaveGroupTemplate}
+                                        disabled={!groupTemplateName.trim()}
+                                        className="btn btn-primary text-xs py-1 px-4 rounded-xl font-bold"
+                                    >
+                                        {t('common.save')}
+                                    </button>
+                                </div>
                             </div>
                         )}
 

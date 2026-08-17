@@ -2827,6 +2827,8 @@ export default {
         "campaignColumnsTitle": "Настройка колонок кампаний",
         "headerSubtitle": "Настройте отображение колонок, выберите шаблон или перетащите для изменения порядка",
         "presets": "Пресеты",
+        "saveGroupTemplate": "Сохранить как шаблон",
+        "groupTemplatePlaceholder": "например, Страна → Город → ISP",
         "presetCod": "COD (Оплата при доставке)",
         "presetLanderToOffer": "Лендинг → Оффер (Lander to Offer)",
         "presetBest": "Лучшие метрики (Best)",

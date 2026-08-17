@@ -2827,6 +2827,8 @@ export default {
         "campaignColumnsTitle": "Customize Campaign Columns",
         "headerSubtitle": "Customize visible columns, change presets, or drag to reorder",
         "presets": "Presets",
+        "saveGroupTemplate": "Save as Template",
+        "groupTemplatePlaceholder": "e.g. Country → City → ISP",
         "presetCod": "COD",
         "presetLanderToOffer": "Lander to Offer via Link",
         "presetBest": "Best",

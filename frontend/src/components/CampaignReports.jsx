@@ -8,7 +8,13 @@ import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateC
 const API_URL = '/api.php';
 const FB_HIERARCHY_LAYERS = ['ad_campaign_id', 'adset_id', 'ad_id'];
 const REPORT_LAYER_PRESETS = [
-    { id: 'facebook_hierarchy', label: 'Facebook Hierarchy', layers: FB_HIERARCHY_LAYERS }
+    { id: 'facebook_hierarchy', label: 'Facebook Hierarchy', layers: FB_HIERARCHY_LAYERS },
+    { id: 'geo', label: 'Geo (Country → City)', layers: ['country', 'region', 'city'] },
+    { id: 'devices', label: 'Devices', layers: ['device_type', 'os', 'browser'] },
+    { id: 'funnel', label: 'Funnel (Stream → Offer)', layers: ['stream_id', 'landing_id', 'offer_id'] },
+    { id: 'time', label: 'Time (Day → Hour)', layers: ['day', 'hour'] },
+    { id: 'subids', label: 'Sub IDs', layers: ['sub_id_1', 'sub_id_2', 'sub_id_3'] },
+    { id: 'google', label: 'Google Ads', layers: ['campaign_id', 'keyword', 'creative_id'] },
 ];
 const ENTITY_TYPE_BY_DIMENSION = {
     campaign_id: 'tracker_campaign',
