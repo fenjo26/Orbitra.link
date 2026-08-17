@@ -327,7 +327,7 @@ const AutomationSettings = () => {
 
                 <div className="form-section">
                     <div className="mb-3">
-                        <div className="text-sm font-semibold text-gray-800">{t('automation.backorderCronTitle')}</div>
+                        <div className="text-sm font-semibold text-[var(--color-text-primary)]">{t('automation.backorderCronTitle')}</div>
                         <div className="text-sm text-[var(--color-text-muted)] mt-1">{t('automation.backorderCronDesc')}</div>
                     </div>
 
@@ -344,7 +344,7 @@ const AutomationSettings = () => {
                     </label>
 
                     <div className="mt-4 bg-white border border-gray-100 rounded p-3">
-                        <div className="text-sm font-semibold text-gray-800">{t('automation.intervalTitle')}</div>
+                        <div className="text-sm font-semibold text-[var(--color-text-primary)]">{t('automation.intervalTitle')}</div>
                         <div className="text-sm text-[var(--color-text-muted)] mt-1">
                             {t('automation.intervalDesc').replace('{interval}', String(intervalHuman))}
                         </div>
@@ -408,23 +408,23 @@ const AutomationSettings = () => {
                     </div>
 
                     <div className="mt-4 bg-white border border-gray-100 rounded p-3">
-                        <div className="text-sm font-semibold text-gray-800">{t('automation.cronFileTitle')}</div>
+                        <div className="text-sm font-semibold text-[var(--color-text-primary)]">{t('automation.cronFileTitle')}</div>
                         <div className="text-sm text-[var(--color-text-muted)] mt-1">{t('automation.cronFileDesc')}</div>
 
                         <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div className="bg-gray-50 border border-gray-100 rounded p-3">
                                 <div className="text-xs text-gray-500">{t('automation.cronFile')}</div>
-                                <div className="text-sm font-mono text-gray-800 mt-1">{String(cronFile)}</div>
+                                <div className="text-sm font-mono text-[var(--color-text-primary)] mt-1">{String(cronFile)}</div>
                             </div>
                             <div className="bg-gray-50 border border-gray-100 rounded p-3">
                                 <div className="text-xs text-gray-500">{t('automation.cronInstalled')}</div>
-                                <div className="text-sm font-semibold text-gray-800 mt-1">
+                                <div className="text-sm font-semibold text-[var(--color-text-primary)] mt-1">
                                     {cronInstalled ? t('automation.yes') : t('automation.no')}
                                 </div>
                             </div>
                             <div className="bg-gray-50 border border-gray-100 rounded p-3">
                                 <div className="text-xs text-gray-500">{t('automation.cronWritable')}</div>
-                                <div className="text-sm font-semibold text-gray-800 mt-1">
+                                <div className="text-sm font-semibold text-[var(--color-text-primary)] mt-1">
                                     {cronDirWritable ? t('automation.yes') : t('automation.no')}
                                 </div>
                                 {!cronDirWritable && (
@@ -492,23 +492,23 @@ const AutomationSettings = () => {
                     </div>
 
                     <div className="mt-4 bg-white border border-gray-100 rounded p-3">
-                        <div className="text-sm font-semibold text-gray-800">{t('automation.userCronTitle')}</div>
+                        <div className="text-sm font-semibold text-[var(--color-text-primary)]">{t('automation.userCronTitle')}</div>
                         <div className="text-sm text-[var(--color-text-muted)] mt-1">{t('automation.userCronDesc')}</div>
 
                         <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div className="bg-gray-50 border border-gray-100 rounded p-3">
                                 <div className="text-xs text-gray-500">{t('automation.shellExec')}</div>
-                                <div className="text-sm font-semibold text-gray-800 mt-1">
+                                <div className="text-sm font-semibold text-[var(--color-text-primary)] mt-1">
                                     {shellExecAllowed ? t('automation.yes') : t('automation.no')}
                                 </div>
                             </div>
                             <div className="bg-gray-50 border border-gray-100 rounded p-3">
                                 <div className="text-xs text-gray-500">{t('automation.crontab')}</div>
-                                <div className="text-sm font-mono text-gray-800 mt-1">{String(crontabPath || '-')}</div>
+                                <div className="text-sm font-mono text-[var(--color-text-primary)] mt-1">{String(crontabPath || '-')}</div>
                             </div>
                             <div className="bg-gray-50 border border-gray-100 rounded p-3">
                                 <div className="text-xs text-gray-500">{t('automation.userCronInstalled')}</div>
-                                <div className="text-sm font-semibold text-gray-800 mt-1">
+                                <div className="text-sm font-semibold text-[var(--color-text-primary)] mt-1">
                                     {userCrontabInstalled ? t('automation.yes') : t('automation.no')}
                                 </div>
                             </div>
@@ -537,19 +537,19 @@ const AutomationSettings = () => {
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('automation.lastPing')}</div>
-                            <div className="text-sm font-mono text-gray-800 mt-1">{String(info?.last_ping_at || '-')}</div>
+                            <div className="text-sm font-mono text-[var(--color-text-primary)] mt-1">{String(info?.last_ping_at || '-')}</div>
                         </div>
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('automation.lastChecked')}</div>
-                            <div className="text-sm font-mono text-gray-800 mt-1">{String(info?.last_checked_at || '-')}</div>
+                            <div className="text-sm font-mono text-[var(--color-text-primary)] mt-1">{String(info?.last_checked_at || '-')}</div>
                         </div>
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('automation.lastDomain')}</div>
-                            <div className="text-sm font-mono text-gray-800 mt-1">{String(info?.last_domain || '-')}</div>
+                            <div className="text-sm font-mono text-[var(--color-text-primary)] mt-1">{String(info?.last_domain || '-')}</div>
                         </div>
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('automation.lastResult')}</div>
-                            <div className="text-sm font-mono text-gray-800 mt-1">
+                            <div className="text-sm font-mono text-[var(--color-text-primary)] mt-1">
                                 {info?.last_status ? `${String(info.last_status)} (HTTP ${String(info?.last_http_code || 0)})` : '-'}
                             </div>
                         </div>
@@ -558,11 +558,11 @@ const AutomationSettings = () => {
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="bg-white border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('automation.domainsTotal')}</div>
-                            <div className="text-lg font-semibold text-gray-800 mt-1">{String(info?.domains?.total ?? 0)}</div>
+                            <div className="text-lg font-semibold text-[var(--color-text-primary)] mt-1">{String(info?.domains?.total ?? 0)}</div>
                         </div>
                         <div className="bg-white border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('automation.domainsNeverChecked')}</div>
-                            <div className="text-lg font-semibold text-gray-800 mt-1">{String(info?.domains?.never_checked ?? 0)}</div>
+                            <div className="text-lg font-semibold text-[var(--color-text-primary)] mt-1">{String(info?.domains?.never_checked ?? 0)}</div>
                         </div>
                     </div>
 
@@ -585,7 +585,7 @@ const AutomationSettings = () => {
                     queue is ever delivered, so surface its health prominently. */}
                 <div className="form-section mt-6">
                     <div className="mb-3">
-                        <div className="text-sm font-semibold text-gray-800">{t('postbackQueue.title')}</div>
+                        <div className="text-sm font-semibold text-[var(--color-text-primary)]">{t('postbackQueue.title')}</div>
                         <div className="text-sm text-[var(--color-text-muted)] mt-1">{t('postbackQueue.description')}</div>
                     </div>
 
@@ -599,36 +599,36 @@ const AutomationSettings = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('postbackQueue.statusPending')}</div>
-                            <div className="text-lg font-semibold text-gray-800 mt-1">{String(pqCounts.pending ?? 0)}</div>
+                            <div className="text-lg font-semibold text-[var(--color-text-primary)] mt-1">{String(pqCounts.pending ?? 0)}</div>
                         </div>
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('postbackQueue.statusInFlight')}</div>
-                            <div className="text-lg font-semibold text-gray-800 mt-1">{String(pqCounts.in_flight ?? 0)}</div>
+                            <div className="text-lg font-semibold text-[var(--color-text-primary)] mt-1">{String(pqCounts.in_flight ?? 0)}</div>
                         </div>
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('postbackQueue.statusDelivered')}</div>
-                            <div className="text-lg font-semibold text-gray-800 mt-1">{String(pqCounts.delivered ?? 0)}</div>
+                            <div className="text-lg font-semibold text-[var(--color-text-primary)] mt-1">{String(pqCounts.delivered ?? 0)}</div>
                         </div>
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('postbackQueue.statusFailed')}</div>
-                            <div className="text-lg font-semibold text-gray-800 mt-1">{String(pqCounts.failed ?? 0)}</div>
+                            <div className="text-lg font-semibold text-[var(--color-text-primary)] mt-1">{String(pqCounts.failed ?? 0)}</div>
                         </div>
                     </div>
 
                     <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('automation.lastPing')}</div>
-                            <div className="text-sm font-mono text-gray-800 mt-1">{String(pqInfo?.last_ping_at || '-')}</div>
+                            <div className="text-sm font-mono text-[var(--color-text-primary)] mt-1">{String(pqInfo?.last_ping_at || '-')}</div>
                         </div>
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('automation.userCronInstalled')}</div>
-                            <div className="text-sm font-semibold text-gray-800 mt-1">
+                            <div className="text-sm font-semibold text-[var(--color-text-primary)] mt-1">
                                 {pqInfo?.user_crontab_installed ? t('automation.yes') : t('automation.no')}
                             </div>
                         </div>
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('postbackQueue.lastRun')}</div>
-                            <div className="text-sm font-mono text-gray-800 mt-1">
+                            <div className="text-sm font-mono text-[var(--color-text-primary)] mt-1">
                                 {`${String(pqInfo?.last_run?.delivered ?? 0)} / ${String(pqInfo?.last_run?.processed ?? 0)}`}
                             </div>
                         </div>
@@ -637,7 +637,7 @@ const AutomationSettings = () => {
                     {pqInfo?.last_error && (
                         <div className="mt-3 bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">{t('postbackQueue.lastError')}</div>
-                            <div className="text-sm font-mono text-gray-800 mt-1 break-all">{String(pqInfo.last_error)}</div>
+                            <div className="text-sm font-mono text-[var(--color-text-primary)] mt-1 break-all">{String(pqInfo.last_error)}</div>
                         </div>
                     )}
 
@@ -689,7 +689,7 @@ const AutomationSettings = () => {
                     without the cron by downloading in the background. */}
                 <div className="form-section mt-6">
                     <div className="mb-3">
-                        <div className="text-sm font-semibold text-gray-800">{t('ipranges.title', 'IP-диапазоны датацентров (клокинг)')}</div>
+                        <div className="text-sm font-semibold text-[var(--color-text-primary)]">{t('ipranges.title', 'IP-диапазоны датацентров (клокинг)')}</div>
                         <div className="text-sm text-[var(--color-text-muted)] mt-1">{t('ipranges.description', 'Списки облаков и краулеров (AWS, Google, Meta, OpenAI…) обновляются ежедневно; клокер помечает посетителей с этих IP как датацентровых.')}</div>
                     </div>
 
@@ -709,11 +709,11 @@ const AutomationSettings = () => {
                     <div className="grid grid-cols-2 gap-3">
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">IPv4</div>
-                            <div className="text-lg font-semibold text-gray-800 mt-1">{iprInfo?.v4_ranges ?? '—'}</div>
+                            <div className="text-lg font-semibold text-[var(--color-text-primary)] mt-1">{iprInfo?.v4_ranges ?? '—'}</div>
                         </div>
                         <div className="bg-gray-50 border border-gray-100 rounded p-3">
                             <div className="text-xs text-gray-500">IPv6</div>
-                            <div className="text-lg font-semibold text-gray-800 mt-1">{iprInfo?.v6_ranges ?? '—'}</div>
+                            <div className="text-lg font-semibold text-[var(--color-text-primary)] mt-1">{iprInfo?.v6_ranges ?? '—'}</div>
                         </div>
                     </div>
 

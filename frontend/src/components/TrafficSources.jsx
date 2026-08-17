@@ -354,7 +354,7 @@ const TrafficSources = ({ refreshData }) => {
                                                         </a>
                                                         {source.http_status && source.http_status !== 'unknown' && (
                                                             <div className="flex items-center gap-2">
-                                                                <span className={`text-xs ${source.http_status === '200' ? 'text-green-600' : 'text-red-600'}`}>
+                                                                <span className={`text-xs ${source.http_status === '200' ? 'text-[var(--color-success,#10b981)]' : 'text-[var(--color-danger,#ef4444)]'}`}>
                                                                     {source.http_status === '200' ? '✓ OK' : `✗ ${source.http_status}`}
                                                                 </span>
                                                                 <button

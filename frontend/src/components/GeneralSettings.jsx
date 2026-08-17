@@ -86,7 +86,7 @@ const GeneralSettings = () => {
                     <div>
                         <label className="form-label">{t('generalSettings.postbackKey')}</label>
                         <div className="relative">
-                            <Key className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                            <Key className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--color-text-muted)] pointer-events-none" />
                             <input
                                 type="text"
                                 name="postback_key"
@@ -103,7 +103,7 @@ const GeneralSettings = () => {
                     <div>
                         <label className="form-label">{t('generalSettings.defaultCurrency')}</label>
                         <div className="relative">
-                            <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                            <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--color-text-muted)] pointer-events-none" />
                             <select
                                 name="currency"
                                 value={settings.currency || 'USD'}

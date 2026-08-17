@@ -88,7 +88,7 @@ const Login = ({ onLogin }) => {
 
                 {/* Login Form */}
                 <div className="bg-white rounded-xl shadow-2xl p-8">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center">
+                    <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-6 text-center">
                         {t('login.title')}
                     </h2>
 
@@ -165,13 +165,13 @@ const Login = ({ onLogin }) => {
                             {/* Remember me */}
                             <div className="flex items-center justify-between">
                                 <label className="flex items-center">
-                                    <input type="checkbox" className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                                    <input type="checkbox" className="w-4 h-4 accent-[var(--color-primary)] border-[var(--color-border)] rounded focus:ring-[var(--color-primary)]" />
                                     <span className="ml-2 text-sm text-gray-600">{t('login.rememberMe')}</span>
                                 </label>
                                 <button
                                     type="button"
                                     onClick={() => setShowRecoveryModal(true)}
-                                    className="text-sm text-blue-600 hover:underline"
+                                    className="text-sm text-[var(--color-primary)] hover:underline"
                                 >
                                     {t('login.forgotPassword')}
                                 </button>
@@ -205,7 +205,7 @@ const Login = ({ onLogin }) => {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-800">{t('login.recoveryTitle')}</h3>
+                            <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">{t('login.recoveryTitle')}</h3>
                             <button
                                 onClick={() => setShowRecoveryModal(false)}
                                 className="text-gray-400 hover:text-gray-600"
@@ -245,7 +245,7 @@ const Login = ({ onLogin }) => {
 
                         <button
                             onClick={() => setShowRecoveryModal(false)}
-                            className="w-full mt-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium"
+                            className="w-full mt-4 py-2 bg-[var(--color-bg-soft)] text-[var(--color-text-primary)] rounded-lg hover:bg-[var(--color-bg-hover)] transition font-medium"
                         >
                             {t('common.close')}
                         </button>

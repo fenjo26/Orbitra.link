@@ -118,7 +118,7 @@ const ProfileSettings = () => {
                     <div>
                         <label className="form-label">{t('profile.language')}</label>
                         <div className="relative">
-                            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--color-text-muted)] pointer-events-none" />
                             <select
                                 name="language"
                                 value={profile.language}
@@ -139,7 +139,7 @@ const ProfileSettings = () => {
                     <div>
                         <label className="form-label">{t('profile.timezone')}</label>
                         <div className="relative">
-                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--color-text-muted)] pointer-events-none" />
                             <select
                                 name="timezone"
                                 value={profile.timezone}
@@ -172,7 +172,7 @@ const ProfileSettings = () => {
                     <div>
                         <label className="form-label">{t('profile.firstDayOfWeek')}</label>
                         <div className="relative">
-                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--color-text-muted)] pointer-events-none" />
                             <select
                                 name="first_day_of_week"
                                 value={profile.first_day_of_week}
@@ -215,7 +215,7 @@ const ProfileSettings = () => {
                         <div>
                             <label className="form-label">{t('profile.newPassword')}</label>
                             <div className="relative">
-                                <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                                <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--color-text-muted)] pointer-events-none" />
                                 <input
                                     type="password"
                                     name="new_password"
@@ -229,7 +229,7 @@ const ProfileSettings = () => {
                         <div>
                             <label className="form-label">{t('profile.confirmPassword')}</label>
                             <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--color-text-muted)] pointer-events-none" />
                                 <input
                                     type="password"
                                     name="confirm_password"

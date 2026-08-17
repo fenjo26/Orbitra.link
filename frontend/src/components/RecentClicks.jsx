@@ -8,11 +8,11 @@ const INITIAL_LIMIT = 10;
 const getDeviceIcon = (deviceType) => {
     switch (deviceType?.toLowerCase()) {
         case 'mobile':
-            return <Smartphone size={16} className="text-gray-500" />;
+            return <Smartphone size={16} className="text-[var(--color-text-secondary)]" />;
         case 'desktop':
-            return <Monitor size={16} className="text-gray-500" />;
+            return <Monitor size={16} className="text-[var(--color-text-secondary)]" />;
         default:
-            return <Globe size={16} className="text-gray-400" />;
+            return <Globe size={16} className="text-[var(--color-text-muted)]" />;
     }
 }
 
@@ -50,7 +50,7 @@ const RecentClicks = ({ logs, preferences, onShowAll }) => {
             <div className="px-5 py-4 border-b flex justify-between items-center" style={{ borderColor: 'var(--color-border)' }}>
                 <h2 className="text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-primary)' }}>{t('dashboard.recentClicksLog')}</h2>
                 <div className="flex items-center space-x-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span className="w-2 h-2 bg-[var(--color-success,#10b981)] rounded-full animate-pulse"></span>
                     <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Live</span>
                 </div>
             </div>
@@ -79,10 +79,10 @@ const RecentClicks = ({ logs, preferences, onShowAll }) => {
                                 </tr>
                             )}
                             {displayedLogs.map((log) => (
-                                <tr key={log.id} className="hover:bg-blue-50/10 transition">
+                                <tr key={log.id} className="hover:bg-[var(--color-bg-hover)] transition">
                                     {isVisible('created_at') && (
                                         <td className="px-5 py-3 font-mono text-xs">
-                                            <button onClick={() => setSelectedClickId(log.click_id || log.id)} className="text-blue-500 hover:text-blue-700 hover:underline font-medium text-left">
+                                            <button onClick={() => setSelectedClickId(log.click_id || log.id)} className="text-[var(--color-primary)] hover:opacity-80 hover:underline font-medium text-left">
                                                 {log.created_at}
                                             </button>
                                         </td>
@@ -106,8 +106,8 @@ const RecentClicks = ({ logs, preferences, onShowAll }) => {
                                     {isVisible('redirect_url') && (
                                         <td className="px-5 py-3">
                                             <div className="flex items-center space-x-2 text-xs">
-                                                <ArrowRight size={14} className="text-gray-400" />
-                                                <a href={log.redirect_url} className="text-blue-500 hover:underline truncate max-w-[250px] inline-block" target="_blank" rel="noreferrer" title={log.redirect_url}>
+                                                <ArrowRight size={14} className="text-[var(--color-text-muted)]" />
+                                                <a href={log.redirect_url} className="text-[var(--color-primary)] hover:underline truncate max-w-[250px] inline-block" target="_blank" rel="noreferrer" title={log.redirect_url}>
                                                     {log.redirect_url}
                                                 </a>
                                             </div>
@@ -140,7 +140,7 @@ const RecentClicks = ({ logs, preferences, onShowAll }) => {
             <div className="px-5 py-3 border-t flex justify-center" style={{ backgroundColor: 'var(--color-bg-hover)', borderColor: 'var(--color-border)' }}>
                 <button
                     onClick={onShowAll}
-                    className="text-blue-500 hover:text-blue-700 text-sm font-medium flex items-center gap-1 transition-colors"
+                    className="text-[var(--color-primary)] hover:opacity-80 text-sm font-medium flex items-center gap-1 transition-colors"
                 >
                     {t('dashboard.viewFullLogs')} <ArrowRight size={14} />
                 </button>

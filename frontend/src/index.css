@@ -87,6 +87,20 @@
   --shadow-main: 0 10px 30px rgba(0, 0, 0, 0.6);
   --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
 
+  /* Status Colors Dark Overrides */
+  --color-warning: #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-warning-border: rgba(245, 158, 11, 0.35);
+  --color-danger: #ef4444;
+  --color-danger-bg: rgba(239, 68, 68, 0.12);
+  --color-danger-border: rgba(239, 68, 68, 0.35);
+  --color-success: #10b981;
+  --color-success-bg: rgba(16, 185, 129, 0.12);
+  --color-success-border: rgba(16, 185, 129, 0.35);
+  --color-info: #3b82f6;
+  --color-info-bg: rgba(59, 130, 246, 0.12);
+  --color-info-border: rgba(59, 130, 246, 0.35);
+
   --color-bg-header: #181b1f;
   --color-text-header: #F5F5F5;
 }
@@ -151,6 +165,20 @@
 
   --shadow-main: 0 10px 30px rgba(0, 0, 0, 0.8);
   --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.6);
+
+  /* Status Colors Neon Overrides */
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(251, 191, 36, 0.15);
+  --color-warning-border: rgba(251, 191, 36, 0.4);
+  --color-danger: #f87171;
+  --color-danger-bg: rgba(248, 113, 113, 0.15);
+  --color-danger-border: rgba(248, 113, 113, 0.4);
+  --color-success: #34d399;
+  --color-success-bg: rgba(52, 211, 153, 0.15);
+  --color-success-border: rgba(52, 211, 153, 0.4);
+  --color-info: #60a5fa;
+  --color-info-bg: rgba(96, 165, 250, 0.15);
+  --color-info-border: rgba(96, 165, 250, 0.4);
 
   --color-bg-header: rgba(18, 18, 18, 0.85);
   --color-text-header: #FFFFFF;
@@ -457,24 +485,38 @@ tbody tr:hover td {
   box-shadow: var(--shadow-soft);
 }
 
+.alert-banner {
+  padding: 14px 16px;
+  border-radius: 16px;
+  display: flex;
+  gap: 12px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+
 .alert-success {
   background-color: var(--color-success-bg);
-  color: var(--color-success);
+  border: 1px solid var(--color-success-border, var(--color-success));
+  color: var(--color-text-primary);
 }
 
 .alert-warning {
   background-color: var(--color-warning-bg);
-  color: var(--color-warning);
+  border: 1px solid var(--color-warning-border, var(--color-warning));
+  color: var(--color-text-primary);
 }
 
 .alert-danger {
   background-color: var(--color-danger-bg);
-  color: var(--color-danger);
+  border: 1px solid var(--color-danger-border, var(--color-danger));
+  color: var(--color-text-primary);
 }
 
 .alert-info {
   background-color: var(--color-info-bg);
-  color: var(--color-info);
+  border: 1px solid var(--color-info-border, var(--color-info));
+  color: var(--color-text-primary);
 }
 
 /* Progress Ring & Icons */

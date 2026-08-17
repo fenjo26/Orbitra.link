@@ -209,11 +209,12 @@ const MigrationsPage = () => {
                 {/* Info Block */}
                 <div style={{
                     background: 'var(--color-info-bg)',
+                    border: '1px solid var(--color-info-border, var(--color-info))',
                     borderRadius: '16px',
                     padding: '16px',
                     marginBottom: '24px'
                 }}>
-                    <p style={{ fontSize: '14px', color: 'var(--color-info)' }}>
+                    <p style={{ fontSize: '13.5px', lineHeight: 1.55, margin: 0, color: 'var(--color-text-primary)' }}>
                         {t('migrations.infoText')}
                     </p>
                 </div>
@@ -523,11 +524,12 @@ scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz $env:USERPROFI
 
                 <div style={{
                     background: 'var(--color-info-bg)',
+                    border: '1px solid var(--color-info-border, var(--color-info))',
                     borderRadius: '16px',
                     padding: '16px',
                     marginBottom: '16px'
                 }}>
-                    <p style={{ fontSize: '14px', color: 'var(--color-info)' }}>
+                    <p style={{ fontSize: '13.5px', lineHeight: 1.55, margin: 0, color: 'var(--color-text-primary)' }}>
                         {t('migrations.keitaroInfo')}
                     </p>
                 </div>

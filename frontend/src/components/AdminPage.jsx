@@ -556,16 +556,30 @@ const AdminPage = ({ page }) => {
     return (
         <div className="space-y-4">
             <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 rounded text-blue-600">
+                <div
+                    className="p-2.5 rounded-2xl flex items-center justify-center"
+                    style={{
+                        backgroundColor: 'var(--color-bg-card)',
+                        border: '1px solid var(--color-border)',
+                        color: 'var(--color-primary)'
+                    }}
+                >
                     {config.icon}
                 </div>
                 <div>
-                    <h1 className="text-xl font-bold text-gray-800">{config.title}</h1>
+                    <h1 className="text-xl font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
+                        {config.title}
+                    </h1>
+                    {config.description && (
+                        <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                            {config.description}
+                        </p>
+                    )}
                 </div>
             </div>
 
             {config.comingSoon ? (
-                <div className="bg-white rounded border p-8 text-center">
+                <div className="rounded border p-8 text-center" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
                     <div className="text-gray-400 mb-4">
                         <SettingsIcon className="w-16 h-16 mx-auto opacity-50" />
                     </div>

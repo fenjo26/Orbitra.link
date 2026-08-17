@@ -145,7 +145,7 @@ const SetupWizard = ({ onComplete }) => {
                 <div className="bg-white rounded-xl shadow-2xl p-8">
                     {step === 1 && (
                         <>
-                            <h2 className="text-xl font-semibold text-gray-800 mb-2 text-center">
+                            <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2 text-center">
                                 {t('setup.step1Title')}
                             </h2>
                             <p className="text-gray-500 text-sm text-center mb-6">
@@ -237,7 +237,7 @@ const SetupWizard = ({ onComplete }) => {
 
                     {step === 2 && (
                         <>
-                            <h2 className="text-xl font-semibold text-gray-800 mb-2 text-center">
+                            <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2 text-center">
                                 {t('setup.step2Title')}
                             </h2>
                             <p className="text-gray-500 text-sm text-center mb-6">

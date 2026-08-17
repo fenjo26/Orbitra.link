@@ -40,8 +40,8 @@ const TableWidget = ({ title, data, t }) => {
                             </tr>
                         )}
                         {data && data.slice(0, 10).map((row, idx) => (
-                            <tr key={row.id || idx} className="hover:bg-blue-50/10 transition duration-150 group">
-                                <td className="px-4 py-2.5 font-medium group-hover:text-blue-600 cursor-pointer truncate text-left" style={{ width: '46%', color: 'var(--color-text-primary)', textAlign: 'left' }}>{row.name}</td>
+                            <tr key={row.id || idx} className="hover:bg-[var(--color-bg-hover)] transition duration-150 group">
+                                <td className="px-4 py-2.5 font-medium cursor-pointer truncate text-left" style={{ width: '46%', color: 'var(--color-text-primary)', textAlign: 'left' }}>{row.name}</td>
                                 <td className="px-4 py-2.5 text-right" style={{ width: '18%', color: 'var(--color-text-secondary)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{row.clicks || 0}</td>
                                 <td className="px-4 py-2.5 text-right" style={{ width: '18%', color: 'var(--color-text-secondary)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{row.unique_clicks || 0}</td>
                                 <td className="px-4 py-2.5 font-medium text-right" style={{ width: '18%', color: 'var(--color-success)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{row.conversions || 0}</td>

@@ -59,15 +59,15 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     }, [clickId, onClose]);
 
     const SectionHeader = ({ title }) => (
-        <h3 className="text-sm font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-3 mt-6 uppercase tracking-wide">
+        <h3 className="text-sm font-semibold text-[var(--color-text-primary)] border-b border-[var(--color-border)] pb-2 mb-3 mt-6 uppercase tracking-wide">
             {title}
         </h3>
     );
 
     const DetailRow = ({ label, value }) => (
         <div className="flex flex-col sm:flex-row py-1.5 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition px-2 rounded">
-            <span className="w-1/3 text-xs font-medium text-gray-500 truncate pr-4">{label}</span>
-            <span className="w-2/3 text-sm text-gray-800 break-all">{value || '-'}</span>
+            <span className="w-1/3 text-xs font-medium text-[var(--color-text-secondary)] truncate pr-4">{label}</span>
+            <span className="w-2/3 text-sm text-[var(--color-text-primary)] break-all">{value || '-'}</span>
         </div>
     );
 
@@ -94,7 +94,7 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
         return renderInPortal(
             <div className="bg-white rounded-lg shadow-xl p-8 flex flex-col items-center w-full max-w-sm">
                 <Loader className="w-8 h-8 text-blue-500 animate-spin mb-4" />
-                <p className="text-gray-600 font-medium">{t('clickDetails.loading')}</p>
+                <p className="text-[var(--color-text-secondary)] font-medium">{t('clickDetails.loading')}</p>
             </div>
         );
     }
@@ -104,11 +104,11 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
             <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold text-red-600">{t('clickDetails.error')}</h2>
-                    <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition"><X size={20} className="text-gray-500" /></button>
+                    <button onClick={onClose} className="p-1 hover:bg-[var(--color-bg-soft)] rounded-full transition"><X size={20} className="text-[var(--color-text-secondary)]" /></button>
                 </div>
                 <p className="text-gray-700">{error || t('clickDetails.notFound')}</p>
                 <div className="mt-6 flex justify-end">
-                    <button onClick={onClose} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition font-medium text-sm">{t('clickDetails.close')}</button>
+                    <button onClick={onClose} className="px-4 py-2 bg-[var(--color-bg-soft)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] rounded transition font-medium text-sm">{t('clickDetails.close')}</button>
                 </div>
             </div>
         );
@@ -125,14 +125,14 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
                 {/* Header */}
                 <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50">
                     <div>
-                        <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <h2 className="text-lg font-bold text-[var(--color-text-primary)] flex items-center gap-2">
                             {t('clickDetails.title')}
-                            <span className="text-xs font-mono bg-gray-200 text-gray-600 px-2 py-1 rounded-md ml-2 border border-gray-300">
+                            <span className="text-xs font-mono bg-gray-200 text-[var(--color-text-secondary)] px-2 py-1 rounded-md ml-2 border border-gray-300">
                                 {data.id}
                             </span>
                         </h2>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition text-gray-500">
+                    <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition text-[var(--color-text-secondary)]">
                         <X size={20} />
                     </button>
                 </div>

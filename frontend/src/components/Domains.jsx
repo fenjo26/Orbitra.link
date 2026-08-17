@@ -545,10 +545,7 @@ const Domains = ({ campaigns }) => {
                 and a permanent "waiting for certificate" with no explanation is
                 what sent people hunting through logs. */}
             {sslEnv && !sslEnv.can_issue && (
-                <div className="mb-4 p-4 rounded-2xl flex gap-3" style={{
-                    backgroundColor: 'var(--color-warning-bg)',
-                    border: '1px solid var(--color-warning)'
-                }}>
+                <div className="alert-banner alert-warning">
                     <ShieldAlert size={20} style={{ color: 'var(--color-warning)', flexShrink: 0, marginTop: '2px' }} />
                     <div style={{ color: 'var(--color-text-primary)', fontSize: '13.5px', lineHeight: 1.55 }}>
                         <div className="font-semibold mb-1" style={{ color: 'var(--color-warning)' }}>
@@ -1040,7 +1037,7 @@ const Domains = ({ campaigns }) => {
                                 {t('domains.dnsInstruction')}
                             </p>
                             <div className="bg-[var(--color-bg-soft)] border border-[var(--color-border)] rounded p-4 mb-4 font-mono text-sm text-center text-[var(--color-text-primary)]">
-                                @ &nbsp;&nbsp; IN &nbsp;&nbsp; <span className="font-bold text-blue-600">{serverIp}</span>
+                                @ &nbsp;&nbsp; IN &nbsp;&nbsp; <span className="font-bold text-[var(--color-primary)]">{serverIp}</span>
                             </div>
                             <p className="text-sm mb-2 items-center flex gap-2" style={{ color: 'var(--color-text-secondary)' }}>
                                 <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span> {t('domains.dnsNote1')}

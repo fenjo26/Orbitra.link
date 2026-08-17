@@ -130,7 +130,7 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
                                     className="w-full text-left px-4 py-2 text-sm flex items-center justify-between transition-colors text-[var(--color-text-primary)] hover:bg-[var(--color-bg-soft)]"
                                 >
                                     {range.label}
-                                    {(filters.date_range || 'today') === range.id && <Check size={14} className="text-blue-500" />}
+                                    {(filters.date_range || 'today') === range.id && <Check size={14} className="text-[var(--color-primary)]" />}
                                 </button>
                             ))}
                         </div>
@@ -154,29 +154,29 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
                         <h3 className="font-semibold mb-4 text-center" style={{ color: 'var(--color-text-primary)' }}>{t('dashboard.selectRangeTitle')}</h3>
                         <div className="flex flex-col gap-4">
                             <div>
-                                <label className="block text-xs text-gray-500 mb-1">{t('dashboard.from')}</label>
+                                <label className="block text-xs text-[var(--color-text-secondary)] mb-1">{t('dashboard.from')}</label>
                                 <DatePicker
                                     selected={filters.custom_from}
                                     onChange={(date) => setFilters({ ...filters, custom_from: date })}
-                                    className="w-full border rounded p-2 text-sm outline-none focus:border-blue-500"
+                                    className="w-full border rounded p-2 text-sm outline-none focus:border-[var(--color-primary)]"
                                     dateFormat="dd.MM.yyyy"
                                     placeholderText="DD.MM.YYYY"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs text-gray-500 mb-1">{t('dashboard.to')}</label>
+                                <label className="block text-xs text-[var(--color-text-secondary)] mb-1">{t('dashboard.to')}</label>
                                 <DatePicker
                                     selected={filters.custom_to}
                                     onChange={(date) => setFilters({ ...filters, custom_to: date })}
-                                    className="w-full border rounded p-2 text-sm outline-none focus:border-blue-500"
+                                    className="w-full border rounded p-2 text-sm outline-none focus:border-[var(--color-primary)]"
                                     dateFormat="dd.MM.yyyy"
                                     placeholderText="DD.MM.YYYY"
                                 />
                             </div>
                         </div>
                         <div className="mt-6 flex justify-end gap-2">
-                            <button onClick={() => setShowCustomRange(false)} className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded text-gray-800">{t('common.cancel')}</button>
-                            <button onClick={handleCustomApply} className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">{t('common.apply')}</button>
+                            <button onClick={() => setShowCustomRange(false)} className="px-4 py-2 text-sm bg-[var(--color-bg-soft)] hover:bg-[var(--color-bg-hover)] rounded text-[var(--color-text-primary)]">{t('common.cancel')}</button>
+                            <button onClick={handleCustomApply} className="px-4 py-2 text-sm bg-[var(--color-primary)] text-[var(--color-text-inverse,#fff)] rounded hover:opacity-90">{t('common.apply')}</button>
                         </div>
                     </div>
                 </div>

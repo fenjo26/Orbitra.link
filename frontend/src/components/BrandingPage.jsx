@@ -98,7 +98,7 @@ const BrandingPage = () => {
                             }`}
                         style={mode !== 'light' ? { backgroundColor: 'var(--color-bg-card)' } : {}}
                     >
-                        <div className={`p-2 rounded-full ${mode === 'light' ? 'bg-[var(--color-primary)] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                        <div className={`p-2 rounded-full ${mode === 'light' ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-bg-soft)] text-[var(--color-text-secondary)]'}`}>
                             <Sun size={20} />
                         </div>
                         <div>
@@ -154,7 +154,7 @@ const BrandingPage = () => {
                             }`}
                         style={mode !== 'custom' ? { backgroundColor: 'var(--color-bg-card)' } : {}}
                     >
-                        <div className={`p-2 rounded-full ${mode === 'custom' ? 'bg-[var(--color-primary)] text-white' : 'bg-blue-100 text-blue-600'}`}>
+                        <div className={`p-2 rounded-full ${mode === 'custom' ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-bg-soft)] text-[var(--color-primary)]'}`}>
                             <Palette size={20} />
                         </div>
                         <div>
