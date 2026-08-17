@@ -1,13 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Filter, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical, MoreVertical, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical, MoreVertical, AlertTriangle } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import GroupsModal from './GroupsModal';
+import PaginationToolbar from './common/PaginationToolbar';
 import CampaignReports from './CampaignReports';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
+import { copyToClipboard } from '../utils/clipboard';
 import { financeVisibility, financeHiddenMetric } from '../utils/permissions';
 
 const API_URL = '/api.php';
@@ -17,7 +19,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const [actionModal, setActionModal] = useState({ type: null, campaignId: null });
     const [selectedCampaignIds, setSelectedCampaignIds] = useState(() => new Set());
     const [sortBy, setSortBy] = useState({ key: null, dir: 'desc' }); // key=null keeps API order
-    const [showFilters, setShowFilters] = useState(false);
     const [search, setSearch] = useState('');
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
@@ -33,7 +34,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const [menuAnchor, setMenuAnchor] = useState(null);
 
     // Pagination for high-volume lists. "All" restores the previous behaviour.
-    const [rowsPerPage, setRowsPerPage] = useState(50);
+    const [rowsPerPage, setRowsPerPage] = useState(() => {
+        const saved = localStorage.getItem('orbitra_table_page_size');
+        return saved === 'All' ? 'All' : ([25, 50, 100, 250].includes(Number(saved)) ? Number(saved) : 50);
+    });
     const [page, setPage] = useState(0);
 
     const handleToggleMenu = (event, campaignId) => {
@@ -75,17 +79,19 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     // or page 3 of yesterday's filter shows an empty slice.
     useEffect(() => {
         setPage(0);
-    }, [search, rowsPerPage]);
+    }, [search, rowsPerPage, selectedGroupId, selectedSourceId]);
     const [togglingCampaignIds, setTogglingCampaignIds] = useState(new Set());
 
     const campaignEnabled = (camp) => (campaignStateOverrides[camp.id] ?? camp.state ?? 'active') !== 'disabled';
 
     const handleCopyCampaignLink = async (camp) => {
         const url = `${window.location.origin}/${camp.alias}`;
-        try {
-            await navigator.clipboard.writeText(url);
+        // utils/clipboard works on HTTP/IP too; the alert with the raw URL
+        // stays as the last resort when even execCommand is unavailable.
+        const ok = await copyToClipboard(url);
+        if (ok) {
             alert(`${t('common.copied')}: ${url}`);
-        } catch (e) {
+        } else {
             alert(url);
         }
     };
@@ -167,6 +173,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     // Group Filtering State
     const [groups, setGroups] = useState([]);
     const [selectedGroupId, setSelectedGroupId] = useState('');
+    const [selectedSourceId, setSelectedSourceId] = useState('');
 
     // Active Campaign Data (fetched with date & group parameters)
     const [campaignList, setCampaignList] = useState(initialCampaigns || []);
@@ -314,15 +321,28 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         });
     };
 
+    // Sources present in the current rows (rows ship source_id + source_name).
+    const uniqueSources = useMemo(() => {
+        const map = new Map();
+        campaignList.forEach(c => {
+            if (c.source_id && !map.has(String(c.source_id))) {
+                map.set(String(c.source_id), c.source_name || `#${c.source_id}`);
+            }
+        });
+        return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+    }, [campaignList]);
+
     const filteredCampaigns = useMemo(() => {
         const q = String(search || '').trim().toLowerCase();
-        if (!q) return campaignList;
+        if (!q && !selectedSourceId) return campaignList;
         return campaignList.filter(c => {
+            if (selectedSourceId && String(c.source_id ?? '') !== selectedSourceId) return false;
+            if (!q) return true;
             const n = String(c.name || '').toLowerCase();
             const a = String(c.alias || '').toLowerCase();
-            return n.includes(q) || a.includes(q);
+            return n.includes(q) || a.includes(q) || String(c.id || '') === q;
         });
-    }, [campaignList, search]);
+    }, [campaignList, search, selectedSourceId]);
 
     const visibleCampaigns = useMemo(() => {
         if (!sortBy.key) return filteredCampaigns;
@@ -352,8 +372,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         const start = page * rowsPerPage;
         return visibleCampaigns.slice(start, start + rowsPerPage);
     }, [visibleCampaigns, page, rowsPerPage]);
-
-    const totalPages = rowsPerPage === 'All' ? 1 : Math.max(1, Math.ceil(visibleCampaigns.length / rowsPerPage));
 
     // Grand Totals Calculation across all visible campaigns
     const grandTotals = useMemo(() => {
@@ -597,7 +615,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             case 'uc_rate_stream':
             case 'uc_rate_global':
             case 'bot_rate':
-            case 'lp_ctr':
             case 'approve_rate':
             case 'approve_rate_excl_trash':
             case 'cr':
@@ -610,6 +627,11 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             case 'cr_regs_to_deps':
             case 'ucr':
                 return `${num.toFixed(2)}%`;
+
+            // Direct-to-offer streams have no CTA to measure — the backend
+            // sends null, never a made-up 0%/100%.
+            case 'lp_ctr':
+                return val === null || val === undefined ? '—' : `${num.toFixed(2)}%`;
 
             case 'roi':
             case 'roi_all':
@@ -758,6 +780,29 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         </span>
                     </button>
 
+                    <div className="relative" style={{ width: 220 }}>
+                        <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--color-text-muted)' }} />
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder={t('campaigns.searchPlaceholder', 'Search campaigns...')}
+                            className="form-input"
+                            style={{ fontSize: '0.75rem', padding: '0.5rem 1.9rem', paddingLeft: '2.1rem', borderRadius: '0.75rem' }}
+                        />
+                        {search && (
+                            <button
+                                type="button"
+                                onClick={() => setSearch('')}
+                                title={t('common.clear', 'Clear')}
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center justify-center"
+                                style={{ color: 'var(--color-text-muted)', width: 18, height: 18 }}
+                            >
+                                <X className="w-3 h-3" />
+                            </button>
+                        )}
+                    </div>
+
                     {selectedCampaignIds.size > 0 && (
                         <>
                             <button onClick={handleBulkCopySelected} className="btn btn-success text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5" title={t('campaigns.copySelected')}>
@@ -787,6 +832,19 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         ))}
                     </select>
 
+                    {/* Traffic Source Filter Dropdown */}
+                    <select
+                        value={selectedSourceId}
+                        onChange={(e) => setSelectedSourceId(e.target.value)}
+                        className="form-select text-xs py-1.5 px-3 rounded-xl"
+                        style={{ width: '170px' }}
+                    >
+                        <option value="">{t('campaigns.allSources', 'All traffic sources')}</option>
+                        {uniqueSources.map(s => (
+                            <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                    </select>
+
                     {/* Interactive DateRangePicker with Timezones */}
                     <DateRangePicker
                         dateFrom={dateFrom}
@@ -795,19 +853,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         selectedTimezone={timezone}
                         onTimezoneChange={setTimezone}
                     />
-
-                    {/* Search / Filter Toggle */}
-                    <button
-                        type="button"
-                        onClick={() => setShowFilters(!showFilters)}
-                        className={`btn btn-ghost text-xs py-1.5 px-2.5 rounded-xl ${showFilters ? 'bg-[var(--color-primary-light)]' : ''}`}
-                        style={showFilters ? { color: 'var(--color-primary)' } : {}}
-                    >
-                        <Filter className="w-3.5 h-3.5" />
-                        {search ? (
-                            <span className="ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-[10px] rounded-full">1</span>
-                        ) : null}
-                    </button>
 
                     {/* Refresh */}
                     <button
@@ -821,27 +866,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                     </button>
                 </div>
             </div>
-
-            {/* Quick Filter Bar */}
-            {showFilters && (
-                <div className="flex flex-wrap gap-4 items-center py-3 px-4 mb-4 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
-                    <div className="flex items-center gap-2 flex-1 max-w-sm">
-                        <label className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('common.search', 'Search')}:</label>
-                        <input
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="form-input text-xs py-1.5 px-3 rounded-xl flex-1"
-                            placeholder={t('common.searchPlaceholder', 'Name or alias...')}
-                        />
-                    </div>
-                    {search && (
-                        <button type="button" onClick={() => setSearch('')} className="btn btn-ghost text-xs py-1 px-2">
-                            <X className="w-3.5 h-3.5" />
-                            {t('common.clear')}
-                        </button>
-                    )}
-                </div>
-            )}
 
             {/* Main Campaigns Data Table */}
             <div className="tracker-table-container">
@@ -1004,44 +1028,13 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
 
             {/* Pagination toolbar: page through 50–100+ campaigns without
                 losing the TOTAL row (totals stay over the whole filter). */}
-            {visibleCampaigns.length > 0 && (
-                <div className="flex items-center justify-between gap-3 mt-3 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                    <div className="flex items-center gap-2">
-                        <span>{t('table.perPage')}</span>
-                        <select
-                            className="form-select text-xs"
-                            style={{ width: 'auto', padding: '2px 6px' }}
-                            value={String(rowsPerPage)}
-                            onChange={(e) => setRowsPerPage(e.target.value === 'All' ? 'All' : Number(e.target.value))}
-                        >
-                            {[25, 50, 100].map((n) => <option key={n} value={n}>{n}</option>)}
-                            <option value="All">{t('table.all')}</option>
-                        </select>
-                        <span>· {visibleCampaigns.length}</span>
-                    </div>
-                    {rowsPerPage !== 'All' && totalPages > 1 && (
-                        <div className="flex items-center gap-2">
-                            <button
-                                type="button"
-                                className="btn btn-secondary text-xs py-1 px-2"
-                                disabled={page === 0}
-                                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                            >
-                                ← {t('table.prev')}
-                            </button>
-                            <span>{page + 1} / {totalPages}</span>
-                            <button
-                                type="button"
-                                className="btn btn-secondary text-xs py-1 px-2"
-                                disabled={page >= totalPages - 1}
-                                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                            >
-                                {t('table.next')} →
-                            </button>
-                        </div>
-                    )}
-                </div>
-            )}
+            <PaginationToolbar
+                totalRows={visibleCampaigns.length}
+                currentPage={page}
+                pageSize={rowsPerPage}
+                onPageChange={setPage}
+                onPageSizeChange={(size) => { setRowsPerPage(size); setPage(0); }}
+            />
 
             {/* Columns Customizer Modal [ ☵ ] */}
             <ReportCustomizerModal

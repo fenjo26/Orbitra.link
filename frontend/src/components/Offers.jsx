@@ -1,11 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import { Plus, Trash2, Edit3, Settings2, RefreshCw, Filter, X, ChevronUp, ChevronDown, ChevronsUpDown, Copy, SlidersHorizontal } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { Plus, Search, Trash2, Edit3, Settings2, RefreshCw, X, ChevronUp, ChevronDown, ChevronsUpDown, Copy, SlidersHorizontal } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import OfferEditor from './OfferEditor';
 import GroupsModal from './GroupsModal';
 import ColumnsOrderModal from './ColumnsOrderModal';
+import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
+import PaginationToolbar from './common/PaginationToolbar';
 
 const API_URL = '/api.php';
 
@@ -62,19 +64,26 @@ const loadOfferColumns = () => {
             const valid = saved.filter(id => ALL_OFFER_COLUMNS.some(c => c.id === id));
             if (valid.includes('name')) return valid;
         }
-    } catch (e) { /* fall through to default */ }
+    } catch { /* fall through to default */ }
     return [...DEFAULT_OFFER_COLUMNS];
 };
 
-const Offers = ({ offers, refreshData }) => {
+const Offers = ({ offers: initialOffers = [], refreshData }) => {
     const { t } = useLanguage();
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [editingOfferId, setEditingOfferId] = useState(null);
     const [isGroupsModalOpen, setIsGroupsModalOpen] = useState(false);
     const [filterGroup, setFilterGroup] = useState('');
+    const [search, setSearch] = useState('');
+    const [pageSize, setPageSize] = useState(() => {
+        const saved = localStorage.getItem('orbitra_table_page_size');
+        return saved === 'All' ? 'All' : ([25, 50, 100, 250].includes(Number(saved)) ? Number(saved) : 25);
+    });
+    const [currentPage, setCurrentPage] = useState(0);
+    // Type pill: '' | 'local' | 'external' — local archives vs everything else
+    const [typeTab, setTypeTab] = useState('');
     const [filterNetwork, setFilterNetwork] = useState('');
     const [filterState, setFilterState] = useState('');
-    const [showFilters, setShowFilters] = useState(false);
     const [selectedOfferIds, setSelectedOfferIds] = useState(() => new Set());
     const [sortBy, setSortBy] = useState({ key: null, dir: 'desc' }); // key=null keeps API order
     const [settingsOpen, setSettingsOpen] = useState(false);
@@ -82,14 +91,73 @@ const Offers = ({ offers, refreshData }) => {
     const [columnsModalOpen, setColumnsModalOpen] = useState(false);
     const [chosenColumns, setChosenColumns] = useState(() => loadOfferColumns());
 
+    // This page owns its reporting period instead of inheriting the dashboard
+    // range. Only joined traffic rows are date-limited; zero-traffic offers
+    // stay visible and editable.
+    const [offers, setOffers] = useState(initialOffers);
+    const [dateFrom, setDateFrom] = useState(() => getPresetDates('today')?.from || formatDate(new Date()));
+    const [dateTo, setDateTo] = useState(() => getPresetDates('today')?.to || formatDate(new Date()));
+    const [timezone, setTimezone] = useState(() => localStorage.getItem('orbitra_tz') || 'UTC');
+    const fetchSequence = useRef(0);
+
+    const fetchOffers = useCallback(async ({ showSpinner = true } = {}) => {
+        const sequence = ++fetchSequence.current;
+        if (showSpinner) setRefreshing(true);
+        try {
+            const res = await axios.get(`${API_URL}?action=offers`, {
+                params: {
+                    date_from: dateFrom,
+                    date_to: dateTo,
+                    timezone
+                }
+            });
+            if (sequence === fetchSequence.current && res.data.status === 'success') {
+                setOffers(res.data.data || []);
+            }
+        } catch (error) {
+            console.error('Failed to load offer statistics', error);
+        } finally {
+            if (sequence === fetchSequence.current) setRefreshing(false);
+        }
+    }, [dateFrom, dateTo, timezone]);
+
+    useEffect(() => {
+        fetchOffers({ showSpinner: false });
+    }, [fetchOffers]);
+
+    const refreshOfferData = async () => {
+        const tasks = [fetchOffers()];
+        if (refreshData) tasks.push(Promise.resolve().then(() => refreshData()));
+        await Promise.allSettled(tasks);
+    };
+
+    const handleDateChange = (from, to) => {
+        setDateFrom(from);
+        setDateTo(to);
+    };
+
     // Get unique values for filters
     const groups = [...new Set(offers.map(o => o.group_name).filter(Boolean))];
     const networks = [...new Set(offers.map(o => o.affiliate_network_name).filter(Boolean))];
+    const noGroupCount = offers.filter(o => !o.group_name).length;
+    const localCount = offers.filter(o => o.is_local).length;
+    const externalCount = offers.length - localCount;
+    const groupCount = (name) => offers.filter(o => o.group_name === name).length;
 
     const filteredOffers = offers.filter(o => {
-        if (filterGroup && o.group_name !== filterGroup) return false;
+        const q = String(search || '').trim().toLowerCase();
+        if (q) {
+            const haystack = [o.name, o.url, o.group_name, o.affiliate_network_name]
+                .map(v => String(v || '').toLowerCase());
+            if (!haystack.some(v => v.includes(q)) && String(o.id || '') !== q) return false;
+        }
+        if (filterGroup === '__no_group__' && o.group_name) return false;
+        if (filterGroup && filterGroup !== '__no_group__' && o.group_name !== filterGroup) return false;
+        if (typeTab === 'local' && !o.is_local) return false;
+        if (typeTab === 'external' && o.is_local) return false;
         if (filterNetwork && o.affiliate_network_name !== filterNetwork) return false;
-        if (filterState && o.state !== filterState) return false;
+        if (filterState === 'active' && o.state !== 'active') return false;
+        if (filterState === 'inactive' && o.state === 'active') return false;
         return true;
     });
 
@@ -167,6 +235,19 @@ const Offers = ({ offers, refreshData }) => {
             .map(x => x.offer);
     }, [filteredOffers, sortBy]);
 
+    // The paged slice the table renders. Totals footer and CSV export stay
+    // over the whole filtered list — paging must not change TOTAL.
+    const pagedOffers = useMemo(() => {
+        if (pageSize === 'All') return visibleOffers;
+        const start = currentPage * pageSize;
+        return visibleOffers.slice(start, start + pageSize);
+    }, [visibleOffers, currentPage, pageSize]);
+
+    // Any narrowing of the list must drop the user back to the first page.
+    useEffect(() => {
+        setCurrentPage(0);
+    }, [search, filterGroup, filterNetwork, filterState, typeTab, pageSize]);
+
     const handleCreate = () => {
         setEditingOfferId(null);
         setIsEditorOpen(true);
@@ -181,8 +262,8 @@ const Offers = ({ offers, refreshData }) => {
         if (window.confirm(t('common.deleteConfirm'))) {
             try {
                 await axios.post(`${API_URL}?action=delete_offer`, { id });
-                refreshData();
-            } catch (err) {
+                await refreshOfferData();
+            } catch {
                 alert(t('common.error'));
             }
         }
@@ -220,8 +301,8 @@ const Offers = ({ offers, refreshData }) => {
         try {
             await axios.post(`${API_URL}?action=bulk_delete_offers`, { ids });
             setSelectedOfferIds(new Set());
-            refreshData();
-        } catch (err) {
+            await refreshOfferData();
+        } catch {
             alert(t('common.error'));
         }
     };
@@ -240,14 +321,14 @@ const Offers = ({ offers, refreshData }) => {
             try {
                 await axios.post(`${API_URL}?action=copy_offer`, { id });
                 successCount++;
-            } catch (err) {
+            } catch {
                 errorCount++;
             }
         }
 
         if (successCount > 0) {
             alert(`${t('offers.copied')}: ${successCount}`);
-            refreshData();
+            await refreshOfferData();
         }
         if (errorCount > 0) {
             alert(`${t('offers.copyErrors')}: ${errorCount}`);
@@ -259,7 +340,7 @@ const Offers = ({ offers, refreshData }) => {
     const handleEditorClose = (wasSaved) => {
         setIsEditorOpen(false);
         if (wasSaved) {
-            refreshData();
+            refreshOfferData();
         }
     };
 
@@ -267,9 +348,10 @@ const Offers = ({ offers, refreshData }) => {
         setFilterGroup('');
         setFilterNetwork('');
         setFilterState('');
+        setSearch('');
     };
 
-    const hasActiveFilters = filterGroup || filterNetwork || filterState;
+    const hasActiveFilters = filterGroup || filterNetwork || filterState || search;
 
     // Calculate totals for filtered offers. Ratios (CR/EPC/CPC/ROI) are not
     // summed — they are recomputed from the totals below, same as the reports.
@@ -564,12 +646,7 @@ const Offers = ({ offers, refreshData }) => {
 
     const handleRefresh = async () => {
         if (refreshing) return;
-        setRefreshing(true);
-        try {
-            await Promise.resolve(refreshData?.());
-        } finally {
-            setRefreshing(false);
-        }
+        await refreshOfferData();
     };
 
     return (
@@ -587,6 +664,28 @@ const Offers = ({ offers, refreshData }) => {
                     <button onClick={() => setIsGroupsModalOpen(true)} className="btn btn-secondary">
                         {t('campaigns.groups')}
                     </button>
+                    <div className="relative" style={{ width: 220 }}>
+                        <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--color-text-muted)' }} />
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder={t('offers.searchPlaceholder', 'Search offers...')}
+                            className="form-input"
+                            style={{ fontSize: '0.75rem', padding: '0.5rem 1.9rem', paddingLeft: '2.1rem', borderRadius: '0.75rem' }}
+                        />
+                        {search && (
+                            <button
+                                type="button"
+                                onClick={() => setSearch('')}
+                                title={t('common.clear', 'Clear')}
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center justify-center"
+                                style={{ color: 'var(--color-text-muted)', width: 18, height: 18 }}
+                            >
+                                <X className="w-3 h-3" />
+                            </button>
+                        )}
+                    </div>
                     {selectedOfferIds.size > 0 && (
                         <>
                             <button onClick={handleBulkCopySelected} className="btn btn-success" title={t('offers.copySelected')}>
@@ -621,20 +720,6 @@ const Offers = ({ offers, refreshData }) => {
                     </button>
                     <button
                         type="button"
-                        onClick={() => setShowFilters(!showFilters)}
-                        className={`btn btn-ghost ${showFilters ? 'bg-[var(--color-primary-light)]' : ''}`}
-                        style={showFilters ? { color: 'var(--color-primary)' } : {}}
-                    >
-                        <Filter className="w-4 h-4" />
-                        {t('editor.filters')}
-                        {hasActiveFilters && (
-                            <span className="ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full">
-                                {[filterGroup, filterNetwork, filterState].filter(Boolean).length}
-                            </span>
-                        )}
-                    </button>
-                    <button
-                        type="button"
                         onClick={handleRefresh}
                         className="btn btn-ghost btn-icon"
                         title={t('common.refresh')}
@@ -653,54 +738,140 @@ const Offers = ({ offers, refreshData }) => {
                 </div>
             </div>
 
-            {/* Filters Panel */}
-            {showFilters && (
-                <div className="flex flex-wrap gap-4 items-center py-4 mb-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('components.group')}:</label>
-                        <select
-                            value={filterGroup}
-                            onChange={(e) => setFilterGroup(e.target.value)}
-                            className="form-select"
-                            style={{ width: 'auto', minWidth: '140px' }}
-                        >
-                            <option value="">{t('common.all')}</option>
-                            {groups.map(g => <option key={g} value={g}>{g}</option>)}
-                        </select>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('offers.network')}:</label>
-                        <select
-                            value={filterNetwork}
-                            onChange={(e) => setFilterNetwork(e.target.value)}
-                            className="form-select"
-                            style={{ width: 'auto', minWidth: '160px' }}
-                        >
-                            <option value="">{t('common.all')}</option>
-                            {networks.map(n => <option key={n} value={n}>{n}</option>)}
-                        </select>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('components.status')}:</label>
-                        <select
-                            value={filterState}
-                            onChange={(e) => setFilterState(e.target.value)}
-                            className="form-select"
-                            style={{ width: 'auto', minWidth: '120px' }}
-                        >
-                            <option value="">{t('common.all')}</option>
-                            <option value="active">{t('components.active')}</option>
-                            <option value="archived">{t('components.archive')}</option>
-                        </select>
-                    </div>
+            {/* Always-visible quick filters and reporting period. */}
+            <div className="flex flex-wrap items-center justify-between gap-3 py-3 mb-3 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                <div className="flex flex-wrap items-center gap-2">
+                    <select
+                        value={filterGroup}
+                        onChange={(e) => setFilterGroup(e.target.value)}
+                        className="form-select text-xs font-semibold py-2 px-3.5 rounded-xl transition-all"
+                        style={{
+                            width: 'auto',
+                            minWidth: '140px',
+                            backgroundColor: filterGroup ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
+                            borderColor: filterGroup ? 'var(--color-primary)' : 'var(--color-border)',
+                            color: filterGroup ? 'var(--color-primary)' : 'var(--color-text-primary)'
+                        }}
+                    >
+                        <option value="">{t('offers.allGroups')}</option>
+                        {groups.map(g => <option key={g} value={g}>{g}</option>)}
+                        {noGroupCount > 0 && <option value="__no_group__">{t('offerEditor.noGroup')}</option>}
+                    </select>
+
+                    <select
+                        value={filterNetwork}
+                        onChange={(e) => setFilterNetwork(e.target.value)}
+                        className="form-select text-xs font-semibold py-2 px-3.5 rounded-xl transition-all"
+                        style={{
+                            width: 'auto',
+                            minWidth: '180px',
+                            backgroundColor: filterNetwork ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
+                            borderColor: filterNetwork ? 'var(--color-primary)' : 'var(--color-border)',
+                            color: filterNetwork ? 'var(--color-primary)' : 'var(--color-text-primary)'
+                        }}
+                    >
+                        <option value="">{t('offers.allNetworks')}</option>
+                        {networks.map(n => <option key={n} value={n}>{n}</option>)}
+                    </select>
+
+                    <select
+                        value={filterState}
+                        onChange={(e) => setFilterState(e.target.value)}
+                        className="form-select text-xs font-semibold py-2 px-3.5 rounded-xl transition-all"
+                        style={{
+                            width: 'auto',
+                            minWidth: '130px',
+                            backgroundColor: filterState ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
+                            borderColor: filterState ? 'var(--color-primary)' : 'var(--color-border)',
+                            color: filterState ? 'var(--color-primary)' : 'var(--color-text-primary)'
+                        }}
+                    >
+                        <option value="">{t('offers.allStates')}</option>
+                        <option value="active">🟢 {t('components.active')}</option>
+                        <option value="inactive">⚪ {t('offers.inactiveStates')}</option>
+                    </select>
+
                     {hasActiveFilters && (
-                        <button onClick={clearFilters} className="btn btn-ghost btn-sm">
-                            <X className="w-4 h-4" />
+                        <button type="button" onClick={clearFilters} className="btn btn-ghost btn-sm text-xs" style={{ color: 'var(--color-danger)' }}>
+                            <X className="w-3.5 h-3.5" />
                             {t('common.clear')}
                         </button>
                     )}
                 </div>
-            )}
+
+                <DateRangePicker
+                    dateFrom={dateFrom}
+                    dateTo={dateTo}
+                    onChange={handleDateChange}
+                    selectedTimezone={timezone}
+                    onTimezoneChange={setTimezone}
+                />
+            </div>
+
+            {/* Group pill tabs — one click narrows the table to a group or a
+                offer type; counts come straight from the rows. */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 mb-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                {[
+                    { key: '', label: t('common.all'), count: offers.length },
+                    ...groups.map(name => ({
+                        key: name,
+                        label: name,
+                        count: groupCount(name),
+                        icon: /white|safe|бел/i.test(name) ? '🛡' : (/cod|товар/i.test(name) ? '📦' : (/nutra|нутр/i.test(name) ? '💊' : null)),
+                    })),
+                    ...(noGroupCount > 0 ? [{ key: '__no_group__', label: t('landings.noGroup'), count: noGroupCount }] : []),
+                ].map(tab => {
+                    const activePill = tab.key === '' ? !filterGroup : filterGroup === tab.key;
+                    return (
+                        <button
+                            key={tab.key || '__all__'}
+                            type="button"
+                            onClick={() => setFilterGroup(activePill ? '' : tab.key)}
+                            className="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5"
+                            style={{
+                                backgroundColor: activePill ? 'var(--color-primary)' : 'var(--color-bg-card)',
+                                color: activePill ? '#ffffff' : 'var(--color-text-secondary)',
+                                border: `1px solid ${activePill ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {tab.icon && <span>{tab.icon}</span>}
+                            <span>{tab.label}</span>
+                            <span className="text-[10px] px-1.5 rounded-full" style={{ backgroundColor: activePill ? 'rgba(255,255,255,0.25)' : 'var(--color-bg-soft)' }}>
+                                {tab.count}
+                            </span>
+                        </button>
+                    );
+                })}
+
+                <div className="h-5 w-[1px] flex-shrink-0" style={{ backgroundColor: 'var(--color-border)' }} />
+
+                {[
+                    { key: 'local', label: t('landingEditor.typeLocal'), count: localCount, icon: '📁' },
+                    { key: 'external', label: t('landingEditor.typeRedirect'), count: externalCount, icon: '🔗' },
+                ].map(tab => {
+                    const activePill = typeTab === tab.key;
+                    return (
+                        <button
+                            key={tab.key}
+                            type="button"
+                            onClick={() => setTypeTab(activePill ? '' : tab.key)}
+                            className="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5"
+                            style={{
+                                backgroundColor: activePill ? 'var(--color-primary-light)' : 'transparent',
+                                color: activePill ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                border: `1px solid ${activePill ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <span>{tab.icon} {tab.label}</span>
+                            <span className="text-[10px] px-1.5 rounded-full" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
+                                {tab.count}
+                            </span>
+                        </button>
+                    );
+                })}
+            </div>
 
             {/* Table */}
             <div className="tracker-table-container">
@@ -749,7 +920,7 @@ const Offers = ({ offers, refreshData }) => {
                                 </td>
                             </tr>
                         ) : (
-                            visibleOffers.map((offer) => (
+                            pagedOffers.map((offer) => (
                                 <tr key={offer.id}>
                                     <td>
                                         <input
@@ -792,6 +963,14 @@ const Offers = ({ offers, refreshData }) => {
                     )}
                 </table>
             </div>
+
+            <PaginationToolbar
+                totalRows={visibleOffers.length}
+                currentPage={currentPage}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(0); }}
+            />
 
             {/* Editor Modal */}
             {isEditorOpen && (

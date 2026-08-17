@@ -1,4 +1,4 @@
-# Orbitra v0.9.9.1 Tracker
+# Orbitra v1.0.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -422,14 +422,19 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v0.9.9.1 (2026-08-17)
-- 📊 Vertical column grid across the Campaigns/Reports/Landers/Offers tables; the Reports table now shares the tracker styling (pinned name column fixed)
-- 🪟 Modals fit the screen at 100% zoom; Affiliate Network & Traffic Source editors gained tabs with a pinned header/footer
-- 📋 Copy buttons work on plain-HTTP/IP installs (execCommand fallback) — postback URL, macros, integration keys, snippets
-- 🛑 Pausing a campaign can stop the linked Facebook campaigns/ad sets/ads (Meta API); the switch moved to its own Status column with a safety confirmation
-- 📈 EPC/CPC redefined per LP click, new EPV metric with customizer hints; landing editor required-field validation and ZIP re-upload
+### Current release — v1.0.0 (2026-08-17)
+- 🏗️ **LeadForge + CRM capsule** — forge ready-to-upload landing packages (order.php / thank_you.php served through the in-process bridge — static hosting works), collect leads in the built-in CRM (`crm_lead` creates the underlying click); LeadForge / Tracker / CRM switch from the navbar
+- 🎯 **TikTok Conversions API** — server-side events next to Facebook CAPI, both driven by pixel profiles (niche, events, test codes); schema v26 + migrations panel
+- 🔍 **Inline mini search** in Offers / Campaigns / Landings headers — live filter by name, URL, group, network and exact ID
+- 📄 **Universal table pagination** — Showing X-Y of N · Page Size 25/50/100/250/All (remembered across tables) · First/Prev/pages/Next/Last; TOTAL stays global over the filtered list
+- 📱 **Responsive fixes** — navbar stops clipping on 768–1280px laptops (xl breakpoint + full drawer), dashboard loses horizontal scroll (stat-card grid, fluid selectors)
+- 🔀 **Traffic source filter** in Campaigns — "All traffic sources" dropdown next to groups, instant client-side narrowing
+- ⚖️ **Stream weights, visible** — weight + live % badge on every stream header (By-weight rotation), total-weight bar with Split Evenly
+- ⚡ **Traffic Sources performance** — stats via a single-pass subquery instead of a full clicks JOIN; editor templates cached in-memory
+- 📋 **Copy works on HTTP/IP** — postback URL / campaign-link copies route through the execCommand fallback; the postback code block is click-to-copy
+- 📐 Carries the unreleased 0.9.9.2: universal CPV/EPV direct-vs-Lander semantics
 
-Previous release — v0.9.9.0: domain panel with groups and per-domain access, RedTrack-style play/pause, per-stream Collect clicks, Ads Manager extension, dashboard redesign, high-density tables (schema v23–v25).
+Previous release — v0.9.9.1: column grid in tracker tables, tabbed editors + modals fit the screen, clipboard fallback for HTTP/IP installs, campaign switch pauses linked Facebook campaigns, EPC/CPC per LP click, EPV metric.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

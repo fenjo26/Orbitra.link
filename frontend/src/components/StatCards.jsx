@@ -71,10 +71,7 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics,
     ];
 
     return (
-        <div
-            className="flex overflow-x-auto no-scrollbar gap-4 mt-6 mb-2 pt-5 pb-7 px-4 md:px-6 -mx-4 md:-mx-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)]"
-            style={{ WebkitOverflowScrolling: 'touch' }}
-        >
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3 sm:gap-4 mt-6 mb-2 w-full">
             {cards.filter(card => showCard(card.id)).map(card => (
                 <Card
                     key={card.id}
@@ -92,15 +89,15 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics,
 const Card = ({ title, value, isActive, onClick, colorVar }) => (
     <div
         onClick={onClick}
-        className={`card cursor-pointer select-none min-w-[140px] flex-1 flex flex-col justify-center transition-all ${isActive ? 'relative z-10' : ''}`}
+        className={`card cursor-pointer select-none flex flex-col justify-center transition-all ${isActive ? 'relative z-10' : ''}`}
         style={{
-            padding: '20px',
+            padding: '14px 16px',
             border: isActive ? `2px solid var(${colorVar})` : '2px solid transparent',
             boxShadow: isActive ? `0 8px 25px var(${colorVar}, rgba(0,0,0,0.1))` : 'var(--shadow-main)'
         }}
     >
-        <h3 className="text-xs uppercase font-semibold mb-2 tracking-wide text-[var(--color-text-muted)]">{title}</h3>
-        <div className="text-2xl font-bold" style={{ color: `var(${colorVar})` }}>{value}</div>
+        <h3 className="text-[10px] sm:text-xs uppercase font-bold tracking-wider mb-1 truncate text-[var(--color-text-muted)]">{title}</h3>
+        <div className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight truncate" style={{ color: `var(${colorVar})` }}>{value}</div>
     </div>
 );
 

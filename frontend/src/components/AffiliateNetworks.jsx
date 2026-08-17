@@ -3,6 +3,7 @@ import { Plus, Edit2, Trash2, Copy, ExternalLink, Check, Filter, RefreshCw, Sett
 import InfoBanner from './InfoBanner';
 import AffiliateNetworkEditor from './AffiliateNetworkEditor';
 import { useLanguage } from '../contexts/LanguageContext';
+import { copyToClipboard as copyText } from '../utils/clipboard';
 import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
 
 const AffiliateNetworks = () => {
@@ -182,13 +183,14 @@ const AffiliateNetworks = () => {
         return `${protocol}//${host}/${postbackKey}/postback`;
     };
 
+    // Goes through utils/clipboard (Clipboard API on HTTPS, execCommand
+    // fallback on plain HTTP/IP installs) — navigator.clipboard alone is
+    // blocked by browsers in non-secure contexts.
     const copyToClipboard = async (text, id) => {
-        try {
-            await navigator.clipboard.writeText(text);
+        const ok = await copyText(text);
+        if (ok) {
             setCopiedId(id);
             setTimeout(() => setCopiedId(null), 2000);
-        } catch (err) {
-            console.error(err);
         }
     };
 
@@ -331,7 +333,12 @@ const AffiliateNetworks = () => {
                                     </td>
                                     <td>
                                         <div className="flex items-center space-x-2">
-                                            <code className="text-xs px-2 py-1 rounded max-w-xs truncate" style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}>
+                                            <code
+                                                onClick={() => copyToClipboard(getPostbackUrl(network), `pb-${network.id}`)}
+                                                className="text-xs px-2 py-1 rounded max-w-xs truncate cursor-pointer select-all"
+                                                style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
+                                                title={t('common.copy')}
+                                            >
                                                 {getPostbackUrl(network)}
                                             </code>
                                             <button

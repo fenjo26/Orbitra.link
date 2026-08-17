@@ -71,10 +71,10 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
         // above the stat cards below it: an active stat card carries z-10.
         // card--flat suppresses the hover lift, whose transform would otherwise
         // trap the menu inside this card. See .card--flat in index.css.
-        <div className="card card--flat shadow-sm p-5 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between w-full rounded-[24px] relative z-30">
-            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+        <div className="card card--flat shadow-sm p-5 mb-6 flex flex-col lg:flex-row gap-4 items-center justify-between w-full rounded-[24px] relative z-30">
+            <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto flex-1">
                 {/* Campaign Select */}
-                <div className="relative w-full sm:w-[300px]">
+                <div className="relative w-full sm:flex-1 sm:max-w-xs">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-[var(--color-text-muted)]">
                         <Filter size={16} />
                     </div>
@@ -95,7 +95,7 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
                 </div>
 
                 {/* Date Range Dropdown */}
-                <div className="relative w-full sm:w-[300px]" ref={rangeRef}>
+                <div className="relative w-full sm:flex-1 sm:max-w-xs" ref={rangeRef}>
                     <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-[var(--color-text-muted)]">
                         <Calendar size={16} />
                     </div>
@@ -140,11 +140,11 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
 
             <button
                 onClick={onOpenSettings}
-                className="btn-secondary transition shadow-sm flex items-center gap-2 text-sm font-medium w-full md:w-auto mt-2 md:mt-0 justify-center"
+                className="btn-secondary transition shadow-sm flex items-center gap-2 text-sm font-medium w-full lg:w-auto mt-2 lg:mt-0 justify-center shrink-0"
                 title={t('dashboard.dashboardSettings')}
             >
                 <Settings size={16} />
-                <span className="md:hidden">{t('dashboard.dashboardSettings')}</span>
+                <span className="lg:hidden">{t('dashboard.dashboardSettings')}</span>
             </button>
 
             {/* Custom Date Modal */}

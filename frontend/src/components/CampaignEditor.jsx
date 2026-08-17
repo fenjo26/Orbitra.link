@@ -14,6 +14,8 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import { buildSnippet, COUNTDOWN_THEMES, EXIT_BUTTON_COLORS, METHOD_INSTALL_HINTS } from '../utils/integrationSnippets';
+import ProxyInput from './common/ProxyInput';
+import PixelPicker from './common/PixelPicker';
 
 const CAMPAIGN_SUB_ID_KEYS = Array.from({ length: 30 }, (_, index) => `sub_id_${index + 1}`);
 
@@ -238,6 +240,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [capiMeta, setCapiMeta] = useState({ default_mapping: {}, available_events: [] });
     const [capiTest, setCapiTest] = useState(null);
     const [capiTesting, setCapiTesting] = useState(false);
+    const [pixelProfiles, setPixelProfiles] = useState([]);
+    const [pixelProfileAttaching, setPixelProfileAttaching] = useState(false);
+    const [pixelProfileMessage, setPixelProfileMessage] = useState(null);
 
     const emptyPixelForm = { type: '', pixel_id: '', token: '', events: 'PageView,Lead', event_source_url: '', is_active: 1, mapping: {}, test_event_code: '', proxy_url: '' };
 
@@ -790,6 +795,43 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     useEffect(() => { if (activeCampaignId) fetchPixels(); }, [activeCampaignId]);
 
+    useEffect(() => {
+        cachedGet('pixel_profiles_list', {}, 60000)
+            .then(({ data }) => { if (data.status === 'success') setPixelProfiles(data.data || []); })
+            .catch(() => setPixelProfiles([]));
+    }, []);
+
+    const groupedPixelProfiles = useMemo(() => pixelProfiles.reduce((groups, profile) => {
+        const niche = profile.niche || 'General';
+        if (!groups[niche]) groups[niche] = [];
+        groups[niche].push(profile);
+        return groups;
+    }, {}), [pixelProfiles]);
+
+    const selectedPixelProfileId = pixels.find(pixel => pixel.pixel_profile_id)?.pixel_profile_id || '';
+
+    const handleSelectPixelProfile = async (profileId) => {
+        if (!activeCampaignId || pixelProfileAttaching) return;
+        setPixelProfileAttaching(true);
+        setPixelProfileMessage(null);
+        try {
+            const { data } = await cachedPost('attach_pixel_profile', {
+                campaign_id: activeCampaignId,
+                pixel_profile_id: profileId || null,
+            });
+            if (data.status === 'success') {
+                setPixelProfileMessage({ type: 'success', text: profileId ? t('pixelVault.attached') : t('pixelVault.detached') });
+                await fetchPixels();
+            } else {
+                setPixelProfileMessage({ type: 'error', text: data.message || t('common.error') });
+            }
+        } catch (err) {
+            setPixelProfileMessage({ type: 'error', text: err.response?.data?.message || err.message });
+        } finally {
+            setPixelProfileAttaching(false);
+        }
+    };
+
     // Status→event map and the Meta event list come from the backend so the two
     // cannot drift: FacebookConversions.php is the single source of truth.
     useEffect(() => {
@@ -1075,6 +1117,31 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         const p = [...formData.postbacks];
         p.splice(index, 1);
         setFormData({ ...formData, postbacks: p });
+    };
+
+    // Weighted rotation: total weight across active regular streams and a
+    // one-click even split (floor(100/N) + remainder on the first stream).
+    const totalStreamWeight = useMemo(() => {
+        return (formData.streams || [])
+            .filter(s => s.type === 'regular' && (s.is_active ?? 1))
+            .reduce((sum, s) => sum + (parseInt(s.weight, 10) || 0), 0);
+    }, [formData.streams]);
+
+    const handleEqualizeStreamWeights = () => {
+        const activeCount = (formData.streams || []).filter(s => s.type === 'regular' && (s.is_active ?? 1)).length;
+        if (!activeCount) return;
+        const base = Math.floor(100 / activeCount);
+        const remainder = 100 - base * activeCount;
+        let seen = 0;
+        setFormData({
+            ...formData,
+            streams: formData.streams.map(s => {
+                if (s.type !== 'regular' || !(s.is_active ?? 1)) return s;
+                const w = base + (seen === 0 ? remainder : 0);
+                seen += 1;
+                return { ...s, weight: w };
+            })
+        });
     };
 
     // Schema item management
@@ -2088,6 +2155,47 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 </div>
                                             </div>
 
+                                            {/* One-click attachment from the central Pixel Vault. The backend
+                                                resolves the secret token and keeps the campaign snapshot synced. */}
+                                            <div style={{
+                                                border: '1px solid var(--color-border)',
+                                                borderRadius: '16px',
+                                                padding: '14px 16px',
+                                                background: 'var(--color-bg-card)'
+                                            }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, fontSize: '14px', color: 'var(--color-text-primary)', marginBottom: '10px' }}>
+                                                    <Shield size={16} /> {t('pixelVault.attachPixel')}
+                                                </div>
+                                                <select
+                                                    value={selectedPixelProfileId}
+                                                    onChange={event => handleSelectPixelProfile(event.target.value)}
+                                                    className="form-select"
+                                                    disabled={!activeCampaignId || pixelProfileAttaching}
+                                                >
+                                                    <option value="">{t('pixelVault.noPixel')}</option>
+                                                    {Object.entries(groupedPixelProfiles).map(([niche, profiles]) => (
+                                                        <optgroup key={niche} label={`📁 ${t('pixelVault.niche')}: ${niche}`}>
+                                                            {profiles.map(profile => {
+                                                                const source = pixelPlatforms.find(platform => platform.id === profile.traffic_source)?.name || profile.traffic_source;
+                                                                return (
+                                                                    <option key={profile.id} value={profile.id} disabled={!profile.is_active}>
+                                                                        {profile.name} ({profile.pixel_id}) · {source}{!profile.is_active ? ` — ${t('pixelVault.inactive')}` : ''}
+                                                                    </option>
+                                                                );
+                                                            })}
+                                                        </optgroup>
+                                                    ))}
+                                                </select>
+                                                <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '6px' }}>
+                                                    {activeCampaignId ? t('pixelVault.pixelHint') : t('pixelVault.saveCampaignFirst')}
+                                                </p>
+                                                {pixelProfileMessage && (
+                                                    <p style={{ fontSize: '11px', marginTop: '6px', color: pixelProfileMessage.type === 'success' ? 'var(--color-success, #10b981)' : 'var(--color-danger, #ef4444)' }}>
+                                                        {pixelProfileMessage.text}
+                                                    </p>
+                                                )}
+                                            </div>
+
                                             <p className="text-xs mb-2" style={{ color: 'var(--color-text-secondary)' }}>{t('pixels.selectPlatform')}</p>
 
                                             {/* Existing pixels */}
@@ -2106,6 +2214,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 <span className="text-xl">{platform.icon}</span>
                                                                 <span style={{ fontWeight: 600, fontSize: '14px' }}>{platform.name}</span>
                                                                 <span style={{ fontSize: '12px', color: 'var(--color-text-muted)', fontFamily: 'monospace' }}>{px.pixel_id}</span>
+                                                                {px.profile_name && (
+                                                                    <span style={{ fontSize: '10px', color: 'var(--color-primary)', background: 'var(--color-primary-light)', padding: '2px 6px', borderRadius: '6px' }}>
+                                                                        {t('pixelVault.vaultProfile')}: {px.profile_name}
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                                                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
@@ -2146,13 +2259,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                     </div>
                                                     <div className="space-y-3">
                                                         <div>
-                                                            <label className="form-label">{t('pixels.pixelId')}</label>
-                                                            <input
-                                                                type="text"
+                                                            <PixelPicker
+                                                                label={t('pixels.pixelId')}
                                                                 value={pixelForm.pixel_id}
-                                                                onChange={e => setPixelForm({ ...pixelForm, pixel_id: e.target.value })}
-                                                                placeholder={pixelPlatforms.find(p => p.id === pixelForm.type)?.placeholder}
-                                                                className="form-input font-mono text-sm"
+                                                                onPick={(patch) => setPixelForm(prev => ({ ...prev, ...patch }))}
                                                             />
                                                         </div>
                                                         <div>
@@ -2226,13 +2336,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                         />
                                                                     </div>
                                                                     <div>
-                                                                        <label className="form-label">{t('pixels.proxy')}</label>
-                                                                        <input
-                                                                            type="text"
+                                                                        <ProxyInput
+                                                                            label={t('pixels.proxy')}
                                                                             value={pixelForm.proxy_url}
-                                                                            onChange={e => setPixelForm({ ...pixelForm, proxy_url: e.target.value })}
-                                                                            placeholder="http://user:pass@1.2.3.4:8080"
-                                                                            className="form-input font-mono text-sm"
+                                                                            onChange={(val) => setPixelForm({ ...pixelForm, proxy_url: val })}
                                                                         />
                                                                     </div>
                                                                 </div>
@@ -2777,6 +2884,27 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                 </div>
                             ) : (
                                 <div className="space-y-4">
+                                    {formData.rotation_type === 'weight' && (
+                                        <div className="flex items-center justify-between p-3 rounded-xl border text-xs" style={{
+                                            backgroundColor: `color-mix(in srgb, ${totalStreamWeight === 100 ? 'var(--color-success)' : 'var(--color-warning)'} 8%, transparent)`,
+                                            borderColor: totalStreamWeight === 100 ? 'var(--color-success)' : 'var(--color-warning)'
+                                        }}>
+                                            <div className="flex items-center gap-2">
+                                                <span>{totalStreamWeight === 100 ? '✓' : '⚠️'}</span>
+                                                <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                                    {t('editor.totalWeight', 'Total Stream Weight')}: {totalStreamWeight}%
+                                                </span>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={handleEqualizeStreamWeights}
+                                                className="btn btn-secondary btn-sm text-xs py-1 px-2.5 rounded-lg flex items-center gap-1 font-semibold"
+                                            >
+                                                <span>⚖</span>
+                                                <span>{t('editor.equalizeSplit', 'Split Evenly')}</span>
+                                            </button>
+                                        </div>
+                                    )}
                                     {formData.streams.map((stream, idx) => (
                                         <div key={stream.id || idx} className="rounded-2xl overflow-hidden shadow-sm" style={{
                                             backgroundColor: 'var(--color-bg-card)',
@@ -2801,7 +2929,30 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         placeholder={t('editor.streamName')}
                                                     />
 
-                                                    {/* Stream weight moved into stream settings to avoid confusion with offer/landing weights */}
+                                                    {/* Weight + live share badge — the single weight control
+                                                        for weighted rotation (the old duplicate inside stream
+                                                        settings is gone). */}
+                                                    {formData.rotation_type === 'weight' && stream.type === 'regular' && (
+                                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                                                            <span className="text-[11px] font-semibold whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{t('editor.streamWeight')}:</span>
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                value={stream.weight ?? 100}
+                                                                onChange={e => updateStream(idx, 'weight', Math.max(0, parseInt(e.target.value, 10) || 0))}
+                                                                className="w-14 text-center text-xs font-bold py-0.5 px-1 rounded-md"
+                                                                style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                                                                title={t('editor.streamWeightHelp')}
+                                                            />
+                                                            <span
+                                                                className="text-xs font-extrabold px-1.5 py-0.5 rounded-md whitespace-nowrap"
+                                                                style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}
+                                                                title={`${stream.weight ?? 100} / ${totalStreamWeight || 0}`}
+                                                            >
+                                                                {totalStreamWeight > 0 ? `${(((stream.weight ?? 100) / totalStreamWeight) * 100).toFixed(1)}%` : '—'}
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <div className="flex items-center gap-4">
                                                     <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: 'var(--color-text-primary)' }}>
@@ -2874,38 +3025,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         </span>
                                                     </div>
                                                 )}
-                                                {/* Stream Weight (only relevant for regular streams and only when campaign rotation is weighted) */}
-                                                {formData.rotation_type === 'weight' && stream.type === 'regular' && (
-                                                    <div className="rounded-2xl p-3" style={{ border: '1px solid var(--color-border)', backgroundColor: 'rgba(59, 130, 246, 0.05)' }}>
-                                                        <div className="flex items-center justify-between gap-3">
-                                                            <div className="flex items-center gap-2">
-                                                                <TrendingUp className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
-                                                                <div>
-                                                                    <div className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                                                                        {t('editor.streamWeight')}
-                                                                    </div>
-                                                                    <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                                                                        {t('editor.streamWeightHelp')}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="flex items-center gap-1">
-                                                                <input
-                                                                    type="number"
-                                                                    value={stream.weight ?? 100}
-                                                                    onChange={e => updateStream(idx, 'weight', parseInt(e.target.value) || 0)}
-                                                                    className="w-20 text-center rounded-lg px-2 py-1 text-sm font-bold"
-                                                                    min="0"
-                                                                    style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
-                                                                    title={t('editor.streamWeight')}
-                                                                />
-                                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-
                                                 {/* Schema */}
                                                 <div>
                                                     <label className="text-xs font-semibold uppercase mb-2 block" style={{ color: 'var(--color-text-muted)' }}>{t('editor.schema')}</label>
@@ -3782,13 +3901,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             </div>
 
                             <div>
-                                <label className="form-label text-xs">Proxy (Optional)</label>
-                                <input
-                                    type="text"
+                                <ProxyInput
+                                    label={t('pixels.proxy')}
                                     value={costConnForm.proxy_url}
-                                    onChange={e => setCostConnForm({ ...costConnForm, proxy_url: e.target.value })}
-                                    placeholder="http://user:pass@host:port"
-                                    className="form-input text-xs font-mono py-2 rounded-xl"
+                                    onChange={(val) => setCostConnForm({ ...costConnForm, proxy_url: val })}
                                 />
                             </div>
 

@@ -1,9 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import LandingEditor from './LandingEditor';
 import GroupsModal from './GroupsModal';
 import ColumnsOrderModal from './ColumnsOrderModal';
+import PaginationToolbar from './common/PaginationToolbar';
+import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -62,24 +64,68 @@ const loadLandingColumns = () => {
             const valid = saved.filter(id => ALL_LANDING_COLUMNS.some(c => c.id === id));
             if (valid.includes('name')) return valid;
         }
-    } catch (e) { /* fall through to default */ }
+    } catch { /* fall through to default */ }
     return [...DEFAULT_LANDING_COLUMNS];
 };
 
 const Landings = ({ landings, refreshData }) => {
     const { t } = useLanguage();
+    const [landingList, setLandingList] = useState(() => landings || []);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [showGroupsModal, setShowGroupsModal] = useState(false);
     const [editingLandingId, setEditingLandingId] = useState(null);
     const [selectedLandingIds, setSelectedLandingIds] = useState(() => new Set());
     const [showFilters, setShowFilters] = useState(false);
     const [search, setSearch] = useState('');
+    const [pageSize, setPageSize] = useState(() => {
+        const saved = localStorage.getItem('orbitra_table_page_size');
+        return saved === 'All' ? 'All' : ([25, 50, 100, 250].includes(Number(saved)) ? Number(saved) : 25);
+    });
+    const [currentPage, setCurrentPage] = useState(0);
     const [typeFilter, setTypeFilter] = useState('');
     const [stateFilter, setStateFilter] = useState('');
+    // Group pill tab: 'all' | group id | 'no_group' | 'local_only' | 'redirect_only'
+    const [groupTab, setGroupTab] = useState('all');
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [columnsModalOpen, setColumnsModalOpen] = useState(false);
     const [chosenColumns, setChosenColumns] = useState(() => loadLandingColumns());
+    const [dateFrom, setDateFrom] = useState(() => getPresetDates('today')?.from || formatDate(new Date()));
+    const [dateTo, setDateTo] = useState(() => getPresetDates('today')?.to || formatDate(new Date()));
+    const [timezone, setTimezone] = useState(() => localStorage.getItem('orbitra_tz') || 'UTC');
+    const landingRequestId = useRef(0);
+
+    const fetchLandings = useCallback(async () => {
+        const requestId = ++landingRequestId.current;
+        setRefreshing(true);
+        try {
+            const res = await axios.get(`${API_URL}?action=landings`, {
+                params: {
+                    date_from: dateFrom,
+                    date_to: dateTo,
+                    timezone,
+                },
+            });
+            if (requestId === landingRequestId.current && res?.data?.status === 'success') {
+                setLandingList(res.data.data || []);
+            }
+        } catch (err) {
+            if (requestId === landingRequestId.current) {
+                console.error('Error fetching landings:', err);
+            }
+        } finally {
+            if (requestId === landingRequestId.current) setRefreshing(false);
+        }
+    }, [dateFrom, dateTo, timezone]);
+
+    useEffect(() => {
+        fetchLandings();
+    }, [fetchLandings]);
+
+    const handleDateChange = (from, to) => {
+        setDateFrom(from);
+        setDateTo(to);
+    };
 
     const handleCreate = () => {
         setEditingLandingId(null);
@@ -99,28 +145,80 @@ const Landings = ({ landings, refreshData }) => {
                     alert(res?.data?.message || t('common.error'));
                     return;
                 }
-                refreshData();
+                await Promise.all([
+                    fetchLandings(),
+                    Promise.resolve(refreshData?.()),
+                ]);
             } catch (err) {
                 alert(err?.response?.data?.message || err?.message || t('common.error'));
             }
         }
     };
 
+    // Pill counts, derived from the rows themselves (group_id/group_name ship
+    // with the landings list), so tabs and numbers can never drift from data.
+    const groupTabs = useMemo(() => {
+        const byGroup = new Map(); // id -> {id, name, count}
+        let noGroup = 0, local = 0, redirect = 0;
+        landingList.forEach(l => {
+            if (l.group_id) {
+                const entry = byGroup.get(l.group_id) || { id: l.group_id, name: l.group_name || `#${l.group_id}`, count: 0 };
+                entry.count += 1;
+                byGroup.set(l.group_id, entry);
+            } else {
+                noGroup += 1;
+            }
+            if (l.type === 'local') local += 1;
+            if (l.type === 'redirect') redirect += 1;
+        });
+        return {
+            all: landingList.length,
+            groups: [...byGroup.values()].sort((a, b) => a.name.localeCompare(b.name)),
+            noGroup,
+            local,
+            redirect,
+        };
+    }, [landingList]);
+
     const filteredLandings = useMemo(() => {
         const q = String(search || '').trim().toLowerCase();
-        return landings.filter(l => {
+        return landingList.filter(l => {
             if (q) {
                 const n = String(l.name || '').toLowerCase();
                 const u = String(l.url || '').toLowerCase();
-                if (!n.includes(q) && !u.includes(q)) return false;
+                const g = String(l.group_name || '').toLowerCase();
+                if (!n.includes(q) && !u.includes(q) && !g.includes(q) && String(l.id || '') !== q) return false;
             }
+            if (groupTab === 'no_group' && l.group_id) return false;
+            if (groupTab === 'local_only' && l.type !== 'local') return false;
+            if (groupTab === 'redirect_only' && l.type !== 'redirect') return false;
+            // Any other tab value is a group id (compare as strings — the API
+            // may hand ids back as either).
+            if (!['all', 'no_group', 'local_only', 'redirect_only'].includes(groupTab)
+                && String(l.group_id || '') !== String(groupTab)) return false;
             if (typeFilter && String(l.type || '') !== typeFilter) return false;
             if (stateFilter && String(l.state || '') !== stateFilter) return false;
             return true;
         });
-    }, [landings, search, typeFilter, stateFilter]);
+    }, [landingList, search, typeFilter, stateFilter, groupTab]);
 
     const visibleLandings = filteredLandings;
+
+    // The paged slice the table renders. Totals footer and CSV export stay
+    // over the whole filtered list — paging must not change TOTAL.
+    const pagedLandings = useMemo(() => {
+        if (pageSize === 'All') return visibleLandings;
+        const start = currentPage * pageSize;
+        return visibleLandings.slice(start, start + pageSize);
+    }, [visibleLandings, currentPage, pageSize]);
+
+    // Any narrowing of the list must drop the user back to the first page.
+    useEffect(() => {
+        setCurrentPage(0);
+    }, [search, typeFilter, stateFilter, groupTab, pageSize]);
+    const selectedGroupValue = groupTab === 'no_group'
+        ? 'no_group'
+        : (!['all', 'local_only', 'redirect_only'].includes(groupTab) ? String(groupTab) : '');
 
     const toggleSelected = (id, checked) => {
         setSelectedLandingIds(prev => {
@@ -154,8 +252,11 @@ const Landings = ({ landings, refreshData }) => {
         try {
             await axios.post(`${API_URL}?action=bulk_delete_landings`, { ids });
             setSelectedLandingIds(new Set());
-            refreshData();
-        } catch (err) {
+            await Promise.all([
+                fetchLandings(),
+                Promise.resolve(refreshData?.()),
+            ]);
+        } catch {
             alert(t('common.error'));
         }
     };
@@ -197,18 +298,14 @@ const Landings = ({ landings, refreshData }) => {
 
     const handleRefresh = async () => {
         if (refreshing) return;
-        setRefreshing(true);
-        try {
-            await Promise.resolve(refreshData?.());
-        } finally {
-            setRefreshing(false);
-        }
+        await fetchLandings();
     };
 
     const handleEditorClose = (wasSaved) => {
         setIsEditorOpen(false);
         if (wasSaved) {
-            refreshData();
+            fetchLandings();
+            refreshData?.();
         }
     };
 
@@ -464,20 +561,11 @@ const Landings = ({ landings, refreshData }) => {
                     >
                         <Filter className="w-4 h-4" />
                         {t('editor.filters')}
-                        {(search || typeFilter || stateFilter) ? (
+                        {typeFilter ? (
                             <span className="ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full">
-                                {[search, typeFilter, stateFilter].filter(Boolean).length}
+                                1
                             </span>
                         ) : null}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleRefresh}
-                        className="btn btn-ghost btn-icon"
-                        title={t('common.refresh')}
-                        disabled={refreshing}
-                    >
-                        <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
                     </button>
                     <button type="button" className="btn btn-ghost btn-icon" title={t('common.settings')} onClick={() => setSettingsOpen(true)}>
                         <Settings2 className="w-5 h-5" />
@@ -485,18 +573,164 @@ const Landings = ({ landings, refreshData }) => {
                 </div>
             </div>
 
+            {/* Unified quick toolbar: reporting period, entity filters, refresh and search. */}
+            <div className="flex flex-wrap items-center justify-between gap-3 my-3 pb-3 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                <div className="flex flex-wrap items-center gap-2">
+                    <DateRangePicker
+                        dateFrom={dateFrom}
+                        dateTo={dateTo}
+                        onChange={handleDateChange}
+                        selectedTimezone={timezone}
+                        onTimezoneChange={setTimezone}
+                    />
+
+                    <select
+                        value={selectedGroupValue}
+                        onChange={(e) => setGroupTab(e.target.value || 'all')}
+                        className="form-select text-xs font-semibold py-2 px-3.5 rounded-xl transition-all"
+                        style={{
+                            backgroundColor: selectedGroupValue ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
+                            borderColor: selectedGroupValue ? 'var(--color-primary)' : 'var(--color-border)',
+                            color: selectedGroupValue ? 'var(--color-primary)' : 'var(--color-text-primary)',
+                            minWidth: '140px',
+                            width: 'auto',
+                        }}
+                    >
+                        <option value="">{t('campaigns.allGroups', 'All groups')}</option>
+                        {groupTabs.groups.map(g => (
+                            <option key={g.id} value={String(g.id)}>{g.name}</option>
+                        ))}
+                        <option value="no_group">{t('landings.noGroup', 'No group')}</option>
+                    </select>
+
+                    <select
+                        value={stateFilter}
+                        onChange={(e) => setStateFilter(e.target.value)}
+                        className="form-select text-xs font-semibold py-2 px-3.5 rounded-xl transition-all"
+                        style={{
+                            backgroundColor: stateFilter ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
+                            borderColor: stateFilter ? 'var(--color-primary)' : 'var(--color-border)',
+                            color: stateFilter ? 'var(--color-primary)' : 'var(--color-text-primary)',
+                            minWidth: '130px',
+                            width: 'auto',
+                        }}
+                    >
+                        <option value="">{t('landings.allStates', 'All states')}</option>
+                        <option value="active">🟢 {t('components.active', 'Active')}</option>
+                        <option value="archived">⚪ {t('offers.inactiveStates', 'Archived / Not active')}</option>
+                    </select>
+
+                    <button
+                        type="button"
+                        onClick={handleRefresh}
+                        disabled={refreshing}
+                        className="p-2.5 rounded-xl border flex items-center justify-center transition hover:opacity-80 disabled:opacity-50"
+                        style={{
+                            backgroundColor: 'var(--color-primary)',
+                            borderColor: 'var(--color-primary)',
+                            color: '#ffffff',
+                        }}
+                        title={t('common.refresh', 'Refresh')}
+                    >
+                        <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
+                    </button>
+
+                    {(selectedGroupValue || stateFilter) && (
+                        <button
+                            type="button"
+                            onClick={() => { setGroupTab('all'); setStateFilter(''); }}
+                            className="btn btn-ghost btn-sm text-xs"
+                            style={{ color: 'var(--color-danger)' }}
+                        >
+                            <X size={13} />
+                            {t('common.clear', 'Clear')}
+                        </button>
+                    )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <label htmlFor="landings-search" className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                        {t('common.search', 'Search')}:
+                    </label>
+                    <input
+                        id="landings-search"
+                        type="search"
+                        className="form-input text-xs py-1.5 px-3 rounded-xl"
+                        style={{ width: '200px' }}
+                        placeholder={t('landings.searchPlaceholder', 'Find landing...')}
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
+            </div>
+
+            {/* Group pill tabs — one-click narrowing to a group (White Pages,
+                COD, …) or a landing type; counts come from the rows. */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 mb-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                {[
+                    { key: 'all', label: t('common.all'), count: groupTabs.all },
+                    ...groupTabs.groups.map(g => ({
+                        key: g.id,
+                        label: g.name,
+                        count: g.count,
+                        icon: /white|safe|бел/i.test(g.name) ? '🛡' : (/cod|товар/i.test(g.name) ? '📦' : (/nutra|нутр/i.test(g.name) ? '💊' : null)),
+                    })),
+                    ...(groupTabs.noGroup > 0 ? [{ key: 'no_group', label: t('landings.noGroup'), count: groupTabs.noGroup }] : []),
+                ].map(tab => {
+                    const active = groupTab === tab.key;
+                    return (
+                        <button
+                            key={String(tab.key)}
+                            type="button"
+                            onClick={() => setGroupTab(active && tab.key === 'all' ? 'all' : tab.key)}
+                            className="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5"
+                            style={{
+                                backgroundColor: active ? 'var(--color-primary)' : 'var(--color-bg-card)',
+                                color: active ? '#ffffff' : 'var(--color-text-secondary)',
+                                border: `1px solid ${active ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {tab.icon && <span>{tab.icon}</span>}
+                            <span>{tab.label}</span>
+                            <span className="text-[10px] px-1.5 rounded-full" style={{ backgroundColor: active ? 'rgba(255,255,255,0.25)' : 'var(--color-bg-soft)' }}>
+                                {tab.count}
+                            </span>
+                        </button>
+                    );
+                })}
+
+                <div className="h-5 w-[1px] flex-shrink-0" style={{ backgroundColor: 'var(--color-border)' }} />
+
+                {[
+                    { key: 'local_only', label: t('landingEditor.typeLocal'), count: groupTabs.local },
+                    { key: 'redirect_only', label: t('landingEditor.typeRedirect'), count: groupTabs.redirect },
+                ].map(tab => {
+                    const active = groupTab === tab.key;
+                    return (
+                        <button
+                            key={tab.key}
+                            type="button"
+                            onClick={() => setGroupTab(active ? 'all' : tab.key)}
+                            className="px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5"
+                            style={{
+                                backgroundColor: active ? 'var(--color-primary-light)' : 'transparent',
+                                color: active ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                border: `1px solid ${active ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <span>{tab.key === 'local_only' ? '📁' : '🔗'} {tab.label}</span>
+                            <span className="text-[10px] px-1.5 rounded-full" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
+                                {tab.count}
+                            </span>
+                        </button>
+                    );
+                })}
+            </div>
+
             {showFilters && (
                 <div className="flex flex-wrap gap-4 items-center py-4 mb-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('common.search')}:</label>
-                        <input
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="form-input"
-                            style={{ width: 'auto', minWidth: '260px' }}
-                            placeholder={t('common.searchPlaceholder')}
-                        />
-                    </div>
                     <div className="flex items-center gap-2">
                         <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('components.type')}:</label>
                         <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="form-select" style={{ width: 'auto', minWidth: '140px' }}>
@@ -506,16 +740,8 @@ const Landings = ({ landings, refreshData }) => {
                             <option value="action">action</option>
                         </select>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('components.status')}:</label>
-                        <select value={stateFilter} onChange={(e) => setStateFilter(e.target.value)} className="form-select" style={{ width: 'auto', minWidth: '140px' }}>
-                            <option value="">{t('common.all')}</option>
-                            <option value="active">{t('components.active')}</option>
-                            <option value="archived">{t('components.archive')}</option>
-                        </select>
-                    </div>
-                    {(search || typeFilter || stateFilter) && (
-                        <button type="button" onClick={() => { setSearch(''); setTypeFilter(''); setStateFilter(''); }} className="btn btn-ghost btn-sm">
+                    {typeFilter && (
+                        <button type="button" onClick={() => setTypeFilter('')} className="btn btn-ghost btn-sm">
                             <X className="w-4 h-4" />
                             {t('common.clear')}
                         </button>
@@ -554,7 +780,7 @@ const Landings = ({ landings, refreshData }) => {
                                 </td>
                             </tr>
                         ) : (
-                            visibleLandings.map((landing) => (
+                            pagedLandings.map((landing) => (
                                 <tr key={landing.id}>
                                     <td>
                                         <input
@@ -598,6 +824,14 @@ const Landings = ({ landings, refreshData }) => {
                     )}
                 </table>
             </div>
+
+            <PaginationToolbar
+                totalRows={visibleLandings.length}
+                currentPage={currentPage}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(0); }}
+            />
 
             {isEditorOpen && (
                 <LandingEditor

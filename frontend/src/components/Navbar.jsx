@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Globe2, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles } from 'lucide-react';
+import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Globe2, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles, Zap } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { canAccessTab } from '../utils/permissions';
 
@@ -26,6 +26,32 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     }, []);
 
     const [theme, setTheme] = useState(localStorage.getItem('orbitra_mode') || 'light');
+    const [activeSuiteModule, setActiveSuiteModule] = useState(() => localStorage.getItem('orbitra_suite_module') || 'tracker');
+
+    useEffect(() => {
+        if (activeTab === 'leadforge') {
+            setActiveSuiteModule('leadforge');
+            localStorage.setItem('orbitra_suite_module', 'leadforge');
+        } else if (activeTab === 'crm') {
+            setActiveSuiteModule('crm');
+            localStorage.setItem('orbitra_suite_module', 'crm');
+        } else {
+            setActiveSuiteModule('tracker');
+            localStorage.setItem('orbitra_suite_module', 'tracker');
+        }
+    }, [activeTab]);
+
+    const handleSwitchModule = (mod) => {
+        setActiveSuiteModule(mod);
+        localStorage.setItem('orbitra_suite_module', mod);
+        if (mod === 'tracker') {
+            setActiveTab('dashboard');
+        } else if (mod === 'leadforge') {
+            setActiveTab('leadforge');
+        } else if (mod === 'crm') {
+            setActiveTab('crm');
+        }
+    };
 
     useEffect(() => {
         const handleStorageChange = () => {
@@ -102,41 +128,92 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     return (
         <div className="w-full fixed top-0 z-[1000] px-4 pt-4 md:px-6 md:pt-6 transition-all">
             <nav className="navbar-header h-[72px] flex items-center justify-between px-6 md:px-10 shadow-[var(--shadow-main)] bg-[var(--color-bg-card)] rounded-[24px] w-full mx-auto border-none transition-colors duration-300">
-                <div className="flex items-center space-x-3 md:space-x-6 h-full">
+                <div className="flex items-center space-x-3 md:space-x-5 h-full">
                     {/* Logo / Brand */}
-                    <div className="font-semibold text-xl mr-4 flex items-center cursor-pointer" onClick={() => setActiveTab('dashboard')} style={{ color: 'var(--color-text-primary)' }}>
+                    <div className="font-semibold text-xl mr-2 flex items-center cursor-pointer" onClick={() => setActiveTab('dashboard')} style={{ color: 'var(--color-text-primary)' }}>
                         Orbitra<span style={{ color: 'var(--color-primary)' }}>.link</span>
                     </div>
 
-                    {/* Navigation Links */}
-                    <div className="hidden md:flex space-x-2 h-full items-center">
-                        <NavItem icon={<LayoutDashboard size={18} />} label={t('nav.dashboard')} active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
-                        {canAccessTab(user, 'campaigns') && (
-                            <NavItem icon={<Tag size={18} />} label={t('nav.campaigns')} active={activeTab === 'campaigns'} onClick={() => setActiveTab('campaigns')} />
-                        )}
-                        {canAccessTab(user, 'landings') && (
-                            <NavItem icon={<Globe size={18} />} label={t('nav.landings')} active={activeTab === 'landings'} onClick={() => setActiveTab('landings')} />
-                        )}
-                        {canAccessTab(user, 'offers') && (
-                            <NavItem icon={<DollarSign size={18} />} label={t('nav.offers')} active={activeTab === 'offers'} onClick={() => setActiveTab('offers')} />
-                        )}
-                        {canAccessTab(user, 'networks') && (
-                            <NavItem icon={<Users size={18} />} label={t('nav.networks')} active={activeTab === 'networks'} onClick={() => setActiveTab('networks')} />
-                        )}
-                        {canAccessTab(user, 'sources') && (
-                            <NavItem icon={<Link size={18} />} label={t('nav.sources')} active={activeTab === 'sources'} onClick={() => setActiveTab('sources')} />
-                        )}
-                        <NavItem icon={<TrendingUp size={18} />} label={t('nav.analytics')} active={activeTab === 'trends'} onClick={() => setActiveTab('trends')} />
-                        {canAccessTab(user, 'domains') && (
-                            <NavItem icon={<Globe size={18} />} label={t('nav.domains')} active={activeTab === 'domains'} onClick={() => setActiveTab('domains')} />
-                        )}
-                        <NavItem icon={<Search size={18} />} label={t('nav.backorder')} active={activeTab === 'backorder'} onClick={() => setActiveTab('backorder')} />
+                    {/* Suite Switcher — icon-only capsule (~95px): the labels
+                        live in tooltips/aria, one click per switch stays. */}
+                    <div
+                        className="inline-flex p-0.5 rounded-full border items-center gap-0.5 shrink-0"
+                        role="radiogroup"
+                        aria-label="Suite module"
+                        style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}
+                    >
+                        {[
+                            { id: 'leadforge', label: t('suite.leadforge', 'LeadForge'), icon: <Zap size={14} /> },
+                            { id: 'tracker', label: t('suite.tracker', 'Tracker'), icon: <BarChart3 size={14} /> },
+                            { id: 'crm', label: t('suite.crm', 'CRM'), icon: <Users size={14} /> }
+                        ].map((mod) => {
+                            const isActive = activeSuiteModule === mod.id;
+                            return (
+                                <button
+                                    key={mod.id}
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={isActive}
+                                    onClick={() => handleSwitchModule(mod.id)}
+                                    aria-label={mod.label}
+                                    className="group relative w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer"
+                                    style={{
+                                        backgroundColor: isActive ? 'var(--color-primary)' : 'transparent',
+                                        color: isActive ? '#ffffff' : 'var(--color-text-muted)',
+                                        boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.18)' : 'none'
+                                    }}
+                                >
+                                    {mod.icon}
+                                    {/* Hover label — the icon-only capsule still
+                                        names its modules, theme-safe */}
+                                    <span
+                                        className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 rounded-lg text-[11px] font-medium whitespace-nowrap opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+                                        style={{
+                                            backgroundColor: 'var(--color-bg-card)',
+                                            border: '1px solid var(--color-border)',
+                                            color: 'var(--color-text-primary)',
+                                            boxShadow: 'var(--shadow-main)',
+                                            zIndex: 60
+                                        }}
+                                    >
+                                        {mod.label}
+                                    </span>
+                                </button>
+                            );
+                        })}
                     </div>
+
+                    {/* Navigation Links (Tracker Module) */}
+                    {activeSuiteModule === 'tracker' && (
+                        <div className="hidden xl:flex space-x-1.5 h-full items-center">
+                            <NavItem icon={<LayoutDashboard size={18} />} label={t('nav.dashboard')} active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+                            {canAccessTab(user, 'campaigns') && (
+                                <NavItem icon={<Tag size={18} />} label={t('nav.campaigns')} active={activeTab === 'campaigns'} onClick={() => setActiveTab('campaigns')} />
+                            )}
+                            {canAccessTab(user, 'landings') && (
+                                <NavItem icon={<Globe size={18} />} label={t('nav.landings')} active={activeTab === 'landings'} onClick={() => setActiveTab('landings')} />
+                            )}
+                            {canAccessTab(user, 'offers') && (
+                                <NavItem icon={<DollarSign size={18} />} label={t('nav.offers')} active={activeTab === 'offers'} onClick={() => setActiveTab('offers')} />
+                            )}
+                            {canAccessTab(user, 'networks') && (
+                                <NavItem icon={<Users size={18} />} label={t('nav.networks')} active={activeTab === 'networks'} onClick={() => setActiveTab('networks')} />
+                            )}
+                            {canAccessTab(user, 'sources') && (
+                                <NavItem icon={<Link size={18} />} label={t('nav.sources')} active={activeTab === 'sources'} onClick={() => setActiveTab('sources')} />
+                            )}
+                            <NavItem icon={<TrendingUp size={18} />} label={t('nav.analytics')} active={activeTab === 'trends'} onClick={() => setActiveTab('trends')} />
+                            {canAccessTab(user, 'domains') && (
+                                <NavItem icon={<Globe size={18} />} label={t('nav.domains')} active={activeTab === 'domains'} onClick={() => setActiveTab('domains')} />
+                            )}
+                            <NavItem icon={<Search size={18} />} label={t('nav.backorder')} active={activeTab === 'backorder'} onClick={() => setActiveTab('backorder')} />
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex items-center space-x-2 md:space-x-4">
                     {/* Desktop icons */}
-                    <div className="hidden md:flex items-center space-x-4">
+                    <div className="hidden xl:flex items-center space-x-4">
                         {/* Settings Menu (shown only when the user may open at least one entry) */}
                         {visibleAdminMenuItems.length > 0 && (
                             <div className="relative" ref={adminMenuRef}>
@@ -228,9 +305,11 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
 
                     {/* Burger button (mobile only) */}
                     <button
-                        className="md:hidden p-2 -mr-2 rounded-xl transition"
+                        type="button"
+                        className="xl:hidden p-2 -mr-2 rounded-xl transition flex items-center justify-center"
                         style={{ color: 'var(--color-text-secondary)' }}
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        aria-label="Toggle navigation menu"
                     >
                         {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
                     </button>
@@ -241,12 +320,12 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
             {mobileMenuOpen && (
                 <>
                     <div
-                        className="md:hidden fixed inset-0 bg-black/40 z-[999]"
+                        className="xl:hidden fixed inset-0 bg-black/40 z-[999]"
                         onClick={() => setMobileMenuOpen(false)}
                         style={{ top: 0 }}
                     />
                     <div
-                        className="md:hidden fixed right-0 top-0 bottom-0 z-[1001] overflow-y-auto"
+                        className="xl:hidden fixed right-0 top-0 bottom-0 z-[1001] overflow-y-auto"
                         style={{
                             width: '280px',
                             background: 'var(--color-bg-card)',
@@ -255,7 +334,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                             animation: 'slideInRight 0.25s ease-out'
                         }}
                     >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                             <span className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>
                                 Orbitra<span style={{ color: 'var(--color-primary)' }}>.link</span>
                             </span>
@@ -264,27 +343,63 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                             </button>
                         </div>
 
-                        {/* Nav items */}
+                        {/* Mobile Suite Switcher */}
                         <div style={{ marginBottom: '16px' }}>
-                            <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', paddingLeft: '12px' }}>{t('nav.navigation') || 'Navigation'}</p>
-                            {mobileNavItems.filter(item => canAccessTab(user, item.tab)).map(item => (
-                                <button
-                                    key={item.tab}
-                                    onClick={() => handleMenuClick(item.tab)}
-                                    style={{
-                                        display: 'flex', alignItems: 'center', gap: '12px', width: '100%',
-                                        padding: '10px 12px', borderRadius: '14px', border: 'none',
-                                        cursor: 'pointer', fontSize: '14px', fontWeight: 500, textAlign: 'left',
-                                        background: activeTab === item.tab ? 'var(--color-primary-light)' : 'transparent',
-                                        color: activeTab === item.tab ? 'var(--color-primary)' : 'var(--color-text-primary)',
-                                        marginBottom: '2px', transition: 'all 0.2s ease'
-                                    }}
-                                >
-                                    <span style={{ color: activeTab === item.tab ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>{item.icon}</span>
-                                    {item.label}
-                                </button>
-                            ))}
+                            <div
+                                className="flex p-1 rounded-full border items-center justify-between gap-1 w-full"
+                                style={{ backgroundColor: 'var(--color-bg-main)', borderColor: 'var(--color-border)' }}
+                            >
+                                {[
+                                    { id: 'leadforge', label: 'LeadForge' },
+                                    { id: 'tracker', label: 'Tracker' },
+                                    { id: 'crm', label: 'CRM' }
+                                ].map((mod) => {
+                                    const isActive = activeSuiteModule === mod.id;
+                                    return (
+                                        <button
+                                            key={mod.id}
+                                            type="button"
+                                            onClick={() => {
+                                                handleSwitchModule(mod.id);
+                                                setMobileMenuOpen(false);
+                                            }}
+                                            className="flex-1 py-1.5 rounded-full text-xs font-semibold transition-all text-center cursor-pointer"
+                                            style={{
+                                                backgroundColor: isActive ? 'var(--color-primary)' : 'transparent',
+                                                color: isActive ? '#ffffff' : 'var(--color-text-secondary)',
+                                                boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.18)' : 'none'
+                                            }}
+                                        >
+                                            {mod.label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
+
+                        {/* Nav items */}
+                        {activeSuiteModule === 'tracker' && (
+                            <div style={{ marginBottom: '16px' }}>
+                                <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', paddingLeft: '12px' }}>{t('nav.navigation') || 'Navigation'}</p>
+                                {mobileNavItems.filter(item => canAccessTab(user, item.tab)).map(item => (
+                                    <button
+                                        key={item.tab}
+                                        onClick={() => handleMenuClick(item.tab)}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '12px', width: '100%',
+                                            padding: '10px 12px', borderRadius: '14px', border: 'none',
+                                            cursor: 'pointer', fontSize: '14px', fontWeight: 500, textAlign: 'left',
+                                            background: activeTab === item.tab ? 'var(--color-primary-light)' : 'transparent',
+                                            color: activeTab === item.tab ? 'var(--color-primary)' : 'var(--color-text-primary)',
+                                            marginBottom: '2px', transition: 'all 0.2s ease'
+                                        }}
+                                    >
+                                        <span style={{ color: activeTab === item.tab ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>{item.icon}</span>
+                                        {item.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
                         <div style={{ height: '1px', background: 'var(--color-border)', margin: '12px 0' }} />
 
@@ -347,7 +462,7 @@ const NavItem = ({ icon, label, active, onClick }) => {
     return (
         <div
             onClick={onClick}
-            className={`flex items-center space-x-2 px-3 lg:px-4 py-2 m-1 rounded-2xl cursor-pointer transition-all text-sm font-medium whitespace-nowrap leading-none
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl cursor-pointer transition-all text-xs font-semibold whitespace-nowrap leading-none
                 ${active
                     ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
                     : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]'

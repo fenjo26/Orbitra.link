@@ -1567,6 +1567,37 @@ if ($uriPath !== null && preg_match('#^/lander/([A-Za-z0-9][A-Za-z0-9_-]{0,63})(
 // The offer cookie wins when both are set: a visitor who clicked from a local
 // landing to a local offer is now on the offer's page, so its assets resolve
 // against offers/<id>, not against the landing they came from.
+// Local-offer / local-landing order bridge (LeadForge): the generated
+// order.php and thank_you.php are form handlers no static server can run. The
+// asset passthrough below deliberately never serves .php, so they get the same
+// in-process execution the landing's own index.php gets — gated by the same
+// "Allow PHP landings" switch and execution budget. The cookies say which
+// uploaded page the visitor is actually on (offer wins, as with assets).
+if ($uriPath !== null) {
+    $orbitraBridgeFile = strtolower(basename(parse_url($uriPath, PHP_URL_PATH) ?? ''));
+    if (in_array($orbitraBridgeFile, ['order.php', 'thank_you.php'], true)) {
+        $orbitraBridgeRoot = '';
+        if (!empty($_COOKIE['orbitra_lo']) && orbitraOfferIsLocal($pdo, (int) $_COOKIE['orbitra_lo'])) {
+            $orbitraBridgeRoot = orbitraLandingContentDir(orbitraOfferDir((int) $_COOKIE['orbitra_lo']));
+        } elseif (!empty($_COOKIE['orbitra_lp'])) {
+            $orbitraBridgeRoot = orbitraLandingContentDir(orbitraLandingDir($pdo, (int) $_COOKIE['orbitra_lp']));
+        }
+        if ($orbitraBridgeRoot !== '' && is_file($orbitraBridgeRoot . '/' . $orbitraBridgeFile)) {
+            require_once __DIR__ . '/core/PhpLanding.php';
+            if (!PhpLanding::enabled($pdo)) {
+                http_response_code(503);
+                header('Content-Type: text/plain; charset=utf-8');
+                echo 'This page has an order handler written in PHP, which is disabled on this tracker. '
+                    . 'Enable it in Settings -> General -> "Allow PHP landings".';
+                exit;
+            }
+            @set_time_limit(PhpLanding::timeout($pdo));
+            require $orbitraBridgeRoot . '/' . $orbitraBridgeFile;
+            exit;
+        }
+    }
+}
+
 if (!empty($_COOKIE['orbitra_lo']) && $uriPath !== null && $uriPath !== '/') {
     serveOfferAsset((int) $_COOKIE['orbitra_lo'], $uriPath);
 }

@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1P = [
+const __iconNode$1V = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$1P = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1P);
-const __iconNode$1O = [
+const Activity = createLucideIcon("activity", __iconNode$1V);
+const __iconNode$1U = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1O);
-const __iconNode$1N = [
+const Archive = createLucideIcon("archive", __iconNode$1U);
+const __iconNode$1T = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1N);
-const __iconNode$1M = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1T);
+const __iconNode$1S = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1M);
-const __iconNode$1L = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1S);
+const __iconNode$1R = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1L);
-const __iconNode$1K = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1R);
+const __iconNode$1Q = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$1K = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1K);
-const __iconNode$1J = [
+const BellOff = createLucideIcon("bell-off", __iconNode$1Q);
+const __iconNode$1P = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$1J = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1J);
-const __iconNode$1I = [
+const Bell = createLucideIcon("bell", __iconNode$1P);
+const __iconNode$1O = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1I);
-const __iconNode$1H = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$1O);
+const __iconNode$1N = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1H);
-const __iconNode$1G = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1N);
+const __iconNode$1M = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1G);
-const __iconNode$1F = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1M);
+const __iconNode$1L = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$1F = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1F);
-const __iconNode$1E = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1E);
-const __iconNode$1D = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1D);
-const __iconNode$1C = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1C);
-const __iconNode$1B = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1B);
-const __iconNode$1A = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1A);
-const __iconNode$1z = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1L);
+const __iconNode$1K = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1K);
+const __iconNode$1J = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1J);
+const __iconNode$1I = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1I);
+const __iconNode$1H = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1H);
+const __iconNode$1G = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1G);
+const __iconNode$1F = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1z);
-const __iconNode$1y = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1F);
+const __iconNode$1E = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1y);
-const __iconNode$1x = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1E);
+const __iconNode$1D = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1x);
-const __iconNode$1w = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1D);
+const __iconNode$1C = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1w);
-const __iconNode$1v = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1C);
+const __iconNode$1B = [
   [
     "path",
     {
@@ -15240,45 +15240,50 @@ const __iconNode$1v = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1v);
-const __iconNode$1u = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1B);
+const __iconNode$1A = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1u);
-const __iconNode$1t = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1A);
+const __iconNode$1z = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1t);
-const __iconNode$1s = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1z);
+const __iconNode$1y = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1s);
-const __iconNode$1r = [
+const Clock = createLucideIcon("clock", __iconNode$1y);
+const __iconNode$1x = [
   ["path", { d: "M12 13v8", key: "1l5pq0" }],
   ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
   ["path", { d: "m8 17 4-4 4 4", key: "1quai1" }]
 ];
-const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1r);
-const __iconNode$1q = [
+const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1x);
+const __iconNode$1w = [
   ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1q);
-const __iconNode$1p = [
+const Cloud = createLucideIcon("cloud", __iconNode$1w);
+const __iconNode$1v = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1p);
-const __iconNode$1o = [
+const Code = createLucideIcon("code", __iconNode$1v);
+const __iconNode$1u = [
+  ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
+  ["path", { d: "M12 3v18", key: "108xh3" }]
+];
+const Columns2 = createLucideIcon("columns-2", __iconNode$1u);
+const __iconNode$1t = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1o);
-const __iconNode$1n = [
+const Copy = createLucideIcon("copy", __iconNode$1t);
+const __iconNode$1s = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15294,25 +15299,25 @@ const __iconNode$1n = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1n);
-const __iconNode$1m = [
+const Cpu = createLucideIcon("cpu", __iconNode$1s);
+const __iconNode$1r = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1m);
-const __iconNode$1l = [
+const Database = createLucideIcon("database", __iconNode$1r);
+const __iconNode$1q = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$1l);
-const __iconNode$1k = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1q);
+const __iconNode$1p = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$1k);
-const __iconNode$1j = [
+const Download = createLucideIcon("download", __iconNode$1p);
+const __iconNode$1o = [
   [
     "path",
     {
@@ -15321,20 +15326,20 @@ const __iconNode$1j = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$1j);
-const __iconNode$1i = [
+const Droplet = createLucideIcon("droplet", __iconNode$1o);
+const __iconNode$1n = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1i);
-const __iconNode$1h = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1n);
+const __iconNode$1m = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$1h);
-const __iconNode$1g = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$1m);
+const __iconNode$1l = [
   [
     "path",
     {
@@ -15352,8 +15357,8 @@ const __iconNode$1g = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$1g);
-const __iconNode$1f = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$1l);
+const __iconNode$1k = [
   [
     "path",
     {
@@ -15363,8 +15368,8 @@ const __iconNode$1f = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$1f);
-const __iconNode$1e = [
+const Eye = createLucideIcon("eye", __iconNode$1k);
+const __iconNode$1j = [
   [
     "path",
     {
@@ -15378,8 +15383,21 @@ const __iconNode$1e = [
   ["path", { d: "M8 7V6", key: "1nbb54" }],
   ["circle", { cx: "8", cy: "20", r: "2", key: "ckkr5m" }]
 ];
-const FileArchive = createLucideIcon("file-archive", __iconNode$1e);
-const __iconNode$1d = [
+const FileArchive = createLucideIcon("file-archive", __iconNode$1j);
+const __iconNode$1i = [
+  [
+    "path",
+    {
+      d: "M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z",
+      key: "1oefj6"
+    }
+  ],
+  ["path", { d: "M14 2v5a1 1 0 0 0 1 1h5", key: "wfsgrz" }],
+  ["path", { d: "M10 12.5 8 15l2 2.5", key: "1tg20x" }],
+  ["path", { d: "m14 12.5 2 2.5-2 2.5", key: "yinavb" }]
+];
+const FileCode = createLucideIcon("file-code", __iconNode$1i);
+const __iconNode$1h = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15390,8 +15408,8 @@ const __iconNode$1d = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$1d);
-const __iconNode$1c = [
+const FileStack = createLucideIcon("file-stack", __iconNode$1h);
+const __iconNode$1g = [
   [
     "path",
     {
@@ -15404,8 +15422,8 @@ const __iconNode$1c = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$1c);
-const __iconNode$1b = [
+const FileText = createLucideIcon("file-text", __iconNode$1g);
+const __iconNode$1f = [
   [
     "path",
     {
@@ -15414,22 +15432,22 @@ const __iconNode$1b = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$1b);
-const __iconNode$1a = [
+const Funnel = createLucideIcon("funnel", __iconNode$1f);
+const __iconNode$1e = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$1a);
-const __iconNode$19 = [
+const Globe = createLucideIcon("globe", __iconNode$1e);
+const __iconNode$1d = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }],
   ["path", { d: "M9 3v18", key: "fh3hqa" }],
   ["path", { d: "M15 3v18", key: "14nvp0" }]
 ];
-const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$19);
-const __iconNode$18 = [
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1d);
+const __iconNode$1c = [
   ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
   ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
   ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
@@ -15437,8 +15455,8 @@ const __iconNode$18 = [
   ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
   ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
 ];
-const GripVertical = createLucideIcon("grip-vertical", __iconNode$18);
-const __iconNode$17 = [
+const GripVertical = createLucideIcon("grip-vertical", __iconNode$1c);
+const __iconNode$1b = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15450,8 +15468,8 @@ const __iconNode$17 = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$17);
-const __iconNode$16 = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$1b);
+const __iconNode$1a = [
   [
     "path",
     {
@@ -15460,20 +15478,20 @@ const __iconNode$16 = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$16);
-const __iconNode$15 = [
+const Heart = createLucideIcon("heart", __iconNode$1a);
+const __iconNode$19 = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$15);
-const __iconNode$14 = [
+const Image = createLucideIcon("image", __iconNode$19);
+const __iconNode$18 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$14);
-const __iconNode$13 = [
+const Info = createLucideIcon("info", __iconNode$18);
+const __iconNode$17 = [
   [
     "path",
     {
@@ -15483,14 +15501,14 @@ const __iconNode$13 = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$13);
-const __iconNode$12 = [
+const KeyRound = createLucideIcon("key-round", __iconNode$17);
+const __iconNode$16 = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$12);
-const __iconNode$11 = [
+const Key = createLucideIcon("key", __iconNode$16);
+const __iconNode$15 = [
   [
     "path",
     {
@@ -15513,28 +15531,28 @@ const __iconNode$11 = [
     }
   ]
 ];
-const Layers = createLucideIcon("layers", __iconNode$11);
-const __iconNode$10 = [
+const Layers = createLucideIcon("layers", __iconNode$15);
+const __iconNode$14 = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$10);
-const __iconNode$$ = [
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$14);
+const __iconNode$13 = [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
   ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
   ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
 ];
-const LayoutGrid = createLucideIcon("layout-grid", __iconNode$$);
-const __iconNode$_ = [
+const LayoutGrid = createLucideIcon("layout-grid", __iconNode$13);
+const __iconNode$12 = [
   ["rect", { width: "18", height: "7", x: "3", y: "3", rx: "1", key: "f1a2em" }],
   ["rect", { width: "9", height: "7", x: "3", y: "14", rx: "1", key: "jqznyg" }],
   ["rect", { width: "5", height: "7", x: "16", y: "14", rx: "1", key: "q5h2i8" }]
 ];
-const LayoutTemplate = createLucideIcon("layout-template", __iconNode$_);
-const __iconNode$Z = [
+const LayoutTemplate = createLucideIcon("layout-template", __iconNode$12);
+const __iconNode$11 = [
   [
     "path",
     {
@@ -15545,19 +15563,19 @@ const __iconNode$Z = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$Z);
-const __iconNode$Y = [
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$11);
+const __iconNode$10 = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-const Link2 = createLucideIcon("link-2", __iconNode$Y);
-const __iconNode$X = [
+const Link2 = createLucideIcon("link-2", __iconNode$10);
+const __iconNode$$ = [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ];
-const Link = createLucideIcon("link", __iconNode$X);
-const __iconNode$W = [
+const Link = createLucideIcon("link", __iconNode$$);
+const __iconNode$_ = [
   ["path", { d: "M12 2v4", key: "3427ic" }],
   ["path", { d: "m16.2 7.8 2.9-2.9", key: "r700ao" }],
   ["path", { d: "M18 12h4", key: "wj9ykh" }],
@@ -15567,24 +15585,24 @@ const __iconNode$W = [
   ["path", { d: "M2 12h4", key: "j09sii" }],
   ["path", { d: "m4.9 4.9 2.9 2.9", key: "giyufr" }]
 ];
-const Loader = createLucideIcon("loader", __iconNode$W);
-const __iconNode$V = [
+const Loader = createLucideIcon("loader", __iconNode$_);
+const __iconNode$Z = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$V);
-const __iconNode$U = [
+const Lock = createLucideIcon("lock", __iconNode$Z);
+const __iconNode$Y = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$U);
-const __iconNode$T = [
+const LogOut = createLucideIcon("log-out", __iconNode$Y);
+const __iconNode$X = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Mail = createLucideIcon("mail", __iconNode$T);
-const __iconNode$S = [
+const Mail = createLucideIcon("mail", __iconNode$X);
+const __iconNode$W = [
   [
     "path",
     {
@@ -15594,8 +15612,8 @@ const __iconNode$S = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$S);
-const __iconNode$R = [
+const MapPin = createLucideIcon("map-pin", __iconNode$W);
+const __iconNode$V = [
   [
     "path",
     {
@@ -15606,14 +15624,21 @@ const __iconNode$R = [
   ["path", { d: "M15 5.764v15", key: "1pn4in" }],
   ["path", { d: "M9 3.236v15", key: "1uimfh" }]
 ];
-const Map$1 = createLucideIcon("map", __iconNode$R);
-const __iconNode$Q = [
+const Map$1 = createLucideIcon("map", __iconNode$V);
+const __iconNode$U = [
+  ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
+  ["path", { d: "m21 3-7 7", key: "1l2asr" }],
+  ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
+  ["path", { d: "M9 21H3v-6", key: "wtvkvv" }]
+];
+const Maximize2 = createLucideIcon("maximize-2", __iconNode$U);
+const __iconNode$T = [
   ["path", { d: "M4 5h16", key: "1tepv9" }],
   ["path", { d: "M4 12h16", key: "1lakjw" }],
   ["path", { d: "M4 19h16", key: "1djgab" }]
 ];
-const Menu = createLucideIcon("menu", __iconNode$Q);
-const __iconNode$P = [
+const Menu = createLucideIcon("menu", __iconNode$T);
+const __iconNode$S = [
   [
     "path",
     {
@@ -15622,8 +15647,8 @@ const __iconNode$P = [
     }
   ]
 ];
-const MessageCircle = createLucideIcon("message-circle", __iconNode$P);
-const __iconNode$O = [
+const MessageCircle = createLucideIcon("message-circle", __iconNode$S);
+const __iconNode$R = [
   [
     "path",
     {
@@ -15632,14 +15657,21 @@ const __iconNode$O = [
     }
   ]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$O);
-const __iconNode$N = [
+const MessageSquare = createLucideIcon("message-square", __iconNode$R);
+const __iconNode$Q = [
+  ["path", { d: "m14 10 7-7", key: "oa77jy" }],
+  ["path", { d: "M20 10h-6V4", key: "mjg0md" }],
+  ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
+  ["path", { d: "M4 14h6v6", key: "rmj7iw" }]
+];
+const Minimize2 = createLucideIcon("minimize-2", __iconNode$Q);
+const __iconNode$P = [
   ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
   ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
   ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
 ];
-const Monitor = createLucideIcon("monitor", __iconNode$N);
-const __iconNode$M = [
+const Monitor = createLucideIcon("monitor", __iconNode$P);
+const __iconNode$O = [
   [
     "path",
     {
@@ -15648,8 +15680,8 @@ const __iconNode$M = [
     }
   ]
 ];
-const Moon = createLucideIcon("moon", __iconNode$M);
-const __iconNode$L = [
+const Moon = createLucideIcon("moon", __iconNode$O);
+const __iconNode$N = [
   ["path", { d: "M12 22v-9", key: "x3hkom" }],
   [
     "path",
@@ -15673,8 +15705,8 @@ const __iconNode$L = [
     }
   ]
 ];
-const PackageOpen = createLucideIcon("package-open", __iconNode$L);
-const __iconNode$K = [
+const PackageOpen = createLucideIcon("package-open", __iconNode$N);
+const __iconNode$M = [
   [
     "path",
     {
@@ -15687,8 +15719,8 @@ const __iconNode$K = [
   ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
   ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
 ];
-const Palette = createLucideIcon("palette", __iconNode$K);
-const __iconNode$J = [
+const Palette = createLucideIcon("palette", __iconNode$M);
+const __iconNode$L = [
   ["path", { d: "M13 21h8", key: "1jsn5i" }],
   [
     "path",
@@ -15698,8 +15730,8 @@ const __iconNode$J = [
     }
   ]
 ];
-const PenLine = createLucideIcon("pen-line", __iconNode$J);
-const __iconNode$I = [
+const PenLine = createLucideIcon("pen-line", __iconNode$L);
+const __iconNode$K = [
   [
     "path",
     {
@@ -15708,8 +15740,8 @@ const __iconNode$I = [
     }
   ]
 ];
-const Pen = createLucideIcon("pen", __iconNode$I);
-const __iconNode$H = [
+const Pen = createLucideIcon("pen", __iconNode$K);
+const __iconNode$J = [
   [
     "path",
     {
@@ -15719,8 +15751,8 @@ const __iconNode$H = [
   ],
   ["path", { d: "m15 5 4 4", key: "1mk7zo" }]
 ];
-const Pencil = createLucideIcon("pencil", __iconNode$H);
-const __iconNode$G = [
+const Pencil = createLucideIcon("pencil", __iconNode$J);
+const __iconNode$I = [
   [
     "path",
     {
@@ -15729,8 +15761,8 @@ const __iconNode$G = [
     }
   ]
 ];
-const Play = createLucideIcon("play", __iconNode$G);
-const __iconNode$F = [
+const Play = createLucideIcon("play", __iconNode$I);
+const __iconNode$H = [
   ["path", { d: "M12 22v-5", key: "1ega77" }],
   ["path", { d: "M15 8V2", key: "18g5xt" }],
   [
@@ -15739,30 +15771,30 @@ const __iconNode$F = [
   ],
   ["path", { d: "M9 8V2", key: "14iosj" }]
 ];
-const Plug = createLucideIcon("plug", __iconNode$F);
-const __iconNode$E = [
+const Plug = createLucideIcon("plug", __iconNode$H);
+const __iconNode$G = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ];
-const Plus = createLucideIcon("plus", __iconNode$E);
-const __iconNode$D = [
+const Plus = createLucideIcon("plus", __iconNode$G);
+const __iconNode$F = [
   ["path", { d: "M12 2v10", key: "mnfbl" }],
   ["path", { d: "M18.4 6.6a9 9 0 1 1-12.77.04", key: "obofu9" }]
 ];
-const Power = createLucideIcon("power", __iconNode$D);
-const __iconNode$C = [
+const Power = createLucideIcon("power", __iconNode$F);
+const __iconNode$E = [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
   ["path", { d: "M8 16H3v5", key: "1cv678" }]
 ];
-const RefreshCw = createLucideIcon("refresh-cw", __iconNode$C);
-const __iconNode$B = [
+const RefreshCw = createLucideIcon("refresh-cw", __iconNode$E);
+const __iconNode$D = [
   ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
   ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
 ];
-const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$B);
-const __iconNode$A = [
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$D);
+const __iconNode$C = [
   [
     "path",
     {
@@ -15773,13 +15805,13 @@ const __iconNode$A = [
   ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
   ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
 ];
-const Save = createLucideIcon("save", __iconNode$A);
-const __iconNode$z = [
+const Save = createLucideIcon("save", __iconNode$C);
+const __iconNode$B = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
-const Search = createLucideIcon("search", __iconNode$z);
-const __iconNode$y = [
+const Search = createLucideIcon("search", __iconNode$B);
+const __iconNode$A = [
   [
     "path",
     {
@@ -15789,8 +15821,8 @@ const __iconNode$y = [
   ],
   ["path", { d: "m21.854 2.147-10.94 10.939", key: "12cjpa" }]
 ];
-const Send = createLucideIcon("send", __iconNode$y);
-const __iconNode$x = [
+const Send = createLucideIcon("send", __iconNode$A);
+const __iconNode$z = [
   [
     "path",
     {
@@ -15809,22 +15841,22 @@ const __iconNode$x = [
   ["path", { d: "M6 18h.01", key: "uhywen" }],
   ["path", { d: "m13 6-4 6h6l-4 6", key: "14hqih" }]
 ];
-const ServerCrash = createLucideIcon("server-crash", __iconNode$x);
-const __iconNode$w = [
+const ServerCrash = createLucideIcon("server-crash", __iconNode$z);
+const __iconNode$y = [
   ["rect", { width: "20", height: "8", x: "2", y: "2", rx: "2", ry: "2", key: "ngkwjq" }],
   ["rect", { width: "20", height: "8", x: "2", y: "14", rx: "2", ry: "2", key: "iecqi9" }],
   ["line", { x1: "6", x2: "6.01", y1: "6", y2: "6", key: "16zg32" }],
   ["line", { x1: "6", x2: "6.01", y1: "18", y2: "18", key: "nzw8ys" }]
 ];
-const Server = createLucideIcon("server", __iconNode$w);
-const __iconNode$v = [
+const Server = createLucideIcon("server", __iconNode$y);
+const __iconNode$x = [
   ["path", { d: "M14 17H5", key: "gfn3mx" }],
   ["path", { d: "M19 7h-9", key: "6i9tg" }],
   ["circle", { cx: "17", cy: "17", r: "3", key: "18b49y" }],
   ["circle", { cx: "7", cy: "7", r: "3", key: "dfmy0x" }]
 ];
-const Settings2 = createLucideIcon("settings-2", __iconNode$v);
-const __iconNode$u = [
+const Settings2 = createLucideIcon("settings-2", __iconNode$x);
+const __iconNode$w = [
   [
     "path",
     {
@@ -15834,8 +15866,8 @@ const __iconNode$u = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Settings$1 = createLucideIcon("settings", __iconNode$u);
-const __iconNode$t = [
+const Settings$1 = createLucideIcon("settings", __iconNode$w);
+const __iconNode$v = [
   [
     "path",
     {
@@ -15846,8 +15878,8 @@ const __iconNode$t = [
   ["path", { d: "M12 8v4", key: "1got3b" }],
   ["path", { d: "M12 16h.01", key: "1drbdi" }]
 ];
-const ShieldAlert = createLucideIcon("shield-alert", __iconNode$t);
-const __iconNode$s = [
+const ShieldAlert = createLucideIcon("shield-alert", __iconNode$v);
+const __iconNode$u = [
   [
     "path",
     {
@@ -15857,8 +15889,8 @@ const __iconNode$s = [
   ],
   ["path", { d: "m4.243 5.21 14.39 12.472", key: "1c9a7c" }]
 ];
-const ShieldBan = createLucideIcon("shield-ban", __iconNode$s);
-const __iconNode$r = [
+const ShieldBan = createLucideIcon("shield-ban", __iconNode$u);
+const __iconNode$t = [
   [
     "path",
     {
@@ -15867,8 +15899,8 @@ const __iconNode$r = [
     }
   ]
 ];
-const Shield = createLucideIcon("shield", __iconNode$r);
-const __iconNode$q = [
+const Shield = createLucideIcon("shield", __iconNode$t);
+const __iconNode$s = [
   ["circle", { cx: "8", cy: "21", r: "1", key: "jimo8o" }],
   ["circle", { cx: "19", cy: "21", r: "1", key: "13723u" }],
   [
@@ -15879,8 +15911,8 @@ const __iconNode$q = [
     }
   ]
 ];
-const ShoppingCart = createLucideIcon("shopping-cart", __iconNode$q);
-const __iconNode$p = [
+const ShoppingCart = createLucideIcon("shopping-cart", __iconNode$s);
+const __iconNode$r = [
   ["path", { d: "M10 5H3", key: "1qgfaw" }],
   ["path", { d: "M12 19H3", key: "yhmn1j" }],
   ["path", { d: "M14 3v4", key: "1sua03" }],
@@ -15891,8 +15923,8 @@ const __iconNode$p = [
   ["path", { d: "M8 10v4", key: "tgpxqk" }],
   ["path", { d: "M8 12H3", key: "a7s4jb" }]
 ];
-const SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode$p);
-const __iconNode$o = [
+const SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode$r);
+const __iconNode$q = [
   ["path", { d: "M10 8h4", key: "1sr2af" }],
   ["path", { d: "M12 21v-9", key: "17s77i" }],
   ["path", { d: "M12 8V3", key: "13r4qs" }],
@@ -15903,13 +15935,13 @@ const __iconNode$o = [
   ["path", { d: "M5 10V3", key: "cb8scm" }],
   ["path", { d: "M5 21v-7", key: "1w1uti" }]
 ];
-const SlidersVertical = createLucideIcon("sliders-vertical", __iconNode$o);
-const __iconNode$n = [
+const SlidersVertical = createLucideIcon("sliders-vertical", __iconNode$q);
+const __iconNode$p = [
   ["rect", { width: "14", height: "20", x: "5", y: "2", rx: "2", ry: "2", key: "1yt0o3" }],
   ["path", { d: "M12 18h.01", key: "mhygvu" }]
 ];
-const Smartphone = createLucideIcon("smartphone", __iconNode$n);
-const __iconNode$m = [
+const Smartphone = createLucideIcon("smartphone", __iconNode$p);
+const __iconNode$o = [
   [
     "path",
     {
@@ -15921,8 +15953,8 @@ const __iconNode$m = [
   ["path", { d: "M22 4h-4", key: "gwowj6" }],
   ["circle", { cx: "4", cy: "20", r: "2", key: "6kqj1y" }]
 ];
-const Sparkles = createLucideIcon("sparkles", __iconNode$m);
-const __iconNode$l = [
+const Sparkles = createLucideIcon("sparkles", __iconNode$o);
+const __iconNode$n = [
   ["path", { d: "M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7", key: "1m0v6g" }],
   [
     "path",
@@ -15932,14 +15964,14 @@ const __iconNode$l = [
     }
   ]
 ];
-const SquarePen = createLucideIcon("square-pen", __iconNode$l);
-const __iconNode$k = [
+const SquarePen = createLucideIcon("square-pen", __iconNode$n);
+const __iconNode$m = [
   ["path", { d: "m7 11 2-2-2-2", key: "1lz0vl" }],
   ["path", { d: "M11 13h4", key: "1p7l4v" }],
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }]
 ];
-const SquareTerminal = createLucideIcon("square-terminal", __iconNode$k);
-const __iconNode$j = [
+const SquareTerminal = createLucideIcon("square-terminal", __iconNode$m);
+const __iconNode$l = [
   [
     "path",
     {
@@ -15948,8 +15980,8 @@ const __iconNode$j = [
     }
   ]
 ];
-const Star = createLucideIcon("star", __iconNode$j);
-const __iconNode$i = [
+const Star = createLucideIcon("star", __iconNode$l);
+const __iconNode$k = [
   ["circle", { cx: "12", cy: "12", r: "4", key: "4exip2" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
@@ -15960,8 +15992,8 @@ const __iconNode$i = [
   ["path", { d: "m6.34 17.66-1.41 1.41", key: "1m8zz5" }],
   ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }]
 ];
-const Sun = createLucideIcon("sun", __iconNode$i);
-const __iconNode$h = [
+const Sun = createLucideIcon("sun", __iconNode$k);
+const __iconNode$j = [
   [
     "path",
     {
@@ -15970,15 +16002,15 @@ const __iconNode$h = [
     }
   ]
 ];
-const Table2 = createLucideIcon("table-2", __iconNode$h);
-const __iconNode$g = [
+const Table2 = createLucideIcon("table-2", __iconNode$j);
+const __iconNode$i = [
   ["path", { d: "M12 3v18", key: "108xh3" }],
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }]
 ];
-const Table = createLucideIcon("table", __iconNode$g);
-const __iconNode$f = [
+const Table = createLucideIcon("table", __iconNode$i);
+const __iconNode$h = [
   [
     "path",
     {
@@ -15988,13 +16020,13 @@ const __iconNode$f = [
   ],
   ["circle", { cx: "7.5", cy: "7.5", r: ".5", fill: "currentColor", key: "kqv944" }]
 ];
-const Tag = createLucideIcon("tag", __iconNode$f);
-const __iconNode$e = [
+const Tag = createLucideIcon("tag", __iconNode$h);
+const __iconNode$g = [
   ["path", { d: "M12 19h8", key: "baeox8" }],
   ["path", { d: "m4 17 6-6-6-6", key: "1yngyt" }]
 ];
-const Terminal = createLucideIcon("terminal", __iconNode$e);
-const __iconNode$d = [
+const Terminal = createLucideIcon("terminal", __iconNode$g);
+const __iconNode$f = [
   [
     "path",
     { d: "M21 7 6.82 21.18a2.83 2.83 0 0 1-3.99-.01a2.83 2.83 0 0 1 0-4L17 3", key: "1ub6xw" }
@@ -16002,39 +16034,39 @@ const __iconNode$d = [
   ["path", { d: "m16 2 6 6", key: "1gw87d" }],
   ["path", { d: "M12 16H4", key: "1cjfip" }]
 ];
-const TestTubeDiagonal = createLucideIcon("test-tube-diagonal", __iconNode$d);
-const __iconNode$c = [
+const TestTubeDiagonal = createLucideIcon("test-tube-diagonal", __iconNode$f);
+const __iconNode$e = [
   ["path", { d: "M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5c-1.4 0-2.5-1.1-2.5-2.5V2", key: "125lnx" }],
   ["path", { d: "M8.5 2h7", key: "csnxdl" }],
   ["path", { d: "M14.5 16h-5", key: "1ox875" }]
 ];
-const TestTube = createLucideIcon("test-tube", __iconNode$c);
-const __iconNode$b = [
+const TestTube = createLucideIcon("test-tube", __iconNode$e);
+const __iconNode$d = [
   ["line", { x1: "10", x2: "14", y1: "2", y2: "2", key: "14vaq8" }],
   ["line", { x1: "12", x2: "15", y1: "14", y2: "11", key: "17fdiu" }],
   ["circle", { cx: "12", cy: "14", r: "8", key: "1e1u0o" }]
 ];
-const Timer = createLucideIcon("timer", __iconNode$b);
-const __iconNode$a = [
+const Timer = createLucideIcon("timer", __iconNode$d);
+const __iconNode$c = [
   ["path", { d: "M10 11v6", key: "nco0om" }],
   ["path", { d: "M14 11v6", key: "outv1u" }],
   ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
 ];
-const Trash2 = createLucideIcon("trash-2", __iconNode$a);
-const __iconNode$9 = [
+const Trash2 = createLucideIcon("trash-2", __iconNode$c);
+const __iconNode$b = [
   ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
 ];
-const Trash = createLucideIcon("trash", __iconNode$9);
-const __iconNode$8 = [
+const Trash = createLucideIcon("trash", __iconNode$b);
+const __iconNode$a = [
   ["path", { d: "M16 7h6v6", key: "box55l" }],
   ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
 ];
-const TrendingUp = createLucideIcon("trending-up", __iconNode$8);
-const __iconNode$7 = [
+const TrendingUp = createLucideIcon("trending-up", __iconNode$a);
+const __iconNode$9 = [
   [
     "path",
     {
@@ -16045,20 +16077,25 @@ const __iconNode$7 = [
   ["path", { d: "M12 9v4", key: "juzpu7" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const TriangleAlert = createLucideIcon("triangle-alert", __iconNode$7);
-const __iconNode$6 = [
+const TriangleAlert = createLucideIcon("triangle-alert", __iconNode$9);
+const __iconNode$8 = [
   ["path", { d: "M12 4v16", key: "1654pz" }],
   ["path", { d: "M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2", key: "e0r10z" }],
   ["path", { d: "M9 20h6", key: "s66wpe" }]
 ];
-const Type = createLucideIcon("type", __iconNode$6);
-const __iconNode$5 = [
+const Type = createLucideIcon("type", __iconNode$8);
+const __iconNode$7 = [
+  ["path", { d: "M9 14 4 9l5-5", key: "102s5s" }],
+  ["path", { d: "M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11", key: "f3b9sd" }]
+];
+const Undo2 = createLucideIcon("undo-2", __iconNode$7);
+const __iconNode$6 = [
   ["path", { d: "M12 3v12", key: "1x0j5s" }],
   ["path", { d: "m17 8-5-5-5 5", key: "7q97r8" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }]
 ];
-const Upload = createLucideIcon("upload", __iconNode$5);
-const __iconNode$4 = [
+const Upload = createLucideIcon("upload", __iconNode$6);
+const __iconNode$5 = [
   ["path", { d: "M10 15H6a4 4 0 0 0-4 4v2", key: "1nfge6" }],
   ["path", { d: "m14.305 16.53.923-.382", key: "1itpsq" }],
   ["path", { d: "m15.228 13.852-.923-.383", key: "eplpkm" }],
@@ -16071,19 +16108,36 @@ const __iconNode$4 = [
   ["circle", { cx: "18", cy: "15", r: "3", key: "gjjjvw" }],
   ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]
 ];
-const UserCog = createLucideIcon("user-cog", __iconNode$4);
-const __iconNode$3 = [
+const UserCog = createLucideIcon("user-cog", __iconNode$5);
+const __iconNode$4 = [
   ["path", { d: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2", key: "975kel" }],
   ["circle", { cx: "12", cy: "7", r: "4", key: "17ys0d" }]
 ];
-const User = createLucideIcon("user", __iconNode$3);
-const __iconNode$2 = [
+const User = createLucideIcon("user", __iconNode$4);
+const __iconNode$3 = [
   ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
   ["path", { d: "M16 3.128a4 4 0 0 1 0 7.744", key: "16gr8j" }],
   ["path", { d: "M22 21v-2a4 4 0 0 0-3-3.87", key: "kshegd" }],
   ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]
 ];
-const Users = createLucideIcon("users", __iconNode$2);
+const Users = createLucideIcon("users", __iconNode$3);
+const __iconNode$2 = [
+  [
+    "path",
+    {
+      d: "m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72",
+      key: "ul74o6"
+    }
+  ],
+  ["path", { d: "m14 7 3 3", key: "1r5n42" }],
+  ["path", { d: "M5 6v4", key: "ilb8ba" }],
+  ["path", { d: "M19 14v4", key: "blhpug" }],
+  ["path", { d: "M10 2v2", key: "7u0qdc" }],
+  ["path", { d: "M7 8H3", key: "zfb6yr" }],
+  ["path", { d: "M21 16h-4", key: "1cnmox" }],
+  ["path", { d: "M11 3H9", key: "1obp7u" }]
+];
+const WandSparkles = createLucideIcon("wand-sparkles", __iconNode$2);
 const __iconNode$1 = [
   ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
   ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
@@ -16223,6 +16277,8 @@ const ru = {
   },
   "common": {
     "copied": "Скопировано",
+    "selectAll": "Выбрать все",
+    "orManual": "Или настроить вручную",
     "edit": "Изменить",
     "status": "Статус",
     "size": "Размер",
@@ -16533,11 +16589,11 @@ const ru = {
     "epv": "EPV",
     "lpViewsHint": "Всего просмотров лендинга",
     "lpClicksHint": "Всего кликов по CTA-кнопкам лендинга",
-    "lpCtrHint": "Пробив лендинга (Клики / Просмотры лендинга)",
-    "cpvHint": "Расход на визит (Расход / Просмотры лендинга)",
-    "cpcHint": "Расход на клик (Расход / Клики по кнопке лендинга)",
-    "epvHint": "Доход на визит (Доход / Просмотры лендинга)",
-    "epcHint": "Доход на клик (Доход / Клики по кнопке лендинга)",
+    "lpCtrHint": "Пробив лендинга (Клики / Просмотры) — на прямых офферах прочерк: CTA нет",
+    "cpvHint": "Расход на визит — универсальная: Расход / все входящие визиты (прямые офферы и лендинги)",
+    "cpcHint": "Расход на клик по CTA лендинга (Расход / LP-клики) — на прямых офферах равен CPV",
+    "epvHint": "Доход на визит — универсальная: Доход / все входящие визиты (прямые офферы и лендинги)",
+    "epcHint": "Доход на клик по CTA лендинга (Доход / LP-клики) — на прямых офферах равен EPV",
     "realRevenue": "Реальный доход",
     "realRoi": "Реальный ROI"
   },
@@ -16545,6 +16601,7 @@ const ru = {
     "allGroups": "Все группы",
     "groups": "Группы",
     "sources": "Источники",
+    "allSources": "Все источники трафика",
     "campaign": "Кампания",
     "campaigns": "Кампании",
     "group": "Группа",
@@ -16564,6 +16621,7 @@ const ru = {
     "deleteConfirm": "Удалить кампанию? Это действие необратимо.",
     "updatedClicks": "Обновлено кликов: {count}",
     "copySelected": "Копировать выбранные",
+    "searchPlaceholder": "Поиск кампаний...",
     "bulkCopyConfirm": "Скопировать выбранные кампании? Будут созданы копии с новыми alias и токенами.",
     "copied": "Скопировано",
     "copyErrors": "Ошибок"
@@ -16641,6 +16699,8 @@ const ru = {
     "regenerateTokenConfirm": "Сгенерировать новый токен? Старый токен перестанет работать, и все скрипты с его использованием перестанут отслеживать клики.",
     "streamWeight": "Вес потока",
     "streamWeightHelp": "Используется только при ротации потоков по весу.",
+    "totalWeight": "Суммарный вес потоков",
+    "equalizeSplit": "Разделить поровну",
     "campaignUrl": "URL кампании",
     "rewardModel": "Модель вознаграждения",
     "costValue": "Значение затрат",
@@ -16731,6 +16791,9 @@ const ru = {
   },
   "landings": {
     "title": "Лендинги",
+    "allStates": "Все статусы",
+    "searchPlaceholder": "Найти лендинг...",
+    "noGroup": "Без группы",
     "noLandings": "Нет загруженных лендингов",
     "noLandingsDesc": "Вы можете создать или загрузить первый лендинг"
   },
@@ -16743,12 +16806,17 @@ const ru = {
     "noOffersFiltered": "Нет офферов, соответствующих фильтрам",
     "changeFilters": "Измените параметры фильтрации",
     "network": "Партнёрская сеть",
+    "allGroups": "Все группы",
+    "allNetworks": "Все партнерские сети",
+    "allStates": "Все статусы",
+    "inactiveStates": "В архиве / Отключены",
     "localOffer": "Локальный оффер",
     "redirect": "Редирект",
     "iframe": "IFrame",
     "local": "Локальный",
     "total": "Итого (офферов: {count})",
     "copySelected": "Копировать выбранные",
+    "searchPlaceholder": "Поиск офферов...",
     "bulkCopyConfirm": "Скопировать выбранные офферы?",
     "copied": "Скопировано",
     "copyErrors": "Ошибок"
@@ -17507,7 +17575,19 @@ const ru = {
     "zipDropHint": "Перетащите .zip сюда или нажмите для выбора файла",
     "zipReplaceHint": "Нажмите или перетащите другой файл для замены",
     "viewCode": "Код",
+    "viewSplit": "Сплит",
     "viewPreview": "Просмотр",
+    "livePreview": "Живой предпросмотр",
+    "unsavedPreview": "Несохранённый HTML",
+    "savedPreview": "Сохранённый лендинг",
+    "filesTitle": "Файлы",
+    "replaceImage": "Заменить изображение",
+    "replaceImageTypeError": "Выберите изображение того же типа, чтобы существующие ссылки лендинга продолжили работать.",
+    "imageLoadError": "Не удалось загрузить изображение",
+    "formatCode": "Форматировать",
+    "quickInsertHint": "Сниппеты вставляются в позицию курсора; адаптер и Back Trap — перед закрывающими тегами.",
+    "fullscreen": "На весь экран",
+    "exitFullscreen": "Выйти из полноэкранного режима",
     "openInTab": "Открыть в новой вкладке",
     "previewNeedsSlug": "Просмотр доступен после того, как у лендинга появится папка — сохраните настройки.",
     "zipOnCreateHint": "Необязательно. Архив загрузится сразу после создания лендинга — окно останется открытым, файлы появятся справа.",
@@ -17952,6 +18032,10 @@ const ru = {
     "copyLink": "Копировать ссылку",
     "duplicate": "Дублировать",
     "perPage": "На странице",
+    "showingRows": "Показано {start}-{end} из {total} строк",
+    "pageSize": "Строк на стр.",
+    "first": "Первая",
+    "last": "Последняя",
     "prev": "Назад",
     "next": "Вперёд",
     "all": "Все",
@@ -18362,6 +18446,46 @@ const ru = {
     "dismissAll": "Понятно",
     "showHelp": "Показать подсказки"
   },
+  "pixelVault": {
+    "pixelVaultTitle": "Хранилище пикселей и CAPI",
+    "quickAddTitle": "Быстрое добавление пикселя в базу",
+    "saveAndSelect": "Сохранить и выбрать",
+    "description": "Управляйте многоразовыми пикселями и серверными профилями конверсий с группировкой по нишам.",
+    "addNewPixel": "Добавить пиксель",
+    "trafficSource": "Источник трафика",
+    "nicheTag": "Тег ниши (напр. Nutra, Crypto)",
+    "pixelName": "Название пикселя",
+    "pixelId": "ID пикселя",
+    "capiToken": "Токен доступа Conversions API",
+    "keepToken": "Оставьте пустым, чтобы сохранить текущий токен",
+    "events": "События",
+    "eventUrl": "URL события (необязательно)",
+    "testEventCode": "Код тестового события (необязательно)",
+    "active": "Активен",
+    "sendTestEvent": "Отправить тестовое событие",
+    "sending": "Отправка…",
+    "testEventSent": "Тестовое событие успешно отправлено в Meta!",
+    "editPixel": "Редактировать профиль пикселя",
+    "allNiches": "Все ниши",
+    "search": "Найти пиксель…",
+    "token": "Токен",
+    "duplicate": "Дублировать",
+    "confirmDelete": "Удалить профиль и отключить его от всех кампаний?",
+    "deleted": "Профиль пикселя удалён",
+    "duplicated": "Профиль пикселя продублирован",
+    "saved": "Профиль пикселя сохранён",
+    "testUnsupported": "Тестовые события поддерживаются для профилей Facebook и TikTok.",
+    "noProfiles": "Нет профилей пикселей, подходящих под фильтры.",
+    "attachPixel": "Подключить сохраненный пиксель",
+    "noPixel": "Пиксель не подключён",
+    "niche": "Ниша",
+    "inactive": "неактивен",
+    "pixelHint": "Подключение профиля автоматически отправляет серверные CAPI-конверсии этой кампании.",
+    "saveCampaignFirst": "Сохраните кампанию перед подключением профиля из хранилища.",
+    "attached": "Профиль пикселя подключён",
+    "detached": "Профиль пикселя отключён",
+    "vaultProfile": "Хранилище"
+  },
   "pixels": {
     "title": "Пиксели отслеживания",
     "addPixel": "Добавить пиксель",
@@ -18748,12 +18872,28 @@ const ru = {
   "fbCosts": {
     "title": "Facebook Costs",
     "description": "Импортирует расход из рекламного кабинета Meta и привязывает его к кликам по ad, adset и campaign ID.",
+    "oneClickTitle": "1-Click подключение Facebook",
+    "oneClickDesc": "Войдите через профиль Facebook. Orbitra автоматически найдёт все доступные рекламные кабинеты и настроит синхронизацию расходов.",
+    "loginWithFb": "Войти через Facebook",
+    "selectAccounts": "Выберите рекламные аккаунты для подключения",
+    "connectSelected": "Подключить выбранные аккаунты",
+    "oauthConnecting": "Подключаемся к Facebook…",
+    "connectingAccounts": "Подключаем аккаунты…",
+    "oauthFailed": "Не удалось подключиться к Facebook. Попробуйте ещё раз.",
+    "popupBlocked": "Окно входа Facebook заблокировано. Разрешите всплывающие окна для Orbitra и повторите попытку.",
+    "noDiscoveredAccounts": "Вход выполнен, но доступные рекламные кабинеты не найдены.",
+    "connectedAccounts": "Подключено рекламных аккаунтов Facebook: {n}.",
     "addAccount": "Добавить аккаунт",
     "editAccount": "Редактировать аккаунт",
     "findAccount": "Найти аккаунт",
     "name": "Название",
     "interval": "Обновлять расходы каждые",
     "advanced": "Дополнительно: маппинг параметров",
+    "extendToken": "Продлить на 60 дней",
+    "extendTokenHint": "Обменивает токен на 60-дневный долгоживущий через Graph API",
+    "tokenExtended": "Токен продлён на 60 дней",
+    "customApp": "Собственное Meta App (опционально)",
+    "customAppHint": "Нужно только для продления токена и редких апп-специфичных сетапов — общему приложению инстанса или готовому долгоживущему токену ничего не требуется.",
     "advancedHint": "Нужно, только если трафик идёт через приложение, которое перепаковывает макросы Facebook в sub ID. Оставьте пустым, чтобы использовать стандартные ad_id / adset_id / campaign_id.",
     "ad_id_param": "Ad ID приходит в параметре",
     "adset_id_param": "Adset ID приходит в параметре",
@@ -18783,6 +18923,12 @@ const ru = {
     "noAccounts": "Рекламные кабинеты не подключены. Добавьте аккаунт, чтобы импортировать расход из Facebook."
   },
   "fbConv": {
+    "selectPixelPrompt": "Выберите сохраненный пиксель...",
+    "manageInVault": "Редактировать в Pixel Vault",
+    "addNewPixel": "Добавить новый пиксель в базу...",
+    "enterManually": "Ввести Pixel ID вручную...",
+    "selectFromList": "Выбрать из сохраненных",
+    "tokenAutoFilledHint": "Токен подставляется автоматически при выборе пикселя.",
     "title": "Facebook Conversions",
     "description": "Отправляет конверсии в Meta через Conversions API с сервера — события, заблокированные в браузере, всё равно доходят до оптимизатора.",
     "addAccount": "Добавить аккаунт",
@@ -18936,6 +19082,75 @@ const ru = {
     "updateCostsManually": "Обновить расход вручную",
     "costSyncTitle": "Синхронизация расходов (Cost Sync)",
     "manualCostTitle": "Ручной ввод расходов"
+  },
+  "suite": {
+    "leadforge": "LeadForge",
+    "tracker": "Tracker",
+    "crm": "CRM"
+  },
+  "leadforge": {
+    "title": "LeadForge",
+    "subtitle": "Модуль пакетной подготовки офферов и лендингов",
+    "dropzoneTitle": "Перетащите ZIP-архивы лендингов сюда",
+    "dropzoneSub": "Поддерживается от 1 до 50+ архивов одновременно",
+    "browseFiles": "Выбрать архивы",
+    "clearQueue": "Очистить список",
+    "selectedFiles": "Архивов в очереди",
+    "networkApi": "Партнерская сеть (CPA Network)",
+    "apiKey": "API-ключ / Client Token",
+    "offerId": "ID оффера / Flow Token",
+    "targetGeo": "Целевое ГЕО / Страна",
+    "currency": "Валюта",
+    "payout": "Выплата по умолчанию",
+    "landingGroup": "Группа лендингов",
+    "forgeButton": "⚡ Forge & Save to Tracker",
+    "forging": "⚡ Обработка и интеграция...",
+    "forgeSuccess": "Пакетная обработка лендингов успешно завершена!",
+    "optionsTitle": "Опции автоподготовки и инъекции",
+    "optInjectMacro": "Вшить макрос {offer} во все кнопки и ссылки",
+    "optInjectAdapter": "Внедрить JS-адаптер Orbitra и сквозной ClickID",
+    "optPhoneMask": "Добавить маску телефона и валидатор для ГЕО",
+    "optThankYou": "Сгенерировать локализованную страницу «Спасибо»",
+    "optOrderPhp": "Сгенерировать серверный order.php API-мост",
+    "optSaveTracker": "Автоматически сохранить лендинги в трекер",
+    "optCreateOffer": "Автоматически создать связанный оффер в трекере",
+    "consoleTitle": "Консоль процесса LeadForge",
+    "downloadZip": "Скачать готовый ZIP",
+    "openInTracker": "Открыть в трекере",
+    "noArchives": "Архивы не выбраны. Загрузите ZIP-архивы выше для начала пакетной подготовки."
+  },
+  "crm": {
+    "title": "CRM — Учет лидов и заказов",
+    "subtitle": "Обработка, фильтрация и управление поступившими лидами в реальном времени",
+    "totalLeads": "Всего лидов",
+    "inProcess": "В обработке / Холд",
+    "approved": "Подтвержденные (Sale)",
+    "rejected": "Отклоненные",
+    "trash": "Треш / Спам",
+    "approvalRate": "Аппрув (AR %)",
+    "revenue": "Доход",
+    "searchPlaceholder": "Поиск по имени, телефону, SubID, ClickID...",
+    "allStatuses": "Все статусы",
+    "newLead": "+ Создать заказ",
+    "exportCsv": "Экспорт CSV",
+    "leadDetails": "Детали лида",
+    "customer": "Клиент",
+    "phone": "Телефон",
+    "status": "Статус",
+    "payout": "Выплата",
+    "date": "Дата / Время",
+    "actions": "Действия",
+    "saveStatus": "Сохранить статус",
+    "noLeads": "Лиды не найдены по выбранным критериям."
+  },
+  "proxy": {
+    "singleString": "Одной строкой",
+    "separateFields": "По полям",
+    "hint": "Поддерживает форматы http://user:pass@ip:port и ip:port:user:pass",
+    "host": "Хост / IP",
+    "port": "Порт",
+    "username": "Логин",
+    "password": "Пароль"
   }
 };
 const en = {
@@ -19062,6 +19277,8 @@ const en = {
   },
   "common": {
     "copied": "Copied",
+    "selectAll": "Select all",
+    "orManual": "Or configure manually",
     "edit": "Edit",
     "status": "Status",
     "size": "Size",
@@ -19372,11 +19589,11 @@ const en = {
     "epv": "EPV",
     "lpViewsHint": "Total landing page impressions",
     "lpClicksHint": "Total clicks on landing page CTA buttons",
-    "lpCtrHint": "Landing Page CTR (LP Clicks / LP Views)",
-    "cpvHint": "Cost per Visit (Cost / LP Views)",
-    "cpcHint": "Cost per Click (Cost / LP Clicks)",
-    "epvHint": "Earnings per Visit (Revenue / LP Views)",
-    "epcHint": "Earnings per Click (Revenue / LP Clicks)",
+    "lpCtrHint": "LP CTR (LP Clicks / LP Views) — dash (—) on direct offers: no CTA to measure",
+    "cpvHint": "Cost per Visit — universal: Cost / all inbound visits (Direct and Lander flows)",
+    "cpcHint": "Cost per LP Click (Cost / Lander CTA clicks) — equals CPV on direct offers",
+    "epvHint": "Earnings per Visit — universal: Revenue / all inbound visits (Direct and Lander flows)",
+    "epcHint": "Earnings per LP Click (Revenue / Lander CTA clicks) — equals EPV on direct offers",
     "realRevenue": "Real Revenue",
     "realRoi": "Real ROI"
   },
@@ -19384,6 +19601,7 @@ const en = {
     "allGroups": "All groups",
     "groups": "Groups",
     "sources": "Sources",
+    "allSources": "All traffic sources",
     "campaign": "Campaign",
     "campaigns": "Campaigns",
     "group": "Group",
@@ -19403,6 +19621,7 @@ const en = {
     "deleteConfirm": "Delete campaign? This action cannot be undone.",
     "updatedClicks": "Updated clicks: {count}",
     "copySelected": "Copy selected",
+    "searchPlaceholder": "Search campaigns...",
     "bulkCopyConfirm": "Copy selected campaigns? Copies with new aliases and tokens will be created.",
     "copied": "Copied",
     "copyErrors": "Errors"
@@ -19480,6 +19699,8 @@ const en = {
     "regenerateTokenConfirm": "Generate a new token? The old token will stop working and all scripts using it will no longer track clicks.",
     "streamWeight": "Stream Weight",
     "streamWeightHelp": "Used only when stream rotation is set to weighted.",
+    "totalWeight": "Total Stream Weight",
+    "equalizeSplit": "Split Evenly",
     "campaignUrl": "Campaign URL",
     "rewardModel": "Cost Model",
     "costValue": "Cost Value",
@@ -19570,6 +19791,9 @@ const en = {
   },
   "landings": {
     "title": "Landings",
+    "allStates": "All states",
+    "searchPlaceholder": "Find landing...",
+    "noGroup": "No group",
     "noLandings": "No landings loaded",
     "noLandingsDesc": "You can create or load the first landing page"
   },
@@ -19582,12 +19806,17 @@ const en = {
     "noOffersFiltered": "No offers matching these filters",
     "changeFilters": "Change filter parameters",
     "network": "Affiliate Network",
+    "allGroups": "All groups",
+    "allNetworks": "All affiliate networks",
+    "allStates": "All states",
+    "inactiveStates": "Archived / Disabled",
     "localOffer": "Local Offer",
     "redirect": "Redirect",
     "iframe": "IFrame",
     "local": "Local",
     "total": "Total ({count} offers)",
     "copySelected": "Copy selected",
+    "searchPlaceholder": "Search offers...",
     "bulkCopyConfirm": "Copy selected offers?",
     "copied": "Copied",
     "copyErrors": "Errors"
@@ -20346,7 +20575,19 @@ const en = {
     "zipDropHint": "Drag & drop .zip here or click to browse files",
     "zipReplaceHint": "Click or drop another file to replace",
     "viewCode": "Code",
+    "viewSplit": "Split",
     "viewPreview": "Preview",
+    "livePreview": "Live preview",
+    "unsavedPreview": "Unsaved HTML",
+    "savedPreview": "Saved landing",
+    "filesTitle": "Files",
+    "replaceImage": "Replace image",
+    "replaceImageTypeError": "Choose an image with the same file type so existing landing links keep working.",
+    "imageLoadError": "Could not load this image",
+    "formatCode": "Format",
+    "quickInsertHint": "Snippets are inserted at the cursor; adapter and back trap are placed before closing tags.",
+    "fullscreen": "Fullscreen",
+    "exitFullscreen": "Exit fullscreen",
     "openInTab": "Open in a new tab",
     "previewNeedsSlug": "Preview becomes available once the landing has a folder — save the settings first.",
     "zipOnCreateHint": "Optional. The archive is uploaded as soon as the landing is created — the window stays open and the files appear on the right.",
@@ -20816,6 +21057,10 @@ const en = {
     "copyLink": "Copy link",
     "duplicate": "Duplicate",
     "perPage": "Per page",
+    "showingRows": "Showing {start}-{end} of {total} rows",
+    "pageSize": "Page Size",
+    "first": "First",
+    "last": "Last",
     "prev": "Prev",
     "next": "Next",
     "all": "All",
@@ -20985,6 +21230,46 @@ const en = {
     "streamFilterTooltip": "Set conditions when this stream should be activated: by country, device, OS, browser, language, etc. Traffic not matching any stream goes to the catch-all stream.",
     "dismissAll": "Got it",
     "showHelp": "Show tips"
+  },
+  "pixelVault": {
+    "pixelVaultTitle": "Pixel Vault & Conversions API",
+    "quickAddTitle": "Quick Add Pixel to Vault",
+    "saveAndSelect": "Save & Select",
+    "description": "Manage and categorize reusable tracking pixels and server-side conversion profiles by niche.",
+    "addNewPixel": "Add New Pixel",
+    "trafficSource": "Traffic Source",
+    "nicheTag": "Niche Tag (e.g. Nutra, Crypto)",
+    "pixelName": "Pixel Name",
+    "pixelId": "Pixel ID",
+    "capiToken": "Conversions API Access Token",
+    "keepToken": "Leave blank to keep the saved token",
+    "events": "Events",
+    "eventUrl": "Event URL (optional)",
+    "testEventCode": "Test Event Code (optional)",
+    "active": "Active",
+    "sendTestEvent": "Send Test Event",
+    "sending": "Sending…",
+    "testEventSent": "Test event sent successfully!",
+    "editPixel": "Edit Pixel Profile",
+    "allNiches": "All Niches",
+    "search": "Find a pixel…",
+    "token": "Token",
+    "duplicate": "Duplicate",
+    "confirmDelete": "Delete this profile and detach it from all campaigns?",
+    "deleted": "Pixel profile deleted",
+    "duplicated": "Pixel profile duplicated",
+    "saved": "Pixel profile saved",
+    "testUnsupported": "Test events are supported for Facebook and TikTok profiles.",
+    "noProfiles": "No pixel profiles match the current filters.",
+    "attachPixel": "Attach Saved Pixel Profile",
+    "noPixel": "No Pixel attached",
+    "niche": "Niche",
+    "inactive": "inactive",
+    "pixelHint": "Attaching a profile automatically sends server-side CAPI conversions for this campaign.",
+    "saveCampaignFirst": "Save the campaign before attaching a Pixel Vault profile.",
+    "attached": "Pixel profile attached",
+    "detached": "Pixel profile detached",
+    "vaultProfile": "Vault"
   },
   "pixels": {
     "title": "Tracking Pixels",
@@ -21587,12 +21872,28 @@ const en = {
   "fbCosts": {
     "title": "Facebook Costs",
     "description": "Imports ad spend from a Meta ad account and attributes it to clicks by ad, adset and campaign ID.",
+    "oneClickTitle": "1-Click Facebook Integration",
+    "oneClickDesc": "Log in with your Facebook profile. Orbitra will automatically discover all your ad accounts and set up automatic spend sync.",
+    "loginWithFb": "Login with Facebook",
+    "selectAccounts": "Select Ad Accounts to Connect",
+    "connectSelected": "Connect Selected Accounts",
+    "oauthConnecting": "Connecting to Facebook…",
+    "connectingAccounts": "Connecting accounts…",
+    "oauthFailed": "Facebook connection failed. Please try again.",
+    "popupBlocked": "The Facebook login window was blocked. Allow popups for Orbitra and try again.",
+    "noDiscoveredAccounts": "Facebook login succeeded, but no accessible ad accounts were found.",
+    "connectedAccounts": "Connected {n} Facebook ad account(s).",
     "addAccount": "Add account",
     "editAccount": "Edit account",
     "findAccount": "Find account",
     "name": "Name",
     "interval": "Update spend every",
     "advanced": "Advanced: parameter mapping",
+    "extendToken": "Extend to 60 days",
+    "extendTokenHint": "Exchanges the token for a 60-day long-lived one via the Graph API",
+    "tokenExtended": "Token extended to 60 days",
+    "customApp": "Custom Meta App (Optional)",
+    "customAppHint": "Only needed for token extension and rare app-scoped setups — the shared instance app or a ready long-lived token needs nothing here.",
     "advancedHint": "Only needed when traffic passes through an app that repacks the Facebook macros into sub IDs. Leave empty to use the standard ad_id / adset_id / campaign_id.",
     "ad_id_param": "Ad ID arrives in parameter",
     "adset_id_param": "Adset ID arrives in parameter",
@@ -21622,6 +21923,12 @@ const en = {
     "noAccounts": "No ad accounts connected yet. Add one to import spend from Facebook."
   },
   "fbConv": {
+    "selectPixelPrompt": "Select saved pixel...",
+    "manageInVault": "Edit in Pixel Vault",
+    "addNewPixel": "Add New Pixel to Vault...",
+    "enterManually": "Enter custom Pixel ID manually...",
+    "selectFromList": "Choose from saved",
+    "tokenAutoFilledHint": "Token is automatically applied when selecting a saved pixel.",
     "title": "Facebook Conversions",
     "description": "Sends conversions to Meta through the Conversions API, server-side, so events blocked in the browser still reach the optimiser.",
     "addAccount": "Add account",
@@ -21775,6 +22082,75 @@ const en = {
     "updateCostsManually": "Update Costs Manually",
     "costSyncTitle": "Cost Synchronization",
     "manualCostTitle": "Manual Cost Entry"
+  },
+  "suite": {
+    "leadforge": "LeadForge",
+    "tracker": "Tracker",
+    "crm": "CRM"
+  },
+  "leadforge": {
+    "title": "LeadForge",
+    "subtitle": "Batch Landing & Offer Auto-Preparation Engine",
+    "dropzoneTitle": "Drag & Drop landing ZIP archives here",
+    "dropzoneSub": "Supports 1 to 50+ ZIP archives simultaneously",
+    "browseFiles": "Browse Files",
+    "clearQueue": "Clear Queue",
+    "selectedFiles": "Archives in queue",
+    "networkApi": "CPA Affiliate Network",
+    "apiKey": "API Key / Client Token",
+    "offerId": "Offer ID / Flow Token",
+    "targetGeo": "Target GEO / Country",
+    "currency": "Currency",
+    "payout": "Default Payout",
+    "landingGroup": "Landing Group",
+    "forgeButton": "⚡ Forge & Save to Tracker",
+    "forging": "⚡ Forging Landings...",
+    "forgeSuccess": "Batch forging completed successfully!",
+    "optionsTitle": "Automation & Injection Options",
+    "optInjectMacro": "Auto-inject {offer} macro into CTA buttons & links",
+    "optInjectAdapter": "Inject Orbitra JS Adapter & ClickID Bridge",
+    "optPhoneMask": "Add GEO Phone Mask & Real-time Regex Validator",
+    "optThankYou": "Generate Universal Localized Thank You Page",
+    "optOrderPhp": "Generate Secure order.php CPA API Bridge",
+    "optSaveTracker": "Auto-save to Tracker Landings library",
+    "optCreateOffer": "Auto-create Matching Offer in Tracker",
+    "consoleTitle": "Forge Execution Console",
+    "downloadZip": "Download Prepared ZIP",
+    "openInTracker": "Open in Tracker",
+    "noArchives": "No archives selected. Drop ZIP archives above to start batch preparation."
+  },
+  "crm": {
+    "title": "CRM & Order Management",
+    "subtitle": "Track, filter and manage all customer leads and orders in real time",
+    "totalLeads": "Total Leads",
+    "inProcess": "In Process / Hold",
+    "approved": "Approved Sales",
+    "rejected": "Rejected",
+    "trash": "Trash / Spam",
+    "approvalRate": "Approval Rate",
+    "revenue": "Earned Revenue",
+    "searchPlaceholder": "Search by Customer Name, Phone, SubID, ClickID...",
+    "allStatuses": "All Statuses",
+    "newLead": "+ New Lead",
+    "exportCsv": "Export CSV",
+    "leadDetails": "Lead Details",
+    "customer": "Customer",
+    "phone": "Phone",
+    "status": "Status",
+    "payout": "Payout",
+    "date": "Date / Time",
+    "actions": "Actions",
+    "saveStatus": "Update Status",
+    "noLeads": "No leads found matching current filters."
+  },
+  "proxy": {
+    "singleString": "Single string",
+    "separateFields": "Separate fields",
+    "hint": "Supports http://user:pass@ip:port and ip:port:user:pass formats",
+    "host": "Host / IP",
+    "port": "Port",
+    "username": "User",
+    "password": "Pass"
   }
 };
 const uk = {
@@ -21901,6 +22277,8 @@ const uk = {
   },
   "common": {
     "copied": "Скопійовано",
+    "selectAll": "Вибрати все",
+    "orManual": "Або налаштувати вручну",
     "edit": "Змінити",
     "status": "Статус",
     "size": "Розмір",
@@ -22211,11 +22589,11 @@ const uk = {
     "epv": "EPV",
     "lpViewsHint": "Усього переглядів лендінгу",
     "lpClicksHint": "Усього кліків на CTA-кнопки лендінгу",
-    "lpCtrHint": "Пробив лендінгу (Кліки / Перегляди лендінгу)",
-    "cpvHint": "Витрати на візит (Витрати / Перегляди лендінгу)",
-    "cpcHint": "Витрати на клік (Витрати / Кліки на кнопку лендінгу)",
-    "epvHint": "Дохід на візит (Дохід / Перегляди лендінгу)",
-    "epcHint": "Дохід на клік (Дохід / Кліки на кнопку лендінгу)",
+    "lpCtrHint": "Пробив лендінгу (Кліки / Перегляди) — на прямих офферах прочерк: CTA немає",
+    "cpvHint": "Витрати на візит — універсальна: Витрати / усі вхідні візити (прямі оффери і лендінги)",
+    "cpcHint": "Витрати на клік по CTA лендінгу (Витрати / LP-кліки) — на прямих офферах дорівнює CPV",
+    "epvHint": "Дохід на візит — універсальна: Дохід / усі вхідні візити (прямі оффери і лендінги)",
+    "epcHint": "Дохід на клік по CTA лендінгу (Дохід / LP-кліки) — на прямих офферах дорівнює EPV",
     "realRevenue": "Реальний дохід",
     "realRoi": "Реальний ROI"
   },
@@ -22223,6 +22601,7 @@ const uk = {
     "allGroups": "Усі групи",
     "groups": "Групи",
     "sources": "Джерела",
+    "allSources": "Всі джерела трафіку",
     "campaign": "Кампанія",
     "campaigns": "Кампанії",
     "group": "Група",
@@ -22242,6 +22621,7 @@ const uk = {
     "deleteConfirm": "Видалити кампанію? Цю дію не можна скасувати.",
     "updatedClicks": "Оновлені кліки: {count}",
     "copySelected": "Вибрана копія",
+    "searchPlaceholder": "Пошук кампаній...",
     "bulkCopyConfirm": "Копіювати вибрані кампанії? Буде створено копії з новими псевдонімами та маркерами.",
     "copied": "Скопійовано",
     "copyErrors": "Помилки"
@@ -22319,6 +22699,8 @@ const uk = {
     "regenerateTokenConfirm": "Згенерувати новий маркер? Старий маркер перестане працювати, і всі сценарії, які його використовують, більше не відстежуватимуть кліки.",
     "streamWeight": "Вага потоку",
     "streamWeightHelp": "Використовується лише тоді, коли для обертання потоку встановлено зважене значення.",
+    "totalWeight": "Сумарна вага потоків",
+    "equalizeSplit": "Розділити порівну",
     "campaignUrl": "URL-адреса кампанії",
     "rewardModel": "Модель витрат",
     "costValue": "Вартість",
@@ -22409,6 +22791,9 @@ const uk = {
   },
   "landings": {
     "title": "Посадки",
+    "allStates": "Усі статуси",
+    "searchPlaceholder": "Знайти лендінг...",
+    "noGroup": "Без групи",
     "noLandings": "Посадки не завантажені",
     "noLandingsDesc": "Ви можете створити або завантажити першу цільову сторінку"
   },
@@ -22421,12 +22806,17 @@ const uk = {
     "noOffersFiltered": "Немає пропозицій, що відповідають цим фільтрам",
     "changeFilters": "Зміна параметрів фільтра",
     "network": "Партнерська мережа",
+    "allGroups": "Всі групи",
+    "allNetworks": "Всі партнерські мережі",
+    "allStates": "Всі статуси",
+    "inactiveStates": "В архіві / Вимкнені",
     "localOffer": "Місцева пропозиція",
     "redirect": "Перенаправлення",
     "iframe": "IFrame",
     "local": "Місцевий",
     "total": "Усього ({count} пропозицій)",
     "copySelected": "Вибрана копія",
+    "searchPlaceholder": "Пошук офферів...",
     "bulkCopyConfirm": "Копіювати вибрані пропозиції?",
     "copied": "Скопійовано",
     "copyErrors": "Помилки"
@@ -23185,7 +23575,19 @@ const uk = {
     "zipDropHint": "Перетягніть .zip сюди або натисніть для вибору файлу",
     "zipReplaceHint": "Натисніть або перетягніть інший файл для заміни",
     "viewCode": "Код",
+    "viewSplit": "Спліт",
     "viewPreview": "Перегляд",
+    "livePreview": "Живий попередній перегляд",
+    "unsavedPreview": "Незбережений HTML",
+    "savedPreview": "Збережений лендінг",
+    "filesTitle": "Файли",
+    "replaceImage": "Замінити зображення",
+    "replaceImageTypeError": "Виберіть зображення того самого типу, щоб наявні посилання лендінгу продовжили працювати.",
+    "imageLoadError": "Не вдалося завантажити зображення",
+    "formatCode": "Форматувати",
+    "quickInsertHint": "Сніпети вставляються в позицію курсора; адаптер і Back Trap — перед закривальними тегами.",
+    "fullscreen": "На весь екран",
+    "exitFullscreen": "Вийти з повноекранного режиму",
     "openInTab": "Відкрити в новій вкладці",
     "previewNeedsSlug": "Перегляд стане доступним, коли в лендингу з'явиться папка — спочатку збережіть налаштування.",
     "zipOnCreateHint": "Необов'язково. Архів завантажиться одразу після створення лендингу — вікно залишиться відкритим, файли з'являться праворуч.",
@@ -23655,6 +24057,10 @@ const uk = {
     "copyLink": "Копіювати посилання",
     "duplicate": "Дублювати",
     "perPage": "На сторінці",
+    "showingRows": "Показано {start}-{end} з {total} рядків",
+    "pageSize": "Рядків на стор.",
+    "first": "Перша",
+    "last": "Остання",
     "prev": "Назад",
     "next": "Далі",
     "all": "Усі",
@@ -23824,6 +24230,46 @@ const uk = {
     "streamFilterTooltip": "Встановіть умови, коли цей потік має бути активований: за країною, пристроєм, ОС, браузером, мовою тощо. Трафік, який не відповідає жодному потоку, спрямовується до загального потоку.",
     "dismissAll": "зрозумів",
     "showHelp": "Показати поради"
+  },
+  "pixelVault": {
+    "pixelVaultTitle": "Сховище пікселів та CAPI",
+    "quickAddTitle": "Швидке додавання пікселя в базу",
+    "saveAndSelect": "Зберегти та обрати",
+    "description": "Керуйте багаторазовими пікселями та серверними профілями конверсій із групуванням за нішами.",
+    "addNewPixel": "Додати піксель",
+    "trafficSource": "Джерело трафіку",
+    "nicheTag": "Тег ніші (напр. Nutra, Crypto)",
+    "pixelName": "Назва пікселя",
+    "pixelId": "ID пікселя",
+    "capiToken": "Токен доступу Conversions API",
+    "keepToken": "Залиште порожнім, щоб зберегти поточний токен",
+    "events": "Події",
+    "eventUrl": "URL події (необов’язково)",
+    "testEventCode": "Код тестової події (необов’язково)",
+    "active": "Активний",
+    "sendTestEvent": "Надіслати тестову подію",
+    "sending": "Надсилання…",
+    "testEventSent": "Тестову подію успішно надіслано в Meta!",
+    "editPixel": "Редагувати профіль пікселя",
+    "allNiches": "Усі ніші",
+    "search": "Знайти піксель…",
+    "token": "Токен",
+    "duplicate": "Дублювати",
+    "confirmDelete": "Видалити профіль і від’єднати його від усіх кампаній?",
+    "deleted": "Профіль пікселя видалено",
+    "duplicated": "Профіль пікселя продубльовано",
+    "saved": "Профіль пікселя збережено",
+    "testUnsupported": "Тестові події підтримуються для профілів Facebook і TikTok.",
+    "noProfiles": "Немає профілів пікселів, що відповідають фільтрам.",
+    "attachPixel": "Підключити збережений піксель",
+    "noPixel": "Піксель не підключено",
+    "niche": "Ніша",
+    "inactive": "неактивний",
+    "pixelHint": "Підключення профілю автоматично надсилає серверні CAPI-конверсії цієї кампанії.",
+    "saveCampaignFirst": "Збережіть кампанію перед підключенням профілю зі сховища.",
+    "attached": "Профіль пікселя підключено",
+    "detached": "Профіль пікселя відключено",
+    "vaultProfile": "Сховище"
   },
   "pixels": {
     "title": "Пікселі відстеження",
@@ -24426,12 +24872,28 @@ const uk = {
   "fbCosts": {
     "title": "Facebook Costs",
     "description": "Імпортує витрати з рекламного кабінету Meta та прив’язує їх до кліків за ad, adset і campaign ID.",
+    "oneClickTitle": "1-Click підключення Facebook",
+    "oneClickDesc": "Увійдіть через профіль Facebook. Orbitra автоматично знайде всі доступні рекламні кабінети й налаштує синхронізацію витрат.",
+    "loginWithFb": "Увійти через Facebook",
+    "selectAccounts": "Оберіть рекламні кабінети для підключення",
+    "connectSelected": "Підключити обрані кабінети",
+    "oauthConnecting": "Підключення до Facebook…",
+    "connectingAccounts": "Підключення кабінетів…",
+    "oauthFailed": "Не вдалося підключитися до Facebook. Спробуйте ще раз.",
+    "popupBlocked": "Вікно входу Facebook заблоковано. Дозвольте спливні вікна для Orbitra й повторіть спробу.",
+    "noDiscoveredAccounts": "Вхід виконано, але доступних рекламних кабінетів не знайдено.",
+    "connectedAccounts": "Підключено рекламних кабінетів Facebook: {n}.",
     "addAccount": "Додати акаунт",
     "editAccount": "Редагувати акаунт",
     "findAccount": "Знайти акаунт",
     "name": "Назва",
     "interval": "Оновлювати витрати кожні",
     "advanced": "Додатково: мапінг параметрів",
+    "extendToken": "Продовжити на 60 днів",
+    "extendTokenHint": "Обмінює токен на 60-денний довгоживучий через Graph API",
+    "tokenExtended": "Токен продовжено на 60 днів",
+    "customApp": "Власний Meta App (опційно)",
+    "customAppHint": "Потрібно лише для продовження токена та рідкісних апп-специфічних налаштувань — спільному застосунку інстанса або готовому довгоживучому токену нічого не потрібно.",
     "advancedHint": "Потрібно лише якщо трафік іде через застосунок, який перепаковує макроси Facebook у sub ID. Залиште порожнім, щоб використовувати стандартні ad_id / adset_id / campaign_id.",
     "ad_id_param": "Ad ID надходить у параметрі",
     "adset_id_param": "Adset ID надходить у параметрі",
@@ -24461,6 +24923,12 @@ const uk = {
     "noAccounts": "Рекламні кабінети не підключені. Додайте акаунт, щоб імпортувати витрати з Facebook."
   },
   "fbConv": {
+    "selectPixelPrompt": "Оберіть збережений піксель...",
+    "manageInVault": "Редагувати в Pixel Vault",
+    "addNewPixel": "Додати новий піксель у базу...",
+    "enterManually": "Ввести Pixel ID вручну...",
+    "selectFromList": "Обрати зі збережених",
+    "tokenAutoFilledHint": "Токен підставляється автоматично при виборі пікселя.",
     "title": "Facebook Conversions",
     "description": "Надсилає конверсії в Meta через Conversions API з сервера — події, заблоковані в браузері, все одно доходять до оптимізатора.",
     "addAccount": "Додати акаунт",
@@ -24614,6 +25082,75 @@ const uk = {
     "updateCostsManually": "Оновити витрати вручну",
     "costSyncTitle": "Синхронізація витрат (Cost Sync)",
     "manualCostTitle": "Ручне введення витрат"
+  },
+  "suite": {
+    "leadforge": "LeadForge",
+    "tracker": "Tracker",
+    "crm": "CRM"
+  },
+  "leadforge": {
+    "title": "LeadForge",
+    "subtitle": "Модуль пакетної підготовки офферів та лендінгів",
+    "dropzoneTitle": "Перетягніть ZIP-архіви лендінгів сюди",
+    "dropzoneSub": "Підтримується від 1 до 50+ архівів одночасно",
+    "browseFiles": "Вибрати архіви",
+    "clearQueue": "Очистити список",
+    "selectedFiles": "Архівів у черзі",
+    "networkApi": "Партнерська мережа (CPA Network)",
+    "apiKey": "API-ключ / Client Token",
+    "offerId": "ID оффера / Flow Token",
+    "targetGeo": "Цільове ГЕО / Країна",
+    "currency": "Валюта",
+    "payout": "Виплата за замовчуванням",
+    "landingGroup": "Група лендінгів",
+    "forgeButton": "⚡ Forge & Save to Tracker",
+    "forging": "⚡ Обробка та інтеграція...",
+    "forgeSuccess": "Пакетну обробку лендінгів успішно завершено!",
+    "optionsTitle": "Опції автопідготовки та ін'єкції",
+    "optInjectMacro": "Вшити макрос {offer} у всі кнопки та посилання",
+    "optInjectAdapter": "Впровадити JS-адаптер Orbitra та наскрізний ClickID",
+    "optPhoneMask": "Додати маску телефону та валідатор для ГЕО",
+    "optThankYou": "Згенерувати локалізовану сторінку «Дякуємо»",
+    "optOrderPhp": "Згенерувати серверний order.php API-міст",
+    "optSaveTracker": "Автоматично зберегти лендінги в трекер",
+    "optCreateOffer": "Автоматично створити пов'язаний оффер у трекері",
+    "consoleTitle": "Консоль процесу LeadForge",
+    "downloadZip": "Завантажити готовий ZIP",
+    "openInTracker": "Відкрити в трекері",
+    "noArchives": "Архіви не вибрано. Завантажте ZIP-архіви вище для початку пакетної підготовки."
+  },
+  "crm": {
+    "title": "CRM — Облік лідів та замовлень",
+    "subtitle": "Обробка, фільтрація та керування лідами в реальному часі",
+    "totalLeads": "Всього лідів",
+    "inProcess": "В обробці / Холд",
+    "approved": "Підтверджені (Sale)",
+    "rejected": "Відхилені",
+    "trash": "Треш / Спам",
+    "approvalRate": "Апрув (AR %)",
+    "revenue": "Дохід",
+    "searchPlaceholder": "Пошук за ім'ям, телефоном, SubID, ClickID...",
+    "allStatuses": "Всі статуси",
+    "newLead": "+ Створити замовлення",
+    "exportCsv": "Експорт CSV",
+    "leadDetails": "Деталі ліда",
+    "customer": "Клієнт",
+    "phone": "Телефон",
+    "status": "Статус",
+    "payout": "Виплата",
+    "date": "Дата / Час",
+    "actions": "Дії",
+    "saveStatus": "Зберегти статус",
+    "noLeads": "Ліди не знайдено за вибраними критеріями."
+  },
+  "proxy": {
+    "singleString": "Одним рядком",
+    "separateFields": "По полях",
+    "hint": "Підтримує формати http://user:pass@ip:port та ip:port:user:pass",
+    "host": "Хост / IP",
+    "port": "Порт",
+    "username": "Логін",
+    "password": "Пароль"
   }
 };
 const es = {
@@ -24740,6 +25277,8 @@ const es = {
   },
   "common": {
     "copied": "Copiado",
+    "selectAll": "Seleccionar todo",
+    "orManual": "O configurar manualmente",
     "edit": "Editar",
     "status": "Estado",
     "size": "Tamaño",
@@ -25050,11 +25589,11 @@ const es = {
     "epv": "EPV",
     "lpViewsHint": "Total de visitas a la landing page",
     "lpClicksHint": "Total de clics en los botones CTA de la landing page",
-    "lpCtrHint": "CTR de la Landing (Clics LP / Visitas LP)",
-    "cpvHint": "Coste por visita (Coste / Visitas LP)",
-    "cpcHint": "Coste por clic (Coste / Clics LP)",
-    "epvHint": "Ganancias por visita (Ingresos / Visitas LP)",
-    "epcHint": "Ganancias por clic (Ingresos / Clics LP)",
+    "lpCtrHint": "CTR de la Landing (Clics LP / Visitas LP) — guion (—) en ofertas directas: no hay CTA que medir",
+    "cpvHint": "Coste por visita — universal: Coste / todas las visitas entrantes (Direct y Lander)",
+    "cpcHint": "Coste por clic LP (Coste / clics CTA del lander) — en ofertas directas equivale a CPV",
+    "epvHint": "Ganancias por visita — universal: Ingresos / todas las visitas entrantes (Direct y Lander)",
+    "epcHint": "Ganancias por clic LP (Ingresos / clics CTA del lander) — en ofertas directas equivale a EPV",
     "realRevenue": "Ingresos reales",
     "realRoi": "ROI real"
   },
@@ -25062,6 +25601,7 @@ const es = {
     "allGroups": "Todos los grupos",
     "groups": "Grupos",
     "sources": "Fuentes",
+    "allSources": "Todas las fuentes de tráfico",
     "campaign": "Campaña",
     "campaigns": "Campañas",
     "group": "grupo",
@@ -25081,6 +25621,7 @@ const es = {
     "deleteConfirm": "¿Eliminar campaña? Esta acción no se puede deshacer.",
     "updatedClicks": "Clics actualizados: {count}",
     "copySelected": "Copiar seleccionado",
+    "searchPlaceholder": "Buscar campañas...",
     "bulkCopyConfirm": "¿Copiar campañas seleccionadas? Se crearán copias con nuevos alias y tokens.",
     "copied": "Copiado",
     "copyErrors": "Errores"
@@ -25158,6 +25699,8 @@ const es = {
     "regenerateTokenConfirm": "¿Generar un nuevo token? El token antiguo dejará de funcionar y todos los scripts que lo utilicen ya no realizarán un seguimiento de los clics.",
     "streamWeight": "Peso de la corriente",
     "streamWeightHelp": "Se utiliza sólo cuando la rotación de la corriente está configurada como ponderada.",
+    "totalWeight": "Peso total de los flujos",
+    "equalizeSplit": "Dividir equitativamente",
     "campaignUrl": "URL de la campaña",
     "rewardModel": "Modelo de costos",
     "costValue": "Valor de costo",
@@ -25248,6 +25791,9 @@ const es = {
   },
   "landings": {
     "title": "Aterrizajes",
+    "allStates": "Todos los estados",
+    "searchPlaceholder": "Buscar landing...",
+    "noGroup": "Sin grupo",
     "noLandings": "No hay aterrizajes cargados",
     "noLandingsDesc": "Puedes crear o cargar la primera página de destino."
   },
@@ -25260,12 +25806,17 @@ const es = {
     "noOffersFiltered": "No hay ofertas que coincidan con estos filtros",
     "changeFilters": "Cambiar parámetros de filtro",
     "network": "Red de afiliados",
+    "allGroups": "Todos los grupos",
+    "allNetworks": "Todas las redes de afiliados",
+    "allStates": "Todos los estados",
+    "inactiveStates": "Archivados / Desactivados",
     "localOffer": "Oferta Local",
     "redirect": "Redirigir",
     "iframe": "marco flotante",
     "local": "locales",
     "total": "Total ({count} ofertas)",
     "copySelected": "Copiar seleccionado",
+    "searchPlaceholder": "Buscar ofertas...",
     "bulkCopyConfirm": "¿Copiar ofertas seleccionadas?",
     "copied": "Copiado",
     "copyErrors": "Errores"
@@ -26024,7 +26575,19 @@ const es = {
     "zipDropHint": "Arrastra el archivo .zip aquí o haz clic para seleccionarlo",
     "zipReplaceHint": "Haz clic o arrastra otro archivo para reemplazarlo",
     "viewCode": "Código",
+    "viewSplit": "Dividido",
     "viewPreview": "Vista previa",
+    "livePreview": "Vista previa en vivo",
+    "unsavedPreview": "HTML sin guardar",
+    "savedPreview": "Landing guardada",
+    "filesTitle": "Archivos",
+    "replaceImage": "Reemplazar imagen",
+    "replaceImageTypeError": "Elige una imagen del mismo tipo para que los enlaces existentes de la landing sigan funcionando.",
+    "imageLoadError": "No se pudo cargar la imagen",
+    "formatCode": "Formatear",
+    "quickInsertHint": "Los fragmentos se insertan en el cursor; el adaptador y Back Trap antes de las etiquetas de cierre.",
+    "fullscreen": "Pantalla completa",
+    "exitFullscreen": "Salir de pantalla completa",
     "openInTab": "Abrir en una pestaña nueva",
     "previewNeedsSlug": "La vista previa estará disponible cuando la landing tenga carpeta: guarde primero los ajustes.",
     "zipOnCreateHint": "Opcional. El archivo se sube en cuanto se crea la landing: la ventana permanece abierta y los archivos aparecen a la derecha.",
@@ -26494,6 +27057,10 @@ const es = {
     "copyLink": "Copiar enlace",
     "duplicate": "Duplicar",
     "perPage": "Por página",
+    "showingRows": "Mostrando {start}-{end} de {total} filas",
+    "pageSize": "Tamaño de pág.",
+    "first": "Primera",
+    "last": "Última",
     "prev": "Anterior",
     "next": "Siguiente",
     "all": "Todos",
@@ -26663,6 +27230,46 @@ const es = {
     "streamFilterTooltip": "Establezca las condiciones en las que se debe activar esta transmisión: por país, dispositivo, sistema operativo, navegador, idioma, etc. El tráfico que no coincide con ninguna transmisión se dirige a la transmisión general.",
     "dismissAll": "Lo tengo",
     "showHelp": "Mostrar consejos"
+  },
+  "pixelVault": {
+    "pixelVaultTitle": "Bóveda de píxeles y CAPI",
+    "quickAddTitle": "Añadir píxel rápido a la bóveda",
+    "saveAndSelect": "Guardar y seleccionar",
+    "description": "Gestiona píxeles reutilizables y perfiles de conversión del servidor agrupados por nicho.",
+    "addNewPixel": "Añadir píxel",
+    "trafficSource": "Fuente de tráfico",
+    "nicheTag": "Etiqueta de nicho (ej. Nutra, Cripto)",
+    "pixelName": "Nombre del píxel",
+    "pixelId": "ID del píxel",
+    "capiToken": "Token de acceso de Conversions API",
+    "keepToken": "Déjalo vacío para conservar el token guardado",
+    "events": "Eventos",
+    "eventUrl": "URL del evento (opcional)",
+    "testEventCode": "Código de evento de prueba (opcional)",
+    "active": "Activo",
+    "sendTestEvent": "Enviar evento de prueba",
+    "sending": "Enviando…",
+    "testEventSent": "¡Evento de prueba enviado a Meta con éxito!",
+    "editPixel": "Editar perfil de píxel",
+    "allNiches": "Todos los nichos",
+    "search": "Buscar píxel…",
+    "token": "Token",
+    "duplicate": "Duplicar",
+    "confirmDelete": "¿Eliminar este perfil y desvincularlo de todas las campañas?",
+    "deleted": "Perfil de píxel eliminado",
+    "duplicated": "Perfil de píxel duplicado",
+    "saved": "Perfil de píxel guardado",
+    "testUnsupported": "Los eventos de prueba son compatibles con perfiles de Facebook y TikTok.",
+    "noProfiles": "Ningún perfil de píxel coincide con los filtros.",
+    "attachPixel": "Adjuntar perfil de píxel guardado",
+    "noPixel": "Sin píxel adjunto",
+    "niche": "Nicho",
+    "inactive": "inactivo",
+    "pixelHint": "Al adjuntar un perfil se envían automáticamente las conversiones CAPI del servidor para esta campaña.",
+    "saveCampaignFirst": "Guarda la campaña antes de adjuntar un perfil de la bóveda.",
+    "attached": "Perfil de píxel adjuntado",
+    "detached": "Perfil de píxel desvinculado",
+    "vaultProfile": "Bóveda"
   },
   "pixels": {
     "title": "Píxeles de seguimiento",
@@ -27265,12 +27872,28 @@ const es = {
   "fbCosts": {
     "title": "Facebook Costs",
     "description": "Importa el gasto publicitario de una cuenta de Meta y lo atribuye a los clics por ad, adset y campaign ID.",
+    "oneClickTitle": "Integración de Facebook en 1 clic",
+    "oneClickDesc": "Inicia sesión con tu perfil de Facebook. Orbitra detectará automáticamente todas tus cuentas publicitarias y configurará la sincronización de gastos.",
+    "loginWithFb": "Iniciar sesión con Facebook",
+    "selectAccounts": "Selecciona las cuentas publicitarias",
+    "connectSelected": "Conectar cuentas seleccionadas",
+    "oauthConnecting": "Conectando con Facebook…",
+    "connectingAccounts": "Conectando cuentas…",
+    "oauthFailed": "No se pudo conectar con Facebook. Inténtalo de nuevo.",
+    "popupBlocked": "La ventana de inicio de sesión de Facebook fue bloqueada. Permite las ventanas emergentes para Orbitra e inténtalo de nuevo.",
+    "noDiscoveredAccounts": "La sesión se inició correctamente, pero no se encontraron cuentas publicitarias accesibles.",
+    "connectedAccounts": "Se conectaron {n} cuenta(s) publicitaria(s) de Facebook.",
     "addAccount": "Añadir cuenta",
     "editAccount": "Editar cuenta",
     "findAccount": "Buscar cuenta",
     "name": "Nombre",
     "interval": "Actualizar gasto cada",
     "advanced": "Avanzado: mapeo de parámetros",
+    "extendToken": "Extender a 60 días",
+    "extendTokenHint": "Intercambia el token por uno de larga duración de 60 días vía Graph API",
+    "tokenExtended": "Token extendido a 60 días",
+    "customApp": "Meta App personalizada (Opcional)",
+    "customAppHint": "Solo necesario para extender tokens y configuraciones raras por app — la app compartida de la instancia o un token de larga duración listo no necesita nada aquí.",
     "advancedHint": "Solo necesario cuando el tráfico pasa por una app que reempaqueta las macros de Facebook en sub IDs. Déjalo vacío para usar ad_id / adset_id / campaign_id estándar.",
     "ad_id_param": "El Ad ID llega en el parámetro",
     "adset_id_param": "El Adset ID llega en el parámetro",
@@ -27300,6 +27923,12 @@ const es = {
     "noAccounts": "No hay cuentas publicitarias conectadas. Añade una para importar el gasto de Facebook."
   },
   "fbConv": {
+    "selectPixelPrompt": "Selecciona un píxel guardado...",
+    "manageInVault": "Editar en Bóveda de Píxeles",
+    "addNewPixel": "Añadir nuevo píxel a la bóveda...",
+    "enterManually": "Introducir Pixel ID manualmente...",
+    "selectFromList": "Elegir de guardados",
+    "tokenAutoFilledHint": "El token se aplica automáticamente al seleccionar un píxel.",
     "title": "Facebook Conversions",
     "description": "Envía conversiones a Meta mediante la Conversions API desde el servidor, para que los eventos bloqueados en el navegador lleguen al optimizador.",
     "addAccount": "Añadir cuenta",
@@ -27453,6 +28082,75 @@ const es = {
     "updateCostsManually": "Actualizar costos manualmente",
     "costSyncTitle": "Sincronización de costos",
     "manualCostTitle": "Entrada manual de costos"
+  },
+  "suite": {
+    "leadforge": "LeadForge",
+    "tracker": "Tracker",
+    "crm": "CRM"
+  },
+  "leadforge": {
+    "title": "LeadForge",
+    "subtitle": "Motor de preparación masiva de ofertas y landings",
+    "dropzoneTitle": "Arrastre archivos ZIP de landings aquí",
+    "dropzoneSub": "Soporta de 1 a 50+ archivos simultáneamente",
+    "browseFiles": "Seleccionar archivos",
+    "clearQueue": "Limpiar lista",
+    "selectedFiles": "Archivos en cola",
+    "networkApi": "Red de afiliados (CPA Network)",
+    "apiKey": "Clave API / Token de cliente",
+    "offerId": "ID de oferta / Token de flujo",
+    "targetGeo": "GEO de destino / País",
+    "currency": "Moneda",
+    "payout": "Pago predeterminado",
+    "landingGroup": "Grupo de landings",
+    "forgeButton": "⚡ Forge & Save to Tracker",
+    "forging": "⚡ Procesando e integrando...",
+    "forgeSuccess": "¡Procesamiento de landings completado con éxito!",
+    "optionsTitle": "Opciones de automatización e inyección",
+    "optInjectMacro": "Inyectar macro {offer} en botones y enlaces",
+    "optInjectAdapter": "Inyectar adaptador JS de Orbitra y ClickID",
+    "optPhoneMask": "Añadir máscara de teléfono y validador por GEO",
+    "optThankYou": "Generar página de agradecimiento localizada",
+    "optOrderPhp": "Generar puente API de servidor order.php",
+    "optSaveTracker": "Guardar automáticamente en el tracker",
+    "optCreateOffer": "Crear oferta vinculada en el tracker",
+    "consoleTitle": "Consola de ejecución de LeadForge",
+    "downloadZip": "Descargar ZIP listo",
+    "openInTracker": "Abrir en el tracker",
+    "noArchives": "No hay archivos seleccionados. Suba archivos ZIP arriba para comenzar."
+  },
+  "crm": {
+    "title": "CRM — Gestión de leads y pedidos",
+    "subtitle": "Gestione, filtre y procese todos los pedidos de clientes en tiempo real",
+    "totalLeads": "Total de leads",
+    "inProcess": "En proceso / Espera",
+    "approved": "Ventas aprobadas",
+    "rejected": "Rechazados",
+    "trash": "Basura / Spam",
+    "approvalRate": "Tasa de aprobación (AR %)",
+    "revenue": "Ingresos obtenidos",
+    "searchPlaceholder": "Buscar por nombre, teléfono, SubID, ClickID...",
+    "allStatuses": "Todos los estados",
+    "newLead": "+ Nuevo pedido",
+    "exportCsv": "Exportar CSV",
+    "leadDetails": "Detalles del lead",
+    "customer": "Cliente",
+    "phone": "Teléfono",
+    "status": "Estado",
+    "payout": "Pago",
+    "date": "Fecha / Hora",
+    "actions": "Acciones",
+    "saveStatus": "Guardar estado",
+    "noLeads": "No se encontraron leads con los filtros actuales."
+  },
+  "proxy": {
+    "singleString": "Cadena única",
+    "separateFields": "Campos separados",
+    "hint": "Soporta formatos http://user:pass@ip:port y ip:port:user:pass",
+    "host": "Host / IP",
+    "port": "Puerto",
+    "username": "Usuario",
+    "password": "Contraseña"
   }
 };
 const zh = {
@@ -27579,6 +28277,8 @@ const zh = {
   },
   "common": {
     "copied": "已复制",
+    "selectAll": "全选",
+    "orManual": "或手动填写 Token",
     "edit": "编辑",
     "status": "状态",
     "size": "大小",
@@ -27889,11 +28589,11 @@ const zh = {
     "epv": "EPV",
     "lpViewsHint": "着陆页总访问量",
     "lpClicksHint": "着陆页 CTA 按钮总点击量",
-    "lpCtrHint": "着陆页点击率 (出站点击 / 着陆页访问量)",
-    "cpvHint": "每访问成本 (总花费 / 着陆页访问量)",
-    "cpcHint": "每点击成本 (总花费 / 着陆页出站点击量)",
-    "epvHint": "每访问收益 (总收入 / 着陆页访问量)",
-    "epcHint": "每点击收益 (总收入 / 着陆页出站点击量)",
+    "lpCtrHint": "着陆页点击率 (出站点击 / 着陆页访问量)；直投广告系列显示 —（无 CTA 可测）",
+    "cpvHint": "每访问成本 — 通用口径：总花费 / 全部入站访问（直投与落地页均适用）",
+    "cpcHint": "每 LP 点击成本（总花费 / 落地页 CTA 点击）；直投时等于 CPV",
+    "epvHint": "每访问收益 — 通用口径：总收入 / 全部入站访问（直投与落地页均适用）",
+    "epcHint": "每 LP 点击收益（总收入 / 落地页 CTA 点击）；直投时等于 EPV",
     "realRevenue": "实际收入",
     "realRoi": "实际 ROI"
   },
@@ -27901,6 +28601,7 @@ const zh = {
     "allGroups": "所有分组",
     "groups": "团体",
     "sources": "来源",
+    "allSources": "所有流量源",
     "campaign": "活动",
     "campaigns": "活动",
     "group": "集团",
@@ -27920,6 +28621,7 @@ const zh = {
     "deleteConfirm": "删除广告系列？此操作无法撤消。",
     "updatedClicks": "更新点击次数：{count}",
     "copySelected": "复制所选内容",
+    "searchPlaceholder": "搜索广告活动...",
     "bulkCopyConfirm": "复制选定的广告活动？将创建具有新别名和令牌的副本。",
     "copied": "已复制",
     "copyErrors": "错误"
@@ -27997,6 +28699,8 @@ const zh = {
     "regenerateTokenConfirm": "生成新令牌？旧令牌将停止工作，所有使用它的脚本将不再跟踪点击。",
     "streamWeight": "流权重",
     "streamWeightHelp": "仅当流旋转设置为加权时使用。",
+    "totalWeight": "分流权重总和",
+    "equalizeSplit": "均等分配",
     "campaignUrl": "活动网址",
     "rewardModel": "成本模型",
     "costValue": "成本价值",
@@ -28087,6 +28791,9 @@ const zh = {
   },
   "landings": {
     "title": "登陆",
+    "allStates": "所有状态",
+    "searchPlaceholder": "搜索着陆页...",
+    "noGroup": "无分组",
     "noLandings": "未加载着陆",
     "noLandingsDesc": "您可以创建或加载第一个登陆页面"
   },
@@ -28099,12 +28806,17 @@ const zh = {
     "noOffersFiltered": "没有符合这些过滤条件的优惠",
     "changeFilters": "更改过滤器参数",
     "network": "联盟网络",
+    "allGroups": "所有分组",
+    "allNetworks": "所有联盟网络",
+    "allStates": "所有状态",
+    "inactiveStates": "已归档 / 已禁用",
     "localOffer": "本地优惠",
     "redirect": "重定向",
     "iframe": "框架",
     "local": "本地",
     "total": "总计（{count} 个优惠）",
     "copySelected": "复制所选内容",
+    "searchPlaceholder": "搜索 Offer 列表...",
     "bulkCopyConfirm": "复制选定的优惠？",
     "copied": "已复制",
     "copyErrors": "错误"
@@ -28863,7 +29575,19 @@ const zh = {
     "zipDropHint": "将 .zip 拖到此处或点击选择文件",
     "zipReplaceHint": "点击或拖入其他文件以替换",
     "viewCode": "代码",
+    "viewSplit": "分屏",
     "viewPreview": "预览",
+    "livePreview": "实时预览",
+    "unsavedPreview": "未保存的 HTML",
+    "savedPreview": "已保存的着陆页",
+    "filesTitle": "文件",
+    "replaceImage": "替换图片",
+    "replaceImageTypeError": "请选择相同文件类型的图片，以确保着陆页中的现有链接继续有效。",
+    "imageLoadError": "无法加载此图片",
+    "formatCode": "格式化",
+    "quickInsertHint": "代码片段插入到光标处；适配器和 Back Trap 插入到结束标签之前。",
+    "fullscreen": "全屏",
+    "exitFullscreen": "退出全屏",
     "openInTab": "在新标签页中打开",
     "previewNeedsSlug": "着陆页有了文件夹后即可预览 —— 请先保存设置。",
     "zipOnCreateHint": "可选。着陆页创建后立即上传压缩包 —— 窗口保持打开，文件会出现在右侧。",
@@ -29333,6 +30057,10 @@ const zh = {
     "copyLink": "复制链接",
     "duplicate": "复制副本",
     "perPage": "每页",
+    "showingRows": "显示第 {start}-{end} 条，共 {total} 条",
+    "pageSize": "每页条数",
+    "first": "首页",
+    "last": "尾页",
     "prev": "上一页",
     "next": "下一页",
     "all": "全部",
@@ -29502,6 +30230,46 @@ const zh = {
     "streamFilterTooltip": "设置激活此流的条件：按国家/地区、设备、操作系统、浏览器、语言等。与任何流不匹配的流量将进入包罗万象的流。",
     "dismissAll": "明白了",
     "showHelp": "显示提示"
+  },
+  "pixelVault": {
+    "pixelVaultTitle": "像素与 CAPI 配置库",
+    "quickAddTitle": "快速添加像素配置",
+    "saveAndSelect": "保存并立即选用",
+    "description": "按垂直领域管理可复用的跟踪像素和服务器端转化配置。",
+    "addNewPixel": "添加新像素",
+    "trafficSource": "流量来源",
+    "nicheTag": "垂直领域分类 (如 Nutra, Crypto)",
+    "pixelName": "像素名称",
+    "pixelId": "像素 ID",
+    "capiToken": "Conversions API 访问令牌",
+    "keepToken": "留空以保留已保存的令牌",
+    "events": "事件",
+    "eventUrl": "事件 URL（可选）",
+    "testEventCode": "测试事件代码（可选）",
+    "active": "启用",
+    "sendTestEvent": "发送测试事件",
+    "sending": "发送中…",
+    "testEventSent": "测试事件已成功发送至 Meta！",
+    "editPixel": "编辑像素配置",
+    "allNiches": "所有分类",
+    "search": "查找像素…",
+    "token": "令牌",
+    "duplicate": "复制",
+    "confirmDelete": "删除此配置并从所有广告系列中解绑？",
+    "deleted": "像素配置已删除",
+    "duplicated": "像素配置已复制",
+    "saved": "像素配置已保存",
+    "testUnsupported": "Facebook 和 TikTok 配置支持测试事件。",
+    "noProfiles": "没有符合当前筛选条件的像素配置。",
+    "attachPixel": "绑定已保存的像素配置",
+    "noPixel": "未绑定像素",
+    "niche": "分类",
+    "inactive": "未启用",
+    "pixelHint": "绑定配置后会自动为此广告系列发送服务器端 CAPI 转化。",
+    "saveCampaignFirst": "请先保存广告系列，再绑定配置库中的像素。",
+    "attached": "像素配置已绑定",
+    "detached": "像素配置已解绑",
+    "vaultProfile": "配置库"
   },
   "pixels": {
     "title": "追踪像素",
@@ -30104,12 +30872,28 @@ const zh = {
   "fbCosts": {
     "title": "Facebook Costs",
     "description": "从 Meta 广告账户导入广告支出，并按广告、广告组和广告系列 ID 归因到点击。",
+    "oneClickTitle": "Facebook 一键快捷授权",
+    "oneClickDesc": "使用 Facebook 个人资料登录。Orbitra 将自动发现所有可用广告账户并设置支出同步。",
+    "loginWithFb": "使用 Facebook 登录授权",
+    "selectAccounts": "选择要绑定的广告账户",
+    "connectSelected": "确认连接所选账户",
+    "oauthConnecting": "正在连接 Facebook…",
+    "connectingAccounts": "正在连接账户…",
+    "oauthFailed": "Facebook 连接失败，请重试。",
+    "popupBlocked": "Facebook 登录窗口已被拦截。请允许 Orbitra 弹出窗口后重试。",
+    "noDiscoveredAccounts": "Facebook 登录成功，但未找到可访问的广告账户。",
+    "connectedAccounts": "已连接 {n} 个 Facebook 广告账户。",
     "addAccount": "添加账户",
     "editAccount": "编辑账户",
     "findAccount": "查找账户",
     "name": "名称",
     "interval": "支出更新频率",
     "advanced": "高级：参数映射",
+    "extendToken": "转换为 60 天长期 Token",
+    "extendTokenHint": "通过 Graph API 将 Token 换为 60 天长期 Token",
+    "tokenExtended": "Token 已成功延长为 60 天",
+    "customApp": "自定义 Meta App 应用 (选填)",
+    "customAppHint": "仅在延长 Token 或少数按应用配置的场景需要 — 使用实例共享应用或现成的长期 Token 时无需填写。",
     "advancedHint": "仅当流量经过将 Facebook 宏重新打包为 sub ID 的应用时才需要。留空则使用标准的 ad_id / adset_id / campaign_id。",
     "ad_id_param": "广告 ID 所在参数",
     "adset_id_param": "广告组 ID 所在参数",
@@ -30139,6 +30923,12 @@ const zh = {
     "noAccounts": "尚未连接广告账户。添加一个以从 Facebook 导入支出。"
   },
   "fbConv": {
+    "selectPixelPrompt": "选择已保存的像素...",
+    "manageInVault": "前往像素库编辑",
+    "addNewPixel": "添加新像素到配置库...",
+    "enterManually": "手动输入 Pixel ID...",
+    "selectFromList": "从列表中选择",
+    "tokenAutoFilledHint": "选择已保存像素后自动填入 CAPI Token。",
     "title": "Facebook Conversions",
     "description": "通过 Conversions API 从服务器端将转化发送给 Meta，让浏览器中被拦截的事件仍能到达优化器。",
     "addAccount": "添加账户",
@@ -30292,6 +31082,75 @@ const zh = {
     "updateCostsManually": "手动更新花费",
     "costSyncTitle": "花费同步",
     "manualCostTitle": "手动录入花费"
+  },
+  "suite": {
+    "leadforge": "LeadForge",
+    "tracker": "Tracker",
+    "crm": "CRM"
+  },
+  "leadforge": {
+    "title": "LeadForge",
+    "subtitle": "着陆页与优惠批量自动准备引擎",
+    "dropzoneTitle": "拖放着陆页 ZIP 压缩包至此处",
+    "dropzoneSub": "支持同时处理 1 至 50+ 个压缩包",
+    "browseFiles": "浏览文件",
+    "clearQueue": "清空队列",
+    "selectedFiles": "队列中的压缩包",
+    "networkApi": "联盟网络 (CPA Network)",
+    "apiKey": "API 密钥 / 令牌",
+    "offerId": "优惠 ID / 流量 Token",
+    "targetGeo": "目标国家 / GEO",
+    "currency": "货币",
+    "payout": "默认单价",
+    "landingGroup": "着陆页分组",
+    "forgeButton": "⚡ Forge & Save to Tracker",
+    "forging": "⚡ 处理并整合中...",
+    "forgeSuccess": "批量处理着陆页成功！",
+    "optionsTitle": "自动化与代码注入选项",
+    "optInjectMacro": "自动向按钮与链接注入 {offer} 宏",
+    "optInjectAdapter": "注入 Orbitra JS 适配器与 ClickID 桥接",
+    "optPhoneMask": "添加国家电话掩码与实时验证器",
+    "optThankYou": "生成本地化感谢页面 (Thank You Page)",
+    "optOrderPhp": "生成安全 order.php API 桥接文件",
+    "optSaveTracker": "自动保存至追踪器着陆页列表",
+    "optCreateOffer": "自动在追踪器中创建关联优惠",
+    "consoleTitle": "LeadForge 执行控制台",
+    "downloadZip": "下载处理后的 ZIP",
+    "openInTracker": "在追踪器中打开",
+    "noArchives": "未选择压缩包。请在上方上传 ZIP 压缩包以开始批量准备。"
+  },
+  "crm": {
+    "title": "CRM — 订单与销售线索管理",
+    "subtitle": "实时跟踪、筛选和处理所有客户线索与订单",
+    "totalLeads": "线索总数",
+    "inProcess": "处理中 / 待确认",
+    "approved": "已批准成交",
+    "rejected": "已拒绝",
+    "trash": "垃圾 / 废弃",
+    "approvalRate": "批准率 (AR %)",
+    "revenue": "已赚取收入",
+    "searchPlaceholder": "按姓名、电话、SubID、ClickID 搜索...",
+    "allStatuses": "所有状态",
+    "newLead": "+ 新建订单",
+    "exportCsv": "导出 CSV",
+    "leadDetails": "线索详情",
+    "customer": "客户",
+    "phone": "电话",
+    "status": "状态",
+    "payout": "单价",
+    "date": "日期 / 时间",
+    "actions": "操作",
+    "saveStatus": "更新状态",
+    "noLeads": "未找到符合当前筛选条件的线索。"
+  },
+  "proxy": {
+    "singleString": "单行文本",
+    "separateFields": "分项填报",
+    "hint": "支持 http://user:pass@ip:port 和 ip:port:user:pass 格式",
+    "host": "主机 / IP",
+    "port": "端口",
+    "username": "用户名",
+    "password": "密码"
   }
 };
 const fr = {
@@ -30418,6 +31277,8 @@ const fr = {
   },
   "common": {
     "copied": "Copié",
+    "selectAll": "Tout sélectionner",
+    "orManual": "Ou configurer manuellement",
     "edit": "Modifier",
     "status": "Statut",
     "size": "Taille",
@@ -30728,11 +31589,11 @@ const fr = {
     "epv": "EPV",
     "lpViewsHint": "Nombre total de vues de la landing page",
     "lpClicksHint": "Nombre total de clics sur les boutons CTA de la landing page",
-    "lpCtrHint": "CTR de la Landing (Clics LP / Vues LP)",
-    "cpvHint": "Coût par visite (Coût / Vues LP)",
-    "cpcHint": "Coût par clic (Coût / Clics LP)",
-    "epvHint": "Revenu par visite (Revenu / Vues LP)",
-    "epcHint": "Revenu par clic (Revenu / Clics LP)",
+    "lpCtrHint": "CTR de la Landing (Clics LP / Vues LP). Tiret (—) sur les offres directes (aucun CTA à mesurer)",
+    "cpvHint": "Coût par visite, universel (Coût / toutes les visites entrantes, offres directes et landers)",
+    "cpcHint": "Coût par clic LP (Coût / clics CTA du lander), égal au CPV sur les offres directes",
+    "epvHint": "Revenu par visite, universel (Revenu / toutes les visites entrantes, offres directes et landers)",
+    "epcHint": "Revenu par clic LP (Revenu / clics CTA du lander), égal à l'EPV sur les offres directes",
     "realRevenue": "Revenu réel",
     "realRoi": "ROI réel"
   },
@@ -30740,6 +31601,7 @@ const fr = {
     "allGroups": "Tous les groupes",
     "groups": "Groupes",
     "sources": "Sources",
+    "allSources": "Toutes les sources de trafic",
     "campaign": "Campagne",
     "campaigns": "Campagnes",
     "group": "Groupe",
@@ -30759,6 +31621,7 @@ const fr = {
     "deleteConfirm": "Supprimer la campagne ? Cette action est irréversible.",
     "updatedClicks": "Clics mis à jour : {count}",
     "copySelected": "Copier la sélection",
+    "searchPlaceholder": "Rechercher des campagnes...",
     "bulkCopyConfirm": "Copier les campagnes sélectionnées ? Des copies avec de nouveaux alias et jetons seront créées.",
     "copied": "Copié",
     "copyErrors": "Erreurs"
@@ -30836,6 +31699,8 @@ const fr = {
     "regenerateTokenConfirm": "Générer un nouveau jeton ? L'ancien jeton cessera de fonctionner et tous les scripts qui l'utilisent ne suivront plus les clics.",
     "streamWeight": "Poids du flux",
     "streamWeightHelp": "Utilisé uniquement lorsque la rotation du flux est définie sur pondérée.",
+    "totalWeight": "Poids total des flux",
+    "equalizeSplit": "Répartir équitablement",
     "campaignUrl": "URL de la campagne",
     "rewardModel": "Modèle de coût",
     "costValue": "Valeur du coût",
@@ -30926,6 +31791,9 @@ const fr = {
   },
   "landings": {
     "title": "Atterrissages",
+    "allStates": "Tous les statuts",
+    "searchPlaceholder": "Rechercher une landing page...",
+    "noGroup": "Sans groupe",
     "noLandings": "Aucun atterrissage chargé",
     "noLandingsDesc": "Vous pouvez créer ou charger la première page de destination"
   },
@@ -30938,12 +31806,17 @@ const fr = {
     "noOffersFiltered": "Aucune offre correspondant à ces filtres",
     "changeFilters": "Modifier les paramètres de filtre",
     "network": "Réseau d'affiliation",
+    "allGroups": "Tous les groupes",
+    "allNetworks": "Tous les réseaux d'affiliation",
+    "allStates": "Tous les statuts",
+    "inactiveStates": "Archivés / Désactivés",
     "localOffer": "Offre locale",
     "redirect": "Redirection",
     "iframe": "IFrame",
     "local": "Local",
     "total": "Total ({count} offres)",
     "copySelected": "Copier la sélection",
+    "searchPlaceholder": "Rechercher des offres...",
     "bulkCopyConfirm": "Copier les offres sélectionnées ?",
     "copied": "Copié",
     "copyErrors": "Erreurs"
@@ -31702,7 +32575,19 @@ const fr = {
     "zipDropHint": "Glissez le fichier .zip ici ou cliquez pour le sélectionner",
     "zipReplaceHint": "Cliquez ou déposez un autre fichier pour le remplacer",
     "viewCode": "Code",
+    "viewSplit": "Partagé",
     "viewPreview": "Aperçu",
+    "livePreview": "Aperçu en direct",
+    "unsavedPreview": "HTML non enregistré",
+    "savedPreview": "Landing enregistrée",
+    "filesTitle": "Fichiers",
+    "replaceImage": "Remplacer l’image",
+    "replaceImageTypeError": "Choisissez une image du même type afin de préserver les liens existants de la landing.",
+    "imageLoadError": "Impossible de charger l’image",
+    "formatCode": "Formater",
+    "quickInsertHint": "Les extraits sont insérés au curseur ; l’adaptateur et Back Trap avant les balises de fermeture.",
+    "fullscreen": "Plein écran",
+    "exitFullscreen": "Quitter le plein écran",
     "openInTab": "Ouvrir dans un nouvel onglet",
     "previewNeedsSlug": "L'aperçu sera disponible une fois que la landing aura un dossier — enregistrez d'abord les réglages.",
     "zipOnCreateHint": "Facultatif. L'archive est envoyée dès la création de la landing — la fenêtre reste ouverte et les fichiers apparaissent à droite.",
@@ -32172,6 +33057,10 @@ const fr = {
     "copyLink": "Copier le lien",
     "duplicate": "Dupliquer",
     "perPage": "Par page",
+    "showingRows": "Affichage de {start}-{end} sur {total} lignes",
+    "pageSize": "Taille de page",
+    "first": "Première",
+    "last": "Dernière",
     "prev": "Préc.",
     "next": "Suiv.",
     "all": "Tous",
@@ -32341,6 +33230,46 @@ const fr = {
     "streamFilterTooltip": "Définissez les conditions dans lesquelles ce flux doit être activé : par pays, appareil, système d'exploitation, navigateur, langue, etc. Le trafic ne correspondant à aucun flux est dirigé vers le flux fourre-tout.",
     "dismissAll": "Compris",
     "showHelp": "Afficher les conseils"
+  },
+  "pixelVault": {
+    "pixelVaultTitle": "Coffre-fort de pixels et CAPI",
+    "quickAddTitle": "Ajout rapide de pixel au coffre",
+    "saveAndSelect": "Enregistrer et sélectionner",
+    "description": "Gérez des pixels réutilisables et des profils de conversion serveur classés par niche.",
+    "addNewPixel": "Ajouter un pixel",
+    "trafficSource": "Source de trafic",
+    "nicheTag": "Tag de niche (ex. Nutra, Crypto)",
+    "pixelName": "Nom du pixel",
+    "pixelId": "ID du pixel",
+    "capiToken": "Jeton d’accès Conversions API",
+    "keepToken": "Laisser vide pour conserver le jeton enregistré",
+    "events": "Événements",
+    "eventUrl": "URL de l’événement (facultatif)",
+    "testEventCode": "Code d’événement test (facultatif)",
+    "active": "Actif",
+    "sendTestEvent": "Envoyer un événement de test",
+    "sending": "Envoi…",
+    "testEventSent": "Événement de test envoyé à Meta avec succès !",
+    "editPixel": "Modifier le profil de pixel",
+    "allNiches": "Toutes les niches",
+    "search": "Rechercher un pixel…",
+    "token": "Jeton",
+    "duplicate": "Dupliquer",
+    "confirmDelete": "Supprimer ce profil et le détacher de toutes les campagnes ?",
+    "deleted": "Profil de pixel supprimé",
+    "duplicated": "Profil de pixel dupliqué",
+    "saved": "Profil de pixel enregistré",
+    "testUnsupported": "Les événements de test sont disponibles pour les profils Facebook et TikTok.",
+    "noProfiles": "Aucun profil de pixel ne correspond aux filtres.",
+    "attachPixel": "Attacher un profil de pixel enregistré",
+    "noPixel": "Aucun pixel attaché",
+    "niche": "Niche",
+    "inactive": "inactif",
+    "pixelHint": "L’attachement d’un profil envoie automatiquement les conversions CAPI serveur de cette campagne.",
+    "saveCampaignFirst": "Enregistrez la campagne avant d’attacher un profil du coffre-fort.",
+    "attached": "Profil de pixel attaché",
+    "detached": "Profil de pixel détaché",
+    "vaultProfile": "Coffre"
   },
   "pixels": {
     "title": "Suivi des pixels",
@@ -32945,12 +33874,28 @@ const fr = {
   "fbCosts": {
     "title": "Facebook Costs",
     "description": "Importe les dépenses publicitaires d’un compte Meta et les attribue aux clics via les ID d’annonce, d’adset et de campagne.",
+    "oneClickTitle": "Intégration Facebook en 1 clic",
+    "oneClickDesc": "Connectez-vous avec votre profil Facebook. Orbitra détectera automatiquement tous vos comptes publicitaires et configurera la synchronisation des dépenses.",
+    "loginWithFb": "Se connecter avec Facebook",
+    "selectAccounts": "Sélectionner les comptes publicitaires",
+    "connectSelected": "Connecter les comptes sélectionnés",
+    "oauthConnecting": "Connexion à Facebook…",
+    "connectingAccounts": "Connexion des comptes…",
+    "oauthFailed": "La connexion à Facebook a échoué. Veuillez réessayer.",
+    "popupBlocked": "La fenêtre de connexion Facebook a été bloquée. Autorisez les fenêtres contextuelles pour Orbitra et réessayez.",
+    "noDiscoveredAccounts": "La connexion a réussi, mais aucun compte publicitaire accessible n’a été trouvé.",
+    "connectedAccounts": "{n} compte(s) publicitaire(s) Facebook connecté(s).",
     "addAccount": "Ajouter un compte",
     "editAccount": "Modifier le compte",
     "findAccount": "Rechercher un compte",
     "name": "Nom",
     "interval": "Actualiser les dépenses toutes les",
     "advanced": "Avancé : mappage des paramètres",
+    "extendToken": "Prolonger à 60 jours",
+    "extendTokenHint": "Échange le token contre un token de longue durée de 60 jours via l'API Graph",
+    "tokenExtended": "Token prolongé à 60 jours",
+    "customApp": "Meta App personnalisée (Optionnel)",
+    "customAppHint": "Utile seulement pour prolonger un token et de rares configurations par application — l'application partagée de l'instance ou un token longue durée prêt à l'emploi n'a rien besoin ici.",
     "advancedHint": "Nécessaire uniquement si le trafic passe par une application qui réencapsule les macros Facebook dans des sub ID. Laissez vide pour utiliser ad_id / adset_id / campaign_id.",
     "ad_id_param": "L’Ad ID arrive dans le paramètre",
     "adset_id_param": "L’Adset ID arrive dans le paramètre",
@@ -32980,6 +33925,12 @@ const fr = {
     "noAccounts": "Aucun compte publicitaire connecté. Ajoutez-en un pour importer les dépenses depuis Facebook."
   },
   "fbConv": {
+    "selectPixelPrompt": "Sélectionner un pixel enregistré...",
+    "manageInVault": "Modifier dans Pixel Vault",
+    "addNewPixel": "Ajouter un nouveau pixel au coffre...",
+    "enterManually": "Saisir l'ID du pixel manuellement...",
+    "selectFromList": "Choisir parmi les enregistrés",
+    "tokenAutoFilledHint": "Le jeton est appliqué automatiquement lors de la sélection.",
     "title": "Facebook Conversions",
     "description": "Envoie les conversions à Meta via la Conversions API côté serveur, pour que les événements bloqués dans le navigateur atteignent quand même l’optimiseur.",
     "addAccount": "Ajouter un compte",
@@ -33133,6 +34084,75 @@ const fr = {
     "updateCostsManually": "Mettre à jour les coûts manuellement",
     "costSyncTitle": "Synchronisation des coûts",
     "manualCostTitle": "Saisie manuelle des coûts"
+  },
+  "suite": {
+    "leadforge": "LeadForge",
+    "tracker": "Tracker",
+    "crm": "CRM"
+  },
+  "leadforge": {
+    "title": "LeadForge",
+    "subtitle": "Moteur de préparation en masse d'offres et landings",
+    "dropzoneTitle": "Glissez-déposez les archives ZIP de landings ici",
+    "dropzoneSub": "Prend en charge de 1 à 50+ archives simultanément",
+    "browseFiles": "Parcourir les fichiers",
+    "clearQueue": "Vider la file",
+    "selectedFiles": "Archives en file",
+    "networkApi": "Réseau d'affiliation (CPA)",
+    "apiKey": "Clé API / Token",
+    "offerId": "ID de l'offre / Token de flux",
+    "targetGeo": "GÉO cible / Pays",
+    "currency": "Devise",
+    "payout": "Paiement par défaut",
+    "landingGroup": "Groupe de landings",
+    "forgeButton": "⚡ Forge & Save to Tracker",
+    "forging": "⚡ Traitement et intégration...",
+    "forgeSuccess": "Préparation en masse terminée avec succès !",
+    "optionsTitle": "Options d'automatisation et d'injection",
+    "optInjectMacro": "Injecter la macro {offer} dans les boutons et liens",
+    "optInjectAdapter": "Injecter l'adaptateur JS Orbitra et le ClickID",
+    "optPhoneMask": "Ajouter un masque de téléphone et validateur par GÉO",
+    "optThankYou": "Générer une page de remerciement localisée",
+    "optOrderPhp": "Générer la passerelle API serveur order.php",
+    "optSaveTracker": "Enregistrer automatiquement dans le tracker",
+    "optCreateOffer": "Créer l'offre associée dans le tracker",
+    "consoleTitle": "Console d'exécution LeadForge",
+    "downloadZip": "Télécharger le ZIP prêt",
+    "openInTracker": "Ouvrir dans le tracker",
+    "noArchives": "Aucune archive sélectionnée. Déposez des fichiers ZIP ci-dessus pour commencer."
+  },
+  "crm": {
+    "title": "CRM — Gestion des leads et commandes",
+    "subtitle": "Suivez, filtrez et gérez toutes les commandes clients en temps réel",
+    "totalLeads": "Total des leads",
+    "inProcess": "En traitement / En attente",
+    "approved": "Ventes approuvées",
+    "rejected": "Rejetés",
+    "trash": "Spam / Déchets",
+    "approvalRate": "Taux d'approbation (AR %)",
+    "revenue": "Revenus générés",
+    "searchPlaceholder": "Rechercher par nom, téléphone, SubID, ClickID...",
+    "allStatuses": "Tous les statuts",
+    "newLead": "+ Nouvelle commande",
+    "exportCsv": "Exporter CSV",
+    "leadDetails": "Détails du lead",
+    "customer": "Client",
+    "phone": "Téléphone",
+    "status": "Statut",
+    "payout": "Paiement",
+    "date": "Date / Heure",
+    "actions": "Actions",
+    "saveStatus": "Enregistrer le statut",
+    "noLeads": "Aucun lead trouvé correspondant aux filtres."
+  },
+  "proxy": {
+    "singleString": "Ligne unique",
+    "separateFields": "Champs séparés",
+    "hint": "Prend en charge les formats http://user:pass@ip:port et ip:port:user:pass",
+    "host": "Hôte / IP",
+    "port": "Port",
+    "username": "Utilisateur",
+    "password": "Mot de passe"
   }
 };
 const de = {
@@ -33259,6 +34279,8 @@ const de = {
   },
   "common": {
     "copied": "Kopiert",
+    "selectAll": "Alle auswählen",
+    "orManual": "Oder manuell konfigurieren",
     "edit": "Bearbeiten",
     "status": "Status",
     "size": "Größe",
@@ -33569,11 +34591,11 @@ const de = {
     "epv": "EPV",
     "lpViewsHint": "Gesamtzahl der Landingpage-Aufrufe",
     "lpClicksHint": "Gesamtzahl der Klicks auf Landingpage-CTA-Buttons",
-    "lpCtrHint": "Landingpage CTR (LP-Klicks / LP-Aufrufe)",
-    "cpvHint": "Kosten pro Besuch (Kosten / LP-Aufrufe)",
-    "cpcHint": "Kosten pro Klick (Kosten / LP-Klicks)",
-    "epvHint": "Einnahmen pro Besuch (Umsatz / LP-Aufrufe)",
-    "epcHint": "Einnahmen pro Klick (Umsatz / LP-Klicks)",
+    "lpCtrHint": "LP-CTR (LP-Klicks / LP-Aufrufe) — bei Direct-Offers ein Strich (—): kein CTA vorhanden",
+    "cpvHint": "Kosten pro Besuch — universell: Kosten / alle eingehenden Besuche (Direct und Lander)",
+    "cpcHint": "Kosten pro LP-Klick (Kosten / Lander-CTA-Klicks) — bei Direct-Offers gleich CPV",
+    "epvHint": "Einnahmen pro Besuch — universell: Umsatz / alle eingehenden Besuche (Direct und Lander)",
+    "epcHint": "Einnahmen pro LP-Klick (Umsatz / Lander-CTA-Klicks) — bei Direct-Offers gleich EPV",
     "realRevenue": "Realer Umsatz",
     "realRoi": "Echter ROI"
   },
@@ -33581,6 +34603,7 @@ const de = {
     "allGroups": "Alle Gruppen",
     "groups": "Gruppen",
     "sources": "Quellen",
+    "allSources": "Alle Traffic-Quellen",
     "campaign": "Kampagne",
     "campaigns": "Kampagnen",
     "group": "Gruppe",
@@ -33600,6 +34623,7 @@ const de = {
     "deleteConfirm": "Kampagne löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
     "updatedClicks": "Aktualisierte Klicks: {count}",
     "copySelected": "Ausgewählte kopieren",
+    "searchPlaceholder": "Kampagnen durchsuchen...",
     "bulkCopyConfirm": "Ausgewählte Kampagnen kopieren? Es werden Kopien mit neuen Aliasen und Token erstellt.",
     "copied": "Kopiert",
     "copyErrors": "Fehler"
@@ -33677,6 +34701,8 @@ const de = {
     "regenerateTokenConfirm": "Ein neues Token generieren? Das alte Token funktioniert nicht mehr und alle Skripts, die es verwenden, verfolgen keine Klicks mehr.",
     "streamWeight": "Stream-Gewichtung",
     "streamWeightHelp": "Wird nur verwendet, wenn die Stream-Rotation auf „Gewichtet“ eingestellt ist.",
+    "totalWeight": "Gesamtgewicht der Streams",
+    "equalizeSplit": "Gleichmäßig aufteilen",
     "campaignUrl": "Kampagnen-URL",
     "rewardModel": "Kostenmodell",
     "costValue": "Kostenwert",
@@ -33767,6 +34793,9 @@ const de = {
   },
   "landings": {
     "title": "Landings",
+    "allStates": "Alle Status",
+    "searchPlaceholder": "Landingpage suchen...",
+    "noGroup": "Keine Gruppe",
     "noLandings": "Keine Landings geladen",
     "noLandingsDesc": "Sie können die erste Landingpage erstellen oder laden"
   },
@@ -33779,12 +34808,17 @@ const de = {
     "noOffersFiltered": "Keine Angebote, die diesen Filtern entsprechen",
     "changeFilters": "Filterparameter ändern",
     "network": "Affiliate-Netzwerk",
+    "allGroups": "Alle Gruppen",
+    "allNetworks": "Alle Partnernetzwerke",
+    "allStates": "Alle Status",
+    "inactiveStates": "Archiviert / Deaktiviert",
     "localOffer": "Lokales Angebot",
     "redirect": "Weiterleitung",
     "iframe": "IFrame",
     "local": "Lokal",
     "total": "Gesamt ({count} Angebote)",
     "copySelected": "Ausgewählte kopieren",
+    "searchPlaceholder": "Angebote durchsuchen...",
     "bulkCopyConfirm": "Ausgewählte Angebote kopieren?",
     "copied": "Kopiert",
     "copyErrors": "Fehler"
@@ -34543,7 +35577,19 @@ const de = {
     "zipDropHint": ".zip-Datei hierher ziehen oder zum Auswählen klicken",
     "zipReplaceHint": "Klicken oder eine andere Datei zum Ersetzen ablegen",
     "viewCode": "Code",
+    "viewSplit": "Geteilt",
     "viewPreview": "Vorschau",
+    "livePreview": "Live-Vorschau",
+    "unsavedPreview": "Ungespeichertes HTML",
+    "savedPreview": "Gespeicherte Landingpage",
+    "filesTitle": "Dateien",
+    "replaceImage": "Bild ersetzen",
+    "replaceImageTypeError": "Wählen Sie ein Bild desselben Dateityps, damit bestehende Landingpage-Links weiter funktionieren.",
+    "imageLoadError": "Das Bild konnte nicht geladen werden",
+    "formatCode": "Formatieren",
+    "quickInsertHint": "Snippets werden an der Cursorposition eingefügt; Adapter und Back Trap vor den schließenden Tags.",
+    "fullscreen": "Vollbild",
+    "exitFullscreen": "Vollbild beenden",
     "openInTab": "In neuem Tab öffnen",
     "previewNeedsSlug": "Die Vorschau ist verfügbar, sobald die Landingpage einen Ordner hat — bitte zuerst speichern.",
     "zipOnCreateHint": "Optional. Das Archiv wird hochgeladen, sobald die Landingpage angelegt ist — das Fenster bleibt offen, die Dateien erscheinen rechts.",
@@ -35013,6 +36059,10 @@ const de = {
     "copyLink": "Link kopieren",
     "duplicate": "Duplizieren",
     "perPage": "Pro Seite",
+    "showingRows": "Zeige {start}-{end} von {total} Zeilen",
+    "pageSize": "Seitengröße",
+    "first": "Erste",
+    "last": "Letzte",
     "prev": "Zurück",
     "next": "Weiter",
     "all": "Alle",
@@ -35182,6 +36232,46 @@ const de = {
     "streamFilterTooltip": "Bedingungen festlegen, wann dieser Stream aktiviert werden soll: nach Land, Gerät, Betriebssystem, Browser, Sprache usw. Traffic, der mit keinem Stream übereinstimmt, wird an den Catch-All-Stream weitergeleitet.",
     "dismissAll": "Verstanden",
     "showHelp": "Tipps anzeigen"
+  },
+  "pixelVault": {
+    "pixelVaultTitle": "Pixel Vault & Conversions API",
+    "quickAddTitle": "Pixel schnell zum Vault hinzufügen",
+    "saveAndSelect": "Speichern & Auswählen",
+    "description": "Wiederverwendbare Tracking-Pixel und serverseitige Conversion-Profile nach Nischen verwalten.",
+    "addNewPixel": "Neues Pixel",
+    "trafficSource": "Traffic-Quelle",
+    "nicheTag": "Nischen-Tag (z.B. Nutra, Krypto)",
+    "pixelName": "Pixel-Name",
+    "pixelId": "Pixel-ID",
+    "capiToken": "Conversions API-Zugriffstoken",
+    "keepToken": "Leer lassen, um das gespeicherte Token zu behalten",
+    "events": "Ereignisse",
+    "eventUrl": "Event-URL (optional)",
+    "testEventCode": "Testereignis-Code (optional)",
+    "active": "Aktiv",
+    "sendTestEvent": "Testereignis senden",
+    "sending": "Wird gesendet…",
+    "testEventSent": "Testereignis erfolgreich an Meta gesendet!",
+    "editPixel": "Pixel-Profil bearbeiten",
+    "allNiches": "Alle Nischen",
+    "search": "Pixel suchen…",
+    "token": "Token",
+    "duplicate": "Duplizieren",
+    "confirmDelete": "Dieses Profil löschen und von allen Kampagnen trennen?",
+    "deleted": "Pixel-Profil gelöscht",
+    "duplicated": "Pixel-Profil dupliziert",
+    "saved": "Pixel-Profil gespeichert",
+    "testUnsupported": "Testereignisse werden für Facebook- und TikTok-Profile unterstützt.",
+    "noProfiles": "Keine Pixel-Profile entsprechen den Filtern.",
+    "attachPixel": "Gespeichertes Pixel-Profil anhängen",
+    "noPixel": "Kein Pixel angehängt",
+    "niche": "Nische",
+    "inactive": "inaktiv",
+    "pixelHint": "Ein angehängtes Profil sendet automatisch serverseitige CAPI-Conversions für diese Kampagne.",
+    "saveCampaignFirst": "Speichern Sie die Kampagne, bevor Sie ein Pixel-Vault-Profil anhängen.",
+    "attached": "Pixel-Profil angehängt",
+    "detached": "Pixel-Profil getrennt",
+    "vaultProfile": "Vault"
   },
   "pixels": {
     "title": "Tracking-Pixel",
@@ -35784,12 +36874,28 @@ const de = {
   "fbCosts": {
     "title": "Facebook Costs",
     "description": "Importiert Werbeausgaben aus einem Meta-Werbekonto und ordnet sie Klicks über Ad-, Adset- und Campaign-ID zu.",
+    "oneClickTitle": "1-Klick Facebook Integration",
+    "oneClickDesc": "Melden Sie sich mit Ihrem Facebook-Profil an. Orbitra findet automatisch alle Werbekonten und richtet die Ausgabensynchronisierung ein.",
+    "loginWithFb": "Mit Facebook anmelden",
+    "selectAccounts": "Werbekonten zum Verbinden auswählen",
+    "connectSelected": "Ausgewählte Konten verbinden",
+    "oauthConnecting": "Verbindung zu Facebook…",
+    "connectingAccounts": "Konten werden verbunden…",
+    "oauthFailed": "Facebook-Verbindung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "popupBlocked": "Das Facebook-Anmeldefenster wurde blockiert. Erlauben Sie Pop-ups für Orbitra und versuchen Sie es erneut.",
+    "noDiscoveredAccounts": "Die Anmeldung war erfolgreich, aber es wurden keine zugänglichen Werbekonten gefunden.",
+    "connectedAccounts": "{n} Facebook-Werbekonto/-konten verbunden.",
     "addAccount": "Konto hinzufügen",
     "editAccount": "Konto bearbeiten",
     "findAccount": "Konto suchen",
     "name": "Name",
     "interval": "Ausgaben aktualisieren alle",
     "advanced": "Erweitert: Parameter-Mapping",
+    "extendToken": "Auf 60 Tage verlängern",
+    "extendTokenHint": "Tauscht das Token über die Graph API gegen ein 60-Tage-Token",
+    "tokenExtended": "Token auf 60 Tage verlängert",
+    "customApp": "Benutzerdefinierte Meta App (Optional)",
+    "customAppHint": "Nur für die Token-Verlängerung und seltene App-Setups nötig — die geteilte Instanz-App oder ein fertiges Langzeit-Token braucht hier nichts.",
     "advancedHint": "Nur nötig, wenn der Traffic über eine App läuft, die die Facebook-Makros in Sub-IDs umpackt. Leer lassen für die Standardwerte ad_id / adset_id / campaign_id.",
     "ad_id_param": "Ad-ID kommt im Parameter",
     "adset_id_param": "Adset-ID kommt im Parameter",
@@ -35819,6 +36925,12 @@ const de = {
     "noAccounts": "Keine Werbekonten verbunden. Fügen Sie eines hinzu, um Ausgaben aus Facebook zu importieren."
   },
   "fbConv": {
+    "selectPixelPrompt": "Gespeichertes Pixel auswählen...",
+    "manageInVault": "Im Pixel Vault bearbeiten",
+    "addNewPixel": "Neues Pixel zum Vault hinzufügen...",
+    "enterManually": "Pixel-ID manuell eingeben...",
+    "selectFromList": "Aus gespeicherten wählen",
+    "tokenAutoFilledHint": "Token wird bei Pixelauswahl automatisch übernommen.",
     "title": "Facebook Conversions",
     "description": "Sendet Conversions serverseitig über die Conversions API an Meta, sodass im Browser blockierte Ereignisse den Optimierer trotzdem erreichen.",
     "addAccount": "Konto hinzufügen",
@@ -35972,6 +37084,75 @@ const de = {
     "updateCostsManually": "Kosten manuell aktualisieren",
     "costSyncTitle": "Kostensynchronisation",
     "manualCostTitle": "Manuelle Kostenerfassung"
+  },
+  "suite": {
+    "leadforge": "LeadForge",
+    "tracker": "Tracker",
+    "crm": "CRM"
+  },
+  "leadforge": {
+    "title": "LeadForge",
+    "subtitle": "Batch-Vorbereitungsmodul für Landingpages & Angebote",
+    "dropzoneTitle": "Landingpage-ZIP-Archive hierher ziehen",
+    "dropzoneSub": "Unterstützt 1 bis 50+ ZIP-Archive gleichzeitig",
+    "browseFiles": "Dateien auswählen",
+    "clearQueue": "Warteschlange leeren",
+    "selectedFiles": "Archive in Warteschlange",
+    "networkApi": "Affiliate-Netzwerk (CPA)",
+    "apiKey": "API-Schlüssel / Token",
+    "offerId": "Angebots-ID / Flow-Token",
+    "targetGeo": "Ziel-GEO / Land",
+    "currency": "Währung",
+    "payout": "Standard-Auszahlung",
+    "landingGroup": "Landingpage-Gruppe",
+    "forgeButton": "⚡ Forge & Save to Tracker",
+    "forging": "⚡ Verarbeite & Integriere...",
+    "forgeSuccess": "Batch-Verarbeitung erfolgreich abgeschlossen!",
+    "optionsTitle": "Automatisierungs- & Injektionsoptionen",
+    "optInjectMacro": "{offer}-Makro in Buttons und Links einfügen",
+    "optInjectAdapter": "Orbitra JS-Adapter & ClickID-Bridge einfügen",
+    "optPhoneMask": "GEO-Telefonmaske & Validator hinzufügen",
+    "optThankYou": "Lokalisierte Danke-Seite generieren",
+    "optOrderPhp": "order.php API-Bridge generieren",
+    "optSaveTracker": "Automatisch im Tracker speichern",
+    "optCreateOffer": "Passendes Angebot im Tracker anlegen",
+    "consoleTitle": "LeadForge Ausführungskonsole",
+    "downloadZip": "Fertiges ZIP herunterladen",
+    "openInTracker": "Im Tracker öffnen",
+    "noArchives": "Keine Archive ausgewählt. Ziehen Sie ZIP-Dateien hierher, um zu beginnen."
+  },
+  "crm": {
+    "title": "CRM — Lead- & Bestellverwaltung",
+    "subtitle": "Kunden-Leads und Bestellungen in Echtzeit überwachen und verwalten",
+    "totalLeads": "Gesamtanzahl Leads",
+    "inProcess": "In Bearbeitung / Hold",
+    "approved": "Bestätigte Verkäufe",
+    "rejected": "Abgelehnt",
+    "trash": "Müll / Spam",
+    "approvalRate": "Bestätigungsrate (AR %)",
+    "revenue": "Erzielter Umsatz",
+    "searchPlaceholder": "Suche nach Name, Telefon, SubID, ClickID...",
+    "allStatuses": "Alle Status",
+    "newLead": "+ Neue Bestellung",
+    "exportCsv": "CSV exportieren",
+    "leadDetails": "Lead-Details",
+    "customer": "Kunde",
+    "phone": "Telefon",
+    "status": "Status",
+    "payout": "Auszahlung",
+    "date": "Datum / Zeit",
+    "actions": "Aktionen",
+    "saveStatus": "Status speichern",
+    "noLeads": "Keine Leads für die ausgewählten Filter gefunden."
+  },
+  "proxy": {
+    "singleString": "Einzelne Zeile",
+    "separateFields": "Getrennte Felder",
+    "hint": "Unterstützt http://user:pass@ip:port und ip:port:user:pass",
+    "host": "Host / IP",
+    "port": "Port",
+    "username": "Benutzer",
+    "password": "Passwort"
   }
 };
 const translations = { ru, en, uk, es, zh, fr, de };
@@ -36160,6 +37341,30 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   const [theme, setTheme] = reactExports.useState(localStorage.getItem("orbitra_mode") || "light");
+  const [activeSuiteModule, setActiveSuiteModule] = reactExports.useState(() => localStorage.getItem("orbitra_suite_module") || "tracker");
+  reactExports.useEffect(() => {
+    if (activeTab === "leadforge") {
+      setActiveSuiteModule("leadforge");
+      localStorage.setItem("orbitra_suite_module", "leadforge");
+    } else if (activeTab === "crm") {
+      setActiveSuiteModule("crm");
+      localStorage.setItem("orbitra_suite_module", "crm");
+    } else {
+      setActiveSuiteModule("tracker");
+      localStorage.setItem("orbitra_suite_module", "tracker");
+    }
+  }, [activeTab]);
+  const handleSwitchModule = (mod) => {
+    setActiveSuiteModule(mod);
+    localStorage.setItem("orbitra_suite_module", mod);
+    if (mod === "tracker") {
+      setActiveTab("dashboard");
+    } else if (mod === "leadforge") {
+      setActiveTab("leadforge");
+    } else if (mod === "crm") {
+      setActiveTab("crm");
+    }
+  };
   reactExports.useEffect(() => {
     const handleStorageChange = () => {
       setTheme(localStorage.getItem("orbitra_mode") || "light");
@@ -36224,12 +37429,62 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
   ];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full fixed top-0 z-[1000] px-4 pt-4 md:px-6 md:pt-6 transition-all", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { className: "navbar-header h-[72px] flex items-center justify-between px-6 md:px-10 shadow-[var(--shadow-main)] bg-[var(--color-bg-card)] rounded-[24px] w-full mx-auto border-none transition-colors duration-300", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-3 md:space-x-6 h-full", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-semibold text-xl mr-4 flex items-center cursor-pointer", onClick: () => setActiveTab("dashboard"), style: { color: "var(--color-text-primary)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-3 md:space-x-5 h-full", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-semibold text-xl mr-2 flex items-center cursor-pointer", onClick: () => setActiveTab("dashboard"), style: { color: "var(--color-text-primary)" }, children: [
           "Orbitra",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-primary)" }, children: ".link" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden md:flex space-x-2 h-full items-center", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "inline-flex p-0.5 rounded-full border items-center gap-0.5 shrink-0",
+            role: "radiogroup",
+            "aria-label": "Suite module",
+            style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" },
+            children: [
+              { id: "leadforge", label: t("suite.leadforge", "LeadForge"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }) },
+              { id: "tracker", label: t("suite.tracker", "Tracker"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 14 }) },
+              { id: "crm", label: t("suite.crm", "CRM"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 14 }) }
+            ].map((mod) => {
+              const isActive = activeSuiteModule === mod.id;
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  role: "radio",
+                  "aria-checked": isActive,
+                  onClick: () => handleSwitchModule(mod.id),
+                  "aria-label": mod.label,
+                  className: "group relative w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer",
+                  style: {
+                    backgroundColor: isActive ? "var(--color-primary)" : "transparent",
+                    color: isActive ? "#ffffff" : "var(--color-text-muted)",
+                    boxShadow: isActive ? "0 2px 8px rgba(0,0,0,0.18)" : "none"
+                  },
+                  children: [
+                    mod.icon,
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "span",
+                      {
+                        className: "pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 rounded-lg text-[11px] font-medium whitespace-nowrap opacity-0 transition-opacity duration-150 group-hover:opacity-100",
+                        style: {
+                          backgroundColor: "var(--color-bg-card)",
+                          border: "1px solid var(--color-border)",
+                          color: "var(--color-text-primary)",
+                          boxShadow: "var(--shadow-main)",
+                          zIndex: 60
+                        },
+                        children: mod.label
+                      }
+                    )
+                  ]
+                },
+                mod.id
+              );
+            })
+          }
+        ),
+        activeSuiteModule === "tracker" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden xl:flex space-x-1.5 h-full items-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutDashboard, { size: 18 }), label: t("nav.dashboard"), active: activeTab === "dashboard", onClick: () => setActiveTab("dashboard") }),
           canAccessTab(user, "campaigns") && /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { size: 18 }), label: t("nav.campaigns"), active: activeTab === "campaigns", onClick: () => setActiveTab("campaigns") }),
           canAccessTab(user, "landings") && /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t("nav.landings"), active: activeTab === "landings", onClick: () => setActiveTab("landings") }),
@@ -36242,7 +37497,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2 md:space-x-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden md:flex items-center space-x-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden xl:flex items-center space-x-4", children: [
           visibleAdminMenuItems.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", ref: adminMenuRef, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "div",
@@ -36323,9 +37578,11 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
-            className: "md:hidden p-2 -mr-2 rounded-xl transition",
+            type: "button",
+            className: "xl:hidden p-2 -mr-2 rounded-xl transition flex items-center justify-center",
             style: { color: "var(--color-text-secondary)" },
             onClick: () => setMobileMenuOpen(!mobileMenuOpen),
+            "aria-label": "Toggle navigation menu",
             children: mobileMenuOpen ? /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 22 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Menu, { size: 22 })
           }
         )
@@ -36335,7 +37592,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "div",
         {
-          className: "md:hidden fixed inset-0 bg-black/40 z-[999]",
+          className: "xl:hidden fixed inset-0 bg-black/40 z-[999]",
           onClick: () => setMobileMenuOpen(false),
           style: { top: 0 }
         }
@@ -36343,7 +37600,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
         {
-          className: "md:hidden fixed right-0 top-0 bottom-0 z-[1001] overflow-y-auto",
+          className: "xl:hidden fixed right-0 top-0 bottom-0 z-[1001] overflow-y-auto",
           style: {
             width: "280px",
             background: "var(--color-bg-card)",
@@ -36352,14 +37609,46 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
             animation: "slideInRight 0.25s ease-out"
           },
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold text-lg", style: { color: "var(--color-text-primary)" }, children: [
                 "Orbitra",
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-primary)" }, children: ".link" })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setMobileMenuOpen(false), style: { color: "var(--color-text-secondary)", padding: "4px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginBottom: "16px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                className: "flex p-1 rounded-full border items-center justify-between gap-1 w-full",
+                style: { backgroundColor: "var(--color-bg-main)", borderColor: "var(--color-border)" },
+                children: [
+                  { id: "leadforge", label: "LeadForge" },
+                  { id: "tracker", label: "Tracker" },
+                  { id: "crm", label: "CRM" }
+                ].map((mod) => {
+                  const isActive = activeSuiteModule === mod.id;
+                  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => {
+                        handleSwitchModule(mod.id);
+                        setMobileMenuOpen(false);
+                      },
+                      className: "flex-1 py-1.5 rounded-full text-xs font-semibold transition-all text-center cursor-pointer",
+                      style: {
+                        backgroundColor: isActive ? "var(--color-primary)" : "transparent",
+                        color: isActive ? "#ffffff" : "var(--color-text-secondary)",
+                        boxShadow: isActive ? "0 2px 8px rgba(0,0,0,0.18)" : "none"
+                      },
+                      children: mod.label
+                    },
+                    mod.id
+                  );
+                })
+              }
+            ) }),
+            activeSuiteModule === "tracker" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px", paddingLeft: "12px" }, children: t("nav.navigation") || "Navigation" }),
               mobileNavItems.filter((item) => canAccessTab(user, item.tab)).map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
@@ -36486,7 +37775,7 @@ const NavItem = ({ icon, label, active, onClick }) => {
     "div",
     {
       onClick,
-      className: `flex items-center space-x-2 px-3 lg:px-4 py-2 m-1 rounded-2xl cursor-pointer transition-all text-sm font-medium whitespace-nowrap leading-none
+      className: `flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl cursor-pointer transition-all text-xs font-semibold whitespace-nowrap leading-none
                 ${active ? "bg-[var(--color-primary-light)] text-[var(--color-primary)]" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]"}`,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0", children: icon }),
@@ -36495,7 +37784,7 @@ const NavItem = ({ icon, label, active, onClick }) => {
     }
   );
 };
-const API_URL$D = "/api.php";
+const API_URL$G = "/api.php";
 const Login = ({ onLogin }) => {
   const { t } = useLanguage();
   const [username, setUsername] = reactExports.useState("");
@@ -36538,7 +37827,7 @@ const Login = ({ onLogin }) => {
       return;
     }
     try {
-      const res = await fetch(`${API_URL$D}?action=login`, {
+      const res = await fetch(`${API_URL$G}?action=login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
@@ -36707,7 +37996,7 @@ const Login = ({ onLogin }) => {
     ] }) })
   ] });
 };
-const API_URL$C = "/api.php";
+const API_URL$F = "/api.php";
 const SetupWizard = ({ onComplete }) => {
   const { t, setLanguage: setContextLanguage, language } = useLanguage();
   const [step, setStep] = reactExports.useState(1);
@@ -36763,7 +38052,7 @@ const SetupWizard = ({ onComplete }) => {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL$C}?action=setup_first_user`, {
+      const res = await fetch(`${API_URL$F}?action=setup_first_user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
@@ -37053,38 +38342,31 @@ const StatCards = ({ metrics, preferences, activeMetrics = [], setActiveMetrics,
     { id: "bot_rate", title: t("metrics.botRate", "Bot %"), value: formatPercent(metrics?.bot_rate), color: "--color-danger" },
     { id: "ctr", title: t("metrics.ctr"), value: formatPercent(metrics?.ctr), color: "--color-ctr" }
   ];
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "div",
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3 sm:gap-4 mt-6 mb-2 w-full", children: cards.filter((card) => showCard(card.id)).map((card) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Card,
     {
-      className: "flex overflow-x-auto no-scrollbar gap-4 mt-6 mb-2 pt-5 pb-7 px-4 md:px-6 -mx-4 md:-mx-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)]",
-      style: { WebkitOverflowScrolling: "touch" },
-      children: cards.filter((card) => showCard(card.id)).map((card) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Card,
-        {
-          title: card.title,
-          value: card.value,
-          isActive: activeMetrics.includes(card.id),
-          onClick: () => toggleMetric(card.id),
-          colorVar: card.color
-        },
-        card.id
-      ))
-    }
-  );
+      title: card.title,
+      value: card.value,
+      isActive: activeMetrics.includes(card.id),
+      onClick: () => toggleMetric(card.id),
+      colorVar: card.color
+    },
+    card.id
+  )) });
 };
 const Card = ({ title, value, isActive, onClick, colorVar }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
   "div",
   {
     onClick,
-    className: `card cursor-pointer select-none min-w-[140px] flex-1 flex flex-col justify-center transition-all ${isActive ? "relative z-10" : ""}`,
+    className: `card cursor-pointer select-none flex flex-col justify-center transition-all ${isActive ? "relative z-10" : ""}`,
     style: {
-      padding: "20px",
+      padding: "14px 16px",
       border: isActive ? `2px solid var(${colorVar})` : "2px solid transparent",
       boxShadow: isActive ? `0 8px 25px var(${colorVar}, rgba(0,0,0,0.1))` : "var(--shadow-main)"
     },
     children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs uppercase font-semibold mb-2 tracking-wide text-[var(--color-text-muted)]", children: title }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold", style: { color: `var(${colorVar})` }, children: value })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-[10px] sm:text-xs uppercase font-bold tracking-wider mb-1 truncate text-[var(--color-text-muted)]", children: title }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight truncate", style: { color: `var(${colorVar})` }, children: value })
     ]
   }
 );
@@ -49105,7 +50387,7 @@ const TableWidget = ({ title, data, t }) => {
 };
 var reactDomExports = requireReactDom();
 const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(reactDomExports);
-const API_URL$B = "/api.php";
+const API_URL$E = "/api.php";
 const ClickDetailsModal = ({ clickId, onClose }) => {
   const { t } = useLanguage();
   const [data, setData] = reactExports.useState(null);
@@ -49116,7 +50398,7 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     const fetchDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL$B}?action=click_details&id=${clickId}`);
+        const response = await axios.get(`${API_URL$E}?action=click_details&id=${clickId}`);
         if (response.data.status === "success") {
           setData(response.data.data);
         } else {
@@ -49636,7 +50918,7 @@ const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} })
             ` })
   ] });
 };
-const API_URL$A = "/api.php";
+const API_URL$D = "/api.php";
 const GroupsModal = ({ type, onClose, onGroupCreated }) => {
   const { t } = useLanguage();
   const [groups, setGroups] = reactExports.useState([]);
@@ -49691,7 +50973,7 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
   const fetchGroups = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$A}?action=${endpoint}`);
+      const res = await axios.get(`${API_URL$D}?action=${endpoint}`);
       if (res.data.status === "success") setGroups(res.data.data);
     } catch (err) {
       console.error("Error fetching groups:", err);
@@ -49702,7 +50984,7 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
   const handleCreate = async () => {
     if (!newGroupName.trim()) return;
     try {
-      const res = await axios.post(`${API_URL$A}?action=${endpoint}`, { name: newGroupName.trim() });
+      const res = await axios.post(`${API_URL$D}?action=${endpoint}`, { name: newGroupName.trim() });
       if (res.data.status === "success") {
         const created = { id: res.data.data?.id, name: newGroupName.trim() };
         setNewGroupName("");
@@ -49716,7 +50998,7 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
   const handleDelete = async (id) => {
     if (!window.confirm(t("groupsModal.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$A}?action=${getDeleteEndpoint()}`, { id });
+      await axios.post(`${API_URL$D}?action=${getDeleteEndpoint()}`, { id });
       fetchGroups();
     } catch {
       alert(t("groupsModal.deleteError"));
@@ -49761,7 +51043,7 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t flex justify-end", style: { borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("groupsModal.close") }) })
   ] }) });
 };
-const API_URL$z = "/api.php";
+const API_URL$C = "/api.php";
 const cache = /* @__PURE__ */ new Map();
 const CACHE_TTL = 3e4;
 function getCacheKey(action, params = {}) {
@@ -49778,7 +51060,7 @@ async function cachedGet(action, params = {}, ttl = CACHE_TTL) {
   if (cached && isCacheValid(cached)) {
     return { data: cached.data, fromCache: true };
   }
-  const response = await axios.get(API_URL$z, { params: { action, ...params } });
+  const response = await axios.get(API_URL$C, { params: { action, ...params } });
   if (response.data?.status === "success") {
     cache.set(cacheKey, {
       data: response.data,
@@ -49800,7 +51082,7 @@ function invalidateCache(pattern) {
   }
 }
 async function cachedPost(action, data = {}, params = {}) {
-  const response = await axios.post(API_URL$z, data, { params: { action, ...params } });
+  const response = await axios.post(API_URL$C, data, { params: { action, ...params } });
   if (response.data?.status === "success") {
     cache.clear();
   }
@@ -50775,7 +52057,7 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
     ] }) })
   ] });
 };
-const API_URL$y = "/api.php";
+const API_URL$B = "/api.php";
 const statusMeta = (t, status) => {
   switch (status) {
     case "available":
@@ -50836,7 +52118,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   const fetchRows = async ({ silent = false } = {}) => {
     if (!silent) setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$y}?action=backorder_domains`);
+      const res = await axios.get(`${API_URL$B}?action=backorder_domains`);
       if (res.data.status === "success") {
         setRows(res.data.data || []);
       }
@@ -50866,7 +52148,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     if (runStartedAt && Number(runStartedAt) > 0) {
       payload.run_started_at = Number(runStartedAt);
     }
-    const res = await axios.post(`${API_URL$y}?action=backorder_check_batch`, payload);
+    const res = await axios.post(`${API_URL$B}?action=backorder_check_batch`, payload);
     if (res.data.status !== "success") {
       const msg = res.data.message || t("common.error");
       throw new Error(msg);
@@ -51003,7 +52285,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   const deleteOne = async (id) => {
     if (!window.confirm(t("common.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$y}?action=backorder_delete`, { id });
+      await axios.post(`${API_URL$B}?action=backorder_delete`, { id });
       setSelectedIds((prev) => {
         const n = new Set(prev);
         n.delete(id);
@@ -51019,7 +52301,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     if (ids.length === 0) return;
     if (!window.confirm(t("backorder.deleteSelectedConfirm").replace("{count}", String(ids.length)))) return;
     try {
-      await axios.post(`${API_URL$y}?action=backorder_delete_selected`, { ids });
+      await axios.post(`${API_URL$B}?action=backorder_delete_selected`, { ids });
       setSelectedIds(/* @__PURE__ */ new Set());
       fetchRows();
     } catch (e) {
@@ -51049,7 +52331,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         ahrefs_ur: editForm.ahrefs_ur,
         ahrefs_ref_domains: editForm.ahrefs_ref_domains
       };
-      const res = await axios.post(`${API_URL$y}?action=backorder_update`, payload);
+      const res = await axios.post(`${API_URL$B}?action=backorder_update`, payload);
       if (res.data.status === "success") {
         setShowEdit(false);
         fetchRows();
@@ -51062,7 +52344,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   };
   const checkNow = async (id) => {
     try {
-      await axios.post(`${API_URL$y}?action=backorder_check_now`, { id });
+      await axios.post(`${API_URL$B}?action=backorder_check_now`, { id });
       fetchRows();
     } catch (e) {
       console.error(e);
@@ -51073,7 +52355,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     setImportError("");
     setImportResult(null);
     try {
-      const res = await axios.post(`${API_URL$y}?action=backorder_import`, { domains_text: importText });
+      const res = await axios.post(`${API_URL$B}?action=backorder_import`, { domains_text: importText });
       if (res.data.status === "success") {
         setImportResult(res.data.data);
         fetchRows();
@@ -51443,6 +52725,109 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
       ] })
     ] }) })
   ] });
+};
+const PaginationToolbar = ({
+  totalRows,
+  currentPage,
+  // 0-indexed (0, 1, 2…)
+  pageSize,
+  // 25 | 50 | 100 | 250 | 'All'
+  onPageChange,
+  onPageSizeChange
+}) => {
+  const { t } = useLanguage();
+  if (totalRows === 0) return null;
+  const isAll = pageSize === "All";
+  const limit = isAll ? totalRows : Number(pageSize);
+  const totalPages = isAll ? 1 : Math.max(1, Math.ceil(totalRows / limit));
+  const startRow = isAll ? 1 : currentPage * limit + 1;
+  const endRow = isAll ? totalRows : Math.min(totalRows, (currentPage + 1) * limit);
+  const getPageNumbers = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i);
+    }
+    const start = Math.max(0, Math.min(currentPage - 2, totalPages - 5));
+    const end = Math.min(totalPages - 1, start + 4);
+    const pages = [];
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+  };
+  const navBtnStyle = {
+    backgroundColor: "var(--color-bg-card)",
+    borderColor: "var(--color-border)",
+    color: "var(--color-text-primary)"
+  };
+  const navBtn = (label, disabled, onClick) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "button",
+    {
+      type: "button",
+      disabled,
+      onClick,
+      className: "px-2.5 py-1 rounded-lg border text-xs font-medium transition disabled:opacity-40",
+      style: navBtnStyle,
+      children: label
+    }
+  );
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 mt-3 rounded-xl text-xs select-none",
+      style: {
+        backgroundColor: "var(--color-bg-soft)",
+        border: "1px solid var(--color-border)",
+        color: "var(--color-text-secondary)"
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium", children: t("table.showingRows", "Showing {start}-{end} of {total} rows").replace("{start}", startRow).replace("{end}", endRow).replace("{total}", totalRows) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 mr-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px]", style: { color: "var(--color-text-muted)" }, children: t("table.pageSize", "Page Size") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                value: String(pageSize),
+                onChange: (e) => {
+                  const val = e.target.value === "All" ? "All" : Number(e.target.value);
+                  localStorage.setItem("orbitra_table_page_size", String(val));
+                  onPageSizeChange(val);
+                },
+                className: "form-select font-semibold",
+                style: { width: "auto", padding: "2px 8px", fontSize: "12px" },
+                children: [
+                  [25, 50, 100, 250].map((n) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: n, children: n }, n)),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "All", children: t("table.all", "All") })
+                ]
+              }
+            )
+          ] }),
+          !isAll && totalPages > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+            navBtn(t("table.first", "First"), currentPage === 0, () => onPageChange(0)),
+            navBtn(t("table.prev", "Prev"), currentPage === 0, () => onPageChange(currentPage - 1)),
+            getPageNumbers().map((num) => {
+              const isActive = num === currentPage;
+              return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => onPageChange(num),
+                  className: "min-w-[28px] h-7 px-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center",
+                  style: {
+                    backgroundColor: isActive ? "var(--color-primary)" : "var(--color-bg-card)",
+                    color: isActive ? "#ffffff" : "var(--color-text-primary)",
+                    border: `1px solid ${isActive ? "var(--color-primary)" : "var(--color-border)"}`
+                  },
+                  children: num + 1
+                },
+                num
+              );
+            }),
+            navBtn(t("table.next", "Next"), currentPage >= totalPages - 1, () => onPageChange(currentPage + 1)),
+            navBtn(t("table.last", "Last"), currentPage >= totalPages - 1, () => onPageChange(totalPages - 1))
+          ] })
+        ] })
+      ]
+    }
+  );
 };
 const TIMEZONES = [
   { value: "UTC", label: "UTC (UTC+00:00)" },
@@ -51900,8 +53285,8 @@ const ALL_REPORT_METRICS = [
   { id: "cr_holds", label: "CR (hold) — Conversion rate", shortLabel: "CR (hold)" },
   { id: "cr_registrations", label: "CR (registrations) — Conversion rate", shortLabel: "CR (regs)" },
   { id: "roi", label: "ROI (all) — Return on investment", shortLabel: "ROI" },
-  { id: "epc", label: "EPC (all) — Earnings per LP click", shortLabel: "EPC", hintKey: "epcHint", hint: "Revenue / LP Clicks — Earnings per click to offer" },
-  { id: "epv", label: "EPV — Earnings per landing-page visit", shortLabel: "EPV", hintKey: "epvHint", hint: "Revenue / LP Views — Earnings per landing-page visitor" },
+  { id: "epc", label: "EPC (all) — Earnings per LP click", shortLabel: "EPC", hintKey: "epcHint", hint: "Revenue / LP Clicks (Lander CTA) — equals EPV on direct offers" },
+  { id: "epv", label: "EPV — Earnings per visit", shortLabel: "EPV", hintKey: "epvHint", hint: "Revenue / all visits — universal for Direct and Lander flows" },
   { id: "uepc", label: "uEPC (all) — Earnings per unique click", shortLabel: "uEPC" },
   { id: "epc_hold", label: "EPC (hold) — Earnings per click", shortLabel: "EPC (hold)" },
   { id: "uepc_hold", label: "uEPC (hold) — Earnings per unique click", shortLabel: "uEPC (hold)" },
@@ -51914,9 +53299,9 @@ const ALL_REPORT_METRICS = [
   { id: "cpr", label: "CPR — Cost per registration", shortLabel: "CPR" },
   { id: "cpd", label: "CPD — Cost per deposit", shortLabel: "CPD" },
   { id: "cpa", label: "CPA — Cost per conversion", shortLabel: "CPA" },
-  { id: "cpc", label: "CPC — Cost per LP click", shortLabel: "CPC", hintKey: "cpcHint", hint: "Cost / LP Clicks — Cost per landing-page CTA click" },
+  { id: "cpc", label: "CPC — Cost per LP click", shortLabel: "CPC", hintKey: "cpcHint", hint: "Cost / LP Clicks (Lander CTA) — equals CPV on direct offers" },
   { id: "ucpc", label: "uCPC — Cost per unique click", shortLabel: "uCPC" },
-  { id: "cpv", label: "CPV — Cost per landing-page visit", shortLabel: "CPV", hintKey: "cpvHint", hint: "Cost / LP Views — Cost per landing-page view" },
+  { id: "cpv", label: "CPV — Cost per visit", shortLabel: "CPV", hintKey: "cpvHint", hint: "Cost / all visits — universal for Direct and Lander flows" },
   { id: "ecpc", label: "eCPC — Cost per 1000 clicks", shortLabel: "eCPC" },
   { id: "ecpm_all", label: "eCPM (all) — Profit per 1k clicks", shortLabel: "eCPM" },
   { id: "ecpm_confirmed", label: "eCPM (confirmed) — Profit per 1k clicks", shortLabel: "eCPM (conf)" },
@@ -51927,7 +53312,7 @@ const ALL_REPORT_METRICS = [
   { id: "time_since_lp_click", label: "Time since LP click", shortLabel: "LP time" },
   { id: "lp_views", label: "LP views / visits", shortLabel: "LP Views", hintKey: "lpViewsHint", hint: "Total landing-page impressions" },
   { id: "lp_clicks", label: "LP clicks", shortLabel: "LP Clicks", hintKey: "lpClicksHint", hint: "Total clicks on landing-page CTA buttons" },
-  { id: "lp_ctr", label: "LP CTR — LP Click-Through Rate", shortLabel: "LP CTR", hintKey: "lpCtrHint", hint: "(LP Clicks / LP Views) × 100% — Landing-page click-through rate" },
+  { id: "lp_ctr", label: "LP CTR — LP Click-Through Rate", shortLabel: "LP CTR", hintKey: "lpCtrHint", hint: "(LP Clicks / LP Views) × 100% — dash on direct offers (no CTA)" },
   { id: "cr_regs_to_deps", label: "CR (regs to deps)", shortLabel: "CR (r→d)" }
 ];
 const normalizeReportMetricIds = (ids) => {
@@ -52861,7 +54246,7 @@ const ReportCustomizerModal = ({
     }
   ) });
 };
-const API_URL$x = "/api.php";
+const API_URL$A = "/api.php";
 const FB_HIERARCHY_LAYERS = ["ad_campaign_id", "adset_id", "ad_id"];
 const REPORT_LAYER_PRESETS = [
   { id: "facebook_hierarchy", label: "Facebook Hierarchy", layers: FB_HIERARCHY_LAYERS }
@@ -52895,7 +54280,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const nextStatus = (entityStatus[entityId] || "ACTIVE") === "ACTIVE" ? "PAUSED" : "ACTIVE";
     setTogglingIds((prev) => new Set(prev).add(entityId));
     try {
-      const res = await axios.post(`${API_URL$x}?action=ad_entity_toggle_status`, {
+      const res = await axios.post(`${API_URL$A}?action=ad_entity_toggle_status`, {
         entity_type: entityType,
         entity_id: entityId,
         target_status: nextStatus
@@ -52993,7 +54378,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       if (filters.length > 0) {
         params.filters = JSON.stringify(filters);
       }
-      const res = await axios.get(`${API_URL$x}?action=campaign_report`, { params });
+      const res = await axios.get(`${API_URL$A}?action=campaign_report`, { params });
       if (res.data.status === "success") {
         setRows(res.data.data.rows || []);
         setLayerKeys(res.data.data.layers || layers);
@@ -53229,7 +54614,6 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       case "uc_rate_stream":
       case "uc_rate_global":
       case "bot_rate":
-      case "lp_ctr":
       case "approve_rate":
       case "approve_rate_excl_trash":
       case "cr":
@@ -53242,6 +54626,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       case "cr_regs_to_deps":
       case "ucr":
         return `${num.toFixed(2)}%`;
+      // Direct-to-offer streams have no CTA to measure — the backend
+      // sends null, never a made-up 0%/100%.
+      case "lp_ctr":
+        return val === null || val === void 0 ? "—" : `${num.toFixed(2)}%`;
       case "roi":
       case "roi_all":
       case "roi_confirmed":
@@ -53584,13 +54972,52 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     )
   ] });
 };
-const API_URL$w = "/api.php";
+async function copyToClipboard(text) {
+  if (!text && text !== "0") return false;
+  const value = String(text);
+  if (typeof window !== "undefined" && window.isSecureContext && navigator?.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(value);
+      return true;
+    } catch (error) {
+      console.warn("navigator.clipboard failed, falling back to execCommand:", error);
+    }
+  }
+  let textarea;
+  try {
+    textarea = document.createElement("textarea");
+    textarea.value = value;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.top = "0";
+    textarea.style.left = "-9999px";
+    textarea.style.width = "2em";
+    textarea.style.height = "2em";
+    textarea.style.padding = "0";
+    textarea.style.border = "none";
+    textarea.style.outline = "none";
+    textarea.style.boxShadow = "none";
+    textarea.style.background = "transparent";
+    textarea.style.opacity = "0";
+    textarea.style.zIndex = "-1";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+    return document.execCommand("copy");
+  } catch (error) {
+    console.error("execCommand copy failed:", error);
+    return false;
+  } finally {
+    textarea?.remove();
+  }
+}
+const API_URL$z = "/api.php";
 const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, setEditingCampaignId, user }) => {
   const { t } = useLanguage();
   const [actionModal, setActionModal] = reactExports.useState({ type: null, campaignId: null });
   const [selectedCampaignIds, setSelectedCampaignIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
   const [sortBy, setSortBy] = reactExports.useState({ key: null, dir: "desc" });
-  const [showFilters, setShowFilters] = reactExports.useState(false);
   const [search, setSearch] = reactExports.useState("");
   const [settingsOpen, setSettingsOpen] = reactExports.useState(false);
   const [refreshing, setRefreshing] = reactExports.useState(false);
@@ -53598,7 +55025,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   const [showGlobalReports, setShowGlobalReports] = reactExports.useState(false);
   const [campaignStateOverrides, setCampaignStateOverrides] = reactExports.useState({});
   const [menuAnchor, setMenuAnchor] = reactExports.useState(null);
-  const [rowsPerPage, setRowsPerPage] = reactExports.useState(50);
+  const [rowsPerPage, setRowsPerPage] = reactExports.useState(() => {
+    const saved = localStorage.getItem("orbitra_table_page_size");
+    return saved === "All" ? "All" : [25, 50, 100, 250].includes(Number(saved)) ? Number(saved) : 50;
+  });
   const [page, setPage] = reactExports.useState(0);
   const handleToggleMenu = (event, campaignId) => {
     event.stopPropagation();
@@ -53630,21 +55060,21 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   }, [menuAnchor]);
   reactExports.useEffect(() => {
     setPage(0);
-  }, [search, rowsPerPage]);
+  }, [search, rowsPerPage, selectedGroupId, selectedSourceId]);
   const [togglingCampaignIds, setTogglingCampaignIds] = reactExports.useState(/* @__PURE__ */ new Set());
   const campaignEnabled = (camp) => (campaignStateOverrides[camp.id] ?? camp.state ?? "active") !== "disabled";
   const handleCopyCampaignLink = async (camp) => {
     const url = `${window.location.origin}/${camp.alias}`;
-    try {
-      await navigator.clipboard.writeText(url);
+    const ok = await copyToClipboard(url);
+    if (ok) {
       alert(`${t("common.copied")}: ${url}`);
-    } catch (e) {
+    } else {
       alert(url);
     }
   };
   const handleDuplicateCampaign = async (camp) => {
     try {
-      const res = await axios.post(`${API_URL$w}?action=copy_campaign`, { id: camp.id });
+      const res = await axios.post(`${API_URL$z}?action=copy_campaign`, { id: camp.id });
       if (res.data.status === "success") {
         fetchCampaigns();
         if (refreshData) refreshData();
@@ -53696,7 +55126,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       return;
     }
     try {
-      const res = await axios.get(`${API_URL$w}?action=campaign_remote_links`, { params: { campaign_id: camp.id } });
+      const res = await axios.get(`${API_URL$z}?action=campaign_remote_links`, { params: { campaign_id: camp.id } });
       const linked = res.data.status === "success" ? (res.data.data || []).flatMap((p) => (p.ids || []).map((id) => ({ platform: p.platform, id }))) : [];
       if (linked.length > 0) {
         setConfirmPause({ camp, linked });
@@ -53712,6 +55142,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
   const [groups, setGroups] = reactExports.useState([]);
   const [selectedGroupId, setSelectedGroupId] = reactExports.useState("");
+  const [selectedSourceId, setSelectedSourceId] = reactExports.useState("");
   const [campaignList, setCampaignList] = reactExports.useState(initialCampaigns || []);
   const [columnsFilterOpen, setColumnsFilterOpen] = reactExports.useState(false);
   const [chosenColumns, setChosenColumns] = reactExports.useState(() => {
@@ -53732,7 +55163,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     [chosenColumns, financeVis]
   );
   const fetchGroups = () => {
-    axios.get(`${API_URL$w}?action=campaign_groups`).then((res) => {
+    axios.get(`${API_URL$z}?action=campaign_groups`).then((res) => {
       if (res.data.status === "success") {
         setGroups(res.data.data || []);
       }
@@ -53750,7 +55181,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         date_to: dateTo
       };
       if (selectedGroupId) params.group_id = selectedGroupId;
-      const res = await axios.get(`${API_URL$w}?action=campaigns`, { params });
+      const res = await axios.get(`${API_URL$z}?action=campaigns`, { params });
       if (res.data.status === "success") {
         setCampaignList(res.data.data || []);
       }
@@ -53816,7 +55247,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   const handleDelete = async (id) => {
     if (window.confirm(t("campaigns.deleteConfirm"))) {
       try {
-        await axios.post(`${API_URL$w}?action=delete_campaign`, { id });
+        await axios.post(`${API_URL$z}?action=delete_campaign`, { id });
         fetchCampaigns();
         if (refreshData) refreshData();
       } catch (err) {
@@ -53832,15 +55263,26 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       return { key, dir: defaultDir };
     });
   };
+  const uniqueSources = reactExports.useMemo(() => {
+    const map2 = /* @__PURE__ */ new Map();
+    campaignList.forEach((c) => {
+      if (c.source_id && !map2.has(String(c.source_id))) {
+        map2.set(String(c.source_id), c.source_name || `#${c.source_id}`);
+      }
+    });
+    return Array.from(map2.entries()).map(([id, name]) => ({ id, name }));
+  }, [campaignList]);
   const filteredCampaigns = reactExports.useMemo(() => {
     const q = String(search || "").trim().toLowerCase();
-    if (!q) return campaignList;
+    if (!q && !selectedSourceId) return campaignList;
     return campaignList.filter((c) => {
+      if (selectedSourceId && String(c.source_id ?? "") !== selectedSourceId) return false;
+      if (!q) return true;
       const n = String(c.name || "").toLowerCase();
       const a = String(c.alias || "").toLowerCase();
-      return n.includes(q) || a.includes(q);
+      return n.includes(q) || a.includes(q) || String(c.id || "") === q;
     });
-  }, [campaignList, search]);
+  }, [campaignList, search, selectedSourceId]);
   const visibleCampaigns = reactExports.useMemo(() => {
     if (!sortBy.key) return filteredCampaigns;
     const dirMul = sortBy.dir === "asc" ? 1 : -1;
@@ -53862,7 +55304,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const start = page * rowsPerPage;
     return visibleCampaigns.slice(start, start + rowsPerPage);
   }, [visibleCampaigns, page, rowsPerPage]);
-  const totalPages = rowsPerPage === "All" ? 1 : Math.max(1, Math.ceil(visibleCampaigns.length / rowsPerPage));
   const grandTotals = reactExports.useMemo(() => {
     const t0 = {
       clicks: 0,
@@ -53977,7 +55418,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const msg = (t("common.deleteSelectedConfirm") || t("campaigns.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$w}?action=bulk_delete_campaigns`, { ids });
+      await axios.post(`${API_URL$z}?action=bulk_delete_campaigns`, { ids });
       setSelectedCampaignIds(/* @__PURE__ */ new Set());
       fetchCampaigns();
       if (refreshData) refreshData();
@@ -53994,7 +55435,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     let errorCount = 0;
     for (const id of ids) {
       try {
-        await axios.post(`${API_URL$w}?action=copy_campaign`, { id });
+        await axios.post(`${API_URL$z}?action=copy_campaign`, { id });
         successCount++;
       } catch (err) {
         errorCount++;
@@ -54086,7 +55527,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       case "uc_rate_stream":
       case "uc_rate_global":
       case "bot_rate":
-      case "lp_ctr":
       case "approve_rate":
       case "approve_rate_excl_trash":
       case "cr":
@@ -54099,6 +55539,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       case "cr_regs_to_deps":
       case "ucr":
         return `${num.toFixed(2)}%`;
+      // Direct-to-offer streams have no CTA to measure — the backend
+      // sends null, never a made-up 0%/100%.
+      case "lp_ctr":
+        return val === null || val === void 0 ? "—" : `${num.toFixed(2)}%`;
       case "roi":
       case "roi_all":
       case "roi_confirmed":
@@ -54164,7 +55608,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   };
   const handleClearStats = async () => {
     try {
-      await axios.post(`${API_URL$w}?action=clear_stats`, { campaign_id: actionModal.campaignId });
+      await axios.post(`${API_URL$z}?action=clear_stats`, { campaign_id: actionModal.campaignId });
       fetchCampaigns();
       if (refreshData) refreshData();
       setActionModal({ type: null, campaignId: null });
@@ -54183,7 +55627,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       unique_only: fd.get("unique_only") === "on"
     };
     try {
-      const res = await axios.post(`${API_URL$w}?action=update_costs`, data);
+      const res = await axios.post(`${API_URL$z}?action=update_costs`, data);
       if (res.data.status === "success") {
         alert(t("campaigns.updatedClicks").replace("{count}", res.data.updated_clicks));
         fetchCampaigns();
@@ -54229,6 +55673,31 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             ]
           }
         ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", style: { width: 220 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none", style: { color: "var(--color-text-muted)" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: search,
+              onChange: (e) => setSearch(e.target.value),
+              placeholder: t("campaigns.searchPlaceholder", "Search campaigns..."),
+              className: "form-input",
+              style: { fontSize: "0.75rem", padding: "0.5rem 1.9rem", paddingLeft: "2.1rem", borderRadius: "0.75rem" }
+            }
+          ),
+          search && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: () => setSearch(""),
+              title: t("common.clear", "Clear"),
+              className: "absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center justify-center",
+              style: { color: "var(--color-text-muted)", width: 18, height: 18 },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3 h-3" })
+            }
+          )
+        ] }),
         selectedCampaignIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkCopySelected, className: "btn btn-success text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5", title: t("campaigns.copySelected"), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-3.5 h-3.5" }),
@@ -54260,6 +55729,19 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             ]
           }
         ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "select",
+          {
+            value: selectedSourceId,
+            onChange: (e) => setSelectedSourceId(e.target.value),
+            className: "form-select text-xs py-1.5 px-3 rounded-xl",
+            style: { width: "170px" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("campaigns.allSources", "All traffic sources") }),
+              uniqueSources.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: s.id, children: s.name }, s.id))
+            ]
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           DateRangePicker,
           {
@@ -54268,19 +55750,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             onChange: handleDateChange,
             selectedTimezone: timezone,
             onTimezoneChange: setTimezone
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            onClick: () => setShowFilters(!showFilters),
-            className: `btn btn-ghost text-xs py-1.5 px-2.5 rounded-xl ${showFilters ? "bg-[var(--color-primary-light)]" : ""}`,
-            style: showFilters ? { color: "var(--color-primary)" } : {},
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "w-3.5 h-3.5" }),
-              search ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-[10px] rounded-full", children: "1" }) : null
-            ]
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -54294,27 +55763,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-4 h-4 ${refreshing ? "animate-spin" : ""}` })
           }
         )
-      ] })
-    ] }),
-    showFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-4 items-center py-3 px-4 mb-4 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-1 max-w-sm", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: [
-          t("common.search", "Search"),
-          ":"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            value: search,
-            onChange: (e) => setSearch(e.target.value),
-            className: "form-input text-xs py-1.5 px-3 rounded-xl flex-1",
-            placeholder: t("common.searchPlaceholder", "Name or alias...")
-          }
-        )
-      ] }),
-      search && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => setSearch(""), className: "btn btn-ghost text-xs py-1 px-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }),
-        t("common.clear")
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", style: { fontVariantNumeric: "tabular-nums" }, children: [
@@ -54439,61 +55887,19 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
       ] }) })
     ] }) }),
-    visibleCampaigns.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3 mt-3 text-xs", style: { color: "var(--color-text-secondary)" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("table.perPage") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "select",
-          {
-            className: "form-select text-xs",
-            style: { width: "auto", padding: "2px 6px" },
-            value: String(rowsPerPage),
-            onChange: (e) => setRowsPerPage(e.target.value === "All" ? "All" : Number(e.target.value)),
-            children: [
-              [25, 50, 100].map((n) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: n, children: n }, n)),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "All", children: t("table.all") })
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-          "· ",
-          visibleCampaigns.length
-        ] })
-      ] }),
-      rowsPerPage !== "All" && totalPages > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            className: "btn btn-secondary text-xs py-1 px-2",
-            disabled: page === 0,
-            onClick: () => setPage((p) => Math.max(0, p - 1)),
-            children: [
-              "← ",
-              t("table.prev")
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-          page + 1,
-          " / ",
-          totalPages
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            className: "btn btn-secondary text-xs py-1 px-2",
-            disabled: page >= totalPages - 1,
-            onClick: () => setPage((p) => Math.min(totalPages - 1, p + 1)),
-            children: [
-              t("table.next"),
-              " →"
-            ]
-          }
-        )
-      ] })
-    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      PaginationToolbar,
+      {
+        totalRows: visibleCampaigns.length,
+        currentPage: page,
+        pageSize: rowsPerPage,
+        onPageChange: setPage,
+        onPageSizeChange: (size) => {
+          setRowsPerPage(size);
+          setPage(0);
+        }
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       ReportCustomizerModal,
       {
@@ -54684,7 +56090,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     )
   ] });
 };
-const API_URL$v = "/api.php";
+const API_URL$y = "/api.php";
 const TrafficSimulation = () => {
   const { t } = useLanguage();
   const [campaigns, setCampaigns] = reactExports.useState([]);
@@ -54699,7 +56105,7 @@ const TrafficSimulation = () => {
   const [trace, setTrace] = reactExports.useState(null);
   const [loading, setLoading] = reactExports.useState(false);
   reactExports.useEffect(() => {
-    axios.get(`${API_URL$v}?action=campaigns`).then((res) => {
+    axios.get(`${API_URL$y}?action=campaigns`).then((res) => {
       if (res.data.status === "success") {
         setCampaigns(res.data.data);
         if (res.data.data.length > 0) {
@@ -54713,7 +56119,7 @@ const TrafficSimulation = () => {
     setLoading(true);
     setTrace(null);
     try {
-      const res = await axios.post(`${API_URL$v}?action=simulate_traffic`, formData);
+      const res = await axios.post(`${API_URL$y}?action=simulate_traffic`, formData);
       if (res.data.status === "success") {
         setTrace(res.data.trace);
       } else {
@@ -55039,6 +56445,181 @@ const CodeSnippetCard = ({
     ]
   }
 );
+const INDENT = "  ";
+const VOID_HTML_TAGS$1 = /* @__PURE__ */ new Set([
+  "area",
+  "base",
+  "br",
+  "col",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "link",
+  "meta",
+  "param",
+  "source",
+  "track",
+  "wbr"
+]);
+const shouldIndentNextLine = (line, language) => {
+  const trimmed = line.trim();
+  if (!trimmed) return false;
+  if (/[{[(]$/.test(trimmed)) return true;
+  if (language !== "html") return false;
+  const match2 = trimmed.match(/<([a-z][\w:-]*)(?:\s[^>]*)?>$/i);
+  if (!match2 || trimmed.endsWith("/>")) return false;
+  return !VOID_HTML_TAGS$1.has(match2[1].toLowerCase());
+};
+const CodeEditor = reactExports.forwardRef(function CodeEditor2({
+  value = "",
+  onChange,
+  onSave,
+  language = "text",
+  ariaLabel = "Code editor"
+}, forwardedRef) {
+  const textareaRef = reactExports.useRef(null);
+  const gutterContentRef = reactExports.useRef(null);
+  const text = String(value ?? "");
+  const lineCount = Math.max(1, text.split("\n").length);
+  const restoreSelection = reactExports.useCallback((start, end = start) => {
+    window.requestAnimationFrame(() => {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+      textarea.focus();
+      textarea.setSelectionRange(start, end);
+    });
+  }, []);
+  const replaceRange = reactExports.useCallback((replacement, start, end) => {
+    const textarea = textareaRef.current;
+    const rangeStart = Number.isInteger(start) ? start : textarea?.selectionStart ?? text.length;
+    const rangeEnd = Number.isInteger(end) ? end : textarea?.selectionEnd ?? rangeStart;
+    const nextValue = text.slice(0, rangeStart) + replacement + text.slice(rangeEnd);
+    onChange?.(nextValue);
+    restoreSelection(rangeStart + replacement.length);
+    return nextValue;
+  }, [onChange, restoreSelection, text]);
+  reactExports.useImperativeHandle(forwardedRef, () => ({
+    focus: () => textareaRef.current?.focus(),
+    insertText: (snippet) => replaceRange(String(snippet ?? "")),
+    replaceRange: (snippet, start, end) => replaceRange(String(snippet ?? ""), start, end),
+    getSelection: () => ({
+      start: textareaRef.current?.selectionStart ?? 0,
+      end: textareaRef.current?.selectionEnd ?? 0
+    }),
+    setSelection: restoreSelection
+  }), [replaceRange, restoreSelection]);
+  const handleScroll = () => {
+    const textarea = textareaRef.current;
+    const gutter = gutterContentRef.current;
+    if (textarea && gutter) gutter.style.transform = `translateY(-${textarea.scrollTop}px)`;
+  };
+  const handleTab = (event) => {
+    const textarea = event.currentTarget;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selected = text.slice(start, end);
+    if (!selected.includes("\n")) {
+      if (event.shiftKey) {
+        const lineStart = text.lastIndexOf("\n", start - 1) + 1;
+        const removable = text.slice(lineStart, lineStart + INDENT.length).match(/^ {1,2}/)?.[0] || "";
+        if (!removable) return;
+        onChange?.(text.slice(0, lineStart) + text.slice(lineStart + removable.length));
+        restoreSelection(Math.max(lineStart, start - removable.length), Math.max(lineStart, end - removable.length));
+        return;
+      }
+      replaceRange(INDENT, start, end);
+      return;
+    }
+    const blockStart = text.lastIndexOf("\n", start - 1) + 1;
+    const blockEndBreak = text.indexOf("\n", end);
+    const blockEnd = blockEndBreak === -1 ? text.length : blockEndBreak;
+    const block = text.slice(blockStart, blockEnd);
+    const nextBlock = event.shiftKey ? block.replace(/^ {1,2}/gm, "") : block.replace(/^/gm, INDENT);
+    const nextValue = text.slice(0, blockStart) + nextBlock + text.slice(blockEnd);
+    onChange?.(nextValue);
+    restoreSelection(blockStart, blockStart + nextBlock.length);
+  };
+  const handleKeyDown = (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
+      event.preventDefault();
+      onSave?.();
+      return;
+    }
+    if (event.key === "Tab") {
+      event.preventDefault();
+      handleTab(event);
+      return;
+    }
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      const start = event.currentTarget.selectionStart;
+      const end = event.currentTarget.selectionEnd;
+      const lineStart = text.lastIndexOf("\n", start - 1) + 1;
+      const currentLine = text.slice(lineStart, start);
+      const baseIndent = currentLine.match(/^\s*/)?.[0] || "";
+      const nextIndent = baseIndent + (shouldIndentNextLine(currentLine, language) ? INDENT : "");
+      replaceRange(`
+${nextIndent}`, start, end);
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl border font-mono text-[13px]",
+      style: { backgroundColor: "#141619", borderColor: "#30363d", color: "#e6edf3" },
+      "data-language": language,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-h-0 flex-1 overflow-hidden", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "w-12 flex-shrink-0 select-none overflow-hidden border-r py-3 pr-3 text-right",
+              style: { backgroundColor: "#0d1117", borderColor: "#30363d", color: "#6e7681", lineHeight: "21px" },
+              "aria-hidden": "true",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: gutterContentRef, children: Array.from({ length: lineCount }, (_, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: index2 + 1 }, index2 + 1)) })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "textarea",
+            {
+              ref: textareaRef,
+              value: text,
+              onChange: (event) => onChange?.(event.target.value),
+              onScroll: handleScroll,
+              onKeyDown: handleKeyDown,
+              className: "min-h-0 flex-1 resize-none overflow-auto whitespace-pre border-none bg-transparent p-3 outline-none",
+              style: { color: "#e6edf3", caretColor: "#ffffff", lineHeight: "21px", tabSize: 2 },
+              spellCheck: false,
+              wrap: "off",
+              "aria-label": ariaLabel
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: "flex flex-shrink-0 items-center justify-between gap-3 border-t px-3 py-1.5 text-[10px]",
+            style: { backgroundColor: "#0d1117", borderColor: "#30363d", color: "#8b949e" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                "UTF-8 · ",
+                lineCount,
+                " lines · ",
+                text.length.toLocaleString(),
+                " chars"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                language.toUpperCase(),
+                " · Ctrl/Cmd+S"
+              ] })
+            ]
+          }
+        )
+      ]
+    }
+  );
+});
 const EDITOR_STAY_AFTER_SAVE_KEY = "orbitra_editor_stay_after_save";
 const getStayInEditorAfterSave = () => {
   if (typeof window === "undefined") return true;
@@ -55105,47 +56686,63 @@ function translateLandingRequestError(t, error) {
   }
   return t("landingEditor.networkError");
 }
-async function copyToClipboard(text) {
-  if (!text && text !== "0") return false;
-  const value = String(text);
-  if (typeof window !== "undefined" && window.isSecureContext && navigator?.clipboard?.writeText) {
-    try {
-      await navigator.clipboard.writeText(value);
-      return true;
-    } catch (error) {
-      console.warn("navigator.clipboard failed, falling back to execCommand:", error);
+const API_URL$x = "/api.php";
+const IMAGE_EXTENSIONS = /* @__PURE__ */ new Set(["png", "jpg", "jpeg", "gif", "webp", "svg", "avif", "ico", "bmp"]);
+const VOID_HTML_TAGS = /* @__PURE__ */ new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
+const JUNK_FILE_NAMES = /* @__PURE__ */ new Set(["__MACOSX", ".DS_Store", "Thumbs.db", ".git"]);
+const fileExtension = (path = "") => String(path).split(".").pop()?.toLowerCase() || "";
+const normalizedImageExtension = (path) => fileExtension(path).replace("jpeg", "jpg");
+const isImageFile = (path) => IMAGE_EXTENSIONS.has(fileExtension(path));
+const isJunkFile = (path) => String(path).replace(/\\/g, "/").split("/").some((part) => JUNK_FILE_NAMES.has(part));
+const encodeAssetPath = (path = "") => String(path).split("/").map(encodeURIComponent).join("/");
+const editorLanguage = (path) => {
+  const ext = fileExtension(path);
+  if (["html", "htm", "php"].includes(ext)) return "html";
+  if (ext === "css") return "css";
+  if (["js", "mjs"].includes(ext)) return "javascript";
+  if (ext === "json") return "json";
+  if (ext === "xml" || ext === "svg") return "xml";
+  return "text";
+};
+const fileAppearance = (path) => {
+  const ext = fileExtension(path);
+  if (["html", "htm", "php"].includes(ext)) return { Icon: Code, color: "#f97316" };
+  if (ext === "css") return { Icon: Palette, color: "#3b82f6" };
+  if (["js", "mjs"].includes(ext)) return { Icon: FileCode, color: "#eab308" };
+  if (IMAGE_EXTENSIONS.has(ext)) return { Icon: Image, color: "#a855f7" };
+  return { Icon: FileText, color: "var(--color-text-muted)" };
+};
+const beautifyCode = (source, language) => {
+  const normalized = String(source || "").replace(/\r\n?/g, "\n");
+  const inputLines = language === "html" ? normalized.replace(/>\s*</g, ">\n<").split("\n") : normalized.split("\n");
+  let depth = 0;
+  return inputLines.map((rawLine) => {
+    const line = rawLine.trim();
+    if (!line) return "";
+    const closesBlock = language === "html" ? /^<\//.test(line) : /^[}\])]/.test(line);
+    if (closesBlock) depth = Math.max(0, depth - 1);
+    const formatted = `${"  ".repeat(depth)}${line}`;
+    if (language === "html") {
+      const opening = line.match(/^<([a-z][\w:-]*)(?:\s[^>]*)?>/i);
+      const sameLineClose = opening && new RegExp(`<\\/${opening[1]}\\s*>`, "i").test(line);
+      if (opening && !sameLineClose && !line.endsWith("/>") && !VOID_HTML_TAGS.has(opening[1].toLowerCase())) {
+        depth += 1;
+      }
+    } else {
+      const openCount = (line.match(/[{[(]/g) || []).length;
+      const closeCount = (line.match(/[}\])]/g) || []).length;
+      depth = Math.max(0, depth + openCount - closeCount + (closesBlock ? 1 : 0));
     }
-  }
-  let textarea;
-  try {
-    textarea = document.createElement("textarea");
-    textarea.value = value;
-    textarea.setAttribute("readonly", "");
-    textarea.style.position = "fixed";
-    textarea.style.top = "0";
-    textarea.style.left = "-9999px";
-    textarea.style.width = "2em";
-    textarea.style.height = "2em";
-    textarea.style.padding = "0";
-    textarea.style.border = "none";
-    textarea.style.outline = "none";
-    textarea.style.boxShadow = "none";
-    textarea.style.background = "transparent";
-    textarea.style.opacity = "0";
-    textarea.style.zIndex = "-1";
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-    textarea.setSelectionRange(0, textarea.value.length);
-    return document.execCommand("copy");
-  } catch (error) {
-    console.error("execCommand copy failed:", error);
-    return false;
-  } finally {
-    textarea?.remove();
-  }
-}
-const API_URL$u = "/api.php";
+    return formatted;
+  }).join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
+};
+const previewDocument = (html, slug) => {
+  if (!html || !slug) return "";
+  const base = `<base href="/lander/${encodeURIComponent(slug)}/">`;
+  return /<head(?:\s[^>]*)?>/i.test(html) ? html.replace(/<head(?:\s[^>]*)?>/i, (match2) => `${match2}
+${base}`) : `${base}
+${html}`;
+};
 const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("general");
@@ -55183,11 +56780,45 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   const [uploadingZip, setUploadingZip] = reactExports.useState(false);
   const [viewMode, setViewMode] = reactExports.useState("code");
   const [previewNonce, setPreviewNonce] = reactExports.useState(0);
+  const [livePreviewHtml, setLivePreviewHtml] = reactExports.useState("");
+  const [imageDimensions, setImageDimensions] = reactExports.useState(null);
+  const [imageLoadError, setImageLoadError] = reactExports.useState(false);
+  const [assetNonce, setAssetNonce] = reactExports.useState(0);
+  const [editorFullscreen, setEditorFullscreen] = reactExports.useState(false);
   const assetInputRef = reactExports.useRef(null);
+  const replaceAssetInputRef = reactExports.useRef(null);
+  const codeEditorRef = reactExports.useRef(null);
+  const visibleFiles = reactExports.useMemo(
+    () => files.filter((file) => !isJunkFile(file)).sort((a, b) => a.localeCompare(b, void 0, { numeric: true, sensitivity: "base" })),
+    [files]
+  );
+  const selectedIsImage = Boolean(selectedFile && isImageFile(selectedFile));
+  const selectedLanguage = editorLanguage(selectedFile);
+  const canInsertHtmlSnippets = selectedLanguage === "html";
+  const selectedImageAccept = normalizedImageExtension(selectedFile) === "jpg" ? ".jpg,.jpeg" : `.${fileExtension(selectedFile)}`;
+  const selectedAssetUrl = selectedFile && landing.slug ? `/lander/${encodeURIComponent(landing.slug)}/${encodeAssetPath(selectedFile)}?_asset=${assetNonce}` : "";
+  reactExports.useEffect(() => {
+    if (!editorFullscreen) return void 0;
+    const handleEscape = (event) => {
+      if (event.key === "Escape") setEditorFullscreen(false);
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [editorFullscreen]);
+  reactExports.useEffect(() => {
+    if (!selectedFile || selectedIsImage || selectedLanguage !== "html" || !landing.slug) {
+      setLivePreviewHtml("");
+      return void 0;
+    }
+    const timer = window.setTimeout(() => {
+      setLivePreviewHtml(previewDocument(fileContent, landing.slug));
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [fileContent, landing.slug, selectedFile, selectedIsImage, selectedLanguage]);
   reactExports.useEffect(() => {
     if (landing.type !== "action" || landing.action_type !== "to_campaign" || campaigns.length) return;
     let cancelled = false;
-    axios.get(`${API_URL$u}?action=campaigns`).then((res) => {
+    axios.get(`${API_URL$x}?action=campaigns`).then((res) => {
       if (!cancelled && res.data.status === "success") setCampaigns(res.data.data || []);
     }).catch(() => {
     });
@@ -55200,10 +56831,10 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
       setLoading(true);
       try {
         const [groupsRes, settingsRes] = await Promise.all([
-          axios.get(`${API_URL$u}?action=landing_groups`),
+          axios.get(`${API_URL$x}?action=landing_groups`),
           // Needed to build the adapter's postback URL, which is keyed by
           // the instance's postback_key.
-          axios.get(`${API_URL$u}?action=settings`).catch(() => null)
+          axios.get(`${API_URL$x}?action=settings`).catch(() => null)
         ]);
         if (groupsRes.data.status === "success") {
           setGroups(groupsRes.data.data);
@@ -55212,7 +56843,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
           setPostbackKey(settingsRes.data.data?.postback_key || "");
         }
         if (landingId) {
-          const landingRes = await axios.get(`${API_URL$u}?action=get_landing&id=${landingId}`);
+          const landingRes = await axios.get(`${API_URL$x}?action=get_landing&id=${landingId}`);
           if (landingRes.data.status === "success") {
             setLanding(landingRes.data.data);
             if (landingRes.data.data.type === "local") {
@@ -55231,7 +56862,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   }, [landingId, t]);
   const fetchLandingFiles = async (id) => {
     try {
-      const res = await axios.get(`${API_URL$u}?action=landing_files&id=${id}`);
+      const res = await axios.get(`${API_URL$x}?action=landing_files&id=${id}`);
       if (res.data.status === "success") {
         setFiles(res.data.data);
       }
@@ -55260,7 +56891,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
       setSaving(true);
       const payload = { ...landing };
       if (landingId) payload.id = landingId;
-      const res = await axios.post(`${API_URL$u}?action=save_landing`, payload);
+      const res = await axios.post(`${API_URL$x}?action=save_landing`, payload);
       if (res.data.status === "success") {
         setSavedSomething(true);
         const newId = res.data.data?.id;
@@ -55296,7 +56927,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   };
   const fileOp = async (payload, okMessage) => {
     try {
-      const res = await axios.post(`${API_URL$u}?action=landing_file_op`, { id: landingId, ...payload });
+      const res = await axios.post(`${API_URL$x}?action=landing_file_op`, { id: landingId, ...payload });
       if (res.data.status !== "success") throw new Error(res.data.message || "failed");
       fetchLandingFiles(landingId);
       if (okMessage) ;
@@ -55337,7 +56968,7 @@ ${file}`)) return;
     fd.append("id", landingId);
     fd.append("dir", dir);
     try {
-      const res = await axios.post(`${API_URL$u}?action=upload_landing_file`, fd, {
+      const res = await axios.post(`${API_URL$x}?action=upload_landing_file`, fd, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status !== "success") throw new Error(res.data.message || "failed");
@@ -55354,7 +56985,7 @@ ${file}`)) return;
     formData.append("file", file);
     formData.append("id", id);
     try {
-      const res = await axios.post(`${API_URL$u}?action=upload_landing`, formData, {
+      const res = await axios.post(`${API_URL$x}?action=upload_landing`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status === "success") {
@@ -55385,8 +57016,15 @@ ${file}`)) return;
     setTimeout(() => setCopiedSnippet(""), 1800);
   };
   const loadFileContent = async (path) => {
+    setImageDimensions(null);
+    setImageLoadError(false);
+    if (isImageFile(path)) {
+      setSelectedFile(path);
+      setFileContent("");
+      return;
+    }
     try {
-      const res = await axios.get(`${API_URL$u}?action=get_landing_file&id=${landingId}&path=${encodeURIComponent(path)}`);
+      const res = await axios.get(`${API_URL$x}?action=get_landing_file&id=${landingId}&path=${encodeURIComponent(path)}`);
       if (res.data.status === "success") {
         setSelectedFile(path);
         setFileContent(res.data.data);
@@ -55398,15 +57036,17 @@ ${file}`)) return;
     }
   };
   const saveFileContent = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile || selectedIsImage) return;
     setSavingFile(true);
     try {
-      const res = await axios.post(`${API_URL$u}?action=save_landing_file`, {
+      const res = await axios.post(`${API_URL$x}?action=save_landing_file`, {
         id: landingId,
         path: selectedFile,
         content: fileContent
       });
       if (res.data.status === "success") {
+        setSavedSomething(true);
+        setPreviewNonce(Date.now());
       } else {
         alert(res.data.message || t("landingEditor.fileSaveError"));
       }
@@ -55415,6 +57055,140 @@ ${file}`)) return;
     } finally {
       setSavingFile(false);
     }
+  };
+  const replaceSelectedImage = async (event) => {
+    const replacement = event.target.files?.[0];
+    event.target.value = "";
+    if (!replacement || !selectedFile || !landingId) return;
+    if (normalizedImageExtension(replacement.name) !== normalizedImageExtension(selectedFile)) {
+      alert(t("landingEditor.replaceImageTypeError", "Choose an image with the same file type so existing landing links keep working."));
+      return;
+    }
+    const fd = new FormData();
+    fd.append("file", replacement);
+    fd.append("id", landingId);
+    fd.append("path", selectedFile);
+    try {
+      const res = await axios.post(`${API_URL$x}?action=upload_landing_file`, fd, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      if (res.data.status !== "success") throw new Error(res.data.message || "failed");
+      setAssetNonce(Date.now());
+      setPreviewNonce(Date.now());
+      setImageDimensions(null);
+      setImageLoadError(false);
+      setSavedSomething(true);
+      fetchLandingFiles(landingId);
+    } catch (error) {
+      alert(`${t("landingEditor.fileOpError")}: ${error.response?.data?.message || error.message}`);
+    }
+  };
+  const insertAtCursor = (snippet) => {
+    codeEditorRef.current?.insertText(snippet);
+  };
+  const insertBeforeClosingTag = (snippet, tag) => {
+    const duplicateMarker = tag === "head" ? "/js/orbitra-adapter.js" : "data-orbitra-back-trap";
+    if (fileContent.includes(duplicateMarker)) {
+      codeEditorRef.current?.focus();
+      return;
+    }
+    const closingTag = `</${tag}>`;
+    const index2 = fileContent.toLowerCase().lastIndexOf(closingTag);
+    const position = index2 >= 0 ? index2 : fileContent.length;
+    const prefix = position > 0 && !fileContent.slice(0, position).endsWith("\n") ? "\n" : "";
+    const suffix = index2 >= 0 ? "\n" : "";
+    codeEditorRef.current?.replaceRange(`${prefix}${snippet}${suffix}`, position, position);
+  };
+  const backTrapSnippet = `<script data-orbitra-back-trap>
+(function () {
+  history.pushState(null, '', location.href);
+  window.addEventListener('popstate', function () {
+    location.href = '{offer}';
+  });
+})();
+<\/script>`;
+  const handleBeautify = () => {
+    const formatted = beautifyCode(fileContent, selectedLanguage);
+    setFileContent(formatted);
+    window.requestAnimationFrame(() => codeEditorRef.current?.setSelection(0, 0));
+  };
+  const renderLandingPreview = (split = false) => {
+    const useLiveDocument = Boolean(livePreviewHtml && selectedLanguage === "html" && !selectedIsImage);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex h-full min-h-0 flex-col overflow-hidden", style: { backgroundColor: "#fff" }, children: [
+      split && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between border-b px-3 py-2 text-xs font-semibold", style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)", color: "var(--color-text-secondary)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "w-3.5 h-3.5" }),
+          " ",
+          t("landingEditor.livePreview", "Live preview")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-normal", style: { color: "var(--color-text-muted)" }, children: useLiveDocument ? t("landingEditor.unsavedPreview", "Unsaved HTML") : t("landingEditor.savedPreview", "Saved landing") })
+      ] }),
+      landing.slug ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "iframe",
+        {
+          src: useLiveDocument ? void 0 : `/lander/${landing.slug}/?_preview=${previewNonce}`,
+          srcDoc: useLiveDocument ? livePreviewHtml : void 0,
+          title: t("landingEditor.viewPreview"),
+          className: "h-full min-h-0 w-full flex-1",
+          style: { border: "none", minHeight: split ? "320px" : "400px" }
+        },
+        `${previewNonce}-${useLiveDocument ? "live" : "saved"}`
+      ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full items-center justify-center p-6 text-center", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.previewNeedsSlug") })
+    ] });
+  };
+  const renderSelectedAsset = () => {
+    if (!selectedFile) {
+      return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full items-center justify-center", style: { color: "var(--color-text-muted)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "mx-auto mb-3 h-12 w-12 opacity-20" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("landingEditor.selectFile") })
+      ] }) });
+    }
+    if (selectedIsImage) {
+      return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full min-h-0 items-center justify-center overflow-auto p-5", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex max-w-full flex-col items-center gap-4 rounded-2xl border p-4 shadow-sm", style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" }, children: [
+        imageLoadError ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex min-h-48 min-w-64 items-center justify-center rounded-xl border p-6 text-center", style: { borderColor: "var(--color-border)", color: "var(--color-danger)" }, children: t("landingEditor.imageLoadError", "Could not load this image") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "img",
+          {
+            src: selectedAssetUrl,
+            alt: selectedFile,
+            className: "max-h-[52vh] max-w-full rounded-xl object-contain",
+            onLoad: (event) => setImageDimensions({ width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight }),
+            onError: () => setImageLoadError(true)
+          },
+          assetNonce
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex w-full flex-wrap items-center justify-between gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 text-xs", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "break-all font-semibold", style: { color: "var(--color-text-primary)" }, children: selectedFile }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: "var(--color-text-muted)" }, children: imageDimensions ? `${imageDimensions.width} × ${imageDimensions.height}px` : t("common.loading") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "btn btn-secondary btn-sm", onClick: () => replaceAssetInputRef.current?.click(), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-3.5 w-3.5" }),
+            t("landingEditor.replaceImage", "Replace image")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              ref: replaceAssetInputRef,
+              type: "file",
+              accept: selectedImageAccept,
+              className: "hidden",
+              onChange: replaceSelectedImage
+            }
+          )
+        ] })
+      ] }) });
+    }
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-full min-h-0 p-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      CodeEditor,
+      {
+        ref: codeEditorRef,
+        value: fileContent,
+        onChange: setFileContent,
+        onSave: saveFileContent,
+        language: selectedLanguage,
+        ariaLabel: `${t("landingEditor.title")}: ${selectedFile}`
+      }
+    ) });
   };
   if (loading) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-content", style: { maxWidth: "300px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-6", style: { color: "var(--color-text-muted)" }, children: t("common.loading") }) }) });
   const isLocal = landing.type === "local";
@@ -55431,7 +57205,7 @@ ${file}`)) return;
       {
         className: "modal-content",
         style: {
-          maxWidth: showFileEditor ? "1200px" : "880px",
+          maxWidth: showFileEditor ? "1500px" : "880px",
           width: "100%",
           /* Flex column pins header/footer; only the body scrolls —
              the file editor used to push Save below the fold. */
@@ -55463,7 +57237,7 @@ ${file}`)) return;
             tab.id
           )) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-0 flex flex-col md:flex-row", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-6 ${showFileEditor ? "md:w-1/3" : "w-full"} flex flex-col pt-4`, style: { borderRight: showFileEditor ? "1px solid var(--color-border)" : "none" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { id: "landing-form", onSubmit: handleFormSubmit, className: "space-y-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-6 ${showFileEditor ? "md:w-[28%]" : "w-full"} flex flex-col pt-4`, style: { borderRight: showFileEditor ? "1px solid var(--color-border)" : "none" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { id: "landing-form", onSubmit: handleFormSubmit, className: "space-y-4", children: [
               activeTab === "general" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.name") }),
@@ -55673,7 +57447,7 @@ ${file}`)) return;
                       replaceHint: t("landingEditor.zipReplaceHint", "Click to replace")
                     }
                   ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", style: { fontSize: "12.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: !landingId ? t("landingEditor.zipOnCreateHint") : `${files.length} ${t("offerEditor.filesLabel", "files")}` })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", style: { fontSize: "12.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: !landingId ? t("landingEditor.zipOnCreateHint") : `${visibleFiles.length} ${t("offerEditor.filesLabel", "files")}` })
                 ] })
               ] }),
               activeTab === "integration" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-4", children: landing.type === "local" || landing.type === "preload" || landing.type === "redirect" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -55788,124 +57562,139 @@ ${file}`)) return;
                 )
               ] })
             ] }) }),
-            showFileEditor && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden min-h-[400px]", style: { backgroundColor: "var(--color-bg-soft)" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center p-3", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "font-semibold flex items-center", style: { color: "var(--color-text-primary)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-4 h-4 mr-2", style: { color: "var(--color-accent-purple)" } }),
-                  t("landingEditor.title")
-                ] }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex rounded-lg overflow-hidden", style: { border: "1px solid var(--color-border)" }, children: [
-                    { value: "code", label: t("landingEditor.viewCode"), icon: Code },
-                    { value: "preview", label: t("landingEditor.viewPreview"), icon: Eye }
-                  ].map((opt, idx) => {
-                    const active = viewMode === opt.value;
-                    const Icon2 = opt.icon;
-                    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "button",
-                      {
-                        type: "button",
-                        onClick: () => {
-                          if (opt.value === "preview") setPreviewNonce(Date.now());
-                          setViewMode(opt.value);
-                        },
-                        className: "px-3 py-1.5 text-xs font-medium transition flex items-center gap-1.5",
-                        style: {
-                          backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-card)",
-                          color: active ? "var(--color-primary)" : "var(--color-text-primary)",
-                          borderRight: idx === 0 ? "1px solid var(--color-border)" : "none"
-                        },
-                        children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "w-3.5 h-3.5" }),
-                          opt.label
-                        ]
-                      },
-                      opt.value
-                    );
-                  }) }),
-                  viewMode === "preview" && landing.slug && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "a",
-                    {
-                      href: `/lander/${landing.slug}/`,
-                      target: "_blank",
-                      rel: "noopener noreferrer",
-                      className: "btn btn-secondary btn-sm",
-                      title: `/lander/${landing.slug}/`,
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "w-4 h-4" }),
-                        t("landingEditor.openInTab")
-                      ]
-                    }
-                  ),
-                  viewMode === "code" && selectedFile && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "button",
-                    {
-                      onClick: saveFileContent,
-                      disabled: savingFile,
-                      className: "btn btn-primary btn-sm",
-                      children: savingFile ? t("common.saving") : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "w-4 h-4 mr-1" }),
-                        " ",
-                        t("landingEditor.save"),
-                        " ",
+            showFileEditor && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "flex min-h-[400px] flex-1 flex-col overflow-hidden",
+                style: {
+                  backgroundColor: "var(--color-bg-soft)",
+                  ...editorFullscreen ? {
+                    position: "fixed",
+                    inset: "12px",
+                    zIndex: 1400,
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "16px",
+                    boxShadow: "0 24px 80px rgba(0,0,0,.45)"
+                  } : {}
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 p-3", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "flex min-w-0 items-center font-semibold", style: { color: "var(--color-text-primary)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "mr-2 h-4 w-4 flex-shrink-0", style: { color: "var(--color-accent-purple)" } }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("landingEditor.title") }),
+                      selectedFile && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-2 break-all text-xs font-normal", style: { color: "var(--color-text-muted)" }, children: [
+                        "· ",
                         selectedFile
                       ] })
-                    }
-                  )
-                ] })
-              ] }),
-              viewMode === "preview" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-hidden", style: { backgroundColor: "#fff" }, children: landing.slug ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "iframe",
-                {
-                  src: `/lander/${landing.slug}/?_preview=${previewNonce}`,
-                  title: t("landingEditor.viewPreview"),
-                  className: "w-full h-full",
-                  style: { border: "none", minHeight: "400px" }
-                },
-                previewNonce
-              ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full items-center justify-center p-6 text-center", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.previewNeedsSlug") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-1 overflow-hidden", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-1/4 overflow-y-auto", style: { borderRight: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 px-2 py-2", style: { borderBottom: "1px solid var(--color-border)" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: createFile, className: "btn btn-ghost btn-sm", title: t("landingEditor.fileNew"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => assetInputRef.current?.click(), className: "btn btn-ghost btn-sm", title: t("landingEditor.fileUpload"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "w-3.5 h-3.5" }) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: assetInputRef, type: "file", className: "hidden", onChange: uploadFile })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-end gap-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex overflow-hidden rounded-lg", style: { border: "1px solid var(--color-border)" }, children: [
+                        { value: "code", label: t("landingEditor.viewCode"), icon: Code },
+                        { value: "split", label: t("landingEditor.viewSplit", "Split"), icon: Columns2 },
+                        { value: "preview", label: t("landingEditor.viewPreview"), icon: Eye }
+                      ].map((opt, index2) => {
+                        const active = viewMode === opt.value;
+                        const Icon2 = opt.icon;
+                        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "button",
+                          {
+                            type: "button",
+                            onClick: () => {
+                              if (opt.value !== "code") setPreviewNonce(Date.now());
+                              setViewMode(opt.value);
+                            },
+                            className: "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition",
+                            style: {
+                              backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-card)",
+                              color: active ? "var(--color-primary)" : "var(--color-text-primary)",
+                              borderRight: index2 < 2 ? "1px solid var(--color-border)" : "none"
+                            },
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-3.5 w-3.5" }),
+                              opt.label
+                            ]
+                          },
+                          opt.value
+                        );
+                      }) }),
+                      viewMode !== "code" && landing.slug && /* @__PURE__ */ jsxRuntimeExports.jsxs("a", { href: `/lander/${landing.slug}/`, target: "_blank", rel: "noopener noreferrer", className: "btn btn-secondary btn-sm", title: `/lander/${landing.slug}/`, children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "h-4 w-4" }),
+                        t("landingEditor.openInTab")
+                      ] }),
+                      viewMode !== "preview" && selectedFile && !selectedIsImage && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: saveFileContent, disabled: savingFile, className: "btn btn-primary btn-sm", title: "Ctrl/Cmd+S", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "h-4 w-4" }),
+                        savingFile ? t("common.saving") : t("landingEditor.save")
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setEditorFullscreen((value) => !value), className: "btn btn-ghost btn-sm", title: editorFullscreen ? t("landingEditor.exitFullscreen", "Exit fullscreen") : t("landingEditor.fullscreen", "Fullscreen"), children: editorFullscreen ? /* @__PURE__ */ jsxRuntimeExports.jsx(Minimize2, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Maximize2, { className: "h-4 w-4" }) })
+                    ] })
                   ] }),
-                  files.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 text-sm text-center italic", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.selectFile") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "py-2", children: files.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center group", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "button",
-                      {
-                        onClick: () => loadFileContent(file),
-                        className: `flex-1 min-w-0 text-left px-4 py-2 text-sm flex items-center transition ${selectedFile === file ? "font-medium" : ""}`,
-                        style: {
-                          backgroundColor: selectedFile === file ? "var(--color-primary-light)" : "transparent",
-                          color: selectedFile === file ? "var(--color-primary)" : "var(--color-text-primary)",
-                          borderRight: selectedFile === file ? "2px solid var(--color-primary)" : "none"
-                        },
-                        children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-3.5 h-3.5 mr-2 flex-shrink-0", style: { color: "var(--color-text-muted)" } }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", title: file, children: file })
-                        ]
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => renameFile(file), className: "action-btn text-blue", title: t("landingEditor.fileRename"), style: { flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-3.5 h-3.5" }) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => deleteFile(file), className: "action-btn text-red", title: t("common.delete"), style: { flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }) })
-                  ] }, file)) })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 relative", style: { backgroundColor: "var(--color-bg-card)" }, children: selectedFile ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "textarea",
-                  {
-                    value: fileContent,
-                    onChange: (e) => setFileContent(e.target.value),
-                    className: "absolute inset-0 w-full h-full p-4 font-mono text-sm leading-relaxed border-none resize-none focus:outline-none",
-                    style: { backgroundColor: "#1e1e1e", color: "#d4d4d4" },
-                    spellCheck: false
-                  }
-                ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full items-center justify-center", style: { color: "var(--color-text-muted)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-12 h-12 mx-auto mb-3 opacity-20" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("landingEditor.selectFile") })
-                ] }) }) })
-              ] })
-            ] })
+                  viewMode !== "preview" && selectedFile && !selectedIsImage && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-1.5 border-b px-3 py-2", style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", disabled: !canInsertHtmlSnippets, className: "btn btn-secondary btn-sm", onClick: () => insertAtCursor(`<a href="{offer}">${t("landingEditor.offerLinkWord")}</a>`), children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { className: "h-3.5 w-3.5" }),
+                      " + ",
+                      "{offer}"
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", disabled: !canInsertHtmlSnippets, className: "btn btn-secondary btn-sm", onClick: () => insertBeforeClosingTag(adapterSnippet, "head"), children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "h-3.5 w-3.5" }),
+                      " + JS Adapter"
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", disabled: !canInsertHtmlSnippets, className: "btn btn-secondary btn-sm", onClick: () => insertBeforeClosingTag(backTrapSnippet, "body"), children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Undo2, { className: "h-3.5 w-3.5" }),
+                      " + Back Trap"
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "btn btn-secondary btn-sm", onClick: handleBeautify, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(WandSparkles, { className: "h-3.5 w-3.5" }),
+                      " ",
+                      t("landingEditor.formatCode", "Format")
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto text-[10px]", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.quickInsertHint", "Snippets are inserted at the cursor; adapter and back trap are placed before closing tags.") })
+                  ] }),
+                  viewMode === "preview" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-0 flex-1 overflow-hidden", children: renderLandingPreview(false) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-h-0 flex-1 overflow-hidden", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `${viewMode === "split" ? "w-[20%]" : "w-1/4"} min-w-[150px] overflow-y-auto`, style: { borderRight: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 px-2 py-2", style: { borderBottom: "1px solid var(--color-border)" }, children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "mr-auto text-[10px] font-bold uppercase tracking-wider", style: { color: "var(--color-text-muted)" }, children: [
+                          t("landingEditor.filesTitle", "Files"),
+                          " (",
+                          visibleFiles.length,
+                          ")"
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: createFile, className: "btn btn-ghost btn-sm", title: t("landingEditor.fileNew"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3.5 w-3.5" }) }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => assetInputRef.current?.click(), className: "btn btn-ghost btn-sm", title: t("landingEditor.fileUpload"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-3.5 w-3.5" }) }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: assetInputRef, type: "file", className: "hidden", onChange: uploadFile })
+                      ] }),
+                      visibleFiles.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 text-center text-sm italic", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.selectFile") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "py-2", children: visibleFiles.map((file) => {
+                        const { Icon: Icon2, color: color2 } = fileAppearance(file);
+                        return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "group flex items-start", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                            "button",
+                            {
+                              type: "button",
+                              onClick: () => loadFileContent(file),
+                              className: `flex min-w-0 flex-1 items-start px-3 py-2 text-left text-sm transition ${selectedFile === file ? "font-medium" : ""}`,
+                              style: {
+                                backgroundColor: selectedFile === file ? "var(--color-primary-light)" : "transparent",
+                                color: selectedFile === file ? "var(--color-primary)" : "var(--color-text-primary)",
+                                borderRight: selectedFile === file ? "2px solid var(--color-primary)" : "none"
+                              },
+                              children: [
+                                /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "mr-2 mt-0.5 h-3.5 w-3.5 flex-shrink-0", style: { color: color2 } }),
+                                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "break-all whitespace-normal", title: file, children: file })
+                              ]
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-shrink-0 items-center pt-1.5 opacity-50 transition group-hover:opacity-100", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => renameFile(file), className: "action-btn text-blue", title: t("landingEditor.fileRename"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileCode, { className: "h-3.5 w-3.5" }) }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => deleteFile(file), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
+                          ] })
+                        ] }, file);
+                      }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `${viewMode === "split" ? "w-[40%]" : "flex-1"} min-w-0 min-h-0`, style: { backgroundColor: "var(--color-bg-card)" }, children: renderSelectedAsset() }),
+                    viewMode === "split" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-0 w-[40%] min-w-[280px] overflow-hidden border-l", style: { borderColor: "var(--color-border)" }, children: renderLandingPreview(true) })
+                  ] })
+                ]
+              }
+            )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer px-6 pb-5", style: { flexShrink: 0, marginTop: 0 }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => onClose(savedSomething), type: "button", className: "btn btn-secondary rounded-xl", children: [
@@ -55949,7 +57738,7 @@ ${file}`)) return;
         type: "landing",
         onClose: () => {
           setShowGroupsModal(false);
-          axios.get(`${API_URL$u}?action=landing_groups`).then((res) => {
+          axios.get(`${API_URL$x}?action=landing_groups`).then((res) => {
             if (res.data.status === "success") setGroups(res.data.data);
           }).catch(() => {
           });
@@ -56233,7 +58022,7 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
     }
   ) });
 };
-const API_URL$t = "/api.php";
+const API_URL$w = "/api.php";
 const ALL_LANDING_COLUMNS = [
   { id: "id", label: "ID" },
   { id: "name", label: "Name", required: true },
@@ -56286,24 +58075,64 @@ const loadLandingColumns = () => {
       const valid = saved.filter((id) => ALL_LANDING_COLUMNS.some((c) => c.id === id));
       if (valid.includes("name")) return valid;
     }
-  } catch (e) {
+  } catch {
   }
   return [...DEFAULT_LANDING_COLUMNS];
 };
 const Landings = ({ landings, refreshData }) => {
   const { t } = useLanguage();
+  const [landingList, setLandingList] = reactExports.useState(() => landings || []);
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
   const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
   const [editingLandingId, setEditingLandingId] = reactExports.useState(null);
   const [selectedLandingIds, setSelectedLandingIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
   const [showFilters, setShowFilters] = reactExports.useState(false);
   const [search, setSearch] = reactExports.useState("");
+  const [pageSize, setPageSize] = reactExports.useState(() => {
+    const saved = localStorage.getItem("orbitra_table_page_size");
+    return saved === "All" ? "All" : [25, 50, 100, 250].includes(Number(saved)) ? Number(saved) : 25;
+  });
+  const [currentPage, setCurrentPage] = reactExports.useState(0);
   const [typeFilter, setTypeFilter] = reactExports.useState("");
   const [stateFilter, setStateFilter] = reactExports.useState("");
+  const [groupTab, setGroupTab] = reactExports.useState("all");
   const [settingsOpen, setSettingsOpen] = reactExports.useState(false);
   const [refreshing, setRefreshing] = reactExports.useState(false);
   const [columnsModalOpen, setColumnsModalOpen] = reactExports.useState(false);
   const [chosenColumns, setChosenColumns] = reactExports.useState(() => loadLandingColumns());
+  const [dateFrom, setDateFrom] = reactExports.useState(() => getPresetDates("today")?.from || formatDate$1(/* @__PURE__ */ new Date()));
+  const [dateTo, setDateTo] = reactExports.useState(() => getPresetDates("today")?.to || formatDate$1(/* @__PURE__ */ new Date()));
+  const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
+  const landingRequestId = reactExports.useRef(0);
+  const fetchLandings = reactExports.useCallback(async () => {
+    const requestId = ++landingRequestId.current;
+    setRefreshing(true);
+    try {
+      const res = await axios.get(`${API_URL$w}?action=landings`, {
+        params: {
+          date_from: dateFrom,
+          date_to: dateTo,
+          timezone
+        }
+      });
+      if (requestId === landingRequestId.current && res?.data?.status === "success") {
+        setLandingList(res.data.data || []);
+      }
+    } catch (err) {
+      if (requestId === landingRequestId.current) {
+        console.error("Error fetching landings:", err);
+      }
+    } finally {
+      if (requestId === landingRequestId.current) setRefreshing(false);
+    }
+  }, [dateFrom, dateTo, timezone]);
+  reactExports.useEffect(() => {
+    fetchLandings();
+  }, [fetchLandings]);
+  const handleDateChange = (from2, to2) => {
+    setDateFrom(from2);
+    setDateTo(to2);
+  };
   const handleCreate = () => {
     setEditingLandingId(null);
     setIsEditorOpen(true);
@@ -56315,31 +58144,70 @@ const Landings = ({ landings, refreshData }) => {
   const handleDelete = async (id) => {
     if (window.confirm(t("common.deleteConfirm"))) {
       try {
-        const res = await axios.post(`${API_URL$t}?action=delete_landing`, { id });
+        const res = await axios.post(`${API_URL$w}?action=delete_landing`, { id });
         if (res?.data?.status !== "success") {
           alert(res?.data?.message || t("common.error"));
           return;
         }
-        refreshData();
+        await Promise.all([
+          fetchLandings(),
+          Promise.resolve(refreshData?.())
+        ]);
       } catch (err) {
         alert(err?.response?.data?.message || err?.message || t("common.error"));
       }
     }
   };
+  const groupTabs = reactExports.useMemo(() => {
+    const byGroup = /* @__PURE__ */ new Map();
+    let noGroup = 0, local = 0, redirect = 0;
+    landingList.forEach((l) => {
+      if (l.group_id) {
+        const entry = byGroup.get(l.group_id) || { id: l.group_id, name: l.group_name || `#${l.group_id}`, count: 0 };
+        entry.count += 1;
+        byGroup.set(l.group_id, entry);
+      } else {
+        noGroup += 1;
+      }
+      if (l.type === "local") local += 1;
+      if (l.type === "redirect") redirect += 1;
+    });
+    return {
+      all: landingList.length,
+      groups: [...byGroup.values()].sort((a, b) => a.name.localeCompare(b.name)),
+      noGroup,
+      local,
+      redirect
+    };
+  }, [landingList]);
   const filteredLandings = reactExports.useMemo(() => {
     const q = String(search || "").trim().toLowerCase();
-    return landings.filter((l) => {
+    return landingList.filter((l) => {
       if (q) {
         const n = String(l.name || "").toLowerCase();
         const u = String(l.url || "").toLowerCase();
-        if (!n.includes(q) && !u.includes(q)) return false;
+        const g = String(l.group_name || "").toLowerCase();
+        if (!n.includes(q) && !u.includes(q) && !g.includes(q) && String(l.id || "") !== q) return false;
       }
+      if (groupTab === "no_group" && l.group_id) return false;
+      if (groupTab === "local_only" && l.type !== "local") return false;
+      if (groupTab === "redirect_only" && l.type !== "redirect") return false;
+      if (!["all", "no_group", "local_only", "redirect_only"].includes(groupTab) && String(l.group_id || "") !== String(groupTab)) return false;
       if (typeFilter && String(l.type || "") !== typeFilter) return false;
       if (stateFilter && String(l.state || "") !== stateFilter) return false;
       return true;
     });
-  }, [landings, search, typeFilter, stateFilter]);
+  }, [landingList, search, typeFilter, stateFilter, groupTab]);
   const visibleLandings = filteredLandings;
+  const pagedLandings = reactExports.useMemo(() => {
+    if (pageSize === "All") return visibleLandings;
+    const start = currentPage * pageSize;
+    return visibleLandings.slice(start, start + pageSize);
+  }, [visibleLandings, currentPage, pageSize]);
+  reactExports.useEffect(() => {
+    setCurrentPage(0);
+  }, [search, typeFilter, stateFilter, groupTab, pageSize]);
+  const selectedGroupValue = groupTab === "no_group" ? "no_group" : !["all", "local_only", "redirect_only"].includes(groupTab) ? String(groupTab) : "";
   const toggleSelected = (id, checked) => {
     setSelectedLandingIds((prev) => {
       const next = new Set(prev);
@@ -56367,10 +58235,13 @@ const Landings = ({ landings, refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$t}?action=bulk_delete_landings`, { ids });
+      await axios.post(`${API_URL$w}?action=bulk_delete_landings`, { ids });
       setSelectedLandingIds(/* @__PURE__ */ new Set());
-      refreshData();
-    } catch (err) {
+      await Promise.all([
+        fetchLandings(),
+        Promise.resolve(refreshData?.())
+      ]);
+    } catch {
       alert(t("common.error"));
     }
   };
@@ -56407,17 +58278,13 @@ const Landings = ({ landings, refreshData }) => {
   };
   const handleRefresh = async () => {
     if (refreshing) return;
-    setRefreshing(true);
-    try {
-      await Promise.resolve(refreshData?.());
-    } finally {
-      setRefreshing(false);
-    }
+    await fetchLandings();
   };
   const handleEditorClose = (wasSaved) => {
     setIsEditorOpen(false);
     if (wasSaved) {
-      refreshData();
+      fetchLandings();
+      refreshData?.();
     }
   };
   const columnLabel = (colId) => ({
@@ -56675,7 +58542,68 @@ const Landings = ({ landings, refreshData }) => {
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "w-4 h-4" }),
               t("editor.filters"),
-              search || typeFilter || stateFilter ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full", children: [search, typeFilter, stateFilter].filter(Boolean).length }) : null
+              typeFilter ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full", children: "1" }) : null
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", title: t("common.settings"), onClick: () => setSettingsOpen(true), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-3 my-3 pb-3 border-b", style: { borderColor: "var(--color-border)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          DateRangePicker,
+          {
+            dateFrom,
+            dateTo,
+            onChange: handleDateChange,
+            selectedTimezone: timezone,
+            onTimezoneChange: setTimezone
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "select",
+          {
+            value: selectedGroupValue,
+            onChange: (e) => setGroupTab(e.target.value || "all"),
+            className: "form-select text-xs font-semibold py-2 px-3.5 rounded-xl transition-all",
+            style: {
+              backgroundColor: selectedGroupValue ? "var(--color-primary-light)" : "var(--color-bg-card)",
+              borderColor: selectedGroupValue ? "var(--color-primary)" : "var(--color-border)",
+              color: selectedGroupValue ? "var(--color-primary)" : "var(--color-text-primary)",
+              minWidth: "140px",
+              width: "auto"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("campaigns.allGroups", "All groups") }),
+              groupTabs.groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: String(g.id), children: g.name }, g.id)),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "no_group", children: t("landings.noGroup", "No group") })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "select",
+          {
+            value: stateFilter,
+            onChange: (e) => setStateFilter(e.target.value),
+            className: "form-select text-xs font-semibold py-2 px-3.5 rounded-xl transition-all",
+            style: {
+              backgroundColor: stateFilter ? "var(--color-primary-light)" : "var(--color-bg-card)",
+              borderColor: stateFilter ? "var(--color-primary)" : "var(--color-border)",
+              color: stateFilter ? "var(--color-primary)" : "var(--color-text-primary)",
+              minWidth: "130px",
+              width: "auto"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("landings.allStates", "All states") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "active", children: [
+                "🟢 ",
+                t("components.active", "Active")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "archived", children: [
+                "⚪ ",
+                t("offers.inactiveStates", "Archived / Not active")
+              ] })
             ]
           }
         ),
@@ -56684,32 +58612,118 @@ const Landings = ({ landings, refreshData }) => {
           {
             type: "button",
             onClick: handleRefresh,
-            className: "btn btn-ghost btn-icon",
-            title: t("common.refresh"),
             disabled: refreshing,
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-5 h-5 ${refreshing ? "animate-spin" : ""}` })
+            className: "p-2.5 rounded-xl border flex items-center justify-center transition hover:opacity-80 disabled:opacity-50",
+            style: {
+              backgroundColor: "var(--color-primary)",
+              borderColor: "var(--color-primary)",
+              color: "#ffffff"
+            },
+            title: t("common.refresh", "Refresh"),
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 14, className: refreshing ? "animate-spin" : "" })
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", title: t("common.settings"), onClick: () => setSettingsOpen(true), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" }) })
-      ] })
-    ] }),
-    showFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-4 items-center py-4 mb-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
+        (selectedGroupValue || stateFilter) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => {
+              setGroupTab("all");
+              setStateFilter("");
+            },
+            className: "btn btn-ghost btn-sm text-xs",
+            style: { color: "var(--color-danger)" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 13 }),
+              t("common.clear", "Clear")
+            ]
+          }
+        )
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-          t("common.search"),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: "landings-search", className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: [
+          t("common.search", "Search"),
           ":"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
+            id: "landings-search",
+            type: "search",
+            className: "form-input text-xs py-1.5 px-3 rounded-xl",
+            style: { width: "200px" },
+            placeholder: t("landings.searchPlaceholder", "Find landing..."),
             value: search,
-            onChange: (e) => setSearch(e.target.value),
-            className: "form-input",
-            style: { width: "auto", minWidth: "260px" },
-            placeholder: t("common.searchPlaceholder")
+            onChange: (e) => setSearch(e.target.value)
           }
         )
-      ] }),
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 overflow-x-auto pb-2 pt-1 mb-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
+      [
+        { key: "all", label: t("common.all"), count: groupTabs.all },
+        ...groupTabs.groups.map((g) => ({
+          key: g.id,
+          label: g.name,
+          count: g.count,
+          icon: /white|safe|бел/i.test(g.name) ? "🛡" : /cod|товар/i.test(g.name) ? "📦" : /nutra|нутр/i.test(g.name) ? "💊" : null
+        })),
+        ...groupTabs.noGroup > 0 ? [{ key: "no_group", label: t("landings.noGroup"), count: groupTabs.noGroup }] : []
+      ].map((tab) => {
+        const active = groupTab === tab.key;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setGroupTab(active && tab.key === "all" ? "all" : tab.key),
+            className: "px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5",
+            style: {
+              backgroundColor: active ? "var(--color-primary)" : "var(--color-bg-card)",
+              color: active ? "#ffffff" : "var(--color-text-secondary)",
+              border: `1px solid ${active ? "var(--color-primary)" : "var(--color-border)"}`,
+              cursor: "pointer"
+            },
+            children: [
+              tab.icon && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: tab.icon }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: tab.label }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 rounded-full", style: { backgroundColor: active ? "rgba(255,255,255,0.25)" : "var(--color-bg-soft)" }, children: tab.count })
+            ]
+          },
+          String(tab.key)
+        );
+      }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-5 w-[1px] flex-shrink-0", style: { backgroundColor: "var(--color-border)" } }),
+      [
+        { key: "local_only", label: t("landingEditor.typeLocal"), count: groupTabs.local },
+        { key: "redirect_only", label: t("landingEditor.typeRedirect"), count: groupTabs.redirect }
+      ].map((tab) => {
+        const active = groupTab === tab.key;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setGroupTab(active ? "all" : tab.key),
+            className: "px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5",
+            style: {
+              backgroundColor: active ? "var(--color-primary-light)" : "transparent",
+              color: active ? "var(--color-primary)" : "var(--color-text-muted)",
+              border: `1px solid ${active ? "var(--color-primary)" : "var(--color-border)"}`,
+              cursor: "pointer"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                tab.key === "local_only" ? "📁" : "🔗",
+                " ",
+                tab.label
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 rounded-full", style: { backgroundColor: "var(--color-bg-soft)" }, children: tab.count })
+            ]
+          },
+          tab.key
+        );
+      })
+    ] }),
+    showFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-4 items-center py-4 mb-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
           t("components.type"),
@@ -56722,22 +58736,7 @@ const Landings = ({ landings, refreshData }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "action", children: "action" })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-          t("components.status"),
-          ":"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { value: stateFilter, onChange: (e) => setStateFilter(e.target.value), className: "form-select", style: { width: "auto", minWidth: "140px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("common.all") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("components.active") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "archived", children: t("components.archive") })
-        ] })
-      ] }),
-      (search || typeFilter || stateFilter) && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => {
-        setSearch("");
-        setTypeFilter("");
-        setStateFilter("");
-      }, className: "btn btn-ghost btn-sm", children: [
+      typeFilter && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => setTypeFilter(""), className: "btn btn-ghost btn-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }),
         t("common.clear")
       ] })
@@ -56761,7 +58760,7 @@ const Landings = ({ landings, refreshData }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleLandings.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: chosenColumns.length + 2, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("landings.noLandings") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("landings.noLandingsDesc") })
-      ] }) }) }) : visibleLandings.map((landing) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+      ] }) }) }) : pagedLandings.map((landing) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
@@ -56795,6 +58794,19 @@ const Landings = ({ landings, refreshData }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
       ] }) })
     ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      PaginationToolbar,
+      {
+        totalRows: visibleLandings.length,
+        currentPage,
+        pageSize,
+        onPageChange: setCurrentPage,
+        onPageSizeChange: (size) => {
+          setPageSize(size);
+          setCurrentPage(0);
+        }
+      }
+    ),
     isEditorOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
       LandingEditor,
       {
@@ -56863,7 +58875,7 @@ const localizedCountryName = (code, language, fallbackName) => {
   }
   return fallbackName || code;
 };
-const API_URL$s = "/api.php";
+const API_URL$v = "/api.php";
 const getCountryFlag = (code) => {
   if (!code || code === "Unknown" || code === "??") return "🏳️";
   if (code.length !== 2) return "📍";
@@ -56888,8 +58900,8 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
     const loadData = async () => {
       try {
         const [cRes, pRes] = await Promise.all([
-          axios.get(`${API_URL$s}?action=countries_list`),
-          axios.get(`${API_URL$s}?action=geo_profiles`)
+          axios.get(`${API_URL$v}?action=countries_list`),
+          axios.get(`${API_URL$v}?action=geo_profiles`)
         ]);
         if (cRes.data?.data) setCountries(cRes.data.data);
         if (pRes.data?.data) setProfiles(pRes.data.data);
@@ -57480,7 +59492,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
     }
   ) });
 };
-const API_URL$r = "/api.php";
+const API_URL$u = "/api.php";
 const OfferEditor = ({ offerId, onClose, onCreated }) => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
@@ -57528,7 +59540,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
   }, []);
   const refetchGroups = async () => {
     try {
-      const res = await axios.get(`${API_URL$r}?action=offer_groups`);
+      const res = await axios.get(`${API_URL$u}?action=offer_groups`);
       if (res.data.status === "success") setGroups(res.data.data);
     } catch (err) {
       console.error(err);
@@ -57536,7 +59548,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
   };
   const refetchNetworks = async (selectNewest = false) => {
     try {
-      const res = await axios.get(`${API_URL$r}?action=affiliate_networks`);
+      const res = await axios.get(`${API_URL$u}?action=affiliate_networks`);
       if (res.data.status === "success") {
         setAffiliateNetworks(res.data.data);
         if (selectNewest && res.data.data.length) {
@@ -57558,9 +59570,9 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     const fetchDeps = async () => {
       try {
         const [gRes, anRes, oRes] = await Promise.all([
-          axios.get(`${API_URL$r}?action=offer_groups`),
-          axios.get(`${API_URL$r}?action=affiliate_networks`),
-          axios.get(`${API_URL$r}?action=all_offers`)
+          axios.get(`${API_URL$u}?action=offer_groups`),
+          axios.get(`${API_URL$u}?action=affiliate_networks`),
+          axios.get(`${API_URL$u}?action=all_offers`)
         ]);
         if (gRes.data.status === "success") setGroups(gRes.data.data);
         if (anRes.data.status === "success") setAffiliateNetworks(anRes.data.data);
@@ -57572,7 +59584,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     fetchDeps();
     if (offerId) {
       setLoading(true);
-      axios.get(`${API_URL$r}?action=get_offer&id=${offerId}`).then((res) => {
+      axios.get(`${API_URL$u}?action=get_offer&id=${offerId}`).then((res) => {
         if (res.data.status === "success") {
           const data = res.data.data;
           setFormData({
@@ -57613,7 +59625,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
       setLoading(true);
       const payload = { ...formData };
       if (currentOfferId) payload.id = currentOfferId;
-      const res = await axios.post(`${API_URL$r}?action=save_offer`, payload);
+      const res = await axios.post(`${API_URL$u}?action=save_offer`, payload);
       if (res.data.status === "success") {
         const newId = res.data.data?.id || currentOfferId;
         setSavedSomething(true);
@@ -57650,7 +59662,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
       const fd = new FormData();
       fd.append("id", id);
       fd.append("file", file);
-      const res = await axios.post(`${API_URL$r}?action=upload_offer`, fd, {
+      const res = await axios.post(`${API_URL$u}?action=upload_offer`, fd, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status !== "success") {
@@ -57679,7 +59691,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
   };
   const fetchOfferFiles = async (id) => {
     try {
-      const res = await axios.get(`${API_URL$r}?action=offer_files`, { params: { id } });
+      const res = await axios.get(`${API_URL$u}?action=offer_files`, { params: { id } });
       if (res.data.status === "success") setOfferFiles(res.data.data || []);
     } catch (err) {
       console.error(err);
@@ -57688,7 +59700,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
   const deleteOfferFile = async (path) => {
     if (!window.confirm(`${t("common.delete")} ${path}?`)) return;
     try {
-      await axios.post(`${API_URL$r}?action=offer_file_op`, { id: currentOfferId, path, op: "delete" });
+      await axios.post(`${API_URL$u}?action=offer_file_op`, { id: currentOfferId, path, op: "delete" });
       fetchOfferFiles(currentOfferId);
     } catch {
       alert(t("common.deleteError"));
@@ -58271,7 +60283,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     )
   ] });
 };
-const API_URL$q = "/api.php";
+const API_URL$t = "/api.php";
 const ALL_OFFER_COLUMNS = [
   { id: "id", label: "ID" },
   { id: "name", label: "Name", required: true },
@@ -58330,31 +60342,87 @@ const loadOfferColumns = () => {
       const valid = saved.filter((id) => ALL_OFFER_COLUMNS.some((c) => c.id === id));
       if (valid.includes("name")) return valid;
     }
-  } catch (e) {
+  } catch {
   }
   return [...DEFAULT_OFFER_COLUMNS];
 };
-const Offers = ({ offers, refreshData }) => {
+const Offers = ({ offers: initialOffers = [], refreshData }) => {
   const { t } = useLanguage();
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
   const [editingOfferId, setEditingOfferId] = reactExports.useState(null);
   const [isGroupsModalOpen, setIsGroupsModalOpen] = reactExports.useState(false);
   const [filterGroup, setFilterGroup] = reactExports.useState("");
+  const [search, setSearch] = reactExports.useState("");
+  const [pageSize, setPageSize] = reactExports.useState(() => {
+    const saved = localStorage.getItem("orbitra_table_page_size");
+    return saved === "All" ? "All" : [25, 50, 100, 250].includes(Number(saved)) ? Number(saved) : 25;
+  });
+  const [currentPage, setCurrentPage] = reactExports.useState(0);
+  const [typeTab, setTypeTab] = reactExports.useState("");
   const [filterNetwork, setFilterNetwork] = reactExports.useState("");
   const [filterState, setFilterState] = reactExports.useState("");
-  const [showFilters, setShowFilters] = reactExports.useState(false);
   const [selectedOfferIds, setSelectedOfferIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
   const [sortBy, setSortBy] = reactExports.useState({ key: null, dir: "desc" });
   const [settingsOpen, setSettingsOpen] = reactExports.useState(false);
   const [refreshing, setRefreshing] = reactExports.useState(false);
   const [columnsModalOpen, setColumnsModalOpen] = reactExports.useState(false);
   const [chosenColumns, setChosenColumns] = reactExports.useState(() => loadOfferColumns());
+  const [offers, setOffers] = reactExports.useState(initialOffers);
+  const [dateFrom, setDateFrom] = reactExports.useState(() => getPresetDates("today")?.from || formatDate$1(/* @__PURE__ */ new Date()));
+  const [dateTo, setDateTo] = reactExports.useState(() => getPresetDates("today")?.to || formatDate$1(/* @__PURE__ */ new Date()));
+  const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
+  const fetchSequence = reactExports.useRef(0);
+  const fetchOffers = reactExports.useCallback(async ({ showSpinner = true } = {}) => {
+    const sequence = ++fetchSequence.current;
+    if (showSpinner) setRefreshing(true);
+    try {
+      const res = await axios.get(`${API_URL$t}?action=offers`, {
+        params: {
+          date_from: dateFrom,
+          date_to: dateTo,
+          timezone
+        }
+      });
+      if (sequence === fetchSequence.current && res.data.status === "success") {
+        setOffers(res.data.data || []);
+      }
+    } catch (error) {
+      console.error("Failed to load offer statistics", error);
+    } finally {
+      if (sequence === fetchSequence.current) setRefreshing(false);
+    }
+  }, [dateFrom, dateTo, timezone]);
+  reactExports.useEffect(() => {
+    fetchOffers({ showSpinner: false });
+  }, [fetchOffers]);
+  const refreshOfferData = async () => {
+    const tasks = [fetchOffers()];
+    if (refreshData) tasks.push(Promise.resolve().then(() => refreshData()));
+    await Promise.allSettled(tasks);
+  };
+  const handleDateChange = (from2, to2) => {
+    setDateFrom(from2);
+    setDateTo(to2);
+  };
   const groups = [...new Set(offers.map((o) => o.group_name).filter(Boolean))];
   const networks = [...new Set(offers.map((o) => o.affiliate_network_name).filter(Boolean))];
+  const noGroupCount = offers.filter((o) => !o.group_name).length;
+  const localCount = offers.filter((o) => o.is_local).length;
+  const externalCount = offers.length - localCount;
+  const groupCount = (name) => offers.filter((o) => o.group_name === name).length;
   const filteredOffers = offers.filter((o) => {
-    if (filterGroup && o.group_name !== filterGroup) return false;
+    const q = String(search || "").trim().toLowerCase();
+    if (q) {
+      const haystack = [o.name, o.url, o.group_name, o.affiliate_network_name].map((v) => String(v || "").toLowerCase());
+      if (!haystack.some((v) => v.includes(q)) && String(o.id || "") !== q) return false;
+    }
+    if (filterGroup === "__no_group__" && o.group_name) return false;
+    if (filterGroup && filterGroup !== "__no_group__" && o.group_name !== filterGroup) return false;
+    if (typeTab === "local" && !o.is_local) return false;
+    if (typeTab === "external" && o.is_local) return false;
     if (filterNetwork && o.affiliate_network_name !== filterNetwork) return false;
-    if (filterState && o.state !== filterState) return false;
+    if (filterState === "active" && o.state !== "active") return false;
+    if (filterState === "inactive" && o.state === "active") return false;
     return true;
   });
   const requestSort = (key, defaultDir = "asc") => {
@@ -58482,6 +60550,14 @@ const Offers = ({ offers, refreshData }) => {
       return a.idx - b.idx;
     }).map((x) => x.offer);
   }, [filteredOffers, sortBy]);
+  const pagedOffers = reactExports.useMemo(() => {
+    if (pageSize === "All") return visibleOffers;
+    const start = currentPage * pageSize;
+    return visibleOffers.slice(start, start + pageSize);
+  }, [visibleOffers, currentPage, pageSize]);
+  reactExports.useEffect(() => {
+    setCurrentPage(0);
+  }, [search, filterGroup, filterNetwork, filterState, typeTab, pageSize]);
   const handleCreate = () => {
     setEditingOfferId(null);
     setIsEditorOpen(true);
@@ -58493,9 +60569,9 @@ const Offers = ({ offers, refreshData }) => {
   const handleDelete = async (id) => {
     if (window.confirm(t("common.deleteConfirm"))) {
       try {
-        await axios.post(`${API_URL$q}?action=delete_offer`, { id });
-        refreshData();
-      } catch (err) {
+        await axios.post(`${API_URL$t}?action=delete_offer`, { id });
+        await refreshOfferData();
+      } catch {
         alert(t("common.error"));
       }
     }
@@ -58527,10 +60603,10 @@ const Offers = ({ offers, refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$q}?action=bulk_delete_offers`, { ids });
+      await axios.post(`${API_URL$t}?action=bulk_delete_offers`, { ids });
       setSelectedOfferIds(/* @__PURE__ */ new Set());
-      refreshData();
-    } catch (err) {
+      await refreshOfferData();
+    } catch {
       alert(t("common.error"));
     }
   };
@@ -58543,15 +60619,15 @@ const Offers = ({ offers, refreshData }) => {
     let errorCount = 0;
     for (const id of ids) {
       try {
-        await axios.post(`${API_URL$q}?action=copy_offer`, { id });
+        await axios.post(`${API_URL$t}?action=copy_offer`, { id });
         successCount++;
-      } catch (err) {
+      } catch {
         errorCount++;
       }
     }
     if (successCount > 0) {
       alert(`${t("offers.copied")}: ${successCount}`);
-      refreshData();
+      await refreshOfferData();
     }
     if (errorCount > 0) {
       alert(`${t("offers.copyErrors")}: ${errorCount}`);
@@ -58561,15 +60637,16 @@ const Offers = ({ offers, refreshData }) => {
   const handleEditorClose = (wasSaved) => {
     setIsEditorOpen(false);
     if (wasSaved) {
-      refreshData();
+      refreshOfferData();
     }
   };
   const clearFilters = () => {
     setFilterGroup("");
     setFilterNetwork("");
     setFilterState("");
+    setSearch("");
   };
-  const hasActiveFilters = filterGroup || filterNetwork || filterState;
+  const hasActiveFilters = filterGroup || filterNetwork || filterState || search;
   const totals = filteredOffers.reduce((acc, o) => {
     acc.clicks += parseInt(o.clicks || 0);
     acc.unique_clicks += parseInt(o.unique_clicks || 0);
@@ -58839,12 +60916,7 @@ const Offers = ({ offers, refreshData }) => {
   };
   const handleRefresh = async () => {
     if (refreshing) return;
-    setRefreshing(true);
-    try {
-      await Promise.resolve(refreshData?.());
-    } finally {
-      setRefreshing(false);
-    }
+    await refreshOfferData();
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_offers", title: t("help.offerBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.offerBanner") }) }),
@@ -58855,6 +60927,31 @@ const Offers = ({ offers, refreshData }) => {
           t("common.create")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setIsGroupsModalOpen(true), className: "btn btn-secondary", children: t("campaigns.groups") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", style: { width: 220 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none", style: { color: "var(--color-text-muted)" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: search,
+              onChange: (e) => setSearch(e.target.value),
+              placeholder: t("offers.searchPlaceholder", "Search offers..."),
+              className: "form-input",
+              style: { fontSize: "0.75rem", padding: "0.5rem 1.9rem", paddingLeft: "2.1rem", borderRadius: "0.75rem" }
+            }
+          ),
+          search && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: () => setSearch(""),
+              title: t("common.clear", "Clear"),
+              className: "absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center justify-center",
+              style: { color: "var(--color-text-muted)", width: 18, height: 18 },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3 h-3" })
+            }
+          )
+        ] }),
         selectedOfferIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkCopySelected, className: "btn btn-success", title: t("offers.copySelected"), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }),
@@ -58892,20 +60989,6 @@ const Offers = ({ offers, refreshData }) => {
             ]
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            onClick: () => setShowFilters(!showFilters),
-            className: `btn btn-ghost ${showFilters ? "bg-[var(--color-primary-light)]" : ""}`,
-            style: showFilters ? { color: "var(--color-primary)" } : {},
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { className: "w-4 h-4" }),
-              t("editor.filters"),
-              hasActiveFilters && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 px-1.5 py-0.5 bg-[var(--color-primary)] text-white text-xs rounded-full", children: [filterGroup, filterNetwork, filterState].filter(Boolean).length })
-            ]
-          }
-        ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
@@ -58929,69 +61012,152 @@ const Offers = ({ offers, refreshData }) => {
         )
       ] })
     ] }),
-    showFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-4 items-center py-4 mb-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-          t("components.group"),
-          ":"
-        ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-3 py-3 mb-3 border-b", style: { borderColor: "var(--color-border)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "select",
           {
             value: filterGroup,
             onChange: (e) => setFilterGroup(e.target.value),
-            className: "form-select",
-            style: { width: "auto", minWidth: "140px" },
+            className: "form-select text-xs font-semibold py-2 px-3.5 rounded-xl transition-all",
+            style: {
+              width: "auto",
+              minWidth: "140px",
+              backgroundColor: filterGroup ? "var(--color-primary-light)" : "var(--color-bg-card)",
+              borderColor: filterGroup ? "var(--color-primary)" : "var(--color-border)",
+              color: filterGroup ? "var(--color-primary)" : "var(--color-text-primary)"
+            },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("common.all") }),
-              groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g, children: g }, g))
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offers.allGroups") }),
+              groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g, children: g }, g)),
+              noGroupCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "__no_group__", children: t("offerEditor.noGroup") })
             ]
           }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-          t("offers.network"),
-          ":"
-        ] }),
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "select",
           {
             value: filterNetwork,
             onChange: (e) => setFilterNetwork(e.target.value),
-            className: "form-select",
-            style: { width: "auto", minWidth: "160px" },
+            className: "form-select text-xs font-semibold py-2 px-3.5 rounded-xl transition-all",
+            style: {
+              width: "auto",
+              minWidth: "180px",
+              backgroundColor: filterNetwork ? "var(--color-primary-light)" : "var(--color-bg-card)",
+              borderColor: filterNetwork ? "var(--color-primary)" : "var(--color-border)",
+              color: filterNetwork ? "var(--color-primary)" : "var(--color-text-primary)"
+            },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("common.all") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offers.allNetworks") }),
               networks.map((n) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: n, children: n }, n))
             ]
           }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-          t("components.status"),
-          ":"
-        ] }),
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "select",
           {
             value: filterState,
             onChange: (e) => setFilterState(e.target.value),
-            className: "form-select",
-            style: { width: "auto", minWidth: "120px" },
+            className: "form-select text-xs font-semibold py-2 px-3.5 rounded-xl transition-all",
+            style: {
+              width: "auto",
+              minWidth: "130px",
+              backgroundColor: filterState ? "var(--color-primary-light)" : "var(--color-bg-card)",
+              borderColor: filterState ? "var(--color-primary)" : "var(--color-border)",
+              color: filterState ? "var(--color-primary)" : "var(--color-text-primary)"
+            },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("common.all") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("components.active") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "archived", children: t("components.archive") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offers.allStates") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "active", children: [
+                "🟢 ",
+                t("components.active")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "inactive", children: [
+                "⚪ ",
+                t("offers.inactiveStates")
+              ] })
             ]
           }
-        )
+        ),
+        hasActiveFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: clearFilters, className: "btn btn-ghost btn-sm text-xs", style: { color: "var(--color-danger)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }),
+          t("common.clear")
+        ] })
       ] }),
-      hasActiveFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: clearFilters, className: "btn btn-ghost btn-sm", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }),
-        t("common.clear")
-      ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        DateRangePicker,
+        {
+          dateFrom,
+          dateTo,
+          onChange: handleDateChange,
+          selectedTimezone: timezone,
+          onTimezoneChange: setTimezone
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 overflow-x-auto pb-2 pt-1 mb-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
+      [
+        { key: "", label: t("common.all"), count: offers.length },
+        ...groups.map((name) => ({
+          key: name,
+          label: name,
+          count: groupCount(name),
+          icon: /white|safe|бел/i.test(name) ? "🛡" : /cod|товар/i.test(name) ? "📦" : /nutra|нутр/i.test(name) ? "💊" : null
+        })),
+        ...noGroupCount > 0 ? [{ key: "__no_group__", label: t("landings.noGroup"), count: noGroupCount }] : []
+      ].map((tab) => {
+        const activePill = tab.key === "" ? !filterGroup : filterGroup === tab.key;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setFilterGroup(activePill ? "" : tab.key),
+            className: "px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5",
+            style: {
+              backgroundColor: activePill ? "var(--color-primary)" : "var(--color-bg-card)",
+              color: activePill ? "#ffffff" : "var(--color-text-secondary)",
+              border: `1px solid ${activePill ? "var(--color-primary)" : "var(--color-border)"}`,
+              cursor: "pointer"
+            },
+            children: [
+              tab.icon && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: tab.icon }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: tab.label }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 rounded-full", style: { backgroundColor: activePill ? "rgba(255,255,255,0.25)" : "var(--color-bg-soft)" }, children: tab.count })
+            ]
+          },
+          tab.key || "__all__"
+        );
+      }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-5 w-[1px] flex-shrink-0", style: { backgroundColor: "var(--color-border)" } }),
+      [
+        { key: "local", label: t("landingEditor.typeLocal"), count: localCount, icon: "📁" },
+        { key: "external", label: t("landingEditor.typeRedirect"), count: externalCount, icon: "🔗" }
+      ].map((tab) => {
+        const activePill = typeTab === tab.key;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setTypeTab(activePill ? "" : tab.key),
+            className: "px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5",
+            style: {
+              backgroundColor: activePill ? "var(--color-primary-light)" : "transparent",
+              color: activePill ? "var(--color-primary)" : "var(--color-text-muted)",
+              border: `1px solid ${activePill ? "var(--color-primary)" : "var(--color-border)"}`,
+              cursor: "pointer"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                tab.icon,
+                " ",
+                tab.label
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 rounded-full", style: { backgroundColor: "var(--color-bg-soft)" }, children: tab.count })
+            ]
+          },
+          tab.key
+        );
+      })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -59026,7 +61192,7 @@ const Offers = ({ offers, refreshData }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleOffers.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: chosenColumns.length + 2, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: offers.length === 0 ? t("offers.noOffers") : t("offers.noOffersFiltered") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: offers.length === 0 ? t("offers.noOffersDesc") : t("offers.changeFilters") })
-      ] }) }) }) : visibleOffers.map((offer) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+      ] }) }) }) : pagedOffers.map((offer) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
@@ -59054,6 +61220,19 @@ const Offers = ({ offers, refreshData }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
       ] }) })
     ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      PaginationToolbar,
+      {
+        totalRows: visibleOffers.length,
+        currentPage,
+        pageSize,
+        onPageChange: setCurrentPage,
+        onPageSizeChange: (size) => {
+          setPageSize(size);
+          setCurrentPage(0);
+        }
+      }
+    ),
     isEditorOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
       OfferEditor,
       {
@@ -59099,7 +61278,8 @@ const Offers = ({ offers, refreshData }) => {
     ] }) })
   ] });
 };
-const API_URL$p = "/api.php";
+const API_URL$s = "/api.php";
+let cachedTrafficSourceTemplates = null;
 const TrafficSourceEditor = ({ id, onClose, onSave }) => {
   const { t, language } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
@@ -59109,7 +61289,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
   const currentId = id || savedId;
   const [showEspHints, setShowEspHints] = reactExports.useState(false);
   const [activeTab, setActiveTab] = reactExports.useState("general");
-  const [templates, setTemplates] = reactExports.useState([]);
+  const [templates, setTemplates] = reactExports.useState(cachedTrafficSourceTemplates || []);
   const [formData, setFormData] = reactExports.useState({
     name: "",
     template: "",
@@ -59124,14 +61304,19 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     status_message: null
   });
   reactExports.useEffect(() => {
-    axios.get(`${API_URL$p}?action=traffic_source_templates`).then((res) => {
-      if (res.data.status === "success") {
-        setTemplates(res.data.data);
-      }
-    });
+    if (cachedTrafficSourceTemplates) {
+      setTemplates(cachedTrafficSourceTemplates);
+    } else {
+      axios.get(`${API_URL$s}?action=traffic_source_templates`).then((res) => {
+        if (res.data.status === "success") {
+          cachedTrafficSourceTemplates = res.data.data;
+          setTemplates(res.data.data);
+        }
+      });
+    }
     if (id) {
       setLoading(true);
-      axios.get(`${API_URL$p}?action=get_traffic_source&id=${id}`).then((res) => {
+      axios.get(`${API_URL$s}?action=get_traffic_source&id=${id}`).then((res) => {
         if (res.data.status === "success") {
           const data = res.data.data;
           setFormData({
@@ -59194,7 +61379,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     try {
       setSaving(true);
       const payload = { ...formData, id: currentId };
-      const res = await axios.post(`${API_URL$p}?action=traffic_sources`, payload);
+      const res = await axios.post(`${API_URL$s}?action=traffic_sources`, payload);
       if (res.data.status !== "success") {
         alert(res.data.message || t("common.error"));
         return;
@@ -59523,7 +61708,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     }
   ) });
 };
-const API_URL$o = "/api.php";
+const API_URL$r = "/api.php";
 const BulkImportSources = ({ onClose, onSave }) => {
   const { t } = useLanguage();
   const [lines, setLines] = reactExports.useState("");
@@ -59538,7 +61723,7 @@ const BulkImportSources = ({ onClose, onSave }) => {
     setResult(null);
     try {
       const linesArray = lines.split("\n").map((l) => l.trim()).filter((l) => l);
-      const res = await axios.post(`${API_URL$o}?action=bulk_import_sources`, { lines: linesArray });
+      const res = await axios.post(`${API_URL$r}?action=bulk_import_sources`, { lines: linesArray });
       if (res.data.status === "success") {
         setResult(res.data.data);
       }
@@ -59658,7 +61843,7 @@ ${t("bulkImport.mySource")}|https://example3.com`,
     ] })
   ] }) });
 };
-const API_URL$n = "/api.php";
+const API_URL$q = "/api.php";
 const TrafficSources = ({ refreshData }) => {
   const { t } = useLanguage();
   const [sources, setSources] = reactExports.useState([]);
@@ -59676,7 +61861,7 @@ const TrafficSources = ({ refreshData }) => {
   const fetchSources = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$n}?action=traffic_sources`);
+      const res = await axios.get(`${API_URL$q}?action=traffic_sources`);
       if (res.data.status === "success") {
         setSources(res.data.data);
       }
@@ -59707,7 +61892,7 @@ const TrafficSources = ({ refreshData }) => {
   const handleDelete = async (id) => {
     if (!confirm(t("sources.deleteConfirm"))) return;
     try {
-      const res = await axios.post(`${API_URL$n}?action=delete_traffic_source`, { id });
+      const res = await axios.post(`${API_URL$q}?action=delete_traffic_source`, { id });
       if (res?.data?.status !== "success") {
         alert(res?.data?.message || t("common.error"));
         return;
@@ -59746,7 +61931,7 @@ const TrafficSources = ({ refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("sources.deleteConfirm")).replace("{count}", String(ids.length));
     if (!confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$n}?action=bulk_delete_traffic_sources`, { ids });
+      await axios.post(`${API_URL$q}?action=bulk_delete_traffic_sources`, { ids });
       setSelectedIds(/* @__PURE__ */ new Set());
       fetchSources();
       refreshData && refreshData();
@@ -59799,7 +61984,7 @@ const TrafficSources = ({ refreshData }) => {
   };
   const checkSourceUrl = async (id) => {
     try {
-      await axios.get(`${API_URL$n}?action=check_source_url&id=${id}`);
+      await axios.get(`${API_URL$q}?action=check_source_url&id=${id}`);
       fetchSources();
     } catch (error) {
       console.error("Error checking URL:", error);
@@ -59809,7 +61994,7 @@ const TrafficSources = ({ refreshData }) => {
     if (checkingUrls) return;
     setCheckingUrls(true);
     try {
-      await axios.post(`${API_URL$n}?action=check_all_source_urls`);
+      await axios.post(`${API_URL$q}?action=check_all_source_urls`);
       fetchSources();
     } catch (error) {
       console.error("Error checking URLs:", error);
@@ -60053,7 +62238,7 @@ const TrafficSources = ({ refreshData }) => {
     ] }) })
   ] });
 };
-const API_URL$m = "/api.php";
+const API_URL$p = "/api.php";
 const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
   const { t } = useLanguage();
   const [conversions, setConversions] = reactExports.useState([]);
@@ -60075,7 +62260,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
       if (dateFrom) params.append("date_from", dateFrom);
       if (dateTo) params.append("date_to", dateTo);
       if (effectiveCampaignId) params.append("campaign_id", effectiveCampaignId);
-      const res = await axios.get(`${API_URL$m}?${params.toString()}`);
+      const res = await axios.get(`${API_URL$p}?${params.toString()}`);
       if (res.data.status === "success") {
         setConversions(res.data.data);
         setPagination(res.data.pagination);
@@ -60358,7 +62543,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
     )
   ] });
 };
-const API_URL$l = "/api.php";
+const API_URL$o = "/api.php";
 const PostbackSettings = () => {
   const { t } = useLanguage();
   const [settings, setSettings] = reactExports.useState({
@@ -60393,8 +62578,8 @@ const PostbackSettings = () => {
     setLoading(true);
     try {
       const [settingsRes, urlRes] = await Promise.all([
-        axios.get(`${API_URL$l}?action=settings`),
-        axios.get(`${API_URL$l}?action=postback_url`)
+        axios.get(`${API_URL$o}?action=settings`),
+        axios.get(`${API_URL$o}?action=postback_url`)
       ]);
       if (settingsRes.data.status === "success") {
         setSettings((prev) => ({ ...prev, ...settingsRes.data.data }));
@@ -60412,7 +62597,7 @@ const PostbackSettings = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await axios.post(`${API_URL$l}?action=save_settings`, {
+      await axios.post(`${API_URL$o}?action=save_settings`, {
         postback_key: settings.postback_key,
         currency: settings.currency,
         postback_aliases: settings.postback_aliases
@@ -60433,7 +62618,7 @@ const PostbackSettings = () => {
     }
     setTestResult(null);
     try {
-      const res = await axios.post(`${API_URL$l}?action=test_postback`, {
+      const res = await axios.post(`${API_URL$o}?action=test_postback`, {
         subid: testSubid,
         status: testStatus,
         payout: parseFloat(testPayout) || 0
@@ -60952,13 +63137,11 @@ const AffiliateNetworks = () => {
     const host = window.location.host;
     return `${protocol}//${host}/${postbackKey}/postback`;
   };
-  const copyToClipboard2 = async (text, id) => {
-    try {
-      await navigator.clipboard.writeText(text);
+  const copyToClipboard$1 = async (text, id) => {
+    const ok = await copyToClipboard(text);
+    if (ok) {
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2e3);
-    } catch (err) {
-      console.error(err);
     }
   };
   if (loading) {
@@ -61098,11 +63281,20 @@ const AffiliateNetworks = () => {
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-xs px-2 py-1 rounded max-w-xs truncate", style: { background: "var(--color-bg-soft)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }, children: getPostbackUrl(network) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "code",
+            {
+              onClick: () => copyToClipboard$1(getPostbackUrl(network), `pb-${network.id}`),
+              className: "text-xs px-2 py-1 rounded max-w-xs truncate cursor-pointer select-all",
+              style: { background: "var(--color-bg-soft)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" },
+              title: t("common.copy"),
+              children: getPostbackUrl(network)
+            }
+          ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
-              onClick: () => copyToClipboard2(getPostbackUrl(network), `pb-${network.id}`),
+              onClick: () => copyToClipboard$1(getPostbackUrl(network), `pb-${network.id}`),
               className: "hover:text-[var(--color-primary)] transition",
               style: { color: "var(--color-text-muted)" },
               title: t("common.copy"),
@@ -61280,7 +63472,7 @@ const detectTemplate = (role, permissions) => {
   }
   return "custom";
 };
-const API_URL$k = "/api.php";
+const API_URL$n = "/api.php";
 const DEFAULT_PERMISSIONS = () => ({
   campaigns: { access: "full", items: [] },
   offers: { access: "full", items: [] },
@@ -61349,7 +63541,7 @@ const UsersPage = () => {
   }, [showModal, formData.username, formData.password]);
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(`${API_URL$k}?action=users`);
+      const res = await axios.get(`${API_URL$n}?action=users`);
       if (res.data.status === "success") {
         setUsers(res.data.data);
       }
@@ -61411,7 +63603,7 @@ const UsersPage = () => {
   };
   const openApiKeysModal = async (user) => {
     try {
-      const res = await axios.get(`${API_URL$k}?action=get_user&id=${user.id}`);
+      const res = await axios.get(`${API_URL$n}?action=get_user&id=${user.id}`);
       if (res.data.status === "success") {
         setCurrentUser({ ...user, api_keys: res.data.data.api_keys || [] });
         setShowApiKeysModal(true);
@@ -61437,7 +63629,7 @@ const UsersPage = () => {
         data.id = currentUser.id;
       }
       data.permissions = data.role === "admin" ? {} : permissions;
-      const res = await axios.post(`${API_URL$k}?action=save_user`, data);
+      const res = await axios.post(`${API_URL$n}?action=save_user`, data);
       if (res.data.status === "success") {
         showSuccess(currentUser ? t("common.success") : t("common.success"));
         if (data.language) {
@@ -61462,7 +63654,7 @@ const UsersPage = () => {
   const handleDelete = async (user) => {
     if (!window.confirm(t("users.deleteConfirm"))) return;
     try {
-      const res = await axios.post(`${API_URL$k}?action=delete_user`, { id: user.id });
+      const res = await axios.post(`${API_URL$n}?action=delete_user`, { id: user.id });
       if (res.data.status === "success") {
         showSuccess(t("common.success"));
         fetchUsers();
@@ -61475,7 +63667,7 @@ const UsersPage = () => {
   };
   const handleSavePermissions = async () => {
     try {
-      const res = await axios.post(`${API_URL$k}?action=save_user`, {
+      const res = await axios.post(`${API_URL$n}?action=save_user`, {
         id: currentUser.id,
         username: currentUser.username,
         permissions
@@ -61492,7 +63684,7 @@ const UsersPage = () => {
   const generateApiKey = async (permissions2 = "read") => {
     try {
       const label = permissions2 === "write" ? "MCP Write" : "MCP Read";
-      const res = await axios.post(`${API_URL$k}?action=generate_api_key`, {
+      const res = await axios.post(`${API_URL$n}?action=generate_api_key`, {
         user_id: currentUser.id,
         key_name: `${label} ${(currentUser.api_keys?.length || 0) + 1}`,
         permissions: permissions2
@@ -61508,7 +63700,7 @@ const UsersPage = () => {
   const deleteApiKey = async (keyId) => {
     if (!window.confirm(t("common.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$k}?action=delete_api_key`, { id: keyId });
+      await axios.post(`${API_URL$n}?action=delete_api_key`, { id: keyId });
       showSuccess(t("common.success"));
       openApiKeysModal(currentUser);
     } catch (err) {
@@ -61983,7 +64175,7 @@ const UsersPage = () => {
     ] }) })
   ] });
 };
-const API_URL$j = "/api.php";
+const API_URL$m = "/api.php";
 const DEFAULT_CUSTOM_COLORS = {
   "--color-primary": "#f05a3e",
   "--color-bg-main": "#f4f5f7",
@@ -62038,7 +64230,7 @@ const BrandingPage = () => {
       if (mode === "custom") {
         localStorage.setItem("orbitra_custom_colors", JSON.stringify(customColors));
       }
-      await axios.post(`${API_URL$j}?action=save_settings`, {
+      await axios.post(`${API_URL$m}?action=save_settings`, {
         mode,
         custom_colors: mode === "custom" ? customColors : null,
         theme: "default"
@@ -62275,7 +64467,7 @@ const BrandingPage = () => {
     ] })
   ] });
 };
-const API_URL$i = "/api.php";
+const API_URL$l = "/api.php";
 const GeoProfilesPage = () => {
   const { language, t } = useLanguage();
   const [profiles, setProfiles] = reactExports.useState([]);
@@ -62295,8 +64487,8 @@ const GeoProfilesPage = () => {
   const loadData = async () => {
     try {
       const [profilesRes, countriesRes] = await Promise.all([
-        axios.get(`${API_URL$i}?action=geo_profiles`),
-        axios.get(`${API_URL$i}?action=countries_list`)
+        axios.get(`${API_URL$l}?action=geo_profiles`),
+        axios.get(`${API_URL$l}?action=countries_list`)
       ]);
       setProfiles(profilesRes.data.data || []);
       setCountries(countriesRes.data.data || []);
@@ -62342,7 +64534,7 @@ const GeoProfilesPage = () => {
       if (editingProfile) {
         payload.id = editingProfile.id;
       }
-      await axios.post(`${API_URL$i}?action=save_geo_profile`, payload);
+      await axios.post(`${API_URL$l}?action=save_geo_profile`, payload);
       closeModal();
       loadData();
     } catch (err) {
@@ -62352,7 +64544,7 @@ const GeoProfilesPage = () => {
   const handleDelete = async (id) => {
     if (!confirm(t("geoProfiles.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$i}?action=delete_geo_profile`, { id });
+      await axios.post(`${API_URL$l}?action=delete_geo_profile`, { id });
       loadData();
     } catch (err) {
       alert(t("geoProfiles.deleteError") + " " + (err.response?.data?.message || err.message));
@@ -62610,7 +64802,7 @@ const GeoProfilesPage = () => {
     ] }) })
   ] });
 };
-const API_URL$h = "/api.php";
+const API_URL$k = "/api.php";
 const GeneralSettings = () => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
@@ -62623,7 +64815,7 @@ const GeneralSettings = () => {
     php_landing_timeout: "3"
   });
   reactExports.useEffect(() => {
-    fetch(`${API_URL$h}?action=global_settings`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$k}?action=global_settings`).then((res) => res.json()).then((data) => {
       if (data.status === "success" && data.data) {
         setSettings((prev) => ({ ...prev, ...data.data }));
       }
@@ -62638,7 +64830,7 @@ const GeneralSettings = () => {
     setSaving(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$h}?action=global_settings`, {
+      const res = await fetch(`${API_URL$k}?action=global_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -62756,7 +64948,7 @@ const GeneralSettings = () => {
     ) })
   ] });
 };
-const API_URL$g = "/api.php";
+const API_URL$j = "/api.php";
 const ProfileSettings = () => {
   const { t, setLanguage: setContextLanguage, language: currentLanguage } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
@@ -62773,7 +64965,7 @@ const ProfileSettings = () => {
   });
   reactExports.useEffect(() => {
     const userId = currentUser.id || 1;
-    fetch(`${API_URL$g}?action=profile_settings&user_id=${userId}`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$j}?action=profile_settings&user_id=${userId}`).then((res) => res.json()).then((data) => {
       if (data.status === "success" && data.data) {
         setProfile({
           ...profile,
@@ -62801,7 +64993,7 @@ const ProfileSettings = () => {
     setMessage({ text: "", type: "" });
     try {
       const userId = currentUser.id || 1;
-      const res = await fetch(`${API_URL$g}?action=profile_settings`, {
+      const res = await fetch(`${API_URL$j}?action=profile_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -62992,7 +65184,7 @@ const ProfileSettings = () => {
     ) })
   ] });
 };
-const API_URL$f = "/api.php";
+const API_URL$i = "/api.php";
 const PAGE_SIZE = 200;
 const BATCH_CHUNK_SIZE = 2e3;
 const BotSettings = () => {
@@ -63014,7 +65206,7 @@ const BotSettings = () => {
     try {
       const qs = new URLSearchParams({ action: endpointOf(type), limit: String(PAGE_SIZE), offset: String(offset2) });
       if (search) qs.set("search", search);
-      const res = await fetch(`${API_URL$f}?${qs}`);
+      const res = await fetch(`${API_URL$i}?${qs}`);
       const data = await res.json();
       if (data.status !== "success") throw new Error(data.message || `HTTP ${res.status}`);
       setLists((prev) => ({
@@ -63040,7 +65232,7 @@ const BotSettings = () => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(`${API_URL$f}?action=global_settings`);
+        const res = await fetch(`${API_URL$i}?action=global_settings`);
         const data = await res.json();
         if (!cancelled && data.status === "success") {
           setIspList(data.data?.bot_isp_list ?? "");
@@ -63055,7 +65247,7 @@ const BotSettings = () => {
   const saveIspList = async () => {
     setIspSaving(true);
     try {
-      const res = await fetch(`${API_URL$f}?action=global_settings`, {
+      const res = await fetch(`${API_URL$i}?action=global_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ settings: { bot_isp_list: ispList } })
@@ -63079,7 +65271,7 @@ const BotSettings = () => {
   };
   const mutate = async (type, payload) => {
     const action = type === "ip" ? "bot_ips" : "bot_signatures";
-    const res = await fetch(`${API_URL$f}?action=${action}`, {
+    const res = await fetch(`${API_URL$i}?action=${action}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -63368,7 +65560,7 @@ const BotSettings = () => {
     ] })
   ] });
 };
-const API_URL$e = "/api.php";
+const API_URL$h = "/api.php";
 const emptyForm$1 = {
   id: null,
   name: "",
@@ -63389,7 +65581,7 @@ const ConversionTypesSettings = () => {
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
   const fetchTypes = async () => {
     try {
-      const res = await fetch(`${API_URL$e}?action=conversion_types`).then((r2) => r2.json());
+      const res = await fetch(`${API_URL$h}?action=conversion_types`).then((r2) => r2.json());
       if (res.status === "success") {
         setTypes(res.data || []);
       }
@@ -63414,7 +65606,7 @@ const ConversionTypesSettings = () => {
     setSaving(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$e}?action=conversion_types`, {
+      const res = await fetch(`${API_URL$h}?action=conversion_types`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
@@ -63436,7 +65628,7 @@ const ConversionTypesSettings = () => {
   const handleDelete = async (id) => {
     if (!confirm(t("conversionTypes.deleteConfirm"))) return;
     try {
-      await fetch(`${API_URL$e}?action=conversion_types`, {
+      await fetch(`${API_URL$h}?action=conversion_types`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "delete", id })
@@ -63602,7 +65794,7 @@ const ConversionTypesSettings = () => {
     ] })
   ] });
 };
-const API_URL$d = "/api.php";
+const API_URL$g = "/api.php";
 const emptyForm = {
   id: null,
   name: "",
@@ -63620,7 +65812,7 @@ const CustomMetricsSettings = () => {
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
   const fetchMetrics = async () => {
     try {
-      const res = await fetch(`${API_URL$d}?action=custom_metrics`).then((r2) => r2.json());
+      const res = await fetch(`${API_URL$g}?action=custom_metrics`).then((r2) => r2.json());
       if (res.status === "success") {
         setMetrics(res.data || []);
       }
@@ -63645,7 +65837,7 @@ const CustomMetricsSettings = () => {
     setSaving(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$d}?action=custom_metrics`, {
+      const res = await fetch(`${API_URL$g}?action=custom_metrics`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -63673,7 +65865,7 @@ const CustomMetricsSettings = () => {
   const handleDelete = async (id) => {
     if (!confirm(t("customMetrics.deleteConfirm"))) return;
     try {
-      await fetch(`${API_URL$d}?action=custom_metrics`, {
+      await fetch(`${API_URL$g}?action=custom_metrics`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "delete", id })
@@ -63858,7 +66050,7 @@ const CustomMetricsSettings = () => {
     ] })
   ] });
 };
-const API_URL$c = "/api.php";
+const API_URL$f = "/api.php";
 const formatAge = (t, seconds) => {
   if (seconds === null || seconds === void 0) return "-";
   const s = Math.max(0, Number(seconds) || 0);
@@ -63883,7 +66075,7 @@ const AutomationSettings = () => {
   const [iprError, setIprError] = reactExports.useState("");
   const fetchIpRangesInfo = async () => {
     try {
-      const res = await fetch(`${API_URL$c}?action=ipranges_update`);
+      const res = await fetch(`${API_URL$f}?action=ipranges_update`);
       const data = await res.json();
       if (data.status === "success") {
         setIprInfo(data.data || null);
@@ -63895,7 +66087,7 @@ const AutomationSettings = () => {
     setCronBusy(true);
     setIprError("");
     try {
-      const res = await fetch(`${API_URL$c}?action=ipranges_update`, { method: "POST" });
+      const res = await fetch(`${API_URL$f}?action=ipranges_update`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
         setMessage({ text: t("ipranges.updated", "Диапазоны обновлены"), type: "success" });
@@ -63913,7 +66105,7 @@ const AutomationSettings = () => {
   const iprFresh = iprAvailable && Boolean(iprInfo?.fresh);
   const fetchPostbackQueueInfo = async () => {
     try {
-      const res = await fetch(`${API_URL$c}?action=postback_queue_info`);
+      const res = await fetch(`${API_URL$f}?action=postback_queue_info`);
       const data = await res.json();
       if (data.status === "success") {
         setPqInfo(data.data || null);
@@ -63925,7 +66117,7 @@ const AutomationSettings = () => {
     setLoading(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$c}?action=backorder_cron_info`);
+      const res = await fetch(`${API_URL$f}?action=backorder_cron_info`);
       const data = await res.json();
       if (data.status === "success") {
         setInfo(data.data || null);
@@ -63967,7 +66159,7 @@ const AutomationSettings = () => {
     try {
       const cleanMin = Math.max(1, Math.min(1440, Number(intervalMin) || 15));
       const intervalSec = String(Math.max(15, Math.round(cleanMin * 60)));
-      const res = await fetch(`${API_URL$c}?action=save_settings`, {
+      const res = await fetch(`${API_URL$f}?action=save_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -63992,7 +66184,7 @@ const AutomationSettings = () => {
     setCronBusy(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$c}?action=backorder_install_cron`, { method: "POST" });
+      const res = await fetch(`${API_URL$f}?action=backorder_install_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
         setMessage({ text: t("automation.installSuccess"), type: "success" });
@@ -64010,7 +66202,7 @@ const AutomationSettings = () => {
     setCronBusy(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$c}?action=backorder_remove_cron`, { method: "POST" });
+      const res = await fetch(`${API_URL$f}?action=backorder_remove_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
         setMessage({ text: t("automation.removeSuccess"), type: "success" });
@@ -64028,7 +66220,7 @@ const AutomationSettings = () => {
     setCronBusy(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$c}?action=backorder_install_user_cron`, { method: "POST" });
+      const res = await fetch(`${API_URL$f}?action=backorder_install_user_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
         setMessage({ text: t("automation.installUserSuccess"), type: "success" });
@@ -64046,7 +66238,7 @@ const AutomationSettings = () => {
     setCronBusy(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$c}?action=backorder_remove_user_cron`, { method: "POST" });
+      const res = await fetch(`${API_URL$f}?action=backorder_remove_user_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
         setMessage({ text: t("automation.removeUserSuccess"), type: "success" });
@@ -64064,7 +66256,7 @@ const AutomationSettings = () => {
     setCronBusy(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$c}?action=postback_queue_install_user_cron`, { method: "POST" });
+      const res = await fetch(`${API_URL$f}?action=postback_queue_install_user_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
         setMessage({ text: t("postbackQueue.cronInstalled"), type: "success" });
@@ -64082,7 +66274,7 @@ const AutomationSettings = () => {
     setCronBusy(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$c}?action=postback_queue_remove_user_cron`, { method: "POST" });
+      const res = await fetch(`${API_URL$f}?action=postback_queue_remove_user_cron`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
         setMessage({ text: t("postbackQueue.cronRemoved"), type: "success" });
@@ -64508,7 +66700,7 @@ const AutomationSettings = () => {
     ] })
   ] });
 };
-const API_URL$b = "/api.php";
+const API_URL$e = "/api.php";
 const SystemSettings = () => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
@@ -64524,7 +66716,7 @@ const SystemSettings = () => {
   });
   const [savedAdminPath, setSavedAdminPath] = reactExports.useState("");
   reactExports.useEffect(() => {
-    fetch(`${API_URL$b}?action=global_settings`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$e}?action=global_settings`).then((res) => res.json()).then((data) => {
       if (data.status === "success" && data.data) {
         setSettings((prev) => ({ ...prev, ...data.data }));
         setSavedAdminPath(data.data.admin_path || "");
@@ -64546,7 +66738,7 @@ const SystemSettings = () => {
     setSaving(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$b}?action=global_settings`, {
+      const res = await fetch(`${API_URL$e}?action=global_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -64724,7 +66916,7 @@ const SystemSettings = () => {
     ] }) })
   ] });
 };
-const API_URL$a = "/api.php";
+const API_URL$d = "/api.php";
 const PrivacySettings = () => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
@@ -64736,7 +66928,7 @@ const PrivacySettings = () => {
     privacy_redirect_url: ""
   });
   reactExports.useEffect(() => {
-    fetch(`${API_URL$a}?action=global_settings`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$d}?action=global_settings`).then((res) => res.json()).then((data) => {
       if (data.status === "success" && data.data) {
         setSettings((prev) => ({ ...prev, ...data.data }));
       }
@@ -64751,7 +66943,7 @@ const PrivacySettings = () => {
     setSaving(true);
     setMessage({ text: "", type: "" });
     try {
-      const res = await fetch(`${API_URL$a}?action=global_settings`, {
+      const res = await fetch(`${API_URL$d}?action=global_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -64944,9 +67136,456 @@ const Settings = () => {
     ] })
   ] });
 };
-const API_URL$9 = "/api.php";
+const ProxyInput = ({ value, onChange, label }) => {
+  const { t } = useLanguage();
+  const [mode, setMode] = reactExports.useState("string");
+  const [parts, setParts] = reactExports.useState({ protocol: "http", host: "", port: "", user: "", pass: "" });
+  reactExports.useEffect(() => {
+    if (!value) {
+      setParts((prev) => prev.host === "" && prev.port === "" ? prev : { protocol: prev.protocol, host: "", port: "", user: "", pass: "" });
+      return;
+    }
+    try {
+      if (value.includes("://")) {
+        const url = new URL(value);
+        setParts({
+          protocol: url.protocol.replace(":", "") || "http",
+          host: url.hostname || "",
+          port: url.port || "",
+          user: decodeURIComponent(url.username || ""),
+          pass: decodeURIComponent(url.password || "")
+        });
+        return;
+      }
+      const segments = value.split(":");
+      if (segments.length === 4) {
+        setParts({ protocol: "http", host: segments[0], port: segments[1], user: segments[2], pass: segments[3] });
+      }
+    } catch (e) {
+    }
+  }, [value]);
+  const handlePartChange = (key, val) => {
+    const next = { ...parts, [key]: val };
+    setParts(next);
+    if (!next.host) {
+      onChange("");
+      return;
+    }
+    let full = `${next.protocol || "http"}://`;
+    if (next.user || next.pass) {
+      full += `${encodeURIComponent(next.user || "")}:${encodeURIComponent(next.pass || "")}@`;
+    }
+    full += next.host;
+    if (next.port) {
+      full += `:${next.port}`;
+    }
+    onChange(full);
+  };
+  const handleStringChange = (str) => {
+    let clean = str.trim();
+    const segments = clean.split(":");
+    if (segments.length === 4 && !clean.includes("://")) {
+      clean = `http://${segments[2]}:${segments[3]}@${segments[0]}:${segments[1]}`;
+    }
+    onChange(clean);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center gap-2", children: [
+      label !== void 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label mb-0", children: label }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex p-0.5 rounded-lg border text-[11px]", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => setMode("string"),
+            className: "px-2 py-0.5 rounded-md font-medium transition",
+            style: mode === "string" ? { backgroundColor: "var(--color-primary)", color: "#ffffff" } : { color: "var(--color-text-muted)" },
+            children: t("proxy.singleString", "Single string")
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => setMode("blocks"),
+            className: "px-2 py-0.5 rounded-md font-medium transition",
+            style: mode === "blocks" ? { backgroundColor: "var(--color-primary)", color: "#ffffff" } : { color: "var(--color-text-muted)" },
+            children: t("proxy.separateFields", "Separate fields")
+          }
+        )
+      ] })
+    ] }),
+    mode === "string" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "text",
+          value: value || "",
+          onChange: (e) => handleStringChange(e.target.value),
+          className: "form-input font-mono text-xs",
+          placeholder: "http://user:pass@1.2.3.4:8080",
+          spellCheck: "false"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] mt-1", style: { color: "var(--color-text-muted)" }, children: t("proxy.hint", "Supports http://user:pass@ip:port and ip:port:user:pass formats") })
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-12 gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-3 sm:col-span-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "select",
+        {
+          value: parts.protocol,
+          onChange: (e) => handlePartChange("protocol", e.target.value),
+          className: "form-select text-xs",
+          "aria-label": "Protocol",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "http", children: "HTTP" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "https", children: "HTTPS" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "socks5", children: "SOCKS5" })
+          ]
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-9 sm:col-span-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "text",
+          placeholder: t("proxy.host", "Host / IP"),
+          value: parts.host,
+          onChange: (e) => handlePartChange("host", e.target.value),
+          className: "form-input text-xs font-mono",
+          spellCheck: "false"
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-4 sm:col-span-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "text",
+          placeholder: t("proxy.port", "Port"),
+          value: parts.port,
+          onChange: (e) => handlePartChange("port", e.target.value.replace(/[^0-9]/g, "")),
+          className: "form-input text-xs font-mono",
+          inputMode: "numeric"
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-4 sm:col-span-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "text",
+          placeholder: t("proxy.username", "User"),
+          value: parts.user,
+          onChange: (e) => handlePartChange("user", e.target.value),
+          className: "form-input text-xs font-mono",
+          spellCheck: "false",
+          autoComplete: "off"
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-4 sm:col-span-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "password",
+          placeholder: t("proxy.password", "Pass"),
+          value: parts.pass,
+          onChange: (e) => handlePartChange("pass", e.target.value),
+          className: "form-input text-xs font-mono",
+          autoComplete: "new-password"
+        }
+      ) })
+    ] })
+  ] });
+};
+const API_URL$c = "/api.php";
+const PixelPicker = ({ label, value, profileId, trafficSource, resolveServerSide = false, onPick, onManage, error }) => {
+  const { t } = useLanguage();
+  const [profiles, setProfiles] = reactExports.useState([]);
+  const [loading, setLoading] = reactExports.useState(false);
+  const [quickOpen, setQuickOpen] = reactExports.useState(false);
+  const [isCustom, setIsCustom] = reactExports.useState(false);
+  const [savingQuick, setSavingQuick] = reactExports.useState(false);
+  const [quickError, setQuickError] = reactExports.useState("");
+  const [quickForm, setQuickForm] = reactExports.useState({
+    traffic_source: trafficSource || "facebook",
+    niche: "",
+    name: "",
+    pixel_id: "",
+    token: "",
+    test_event_code: ""
+  });
+  const fetchProfiles = reactExports.useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_URL$c}?action=pixel_profiles_list`);
+      if (res.data.status === "success") setProfiles(res.data.data || []);
+    } catch {
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  reactExports.useEffect(() => {
+    fetchProfiles();
+  }, [fetchProfiles]);
+  const savedProfiles = profiles.filter(
+    (profile) => (!trafficSource || profile.traffic_source === trafficSource) && Number(profile.is_active ?? 1) === 1
+  );
+  const matched = savedProfiles.find(
+    (profile) => profileId && String(profile.id) === String(profileId) || !profileId && String(profile.pixel_id) === String(value || "")
+  );
+  const showCustom = isCustom || !!value && !matched && !profileId;
+  const applyProfile = async (profile) => {
+    setIsCustom(false);
+    onPick({
+      pixel_profile_id: String(profile.id),
+      pixel_id: profile.pixel_id,
+      token: "",
+      has_saved_token: !!profile.has_token,
+      test_event_code: profile.test_event_code || ""
+    });
+    if (!resolveServerSide && profile.has_token) {
+      try {
+        const res = await axios.post(`${API_URL$c}?action=pixel_profile_reveal`, { id: profile.id });
+        if (res.data.status === "success" && res.data.data?.token) onPick({ token: res.data.data.token });
+      } catch {
+      }
+    }
+  };
+  const handleSelect = (val) => {
+    if (val === "__add_new__") {
+      setQuickError("");
+      setQuickForm({ traffic_source: trafficSource || "facebook", niche: "", name: "", pixel_id: "", token: "", test_event_code: "" });
+      setQuickOpen(true);
+      return;
+    }
+    if (val === "__custom__") {
+      setIsCustom(true);
+      onPick({ pixel_profile_id: "", pixel_id: "", token: "", has_saved_token: false, test_event_code: "" });
+      return;
+    }
+    const profile = savedProfiles.find((p) => String(p.id) === String(val));
+    if (profile) applyProfile(profile);
+    else onPick({ pixel_profile_id: "", pixel_id: "", token: "", has_saved_token: false, test_event_code: "" });
+  };
+  const handleSaveQuick = async (e) => {
+    e.preventDefault();
+    if (savingQuick) return;
+    setSavingQuick(true);
+    setQuickError("");
+    try {
+      const res = await axios.post(`${API_URL$c}?action=save_pixel_profile`, quickForm);
+      if (res.data.status === "success") {
+        const saved = { ...quickForm, id: res.data.data?.id, has_token: !!quickForm.token };
+        setProfiles((prev) => [saved, ...prev.filter((p) => p.id !== saved.id)]);
+        setIsCustom(false);
+        onPick({
+          pixel_profile_id: String(saved.id),
+          pixel_id: saved.pixel_id,
+          token: resolveServerSide ? "" : saved.token,
+          has_saved_token: saved.has_token,
+          test_event_code: saved.test_event_code || ""
+        });
+        setQuickOpen(false);
+      } else {
+        setQuickError(res.data.message || t("common.error"));
+      }
+    } catch (err) {
+      setQuickError(err.response?.data?.message || err.message || t("common.error"));
+    } finally {
+      setSavingQuick(false);
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+    (label !== void 0 || onManage) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }, children: [
+      label !== void 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label mb-0", children: label }),
+      onManage && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          onClick: onManage,
+          style: { border: 0, padding: 0, background: "transparent", color: "var(--color-primary)", fontSize: "11px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "4px" },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 11 }),
+            " ",
+            t("fbConv.manageInVault", "Edit in Pixel Vault")
+          ]
+        }
+      )
+    ] }),
+    !showCustom && savedProfiles.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "select",
+      {
+        className: "form-select font-mono text-xs",
+        value: matched ? String(matched.id) : "",
+        onChange: (e) => handleSelect(e.target.value),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "", children: [
+            "— ",
+            t("fbConv.selectPixelPrompt", "Select saved pixel..."),
+            " —"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "__add_new__", children: [
+            "✨ + ",
+            t("fbConv.addNewPixel", "Add New Pixel to Vault...")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { disabled: true, children: "──────────────────" }),
+          savedProfiles.map((px) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: String(px.id), children: [
+            px.pixel_id,
+            " ( ",
+            px.niche || "—",
+            " / ",
+            px.name || "—",
+            " )"
+          ] }, px.id || px.pixel_id)),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { disabled: true, children: "──────────────────" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "__custom__", children: [
+            "+ ",
+            t("fbConv.enterManually", "Enter custom Pixel ID manually...")
+          ] })
+        ]
+      }
+    ) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "text",
+          className: "form-input font-mono text-xs",
+          placeholder: "1053688450967480",
+          value: value || "",
+          onChange: (e) => onPick({ pixel_profile_id: "", pixel_id: e.target.value, has_saved_token: false })
+        }
+      ),
+      savedProfiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          className: "btn btn-secondary btn-sm",
+          onClick: () => {
+            setIsCustom(false);
+            onPick({ pixel_profile_id: "", pixel_id: "", token: "", has_saved_token: false, test_event_code: "" });
+          },
+          children: t("fbConv.selectFromList", "Choose from saved")
+        }
+      )
+    ] }),
+    loading && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px]", style: { color: "var(--color-text-muted)" }, children: t("common.loading") }),
+    error,
+    quickOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => setQuickOpen(false), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "460px" }, onClick: (e) => e.stopPropagation(), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header px-6 pt-5", style: { flexShrink: 0 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "modal-title font-bold text-base m-0", children: [
+          "✨ ",
+          t("pixelVault.quickAddTitle", "Quick Add Pixel to Vault")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setQuickOpen(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16 }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSaveQuick, className: "p-6 space-y-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label text-xs", children: t("pixelVault.trafficSource", "Traffic Source") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                className: "form-select text-xs",
+                value: quickForm.traffic_source,
+                disabled: !!trafficSource,
+                onChange: (e) => setQuickForm({ ...quickForm, traffic_source: e.target.value }),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "facebook", children: "Facebook" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tiktok", children: "TikTok" })
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label text-xs", children: t("pixelVault.nicheTag", "Niche / Tag") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                placeholder: "Nutra, Crypto...",
+                value: quickForm.niche,
+                onChange: (e) => setQuickForm({ ...quickForm, niche: e.target.value }),
+                className: "form-input text-xs"
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label text-xs", children: [
+            t("pixelVault.pixelName", "Pixel Name"),
+            " *"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              required: true,
+              placeholder: "Keto Diet Pixel 01",
+              value: quickForm.name,
+              onChange: (e) => setQuickForm({ ...quickForm, name: e.target.value }),
+              className: "form-input text-xs"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label text-xs", children: [
+            t("fbConv.pixelId"),
+            " *"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              required: true,
+              placeholder: "1053688450967480",
+              value: quickForm.pixel_id,
+              onChange: (e) => setQuickForm({ ...quickForm, pixel_id: e.target.value }),
+              className: "form-input font-mono text-xs"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label text-xs", children: [
+            t("fbConv.token"),
+            " *"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "password",
+              required: true,
+              placeholder: "EAAG...",
+              value: quickForm.token,
+              onChange: (e) => setQuickForm({ ...quickForm, token: e.target.value }),
+              className: "form-input font-mono text-xs"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label text-xs", children: t("fbConv.testEventCode") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              placeholder: "TEST12345",
+              value: quickForm.test_event_code,
+              onChange: (e) => setQuickForm({ ...quickForm, test_event_code: e.target.value }),
+              className: "form-input font-mono text-xs"
+            }
+          )
+        ] }),
+        quickError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-danger)" }, children: quickError }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2 pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setQuickOpen(false), className: "btn btn-secondary btn-sm", children: t("common.cancel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "submit", disabled: savingQuick, className: "btn btn-primary btn-sm", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 13 }),
+            " ",
+            savingQuick ? t("common.saving") : t("pixelVault.saveAndSelect", "Save & Select")
+          ] })
+        ] })
+      ] })
+    ] }) })
+  ] });
+};
+const API_URL$b = "/api.php";
 const IntegrationsPage = () => {
   const { t } = useLanguage();
+  const translationRef = reactExports.useRef(t);
+  translationRef.current = t;
   const [activeTab, setActiveTab] = reactExports.useState("kclient_php");
   const [copied, setCopied] = reactExports.useState("");
   const [extTemplate, setExtTemplate] = reactExports.useState("cpa");
@@ -64987,15 +67626,26 @@ const IntegrationsPage = () => {
   const [fbBusyId, setFbBusyId] = reactExports.useState(null);
   const [fbMessage, setFbMessage] = reactExports.useState(null);
   const [fbShowAdvanced, setFbShowAdvanced] = reactExports.useState(false);
+  const [fbShowCustomApp, setFbShowCustomApp] = reactExports.useState(false);
+  const [fbExtendingToken, setFbExtendingToken] = reactExports.useState(false);
+  const [fbDiscoveredAccounts, setFbDiscoveredAccounts] = reactExports.useState([]);
+  const [fbSelectedAccounts, setFbSelectedAccounts] = reactExports.useState([]);
+  const [fbOAuthFlowId, setFbOAuthFlowId] = reactExports.useState("");
+  const [fbOAuthLoading, setFbOAuthLoading] = reactExports.useState(false);
+  const [fbOAuthConnecting, setFbOAuthConnecting] = reactExports.useState(false);
+  const fbOAuthPopupRef = reactExports.useRef(null);
+  const fbOAuthPollRef = reactExports.useRef(null);
   const emptyCapiForm = {
     campaign_id: "",
+    pixel_profile_id: "",
     pixel_id: "",
     token: "",
     events: "PageView,Lead",
     mapping: {},
     test_event_code: "",
     proxy_url: "",
-    is_active: 1
+    is_active: 1,
+    has_saved_token: false
   };
   const [capiPixels, setCapiPixels] = reactExports.useState([]);
   const [capiLoading, setCapiLoading] = reactExports.useState(false);
@@ -65006,6 +67656,25 @@ const IntegrationsPage = () => {
   const [capiTest, setCapiTest] = reactExports.useState(null);
   const [capiTesting, setCapiTesting] = reactExports.useState(false);
   const [capiMessage, setCapiMessage] = reactExports.useState(null);
+  const emptyPixelProfileForm = {
+    traffic_source: "facebook",
+    niche: "General",
+    name: "",
+    pixel_id: "",
+    token: "",
+    event_url: "",
+    test_event_code: "",
+    events: "PageView,Lead,Purchase",
+    is_active: 1
+  };
+  const [pixelProfiles, setPixelProfiles] = reactExports.useState([]);
+  const [pixelProfilesLoading, setPixelProfilesLoading] = reactExports.useState(false);
+  const [pixelProfileEditing, setPixelProfileEditing] = reactExports.useState(null);
+  const [pixelProfileForm, setPixelProfileForm] = reactExports.useState(emptyPixelProfileForm);
+  const [pixelProfileSearch, setPixelProfileSearch] = reactExports.useState("");
+  const [pixelProfileNiche, setPixelProfileNiche] = reactExports.useState("");
+  const [pixelProfileMessage, setPixelProfileMessage] = reactExports.useState(null);
+  const [pixelProfileTesting, setPixelProfileTesting] = reactExports.useState(null);
   const [cfForm, setCfForm] = reactExports.useState({ api_token: "", proxied: true, ssl_mode: "flexible", server_ip: "" });
   const [cfStatus, setCfStatus] = reactExports.useState(null);
   const [cfBusy, setCfBusy] = reactExports.useState(false);
@@ -65038,9 +67707,9 @@ const IntegrationsPage = () => {
     setExtKeyLoading(true);
     setExtKeyError("");
     try {
-      let res = await axios.get(`${API_URL$9}?action=extension_credentials`);
+      let res = await axios.get(`${API_URL$b}?action=extension_credentials`);
       if (res.data.status === "success" && !res.data.data?.api_key) {
-        res = await axios.post(`${API_URL$9}?action=extension_credentials`, {});
+        res = await axios.post(`${API_URL$b}?action=extension_credentials`, {});
       }
       if (res.data.status === "success" && res.data.data?.api_key) {
         setExtApiKey(res.data.data.api_key);
@@ -65056,7 +67725,7 @@ const IntegrationsPage = () => {
   const fetchTelegramSettings = reactExports.useCallback(async () => {
     setTgLoading(true);
     try {
-      const res = await axios.get(`${API_URL$9}?action=telegram_settings`);
+      const res = await axios.get(`${API_URL$b}?action=telegram_settings`);
       if (res.data.status === "success") {
         setTgSettings(res.data.data);
         setTgNotifyConversions(res.data.data.notify_conversions);
@@ -65070,7 +67739,7 @@ const IntegrationsPage = () => {
   }, []);
   const fetchRcSettings = reactExports.useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL$9}?action=settings`);
+      const res = await axios.get(`${API_URL$b}?action=settings`);
       if (res.data.status === "success") {
         const s = res.data.data || {};
         setRcSettings({
@@ -65091,7 +67760,7 @@ const IntegrationsPage = () => {
     setRcSaving(true);
     setRcMessage(null);
     try {
-      await axios.post(`${API_URL$9}?action=save_settings`, rcSettings);
+      await axios.post(`${API_URL$b}?action=save_settings`, rcSettings);
       setRcMessage({ type: "success", text: t("recaptcha.saved") });
     } catch (err) {
       setRcMessage({ type: "error", text: t("recaptcha.saveError") });
@@ -65116,7 +67785,7 @@ const IntegrationsPage = () => {
     setTgSaving(true);
     setTgMessage(null);
     try {
-      const res = await axios.post(`${API_URL$9}?action=save_telegram_settings`, {
+      const res = await axios.post(`${API_URL$b}?action=save_telegram_settings`, {
         token: tgToken,
         notify_conversions: tgNotifyConversions,
         daily_time: tgDailyTime
@@ -65137,7 +67806,7 @@ const IntegrationsPage = () => {
   const handleTelegramDisconnect = async () => {
     setTgSaving(true);
     try {
-      await axios.post(`${API_URL$9}?action=save_telegram_settings`, { action: "disconnect" });
+      await axios.post(`${API_URL$b}?action=save_telegram_settings`, { action: "disconnect" });
       setTgSettings(null);
       setTgMessage({ type: "success", text: t("telegram.disconnected") });
       fetchTelegramSettings();
@@ -65151,7 +67820,7 @@ const IntegrationsPage = () => {
     setTgTesting(true);
     setTgMessage(null);
     try {
-      const res = await axios.post(`${API_URL$9}?action=telegram_test`);
+      const res = await axios.post(`${API_URL$b}?action=telegram_test`);
       setTgMessage({
         type: res.data.status === "success" ? "success" : "error",
         text: res.data.message || (res.data.status === "success" ? t("telegram.testSent") : t("telegram.testFailed"))
@@ -65165,7 +67834,7 @@ const IntegrationsPage = () => {
   const handleSaveSettings = async () => {
     setTgSaving(true);
     try {
-      await axios.post(`${API_URL$9}?action=save_telegram_settings`, {
+      await axios.post(`${API_URL$b}?action=save_telegram_settings`, {
         notify_conversions: tgNotifyConversions,
         daily_time: tgDailyTime
       });
@@ -65179,7 +67848,7 @@ const IntegrationsPage = () => {
   const fetchConfigs = reactExports.useCallback(async () => {
     setConfigLoading(true);
     try {
-      const res = await axios.get(`${API_URL$9}?action=app_configs`);
+      const res = await axios.get(`${API_URL$b}?action=app_configs`);
       if (res.data.status === "success") setConfigs(res.data.data || []);
     } catch (err) {
       console.error(err);
@@ -65189,7 +67858,7 @@ const IntegrationsPage = () => {
   }, []);
   const fetchCampaigns = reactExports.useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL$9}?action=campaigns`);
+      const res = await axios.get(`${API_URL$b}?action=campaigns`);
       if (res.data.status === "success") setCampaigns(res.data.data || []);
     } catch (err) {
       console.error(err);
@@ -65218,7 +67887,7 @@ const IntegrationsPage = () => {
     try {
       const payload = { ...configForm };
       if (editingConfig && editingConfig !== "new") payload.id = editingConfig;
-      const res = await axios.post(`${API_URL$9}?action=save_app_config`, payload);
+      const res = await axios.post(`${API_URL$b}?action=save_app_config`, payload);
       if (res.data.status === "success") {
         setConfigMessage({ type: "success", text: t("appConfig.saved") });
         setEditingConfig(null);
@@ -65230,7 +67899,7 @@ const IntegrationsPage = () => {
   };
   const handleDeleteConfig = async (id) => {
     if (!confirm(t("appConfig.confirmDelete"))) return;
-    await axios.post(`${API_URL$9}?action=delete_app_config`, { id });
+    await axios.post(`${API_URL$b}?action=delete_app_config`, { id });
     setConfigMessage({ type: "success", text: t("appConfig.deleted") });
     fetchConfigs();
   };
@@ -65352,7 +68021,7 @@ const IntegrationsPage = () => {
           t("appConfig.edit")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: async () => {
-          await axios.post(`${API_URL$9}?action=save_app_config`, { id: cfg.id, name: cfg.name, config_json: cfg.config_json, is_active: cfg.is_active ? 0 : 1 });
+          await axios.post(`${API_URL$b}?action=save_app_config`, { id: cfg.id, name: cfg.name, config_json: cfg.config_json, is_active: cfg.is_active ? 0 : 1 });
           fetchConfigs();
         }, className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Power, { size: 12 }),
@@ -65367,7 +68036,7 @@ const IntegrationsPage = () => {
   const fetchFbConnections = reactExports.useCallback(async () => {
     setFbLoading(true);
     try {
-      const res = await axios.get(`${API_URL$9}?action=aggregator_connections`);
+      const res = await axios.get(`${API_URL$b}?action=aggregator_connections`);
       if (res.data.status === "success") {
         setFbConnections((res.data.data || []).filter((c) => c.engine === "facebook"));
       }
@@ -65379,7 +68048,7 @@ const IntegrationsPage = () => {
   }, []);
   const fetchFbFields = reactExports.useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL$9}?action=aggregator_engine_fields&engine=facebook`);
+      const res = await axios.get(`${API_URL$b}?action=aggregator_engine_fields&engine=facebook`);
       if (res.data.status === "success") setFbFields(res.data.data || []);
     } catch (err) {
       console.error(err);
@@ -65388,7 +68057,7 @@ const IntegrationsPage = () => {
   const fetchCapiPixels = reactExports.useCallback(async () => {
     setCapiLoading(true);
     try {
-      const res = await axios.get(`${API_URL$9}?action=facebook_capi_list`);
+      const res = await axios.get(`${API_URL$b}?action=facebook_capi_list`);
       if (res.data.status === "success") setCapiPixels(res.data.data || []);
     } catch (err) {
       console.error(err);
@@ -65398,10 +68067,21 @@ const IntegrationsPage = () => {
   }, []);
   const fetchCapiMeta = reactExports.useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL$9}?action=facebook_capi_meta`);
+      const res = await axios.get(`${API_URL$b}?action=facebook_capi_meta`);
       if (res.data.status === "success") setCapiMeta(res.data.data);
     } catch (err) {
       console.error(err);
+    }
+  }, []);
+  const fetchPixelProfiles = reactExports.useCallback(async () => {
+    setPixelProfilesLoading(true);
+    try {
+      const res = await axios.get(`${API_URL$b}?action=pixel_profiles_list`);
+      if (res.data.status === "success") setPixelProfiles(res.data.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPixelProfilesLoading(false);
     }
   }, []);
   reactExports.useEffect(() => {
@@ -65414,8 +68094,9 @@ const IntegrationsPage = () => {
       fetchCapiMeta();
       fetchCampaigns();
     }
+    if (activeTab === "pixel_vault") fetchPixelProfiles();
     if (activeTab === "cloudflare") {
-      axios.get(`${API_URL$9}?action=cloudflare_status`).then((res) => {
+      axios.get(`${API_URL$b}?action=cloudflare_status`).then((res) => {
         if (res.data.status === "success") {
           setCfStatus(res.data.data);
           setCfForm((f) => ({ ...f, proxied: !!res.data.data.proxied, ssl_mode: res.data.data.ssl_mode || "flexible", server_ip: res.data.data.server_ip || "" }));
@@ -65426,13 +68107,13 @@ const IntegrationsPage = () => {
     if (activeTab === "namecheap") {
       const ncAddressRefresh = async () => {
         try {
-          const res = await axios.post(`${API_URL$9}?action=namecheap_addresses`, {});
+          const res = await axios.post(`${API_URL$b}?action=namecheap_addresses`, {});
           if (res.data.status === "success") setNcAddresses(res.data.data.addresses || []);
         } catch (err) {
           console.error(err);
         }
       };
-      axios.get(`${API_URL$9}?action=namecheap_status`).then((res) => {
+      axios.get(`${API_URL$b}?action=namecheap_status`).then((res) => {
         if (res.data.status === "success") {
           setNcStatus(res.data.data);
           setNcForm((f) => ({
@@ -65447,10 +68128,46 @@ const IntegrationsPage = () => {
       }).catch(() => {
       });
     }
-  }, [activeTab, fetchFbConnections, fetchFbFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns]);
+  }, [activeTab, fetchFbConnections, fetchFbFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles]);
+  reactExports.useEffect(() => {
+    const handleFacebookOAuthMessage = (event) => {
+      if (event.origin !== window.location.origin || event.data?.type !== "orbitra.facebook_oauth") return;
+      if (!fbOAuthPopupRef.current || event.source !== fbOAuthPopupRef.current) return;
+      setFbOAuthLoading(false);
+      if (fbOAuthPollRef.current) {
+        window.clearInterval(fbOAuthPollRef.current);
+        fbOAuthPollRef.current = null;
+      }
+      fbOAuthPopupRef.current = null;
+      if (event.data.status !== "success") {
+        setFbDiscoveredAccounts([]);
+        setFbSelectedAccounts([]);
+        setFbOAuthFlowId("");
+        setFbMessage({ type: "error", text: event.data.message || translationRef.current("fbCosts.oauthFailed") });
+        return;
+      }
+      const accounts = Array.isArray(event.data.accounts) ? event.data.accounts : [];
+      setFbDiscoveredAccounts(accounts);
+      setFbSelectedAccounts(accounts.map((account) => account.id));
+      setFbOAuthFlowId(event.data.flow_id || "");
+      setFbMessage(accounts.length === 0 ? { type: "error", text: translationRef.current("fbCosts.noDiscoveredAccounts") } : null);
+    };
+    window.addEventListener("message", handleFacebookOAuthMessage);
+    return () => {
+      window.removeEventListener("message", handleFacebookOAuthMessage);
+      if (fbOAuthPollRef.current) {
+        window.clearInterval(fbOAuthPollRef.current);
+        fbOAuthPollRef.current = null;
+      }
+      if (fbOAuthPopupRef.current && !fbOAuthPopupRef.current.closed) {
+        fbOAuthPopupRef.current.close();
+      }
+      fbOAuthPopupRef.current = null;
+    };
+  }, []);
   const loadFbConnection = async (id) => {
     try {
-      const res = await axios.get(`${API_URL$9}?action=aggregator_connection_detail&id=${id}`);
+      const res = await axios.get(`${API_URL$b}?action=aggregator_connection_detail&id=${id}`);
       if (res.data.status !== "success" || !res.data.data) return null;
       const conn = res.data.data;
       return {
@@ -65474,8 +68191,90 @@ const IntegrationsPage = () => {
       click_id_param: "sub_id"
     };
     if (id && id !== "new") payload.id = id;
-    const res = await axios.post(`${API_URL$9}?action=aggregator_connections`, payload);
+    const res = await axios.post(`${API_URL$b}?action=aggregator_connections`, payload);
     return res.data.status === "success";
+  };
+  const resetFacebookOAuth = () => {
+    if (fbOAuthPollRef.current) {
+      window.clearInterval(fbOAuthPollRef.current);
+      fbOAuthPollRef.current = null;
+    }
+    if (fbOAuthPopupRef.current && !fbOAuthPopupRef.current.closed) {
+      fbOAuthPopupRef.current.close();
+    }
+    fbOAuthPopupRef.current = null;
+    setFbDiscoveredAccounts([]);
+    setFbSelectedAccounts([]);
+    setFbOAuthFlowId("");
+    setFbOAuthLoading(false);
+    setFbOAuthConnecting(false);
+  };
+  const handleStartFacebookOAuth = () => {
+    setFbMessage(null);
+    setFbDiscoveredAccounts([]);
+    setFbSelectedAccounts([]);
+    setFbOAuthFlowId("");
+    if (fbOAuthPopupRef.current && !fbOAuthPopupRef.current.closed) {
+      fbOAuthPopupRef.current.close();
+    }
+    if (fbOAuthPollRef.current) {
+      window.clearInterval(fbOAuthPollRef.current);
+    }
+    const width = 640;
+    const height = 720;
+    const left = Math.max(0, window.screenX + Math.round((window.outerWidth - width) / 2));
+    const top = Math.max(0, window.screenY + Math.round((window.outerHeight - height) / 2));
+    const popup = window.open(
+      `${API_URL$b}?action=facebook_oauth_start`,
+      "orbitra-facebook-oauth",
+      `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+    );
+    if (!popup) {
+      setFbOAuthLoading(false);
+      setFbMessage({ type: "error", text: t("fbCosts.popupBlocked") });
+      return;
+    }
+    fbOAuthPopupRef.current = popup;
+    setFbOAuthLoading(true);
+    popup.focus();
+    fbOAuthPollRef.current = window.setInterval(() => {
+      if (popup.closed) {
+        window.clearInterval(fbOAuthPollRef.current);
+        fbOAuthPollRef.current = null;
+        fbOAuthPopupRef.current = null;
+        setFbOAuthLoading(false);
+      }
+    }, 500);
+  };
+  const toggleFacebookAccount = (accountId, checked) => {
+    setFbSelectedAccounts((current) => checked ? [.../* @__PURE__ */ new Set([...current, accountId])] : current.filter((id) => id !== accountId));
+  };
+  const handleConnectDiscoveredAccounts = async () => {
+    if (!fbOAuthFlowId || fbSelectedAccounts.length === 0) return;
+    setFbOAuthConnecting(true);
+    setFbMessage(null);
+    try {
+      const accounts = fbDiscoveredAccounts.filter((account) => fbSelectedAccounts.includes(account.id));
+      const res = await axios.post(`${API_URL$b}?action=facebook_connect_accounts`, {
+        flow_id: fbOAuthFlowId,
+        accounts,
+        sync_interval_hours: fbForm.sync_interval_hours || 2
+      });
+      if (res.data.status !== "success") {
+        setFbMessage({ type: "error", text: res.data.message || t("fbCosts.oauthFailed") });
+        return;
+      }
+      const connected = res.data.data?.connected_count ?? accounts.length;
+      setFbMessage({ type: "success", text: t("fbCosts.connectedAccounts").replace("{n}", connected) });
+      setFbEditing(null);
+      setFbTest(null);
+      resetFacebookOAuth();
+      fetchFbConnections();
+    } catch (err) {
+      setFbMessage({ type: "error", text: err.response?.data?.message || err.message || t("fbCosts.oauthFailed") });
+    } finally {
+      setFbOAuthConnecting(false);
+    }
   };
   const handleFbSave = async () => {
     if (!fbForm.name || !fbForm.credentials.ad_account_id || !fbForm.credentials.token) return;
@@ -65485,6 +68284,7 @@ const IntegrationsPage = () => {
         setFbMessage({ type: "success", text: t("fbCosts.saved") });
         setFbEditing(null);
         setFbTest(null);
+        resetFacebookOAuth();
         fetchFbConnections();
       }
     } catch (err) {
@@ -65495,7 +68295,7 @@ const IntegrationsPage = () => {
     setFbTesting(true);
     setFbTest(null);
     try {
-      const res = await axios.post(`${API_URL$9}?action=aggregator_test_connection`, {
+      const res = await axios.post(`${API_URL$b}?action=aggregator_test_connection`, {
         engine: "facebook",
         credentials: fbForm.credentials
       });
@@ -65506,11 +68306,35 @@ const IntegrationsPage = () => {
       setFbTesting(false);
     }
   };
+  const handleExtendToken = async () => {
+    const shortToken = (fbForm.credentials.token || "").trim();
+    if (!shortToken || fbExtendingToken) return;
+    setFbExtendingToken(true);
+    try {
+      const res = await axios.post(`${API_URL$b}?action=facebook_extend_token`, {
+        short_token: shortToken,
+        app_id: fbForm.credentials.app_id || "",
+        app_secret: fbForm.credentials.app_secret || "",
+        proxy_url: fbForm.credentials.proxy_url || ""
+      });
+      if (res.data.status === "success" && res.data.data?.long_lived_token) {
+        setFbForm((prev) => ({ ...prev, credentials: { ...prev.credentials, token: res.data.data.long_lived_token } }));
+        const days = Math.max(1, Math.round((res.data.data.expires_in || 5184e3) / 86400));
+        setFbMessage({ type: "success", text: `${t("fbCosts.tokenExtended")} (~${days}d)` });
+      } else {
+        setFbMessage({ type: "error", text: res.data.message || t("common.error") });
+      }
+    } catch (err) {
+      setFbMessage({ type: "error", text: err.response?.data?.message || err.message || t("common.error") });
+    } finally {
+      setFbExtendingToken(false);
+    }
+  };
   const handleFbSyncNow = async (conn) => {
     setFbBusyId(conn.id);
     setFbMessage(null);
     try {
-      const res = await axios.post(`${API_URL$9}?action=aggregator_sync`, {
+      const res = await axios.post(`${API_URL$b}?action=aggregator_sync`, {
         connection_id: conn.id,
         date_from: new Date(Date.now() - (conn.last_sync_at ? 5 : 30) * 864e5).toISOString().slice(0, 10),
         date_to: (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)
@@ -65548,7 +68372,7 @@ const IntegrationsPage = () => {
   };
   const handleFbDelete = async (conn) => {
     if (!confirm(t("fbCosts.confirmDelete"))) return;
-    await axios.post(`${API_URL$9}?action=aggregator_connections`, { action: "delete", id: conn.id });
+    await axios.post(`${API_URL$b}?action=aggregator_connections`, { action: "delete", id: conn.id });
     setFbMessage({ type: "success", text: t("fbCosts.deleted") });
     fetchFbConnections();
   };
@@ -65583,6 +68407,121 @@ const IntegrationsPage = () => {
       fbEditing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px solid var(--color-primary)", borderRadius: "16px", padding: "20px", background: "var(--color-bg-card)", maxWidth: "760px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px" }, children: fbEditing === "new" ? t("fbCosts.addAccount") : t("fbCosts.editAccount") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+          fbEditing === "new" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "p-5 rounded-2xl border text-center flex flex-col items-center gap-3",
+                style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "div",
+                    {
+                      className: "w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-2xl",
+                      style: { backgroundColor: "rgba(24, 119, 242, 0.15)", color: "#1877F2" },
+                      children: "f"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold m-0", style: { color: "var(--color-text-primary)" }, children: t("fbCosts.oneClickTitle") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs m-0 mt-1 max-w-md", style: { color: "var(--color-text-muted)" }, children: t("fbCosts.oneClickDesc") })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: handleStartFacebookOAuth,
+                      disabled: fbOAuthLoading || fbOAuthConnecting,
+                      className: "btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]",
+                      style: { backgroundColor: "#1877F2", color: "#ffffff", boxShadow: "0 4px 14px rgba(24, 119, 242, 0.3)", opacity: fbOAuthLoading ? 0.75 : 1 },
+                      children: [
+                        fbOAuthLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-extrabold text-base", children: "f" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: fbOAuthLoading ? t("fbCosts.oauthConnecting") : t("fbCosts.loginWithFb") })
+                      ]
+                    }
+                  )
+                ]
+              }
+            ),
+            fbDiscoveredAccounts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "p-4 rounded-2xl border space-y-3",
+                style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-success)" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center gap-3", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold", style: { color: "var(--color-text-primary)" }, children: [
+                      t("fbCosts.selectAccounts"),
+                      ":"
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => setFbSelectedAccounts(fbDiscoveredAccounts.map((account) => account.id)),
+                        className: "text-xs hover:underline",
+                        style: { color: "var(--color-primary)" },
+                        children: t("common.selectAll")
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2 max-h-48 overflow-y-auto", children: fbDiscoveredAccounts.map((account) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "label",
+                    {
+                      className: "flex items-center justify-between gap-3 p-2.5 rounded-xl border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5",
+                      style: { borderColor: "var(--color-border)" },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5 min-w-0", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "input",
+                            {
+                              type: "checkbox",
+                              checked: fbSelectedAccounts.includes(account.id),
+                              onChange: (event) => toggleFacebookAccount(account.id, event.target.checked),
+                              className: "rounded"
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold truncate", style: { color: "var(--color-text-primary)" }, children: account.name }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] font-mono", style: { color: "var(--color-text-muted)" }, children: account.id })
+                          ] })
+                        ] }),
+                        account.currency && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "span",
+                          {
+                            className: "text-xs font-semibold px-2 py-0.5 rounded shrink-0",
+                            style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-secondary)" },
+                            children: account.currency
+                          }
+                        )
+                      ]
+                    },
+                    account.id
+                  )) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: handleConnectDiscoveredAccounts,
+                      disabled: fbOAuthConnecting || fbSelectedAccounts.length === 0,
+                      className: "btn btn-primary w-full py-2 rounded-xl text-xs font-semibold",
+                      children: [
+                        fbOAuthConnecting ? t("fbCosts.connectingAccounts") : t("fbCosts.connectSelected"),
+                        " (",
+                        fbSelectedAccounts.length,
+                        ")"
+                      ]
+                    }
+                  )
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 my-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 border-t", style: { borderColor: "var(--color-border)" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] uppercase font-bold", style: { color: "var(--color-text-muted)" }, children: t("common.orManual") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 border-t", style: { borderColor: "var(--color-border)" } })
+            ] })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbCosts.name") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -65596,7 +68535,46 @@ const IntegrationsPage = () => {
               }
             )
           ] }),
-          fbFields.map((field) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          fbFields.filter((f) => !["app_id", "app_secret"].includes(f.key)).map((field) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: field.key === "proxy_url" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ProxyInput,
+            {
+              label: field.label_key ? t(field.label_key, field.label) : field.label,
+              value: fbForm.credentials.proxy_url || "",
+              onChange: (val) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, proxy_url: val } })
+            }
+          ) : field.key === "token" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+              field.label_key ? t(field.label_key, field.label) : field.label,
+              field.required && " *"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  className: "form-input flex-1",
+                  type: "password",
+                  value: fbForm.credentials.token || "",
+                  placeholder: field.placeholder || "",
+                  onChange: (e) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, token: e.target.value } })
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: handleExtendToken,
+                  disabled: fbExtendingToken || !(fbForm.credentials.token || "").trim(),
+                  className: "btn btn-secondary text-xs whitespace-nowrap",
+                  title: t("fbCosts.extendTokenHint", "Exchanges the token for a 60-day long-lived one via the Graph API"),
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 12 }),
+                    " ",
+                    fbExtendingToken ? "…" : t("fbCosts.extendToken")
+                  ]
+                }
+              )
+            ] })
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
               field.label_key ? t(field.label_key, field.label) : field.label,
               field.required && " *"
@@ -65622,7 +68600,38 @@ const IntegrationsPage = () => {
                 onChange: (e) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } })
               }
             )
-          ] }, field.key)),
+          ] }) }, field.key)),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => setFbShowCustomApp(!fbShowCustomApp),
+                className: "btn btn-secondary btn-sm",
+                style: { fontSize: "11px" },
+                children: [
+                  fbShowCustomApp ? "−" : "+",
+                  " ",
+                  t("fbCosts.customApp")
+                ]
+              }
+            ),
+            fbShowCustomApp && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px dashed var(--color-border)", borderRadius: "12px", padding: "14px", marginTop: "8px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginBottom: "10px" }, children: t("fbCosts.customAppHint") }),
+              fbFields.filter((f) => ["app_id", "app_secret"].includes(f.key)).map((field) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", style: { fontSize: "12px" }, children: field.label_key ? t(field.label_key, field.label) : field.label }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    className: "form-input",
+                    type: field.type === "password" ? "password" : "text",
+                    value: fbForm.credentials[field.key] || "",
+                    onChange: (e) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } })
+                  }
+                )
+              ] }, field.key))
+            ] })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbCosts.interval") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -65694,6 +68703,7 @@ const IntegrationsPage = () => {
               /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
                 setFbEditing(null);
                 setFbTest(null);
+                resetFacebookOAuth();
               }, className: "btn btn-secondary btn-sm", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
                 " ",
@@ -65715,6 +68725,7 @@ const IntegrationsPage = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
           setFbForm(emptyFbForm);
           setFbTest(null);
+          resetFacebookOAuth();
           setFbEditing("new");
         }, className: "btn btn-primary", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
@@ -65773,6 +68784,7 @@ const IntegrationsPage = () => {
                   setFbForm(full);
                   setFbTest(null);
                   setFbEditing(conn.id);
+                  setFbShowCustomApp(!!(full.credentials?.app_id || full.credentials?.app_secret));
                 }
               }, className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 12 }),
@@ -65797,6 +68809,408 @@ const IntegrationsPage = () => {
       ] })
     ] });
   };
+  const pixelSourceOptions = [
+    { value: "facebook", label: "Facebook", icon: "📘" },
+    { value: "tiktok", label: "TikTok", icon: "🎵" },
+    { value: "google_ads", label: "Google Ads", icon: "🔎" },
+    { value: "snapchat", label: "Snapchat", icon: "👻" },
+    { value: "pinterest", label: "Pinterest", icon: "📌" }
+  ];
+  const suggestedPixelNiches = ["Nutra", "Crypto", "E-Commerce", "Gambling", "Dating", "Sweepstakes"];
+  const pixelProfileToForm = (profile) => ({
+    id: profile.id,
+    traffic_source: profile.traffic_source || "facebook",
+    niche: profile.niche || "General",
+    name: profile.name || "",
+    pixel_id: profile.pixel_id || "",
+    // Secrets are not returned by the list endpoint. Blank preserves it.
+    token: "",
+    event_url: profile.event_url || "",
+    test_event_code: profile.test_event_code || "",
+    events: profile.events || "PageView,Lead,Purchase",
+    is_active: profile.is_active ? 1 : 0,
+    has_token: !!profile.has_token
+  });
+  const handlePixelProfileSave = async () => {
+    if (!pixelProfileForm.name.trim() || !pixelProfileForm.pixel_id.trim()) return;
+    if (pixelProfileEditing === "new" && !pixelProfileForm.token.trim()) return;
+    setPixelProfileMessage(null);
+    try {
+      const payload = { ...pixelProfileForm };
+      delete payload.has_token;
+      if (pixelProfileEditing && pixelProfileEditing !== "new") payload.id = pixelProfileEditing;
+      const res = await axios.post(`${API_URL$b}?action=save_pixel_profile`, payload);
+      if (res.data.status === "success") {
+        setPixelProfileMessage({ type: "success", text: t("pixelVault.saved") });
+        setPixelProfileEditing(null);
+        setPixelProfileForm(emptyPixelProfileForm);
+        fetchPixelProfiles();
+      } else {
+        setPixelProfileMessage({ type: "error", text: res.data.message || t("common.error") });
+      }
+    } catch (err) {
+      setPixelProfileMessage({ type: "error", text: err.response?.data?.message || err.message });
+    }
+  };
+  const handlePixelProfileDelete = async (profile) => {
+    if (!confirm(t("pixelVault.confirmDelete"))) return;
+    try {
+      const res = await axios.post(`${API_URL$b}?action=delete_pixel_profile`, { id: profile.id });
+      if (res.data.status === "success") {
+        setPixelProfileMessage({ type: "success", text: t("pixelVault.deleted") });
+        fetchPixelProfiles();
+      } else {
+        setPixelProfileMessage({ type: "error", text: res.data.message || t("common.error") });
+      }
+    } catch (err) {
+      setPixelProfileMessage({ type: "error", text: err.response?.data?.message || err.message });
+    }
+  };
+  const handlePixelProfileDuplicate = async (profile) => {
+    try {
+      const res = await axios.post(`${API_URL$b}?action=save_pixel_profile`, { duplicate_from_id: profile.id });
+      if (res.data.status === "success") {
+        setPixelProfileMessage({ type: "success", text: t("pixelVault.duplicated") });
+        fetchPixelProfiles();
+      } else {
+        setPixelProfileMessage({ type: "error", text: res.data.message || t("common.error") });
+      }
+    } catch (err) {
+      setPixelProfileMessage({ type: "error", text: err.response?.data?.message || err.message });
+    }
+  };
+  const handlePixelProfileTest = async (profile = null) => {
+    const source = profile?.traffic_source || pixelProfileForm.traffic_source;
+    if (!["facebook", "tiktok"].includes(source)) {
+      setPixelProfileMessage({ type: "error", text: t("pixelVault.testUnsupported") });
+      return;
+    }
+    const testingKey = profile?.id || "form";
+    setPixelProfileTesting(testingKey);
+    setPixelProfileMessage(null);
+    try {
+      const payload = profile ? { id: profile.id } : {
+        id: pixelProfileEditing !== "new" && !pixelProfileForm.token ? pixelProfileEditing : void 0,
+        traffic_source: pixelProfileForm.traffic_source,
+        pixel_id: pixelProfileForm.pixel_id,
+        token: pixelProfileForm.token,
+        event_url: pixelProfileForm.event_url,
+        test_event_code: pixelProfileForm.test_event_code
+      };
+      const res = await axios.post(`${API_URL$b}?action=pixel_profile_test_event`, payload);
+      setPixelProfileMessage({
+        type: res.data.status === "success" ? "success" : "error",
+        text: res.data.status === "success" ? t("pixelVault.testEventSent") : res.data.message || t("common.error")
+      });
+    } catch (err) {
+      setPixelProfileMessage({ type: "error", text: err.response?.data?.message || err.message });
+    } finally {
+      setPixelProfileTesting(null);
+    }
+  };
+  const renderPixelVaultPanel = () => {
+    const niches = [...new Set(pixelProfiles.map((profile) => profile.niche || "General"))].sort((a, b) => a.localeCompare(b));
+    const query = pixelProfileSearch.trim().toLowerCase();
+    const visible = pixelProfiles.filter((profile) => {
+      if (pixelProfileNiche && (profile.niche || "General") !== pixelProfileNiche) return false;
+      if (!query) return true;
+      return [profile.name, profile.niche, profile.pixel_id, profile.traffic_source].some((value) => String(value || "").toLowerCase().includes(query));
+    });
+    const grouped = visible.reduce((groups, profile) => {
+      const niche = profile.niche || "General";
+      if (!groups[niche]) groups[niche] = [];
+      groups[niche].push(profile);
+      return groups;
+    }, {});
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: [
+      pixelProfileMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        padding: "10px 14px",
+        borderRadius: "10px",
+        fontSize: "13px",
+        marginBottom: "16px",
+        background: pixelProfileMessage.type === "success" ? "#dcfce7" : "#fee2e2",
+        color: pixelProfileMessage.type === "success" ? "#166534" : "#991b1b",
+        border: `1px solid ${pixelProfileMessage.type === "success" ? "#86efac" : "#fca5a5"}`
+      }, children: pixelProfileMessage.text }),
+      pixelProfileEditing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px solid var(--color-primary)", borderRadius: "16px", padding: "20px", background: "var(--color-bg-card)", maxWidth: "820px", marginBottom: "20px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px" }, children: pixelProfileEditing === "new" ? t("pixelVault.addNewPixel") : t("pixelVault.editPixel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                t("pixelVault.trafficSource"),
+                " *"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "select",
+                {
+                  className: "form-select",
+                  value: pixelProfileForm.traffic_source,
+                  onChange: (e) => setPixelProfileForm({ ...pixelProfileForm, traffic_source: e.target.value }),
+                  children: pixelSourceOptions.map((source) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: source.value, children: [
+                    source.icon,
+                    " ",
+                    source.label
+                  ] }, source.value))
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                t("pixelVault.nicheTag"),
+                " *"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  className: "form-input",
+                  list: "pixel-vault-niches",
+                  value: pixelProfileForm.niche,
+                  onChange: (e) => setPixelProfileForm({ ...pixelProfileForm, niche: e.target.value }),
+                  placeholder: "Nutra, Crypto…"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("datalist", { id: "pixel-vault-niches", children: [.../* @__PURE__ */ new Set([...suggestedPixelNiches, ...niches])].map((niche) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: niche }, niche)) })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+              t("pixelVault.pixelName"),
+              " *"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                className: "form-input",
+                value: pixelProfileForm.name,
+                onChange: (e) => setPixelProfileForm({ ...pixelProfileForm, name: e.target.value }),
+                placeholder: "[Nutra IN] WeightLoss Main CAPI"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                t("pixelVault.pixelId"),
+                " *"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  className: "form-input font-mono",
+                  value: pixelProfileForm.pixel_id,
+                  onChange: (e) => setPixelProfileForm({ ...pixelProfileForm, pixel_id: e.target.value }),
+                  placeholder: "12020948572849"
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                t("pixelVault.capiToken"),
+                " ",
+                pixelProfileEditing === "new" ? "*" : ""
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "password",
+                  className: "form-input font-mono",
+                  value: pixelProfileForm.token,
+                  onChange: (e) => setPixelProfileForm({ ...pixelProfileForm, token: e.target.value }),
+                  placeholder: pixelProfileEditing === "new" ? "EAA…" : t("pixelVault.keepToken")
+                }
+              )
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("pixelVault.events") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                className: "form-input",
+                value: pixelProfileForm.events,
+                onChange: (e) => setPixelProfileForm({ ...pixelProfileForm, events: e.target.value }),
+                placeholder: "PageView,Lead,Purchase"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "minmax(0, 2fr) minmax(0, 1fr)", gap: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("pixelVault.eventUrl") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  className: "form-input font-mono",
+                  value: pixelProfileForm.event_url,
+                  onChange: (e) => setPixelProfileForm({ ...pixelProfileForm, event_url: e.target.value }),
+                  placeholder: "https://domain.com/thank-you"
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("pixelVault.testEventCode") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  className: "form-input font-mono",
+                  value: pixelProfileForm.test_event_code,
+                  onChange: (e) => setPixelProfileForm({ ...pixelProfileForm, test_event_code: e.target.value }),
+                  placeholder: "TEST12345"
+                }
+              )
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "var(--color-text-secondary)", cursor: "pointer" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: !!pixelProfileForm.is_active,
+                onChange: (e) => setPixelProfileForm({ ...pixelProfileForm, is_active: e.target.checked ? 1 : 0 })
+              }
+            ),
+            t("pixelVault.active")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", gap: "8px", flexWrap: "wrap" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                className: "btn btn-secondary btn-sm",
+                onClick: () => handlePixelProfileTest(),
+                disabled: pixelProfileTesting === "form" || !["facebook", "tiktok"].includes(pixelProfileForm.traffic_source) || !pixelProfileForm.pixel_id || !pixelProfileForm.token && pixelProfileEditing === "new",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }),
+                  " ",
+                  pixelProfileTesting === "form" ? t("pixelVault.sending") : t("pixelVault.sendTestEvent")
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary btn-sm", onClick: () => {
+                setPixelProfileEditing(null);
+                setPixelProfileMessage(null);
+              }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
+                " ",
+                t("common.cancel")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  className: "btn btn-primary btn-sm",
+                  onClick: handlePixelProfileSave,
+                  disabled: !pixelProfileForm.name.trim() || !pixelProfileForm.pixel_id.trim() || pixelProfileEditing === "new" && !pixelProfileForm.token.trim(),
+                  children: t("common.save")
+                }
+              )
+            ] })
+          ] })
+        ] })
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { border: "1px solid var(--color-border)", borderRadius: "14px", padding: "12px", marginBottom: "18px", background: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "form-select", style: { maxWidth: "210px" }, value: pixelProfileNiche, onChange: (e) => setPixelProfileNiche(e.target.value), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("pixelVault.allNiches") }),
+          niches.map((niche) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: niche, children: niche }, niche))
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            className: "form-input",
+            style: { maxWidth: "260px" },
+            value: pixelProfileSearch,
+            onChange: (e) => setPixelProfileSearch(e.target.value),
+            placeholder: t("pixelVault.search")
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "6px", flexWrap: "wrap" }, children: niches.slice(0, 5).map((niche) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            className: "btn btn-secondary btn-sm",
+            style: { fontSize: "11px" },
+            onClick: () => setPixelProfileNiche(pixelProfileNiche === niche ? "" : niche),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { size: 11 }),
+              " ",
+              niche
+            ]
+          },
+          niche
+        )) })
+      ] }) }),
+      pixelProfilesLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
+        Object.entries(grouped).map(([niche, profiles]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "7px", fontWeight: 600, fontSize: "13px", color: "var(--color-text-secondary)", marginBottom: "8px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { size: 14 }),
+            " ",
+            niche,
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)", fontWeight: 400 }, children: [
+              "(",
+              profiles.length,
+              ")"
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: profiles.map((profile) => {
+            const source = pixelSourceOptions.find((item) => item.value === profile.traffic_source) || { label: profile.traffic_source, icon: "📊" };
+            return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              border: "1px solid var(--color-border)",
+              borderRadius: "14px",
+              padding: "15px 16px",
+              background: profile.is_active ? "var(--color-bg-card)" : "var(--color-bg-soft)",
+              opacity: profile.is_active ? 1 : 0.68
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px", flexWrap: "wrap" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { minWidth: 0 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 8, height: 8, borderRadius: 999, background: profile.is_active ? "#22c55e" : "#9ca3af" } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { fontSize: "14px", color: "var(--color-text-primary)" }, children: profile.name }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "11px", color: "var(--color-text-muted)" }, children: [
+                    source.icon,
+                    " ",
+                    source.label
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "6px", fontSize: "12px", color: "var(--color-text-muted)" }, children: [
+                  "ID: ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontFamily: "monospace" }, children: profile.pixel_id }),
+                  " · ",
+                  t("pixelVault.events"),
+                  ": ",
+                  profile.events || "—",
+                  " · ",
+                  t("pixelVault.token"),
+                  ": ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontFamily: "monospace" }, children: profile.token_masked || "—" })
+                ] }),
+                profile.event_url && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "3px", fontSize: "11px", color: "var(--color-text-muted)", wordBreak: "break-all" }, children: profile.event_url })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "6px", flexWrap: "wrap" }, children: [
+                ["facebook", "tiktok"].includes(profile.traffic_source) && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, onClick: () => handlePixelProfileTest(profile), disabled: pixelProfileTesting === profile.id, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 12 }),
+                  " ",
+                  pixelProfileTesting === profile.id ? t("pixelVault.sending") : t("pixelVault.sendTestEvent")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, onClick: () => {
+                  setPixelProfileForm(pixelProfileToForm(profile));
+                  setPixelProfileEditing(profile.id);
+                  setPixelProfileMessage(null);
+                }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 12 }),
+                  " ",
+                  t("common.edit")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, onClick: () => handlePixelProfileDuplicate(profile), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 }),
+                  " ",
+                  t("pixelVault.duplicate")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn btn-secondary btn-sm", style: { fontSize: "11px", color: "#ef4444" }, onClick: () => handlePixelProfileDelete(profile), title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 12 }) })
+              ] })
+            ] }) }, profile.id);
+          }) })
+        ] }, niche)),
+        visible.length === 0 && !pixelProfileEditing && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", padding: "34px 0" }, children: t("pixelVault.noProfiles") })
+      ] })
+    ] });
+  };
   const handleCapiSave = async () => {
     if (!capiForm.campaign_id || !capiForm.pixel_id) return;
     try {
@@ -65806,7 +69220,7 @@ const IntegrationsPage = () => {
         mapping_json: JSON.stringify(capiForm.mapping || {})
       };
       if (capiEditing && capiEditing !== "new") payload.id = capiEditing;
-      const res = await axios.post(`${API_URL$9}?action=save_campaign_pixel`, payload);
+      const res = await axios.post(`${API_URL$b}?action=save_campaign_pixel`, payload);
       if (res.data.status === "success") {
         setCapiMessage({ type: "success", text: t("fbConv.saved") });
         setCapiEditing(null);
@@ -65830,17 +69244,19 @@ const IntegrationsPage = () => {
     }
     return {
       campaign_id: px.campaign_id || "",
+      pixel_profile_id: px.pixel_profile_id || "",
       pixel_id: px.pixel_id || "",
-      token: px.token || "",
+      token: "",
       events: px.events || "PageView,Lead",
       mapping,
       test_event_code: px.test_event_code || "",
       proxy_url: px.proxy_url || "",
-      is_active: px.is_active ? 1 : 0
+      is_active: px.is_active ? 1 : 0,
+      has_saved_token: !!px.has_token
     };
   };
   const handleCapiToggle = async (px) => {
-    await axios.post(`${API_URL$9}?action=save_campaign_pixel`, {
+    await axios.post(`${API_URL$b}?action=save_campaign_pixel`, {
       ...capiRowToForm(px),
       id: px.id,
       type: "facebook",
@@ -65851,7 +69267,7 @@ const IntegrationsPage = () => {
   };
   const handleCapiDelete = async (px) => {
     if (!confirm(t("fbConv.confirmDelete"))) return;
-    await axios.post(`${API_URL$9}?action=delete_campaign_pixel`, { id: px.id });
+    await axios.post(`${API_URL$b}?action=delete_campaign_pixel`, { id: px.id });
     setCapiMessage({ type: "success", text: t("fbConv.deleted") });
     fetchCapiPixels();
   };
@@ -65859,9 +69275,10 @@ const IntegrationsPage = () => {
     setCapiTesting(true);
     setCapiTest(null);
     try {
-      const res = await axios.post(`${API_URL$9}?action=facebook_capi_test`, {
+      const res = await axios.post(`${API_URL$b}?action=facebook_capi_test`, {
         id: capiEditing && capiEditing !== "new" ? capiEditing : void 0,
         campaign_id: capiForm.campaign_id,
+        pixel_profile_id: capiForm.pixel_profile_id || void 0,
         pixel_id: capiForm.pixel_id,
         token: capiForm.token,
         test_event_code: capiForm.test_event_code,
@@ -65881,6 +69298,9 @@ const IntegrationsPage = () => {
   };
   const renderFacebookConversionsPanel = () => {
     const visible = capiPixels.filter((p) => !capiSearch || (p.campaign_name || "").toLowerCase().includes(capiSearch.toLowerCase()) || (p.pixel_id || "").includes(capiSearch));
+    const editingPixel = capiPixels.find((pixel) => String(pixel.id) === String(capiEditing));
+    const savedTokenApplied = !!capiForm.pixel_profile_id && !!capiForm.has_saved_token;
+    const hasCapiToken = !!capiForm.token || savedTokenApplied || capiEditing !== "new" && !!editingPixel?.has_token;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: [
       capiMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
         padding: "10px 14px",
@@ -65912,25 +69332,33 @@ const IntegrationsPage = () => {
               }
             )
           ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            PixelPicker,
+            {
+              label: `${t("fbConv.pixelId")} *`,
+              value: capiForm.pixel_id,
+              profileId: capiForm.pixel_profile_id,
+              trafficSource: "facebook",
+              resolveServerSide: true,
+              onPick: (patch) => setCapiForm((prev) => ({ ...prev, ...patch })),
+              onManage: () => setActiveTab("pixel_vault")
+            }
+          ) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-              t("fbConv.pixelId"),
-              " *"
+              t("fbConv.token"),
+              savedTokenApplied ? " (✓)" : ""
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
+            capiForm.pixel_profile_id ? /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
-                type: "text",
+                type: "password",
                 className: "form-input font-mono",
-                value: capiForm.pixel_id,
-                placeholder: "123456789012345",
-                onChange: (e) => setCapiForm({ ...capiForm, pixel_id: e.target.value })
+                readOnly: true,
+                value: savedTokenApplied ? "••••••••••••••••" : "",
+                placeholder: "EAAxxxx..."
               }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbConv.token") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
                 type: "password",
@@ -65940,7 +69368,7 @@ const IntegrationsPage = () => {
                 onChange: (e) => setCapiForm({ ...capiForm, token: e.target.value })
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px" }, children: t("fbConv.tokenHint") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px" }, children: capiForm.pixel_profile_id ? t("fbConv.tokenAutoFilledHint") : t("fbConv.tokenHint") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbConv.mapping") }),
@@ -65974,19 +69402,14 @@ const IntegrationsPage = () => {
                 }
               )
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbConv.proxy") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "text",
-                  className: "form-input font-mono",
-                  value: capiForm.proxy_url,
-                  placeholder: "http://user:pass@1.2.3.4:8080",
-                  onChange: (e) => setCapiForm({ ...capiForm, proxy_url: e.target.value })
-                }
-              )
-            ] })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ProxyInput,
+              {
+                label: t("fbConv.proxy"),
+                value: capiForm.proxy_url,
+                onChange: (val) => setCapiForm({ ...capiForm, proxy_url: val })
+              }
+            ) })
           ] }),
           capiTest && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
             padding: "10px 14px",
@@ -66005,7 +69428,7 @@ const IntegrationsPage = () => {
               {
                 onClick: handleCapiTest,
                 className: "btn btn-secondary btn-sm",
-                disabled: capiTesting || !capiForm.pixel_id || !capiForm.token,
+                disabled: capiTesting || !capiForm.pixel_id || !hasCapiToken,
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }),
                   " ",
@@ -66177,6 +69600,12 @@ $client->execute();
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { className: "w-5 h-5" }),
       description: t("fbConv.description"),
       isFacebookConversions: true
+    },
+    pixel_vault: {
+      title: t("pixelVault.pixelVaultTitle"),
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-5 h-5" }),
+      description: t("pixelVault.description"),
+      isPixelVault: true
     },
     chrome_extension: {
       title: t("integrations.chromeExtension", "Chrome & Antidetect Extension"),
@@ -67503,7 +70932,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
         borderRadius: "24px 0 0 24px"
       }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("nav", { style: { padding: "8px", overflowY: "auto" }, children: (() => {
         const groups = [
-          { label: t("integrations.groupAds", "Ad networks"), ids: ["facebook_costs", "facebook_conversions", "dolphin_fbtool", "chrome_extension"] },
+          { label: t("integrations.groupAds", "Ad networks"), ids: ["pixel_vault", "facebook_costs", "facebook_conversions", "dolphin_fbtool", "chrome_extension"] },
           { label: t("integrations.groupDomains", "Domains & SSL"), ids: ["cloudflare", "namecheap"] },
           { label: t("integrations.groupSites", "Sites & landings"), ids: ["kclient_php", "kclient_js", "tracking_pixel", "js_banner", "wordpress", "wordpress_plugin", "static_site", "geo_redirect", "device_redirect"] },
           { label: t("integrations.groupTools", "Tools"), ids: ["countdown_timer", "back_button_trap", "exit_popup", "app_config", "recaptcha", "telegram"] }
@@ -67569,27 +70998,49 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
           padding: "20px 24px",
           borderBottom: "1px solid var(--color-border)",
-          background: "var(--color-bg-soft)"
+          background: "var(--color-bg-soft)",
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "16px",
+          alignItems: "center",
+          flexWrap: "wrap"
         }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: {
-            fontSize: "16px",
-            fontWeight: 600,
-            color: "var(--color-text-primary)",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            margin: 0
-          }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-primary)" }, children: activeObj.icon }),
-            activeObj.title
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: {
+              fontSize: "16px",
+              fontWeight: 600,
+              color: "var(--color-text-primary)",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              margin: 0
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-primary)" }, children: activeObj.icon }),
+              activeObj.title
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+              fontSize: "14px",
+              color: "var(--color-text-secondary)",
+              lineHeight: 1.5,
+              margin: "8px 0 0 0"
+            }, children: activeObj.description })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
-            fontSize: "14px",
-            color: "var(--color-text-secondary)",
-            marginTop: "8px",
-            lineHeight: 1.5,
-            margin: "8px 0 0 0"
-          }, children: activeObj.description })
+          activeObj.isPixelVault && !pixelProfileEditing && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              className: "btn btn-primary",
+              onClick: () => {
+                setPixelProfileForm(emptyPixelProfileForm);
+                setPixelProfileEditing("new");
+                setPixelProfileMessage(null);
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+                " ",
+                t("pixelVault.addNewPixel")
+              ]
+            }
+          )
         ] }),
         activeObj.isCloudflare ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "620px", display: "flex", flexDirection: "column", gap: "20px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
@@ -67668,10 +71119,10 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
                       setCfBusy(true);
                       setCfMessage(null);
                       try {
-                        const res = await axios.post(`${API_URL$9}?action=cloudflare_save`, cfForm);
+                        const res = await axios.post(`${API_URL$b}?action=cloudflare_save`, cfForm);
                         if (res.data.status === "success") {
                           setCfMessage("✓ " + t("cloudflare.saved", "Сохранено"));
-                          const st = await axios.get(`${API_URL$9}?action=cloudflare_status`);
+                          const st = await axios.get(`${API_URL$b}?action=cloudflare_status`);
                           if (st.data.status === "success") setCfStatus(st.data.data);
                           setCfForm((f) => ({ ...f, api_token: "" }));
                         } else {
@@ -67696,7 +71147,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
                         setCfBusy(true);
                         setCfMessage(null);
                         try {
-                          const res = await axios.post(`${API_URL$9}?action=cloudflare_test`, {});
+                          const res = await axios.post(`${API_URL$b}?action=cloudflare_test`, {});
                           setCfMessage(res.data.status === "success" ? `✓ ${t("cloudflare.zonesAvailable", "зон в аккаунте")}: ${res.data.data.zones}` : "⚠ " + (res.data.message || t("common.error")));
                         } catch (err) {
                           setCfMessage("⚠ " + t("common.networkError"));
@@ -67717,11 +71168,11 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
                         setCfBusy(true);
                         setCfMessage(null);
                         try {
-                          const res = await axios.post(`${API_URL$9}?action=cloudflare_sync_all`, {});
+                          const res = await axios.post(`${API_URL$b}?action=cloudflare_sync_all`, {});
                           if (res.data.status === "success") {
                             const d = res.data.data;
                             setCfMessage(`✓ ${t("cloudflare.syncedCount", "перепарковано")}: ${d.synced.length}` + (d.failed.length ? ` · ⚠ ${d.failed.length}: ${d.failed.slice(0, 3).join("; ")}` : ""));
-                            const st = await axios.get(`${API_URL$9}?action=cloudflare_status`);
+                            const st = await axios.get(`${API_URL$b}?action=cloudflare_status`);
                             if (st.data.status === "success") setCfStatus(st.data.data);
                           } else {
                             setCfMessage("⚠ " + (res.data.message || t("common.error")));
@@ -67827,7 +71278,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
                     onClick: async () => {
                       setNcBusy(true);
                       try {
-                        const res = await axios.post(`${API_URL$9}?action=namecheap_addresses`, {});
+                        const res = await axios.post(`${API_URL$b}?action=namecheap_addresses`, {});
                         if (res.data.status === "success") {
                           setNcAddresses(res.data.data.addresses || []);
                           setNcMessage("✓ " + t("namecheap.addressesLoaded", "профили загружены"));
@@ -67868,10 +71319,10 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
                     setNcBusy(true);
                     setNcMessage(null);
                     try {
-                      const res = await axios.post(`${API_URL$9}?action=namecheap_save`, ncForm);
+                      const res = await axios.post(`${API_URL$b}?action=namecheap_save`, ncForm);
                       if (res.data.status === "success") {
                         setNcMessage("✓ " + t("namecheap.saved", "Сохранено"));
-                        const st = await axios.get(`${API_URL$9}?action=namecheap_status`);
+                        const st = await axios.get(`${API_URL$b}?action=namecheap_status`);
                         if (st.data.status === "success") setNcStatus(st.data.data);
                         setNcForm((f) => ({ ...f, api_key: "" }));
                       } else if (res.data.message === "namecheap_connection_failed") {
@@ -67900,11 +71351,11 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
                     setNcBusy(true);
                     setNcMessage(null);
                     try {
-                      const res = await axios.post(`${API_URL$9}?action=namecheap_test`, {});
+                      const res = await axios.post(`${API_URL$b}?action=namecheap_test`, {});
                       if (res.data.status === "success") {
                         setNcMessage("✓ " + t("namecheap.connected", "Подключено") + (res.data.data?.balance ? ` · ${t("namecheap.balance", "баланс")}: ${res.data.data.balance}` : ""));
                       } else {
-                        const st = await axios.get(`${API_URL$9}?action=namecheap_status`);
+                        const st = await axios.get(`${API_URL$b}?action=namecheap_status`);
                         if (st.data.status === "success") setNcStatus(st.data.data);
                         setNcMessage("⚠ " + (res.data.message || t("common.error")));
                       }
@@ -68079,7 +71530,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
               children: rcMessage.text
             }
           )
-        ] }) }) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 24px", flex: 1, display: "flex", flexDirection: "column" }, children: [
+        ] }) }) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isPixelVault ? renderPixelVaultPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 24px", flex: 1, display: "flex", flexDirection: "column" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: t("integrations.codeToInsert") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -68149,7 +71600,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
     ] }) })
   ] });
 };
-const API_URL$8 = "/api.php";
+const API_URL$a = "/api.php";
 const LogsPage = () => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("traffic");
@@ -68164,7 +71615,7 @@ const LogsPage = () => {
   };
   reactExports.useEffect(() => {
     setLoading(true);
-    fetch(`${API_URL$8}?action=logs&type=${activeTab}&limit=100`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$a}?action=logs&type=${activeTab}&limit=100`).then((res) => res.json()).then((data) => {
       if (data.status === "success") {
         setLogs(data.data);
       } else {
@@ -68329,7 +71780,7 @@ const LogsPage = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 text-xs text-[var(--color-text-muted)]", children: t("logs.lastRecords") })
   ] });
 };
-const API_URL$7 = "/api.php";
+const API_URL$9 = "/api.php";
 const ArchivePage = () => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("campaigns");
@@ -68351,7 +71802,7 @@ const ArchivePage = () => {
   ];
   const fetchArchive = () => {
     setLoading(true);
-    fetch(`${API_URL$7}?action=archive_items`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$9}?action=archive_items`).then((res) => res.json()).then((data) => {
       if (data.status === "success") {
         setItems(data.data);
       }
@@ -68365,7 +71816,7 @@ const ArchivePage = () => {
     if (!window.confirm(t("archive.confirmAction"))) return;
     setActionLoading(true);
     try {
-      const res = await fetch(`${API_URL$7}?action=${endpointAction}`, {
+      const res = await fetch(`${API_URL$9}?action=${endpointAction}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -68537,7 +71988,7 @@ const ArchivePage = () => {
     ] }) })
   ] });
 };
-const API_URL$6 = "/api.php";
+const API_URL$8 = "/api.php";
 const GeoDBPage = () => {
   const { t } = useLanguage();
   const [dbs, setDbs] = reactExports.useState([]);
@@ -68553,7 +72004,7 @@ const GeoDBPage = () => {
   const fileInputRef = reactExports.useRef(null);
   const fetchDbs = () => {
     setLoading(true);
-    fetch(`${API_URL$6}?action=geo_dbs`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$8}?action=geo_dbs`).then((res) => res.json()).then((data) => {
       if (data.status === "success") {
         setDbs(data.data);
       }
@@ -68561,7 +72012,7 @@ const GeoDBPage = () => {
     }).catch(() => setLoading(false));
   };
   const fetchSettings = () => {
-    fetch(`${API_URL$6}?action=global_settings`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$8}?action=global_settings`).then((res) => res.json()).then((data) => {
       if (data.status === "success" && data.data) {
         setMaxmindKey(data.data.maxmind_license_key || "");
         setMaxmindAccountId(data.data.maxmind_account_id || "");
@@ -68586,7 +72037,7 @@ const GeoDBPage = () => {
     setMessage("");
     setError("");
     try {
-      const res = await fetch(`${API_URL$6}?action=geo_db_update`, {
+      const res = await fetch(`${API_URL$8}?action=geo_db_update`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id })
@@ -68614,7 +72065,7 @@ const GeoDBPage = () => {
     const formData = new FormData();
     formData.append("file", file);
     try {
-      const res = await fetch(`${API_URL$6}?action=geo_db_upload`, {
+      const res = await fetch(`${API_URL$8}?action=geo_db_upload`, {
         method: "POST",
         body: formData
       });
@@ -68637,7 +72088,7 @@ const GeoDBPage = () => {
     setMessage("");
     setError("");
     try {
-      const res = await fetch(`${API_URL$6}?action=global_settings`, {
+      const res = await fetch(`${API_URL$8}?action=global_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ settings: { maxmind_license_key: maxmindKey, maxmind_account_id: maxmindAccountId, ip2location_token: ip2locationToken } })
@@ -69064,7 +72515,7 @@ const McpPage = () => {
     ] })
   ] }) });
 };
-const API_URL$5 = "/api.php";
+const API_URL$7 = "/api.php";
 const MigrationsPage = () => {
   const { t } = useLanguage();
   const [migrations, setMigrations] = reactExports.useState([]);
@@ -69125,7 +72576,7 @@ const MigrationsPage = () => {
   };
   const fetchMigrations = () => {
     setLoading(true);
-    fetch(`${API_URL$5}?action=migrations`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$7}?action=migrations`).then((res) => res.json()).then((data) => {
       if (data.status === "success") {
         setMigrations(data.data);
       }
@@ -69138,7 +72589,7 @@ const MigrationsPage = () => {
   const handleRunMigration = async (version2) => {
     setActionLoading(version2);
     try {
-      const res = await fetch(`${API_URL$5}?action=run_migration`, {
+      const res = await fetch(`${API_URL$7}?action=run_migration`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ version: version2 })
@@ -69177,7 +72628,7 @@ const MigrationsPage = () => {
       fd.append("import_streams", kImportStreams ? "1" : "0");
       fd.append("import_campaign_postbacks", kImportCampaignPostbacks ? "1" : "0");
       fd.append("preserve_campaign_ids", kPreserveCampaignIds && kImportCampaigns ? "1" : "0");
-      const res = await fetch(`${API_URL$5}?action=keitaro_import_sql`, {
+      const res = await fetch(`${API_URL$7}?action=keitaro_import_sql`, {
         method: "POST",
         body: fd
       });
@@ -69198,7 +72649,7 @@ const MigrationsPage = () => {
     setPurgeError("");
     setPurgeResult(null);
     try {
-      const res = await fetch(`${API_URL$5}?action=purge_metadata`, {
+      const res = await fetch(`${API_URL$7}?action=purge_metadata`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -69634,7 +73085,7 @@ scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz $env:USERPROFI
     ] })
   ] });
 };
-const API_URL$4 = "/api.php";
+const API_URL$6 = "/api.php";
 const UpdatePage = () => {
   const { t } = useLanguage();
   const [updateInfo, setUpdateInfo] = reactExports.useState(null);
@@ -69647,7 +73098,7 @@ const UpdatePage = () => {
   const checkUpdate = reactExports.useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$4}?action=check_update`);
+      const res = await axios.get(`${API_URL$6}?action=check_update`);
       if (res.data.status === "success") {
         setUpdateInfo(res.data.data);
         const dependencyState = res.data.data?.dependency_bootstrap;
@@ -69679,7 +73130,7 @@ const UpdatePage = () => {
     try {
       await new Promise((r2) => setTimeout(r2, 800));
       setUpdateStep("installing");
-      const res = await axios.post(`${API_URL$4}?action=run_update`);
+      const res = await axios.post(`${API_URL$6}?action=run_update`);
       const data = res.data;
       if (data.status === "success") {
         setUpdateStep("complete");
@@ -70578,13 +74029,13 @@ const FeedbackPage = () => {
     ] })
   ] }) });
 };
-const API_URL$3 = "/api.php";
+const API_URL$5 = "/api.php";
 const StatusContent = () => {
   const { t } = useLanguage();
   const [statusData, setStatusData] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   React.useEffect(() => {
-    fetch(`${API_URL$3}?action=system_status`).then((res) => res.json()).then((data) => {
+    fetch(`${API_URL$5}?action=system_status`).then((res) => res.json()).then((data) => {
       if (data.status === "success") {
         setStatusData(data.data);
       }
@@ -70842,7 +74293,7 @@ const ImportContent = () => {
     setMessage("");
     setErrorMsg("");
     try {
-      const res = await fetch(`${API_URL$3}?action=import_conversions`, {
+      const res = await fetch(`${API_URL$5}?action=import_conversions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ csv_data: csvData })
@@ -71127,7 +74578,7 @@ const AdminPage = ({ page }) => {
   ] });
 };
 Chart$1.register(CategoryScale, LinearScale, PointElement, LineElement, plugin_title, plugin_tooltip, plugin_legend, index$2);
-const API_URL$2 = "/api.php";
+const API_URL$4 = "/api.php";
 const LOCALE_TAGS = {
   ru: "ru-RU",
   en: "en-US",
@@ -71196,7 +74647,7 @@ const CohortView = () => {
         date_from: dateFrom,
         date_to: dateTo
       });
-      const res = await fetch(`${API_URL$2}?${params}`);
+      const res = await fetch(`${API_URL$4}?${params}`);
       const json = await res.json();
       if (json.status === "success") {
         setData(json.data);
@@ -71641,7 +75092,7 @@ const CohortView = () => {
   ] });
 };
 Chart$1.register(CategoryScale, LinearScale, PointElement, LineElement, plugin_title, plugin_tooltip, plugin_legend, index$2);
-const API_URL$1 = "/api.php";
+const API_URL$3 = "/api.php";
 const TrendsPage = () => {
   const { t } = useLanguage();
   const [view, setView] = reactExports.useState(() => localStorage.getItem("orbitra_analytics_view") || "trend");
@@ -71705,7 +75156,7 @@ const TrendsPage = () => {
         metrics: selectedMetrics.join(","),
         filters: JSON.stringify(filters)
       });
-      const res = await fetch(`${API_URL$1}?${params}`);
+      const res = await fetch(`${API_URL$3}?${params}`);
       const data = await res.json();
       if (data.status === "success") {
         const chart = data.data.chart;
@@ -72631,6 +76082,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [capiMeta, setCapiMeta] = reactExports.useState({ default_mapping: {}, available_events: [] });
   const [capiTest, setCapiTest] = reactExports.useState(null);
   const [capiTesting, setCapiTesting] = reactExports.useState(false);
+  const [pixelProfiles, setPixelProfiles] = reactExports.useState([]);
+  const [pixelProfileAttaching, setPixelProfileAttaching] = reactExports.useState(false);
+  const [pixelProfileMessage, setPixelProfileMessage] = reactExports.useState(null);
   const emptyPixelForm = { type: "", pixel_id: "", token: "", events: "PageView,Lead", event_source_url: "", is_active: 1, mapping: {}, test_event_code: "", proxy_url: "" };
   const [clickLogs, setClickLogs] = reactExports.useState([]);
   const [groups, setGroups] = reactExports.useState([]);
@@ -73091,6 +76545,39 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     if (activeCampaignId) fetchPixels();
   }, [activeCampaignId]);
   reactExports.useEffect(() => {
+    cachedGet("pixel_profiles_list", {}, 6e4).then(({ data }) => {
+      if (data.status === "success") setPixelProfiles(data.data || []);
+    }).catch(() => setPixelProfiles([]));
+  }, []);
+  const groupedPixelProfiles = reactExports.useMemo(() => pixelProfiles.reduce((groups2, profile) => {
+    const niche = profile.niche || "General";
+    if (!groups2[niche]) groups2[niche] = [];
+    groups2[niche].push(profile);
+    return groups2;
+  }, {}), [pixelProfiles]);
+  const selectedPixelProfileId = pixels.find((pixel) => pixel.pixel_profile_id)?.pixel_profile_id || "";
+  const handleSelectPixelProfile = async (profileId) => {
+    if (!activeCampaignId || pixelProfileAttaching) return;
+    setPixelProfileAttaching(true);
+    setPixelProfileMessage(null);
+    try {
+      const { data } = await cachedPost("attach_pixel_profile", {
+        campaign_id: activeCampaignId,
+        pixel_profile_id: profileId || null
+      });
+      if (data.status === "success") {
+        setPixelProfileMessage({ type: "success", text: profileId ? t("pixelVault.attached") : t("pixelVault.detached") });
+        await fetchPixels();
+      } else {
+        setPixelProfileMessage({ type: "error", text: data.message || t("common.error") });
+      }
+    } catch (err) {
+      setPixelProfileMessage({ type: "error", text: err.response?.data?.message || err.message });
+    } finally {
+      setPixelProfileAttaching(false);
+    }
+  };
+  reactExports.useEffect(() => {
     cachedGet("facebook_capi_meta").then(({ data }) => {
       if (data.status === "success") setCapiMeta(data.data);
     }).catch(() => {
@@ -73353,6 +76840,25 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const p = [...formData.postbacks];
     p.splice(index2, 1);
     setFormData({ ...formData, postbacks: p });
+  };
+  const totalStreamWeight = reactExports.useMemo(() => {
+    return (formData.streams || []).filter((s) => s.type === "regular" && (s.is_active ?? 1)).reduce((sum, s) => sum + (parseInt(s.weight, 10) || 0), 0);
+  }, [formData.streams]);
+  const handleEqualizeStreamWeights = () => {
+    const activeCount = (formData.streams || []).filter((s) => s.type === "regular" && (s.is_active ?? 1)).length;
+    if (!activeCount) return;
+    const base = Math.floor(100 / activeCount);
+    const remainder = 100 - base * activeCount;
+    let seen = 0;
+    setFormData({
+      ...formData,
+      streams: formData.streams.map((s) => {
+        if (s.type !== "regular" || !(s.is_active ?? 1)) return s;
+        const w = base + (seen === 0 ? remainder : 0);
+        seen += 1;
+        return { ...s, weight: w };
+      })
+    });
   };
   const addEntitiesToStream = (streamIdx, type, ids) => {
     const numeric = (ids || []).map((id) => parseInt(id, 10)).filter((id) => !!id);
@@ -74331,6 +77837,43 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   ] })
                 ] })
               ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+                border: "1px solid var(--color-border)",
+                borderRadius: "16px",
+                padding: "14px 16px",
+                background: "var(--color-bg-card)"
+              }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", fontWeight: 600, fontSize: "14px", color: "var(--color-text-primary)", marginBottom: "10px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { size: 16 }),
+                  " ",
+                  t("pixelVault.attachPixel")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    value: selectedPixelProfileId,
+                    onChange: (event) => handleSelectPixelProfile(event.target.value),
+                    className: "form-select",
+                    disabled: !activeCampaignId || pixelProfileAttaching,
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("pixelVault.noPixel") }),
+                      Object.entries(groupedPixelProfiles).map(([niche, profiles]) => /* @__PURE__ */ jsxRuntimeExports.jsx("optgroup", { label: `📁 ${t("pixelVault.niche")}: ${niche}`, children: profiles.map((profile) => {
+                        const source = pixelPlatforms.find((platform2) => platform2.id === profile.traffic_source)?.name || profile.traffic_source;
+                        return /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: profile.id, disabled: !profile.is_active, children: [
+                          profile.name,
+                          " (",
+                          profile.pixel_id,
+                          ") · ",
+                          source,
+                          !profile.is_active ? ` — ${t("pixelVault.inactive")}` : ""
+                        ] }, profile.id);
+                      }) }, niche))
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginTop: "6px" }, children: activeCampaignId ? t("pixelVault.pixelHint") : t("pixelVault.saveCampaignFirst") }),
+                pixelProfileMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", marginTop: "6px", color: pixelProfileMessage.type === "success" ? "var(--color-success, #10b981)" : "var(--color-danger, #ef4444)" }, children: pixelProfileMessage.text })
+              ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mb-2", style: { color: "var(--color-text-secondary)" }, children: t("pixels.selectPlatform") }),
               pixels.map((px) => {
                 const platform2 = pixelPlatforms.find((p) => p.id === px.type) || { name: px.type, icon: "📊" };
@@ -74345,7 +77888,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xl", children: platform2.icon }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600, fontSize: "14px" }, children: platform2.name }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "12px", color: "var(--color-text-muted)", fontFamily: "monospace" }, children: px.pixel_id })
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "12px", color: "var(--color-text-muted)", fontFamily: "monospace" }, children: px.pixel_id }),
+                      px.profile_name && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "10px", color: "var(--color-primary)", background: "var(--color-primary-light)", padding: "2px 6px", borderRadius: "6px" }, children: [
+                        t("pixelVault.vaultProfile"),
+                        ": ",
+                        px.profile_name
+                      ] })
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", alignItems: "center" }, children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", fontSize: "12px", color: "var(--color-text-secondary)" }, children: [
@@ -74384,19 +77932,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600, fontSize: "14px" }, children: pixelPlatforms.find((p) => p.id === pixelForm.type)?.name })
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("pixels.pixelId") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "input",
-                      {
-                        type: "text",
-                        value: pixelForm.pixel_id,
-                        onChange: (e) => setPixelForm({ ...pixelForm, pixel_id: e.target.value }),
-                        placeholder: pixelPlatforms.find((p) => p.id === pixelForm.type)?.placeholder,
-                        className: "form-input font-mono text-sm"
-                      }
-                    )
-                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    PixelPicker,
+                    {
+                      label: t("pixels.pixelId"),
+                      value: pixelForm.pixel_id,
+                      onPick: (patch) => setPixelForm((prev) => ({ ...prev, ...patch }))
+                    }
+                  ) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("pixels.apiToken") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -74470,19 +78013,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           }
                         )
                       ] }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("pixels.proxy") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "input",
-                          {
-                            type: "text",
-                            value: pixelForm.proxy_url,
-                            onChange: (e) => setPixelForm({ ...pixelForm, proxy_url: e.target.value }),
-                            placeholder: "http://user:pass@1.2.3.4:8080",
-                            className: "form-input font-mono text-sm"
-                          }
-                        )
-                      ] })
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        ProxyInput,
+                        {
+                          label: t("pixels.proxy"),
+                          value: pixelForm.proxy_url,
+                          onChange: (val) => setPixelForm({ ...pixelForm, proxy_url: val })
+                        }
+                      ) })
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "10px" }, children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -74989,658 +78527,249 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-20 h-20 rounded-full flex items-center justify-center mb-6", style: { backgroundColor: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-8 h-8", style: { color: "var(--color-text-muted)" } }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-lg font-bold mb-2", style: { color: "var(--color-text-primary)" }, children: t("editor.noStreamsTitle") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("editor.noStreamsDesc") })
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-4", children: formData.streams.map((stream, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl overflow-hidden shadow-sm", style: {
-            backgroundColor: "var(--color-bg-card)",
-            border: "1px solid var(--color-border)",
-            borderLeftWidth: "4px",
-            borderLeftColor: stream.type === "intercepting" ? "#f97316" : stream.type === "fallback" ? "var(--color-text-muted)" : "#3b82f6"
-          }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-4 py-2", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-bold uppercase", style: {
-                  color: stream.type === "intercepting" ? "#f97316" : stream.type === "fallback" ? "var(--color-text-muted)" : "#3b82f6"
-                }, children: stream.type === "intercepting" ? t("editor.streamInterceptingShort") : stream.type === "fallback" ? t("editor.streamFallbackShort") : t("editor.streamRegularShort") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "text",
-                    value: stream.name || "",
-                    onChange: (e) => updateStream(idx, "name", e.target.value),
-                    className: "bg-transparent border-none font-semibold px-0 w-48",
-                    style: { color: "var(--color-text-primary)" },
-                    placeholder: t("editor.streamName")
-                  }
-                )
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+            formData.rotation_type === "weight" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between p-3 rounded-xl border text-xs", style: {
+              backgroundColor: `color-mix(in srgb, ${totalStreamWeight === 100 ? "var(--color-success)" : "var(--color-warning)"} 8%, transparent)`,
+              borderColor: totalStreamWeight === 100 ? "var(--color-success)" : "var(--color-warning)"
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: totalStreamWeight === 100 ? "✓" : "⚠️" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: [
+                  t("editor.totalWeight", "Total Stream Weight"),
+                  ": ",
+                  totalStreamWeight,
+                  "%"
+                ] })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-sm cursor-pointer", style: { color: "var(--color-text-primary)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: handleEqualizeStreamWeights,
+                  className: "btn btn-secondary btn-sm text-xs py-1 px-2.5 rounded-lg flex items-center gap-1 font-semibold",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "⚖" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("editor.equalizeSplit", "Split Evenly") })
+                  ]
+                }
+              )
+            ] }),
+            formData.streams.map((stream, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl overflow-hidden shadow-sm", style: {
+              backgroundColor: "var(--color-bg-card)",
+              border: "1px solid var(--color-border)",
+              borderLeftWidth: "4px",
+              borderLeftColor: stream.type === "intercepting" ? "#f97316" : stream.type === "fallback" ? "var(--color-text-muted)" : "#3b82f6"
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-4 py-2", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-bold uppercase", style: {
+                    color: stream.type === "intercepting" ? "#f97316" : stream.type === "fallback" ? "var(--color-text-muted)" : "#3b82f6"
+                  }, children: stream.type === "intercepting" ? t("editor.streamInterceptingShort") : stream.type === "fallback" ? t("editor.streamFallbackShort") : t("editor.streamRegularShort") }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "input",
                     {
-                      type: "checkbox",
-                      checked: stream.is_active,
-                      onChange: (e) => updateStream(idx, "is_active", e.target.checked ? 1 : 0),
-                      className: "rounded"
+                      type: "text",
+                      value: stream.name || "",
+                      onChange: (e) => updateStream(idx, "name", e.target.value),
+                      className: "bg-transparent border-none font-semibold px-0 w-48",
+                      style: { color: "var(--color-text-primary)" },
+                      placeholder: t("editor.streamName")
                     }
                   ),
-                  t("editor.on")
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "label",
-                  {
-                    className: "flex items-center gap-2 text-sm cursor-pointer",
-                    style: { color: (stream.collect_clicks ?? 1) == 1 ? "var(--color-text-primary)" : "var(--color-text-muted)" },
-                    title: t("editor.collectClicksHint"),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "input",
-                        {
-                          type: "checkbox",
-                          checked: (stream.collect_clicks ?? 1) == 1,
-                          onChange: (e) => updateStream(idx, "collect_clicks", e.target.checked ? 1 : 0),
-                          className: "rounded"
-                        }
-                      ),
-                      t("editor.collectClicks")
-                    ]
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    onClick: () => moveStreamUp(idx),
-                    disabled: idx === 0,
-                    className: "action-btn",
-                    title: t("editor.moveUp"),
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-5 h-5" })
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    onClick: () => moveStreamDown(idx),
-                    disabled: idx === formData.streams.length - 1,
-                    className: "action-btn",
-                    title: t("editor.moveDown"),
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-5 h-5" })
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-px h-6", style: { backgroundColor: "var(--color-border)" } }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    onClick: () => setExpandedStream(expandedStream === idx ? null : idx),
-                    className: "action-btn",
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: `w-5 h-5 transition-transform duration-200 ${expandedStream === idx ? "rotate-180" : ""}` })
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => duplicateStream(idx), className: "action-btn text-blue", title: t("editor.duplicate"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeStream(idx), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 space-y-4", children: [
-              (stream.collect_clicks ?? 1) == 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl px-3 py-2 flex items-center gap-2", style: {
-                backgroundColor: "color-mix(in srgb, var(--color-warning, #f59e0b) 10%, transparent)",
-                border: "1px solid var(--color-warning, #f59e0b)"
-              }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-warning, #f59e0b)" }, children: "ℹ️" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: t("editor.collectClicksDisabledNote") })
-              ] }),
-              formData.rotation_type === "weight" && stream.type === "regular" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-2xl p-3", style: { border: "1px solid var(--color-border)", backgroundColor: "rgba(59, 130, 246, 0.05)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "w-4 h-4", style: { color: "var(--color-primary)" } }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.streamWeight") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("editor.streamWeightHelp") })
+                  formData.rotation_type === "weight" && stream.type === "regular" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 px-2 py-0.5 rounded-lg", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px] font-semibold whitespace-nowrap", style: { color: "var(--color-text-muted)" }, children: [
+                      t("editor.streamWeight"),
+                      ":"
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "number",
+                        min: "0",
+                        value: stream.weight ?? 100,
+                        onChange: (e) => updateStream(idx, "weight", Math.max(0, parseInt(e.target.value, 10) || 0)),
+                        className: "w-14 text-center text-xs font-bold py-0.5 px-1 rounded-md",
+                        style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)", color: "var(--color-text-primary)" },
+                        title: t("editor.streamWeightHelp")
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "span",
+                      {
+                        className: "text-xs font-extrabold px-1.5 py-0.5 rounded-md whitespace-nowrap",
+                        style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" },
+                        title: `${stream.weight ?? 100} / ${totalStreamWeight || 0}`,
+                        children: totalStreamWeight > 0 ? `${((stream.weight ?? 100) / totalStreamWeight * 100).toFixed(1)}%` : "—"
+                      }
+                    )
                   ] })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "input",
-                    {
-                      type: "number",
-                      value: stream.weight ?? 100,
-                      onChange: (e) => updateStream(idx, "weight", parseInt(e.target.value) || 0),
-                      className: "w-20 text-center rounded-lg px-2 py-1 text-sm font-bold",
-                      min: "0",
-                      style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)", color: "var(--color-text-primary)" },
-                      title: t("editor.streamWeight")
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
-                ] })
-              ] }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-2 block", style: { color: "var(--color-text-muted)" }, children: t("editor.schema") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "select",
-                  {
-                    value: stream.schema_type,
-                    onChange: (e) => updateStream(idx, "schema_type", e.target.value),
-                    className: "form-select",
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("editor.directLinking") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "landing_offer", children: t("editor.landingOffer") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "action", children: t("editor.action") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "cloak", children: t("cloaking.mode") })
-                    ]
-                  }
-                )
-              ] }),
-              stream.schema_type === "action" && (() => {
-                const raw = String(stream.action_payload || "");
-                const sep = raw.indexOf(":");
-                const aType = sep === -1 ? raw : raw.slice(0, sep);
-                const aPayload = sep === -1 ? "" : raw.slice(sep + 1);
-                const setAction = (type, payload) => updateStream(
-                  idx,
-                  "action_payload",
-                  (type === "to_campaign" || type === "show_html" || type === "show_text") && payload !== "" && payload != null ? `${type}:${payload}` : type
-                );
-                return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", style: { minWidth: "220px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-sm cursor-pointer", style: { color: "var(--color-text-primary)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "checkbox",
+                        checked: stream.is_active,
+                        onChange: (e) => updateStream(idx, "is_active", e.target.checked ? 1 : 0),
+                        className: "rounded"
+                      }
+                    ),
+                    t("editor.on")
+                  ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "select",
+                    "label",
                     {
-                      value: aType,
-                      onChange: (e) => {
-                        const nextType = e.target.value;
-                        setAction(nextType, ["show_html", "show_text", "to_campaign"].includes(nextType) ? aPayload : "");
-                      },
-                      className: "form-select",
-                      style: { backgroundColor: "var(--color-bg-soft)" },
+                      className: "flex items-center gap-2 text-sm cursor-pointer",
+                      style: { color: (stream.collect_clicks ?? 1) == 1 ? "var(--color-text-primary)" : "var(--color-text-muted)" },
+                      title: t("editor.collectClicksHint"),
                       children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.selectAction") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "do_nothing", children: t("editor.doNothing") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "not_found", children: t("editor.show404") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_text", children: t("editor.showText", "Show text / blank") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_html", children: t("editor.showHtml") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "to_campaign", children: t("editor.toCampaign", "Send to campaign") })
-                      ]
-                    }
-                  ),
-                  (aType === "show_html" || aType === "show_text") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "textarea",
-                    {
-                      className: "form-input text-xs",
-                      rows: aType === "show_html" ? 3 : 1,
-                      value: aPayload,
-                      onChange: (e) => setAction(aType, e.target.value),
-                      placeholder: aType === "show_html" ? "<h1>...</h1>" : t("editor.textPayloadHint", "текст; пусто = пустая белая страница")
-                    }
-                  ),
-                  aType === "to_campaign" && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "select",
-                    {
-                      className: "form-select",
-                      value: aPayload || "",
-                      onChange: (e) => setAction("to_campaign", e.target.value),
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.selectCampaign") }),
-                        allCampaigns.filter((c) => String(c.id) !== String(activeCampaignId || "")).map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: c.id, children: c.name }, c.id))
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "input",
+                          {
+                            type: "checkbox",
+                            checked: (stream.collect_clicks ?? 1) == 1,
+                            onChange: (e) => updateStream(idx, "collect_clicks", e.target.checked ? 1 : 0),
+                            className: "rounded"
+                          }
+                        ),
+                        t("editor.collectClicks")
                       ]
                     }
                   )
-                ] });
-              })(),
-              stream.schema_type === "landing_offer" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-2xl p-3", style: { border: "1px solid var(--color-border)", backgroundColor: "rgba(59, 130, 246, 0.05)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.landings") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      AddDropdownButton,
-                      {
-                        label: t("editor.addLandings"),
-                        createLabel: t("editor.createLandingDropdown"),
-                        onMain: () => openEntityPicker(idx, "landings"),
-                        onCreate: () => setQuickCreate({ kind: "landings", streamIdx: idx })
-                      }
-                    )
-                  ] }),
-                  (stream.schema_custom?.landings || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noLandingsAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (stream.schema_custom?.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list)) })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      AddDropdownButton,
-                      {
-                        label: t("editor.addOffers"),
-                        createLabel: t("editor.createOfferDropdown"),
-                        onMain: () => openEntityPicker(idx, "offers"),
-                        onCreate: () => setQuickCreate({ kind: "offers", streamIdx: idx })
-                      }
-                    )
-                  ] }),
-                  (stream.schema_custom?.offers || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noOffersAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (stream.schema_custom?.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list)) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 pt-3", style: { borderTop: "1px dashed var(--color-border)" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold mb-1", style: { color: "var(--color-text-primary)" }, children: t("editor.offerSelection") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-4", children: ["before", "after"].map((mode) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-1 text-xs cursor-pointer", style: { color: "var(--color-text-secondary)" }, children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "input",
-                        {
-                          type: "radio",
-                          checked: (stream.offer_selection || "before") === mode,
-                          onChange: () => updateStream(idx, "offer_selection", mode)
-                        }
-                      ),
-                      mode === "before" ? t("editor.offerSelectionBefore") : t("editor.offerSelectionAfter")
-                    ] }, mode)) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1", style: { fontSize: "11.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("editor.offerSelectionHint") })
-                  ] })
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: () => moveStreamUp(idx),
+                      disabled: idx === 0,
+                      className: "action-btn",
+                      title: t("editor.moveUp"),
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-5 h-5" })
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: () => moveStreamDown(idx),
+                      disabled: idx === formData.streams.length - 1,
+                      className: "action-btn",
+                      title: t("editor.moveDown"),
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-5 h-5" })
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-px h-6", style: { backgroundColor: "var(--color-border)" } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: () => setExpandedStream(expandedStream === idx ? null : idx),
+                      className: "action-btn",
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: `w-5 h-5 transition-transform duration-200 ${expandedStream === idx ? "rotate-180" : ""}` })
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => duplicateStream(idx), className: "action-btn text-blue", title: t("editor.duplicate"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => removeStream(idx), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
                 ] })
               ] }),
-              stream.schema_type === "cloak" && (() => {
-                const sc = stream.schema_custom || {};
-                const setCloakField = (field, value) => updateStream(idx, "schema_custom", { ...sc, [field]: value });
-                const safeMode = sc.safe_mode || (sc.safe_landing_id ? "landing" : sc.safe_html ? "html" : "url");
-                const setSafeMode = (mode) => updateStream(idx, "schema_custom", { ...sc, safe_mode: mode });
-                return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 rounded-2xl p-4", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("cloaking.description") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold uppercase tracking-wider block mb-2", style: { color: "var(--color-text-muted)" }, children: t("streamRefine.detectionLayers", "Bot Protection Layers") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 sm:grid-cols-4 gap-2", children: [
-                      ["detect_datacenter", t("cloaking.datacenter", "Datacenter / ASN")],
-                      ["detect_vpn", t("cloaking.vpnProxy", "VPN / Proxy")],
-                      ["detect_bots", t("cloaking.bots", "Known Bots / Crawlers")],
-                      ["detect_ua", t("cloaking.uaHeuristics", "UA Heuristics")]
-                    ].map(([key, label]) => {
-                      const isChecked = sc[key] !== false;
-                      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        "label",
-                        {
-                          className: "flex items-center gap-2 p-2 rounded-xl border cursor-pointer select-none transition-all text-xs font-medium",
-                          style: {
-                            backgroundColor: isChecked ? "var(--color-primary-light)" : "var(--color-bg-soft)",
-                            borderColor: isChecked ? "var(--color-primary)" : "var(--color-border)",
-                            color: isChecked ? "var(--color-primary)" : "var(--color-text-primary)"
-                          },
-                          children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "input",
-                              {
-                                type: "checkbox",
-                                checked: isChecked,
-                                onChange: (e) => setCloakField(key, e.target.checked),
-                                className: "w-3.5 h-3.5 rounded",
-                                style: { accentColor: "var(--color-primary)" }
-                              }
-                            ),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
-                          ]
-                        },
-                        key
-                      );
-                    }) })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-1 block", style: { color: "var(--color-text-muted)" }, children: t("cloaking.sensitivity") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        "select",
-                        {
-                          value: sc.sensitivity || "medium",
-                          onChange: (e) => setCloakField("sensitivity", e.target.value),
-                          className: "form-select text-xs py-1.5 rounded-xl",
-                          children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "low", children: t("cloaking.sensitivityLow", "Low (Fewer false positives)") }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "medium", children: t("cloaking.sensitivityMedium", "Medium (Recommended balance)") }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "high", children: t("cloaking.sensitivityHigh", "High (Aggressive blocking)") })
-                          ]
-                        }
-                      )
-                    ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-1 block", style: { color: "var(--color-text-muted)" }, children: t("cloaking.jsChallenge", "Active Browser Verification") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        "label",
-                        {
-                          className: "flex items-center gap-2 p-1.5 rounded-xl border cursor-pointer select-none text-xs",
-                          style: {
-                            backgroundColor: Boolean(sc.js_challenge) ? "var(--color-primary-light)" : "var(--color-bg-soft)",
-                            borderColor: Boolean(sc.js_challenge) ? "var(--color-primary)" : "var(--color-border)",
-                            color: "var(--color-text-primary)"
-                          },
-                          children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "input",
-                              {
-                                type: "checkbox",
-                                checked: Boolean(sc.js_challenge),
-                                onChange: (e) => setCloakField("js_challenge", e.target.checked),
-                                className: "w-3.5 h-3.5",
-                                style: { accentColor: "var(--color-primary)" }
-                              }
-                            ),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("cloaking.jsChallenge", "JS Fingerprint Challenge") })
-                          ]
-                        }
-                      )
-                    ] })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold uppercase tracking-wider block", style: { color: "var(--color-text-muted)" }, children: [
-                      "🎯 ",
-                      t("cloaking.targetingTitle", "Targeting Filters (Mismatch → Safe Page)")
-                    ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 mb-1.5", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: [
-                          "🌍 ",
-                          t("cloaking.geoFilter", "Country Filter")
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-3 text-xs", children: [["allow", t("cloaking.allowIn", "Allow (in)")], ["deny", t("cloaking.blockIn", "Block (not in)")]].map(([mode, label]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-1 cursor-pointer", children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "input",
-                            {
-                              type: "radio",
-                              name: `cloak_geo_mode_${idx}`,
-                              checked: (sc.geo_mode || "allow") === mode,
-                              onChange: () => setCloakField("geo_mode", mode),
-                              className: "w-3 h-3",
-                              style: { accentColor: "var(--color-primary)" }
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
-                        ] }, mode)) })
-                      ] }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        GeoSelector,
-                        {
-                          value: sc.countries || "",
-                          onChange: (selected) => setCloakField("countries", selected),
-                          placeholder: t("cloaking.geoPlaceholder", "Select target countries (e.g. US, DE, GB)...")
-                        }
-                      )
-                    ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 mb-1.5", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: [
-                          "📱 ",
-                          t("cloaking.deviceFilter", "Device Types")
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-3 text-xs", children: [["allow", t("cloaking.allowOnly", "Allow only")], ["deny", t("cloaking.blockSelected", "Block selected")]].map(([mode, label]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-1 cursor-pointer", children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "input",
-                            {
-                              type: "radio",
-                              name: `cloak_device_mode_${idx}`,
-                              checked: (sc.device_mode || "allow") === mode,
-                              onChange: () => setCloakField("device_mode", mode),
-                              className: "w-3 h-3",
-                              style: { accentColor: "var(--color-primary)" }
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
-                        ] }, mode)) })
-                      ] }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 sm:grid-cols-3 gap-2", children: [
-                        { id: "mobile", label: t("streams.mobile", "Mobile") },
-                        { id: "tablet", label: t("streams.tablet", "Tablet") },
-                        { id: "desktop", label: t("streams.desktop", "Desktop") }
-                      ].map(({ id: dev, label }) => {
-                        const currentDevs = typeof sc.devices === "string" && sc.devices.trim() !== "" ? sc.devices.split(",").map((d) => d.trim().toLowerCase()).filter(Boolean) : ["mobile", "tablet", "desktop"];
-                        const isSelected = currentDevs.includes(dev);
-                        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                          "label",
-                          {
-                            className: "flex items-center gap-2 p-2 rounded-xl border cursor-pointer select-none transition-all text-xs font-medium",
-                            style: {
-                              backgroundColor: isSelected ? "var(--color-primary-light)" : "var(--color-bg-soft)",
-                              borderColor: isSelected ? "var(--color-primary)" : "var(--color-border)",
-                              color: isSelected ? "var(--color-primary)" : "var(--color-text-primary)"
-                            },
-                            children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                "input",
-                                {
-                                  type: "checkbox",
-                                  checked: isSelected,
-                                  onChange: (e) => {
-                                    const next = e.target.checked ? [...currentDevs, dev] : currentDevs.filter((d) => d !== dev);
-                                    setCloakField("devices", next.join(","));
-                                  },
-                                  className: "w-3.5 h-3.5 rounded",
-                                  style: { accentColor: "var(--color-primary)" }
-                                }
-                              ),
-                              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
-                            ]
-                          },
-                          dev
-                        );
-                      }) })
-                    ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        "label",
-                        {
-                          className: "flex items-center gap-2 p-2 rounded-xl border cursor-pointer select-none text-xs font-medium",
-                          style: {
-                            backgroundColor: sc.block_bot_isps !== false ? "var(--color-primary-light)" : "var(--color-bg-soft)",
-                            borderColor: sc.block_bot_isps !== false ? "var(--color-primary)" : "var(--color-border)",
-                            color: "var(--color-text-primary)"
-                          },
-                          children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "input",
-                              {
-                                type: "checkbox",
-                                checked: sc.block_bot_isps !== false,
-                                onChange: (e) => setCloakField("block_bot_isps", e.target.checked),
-                                className: "w-3.5 h-3.5 rounded",
-                                style: { accentColor: "var(--color-primary)" }
-                              }
-                            ),
-                            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                              "🛡️ ",
-                              t("cloaking.blockBotIsps", "Block Bot & Datacenter ISPs (Facebook, Google, Amazon, Hetzner, etc.)")
-                            ] })
-                          ]
-                        }
-                      ),
-                      sc.block_bot_isps !== false && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "textarea",
-                          {
-                            rows: 2,
-                            className: "form-input text-xs font-mono py-1.5 rounded-xl",
-                            placeholder: t("cloaking.botIspPlaceholder", "Local override: facebook, hetzner, ... (leave empty for the global list)"),
-                            value: sc.custom_bot_isps || "",
-                            onChange: (e) => setCloakField("custom_bot_isps", e.target.value)
-                          }
-                        ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("cloaking.botIspHint", "Matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.") })
-                      ] })
-                    ] })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3.5 rounded-xl space-y-3", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold uppercase tracking-wider", style: { color: "var(--color-text-primary)" }, children: [
-                        "🛡️ ",
-                        t("streamRefine.safePageTitle", "Safe Page (For Reviewers & Bots)")
-                      ] }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex rounded-lg overflow-hidden border", style: { borderColor: "var(--color-border)" }, children: [
-                        ["url", t("streamRefine.tabUrl", "External URL")],
-                        ["landing", t("streamRefine.tabLanding", "Tracker Landing")],
-                        ["html", t("streamRefine.tabHtml", "Inline HTML")]
-                      ].map(([mode, label]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "button",
-                        {
-                          type: "button",
-                          onClick: () => setSafeMode(mode),
-                          className: "px-2.5 py-1 text-[11px] font-medium transition",
-                          style: {
-                            backgroundColor: safeMode === mode ? "var(--color-primary)" : "var(--color-bg-card)",
-                            color: safeMode === mode ? "#ffffff" : "var(--color-text-secondary)"
-                          },
-                          children: label
-                        },
-                        mode
-                      )) })
-                    ] }),
-                    safeMode === "url" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "input",
-                      {
-                        type: "url",
-                        value: sc.safe_url || "",
-                        onChange: (e) => setCloakField("safe_url", e.target.value),
-                        className: "form-input text-xs font-mono py-1.5 rounded-xl",
-                        placeholder: "https://safe-white-page.com"
-                      }
-                    ) }),
-                    safeMode === "landing" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 space-y-4", children: [
+                (stream.collect_clicks ?? 1) == 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl px-3 py-2 flex items-center gap-2", style: {
+                  backgroundColor: "color-mix(in srgb, var(--color-warning, #f59e0b) 10%, transparent)",
+                  border: "1px solid var(--color-warning, #f59e0b)"
+                }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-warning, #f59e0b)" }, children: "ℹ️" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: t("editor.collectClicksDisabledNote") })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-2 block", style: { color: "var(--color-text-muted)" }, children: t("editor.schema") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "select",
+                    {
+                      value: stream.schema_type,
+                      onChange: (e) => updateStream(idx, "schema_type", e.target.value),
+                      className: "form-select",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("editor.directLinking") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "landing_offer", children: t("editor.landingOffer") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "action", children: t("editor.action") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "cloak", children: t("cloaking.mode") })
+                      ]
+                    }
+                  )
+                ] }),
+                stream.schema_type === "action" && (() => {
+                  const raw = String(stream.action_payload || "");
+                  const sep = raw.indexOf(":");
+                  const aType = sep === -1 ? raw : raw.slice(0, sep);
+                  const aPayload = sep === -1 ? "" : raw.slice(sep + 1);
+                  const setAction = (type, payload) => updateStream(
+                    idx,
+                    "action_payload",
+                    (type === "to_campaign" || type === "show_html" || type === "show_text") && payload !== "" && payload != null ? `${type}:${payload}` : type
+                  );
+                  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", style: { minWidth: "220px" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
                       "select",
                       {
-                        value: sc.safe_landing_id || "",
-                        onChange: (e) => setCloakField("safe_landing_id", e.target.value ? parseInt(e.target.value) : null),
-                        className: "form-select text-xs py-1.5 rounded-xl",
+                        value: aType,
+                        onChange: (e) => {
+                          const nextType = e.target.value;
+                          setAction(nextType, ["show_html", "show_text", "to_campaign"].includes(nextType) ? aPayload : "");
+                        },
+                        className: "form-select",
+                        style: { backgroundColor: "var(--color-bg-soft)" },
                         children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("cloaking.safeLandingNone", "Select a Safe Landing...") }),
-                          allLandings.map((al) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: al.id, children: al.name }, al.id))
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.selectAction") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "do_nothing", children: t("editor.doNothing") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "not_found", children: t("editor.show404") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_text", children: t("editor.showText", "Show text / blank") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_html", children: t("editor.showHtml") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "to_campaign", children: t("editor.toCampaign", "Send to campaign") })
                         ]
-                      }
-                    ) }),
-                    safeMode === "html" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "textarea",
-                      {
-                        value: sc.safe_html || "",
-                        onChange: (e) => setCloakField("safe_html", e.target.value),
-                        className: "form-input text-xs font-mono py-1.5 rounded-xl",
-                        rows: 3,
-                        placeholder: "<!DOCTYPE html><html><body><h1>Welcome</h1></body></html>"
-                      }
-                    ) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2 cursor-pointer select-none", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "input",
-                        {
-                          type: "checkbox",
-                          checked: sc.dont_record_safe_clicks !== false,
-                          onChange: (e) => setCloakField("dont_record_safe_clicks", e.target.checked),
-                          className: "w-4 h-4 rounded mt-0.5",
-                          style: { accentColor: "var(--color-primary)" }
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: [
-                          "🚫 ",
-                          t("cloaking.dontRecordSafeClicks", "Do not record clicks for Safe Page")
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[11px]", style: { color: "var(--color-text-muted)", lineHeight: 1.4 }, children: t("cloaking.dontRecordSafeClicksHint", "Bots, crawlers, and reviewers routed to the Safe Page will not be saved in database logs or counted in campaign reports.") })
-                      ] })
-                    ] }) })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3.5 rounded-xl space-y-3", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold uppercase tracking-wider block", style: { color: "var(--color-text-primary)" }, children: [
-                      "💰 ",
-                      t("streamRefine.moneyPageTitle", "Money Page (For Real Visitors)")
-                    ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-1.5", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("editor.landings") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          AddDropdownButton,
-                          {
-                            label: t("editor.addLandings"),
-                            createLabel: t("editor.createLandingDropdown"),
-                            onMain: () => openEntityPicker(idx, "landings"),
-                            onCreate: () => setQuickCreate({ kind: "landings", streamIdx: idx })
-                          }
-                        )
-                      ] }),
-                      (sc.landings || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noLandingsAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (sc.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list)) })
-                    ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-1.5", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("editor.offers") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          AddDropdownButton,
-                          {
-                            label: t("editor.addOffers"),
-                            createLabel: t("editor.createOfferDropdown"),
-                            onMain: () => openEntityPicker(idx, "offers"),
-                            onCreate: () => setQuickCreate({ kind: "offers", streamIdx: idx })
-                          }
-                        )
-                      ] }),
-                      (sc.offers || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noOffersAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (sc.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list)) })
-                    ] })
-                  ] })
-                ] });
-              })(),
-              stream.schema_type === "redirect" && (() => {
-                const sc = stream.schema_custom || {};
-                const isDirectUrl = sc.redirect_mode === "direct_url" || !!sc.direct_url;
-                const setRedirectMode = (mode) => {
-                  updateStream(idx, "schema_custom", { ...sc, redirect_mode: mode });
-                };
-                const setDirectUrl = (url) => {
-                  updateStream(idx, "schema_custom", { ...sc, redirect_mode: "direct_url", direct_url: url });
-                };
-                return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 rounded-2xl p-4", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-1.5 block", style: { color: "var(--color-text-muted)" }, children: t("streamRefine.directMode", "Destination Type") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex rounded-xl overflow-hidden max-w-sm", style: { border: "1px solid var(--color-border)" }, children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "button",
-                        {
-                          type: "button",
-                          onClick: () => setRedirectMode("offers"),
-                          className: "flex-1 px-3 py-1.5 text-xs font-medium transition",
-                          style: {
-                            backgroundColor: !isDirectUrl ? "var(--color-primary-light)" : "var(--color-bg-soft)",
-                            color: !isDirectUrl ? "var(--color-primary)" : "var(--color-text-secondary)",
-                            borderRight: "1px solid var(--color-border)"
-                          },
-                          children: t("streamRefine.trackerOffer", "Tracker Offer")
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "button",
-                        {
-                          type: "button",
-                          onClick: () => setRedirectMode("direct_url"),
-                          className: "flex-1 px-3 py-1.5 text-xs font-medium transition",
-                          style: {
-                            backgroundColor: isDirectUrl ? "var(--color-primary-light)" : "var(--color-bg-soft)",
-                            color: isDirectUrl ? "var(--color-primary)" : "var(--color-text-secondary)"
-                          },
-                          children: t("streamRefine.directUrl", "Direct URL")
-                        }
-                      )
-                    ] })
-                  ] }),
-                  isDirectUrl ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("streamRefine.directUrl", "Direct Target URL") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "input",
-                      {
-                        type: "url",
-                        value: sc.direct_url || "",
-                        onChange: (e) => setDirectUrl(e.target.value),
-                        placeholder: t("streamRefine.directUrlPlaceholder", "https://affiliate-offer.com/?subid={subid}&clickid={clickid}"),
-                        className: "form-input text-xs font-mono py-2 rounded-xl"
                       }
                     ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("streamRefine.directUrlHelp") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5 pt-1", children: ["{subid}", "{clickid}", "{country}", "{ip}", "{sub_id_1}", "{sub_id_2}", "{sub_id_3}", "{cost}"].map((tag) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "button",
+                    (aType === "show_html" || aType === "show_text") && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "textarea",
                       {
-                        type: "button",
-                        onClick: () => setDirectUrl((sc.direct_url || "") + (sc.direct_url?.includes("?") ? "&" : "?") + `${tag.slice(1, -1)}=${tag}`),
-                        className: "text-[11px] px-2 py-0.5 rounded-lg border font-mono transition-colors hover:border-blue-400",
-                        style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-secondary)" },
+                        className: "form-input text-xs",
+                        rows: aType === "show_html" ? 3 : 1,
+                        value: aPayload,
+                        onChange: (e) => setAction(aType, e.target.value),
+                        placeholder: aType === "show_html" ? "<h1>...</h1>" : t("editor.textPayloadHint", "текст; пусто = пустая белая страница")
+                      }
+                    ),
+                    aType === "to_campaign" && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "select",
+                      {
+                        className: "form-select",
+                        value: aPayload || "",
+                        onChange: (e) => setAction("to_campaign", e.target.value),
                         children: [
-                          "+ ",
-                          tag
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.selectCampaign") }),
+                          allCampaigns.filter((c) => String(c.id) !== String(activeCampaignId || "")).map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: c.id, children: c.name }, c.id))
                         ]
-                      },
-                      tag
-                    )) })
-                  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center", children: [
+                      }
+                    )
+                  ] });
+                })(),
+                stream.schema_type === "landing_offer" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-2xl p-3", style: { border: "1px solid var(--color-border)", backgroundColor: "rgba(59, 130, 246, 0.05)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.landings") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        AddDropdownButton,
+                        {
+                          label: t("editor.addLandings"),
+                          createLabel: t("editor.createLandingDropdown"),
+                          onMain: () => openEntityPicker(idx, "landings"),
+                          onCreate: () => setQuickCreate({ kind: "landings", streamIdx: idx })
+                        }
+                      )
+                    ] }),
+                    (stream.schema_custom?.landings || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noLandingsAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (stream.schema_custom?.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list)) })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx(
                         AddDropdownButton,
@@ -75652,86 +78781,526 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         }
                       )
                     ] }),
-                    (() => {
-                      const offers = sc.offers || [];
-                      const totalWeight = offers.reduce((sum, o) => sum + (parseInt(o.weight) || 0), 0);
-                      const isOverWeight = totalWeight > 100 && offers.length > 1;
-                      return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                        offers.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-center py-4 rounded-xl border border-dashed", style: { color: "var(--color-text-muted)", borderColor: "var(--color-border)" }, children: t("editor.addOffersHelp") }),
-                        isOverWeight && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs rounded-lg p-2", style: { color: "var(--color-warning)", backgroundColor: "var(--color-warning-bg)", border: "1px solid var(--color-warning)" }, children: [
-                          t("editor.weightWarning"),
-                          " ",
-                          totalWeight,
-                          t("editor.weightWarningEnd")
-                        ] }),
-                        offers.map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list))
-                      ] });
-                    })()
+                    (stream.schema_custom?.offers || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noOffersAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (stream.schema_custom?.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list)) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 pt-3", style: { borderTop: "1px dashed var(--color-border)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold mb-1", style: { color: "var(--color-text-primary)" }, children: t("editor.offerSelection") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-4", children: ["before", "after"].map((mode) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-1 text-xs cursor-pointer", style: { color: "var(--color-text-secondary)" }, children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "input",
+                          {
+                            type: "radio",
+                            checked: (stream.offer_selection || "before") === mode,
+                            onChange: () => updateStream(idx, "offer_selection", mode)
+                          }
+                        ),
+                        mode === "before" ? t("editor.offerSelectionBefore") : t("editor.offerSelectionAfter")
+                      ] }, mode)) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1", style: { fontSize: "11.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("editor.offerSelectionHint") })
+                    ] })
                   ] })
-                ] });
-              })(),
-              stream.type !== "fallback" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: t("editor.filters") }),
-                    stream.filters && stream.filters.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "inline-flex rounded-lg p-0.5", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, title: t("editor.filtersLogicHint"), children: ["and", "or"].map((mode) => {
-                      const active = (stream.filters_logic || "and") === mode;
-                      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                ] }),
+                stream.schema_type === "cloak" && (() => {
+                  const sc = stream.schema_custom || {};
+                  const setCloakField = (field, value) => updateStream(idx, "schema_custom", { ...sc, [field]: value });
+                  const safeMode = sc.safe_mode || (sc.safe_landing_id ? "landing" : sc.safe_html ? "html" : "url");
+                  const setSafeMode = (mode) => updateStream(idx, "schema_custom", { ...sc, safe_mode: mode });
+                  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 rounded-2xl p-4", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("cloaking.description") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold uppercase tracking-wider block mb-2", style: { color: "var(--color-text-muted)" }, children: t("streamRefine.detectionLayers", "Bot Protection Layers") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 sm:grid-cols-4 gap-2", children: [
+                        ["detect_datacenter", t("cloaking.datacenter", "Datacenter / ASN")],
+                        ["detect_vpn", t("cloaking.vpnProxy", "VPN / Proxy")],
+                        ["detect_bots", t("cloaking.bots", "Known Bots / Crawlers")],
+                        ["detect_ua", t("cloaking.uaHeuristics", "UA Heuristics")]
+                      ].map(([key, label]) => {
+                        const isChecked = sc[key] !== false;
+                        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "label",
+                          {
+                            className: "flex items-center gap-2 p-2 rounded-xl border cursor-pointer select-none transition-all text-xs font-medium",
+                            style: {
+                              backgroundColor: isChecked ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                              borderColor: isChecked ? "var(--color-primary)" : "var(--color-border)",
+                              color: isChecked ? "var(--color-primary)" : "var(--color-text-primary)"
+                            },
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                "input",
+                                {
+                                  type: "checkbox",
+                                  checked: isChecked,
+                                  onChange: (e) => setCloakField(key, e.target.checked),
+                                  className: "w-3.5 h-3.5 rounded",
+                                  style: { accentColor: "var(--color-primary)" }
+                                }
+                              ),
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
+                            ]
+                          },
+                          key
+                        );
+                      }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-1 block", style: { color: "var(--color-text-muted)" }, children: t("cloaking.sensitivity") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "select",
+                          {
+                            value: sc.sensitivity || "medium",
+                            onChange: (e) => setCloakField("sensitivity", e.target.value),
+                            className: "form-select text-xs py-1.5 rounded-xl",
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "low", children: t("cloaking.sensitivityLow", "Low (Fewer false positives)") }),
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "medium", children: t("cloaking.sensitivityMedium", "Medium (Recommended balance)") }),
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "high", children: t("cloaking.sensitivityHigh", "High (Aggressive blocking)") })
+                            ]
+                          }
+                        )
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-1 block", style: { color: "var(--color-text-muted)" }, children: t("cloaking.jsChallenge", "Active Browser Verification") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "label",
+                          {
+                            className: "flex items-center gap-2 p-1.5 rounded-xl border cursor-pointer select-none text-xs",
+                            style: {
+                              backgroundColor: Boolean(sc.js_challenge) ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                              borderColor: Boolean(sc.js_challenge) ? "var(--color-primary)" : "var(--color-border)",
+                              color: "var(--color-text-primary)"
+                            },
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                "input",
+                                {
+                                  type: "checkbox",
+                                  checked: Boolean(sc.js_challenge),
+                                  onChange: (e) => setCloakField("js_challenge", e.target.checked),
+                                  className: "w-3.5 h-3.5",
+                                  style: { accentColor: "var(--color-primary)" }
+                                }
+                              ),
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("cloaking.jsChallenge", "JS Fingerprint Challenge") })
+                            ]
+                          }
+                        )
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold uppercase tracking-wider block", style: { color: "var(--color-text-muted)" }, children: [
+                        "🎯 ",
+                        t("cloaking.targetingTitle", "Targeting Filters (Mismatch → Safe Page)")
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 mb-1.5", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: [
+                            "🌍 ",
+                            t("cloaking.geoFilter", "Country Filter")
+                          ] }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-3 text-xs", children: [["allow", t("cloaking.allowIn", "Allow (in)")], ["deny", t("cloaking.blockIn", "Block (not in)")]].map(([mode, label]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-1 cursor-pointer", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "input",
+                              {
+                                type: "radio",
+                                name: `cloak_geo_mode_${idx}`,
+                                checked: (sc.geo_mode || "allow") === mode,
+                                onChange: () => setCloakField("geo_mode", mode),
+                                className: "w-3 h-3",
+                                style: { accentColor: "var(--color-primary)" }
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
+                          ] }, mode)) })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          GeoSelector,
+                          {
+                            value: sc.countries || "",
+                            onChange: (selected) => setCloakField("countries", selected),
+                            placeholder: t("cloaking.geoPlaceholder", "Select target countries (e.g. US, DE, GB)...")
+                          }
+                        )
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 mb-1.5", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: [
+                            "📱 ",
+                            t("cloaking.deviceFilter", "Device Types")
+                          ] }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-3 text-xs", children: [["allow", t("cloaking.allowOnly", "Allow only")], ["deny", t("cloaking.blockSelected", "Block selected")]].map(([mode, label]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-1 cursor-pointer", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "input",
+                              {
+                                type: "radio",
+                                name: `cloak_device_mode_${idx}`,
+                                checked: (sc.device_mode || "allow") === mode,
+                                onChange: () => setCloakField("device_mode", mode),
+                                className: "w-3 h-3",
+                                style: { accentColor: "var(--color-primary)" }
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
+                          ] }, mode)) })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 sm:grid-cols-3 gap-2", children: [
+                          { id: "mobile", label: t("streams.mobile", "Mobile") },
+                          { id: "tablet", label: t("streams.tablet", "Tablet") },
+                          { id: "desktop", label: t("streams.desktop", "Desktop") }
+                        ].map(({ id: dev, label }) => {
+                          const currentDevs = typeof sc.devices === "string" && sc.devices.trim() !== "" ? sc.devices.split(",").map((d) => d.trim().toLowerCase()).filter(Boolean) : ["mobile", "tablet", "desktop"];
+                          const isSelected = currentDevs.includes(dev);
+                          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                            "label",
+                            {
+                              className: "flex items-center gap-2 p-2 rounded-xl border cursor-pointer select-none transition-all text-xs font-medium",
+                              style: {
+                                backgroundColor: isSelected ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                                borderColor: isSelected ? "var(--color-primary)" : "var(--color-border)",
+                                color: isSelected ? "var(--color-primary)" : "var(--color-text-primary)"
+                              },
+                              children: [
+                                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                  "input",
+                                  {
+                                    type: "checkbox",
+                                    checked: isSelected,
+                                    onChange: (e) => {
+                                      const next = e.target.checked ? [...currentDevs, dev] : currentDevs.filter((d) => d !== dev);
+                                      setCloakField("devices", next.join(","));
+                                    },
+                                    className: "w-3.5 h-3.5 rounded",
+                                    style: { accentColor: "var(--color-primary)" }
+                                  }
+                                ),
+                                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
+                              ]
+                            },
+                            dev
+                          );
+                        }) })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "label",
+                          {
+                            className: "flex items-center gap-2 p-2 rounded-xl border cursor-pointer select-none text-xs font-medium",
+                            style: {
+                              backgroundColor: sc.block_bot_isps !== false ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                              borderColor: sc.block_bot_isps !== false ? "var(--color-primary)" : "var(--color-border)",
+                              color: "var(--color-text-primary)"
+                            },
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                "input",
+                                {
+                                  type: "checkbox",
+                                  checked: sc.block_bot_isps !== false,
+                                  onChange: (e) => setCloakField("block_bot_isps", e.target.checked),
+                                  className: "w-3.5 h-3.5 rounded",
+                                  style: { accentColor: "var(--color-primary)" }
+                                }
+                              ),
+                              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                                "🛡️ ",
+                                t("cloaking.blockBotIsps", "Block Bot & Datacenter ISPs (Facebook, Google, Amazon, Hetzner, etc.)")
+                              ] })
+                            ]
+                          }
+                        ),
+                        sc.block_bot_isps !== false && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "textarea",
+                            {
+                              rows: 2,
+                              className: "form-input text-xs font-mono py-1.5 rounded-xl",
+                              placeholder: t("cloaking.botIspPlaceholder", "Local override: facebook, hetzner, ... (leave empty for the global list)"),
+                              value: sc.custom_bot_isps || "",
+                              onChange: (e) => setCloakField("custom_bot_isps", e.target.value)
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("cloaking.botIspHint", "Matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.") })
+                        ] })
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3.5 rounded-xl space-y-3", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold uppercase tracking-wider", style: { color: "var(--color-text-primary)" }, children: [
+                          "🛡️ ",
+                          t("streamRefine.safePageTitle", "Safe Page (For Reviewers & Bots)")
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex rounded-lg overflow-hidden border", style: { borderColor: "var(--color-border)" }, children: [
+                          ["url", t("streamRefine.tabUrl", "External URL")],
+                          ["landing", t("streamRefine.tabLanding", "Tracker Landing")],
+                          ["html", t("streamRefine.tabHtml", "Inline HTML")]
+                        ].map(([mode, label]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "button",
+                          {
+                            type: "button",
+                            onClick: () => setSafeMode(mode),
+                            className: "px-2.5 py-1 text-[11px] font-medium transition",
+                            style: {
+                              backgroundColor: safeMode === mode ? "var(--color-primary)" : "var(--color-bg-card)",
+                              color: safeMode === mode ? "#ffffff" : "var(--color-text-secondary)"
+                            },
+                            children: label
+                          },
+                          mode
+                        )) })
+                      ] }),
+                      safeMode === "url" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "url",
+                          value: sc.safe_url || "",
+                          onChange: (e) => setCloakField("safe_url", e.target.value),
+                          className: "form-input text-xs font-mono py-1.5 rounded-xl",
+                          placeholder: "https://safe-white-page.com"
+                        }
+                      ) }),
+                      safeMode === "landing" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "select",
+                        {
+                          value: sc.safe_landing_id || "",
+                          onChange: (e) => setCloakField("safe_landing_id", e.target.value ? parseInt(e.target.value) : null),
+                          className: "form-select text-xs py-1.5 rounded-xl",
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("cloaking.safeLandingNone", "Select a Safe Landing...") }),
+                            allLandings.map((al) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: al.id, children: al.name }, al.id))
+                          ]
+                        }
+                      ) }),
+                      safeMode === "html" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "textarea",
+                        {
+                          value: sc.safe_html || "",
+                          onChange: (e) => setCloakField("safe_html", e.target.value),
+                          className: "form-input text-xs font-mono py-1.5 rounded-xl",
+                          rows: 3,
+                          placeholder: "<!DOCTYPE html><html><body><h1>Welcome</h1></body></html>"
+                        }
+                      ) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2 cursor-pointer select-none", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "input",
+                          {
+                            type: "checkbox",
+                            checked: sc.dont_record_safe_clicks !== false,
+                            onChange: (e) => setCloakField("dont_record_safe_clicks", e.target.checked),
+                            className: "w-4 h-4 rounded mt-0.5",
+                            style: { accentColor: "var(--color-primary)" }
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: [
+                            "🚫 ",
+                            t("cloaking.dontRecordSafeClicks", "Do not record clicks for Safe Page")
+                          ] }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[11px]", style: { color: "var(--color-text-muted)", lineHeight: 1.4 }, children: t("cloaking.dontRecordSafeClicksHint", "Bots, crawlers, and reviewers routed to the Safe Page will not be saved in database logs or counted in campaign reports.") })
+                        ] })
+                      ] }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3.5 rounded-xl space-y-3", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold uppercase tracking-wider block", style: { color: "var(--color-text-primary)" }, children: [
+                        "💰 ",
+                        t("streamRefine.moneyPageTitle", "Money Page (For Real Visitors)")
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-1.5", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("editor.landings") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            AddDropdownButton,
+                            {
+                              label: t("editor.addLandings"),
+                              createLabel: t("editor.createLandingDropdown"),
+                              onMain: () => openEntityPicker(idx, "landings"),
+                              onCreate: () => setQuickCreate({ kind: "landings", streamIdx: idx })
+                            }
+                          )
+                        ] }),
+                        (sc.landings || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noLandingsAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (sc.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list)) })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-1.5", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("editor.offers") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            AddDropdownButton,
+                            {
+                              label: t("editor.addOffers"),
+                              createLabel: t("editor.createOfferDropdown"),
+                              onMain: () => openEntityPicker(idx, "offers"),
+                              onCreate: () => setQuickCreate({ kind: "offers", streamIdx: idx })
+                            }
+                          )
+                        ] }),
+                        (sc.offers || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noOffersAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (sc.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list)) })
+                      ] })
+                    ] })
+                  ] });
+                })(),
+                stream.schema_type === "redirect" && (() => {
+                  const sc = stream.schema_custom || {};
+                  const isDirectUrl = sc.redirect_mode === "direct_url" || !!sc.direct_url;
+                  const setRedirectMode = (mode) => {
+                    updateStream(idx, "schema_custom", { ...sc, redirect_mode: mode });
+                  };
+                  const setDirectUrl = (url) => {
+                    updateStream(idx, "schema_custom", { ...sc, redirect_mode: "direct_url", direct_url: url });
+                  };
+                  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 rounded-2xl p-4", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-1.5 block", style: { color: "var(--color-text-muted)" }, children: t("streamRefine.directMode", "Destination Type") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex rounded-xl overflow-hidden max-w-sm", style: { border: "1px solid var(--color-border)" }, children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "button",
+                          {
+                            type: "button",
+                            onClick: () => setRedirectMode("offers"),
+                            className: "flex-1 px-3 py-1.5 text-xs font-medium transition",
+                            style: {
+                              backgroundColor: !isDirectUrl ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                              color: !isDirectUrl ? "var(--color-primary)" : "var(--color-text-secondary)",
+                              borderRight: "1px solid var(--color-border)"
+                            },
+                            children: t("streamRefine.trackerOffer", "Tracker Offer")
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "button",
+                          {
+                            type: "button",
+                            onClick: () => setRedirectMode("direct_url"),
+                            className: "flex-1 px-3 py-1.5 text-xs font-medium transition",
+                            style: {
+                              backgroundColor: isDirectUrl ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                              color: isDirectUrl ? "var(--color-primary)" : "var(--color-text-secondary)"
+                            },
+                            children: t("streamRefine.directUrl", "Direct URL")
+                          }
+                        )
+                      ] })
+                    ] }),
+                    isDirectUrl ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("streamRefine.directUrl", "Direct Target URL") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "url",
+                          value: sc.direct_url || "",
+                          onChange: (e) => setDirectUrl(e.target.value),
+                          placeholder: t("streamRefine.directUrlPlaceholder", "https://affiliate-offer.com/?subid={subid}&clickid={clickid}"),
+                          className: "form-input text-xs font-mono py-2 rounded-xl"
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("streamRefine.directUrlHelp") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5 pt-1", children: ["{subid}", "{clickid}", "{country}", "{ip}", "{sub_id_1}", "{sub_id_2}", "{sub_id_3}", "{cost}"].map((tag) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                         "button",
                         {
                           type: "button",
-                          onClick: () => updateStream(idx, "filters_logic", mode),
-                          className: "px-2 py-0.5 text-[11px] font-bold rounded-md transition-colors",
-                          style: {
-                            backgroundColor: active ? "var(--color-primary)" : "transparent",
-                            color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)"
-                          },
-                          children: mode.toUpperCase()
+                          onClick: () => setDirectUrl((sc.direct_url || "") + (sc.direct_url?.includes("?") ? "&" : "?") + `${tag.slice(1, -1)}=${tag}`),
+                          className: "text-[11px] px-2 py-0.5 rounded-lg border font-mono transition-colors hover:border-blue-400",
+                          style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-secondary)" },
+                          children: [
+                            "+ ",
+                            tag
+                          ]
                         },
-                        mode
-                      );
-                    }) })
+                        tag
+                      )) })
+                    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          AddDropdownButton,
+                          {
+                            label: t("editor.addOffers"),
+                            createLabel: t("editor.createOfferDropdown"),
+                            onMain: () => openEntityPicker(idx, "offers"),
+                            onCreate: () => setQuickCreate({ kind: "offers", streamIdx: idx })
+                          }
+                        )
+                      ] }),
+                      (() => {
+                        const offers = sc.offers || [];
+                        const totalWeight = offers.reduce((sum, o) => sum + (parseInt(o.weight) || 0), 0);
+                        const isOverWeight = totalWeight > 100 && offers.length > 1;
+                        return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                          offers.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-center py-4 rounded-xl border border-dashed", style: { color: "var(--color-text-muted)", borderColor: "var(--color-border)" }, children: t("editor.addOffersHelp") }),
+                          isOverWeight && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs rounded-lg p-2", style: { color: "var(--color-warning)", backgroundColor: "var(--color-warning-bg)", border: "1px solid var(--color-warning)" }, children: [
+                            t("editor.weightWarning"),
+                            " ",
+                            totalWeight,
+                            t("editor.weightWarningEnd")
+                          ] }),
+                          offers.map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list))
+                        ] });
+                      })()
+                    ] })
+                  ] });
+                })(),
+                stream.type !== "fallback" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: t("editor.filters") }),
+                      stream.filters && stream.filters.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "inline-flex rounded-lg p-0.5", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, title: t("editor.filtersLogicHint"), children: ["and", "or"].map((mode) => {
+                        const active = (stream.filters_logic || "and") === mode;
+                        return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "button",
+                          {
+                            type: "button",
+                            onClick: () => updateStream(idx, "filters_logic", mode),
+                            className: "px-2 py-0.5 text-[11px] font-bold rounded-md transition-colors",
+                            style: {
+                              backgroundColor: active ? "var(--color-primary)" : "transparent",
+                              color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)"
+                            },
+                            children: mode.toUpperCase()
+                          },
+                          mode
+                        );
+                      }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => openFilterModal(idx), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.addFilter") })
                   ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => openFilterModal(idx), className: "text-xs", style: { color: "var(--color-primary)" }, children: t("editor.addFilter") })
-                ] }),
-                stream.filters && stream.filters.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: stream.filters.map((f, fIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex rounded-lg text-sm overflow-hidden items-center", style: { border: "1px solid var(--color-border)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-2 py-1 font-semibold", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-primary)" }, children: f.name }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-2 py-1 font-bold", style: { color: f.mode === "include" ? "var(--color-success)" : "var(--color-danger)" }, children: f.mode === "include" ? "✓" : "✗" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "div",
-                    {
-                      className: "flex-1 px-2 py-1 truncate cursor-pointer hover:underline",
-                      style: { color: "var(--color-text-secondary)" },
-                      onClick: () => openFilterModal(idx, fIdx),
-                      title: t("editor.editFilter"),
-                      children: Array.isArray(f.payload) ? f.payload.join(", ") : f.payload || ""
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "button",
-                    {
-                      type: "button",
-                      onClick: () => openFilterModal(idx, fIdx),
-                      className: "px-1.5 py-1 text-blue-500 hover:text-blue-700",
-                      title: t("editor.editFilter"),
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" })
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "button",
-                    {
-                      type: "button",
-                      onClick: () => removeFilter(idx, fIdx),
-                      className: "px-2 py-1",
-                      style: { color: "var(--color-danger)" },
-                      title: t("common.delete"),
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" })
-                    }
-                  )
-                ] }, fIdx)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs rounded-lg p-3 text-center border-2 border-dashed", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: t("editor.noFilters") })
+                  stream.filters && stream.filters.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: stream.filters.map((f, fIdx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex rounded-lg text-sm overflow-hidden items-center", style: { border: "1px solid var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-2 py-1 font-semibold", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-primary)" }, children: f.name }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-2 py-1 font-bold", style: { color: f.mode === "include" ? "var(--color-success)" : "var(--color-danger)" }, children: f.mode === "include" ? "✓" : "✗" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "div",
+                      {
+                        className: "flex-1 px-2 py-1 truncate cursor-pointer hover:underline",
+                        style: { color: "var(--color-text-secondary)" },
+                        onClick: () => openFilterModal(idx, fIdx),
+                        title: t("editor.editFilter"),
+                        children: Array.isArray(f.payload) ? f.payload.join(", ") : f.payload || ""
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => openFilterModal(idx, fIdx),
+                        className: "px-1.5 py-1 text-blue-500 hover:text-blue-700",
+                        title: t("editor.editFilter"),
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" })
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => removeFilter(idx, fIdx),
+                        className: "px-2 py-1",
+                        style: { color: "var(--color-danger)" },
+                        title: t("common.delete"),
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" })
+                      }
+                    )
+                  ] }, fIdx)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs rounded-lg p-3 text-center border-2 border-dashed", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: t("editor.noFilters") })
+                ] })
               ] })
-            ] })
-          ] }, stream.id || idx)) }) })
+            ] }, stream.id || idx))
+          ] }) })
         ] })
       ] })
     ] }),
@@ -75894,19 +79463,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label text-xs", children: "Proxy (Optional)" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "text",
-              value: costConnForm.proxy_url,
-              onChange: (e) => setCostConnForm({ ...costConnForm, proxy_url: e.target.value }),
-              placeholder: "http://user:pass@host:port",
-              className: "form-input text-xs font-mono py-2 rounded-xl"
-            }
-          )
-        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          ProxyInput,
+          {
+            label: t("pixels.proxy"),
+            value: costConnForm.proxy_url,
+            onChange: (val) => setCostConnForm({ ...costConnForm, proxy_url: val })
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2 pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
@@ -86528,9 +90092,9 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
     // above the stat cards below it: an active stat card carries z-10.
     // card--flat suppresses the hover lift, whose transform would otherwise
     // trap the menu inside this card. See .card--flat in index.css.
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card card--flat shadow-sm p-5 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between w-full rounded-[24px] relative z-30", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row gap-4 w-full md:w-auto", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full sm:w-[300px]", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card card--flat shadow-sm p-5 mb-6 flex flex-col lg:flex-row gap-4 items-center justify-between w-full rounded-[24px] relative z-30", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row gap-4 w-full lg:w-auto flex-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full sm:flex-1 sm:max-w-xs", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-[var(--color-text-muted)]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { size: 16 }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "select",
@@ -86547,7 +90111,7 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-[var(--color-text-muted)]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { size: 14 }) })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full sm:w-[300px]", ref: rangeRef, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full sm:flex-1 sm:max-w-xs", ref: rangeRef, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-[var(--color-text-muted)]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar$1, { size: 16 }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
@@ -86589,11 +90153,11 @@ const DashboardHeader = ({ filters, setFilters, campaigns, onOpenSettings }) => 
         "button",
         {
           onClick: onOpenSettings,
-          className: "btn-secondary transition shadow-sm flex items-center gap-2 text-sm font-medium w-full md:w-auto mt-2 md:mt-0 justify-center",
+          className: "btn-secondary transition shadow-sm flex items-center gap-2 text-sm font-medium w-full lg:w-auto mt-2 lg:mt-0 justify-center shrink-0",
           title: t("dashboard.dashboardSettings"),
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { size: 16 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "md:hidden", children: t("dashboard.dashboardSettings") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "lg:hidden", children: t("dashboard.dashboardSettings") })
           ]
         }
       ),
@@ -86943,6 +90507,1097 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
     }
   );
 };
+const API_URL$2 = "/api.php";
+const CPA_NETWORKS = [
+  { id: "drcash", name: "Dr.Cash", defaultCurrency: "USD", defaultPayout: 25, placeholder: "Stream Code (e.g. abcd1234)" },
+  { id: "lemonad", name: "LemonAD", defaultCurrency: "USD", defaultPayout: 28, placeholder: "Offer ID (e.g. 10452)" },
+  { id: "webvork", name: "Webvork", defaultCurrency: "EUR", defaultPayout: 32, placeholder: "Offer ID (e.g. 892)" },
+  { id: "leadbit", name: "Leadbit", defaultCurrency: "USD", defaultPayout: 22, placeholder: "Flow Hash (e.g. a8b9c0d1)" },
+  { id: "everad", name: "Everad", defaultCurrency: "USD", defaultPayout: 26, placeholder: "Campaign ID (e.g. 54201)" },
+  { id: "kma", name: "KMA.biz", defaultCurrency: "RUB", defaultPayout: 1200, placeholder: "Channel / Offer ID (e.g. 7412)" },
+  { id: "terraleads", name: "TerraLeads", defaultCurrency: "USD", defaultPayout: 24, placeholder: "Offer ID (e.g. 1290)" },
+  { id: "trafficlight", name: "Traffic Light", defaultCurrency: "RUB", defaultPayout: 1100, placeholder: "Offer ID (e.g. 3310)" },
+  { id: "adcombo", name: "AdCombo", defaultCurrency: "USD", defaultPayout: 20, placeholder: "Offer ID (e.g. 29314)" },
+  { id: "m1", name: "M1-Shop", defaultCurrency: "RUB", defaultPayout: 950, placeholder: "Product ID (e.g. 642)" },
+  { id: "monsterleads", name: "MonsterLeads", defaultCurrency: "USD", defaultPayout: 21, placeholder: "Offer ID (e.g. 1102)" },
+  { id: "custom", name: "Custom API / Webhook", defaultCurrency: "USD", defaultPayout: 20, placeholder: "https://api.domain.com/lead/create" }
+];
+const GEO_PRESETS = [
+  { code: "IT", name: "Italy (+39)", phoneCode: "+39", flag: "🇮🇹" },
+  { code: "ES", name: "Spain (+34)", phoneCode: "+34", flag: "🇪🇸" },
+  { code: "DE", name: "Germany (+49)", phoneCode: "+49", flag: "🇩🇪" },
+  { code: "FR", name: "France (+33)", phoneCode: "+33", flag: "🇫🇷" },
+  { code: "PL", name: "Poland (+48)", phoneCode: "+48", flag: "🇵🇱" },
+  { code: "RO", name: "Romania (+40)", phoneCode: "+40", flag: "🇷🇴" },
+  { code: "GR", name: "Greece (+30)", phoneCode: "+30", flag: "🇬🇷" },
+  { code: "RU", name: "Russia (+7)", phoneCode: "+7", flag: "🇷🇺" },
+  { code: "UA", name: "Ukraine (+380)", phoneCode: "+380", flag: "🇺🇦" },
+  { code: "KZ", name: "Kazakhstan (+7)", phoneCode: "+7", flag: "🇰🇿" },
+  { code: "US", name: "United States (+1)", phoneCode: "+1", flag: "🇺🇸" },
+  { code: "MX", name: "Mexico (+52)", phoneCode: "+52", flag: "🇲🇽" },
+  { code: "CO", name: "Colombia (+57)", phoneCode: "+57", flag: "🇨🇴" }
+];
+const LeadForgePage = ({ setActiveTab, refreshData }) => {
+  const { t } = useLanguage();
+  const fileInputRef = reactExports.useRef(null);
+  const consoleEndRef = reactExports.useRef(null);
+  const [queue, setQueue] = reactExports.useState([]);
+  const [isDragging, setIsDragging] = reactExports.useState(false);
+  const [isProcessing, setIsProcessing] = reactExports.useState(false);
+  const [progress, setProgress] = reactExports.useState({ current: 0, total: 0, percent: 0 });
+  const [logs, setLogs] = reactExports.useState([]);
+  const [landingGroups, setLandingGroups] = reactExports.useState([]);
+  const [selectedNetwork, setSelectedNetwork] = reactExports.useState(() => localStorage.getItem("orbitra_lf_network") || "drcash");
+  const [apiKey, setApiKey] = reactExports.useState(() => localStorage.getItem(`orbitra_lf_key_${selectedNetwork}`) || "");
+  const [offerId, setOfferId] = reactExports.useState("");
+  const [selectedGeo, setSelectedGeo] = reactExports.useState("IT");
+  const [currency, setCurrency] = reactExports.useState("USD");
+  const [payout, setPayout] = reactExports.useState("25");
+  const [selectedGroupId, setSelectedGroupId] = reactExports.useState("");
+  const [options, setOptions2] = reactExports.useState({
+    injectOfferMacro: true,
+    injectJsAdapter: true,
+    addPhoneMask: true,
+    generateThankYou: true,
+    generateOrderPhp: true,
+    autoSaveTracker: true,
+    autoCreateOffer: false
+  });
+  reactExports.useEffect(() => {
+    axios.get(`${API_URL$2}?action=landing_groups`).then((res) => {
+      if (res.data?.status === "success") {
+        setLandingGroups(res.data.data || []);
+      }
+    }).catch(() => {
+    });
+  }, []);
+  const handleNetworkChange = (netId) => {
+    setSelectedNetwork(netId);
+    localStorage.setItem("orbitra_lf_network", netId);
+    const savedKey = localStorage.getItem(`orbitra_lf_key_${netId}`) || "";
+    setApiKey(savedKey);
+    const netObj = CPA_NETWORKS.find((n) => n.id === netId);
+    if (netObj) {
+      setCurrency(netObj.defaultCurrency);
+      setPayout(String(netObj.defaultPayout));
+    }
+  };
+  const handleApiKeyChange = (val) => {
+    setApiKey(val);
+    localStorage.setItem(`orbitra_lf_key_${selectedNetwork}`, val);
+  };
+  const addLog = (msg, type = "info") => {
+    const time = (/* @__PURE__ */ new Date()).toLocaleTimeString();
+    setLogs((prev) => [...prev, { id: Math.random(), time, msg, type }]);
+  };
+  reactExports.useEffect(() => {
+    if (consoleEndRef.current) {
+      consoleEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [logs]);
+  const handleAddFiles = (files) => {
+    const zipFiles = Array.from(files).filter((f) => f.name.endsWith(".zip") || f.type.includes("zip"));
+    if (zipFiles.length === 0) return;
+    const newItems = zipFiles.map((file, idx) => {
+      const rawName = file.name.replace(/\.zip$/i, "");
+      const cleanName = rawName.replace(/[-_]+/g, " ").trim();
+      const titleCase = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+      return {
+        id: `queue_${Date.now()}_${idx}_${Math.random().toString(36).substr(2, 5)}`,
+        file,
+        fileName: file.name,
+        fileSize: (file.size / (1024 * 1024)).toFixed(2) + " MB",
+        landingName: titleCase,
+        status: "pending",
+        // pending, processing, success, error
+        result: null,
+        error: null
+      };
+    });
+    setQueue((prev) => [...prev, ...newItems]);
+    addLog(`📦 Added ${newItems.length} archive(s) to LeadForge queue.`, "info");
+  };
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer?.files) {
+      handleAddFiles(e.dataTransfer.files);
+    }
+  };
+  const handleRemoveQueueItem = (id) => {
+    setQueue((prev) => prev.filter((item) => item.id !== id));
+  };
+  const handleClearQueue = () => {
+    if (isProcessing) return;
+    setQueue([]);
+    setLogs([]);
+    setProgress({ current: 0, total: 0, percent: 0 });
+  };
+  const handleUpdateLandingName = (id, newName) => {
+    setQueue((prev) => prev.map((item) => item.id === id ? { ...item, landingName: newName } : item));
+  };
+  const handleStartForge = async () => {
+    if (queue.length === 0 || isProcessing) return;
+    setIsProcessing(true);
+    setLogs([]);
+    addLog(`⚡ Starting batch forge process for ${queue.length} landing archives...`, "info");
+    let completed = 0;
+    const total = queue.length;
+    setProgress({ current: 0, total, percent: 0 });
+    for (let i = 0; i < total; i++) {
+      const item = queue[i];
+      setQueue((prev) => prev.map((q) => q.id === item.id ? { ...q, status: "processing" } : q));
+      addLog(`
+[${i + 1}/${total}] 🚀 Forging: "${item.fileName}" (${item.landingName})`, "info");
+      try {
+        const formData = new FormData();
+        formData.append("file", item.file);
+        formData.append("name", item.landingName);
+        formData.append("network", selectedNetwork);
+        formData.append("api_key", apiKey);
+        formData.append("offer_id", offerId);
+        formData.append("geo", selectedGeo);
+        formData.append("payout", payout);
+        formData.append("currency", currency);
+        if (selectedGroupId) formData.append("group_id", selectedGroupId);
+        formData.append("inject_offer_macro", options.injectOfferMacro ? "1" : "0");
+        formData.append("inject_js_adapter", options.injectJsAdapter ? "1" : "0");
+        formData.append("add_phone_mask", options.addPhoneMask ? "1" : "0");
+        formData.append("generate_thank_you", options.generateThankYou ? "1" : "0");
+        formData.append("generate_order_php", options.generateOrderPhp ? "1" : "0");
+        formData.append("auto_save_tracker", options.autoSaveTracker ? "1" : "0");
+        formData.append("auto_create_offer", options.autoCreateOffer ? "1" : "0");
+        addLog(`   💉 Injecting Orbitra JS Adapter & Macro parameters...`, "step");
+        if (options.addPhoneMask) addLog(`   📞 Attaching ${selectedGeo} Phone Mask & Validation Rules...`, "step");
+        if (options.generateOrderPhp) addLog(`   🛡️ Generating order.php API Bridge for ${CPA_NETWORKS.find((n) => n.id === selectedNetwork)?.name || selectedNetwork}...`, "step");
+        if (options.generateThankYou) addLog(`   🎁 Creating localized thank_you.php page for [${selectedGeo}]...`, "step");
+        const res = await axios.post(`${API_URL$2}?action=leadforge_forge_landing`, formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+        if (res.data?.status === "success") {
+          const resultData = res.data.data;
+          setQueue((prev) => prev.map((q) => q.id === item.id ? { ...q, status: "success", result: resultData } : q));
+          addLog(`   ✅ Success: Registered in Orbitra (Landing ID #${resultData.landing_id}, Slug: /lander/${resultData.slug}/)`, "success");
+        } else {
+          const errMsg = res.data?.message || "Unknown forge error";
+          setQueue((prev) => prev.map((q) => q.id === item.id ? { ...q, status: "error", error: errMsg } : q));
+          addLog(`   ❌ Error: ${errMsg}`, "error");
+        }
+      } catch (err) {
+        const errMsg = err.response?.data?.message || err.message;
+        setQueue((prev) => prev.map((q) => q.id === item.id ? { ...q, status: "error", error: errMsg } : q));
+        addLog(`   ❌ Exception: ${errMsg}`, "error");
+      }
+      completed++;
+      const percent = Math.round(completed / total * 100);
+      setProgress({ current: completed, total, percent });
+    }
+    setIsProcessing(false);
+    addLog(`
+🎉 All ${total} archives processed! You can now use them in your Campaigns.`, "success");
+    if (refreshData) refreshData();
+  };
+  const successfulCount = queue.filter((q) => q.status === "success").length;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 max-w-7xl mx-auto pb-12", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border bg-[var(--color-bg-card)] border-[var(--color-border)] shadow-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-orange-500/20", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 28, className: "animate-pulse" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-2xl font-bold tracking-tight", style: { color: "var(--color-text-primary)" }, children: "LeadForge" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-100 text-orange-800 dark:bg-orange-950/80 dark:text-orange-300 border border-orange-200 dark:border-orange-800", children: "3-in-1 Suite Engine" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-0.5", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.subtitle", "Batch Landing & Offer Auto-Preparation Engine") })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setActiveTab("landings"),
+            className: "px-4 py-2 rounded-xl text-sm font-medium border flex items-center gap-2 hover:bg-[var(--color-bg-hover)] transition cursor-pointer",
+            style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 16 }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("leadforge.openInTracker", "Landings Library") })
+            ]
+          }
+        ),
+        successfulCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setActiveTab("campaigns"),
+            className: "px-4 py-2 rounded-xl text-sm font-semibold text-white flex items-center gap-2 bg-[var(--color-primary)] hover:opacity-90 transition shadow-sm cursor-pointer",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 16 }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("nav.campaigns", "Go to Campaigns") })
+            ]
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 lg:grid-cols-12 gap-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "lg:col-span-7 space-y-6", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            onDragOver: (e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            },
+            onDragLeave: () => setIsDragging(false),
+            onDrop: handleDrop,
+            onClick: () => fileInputRef.current?.click(),
+            className: `border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center ${isDragging ? "border-[var(--color-primary)] bg-[var(--color-primary-light)]/20 scale-[0.99]" : "border-[var(--color-border)] bg-[var(--color-bg-card)] hover:border-[var(--color-primary)] hover:bg-[var(--color-bg-hover)]"}`,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  ref: fileInputRef,
+                  type: "file",
+                  multiple: true,
+                  accept: ".zip,application/zip",
+                  className: "hidden",
+                  onChange: (e) => {
+                    if (e.target.files) handleAddFiles(e.target.files);
+                    e.target.value = "";
+                  }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-16 h-16 rounded-2xl bg-[var(--color-bg-hover)] flex items-center justify-center text-[var(--color-primary)] mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { size: 28 }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-bold", style: { color: "var(--color-text-primary)" }, children: t("leadforge.dropzoneTitle", "Drag & Drop landing ZIP archives here") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1 max-w-md", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.dropzoneSub", "Supports 1 to 50+ ZIP archives simultaneously from any affiliate network") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  className: "mt-4 px-4 py-1.5 rounded-full text-xs font-semibold bg-[var(--color-primary-light)] text-[var(--color-primary)] hover:opacity-80 transition",
+                  children: t("leadforge.browseFiles", "Browse ZIP Files")
+                }
+              )
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-5 shadow-sm space-y-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(FileArchive, { size: 18, className: "text-[var(--color-primary)]" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: [
+                t("leadforge.selectedFiles", "Archives in queue"),
+                " (",
+                queue.length,
+                ")"
+              ] })
+            ] }),
+            queue.length > 0 && !isProcessing && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: handleClearQueue,
+                className: "text-xs text-red-500 hover:text-red-700 flex items-center gap-1 font-medium transition cursor-pointer",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 13 }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("leadforge.clearQueue", "Clear Queue") })
+                ]
+              }
+            )
+          ] }),
+          queue.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "py-8 text-center", style: { color: "var(--color-text-muted)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(FileArchive, { size: 32, className: "mx-auto mb-2 opacity-40" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", children: t("leadforge.noArchives", "No archives selected. Drop ZIP archives above to start batch preparation.") })
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2.5 max-h-[380px] overflow-y-auto pr-1", children: queue.map((item, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "flex items-center justify-between p-3 rounded-xl border bg-[var(--color-bg-main)] border-[var(--color-border)] gap-3 text-xs",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 min-w-0 flex-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-8 h-8 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border)] flex items-center justify-center font-bold text-[var(--color-text-muted)] shrink-0", children: [
+                    "#",
+                    idx + 1
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 flex-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "text",
+                        value: item.landingName,
+                        disabled: isProcessing,
+                        onChange: (e) => handleUpdateLandingName(item.id, e.target.value),
+                        className: "w-full font-semibold bg-transparent border-b border-transparent hover:border-[var(--color-border)] focus:border-[var(--color-primary)] focus:outline-none px-1 py-0.5 truncate",
+                        style: { color: "var(--color-text-primary)" },
+                        title: "Click to rename landing"
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-[11px] text-[var(--color-text-secondary)] px-1", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: item.fileName }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "•" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: item.fileSize })
+                    ] })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 shrink-0", children: [
+                  item.status === "pending" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)]", children: "Pending" }),
+                  item.status === "processing" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 flex items-center gap-1.5 animate-pulse", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 11, className: "animate-spin" }),
+                    " Forging..."
+                  ] }),
+                  item.status === "success" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 flex items-center gap-1", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12 }),
+                      " Ready (#",
+                      item.result?.landing_id,
+                      ")"
+                    ] }),
+                    item.result?.download_url && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "a",
+                      {
+                        href: item.result.download_url,
+                        download: true,
+                        className: "p-1.5 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)]",
+                        title: "Download Processed ZIP",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 13 })
+                      }
+                    )
+                  ] }),
+                  item.status === "error" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300 flex items-center gap-1", title: item.error, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 12 }),
+                    " Error"
+                  ] }),
+                  !isProcessing && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => handleRemoveQueueItem(item.id),
+                      className: "p-1 text-[var(--color-text-muted)] hover:text-red-500 transition cursor-pointer",
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 })
+                    }
+                  )
+                ] })
+              ]
+            },
+            item.id
+          )) })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:col-span-5 space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-6 shadow-sm space-y-5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 pb-3 border-b border-[var(--color-border)]", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SlidersVertical, { size: 18, className: "text-[var(--color-primary)]" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-bold", style: { color: "var(--color-text-primary)" }, children: t("leadforge.networkApi", "CPA Affiliate Network") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: "CPA Network Preset" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "select",
+            {
+              value: selectedNetwork,
+              onChange: (e) => handleNetworkChange(e.target.value),
+              className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
+              style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+              children: CPA_NETWORKS.map((net) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: net.id, children: net.name }, net.id))
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.apiKey", "API Key / Client Token") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: apiKey,
+              onChange: (e) => handleApiKeyChange(e.target.value),
+              placeholder: "Paste CPA network API Key / Token...",
+              className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
+              style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] text-[var(--color-text-muted)]", children: "Saved automatically per network in browser storage." })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.offerId", "Offer ID / Flow Token") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: offerId,
+              onChange: (e) => setOfferId(e.target.value),
+              placeholder: CPA_NETWORKS.find((n) => n.id === selectedNetwork)?.placeholder || "Offer ID / Stream Token",
+              className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
+              style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.targetGeo", "Target GEO") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "select",
+              {
+                value: selectedGeo,
+                onChange: (e) => setSelectedGeo(e.target.value),
+                className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
+                style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+                children: GEO_PRESETS.map((geo) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: geo.code, children: [
+                  geo.flag,
+                  " ",
+                  geo.name
+                ] }, geo.code))
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.payout", "Default Payout") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "number",
+                  step: "0.1",
+                  value: payout,
+                  onChange: (e) => setPayout(e.target.value),
+                  className: "w-full px-3 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
+                  style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  value: currency,
+                  onChange: (e) => setCurrency(e.target.value.toUpperCase()),
+                  className: "w-16 px-2 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-bold text-center focus:outline-none",
+                  style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+                }
+              )
+            ] })
+          ] })
+        ] }),
+        landingGroups.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.landingGroup", "Landing Group") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: selectedGroupId,
+              onChange: (e) => setSelectedGroupId(e.target.value),
+              className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none",
+              style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "No Group" }),
+                landingGroups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 pt-3 border-t border-[var(--color-border)]", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]", children: t("leadforge.optionsTitle", "Automation & Injection Options") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2.5 cursor-pointer text-xs select-none", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: options.injectOfferMacro,
+                onChange: (e) => setOptions2({ ...options, injectOfferMacro: e.target.checked }),
+                className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optInjectMacro", "Auto-inject {offer} macro into CTA buttons & links") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2.5 cursor-pointer text-xs select-none", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: options.injectJsAdapter,
+                onChange: (e) => setOptions2({ ...options, injectJsAdapter: e.target.checked }),
+                className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optInjectAdapter", "Inject Orbitra JS Adapter & ClickID Bridge") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2.5 cursor-pointer text-xs select-none", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: options.addPhoneMask,
+                onChange: (e) => setOptions2({ ...options, addPhoneMask: e.target.checked }),
+                className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optPhoneMask", "Add GEO Phone Mask & Real-time Regex Validator") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2.5 cursor-pointer text-xs select-none", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: options.generateThankYou,
+                onChange: (e) => setOptions2({ ...options, generateThankYou: e.target.checked }),
+                className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optThankYou", "Generate Universal Localized Thank You Page") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2.5 cursor-pointer text-xs select-none", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: options.generateOrderPhp,
+                onChange: (e) => setOptions2({ ...options, generateOrderPhp: e.target.checked }),
+                className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optOrderPhp", "Generate Secure order.php CPA API Bridge") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2.5 cursor-pointer text-xs select-none", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: options.autoSaveTracker,
+                onChange: (e) => setOptions2({ ...options, autoSaveTracker: e.target.checked }),
+                className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optSaveTracker", "Auto-save to Tracker Landings library") })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            disabled: queue.length === 0 || isProcessing,
+            onClick: handleStartForge,
+            className: `w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white shadow-lg flex items-center justify-center gap-2 transition cursor-pointer ${queue.length === 0 || isProcessing ? "opacity-50 cursor-not-allowed bg-gray-500" : "bg-gradient-to-r from-orange-500 via-amber-500 to-amber-600 hover:opacity-95 shadow-orange-500/20 active:scale-[0.98]"}`,
+            children: isProcessing ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 18, className: "animate-spin" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                t("leadforge.forging", "⚡ Forging Landings..."),
+                " (",
+                progress.current,
+                "/",
+                progress.total,
+                ")"
+              ] })
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 18, className: "fill-white" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                t("leadforge.forgeButton", "⚡ Forge & Save to Tracker"),
+                " (",
+                queue.length,
+                ")"
+              ] })
+            ] })
+          }
+        ) })
+      ] }) })
+    ] }),
+    (logs.length > 0 || isProcessing) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-slate-950 text-slate-200 border border-slate-800 rounded-2xl p-5 font-mono text-xs shadow-xl space-y-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between border-b border-slate-800 pb-3 text-slate-400", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Terminal, { size: 15, className: "text-amber-400" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-slate-200", children: t("leadforge.consoleTitle", "LeadForge Execution Console") })
+        ] }),
+        isProcessing && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px] text-amber-400 font-bold", children: [
+            progress.percent,
+            "%"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-32 h-2 bg-slate-800 rounded-full overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-300",
+              style: { width: `${progress.percent}%` }
+            }
+          ) })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-h-64 overflow-y-auto space-y-1 pr-2", children: [
+        logs.map((log) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-slate-500 shrink-0", children: [
+            "[",
+            log.time,
+            "]"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `break-all ${log.type === "error" ? "text-rose-400 font-semibold" : log.type === "success" ? "text-emerald-400 font-semibold" : log.type === "step" ? "text-amber-300" : "text-slate-300"}`, children: log.msg })
+        ] }, log.id)),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: consoleEndRef })
+      ] })
+    ] })
+  ] });
+};
+const API_URL$1 = "/api.php";
+const STATUS_CONFIG = {
+  sale: { label: "Approved (Sale)", color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800", icon: CircleCheck },
+  approved: { label: "Approved (Sale)", color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800", icon: CircleCheck },
+  lead: { label: "In Process (Hold)", color: "bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border-amber-300 dark:border-amber-800", icon: Clock },
+  processing: { label: "In Process (Hold)", color: "bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border-amber-300 dark:border-amber-800", icon: Clock },
+  rejected: { label: "Rejected", color: "bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300 border-rose-300 dark:border-rose-800", icon: CircleX },
+  trash: { label: "Trash / Spam", color: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-700", icon: TriangleAlert }
+};
+const CRMPage = ({ setActiveTab, user }) => {
+  const { t } = useLanguage();
+  const [leads, setLeads] = reactExports.useState([]);
+  const [loading, setLoading] = reactExports.useState(true);
+  const [campaigns, setCampaigns] = reactExports.useState([]);
+  const [search, setSearch] = reactExports.useState("");
+  const [statusFilter, setStatusFilter] = reactExports.useState("all");
+  const [campaignFilter, setCampaignFilter] = reactExports.useState("all");
+  const [dateRange, setDateRange] = reactExports.useState("all");
+  const [selectedLead, setSelectedLead] = reactExports.useState(null);
+  const [showNewLeadModal, setShowNewLeadModal] = reactExports.useState(false);
+  const [newLeadData, setNewLeadData] = reactExports.useState({
+    name: "",
+    phone: "",
+    subid: "",
+    campaign_id: "",
+    status: "lead",
+    payout: "25",
+    currency: "USD"
+  });
+  const fetchLeads = async () => {
+    setLoading(true);
+    try {
+      const [convRes, campRes] = await Promise.all([
+        axios.get(`${API_URL$1}?action=conversions&per_page=200`).catch(() => ({ data: { status: "error", data: [] } })),
+        axios.get(`${API_URL$1}?action=campaigns`).catch(() => ({ data: { status: "error", data: [] } }))
+      ]);
+      if (convRes.data?.status === "success") {
+        setLeads((convRes.data.data || []).map((c) => ({ ...c, subid: c.subid || c.click_id })));
+      }
+      if (campRes.data?.status === "success") {
+        setCampaigns(campRes.data.data || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch CRM leads:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  reactExports.useEffect(() => {
+    fetchLeads();
+  }, []);
+  const filteredLeads = reactExports.useMemo(() => {
+    return leads.filter((lead) => {
+      if (statusFilter !== "all") {
+        const normStatus = (lead.status || "").toLowerCase();
+        if (statusFilter === "approved" && !["sale", "approved"].includes(normStatus)) return false;
+        if (statusFilter === "processing" && !["lead", "processing"].includes(normStatus)) return false;
+        if (statusFilter === "rejected" && normStatus !== "rejected") return false;
+        if (statusFilter === "trash" && normStatus !== "trash") return false;
+      }
+      if (campaignFilter !== "all" && String(lead.campaign_id) !== String(campaignFilter)) {
+        return false;
+      }
+      if (search) {
+        const q = search.toLowerCase();
+        const matchSub = (lead.subid || "").toLowerCase().includes(q);
+        const matchCamp = (lead.campaign_name || "").toLowerCase().includes(q);
+        const matchOffer = (lead.offer_name || "").toLowerCase().includes(q);
+        const matchTid = (lead.tid || "").toLowerCase().includes(q);
+        if (!matchSub && !matchCamp && !matchOffer && !matchTid) return false;
+      }
+      return true;
+    });
+  }, [leads, statusFilter, campaignFilter, search]);
+  const metrics = reactExports.useMemo(() => {
+    const total = leads.length;
+    let approved = 0;
+    let processing = 0;
+    let rejected = 0;
+    let trash = 0;
+    let revenue = 0;
+    leads.forEach((l) => {
+      const st = (l.status || "").toLowerCase();
+      const p = parseFloat(l.payout || 0);
+      if (["sale", "approved"].includes(st)) {
+        approved++;
+        revenue += p;
+      } else if (["lead", "processing"].includes(st)) {
+        processing++;
+      } else if (st === "rejected") {
+        rejected++;
+      } else if (st === "trash") {
+        trash++;
+      }
+    });
+    const approvalRate = total > 0 ? Math.round(approved / total * 100) : 0;
+    return { total, approved, processing, rejected, trash, revenue: revenue.toFixed(2), approvalRate };
+  }, [leads]);
+  const handleCreateLead = async (e) => {
+    e.preventDefault();
+    try {
+      const subid = (newLeadData.subid || "").trim() || `crm_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+      const res = await axios.post(`${API_URL$1}?action=crm_lead`, {
+        subid,
+        status: newLeadData.status,
+        payout: parseFloat(newLeadData.payout) || 0,
+        currency: newLeadData.currency || "USD",
+        campaign_id: newLeadData.campaign_id || null
+      });
+      if (res.data?.status !== "success") {
+        alert(res.data?.message || t("common.error", "Failed to save lead"));
+        return;
+      }
+      setShowNewLeadModal(false);
+      setNewLeadData({ name: "", phone: "", subid: "", campaign_id: "", status: "lead", payout: "25", currency: "USD" });
+      fetchLeads();
+    } catch (err) {
+      console.error("Failed to create lead:", err);
+      alert(t("common.error", "Failed to save lead"));
+    }
+  };
+  const handleExportCsv = () => {
+    if (filteredLeads.length === 0) return;
+    const headers = ["ID", "Date", "SubID", "Campaign", "Offer", "Status", "Payout", "Currency"];
+    const rows = filteredLeads.map((l) => [
+      l.id || l.tid || "",
+      l.created_at || l.time || "",
+      l.subid || "",
+      `"${(l.campaign_name || "").replace(/"/g, '""')}"`,
+      `"${(l.offer_name || "").replace(/"/g, '""')}"`,
+      l.status || "",
+      l.payout || "0",
+      l.currency || "USD"
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `orbitra_crm_leads_${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 max-w-7xl mx-auto pb-12", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border bg-[var(--color-bg-card)] border-[var(--color-border)] shadow-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-lg shadow-blue-500/20", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Layers, { size: 28 }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-2xl font-bold tracking-tight", style: { color: "var(--color-text-primary)" }, children: "CRM — Order & Lead Pipeline" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border border-blue-200 dark:border-blue-800", children: "3-in-1 Suite Module" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-0.5", style: { color: "var(--color-text-secondary)" }, children: t("crm.subtitle", "Track, filter and manage all customer leads and orders in real time") })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: fetchLeads,
+            disabled: loading,
+            className: "p-2.5 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] transition cursor-pointer",
+            title: "Refresh leads",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: loading ? "animate-spin" : "" })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: handleExportCsv,
+            disabled: filteredLeads.length === 0,
+            className: "px-4 py-2 rounded-xl text-sm font-medium border flex items-center gap-2 hover:bg-[var(--color-bg-hover)] transition cursor-pointer disabled:opacity-50",
+            style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16 }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("crm.exportCsv", "Export CSV") })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setShowNewLeadModal(true),
+            className: "px-4 py-2 rounded-xl text-sm font-semibold text-white flex items-center gap-2 bg-[var(--color-primary)] hover:opacity-90 transition shadow-sm cursor-pointer",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("crm.newLead", "+ New Lead") })
+            ]
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-[var(--color-text-secondary)]", children: t("crm.totalLeads", "Total Leads") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1", style: { color: "var(--color-text-primary)" }, children: metrics.total })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-amber-600 dark:text-amber-400", children: t("crm.inProcess", "Hold / Processing") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-amber-600 dark:text-amber-400", children: metrics.processing })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-emerald-600 dark:text-emerald-400", children: t("crm.approved", "Approved Sales") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400", children: metrics.approved })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-rose-600 dark:text-rose-400", children: t("crm.rejected", "Rejected") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-rose-600 dark:text-rose-400", children: metrics.rejected })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-[var(--color-text-secondary)]", children: t("crm.approvalRate", "Approval Rate") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400", children: [
+          metrics.approvalRate,
+          "%"
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-[var(--color-text-secondary)]", children: t("crm.revenue", "Earned Revenue") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400", children: [
+          "$",
+          metrics.revenue
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full md:w-80", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 16, className: "absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            value: search,
+            onChange: (e) => setSearch(e.target.value),
+            placeholder: t("crm.searchPlaceholder", "Search by SubID, Campaign, Offer..."),
+            className: "w-full pl-10 pr-4 py-2 rounded-xl border bg-[var(--color-bg-main)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
+            style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 w-full md:w-auto overflow-x-auto", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "inline-flex p-1 rounded-xl border items-center gap-1 bg-[var(--color-bg-main)]", style: { borderColor: "var(--color-border)" }, children: [
+          { id: "all", label: "All" },
+          { id: "processing", label: "Hold" },
+          { id: "approved", label: "Approved" },
+          { id: "rejected", label: "Rejected" },
+          { id: "trash", label: "Trash" }
+        ].map((st) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => setStatusFilter(st.id),
+            className: `px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${statusFilter === st.id ? "bg-[var(--color-primary)] text-white shadow-sm" : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"}`,
+            children: st.label
+          },
+          st.id
+        )) }),
+        campaigns.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "select",
+          {
+            value: campaignFilter,
+            onChange: (e) => setCampaignFilter(e.target.value),
+            className: "px-3 py-1.5 rounded-xl border bg-[var(--color-bg-main)] text-xs font-medium focus:outline-none",
+            style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: "All Campaigns" }),
+              campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: c.id, children: c.name }, c.id))
+            ]
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl shadow-sm overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left text-xs", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-[var(--color-bg-main)] border-b border-[var(--color-border)] uppercase tracking-wider font-semibold text-[var(--color-text-muted)]", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5", children: "ID / ClickID" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5", children: t("crm.date", "Date / Time") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5", children: "Campaign" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5", children: "Offer" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5", children: t("crm.status", "Status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5 text-right", children: t("crm.payout", "Payout") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5 text-center", children: t("crm.actions", "Actions") })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-[var(--color-border)]", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { colSpan: 7, className: "py-12 text-center text-sm", style: { color: "var(--color-text-muted)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 20, className: "animate-spin mx-auto mb-2" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Loading orders and leads..." })
+      ] }) }) : filteredLeads.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { colSpan: 7, className: "py-12 text-center text-sm", style: { color: "var(--color-text-muted)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Layers, { size: 28, className: "mx-auto mb-2 opacity-40" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("crm.noLeads", "No leads found matching current filters.") })
+      ] }) }) : filteredLeads.map((lead, idx) => {
+        const stKey = (lead.status || "lead").toLowerCase();
+        const stInfo = STATUS_CONFIG[stKey] || STATUS_CONFIG.lead;
+        const StIcon = stInfo.icon;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-[var(--color-bg-hover)] transition", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 font-mono font-medium", style: { color: "var(--color-text-primary)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-1.5", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: lead.subid || lead.tid || `LEAD-${idx + 1}` }) }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-[var(--color-text-secondary)] whitespace-nowrap", children: lead.created_at || lead.time || "Just now" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 font-medium", style: { color: "var(--color-text-primary)" }, children: lead.campaign_name || "Direct / Generic" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-[var(--color-text-secondary)]", children: lead.offer_name || "LeadForge Lander" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${stInfo.color}`, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(StIcon, { size: 12 }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: stInfo.label })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400", children: [
+            "$",
+            parseFloat(lead.payout || 0).toFixed(2)
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: () => setSelectedLead(lead),
+              className: "p-1.5 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] transition cursor-pointer",
+              title: "View Lead Details",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { size: 13 })
+            }
+          ) })
+        ] }, lead.id || lead.tid || idx);
+      }) })
+    ] }) }) }),
+    selectedLead && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-[2000] flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between pb-3 border-b border-[var(--color-border)]", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-bold", style: { color: "var(--color-text-primary)" }, children: t("crm.leadDetails", "Lead Details") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => setSelectedLead(null),
+            className: "p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 18 })
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-xl bg-[var(--color-bg-main)] border border-[var(--color-border)] space-y-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: "SubID / Click ID:" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono font-bold", style: { color: "var(--color-text-primary)" }, children: selectedLead.subid || selectedLead.tid })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: "Date:" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: selectedLead.created_at || selectedLead.time })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: "Campaign:" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: selectedLead.campaign_name || "N/A" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: "Offer:" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: selectedLead.offer_name || "N/A" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: "Status:" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold uppercase text-emerald-600 dark:text-emerald-400", children: selectedLead.status })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: "Payout:" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-bold text-emerald-600 dark:text-emerald-400", children: [
+            "$",
+            selectedLead.payout || "0.00"
+          ] })
+        ] })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          onClick: () => setSelectedLead(null),
+          className: "w-full py-2.5 rounded-xl font-bold bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] hover:opacity-80 transition cursor-pointer",
+          children: "Close"
+        }
+      )
+    ] }) }),
+    showNewLeadModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-[2000] flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleCreateLead, className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between pb-3 border-b border-[var(--color-border)]", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-bold", style: { color: "var(--color-text-primary)" }, children: t("crm.newLead", "+ Create New Order / Lead") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => setShowNewLeadModal(false),
+            className: "p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 18 })
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 text-xs", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: "Customer Name" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: newLeadData.name,
+              onChange: (e) => setNewLeadData({ ...newLeadData, name: e.target.value }),
+              placeholder: "e.g. Marco Rossi",
+              className: "w-full px-3 py-2 rounded-xl border bg-[var(--color-bg-main)] text-sm focus:outline-none",
+              style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: "Phone Number" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: newLeadData.phone,
+              onChange: (e) => setNewLeadData({ ...newLeadData, phone: e.target.value }),
+              placeholder: "e.g. +39 345 1234567",
+              className: "w-full px-3 py-2 rounded-xl border bg-[var(--color-bg-main)] text-sm focus:outline-none",
+              style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: "Initial Status" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                value: newLeadData.status,
+                onChange: (e) => setNewLeadData({ ...newLeadData, status: e.target.value }),
+                className: "w-full px-3 py-2 rounded-xl border bg-[var(--color-bg-main)] text-xs font-semibold focus:outline-none",
+                style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "lead", children: "Lead / Processing" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sale", children: "Approved / Sale" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "rejected", children: "Rejected" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "trash", children: "Trash" })
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: "Payout ($)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "number",
+                value: newLeadData.payout,
+                onChange: (e) => setNewLeadData({ ...newLeadData, payout: e.target.value }),
+                className: "w-full px-3 py-2 rounded-xl border bg-[var(--color-bg-main)] text-sm font-semibold focus:outline-none",
+                style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+              }
+            )
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 pt-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => setShowNewLeadModal(false),
+            className: "flex-1 py-2.5 rounded-xl font-medium border border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] text-xs text-[var(--color-text-primary)]",
+            children: "Cancel"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "submit",
+            className: "flex-1 py-2.5 rounded-xl font-bold bg-[var(--color-primary)] text-white text-xs hover:opacity-90 transition shadow-sm",
+            children: "Save Lead"
+          }
+        )
+      ] })
+    ] }) })
+  ] });
+};
 const API_URL = "/api.php";
 const DEFAULT_ACTIVE_METRICS = [
   "clicks",
@@ -86996,7 +91651,9 @@ function App() {
       "trends",
       "postback",
       "simulation",
-      "logs"
+      "logs",
+      "leadforge",
+      "crm"
     ]);
     if (baseTabs.has(tab)) return tab;
     if (tab.startsWith("admin_")) return tab;
@@ -87290,7 +91947,9 @@ function App() {
           activeTab === "conversions" && t("app.conversions"),
           activeTab === "postback" && t("app.postback"),
           activeTab === "landings" && t("app.landings"),
-          activeTab === "simulation" && t("app.simulation")
+          activeTab === "simulation" && t("app.simulation"),
+          activeTab === "leadforge" && (t("leadforge.title") || "LeadForge"),
+          activeTab === "crm" && (t("crm.title") || "CRM")
         ] }),
         activeTab === "dashboard" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm hidden md:block", style: { color: "var(--color-text-secondary)" }, children: [
           t("app.updated"),
@@ -87374,6 +92033,20 @@ function App() {
       activeTab === "trends" && /* @__PURE__ */ jsxRuntimeExports.jsx(TrendsPage, {}),
       activeTab === "postback" && /* @__PURE__ */ jsxRuntimeExports.jsx(PostbackSettings, {}),
       activeTab === "simulation" && /* @__PURE__ */ jsxRuntimeExports.jsx(TrafficSimulation, {}),
+      activeTab === "leadforge" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        LeadForgePage,
+        {
+          setActiveTab,
+          refreshData: fetchData
+        }
+      ),
+      activeTab === "crm" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        CRMPage,
+        {
+          setActiveTab,
+          user
+        }
+      ),
       activeTab === "campaign_editor" && /* @__PURE__ */ jsxRuntimeExports.jsx(
         CampaignEditor,
         {

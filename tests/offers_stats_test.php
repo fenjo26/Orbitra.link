@@ -46,6 +46,11 @@ $ins = $pdo->prepare('INSERT INTO clicks (id, campaign_id, offer_id, ip, cost) V
 $ins->execute(['c1', 1, 1, '1.1.1.1', 0.5]);
 $ins->execute(['c2', 1, 1, '2.2.2.2', 0.7]);
 $ins->execute(['c3', 1, 1, '1.1.1.1', 0.3]);
+$pdo->exec("UPDATE clicks SET created_at = CASE id
+    WHEN 'c1' THEN '2026-08-15 12:00:00'
+    WHEN 'c2' THEN '2026-08-16 12:00:00'
+    WHEN 'c3' THEN '2026-08-17 12:00:00'
+END");
 
 $cv = $pdo->prepare('INSERT INTO conversions (click_id, tid, status, payout) VALUES (?,?,?,?)');
 $cv->execute(['c1', 'a1', 'sale', 20]);
@@ -104,6 +109,24 @@ $assert('B cpc', $mB['cpc'], 0);
 $assert('B cpv', $mB['cpv'], 0);
 $assert('B profit_confirmed', $mB['profit_confirmed'], 0);
 $assert('B roi_confirmed (null = no cost)', $mB['roi_confirmed'], null);
+
+// The Offers DateRangePicker injects these predicates into the click LEFT
+// JOIN. A one-day range must recalculate metrics from that day's clicks while
+// retaining Offer B as a zero-traffic row.
+$datedStmt = $pdo->prepare(orbitraOffersWithStatsSql(
+    "AND date(cl.created_at, '+00:00') >= date(?) AND date(cl.created_at, '+00:00') <= date(?)",
+    'payout'
+) . ' ORDER BY id');
+$datedStmt->execute(['2026-08-16', '2026-08-16']);
+$datedRows = $datedStmt->fetchAll(PDO::FETCH_ASSOC);
+$assert('dated row count keeps zero-traffic offers', count($datedRows), 2);
+$assert('dated A clicks', $datedRows[0]['clicks'], 1);
+$assert('dated A conversions', $datedRows[0]['conversions'], 2);
+$assert('dated A sales', $datedRows[0]['sales'], 1);
+$assert('dated A leads', $datedRows[0]['leads'], 1);
+$assert('dated A revenue', $datedRows[0]['revenue'], 12);
+$assert('dated A cost', $datedRows[0]['cost'], 0.7);
+$assert('dated B clicks', $datedRows[1]['clicks'], 0);
 
 @unlink($tmpDb);
 echo "offers_stats_test: all assertions passed\n";

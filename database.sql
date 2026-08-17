@@ -122,19 +122,41 @@ CREATE TABLE campaign_groups (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE pixel_profiles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        traffic_source TEXT NOT NULL DEFAULT 'facebook',
+        niche TEXT DEFAULT 'General',
+        name TEXT NOT NULL,
+        pixel_id TEXT NOT NULL,
+        token TEXT NOT NULL DEFAULT '',
+        event_url TEXT,
+        test_event_code TEXT,
+        events TEXT DEFAULT 'PageView,Lead,Purchase',
+        is_active INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+
+CREATE INDEX idx_pixel_profiles_traffic_source ON pixel_profiles(traffic_source);
+CREATE INDEX idx_pixel_profiles_niche ON pixel_profiles(niche);
 
 CREATE TABLE campaign_pixels (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         campaign_id INTEGER NOT NULL,
+        pixel_profile_id INTEGER,
         type TEXT NOT NULL,
         pixel_id TEXT NOT NULL,
         token TEXT,
         events TEXT DEFAULT 'PageView,Lead',
         is_active INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE
+        FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE,
+        FOREIGN KEY (pixel_profile_id) REFERENCES pixel_profiles(id) ON DELETE CASCADE
     );
+
+CREATE INDEX idx_campaign_pixels_profile ON campaign_pixels(pixel_profile_id);
 
 CREATE TABLE campaign_postbacks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -407,7 +429,7 @@ CREATE TABLE s2s_postbacks_log (
         url TEXT NOT NULL,
         status_code INTEGER,
         response TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP, attempts INTEGER DEFAULT 0, http_code INTEGER, last_error TEXT, method TEXT DEFAULT 'GET', next_retry_at DATETIME, postback_id INTEGER, status TEXT DEFAULT 'delivered', updated_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP, attempts INTEGER DEFAULT 0, http_code INTEGER, last_error TEXT, method TEXT DEFAULT 'GET', next_retry_at DATETIME, postback_id INTEGER, status TEXT DEFAULT 'delivered', updated_at DATETIME, headers_json TEXT,
         FOREIGN KEY (conversion_id) REFERENCES conversions(id) ON DELETE SET NULL
     );
 

@@ -16,6 +16,7 @@ require_once __DIR__ . '/../core/ClickParams.php';
 require_once __DIR__ . '/../core/CurrencyRates.php';
 require_once __DIR__ . '/../core/CostImporter.php';
 require_once __DIR__ . '/../core/FacebookConversions.php';
+require_once __DIR__ . '/../core/TikTokConversions.php';
 
 $passed = 0;
 $failed = 0;
@@ -55,7 +56,7 @@ $pdo->exec("CREATE TABLE cost_records (
 $pdo->exec("CREATE TABLE s2s_postbacks_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT, conversion_id INTEGER, url TEXT, method TEXT,
     status TEXT, attempts INTEGER, next_retry_at DATETIME, postback_id INTEGER,
-    payload_json TEXT, content_type TEXT, proxy_url TEXT, updated_at DATETIME
+    payload_json TEXT, content_type TEXT, proxy_url TEXT, headers_json TEXT, updated_at DATETIME
 )");
 
 $pdo->exec("INSERT INTO settings (key, value) VALUES ('currency', 'USD')");
@@ -268,6 +269,54 @@ check('browser-only pixel (no token) is not queued',
     FacebookConversions::enqueue($pdo, ['pixel_id' => '1', 'token' => ''], $clickRow, ['status' => 'sale'], null) === false);
 check('suppressed status is not queued',
     FacebookConversions::enqueue($pdo, $pixel, $clickRow, ['status' => 'rejected'], null) === false);
+
+// ---- 5. TikTok Events API -------------------------------------------------
+
+echo "\nTikTokConversions\n";
+
+$tikTokPixel = [
+    'pixel_id' => 'TT-PIXEL-123',
+    'token' => 'tt-secret-token',
+    'event_source_url' => 'https://thanks.example.com/{clickid}',
+];
+$tikTokPayload = TikTokConversions::buildPayload($tikTokPixel, $clickRow, [
+    'event_name' => 'CompletePayment',
+    'event_time' => 1700000000,
+    'event_id' => 'click-ad-1_sale',
+    'payout' => 42.5,
+    'currency' => 'USD',
+    'click_params' => ['ttclid' => 'ttclid-test'],
+    'extra' => ['email' => ' Buyer@Example.com '],
+]);
+
+check('TikTok sale maps to CompletePayment', TikTokConversions::resolveEvent('sale') === 'CompletePayment');
+check('TikTok rejected status is suppressed', TikTokConversions::resolveEvent('rejected') === null);
+check('TikTok payload carries pixel, event, value and callback',
+    $tikTokPayload['pixel_code'] === 'TT-PIXEL-123'
+    && $tikTokPayload['event'] === 'CompletePayment'
+    && abs($tikTokPayload['properties']['value'] - 42.5) < 0.001
+    && $tikTokPayload['context']['ad']['callback'] === 'ttclid-test');
+check('TikTok hashes email and resolves the event URL',
+    $tikTokPayload['context']['user']['email'] === hash('sha256', 'buyer@example.com')
+    && $tikTokPayload['context']['page']['url'] === 'https://thanks.example.com/click-ad-1');
+
+$tikTokQueued = TikTokConversions::enqueue($pdo, $tikTokPixel, $clickRow, [
+    'status' => 'sale',
+    'payout' => 42.5,
+    'currency' => 'USD',
+    'event_id' => 'click-ad-1_sale',
+    'click_params' => ['ttclid' => 'ttclid-test'],
+    'extra' => [],
+], 100);
+$tikTokRow = $pdo->query("SELECT * FROM s2s_postbacks_log ORDER BY id DESC LIMIT 1")->fetch();
+$tikTokHeaders = json_decode((string) $tikTokRow['headers_json'], true);
+check('TikTok event queued with its server-side access-token header',
+    $tikTokQueued === true
+    && ($tikTokHeaders['Access-Token'] ?? '') === 'tt-secret-token'
+    && str_contains((string) $tikTokRow['url'], 'business-api.tiktok.com'));
+check('TikTok token never appears in the URL or payload',
+    !str_contains((string) $tikTokRow['url'], 'tt-secret-token')
+    && !str_contains((string) $tikTokRow['payload_json'], 'tt-secret-token'));
 
 // ---- Summary ---------------------------------------------------------------
 

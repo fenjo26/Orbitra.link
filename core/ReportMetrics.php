@@ -177,7 +177,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
     {
         $agg = orbitraConversionAggregateSql($valueColumn);
         return "
-            SELECT id, name, type, url, state, group_name,
+            SELECT id, name, group_id, type, url, state, group_name,
                    COUNT(click_id) as clicks,
                    COUNT(DISTINCT click_ip) as unique_clicks,
                    COALESCE(SUM(offer_clicked), 0) as lp_clicks,
@@ -191,7 +191,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(click_cost), 0) as cost,
                    MAX(click_created) as last_event
             FROM (
-                SELECT l.id, l.name, l.type, l.url, l.state,
+                SELECT l.id, l.name, l.group_id, l.type, l.url, l.state,
                        lg.name as group_name,
                        cl.id as click_id,
                        cl.ip as click_ip,
@@ -286,7 +286,10 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             'prelander_clicks'        => $lpViews,
             'lp_clicks'               => $lpClicks,
             'offer_clicks'            => $offerClicks,
-            'lp_ctr'                  => $lpViews > 0 ? round(($lpClicks / $lpViews) * 100, 2) : 0,
+            // LP CTR is a landing-funnel metric: with no landing in the chain
+            // there is no CTA to measure, so it is null (rendered as a dash),
+            // never a made-up 0% or 100%.
+            'lp_ctr'                  => $lpViews > 0 ? round(($lpClicks / $lpViews) * 100, 2) : null,
             // Average landing→offer time, human-formatted ("1m 12s").
             'time_since_lp_click'     => self_fmtLpSeconds($raw['avg_lp_seconds'] ?? null),
 
@@ -351,9 +354,15 @@ if (!function_exists('orbitraConversionStatusGroups')) {
 
             'cpc'                     => $clickDenominator > 0 ? round($cost / $clickDenominator, 4) : 0,
             'ucpc'                    => $uniqueClicks > 0 ? round($cost / $uniqueClicks, 4) : 0,
-            'cpv'                     => $lpViews > 0 ? round($cost / $lpViews, 4) : 0,
-            'epv'                     => $lpViews > 0 ? round($revenue / $lpViews, 4) : 0,
-            'epv_confirmed'           => $lpViews > 0 ? round($revConfirmed / $lpViews, 4) : 0,
+            // CPV/EPV are the UNIVERSAL unit economics: over ALL inbound
+            // visits, so they stay truthful when a campaign mixes Lander
+            // streams with direct-to-offer streams (and for pure direct
+            // traffic, where LP views are zero and the old denominator
+            // zeroed these out). In a pure Lander flow every visit IS an
+            // LP view, so the value is identical either way.
+            'cpv'                     => $clicks > 0 ? round($cost / $clicks, 4) : 0,
+            'epv'                     => $clicks > 0 ? round($revenue / $clicks, 4) : 0,
+            'epv_confirmed'           => $clicks > 0 ? round($revConfirmed / $clicks, 4) : 0,
             // eCPC — effective CPC once conversions are weighed in is not
             // derivable from these counters; keep it the plain cost per click
             // (identical to CPC) rather than the bogus cost*1000 it used to be.

@@ -24,6 +24,8 @@ import TrendsPage from './components/TrendsPage';
 import CampaignEditor from './components/CampaignEditor';
 import DashboardHeader from './components/DashboardHeader';
 import DashboardSettingsModal from './components/DashboardSettingsModal';
+import LeadForgePage from './components/LeadForgePage';
+import CRMPage from './components/CRMPage';
 import { canAccessTab, firstAllowedTab } from './utils/permissions';
 
 // In development, Vite runs on port 5173 and the API on 8080.
@@ -95,7 +97,9 @@ function App() {
       'trends',
       'postback',
       'simulation',
-      'logs'
+      'logs',
+      'leadforge',
+      'crm'
     ]);
 
     if (baseTabs.has(tab)) return tab;
@@ -461,6 +465,8 @@ function App() {
                 {activeTab === 'postback' && t('app.postback')}
                 {activeTab === 'landings' && t('app.landings')}
                 {activeTab === 'simulation' && t('app.simulation')}
+                {activeTab === 'leadforge' && (t('leadforge.title') || 'LeadForge')}
+                {activeTab === 'crm' && (t('crm.title') || 'CRM')}
               </h1>
               {activeTab === 'dashboard' && (
                 <div className="text-sm hidden md:block" style={{ color: 'var(--color-text-secondary)' }}>
@@ -566,6 +572,20 @@ function App() {
 
             {activeTab === 'simulation' && (
               <TrafficSimulation />
+            )}
+
+            {activeTab === 'leadforge' && (
+              <LeadForgePage
+                setActiveTab={setActiveTab}
+                refreshData={fetchData}
+              />
+            )}
+
+            {activeTab === 'crm' && (
+              <CRMPage
+                setActiveTab={setActiveTab}
+                user={user}
+              />
             )}
 
             {activeTab === 'campaign_editor' && (

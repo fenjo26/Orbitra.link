@@ -47,7 +47,9 @@ $assert('cnt_sale m1', $agg['cnt_sale'], 3, 0);
 $assert('rev_sale m1', $agg['rev_sale'], 45);
 
 // Whole-set derived metrics: clicks 6, uniques 5, cost 21, lp views 3,
-// lp transitions 3, offer clicks 4 (one direct-linked).
+// lp transitions 3, offer clicks 4 (one direct-linked) — a MIXED campaign:
+// 3 visits through landings + 3 direct/no-landing visits. CPV/EPV are the
+// universal economics over ALL 6 inbound visits (not just the 3 LP views).
 $m = orbitraComputeDerivedMetrics([
     'clicks' => 6, 'unique_clicks' => 5,
     'unique_clicks_stream' => 5, 'unique_clicks_global' => 4, 'visitors' => 4,
@@ -72,9 +74,9 @@ $expected = [
     'roi' => 297.62, 'roi_confirmed' => 114.29, 'profitability' => 74.85,
     'cr' => 133.33, 'cr_sales' => 50, 'cr_deposits' => 16.67, 'cr_regs_to_deps' => 100, 'ucr' => 20,
     'epc' => 27.8333, 'uepc' => 16.7, 'epc_confirmed' => 15, 'uepc_confirmed' => 9,
-    'epv' => 27.8333, 'epv_confirmed' => 15,
+    'epv' => 13.9167, 'epv_confirmed' => 7.5,
     'cps' => 7, 'cpl' => 21, 'cpr' => 21, 'cpd' => 21, 'cpa' => 2.63,
-    'cpc' => 7, 'ucpc' => 4.2, 'cpv' => 7, 'ecpc' => 3.5,
+    'cpc' => 7, 'ucpc' => 4.2, 'cpv' => 3.5, 'ecpc' => 3.5,
     'ecpm_all' => 10416.67, 'ecpm_confirmed' => 4000,
     'earnings_per_conv' => 10.44, 'ec_confirmed' => 15,
     'real_profit' => 19, 'real_roi' => 90.48,
@@ -87,6 +89,8 @@ foreach ($expected as $k => $v) {
 
 // Canonical media-buying funnel: 1,000 LP views, 200 CTA clicks, $200 cost,
 // $500 revenue. These five values pin every requested denominator explicitly.
+// Pure Lander flow: every visit IS an LP view, so universal CPV/EPV (over
+// visits) equal the LP-view denominators exactly.
 $funnel = orbitraComputeDerivedMetrics([
     'clicks' => 1000, 'prelander_clicks' => 1000, 'lp_clicks' => 200,
     'cost' => 200, 'revenue' => 500,
@@ -94,6 +98,18 @@ $funnel = orbitraComputeDerivedMetrics([
 foreach (['lp_ctr' => 20, 'cpv' => 0.2, 'cpc' => 1, 'epv' => 0.5, 'epc' => 2.5] as $metric => $value) {
     $assert("canonical funnel $metric", $funnel[$metric], $value);
 }
+
+// Direct-to-offer stream (no landing in the chain): LP views are zero, so
+// CPV/EPV carry the economics alone, EPC/CPC mirror them (a direct click IS
+// the visit), and LP CTR is a dash — there is no CTA to measure.
+$direct = orbitraComputeDerivedMetrics([
+    'clicks' => 400, 'prelander_clicks' => 0, 'lp_clicks' => 0, 'offer_clicks' => 400,
+    'cost' => 80, 'revenue' => 200,
+]);
+foreach (['cpv' => 0.2, 'cpc' => 0.2, 'epv' => 0.5, 'epc' => 0.5] as $metric => $value) {
+    $assert("direct flow $metric (visit-denominated)", $direct[$metric], $value);
+}
+$assert('direct flow lp_ctr is a dash', $direct['lp_ctr'], null);
 
 // ROI at zero spend must be null (rendered as a dash), not a made-up 100%.
 $zero = orbitraComputeDerivedMetrics(['clicks' => 1, 'cost' => 0, 'revenue' => 5]);
@@ -105,9 +121,10 @@ $funnelZero = orbitraComputeDerivedMetrics([
     'clicks' => 0, 'prelander_clicks' => 0, 'lp_clicks' => 0,
     'cost' => 10, 'revenue' => 20,
 ]);
-foreach (['lp_ctr', 'cpv', 'cpc', 'epv', 'epc'] as $metric) {
+foreach (['cpv', 'cpc', 'epv', 'epc'] as $metric) {
     $assert("$metric is zero with a zero denominator", $funnelZero[$metric], 0);
 }
+$assert('lp_ctr is a dash with a zero denominator', $funnelZero['lp_ctr'], null);
 
 // ---------------------------------------------------------------------------
 // Production SQL check for the Landings/Offers table pages: seed the mini
@@ -187,6 +204,7 @@ foreach ($rows as $r) { $lp[$r['id']] = $deriveRow($r); }
 // Landing 1: 3 visits / 2 unique, 1 LP click, 6 conversion events (3 sale +
 // deposit + reg + lead), revenue 45+31+2=78, cost 16.
 $assert('L1 clicks', $lp[1]['clicks'], 3, 0);
+$assert('L1 group_id is available to UI filters', $lp[1]['group_id'], 1, 0);
 $assert('L1 visits alias', $lp[1]['visits'], 3, 0);
 $assert('L1 unique_clicks', $lp[1]['unique_clicks'], 2, 0);
 $assert('L1 unique_visits alias', $lp[1]['unique_visits'], 2, 0);
@@ -217,11 +235,24 @@ $assert('L2 approve_rate (1 rejected → 0%)', $lp[2]['approve_rate'], 0);
 $assert('L2 profit_confirmed', $lp[2]['profit_confirmed'], -4);
 $assert('L2 roi_confirmed', $lp[2]['roi_confirmed'], -100);
 
-// Landing 3: no clicks at all — zero counters, ratios 0, ROI a dash.
+// Landing 3: no clicks at all — zero counters, ratios 0, LP CTR and ROI dashes.
 $assert('L3 clicks', $lp[3]['clicks'], 0, 0);
-$assert('L3 lp_ctr', $lp[3]['lp_ctr'], 0);
+$assert('L3 lp_ctr', $lp[3]['lp_ctr'], null);
 $assert('L3 cpv', $lp[3]['cpv'], 0);
 $assert('L3 roi null', $lp[3]['roi'], null);
+
+// Date predicates belong in the click JOIN: an empty date must zero the
+// metrics without removing landing rows from the management table.
+$datedLandingStmt = $pdo->prepare(
+    orbitraLandingsWithStatsSql(
+        "AND date(cl.created_at, '+00:00') >= date(?) AND date(cl.created_at, '+00:00') <= date(?)",
+        'payout'
+    ) . ' ORDER BY id'
+);
+$datedLandingStmt->execute(['2026-01-02', '2026-01-02']);
+$datedLandings = $datedLandingStmt->fetchAll(PDO::FETCH_ASSOC);
+$assert('Dated landing filter keeps all rows', count($datedLandings), 3, 0);
+$assert('Dated landing filter zeroes out-of-range clicks', $datedLandings[0]['clicks'], 0, 0);
 
 $of = [];
 foreach ($pdo->query(orbitraOffersWithStatsSql('', 'payout') . ' ORDER BY id')->fetchAll(PDO::FETCH_ASSOC) as $r) {

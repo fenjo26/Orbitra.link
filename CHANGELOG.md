@@ -7,6 +7,81 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.0] — 2026-08-17
+
+The 1.0 milestone: Orbitra grows from a click tracker into a full funnel
+suite — forge the landings, track the traffic, collect the leads.
+
+### Added
+- 🏗️ **LeadForge (landing forge)** — generates ready-to-upload landing
+  packages; the order.php / thank_you.php form handlers are served through an
+  in-process bridge in index.php (static hosting works), subid is carried via
+  a hidden field or the orbitra_click cookie, and finished packages download
+  through a tokenized endpoint.
+- 🧲 **CRM capsule** — leads arrive via api.php `crm_lead` (a minimal click is
+  created when the form post has none); LeadForge / Tracker / CRM are unified
+  by a suite switcher in the navbar.
+- 🎯 **TikTok Conversions API** — server-side events through
+  core/TikTokConversions.php alongside the Facebook CAPI; pixel profiles
+  (traffic source, niche, event set, test codes) drive both engines, and a
+  schema_migrations panel reports applied versions (schema version 26, SQL
+  reference kept in migrations/).
+- 🔍 **Inline mini search** in Offers / Campaigns / Landings — the input lives
+  in the header action group next to Create / Groups, filters live by name,
+  URL, group, network and exact ID, with a one-click ✕ clear.
+- 📄 **Universal table pagination** — shared PaginationToolbar (Showing X-Y
+  of N rows · Page Size 25/50/100/250/All · First/Prev/pages/Next/Last) under
+  the Campaigns, Offers and Landings tables; the page size is remembered in
+  localStorage across tables while TOTAL rows stay computed over the whole
+  filtered list.
+- 🔀 **Traffic source filter in Campaigns** — an "All traffic sources"
+  dropdown next to the group filter narrows the table instantly (client-side;
+  rows already ship source_id/source_name), and TOTAL recomputes with it.
+
+### Fixed
+- **Navbar no longer clips on laptops** — the desktop menu moves to the xl
+  breakpoint (1280px) with a compact NavItem; below it the hamburger opens the
+  full drawer (suite switcher, navigation, settings) instead of links
+  overflowing the right edge on 768–1280px screens.
+- **Dashboard horizontal scroll is gone** — StatCards drop the negative-margin
+  bleed for a responsive grid (2→7 columns by viewport), and the
+  DashboardHeader campaign/date selectors stretch fluidly instead of the fixed
+  300px that overlapped on tablets.
+- **Stream weights are visible again** — with By-weight rotation every stream
+  header carries the weight input plus a live share badge (e.g. 70.0%), a
+  Total Stream Weight bar warns when the sum ≠ 100%, and Split Evenly hands
+  out 100% across active streams in one click.
+- **Traffic Sources page is fast** — the stats query aggregates clicks per
+  source in a single subquery pass instead of joining the whole clicks table
+  per source row (semantics unchanged), and the source editor caches its
+  template list at module level so the modal opens instantly.
+- **Copy buttons work on plain HTTP/IP installs** — the postback URL
+  (Affiliate Networks), source URL and campaign-link copies now route through
+  the shared execCommand-fallback util instead of raw navigator.clipboard
+  (blocked outside HTTPS), and the postback code block is click-to-copy.
+- Carries everything from the unreleased 0.9.9.2: universal CPV/EPV
+  direct-vs-Lander funnel semantics (see the 0.9.9.2 entry below).
+
+## [0.9.9.2] — 2026-08-17
+
+### Fixed
+- **Direct vs Lander funnel semantics in the report math** — CPV / EPV (and
+  EPV confirmed) are now computed over ALL inbound visits, making them the
+  universal unit economics: exact when a campaign mixes Lander streams with
+  direct-to-offer streams, and no longer zeroed out on pure direct traffic
+  where LP views don't exist. In a pure Lander flow every visit IS an LP
+  view, so those values are unchanged.
+- **LP CTR on direct offers** is now a dash (`null`) — there is no CTA to
+  measure; the UI renders `—` instead of a made-up 0%/100%, and CSV leaves
+  the cell empty. Division-by-zero guards cover every denominator.
+
+### Changed
+- Metric tooltips (column customizer) explain the dual semantics — universal
+  CPV/EPV vs Lander-funnel EPC/CPC / LP CTR — in all 7 languages.
+- `tests/report_metrics_test.php` pins the new math with hand-computed
+  reference cases: a direct-flow stream, a mixed campaign row, and the
+  canonical funnel (Lander parity proof).
+
 ## [0.9.9.1] — 2026-08-17
 
 ### Added

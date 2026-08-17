@@ -75,6 +75,189 @@ function orbitraRequestBody()
     return (string) file_get_contents('php://input');
 }
 
+// === Facebook Costs OAuth helpers ===
+
+/** Marketing API version shared with FacebookAdsEngine's current default. */
+function orbitraFacebookOAuthApiVersion(): string
+{
+    return 'v25.0';
+}
+
+/**
+ * The shared Meta app can be provisioned through environment variables or the
+ * settings table. A manually-created Facebook connection is a final fallback,
+ * which also supports operators who bring their own Meta app.
+ *
+ * Secrets are only read server-side and are never returned to the browser.
+ *
+ * @return array{app_id:string,app_secret:string}
+ */
+function orbitraFacebookOAuthCredentials(PDO $pdo): array
+{
+    $appId = trim((string) (getenv('ORBITRA_META_APP_ID') ?: ''));
+    $appSecret = trim((string) (getenv('ORBITRA_META_APP_SECRET') ?: ''));
+
+    try {
+        $rows = $pdo->query("SELECT key, value FROM settings WHERE key IN ('facebook_oauth_app_id','facebook_oauth_app_secret','meta_app_id','meta_app_secret')")
+            ->fetchAll(PDO::FETCH_KEY_PAIR);
+        if ($appId === '') {
+            $appId = trim((string) ($rows['facebook_oauth_app_id'] ?? $rows['meta_app_id'] ?? ''));
+        }
+        if ($appSecret === '') {
+            $appSecret = trim((string) ($rows['facebook_oauth_app_secret'] ?? $rows['meta_app_secret'] ?? ''));
+        }
+    } catch (\Throwable $e) {
+        // A fresh/partial database can still use environment variables.
+    }
+
+    if ($appId === '' || $appSecret === '') {
+        try {
+            $stmt = $pdo->query("SELECT credentials_json FROM aggregator_connections WHERE engine = 'facebook' ORDER BY id DESC");
+            foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $raw) {
+                $credentials = json_decode((string) $raw, true);
+                if (!is_array($credentials)) {
+                    continue;
+                }
+                if ($appId === '') {
+                    $appId = trim((string) ($credentials['app_id'] ?? ''));
+                }
+                if ($appSecret === '') {
+                    $appSecret = trim((string) ($credentials['app_secret'] ?? ''));
+                }
+                if ($appId !== '' && $appSecret !== '') {
+                    break;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Missing aggregator table is handled by the validation below.
+        }
+    }
+
+    if ($appId !== '' && !ctype_digit($appId)) {
+        $appId = '';
+    }
+
+    return ['app_id' => $appId, 'app_secret' => $appSecret];
+}
+
+/** The exact browser origin to which the OAuth popup may post its result. */
+function orbitraFacebookOAuthOrigin(): string
+{
+    $scheme = orbitraIsHttps() ? 'https' : 'http';
+    $host = trim((string) ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+    if ($host === '' || preg_match('/[\x00-\x20\x7f]/', $host)) {
+        $host = 'localhost';
+    }
+
+    $candidate = $scheme . '://' . $host;
+    $parts = parse_url($candidate);
+    if (!is_array($parts) || empty($parts['host'])) {
+        return $scheme . '://localhost';
+    }
+
+    $origin = $scheme . '://';
+    if (str_contains((string) $parts['host'], ':')) {
+        $origin .= '[' . trim((string) $parts['host'], '[]') . ']';
+    } else {
+        $origin .= $parts['host'];
+    }
+    if (isset($parts['port'])) {
+        $origin .= ':' . (int) $parts['port'];
+    }
+    return $origin;
+}
+
+/**
+ * Finish the popup flow without putting the access token into a URL or a
+ * cross-window message. Only an opaque flow id and account metadata leave PHP.
+ *
+ * @param array<string,mixed> $payload
+ */
+function orbitraFacebookOAuthPopupResponse(array $payload, string $origin): void
+{
+    $nonce = base64_encode(random_bytes(18));
+    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    if (!is_string($json)) {
+        $json = '{"type":"orbitra.facebook_oauth","status":"error","message":"Unable to encode OAuth response."}';
+    }
+    $target = json_encode($origin, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    $isError = ($payload['status'] ?? 'error') !== 'success';
+    $title = $isError ? 'Facebook connection failed' : 'Facebook connected';
+    $message = htmlspecialchars((string) ($payload['message'] ?? ($isError ? 'Return to Orbitra and try again.' : 'You can close this window.')), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+    header('Content-Type: text/html; charset=utf-8');
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header("Content-Security-Policy: default-src 'none'; script-src 'nonce-$nonce'; style-src 'nonce-$nonce'; base-uri 'none'; frame-ancestors 'none'");
+    echo '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+        . '<title>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</title>'
+        . '<style nonce="' . $nonce . '">body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f6f7fb;color:#172033;font:14px system-ui,sans-serif}.card{max-width:420px;margin:24px;padding:28px;border-radius:18px;background:#fff;box-shadow:0 16px 45px rgba(20,32,60,.12);text-align:center}h1{font-size:18px;margin:0 0 10px}p{margin:0;color:#65708a;line-height:1.5}</style>'
+        . '</head><body><div class="card"><h1>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</h1><p>' . $message . '</p></div>'
+        . '<script nonce="' . $nonce . '">(function(){var payload=' . $json . ';var target=' . $target . ';if(window.opener&&!window.opener.closed){window.opener.postMessage(payload,target);setTimeout(function(){window.close();},250);}})();</script>'
+        . '</body></html>';
+    exit;
+}
+
+/**
+ * GET a Meta Graph JSON endpoint. Paging URLs are treated as untrusted input
+ * and may never leave graph.facebook.com.
+ *
+ * @return array<string,mixed>
+ */
+function orbitraFacebookGraphGet(string $url, int $timeout = 20): array
+{
+    $parts = parse_url($url);
+    if (!is_array($parts) || strtolower((string) ($parts['scheme'] ?? '')) !== 'https' || strtolower((string) ($parts['host'] ?? '')) !== 'graph.facebook.com') {
+        throw new RuntimeException('Facebook returned an invalid Graph API URL.');
+    }
+    if (!function_exists('curl_init')) {
+        throw new RuntimeException('PHP cURL is required for Facebook OAuth.');
+    }
+
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json']);
+    $body = curl_exec($ch);
+    $statusCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+
+    if ($curlError !== '') {
+        throw new RuntimeException('Facebook HTTP transport error: ' . $curlError);
+    }
+    if (!is_string($body) || $body === '') {
+        throw new RuntimeException('Facebook returned an empty response.');
+    }
+
+    $decoded = json_decode($body, true);
+    if (!is_array($decoded)) {
+        throw new RuntimeException('Facebook returned an unreadable response.');
+    }
+    if ($statusCode < 200 || $statusCode >= 300 || isset($decoded['error'])) {
+        $error = is_array($decoded['error'] ?? null) ? $decoded['error'] : [];
+        $message = trim((string) ($error['error_user_msg'] ?? $error['message'] ?? 'Facebook OAuth request failed.'));
+        $code = isset($error['code']) ? ' (code ' . $error['code'] . ')' : '';
+        throw new RuntimeException($message . $code);
+    }
+
+    return $decoded;
+}
+
+/** Accept either 123 or act_123 and return the canonical Graph account id. */
+function orbitraFacebookNormalizeAccountId(string $accountId): string
+{
+    $accountId = trim($accountId);
+    if (str_starts_with(strtolower($accountId), 'act_')) {
+        $accountId = substr($accountId, 4);
+    }
+    if ($accountId === '' || strlen($accountId) > 32 || !ctype_digit($accountId)) {
+        return '';
+    }
+    return 'act_' . $accountId;
+}
+
 // === Cloudflare integration helpers ===
 
 /** Connection config from settings; server_ip falls back to the web-facing address. */
@@ -2419,16 +2602,26 @@ try {
                 $limitClause = isset($_GET['limit']) ? "LIMIT " . (int) $_GET['limit'] : "";
                 $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
 
+                // Aggregate clicks per source in a subquery first: joining the
+                // full clicks table per source row scales with traffic, while
+                // the subquery scans it once. Semantics unchanged — all
+                // campaigns count and the dashboard date filters still apply.
                 $stmt = $pdo->prepare("
-                    SELECT ts.*, 
-                           COUNT(DISTINCT c.id) as campaigns_count,
-                           COUNT(cl.id) as clicks,
-                           COALESCE(SUM(cl.is_conversion), 0) as conversions
+                    SELECT ts.*,
+                           (SELECT COUNT(*) FROM campaigns c WHERE c.source_id = ts.id) AS campaigns_count,
+                           COALESCE(stats.clicks, 0) AS clicks,
+                           COALESCE(stats.conversions, 0) AS conversions
                     FROM traffic_sources ts
-                    LEFT JOIN campaigns c ON ts.id = c.source_id
-                    LEFT JOIN clicks cl ON c.id = cl.campaign_id $joinCondition
+                    LEFT JOIN (
+                        SELECT c.source_id AS source_id,
+                               COUNT(cl.id) AS clicks,
+                               COALESCE(SUM(cl.is_conversion), 0) AS conversions
+                        FROM clicks cl
+                        JOIN campaigns c ON c.id = cl.campaign_id
+                        WHERE c.source_id IS NOT NULL $joinCondition
+                        GROUP BY c.source_id
+                    ) stats ON stats.source_id = ts.id
                     WHERE ts.is_archived = 0
-                    GROUP BY ts.id
                     $havingClause
                     ORDER BY clicks DESC, ts.name ASC
                     $limitClause
@@ -2832,8 +3025,36 @@ try {
             break;
 
         case 'landings':
-            list($whereCl, $paramsCl) = getDashboardFilters('cl.');
-            $joinCondition = !empty($whereCl) ? str_replace("WHERE ", "AND ", $whereCl) : "";
+            $dateFrom = isset($_GET['date_from']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_from'])
+                ? (string) $_GET['date_from']
+                : null;
+            $dateTo = isset($_GET['date_to']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_to'])
+                ? (string) $_GET['date_to']
+                : null;
+
+            // Keep the date predicates in the click JOIN: a landing with no
+            // traffic in the selected period must still be visible with zeroes.
+            // The global timezone handling above supplies $dbTzOffset, matching
+            // campaign reports and the dashboard date semantics.
+            $paramsCl = [];
+            $dateConditions = [];
+            if ($dateFrom !== null) {
+                $dateConditions[] = "date(cl.created_at, '$dbTzOffset') >= date(?)";
+                $paramsCl[] = $dateFrom;
+            }
+            if ($dateTo !== null) {
+                $dateConditions[] = "date(cl.created_at, '$dbTzOffset') <= date(?)";
+                $paramsCl[] = $dateTo;
+            }
+
+            if ($dateConditions) {
+                $joinCondition = 'AND ' . implode(' AND ', $dateConditions);
+            } else {
+                // Requests without an explicit Landings range retain the old
+                // dashboard-filter behavior for callers such as the overview.
+                list($whereCl, $paramsCl) = getDashboardFilters('cl.');
+                $joinCondition = !empty($whereCl) ? str_replace('WHERE ', 'AND ', $whereCl) : '';
+            }
             $limitClause = isset($_GET['limit']) ? "LIMIT " . (int) $_GET['limit'] : "";
             $orderBy = isset($_GET['limit']) ? "ORDER BY clicks DESC, id DESC" : "ORDER BY id DESC";
             $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
@@ -3315,6 +3536,625 @@ try {
             }
             break;
 
+        // === LeadForge: Batch Lander & Offer Engine ===
+        case 'leadforge_forge_landing':
+            try {
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                    break;
+                }
+
+                if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+                    echo json_encode(['status' => 'error', 'message' => 'ZIP file upload error: ' . ($_FILES['file']['error'] ?? 'no file')]);
+                    break;
+                }
+
+                if (!class_exists('ZipArchive')) {
+                    echo json_encode(['status' => 'error', 'message' => 'missing_ext_zip']);
+                    break;
+                }
+
+                $zipFile = $_FILES['file']['tmp_name'];
+                $originalName = $_FILES['file']['name'] ?? 'landing.zip';
+                $baseZipName = pathinfo($originalName, PATHINFO_FILENAME);
+
+                $landingName = trim($_POST['name'] ?? '') ?: $baseZipName;
+                $network = strtolower(trim($_POST['network'] ?? 'drcash'));
+                $apiKey = trim($_POST['api_key'] ?? '');
+                $offerId = trim($_POST['offer_id'] ?? '');
+                $geo = strtoupper(trim($_POST['geo'] ?? 'IT'));
+                $payout = floatval($_POST['payout'] ?? 0);
+                $currency = strtoupper(trim($_POST['currency'] ?? 'USD'));
+                $groupId = !empty($_POST['group_id']) ? intval($_POST['group_id']) : null;
+                $injectOfferMacro = ($_POST['inject_offer_macro'] ?? '1') === '1';
+                $injectJsAdapter = ($_POST['inject_js_adapter'] ?? '1') === '1';
+                $addPhoneMask = ($_POST['add_phone_mask'] ?? '1') === '1';
+                $generateThankYou = ($_POST['generate_thank_you'] ?? '1') === '1';
+                $generateOrderPhp = ($_POST['generate_order_php'] ?? '1') === '1';
+                $autoSaveTracker = ($_POST['auto_save_tracker'] ?? '1') === '1';
+                $autoCreateOffer = ($_POST['auto_create_offer'] ?? '0') === '1';
+
+                // The generated handlers are PHP — same trust switch and same
+                // scan the manual landing upload enforces.
+                if ($generateOrderPhp || $generateThankYou) {
+                    require_once __DIR__ . '/core/PhpLanding.php';
+                    if (!PhpLanding::enabled($pdo)) {
+                        $itClean = new RecursiveIteratorIterator(
+                            new RecursiveDirectoryIterator($tempDir, RecursiveDirectoryIterator::SKIP_DOTS),
+                            RecursiveIteratorIterator::CHILD_FIRST
+                        );
+                        foreach ($itClean as $entryClean) {
+                            $entryClean->isDir() ? @rmdir($entryClean->getPathname()) : @unlink($entryClean->getPathname());
+                        }
+                        @rmdir($tempDir);
+                        echo json_encode([
+                            'status' => 'error',
+                            'message' => 'php_landings_disabled',
+                            'detail' => ['hint' => 'Order handler and Thank You page are PHP — turn on "Allow PHP landings" in Settings -> General'],
+                        ]);
+                        break;
+                    }
+                }
+
+                $tempDir = __DIR__ . '/data/leadforge_tmp/' . uniqid('forge_', true);
+                if (!is_dir($tempDir) && !@mkdir($tempDir, 0775, true)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Cannot create temp directory for forging']);
+                    break;
+                }
+
+                $zip = new ZipArchive;
+                if ($zip->open($zipFile) !== TRUE) {
+                    echo json_encode(['status' => 'error', 'message' => 'Invalid or corrupted ZIP archive']);
+                    break;
+                }
+
+                $zip->extractTo($tempDir);
+                $zip->close();
+
+                // Flatten single nested folder if present
+                orbitraFlattenSingleNestedDir($tempDir);
+
+                // Phone mask data per GEO
+                $geoMasks = [
+                    'IT' => ['code' => '+39', 'pattern' => '+39 3## ### ####', 'min' => 9, 'max' => 11],
+                    'ES' => ['code' => '+34', 'pattern' => '+34 6## ### ###', 'min' => 9, 'max' => 9],
+                    'DE' => ['code' => '+49', 'pattern' => '+49 1## #######', 'min' => 10, 'max' => 12],
+                    'FR' => ['code' => '+33', 'pattern' => '+33 6 ## ## ## ##', 'min' => 9, 'max' => 9],
+                    'PL' => ['code' => '+48', 'pattern' => '+48 ### ### ###', 'min' => 9, 'max' => 9],
+                    'RO' => ['code' => '+40', 'pattern' => '+40 7## ### ###', 'min' => 9, 'max' => 9],
+                    'GR' => ['code' => '+30', 'pattern' => '+30 69# ### ####', 'min' => 10, 'max' => 10],
+                    'RU' => ['code' => '+7', 'pattern' => '+7 (9##) ###-##-##', 'min' => 10, 'max' => 10],
+                    'UA' => ['code' => '+380', 'pattern' => '+380 (##) ###-##-##', 'min' => 9, 'max' => 9],
+                    'KZ' => ['code' => '+7', 'pattern' => '+7 (7##) ###-##-##', 'min' => 10, 'max' => 10],
+                    'US' => ['code' => '+1', 'pattern' => '+1 (###) ###-####', 'min' => 10, 'max' => 10],
+                    'MX' => ['code' => '+52', 'pattern' => '+52 1 ### ### ####', 'min' => 10, 'max' => 10],
+                    'CO' => ['code' => '+57', 'pattern' => '+57 3## ### ####', 'min' => 10, 'max' => 10],
+                ];
+                $activeMask = $geoMasks[$geo] ?? ['code' => '', 'pattern' => '', 'min' => 7, 'max' => 15];
+
+                // 1. Generate orbitra_adapter.js
+                if ($injectJsAdapter) {
+                    $adapterJs = <<<JS
+/**
+ * Orbitra LeadForge JS Adapter & ClickID Bridge
+ * Automatically captures tracking macros and formats phone inputs
+ */
+(function() {
+    function getQueryParam(name) {
+        var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+        return match ? decodeURIComponent(match[1].replace(/\+/g, ' ')) : '';
+    }
+
+    var subid = getQueryParam('subid') || getQueryParam('sub_id') || getQueryParam('click_id') || '';
+    if (subid) {
+        try { sessionStorage.setItem('orbitra_subid', subid); } catch(e){}
+    } else {
+        try { subid = sessionStorage.getItem('orbitra_subid') || ''; } catch(e){}
+    }
+
+    var params = ['subid', 'sub1', 'sub2', 'sub3', 'sub4', 'sub5', 'sub6', 'sub7', 'sub8', 'sub9', 'sub10', 'pixel', 'utm_source', 'utm_campaign', 'utm_content', 'utm_medium', 'utm_term', 'fbp', 'fbc', 'fbclid', 'gclid', 'ttclid'];
+    var captured = {};
+    params.forEach(function(p) {
+        var v = getQueryParam(p);
+        if (v) {
+            captured[p] = v;
+            try { sessionStorage.setItem('orbitra_' + p, v); } catch(e){}
+        } else {
+            try { captured[p] = sessionStorage.getItem('orbitra_' + p) || ''; } catch(e){}
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-inject hidden fields into all forms
+        var forms = document.querySelectorAll('form');
+        forms.forEach(function(form) {
+            for (var key in captured) {
+                if (captured[key] && !form.querySelector('input[name="' + key + '"]')) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = captured[key];
+                    form.appendChild(input);
+                }
+            }
+        });
+
+        // Attach phone validation / mask if enabled
+        var phoneInputs = document.querySelectorAll('input[type="tel"], input[name*="phone"], input[name*="tel"], input[name="phone_number"]');
+        phoneInputs.forEach(function(input) {
+            input.setAttribute('autocomplete', 'tel');
+            input.setAttribute('required', 'required');
+            input.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9+]/g, '');
+            });
+        });
+    });
+})();
+JS;
+                    file_put_contents($tempDir . '/orbitra_adapter.js', $adapterJs);
+                }
+
+                // 2. Scan and modify HTML files
+                $iterator = new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator($tempDir, RecursiveDirectoryIterator::SKIP_DOTS),
+                    RecursiveIteratorIterator::SELF_FIRST
+                );
+
+                $formsDetected = 0;
+                $filesProcessed = 0;
+
+                foreach ($iterator as $file) {
+                    if (!$file->isFile()) continue;
+                    $ext = strtolower(pathinfo($file->getPathname(), PATHINFO_EXTENSION));
+                    if (!in_array($ext, ['html', 'htm', 'php'], true)) continue;
+
+                    $content = file_get_contents($file->getPathname());
+                    if ($content === false) continue;
+                    $filesProcessed++;
+
+                    // Count forms
+                    if (preg_match_all('/<form\b[^>]*>/i', $content, $matches)) {
+                        $formsDetected += count($matches[0]);
+                    }
+
+                    // Inject orbitra_adapter.js
+                    if ($injectJsAdapter && strpos($content, 'orbitra_adapter.js') === false) {
+                        if (stripos($content, '</head>') !== false) {
+                            $content = str_ireplace('</head>', "    <script src=\"orbitra_adapter.js\"></script>\n</head>", $content);
+                        } elseif (stripos($content, '</body>') !== false) {
+                            $content = str_ireplace('</body>', "    <script src=\"orbitra_adapter.js\"></script>\n</body>", $content);
+                        }
+                    }
+
+                    // Rewrite form actions to order.php
+                    if ($generateOrderPhp) {
+                        $content = preg_replace('/<form([^>]*?)action=["\'][^"\']*?["\']([^>]*?)>/i', '<form$1action="order.php"$2>', $content);
+                        $content = preg_replace('/<form(?![^>]*\baction\b)([^>]*?)>/i', '<form action="order.php"$1>', $content);
+                    }
+
+                    // Inject {offer} macro into outbound CTA links
+                    if ($injectOfferMacro) {
+                        $content = preg_replace('/<a([^>]*?)href=["\'](?:#order|order\.html|#form|#popup|https?:\/\/[^"\']+)["\']([^>]*?)>/i', '<a$1href="{offer}"$2>', $content);
+                    }
+
+                    file_put_contents($file->getPathname(), $content);
+                }
+
+                // 3. Generate robust order.php for CPA Network
+                if ($generateOrderPhp) {
+                    $orderPhpContent = <<<PHP
+<?php
+/**
+ * Orbitra LeadForge — Universal CPA Order Bridge
+ * Network: {$network} | Offer ID: {$offerId} | Target GEO: {$geo}
+ */
+session_start();
+error_reporting(0);
+
+if (\$_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: /');
+    exit;
+}
+
+\$name = trim(\$_POST['name'] ?? \$_POST['fio'] ?? \$_POST['client'] ?? 'Customer');
+\$phone = trim(\$_POST['phone'] ?? \$_POST['tel'] ?? \$_POST['phone_number'] ?? '');
+// The click id reaches the form as a hidden field (JS adapter) or, failing
+// that, lives in the cookie the tracker set when it served this page.
+\$subid = trim(\$_POST['subid'] ?? \$_POST['sub_id'] ?? \$_POST['click_id'] ?? \$_COOKIE['orbitra_click'] ?? '');
+\$ip = \$_SERVER['HTTP_CF_CONNECTING_IP'] ?? \$_SERVER['HTTP_X_FORWARDED_FOR'] ?? \$_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+if (strpos(\$ip, ',') !== false) {
+    \$ip = trim(explode(',', \$ip)[0]);
+}
+\$userAgent = \$_SERVER['HTTP_USER_AGENT'] ?? '';
+
+// Validate required fields
+if (empty(\$phone)) {
+    die('Error: Phone number is required.');
+}
+
+// 1. Prepare CPA Network Request
+\$apiKey = '{$apiKey}';
+\$offerId = '{$offerId}';
+\$geo = '{$geo}';
+\$network = '{$network}';
+\$responsePayload = null;
+\$leadId = 'LF-' . date('YmdHis') . '-' . rand(1000, 9999);
+
+try {
+    if (\$network === 'drcash') {
+        \$url = 'https://affiliate.dr.cash/api/order/create';
+        \$postData = [
+            'stream_code' => \$offerId,
+            'client' => ['name' => \$name, 'phone' => \$phone, 'address' => \$_POST['address'] ?? ''],
+            'sub1' => \$subid,
+            'sub2' => \$_POST['sub1'] ?? '',
+            'sub3' => \$_POST['sub2'] ?? '',
+            'sub4' => \$_POST['sub3'] ?? '',
+            'sub5' => \$_POST['sub4'] ?? '',
+        ];
+        \$ch = curl_init(\$url);
+        curl_setopt(\$ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt(\$ch, CURLOPT_POST, true);
+        curl_setopt(\$ch, CURLOPT_POSTFIELDS, json_encode(\$postData));
+        curl_setopt(\$ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . \$apiKey
+        ]);
+        curl_setopt(\$ch, CURLOPT_TIMEOUT, 15);
+        \$res = curl_exec(\$ch);
+        curl_close(\$ch);
+        \$json = json_decode(\$res, true);
+        if (!empty(\$json['uuid'])) \$leadId = \$json['uuid'];
+    } elseif (\$network === 'lemonad') {
+        \$url = 'https://lemonad.com/api/v2/lead/create';
+        \$postData = [
+            'api_token' => \$apiKey,
+            'offer_id' => \$offerId,
+            'name' => \$name,
+            'phone' => \$phone,
+            'ip' => \$ip,
+            'country' => \$geo,
+            'click_id' => \$subid,
+        ];
+        \$ch = curl_init(\$url);
+        curl_setopt(\$ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt(\$ch, CURLOPT_POST, true);
+        curl_setopt(\$ch, CURLOPT_POSTFIELDS, http_build_query(\$postData));
+        curl_setopt(\$ch, CURLOPT_TIMEOUT, 15);
+        \$res = curl_exec(\$ch);
+        curl_close(\$ch);
+        \$json = json_decode(\$res, true);
+        if (!empty(\$json['lead_id'])) \$leadId = \$json['lead_id'];
+    } elseif (\$network === 'webvork') {
+        \$url = 'https://api.webvork.com/v1/lead';
+        \$postData = [
+            'token' => \$apiKey,
+            'offer_id' => \$offerId,
+            'name' => \$name,
+            'phone' => \$phone,
+            'country' => \$geo,
+            'ip' => \$ip,
+            'utm_campaign' => \$subid,
+        ];
+        \$ch = curl_init(\$url);
+        curl_setopt(\$ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt(\$ch, CURLOPT_POST, true);
+        curl_setopt(\$ch, CURLOPT_POSTFIELDS, http_build_query(\$postData));
+        curl_setopt(\$ch, CURLOPT_TIMEOUT, 15);
+        \$res = curl_exec(\$ch);
+        curl_close(\$ch);
+    } elseif (\$network === 'leadbit') {
+        \$url = 'http://leadbit.com/api/new-order';
+        \$postData = [
+            'flow_hash' => \$offerId,
+            'api_key' => \$apiKey,
+            'country' => \$geo,
+            'name' => \$name,
+            'phone' => \$phone,
+            'sub1' => \$subid,
+            'ip' => \$ip,
+        ];
+        \$ch = curl_init(\$url);
+        curl_setopt(\$ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt(\$ch, CURLOPT_POST, true);
+        curl_setopt(\$ch, CURLOPT_POSTFIELDS, http_build_query(\$postData));
+        curl_setopt(\$ch, CURLOPT_TIMEOUT, 15);
+        \$res = curl_exec(\$ch);
+        curl_close(\$ch);
+    } elseif (\$network === 'everad') {
+        \$url = 'https://api.everad.com/campaigns/' . \$offerId . '/order';
+        \$postData = [
+            'campaign_id' => \$offerId,
+            'name' => \$name,
+            'phone' => \$phone,
+            'ip' => \$ip,
+            'sid1' => \$subid,
+        ];
+        \$ch = curl_init(\$url);
+        curl_setopt(\$ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt(\$ch, CURLOPT_POST, true);
+        curl_setopt(\$ch, CURLOPT_POSTFIELDS, json_encode(\$postData));
+        curl_setopt(\$ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'X-Api-Key: ' . \$apiKey]);
+        curl_setopt(\$ch, CURLOPT_TIMEOUT, 15);
+        \$res = curl_exec(\$ch);
+        curl_close(\$ch);
+    } else {
+        // Custom or Generic Webhook
+        if (!empty(\$offerId) && filter_var(\$offerId, FILTER_VALIDATE_URL)) {
+            \$ch = curl_init(\$offerId);
+            curl_setopt(\$ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt(\$ch, CURLOPT_POST, true);
+            curl_setopt(\$ch, CURLOPT_POSTFIELDS, http_build_query(\$_POST));
+            curl_setopt(\$ch, CURLOPT_TIMEOUT, 15);
+            \$res = curl_exec(\$ch);
+            curl_close(\$ch);
+        }
+    }
+} catch (\\Throwable \$e) {
+    // Fail-safe catch
+}
+
+// 2. Failsafe Local Lead Backup (Never lose a lead!)
+// .log on purpose: the asset server whitelists .json/.txt, and a backup full
+// of names and phone numbers must not be downloadable from the landing URL.
+\$leadLog = [
+    'time' => date('Y-m-d H:i:s'),
+    'lead_id' => \$leadId,
+    'name' => \$name,
+    'phone' => \$phone,
+    'subid' => \$subid,
+    'ip' => \$ip,
+    'geo' => \$geo,
+    'network' => \$network,
+];
+@file_put_contents(__DIR__ . '/orbitra_leads_backup.log', json_encode(\$leadLog) . PHP_EOL, FILE_APPEND | LOCK_EX);
+
+// 3. Fire Postback to Orbitra Tracker
+if (!empty(\$subid)) {
+    \$trackerHost = \$_SERVER['HTTP_HOST'] ?? '127.0.0.1';
+    \$proto = (!empty(\$_SERVER['HTTPS']) && \$_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    \$postbackUrl = \$proto . '://' . \$trackerHost . '/pixel.gif?action=conversion&subid=' . urlencode(\$subid) . '&status=lead&payout={$payout}&currency={$currency}';
+    @file_get_contents(\$postbackUrl, false, stream_context_create(['http' => ['timeout' => 2]]));
+}
+
+// 4. Redirect to Thank You Page
+\$_SESSION['order_name'] = \$name;
+\$_SESSION['order_phone'] = \$phone;
+\$_SESSION['order_id'] = \$leadId;
+
+header('Location: thank_you.php?name=' . urlencode(\$name) . '&phone=' . urlencode(\$phone) . '&order_id=' . urlencode(\$leadId) . '&subid=' . urlencode(\$subid));
+exit;
+PHP;
+                    file_put_contents($tempDir . '/order.php', $orderPhpContent);
+
+                    // Our own generated code must pass the same scan a manual
+                    // upload goes through — a renderer regression should fail
+                    // here, not as a landing that 503s on every order.
+                    $scanProblems = PhpLanding::scan($orderPhpContent);
+                    if ($scanProblems) {
+                        echo json_encode(['status' => 'error', 'message' => 'Generated order.php failed the PHP landing scan: ' . implode(', ', $scanProblems)]);
+                        break;
+                    }
+                }
+
+                // 4. Generate Universal Localized Thank You Page
+                if ($generateThankYou) {
+                    $thankYouTitles = [
+                        'IT' => ['title' => 'Grazie per il tuo ordine!', 'subtitle' => 'Il tuo ordine è stato registrato con successo.', 'call' => 'Il nostro operatore ti contatterà a breve per confermare la spedizione.', 'details' => 'Dettagli dell\'ordine:', 'name' => 'Nome:', 'phone' => 'Telefono:', 'order' => 'Numero ordine:'],
+                        'ES' => ['title' => '¡Gracias por su pedido!', 'subtitle' => 'Su pedido ha sido registrado con éxito.', 'call' => 'Nuestro especialista se comunicará con usted en breve para confirmar el envío.', 'details' => 'Detalles del pedido:', 'name' => 'Nombre:', 'phone' => 'Teléfono:', 'order' => 'Número de pedido:'],
+                        'DE' => ['title' => 'Vielen Dank für Ihre Bestellung!', 'subtitle' => 'Ihre Bestellung wurde erfolgreich erfasst.', 'call' => 'Unser Berater wird Sie in Kürze kontaktieren, um die Details zu bestätigen.', 'details' => 'Bestelldetails:', 'name' => 'Name:', 'phone' => 'Telefon:', 'order' => 'Bestellnummer:'],
+                        'FR' => ['title' => 'Merci pour votre commande !', 'subtitle' => 'Votre commande a été enregistrée avec succès.', 'call' => 'Notre conseiller vous contactera sous peu pour confirmer les détails.', 'details' => 'Détails de la commande :', 'name' => 'Nom :', 'phone' => 'Téléphone :', 'order' => 'Numéro de commande :'],
+                        'PL' => ['title' => 'Dziękujemy za zamówienie!', 'subtitle' => 'Twoje zamówienie zostało pomyślnie przyjęte.', 'call' => 'Nasz konsultant skontaktuje się z Tobą wkrótce w celu potwierdzenia adresu.', 'details' => 'Szczegóły zamówienia:', 'name' => 'Imię:', 'phone' => 'Telefon:', 'order' => 'Numer zamówienia:'],
+                        'RO' => ['title' => 'Vă mulțumim pentru comandă!', 'subtitle' => 'Comanda dumneavoastră a fost înregistrată cu succes.', 'call' => 'Operatorul nostru vă va contacta în scurt timp pentru confirmare.', 'details' => 'Detalii comandă:', 'name' => 'Nume:', 'phone' => 'Telefon:', 'order' => 'Număr comandă:'],
+                        'RU' => ['title' => 'Спасибо за ваш заказ!', 'subtitle' => 'Ваша заявка успешно принята в обработку.', 'call' => 'Оператор свяжется с вами в течение 10-15 минут для подтверждения адреса доставки.', 'details' => 'Данные заказа:', 'name' => 'Имя:', 'phone' => 'Телефон:', 'order' => 'Номер заявки:'],
+                        'EN' => ['title' => 'Thank you for your order!', 'subtitle' => 'Your order has been placed successfully.', 'call' => 'Our representative will call you shortly to verify delivery details.', 'details' => 'Order details:', 'name' => 'Name:', 'phone' => 'Phone:', 'order' => 'Order ID:'],
+                    ];
+                    $t = $thankYouTitles[$geo] ?? $thankYouTitles['EN'];
+
+                    $thankYouPhp = <<<PHP
+<?php
+session_start();
+\$name = htmlspecialchars(\$_GET['name'] ?? \$_SESSION['order_name'] ?? 'Cliente');
+\$phone = htmlspecialchars(\$_GET['phone'] ?? \$_SESSION['order_phone'] ?? '');
+\$orderId = htmlspecialchars(\$_GET['order_id'] ?? \$_SESSION['order_id'] ?? ('#' . rand(100000, 999999)));
+\$subid = htmlspecialchars(\$_GET['subid'] ?? '');
+?>
+<!DOCTYPE html>
+<html lang="{$geo}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{$t['title']}</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f8fafc; color: #1e293b; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .card { background: #ffffff; border-radius: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.06), 0 8px 10px -6px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; max-width: 500px; width: 100%; padding: 36px 28px; text-align: center; }
+        .icon-box { width: 72px; height: 72px; background: #ecfdf5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: #10b981; }
+        h1 { font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+        p.sub { font-size: 15px; color: #64748b; margin-bottom: 24px; line-height: 1.5; }
+        .info-box { background: #f1f5f9; border-radius: 14px; padding: 18px; text-align: left; margin-bottom: 24px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .info-row:last-child { margin-bottom: 0; }
+        .info-label { color: #64748b; }
+        .info-value { font-weight: 600; color: #0f172a; }
+        .notice { font-size: 13px; color: #059669; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px; margin-bottom: 24px; }
+        .btn { display: inline-block; background: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 12px; font-weight: 600; font-size: 14px; transition: background 0.2s; }
+        .btn:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon-box">
+            <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <h1>{$t['title']}</h1>
+        <p class="sub">{$t['subtitle']}</p>
+
+        <div class="info-box">
+            <div class="info-row">
+                <span class="info-label">{$t['order']}</span>
+                <span class="info-value"><?php echo \$orderId; ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">{$t['name']}</span>
+                <span class="info-value"><?php echo \$name; ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">{$t['phone']}</span>
+                <span class="info-value"><?php echo \$phone; ?></span>
+            </div>
+        </div>
+
+        <div class="notice">
+            ⚡ {$t['call']}
+        </div>
+
+        <a href="/" class="btn">← Back to Site</a>
+    </div>
+
+    <!-- Orbitra Conversion Pixel -->
+    <?php if (!empty(\$subid)): ?>
+    <img src="/pixel.gif?action=conversion&subid=<?php echo urlencode(\$subid); ?>&status=lead&payout={$payout}&currency={$currency}" width="1" height="1" style="display:none;" alt="">
+    <?php endif; ?>
+</body>
+</html>
+PHP;
+                    file_put_contents($tempDir . '/thank_you.php', $thankYouPhp);
+                    $scanThankYou = PhpLanding::scan($thankYouPhp);
+                    if ($scanThankYou) {
+                        echo json_encode(['status' => 'error', 'message' => 'Generated thank_you.php failed the PHP landing scan: ' . implode(', ', $scanThankYou)]);
+                        break;
+                    }
+                }
+
+                // 5. Repack modified files into a downloadable ZIP
+                $downloadToken = md5(uniqid('lf_', true));
+                $downloadsDir = __DIR__ . '/data/leadforge_downloads';
+                if (!is_dir($downloadsDir)) @mkdir($downloadsDir, 0775, true);
+                $downloadZipPath = $downloadsDir . '/' . $downloadToken . '.zip';
+
+                $reZip = new ZipArchive;
+                if ($reZip->open($downloadZipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+                    $reIterator = new RecursiveIteratorIterator(
+                        new RecursiveDirectoryIterator($tempDir, RecursiveDirectoryIterator::SKIP_DOTS),
+                        RecursiveIteratorIterator::SELF_FIRST
+                    );
+                    foreach ($reIterator as $file) {
+                        $localPath = str_replace($tempDir . '/', '', $file->getPathname());
+                        if ($file->isDir()) {
+                            $reZip->addEmptyDir($localPath);
+                        } else {
+                            $reZip->addFile($file->getPathname(), $localPath);
+                        }
+                    }
+                    $reZip->close();
+                }
+
+                $createdLandingId = null;
+                $createdSlug = '';
+                $createdOfferId = null;
+
+                // 6. Auto-Save to Orbitra Tracker
+                if ($autoSaveTracker) {
+                    $derivedSlug = orbitraSlugify($landingName);
+                    $slugCheck = orbitraValidateLandingSlug($pdo, $derivedSlug, null);
+                    if (!$slugCheck['ok']) {
+                        $base = rtrim(substr($derivedSlug, 0, 60), '-_');
+                        for ($n = 2; $n <= 50; $n++) {
+                            $cand = orbitraValidateLandingSlug($pdo, $base . '-' . $n, null);
+                            if ($cand['ok']) {
+                                $slugCheck = $cand;
+                                break;
+                            }
+                        }
+                        if (!$slugCheck['ok']) {
+                            $slugCheck = ['ok' => true, 'value' => '', 'error' => ''];
+                        }
+                    }
+                    $createdSlug = $slugCheck['value'];
+
+                    $stmt = $pdo->prepare("INSERT INTO landings (name, group_id, type, url, action_payload, action_type, state, slug, redirect_type) VALUES (?, ?, 'local', '', NULL, '', 'active', ?, 'redirect')");
+                    $stmt->execute([$landingName, $groupId, $createdSlug]);
+                    $createdLandingId = $pdo->lastInsertId();
+
+                    // Copy forged files into landing storage
+                    $targetLandingDir = orbitraLandingDir($pdo, $createdLandingId);
+                    if (!is_dir($targetLandingDir)) @mkdir($targetLandingDir, 0775, true);
+
+                    $copyIterator = new RecursiveIteratorIterator(
+                        new RecursiveDirectoryIterator($tempDir, RecursiveDirectoryIterator::SKIP_DOTS),
+                        RecursiveIteratorIterator::SELF_FIRST
+                    );
+                    foreach ($copyIterator as $item) {
+                        $destPath = $targetLandingDir . '/' . $copyIterator->getSubPathName();
+                        if ($item->isDir()) {
+                            if (!is_dir($destPath)) @mkdir($destPath, 0775, true);
+                        } else {
+                            @copy($item->getPathname(), $destPath);
+                        }
+                    }
+
+                    // Optional matching offer creation. No payout_currency
+                    // column exists on offers — the conversion carries it.
+                    if ($autoCreateOffer) {
+                        $offerName = $landingName . ' [Offer]';
+                        $stmtOff = $pdo->prepare("INSERT INTO offers (name, group_id, affiliate_network_id, payout_value, is_local, state) VALUES (?, ?, NULL, ?, 0, 'active')");
+                        $stmtOff->execute([$offerName, $groupId, $payout]);
+                        $createdOfferId = $pdo->lastInsertId();
+                    }
+                }
+
+                // Cleanup temp dir
+                $cleanIterator = new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator($tempDir, RecursiveDirectoryIterator::SKIP_DOTS),
+                    RecursiveIteratorIterator::CHILD_FIRST
+                );
+                foreach ($cleanIterator as $item) {
+                    $item->isDir() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());
+                }
+                @rmdir($tempDir);
+
+                echo json_encode([
+                    'status' => 'success',
+                    'data' => [
+                        'landing_id' => $createdLandingId,
+                        'landing_name' => $landingName,
+                        'slug' => $createdSlug,
+                        'offer_id' => $createdOfferId,
+                        'download_token' => $downloadToken,
+                        'download_url' => '/api.php?action=leadforge_download&token=' . $downloadToken,
+                        'forms_detected' => $formsDetected,
+                        'files_processed' => $filesProcessed,
+                        'geo' => $geo,
+                        'network' => $network
+                    ]
+                ]);
+            } catch (\Throwable $e) {
+                error_log('leadforge_forge_landing error: ' . $e->getMessage());
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'LeadForge failed: ' . $e->getMessage()
+                ]);
+            }
+            break;
+
+        case 'leadforge_download':
+            $token = trim($_GET['token'] ?? '');
+            if (!preg_match('/^[a-f0-9]{32}$/', $token)) {
+                http_response_code(400);
+                die('Invalid token');
+            }
+            $file = __DIR__ . '/data/leadforge_downloads/' . $token . '.zip';
+            if (!file_exists($file)) {
+                http_response_code(404);
+                die('Download expired or file not found');
+            }
+            header('Content-Type: application/zip');
+            header('Content-Disposition: attachment; filename="leadforge_' . $token . '.zip"');
+            header('Content-Length: ' . filesize($file));
+            readfile($file);
+            exit;
+
         // === Local offers: the same archive stack landings have ===
         // A local offer's files live in offers/<id>/ and are served by index.php
         // at the moment the tracker would redirect to the offer.
@@ -3527,15 +4367,26 @@ try {
                     RecursiveIteratorIterator::SELF_FIRST
                 );
                 $files = [];
+                $visibleExtensions = [
+                    'html', 'htm', 'php', 'css', 'js', 'mjs', 'json', 'txt', 'md',
+                    'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'avif', 'ico', 'bmp'
+                ];
+                $ignoredNames = ['__MACOSX', '.DS_Store', 'Thumbs.db', '.git'];
                 foreach ($iterator as $file) {
                     if ($file->isFile()) {
                         $relativePath = str_replace($dir . '/', '', $file->getPathname());
+                        $pathSegments = explode('/', str_replace('\\', '/', $relativePath));
+                        if (array_intersect($pathSegments, $ignoredNames)) {
+                            continue;
+                        }
                         $ext = strtolower(pathinfo($relativePath, PATHINFO_EXTENSION));
-                        if (in_array($ext, ['html', 'php', 'css', 'js', 'json', 'txt', 'md'])) {
+                        if (in_array($ext, $visibleExtensions, true)) {
                             $files[] = $relativePath;
                         }
                     }
                 }
+                natcasesort($files);
+                $files = array_values($files);
                 echo json_encode(['status' => 'success', 'data' => $files]);
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
@@ -3739,7 +4590,13 @@ try {
             // The uploaded name is attacker-controlled: keep only its basename so
             // "../../index.php" cannot become a path.
             $safeName = basename(str_replace('\\', '/', (string) $_FILES['file']['name']));
-            $relative = ($destDir !== '' ? $destDir . '/' : '') . $safeName;
+            // Image replacement supplies the already-selected relative path.
+            // It still passes through orbitraLandingFilePath() and the extension
+            // allowlist below, so it cannot escape the landing directory.
+            $replacementPath = trim((string) ($_POST['path'] ?? ''), '/');
+            $relative = $replacementPath !== ''
+                ? $replacementPath
+                : (($destDir !== '' ? $destDir . '/' : '') . $safeName);
             $target = orbitraLandingFilePath($landingId, $relative, false);
             if ($target === null) {
                 echo json_encode(['status' => 'error', 'message' => 'Access denied']);
@@ -3788,8 +4645,34 @@ try {
             break;
 
         case 'offers':
-            list($whereCl, $paramsCl) = getDashboardFilters('cl.');
-            $joinCondition = !empty($whereCl) ? str_replace("WHERE ", "AND ", $whereCl) : "";
+            $dateFrom = isset($_GET['date_from']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_from'])
+                ? (string) $_GET['date_from']
+                : null;
+            $dateTo = isset($_GET['date_to']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_to'])
+                ? (string) $_GET['date_to']
+                : null;
+
+            // Keep the LEFT JOIN semantics: the range limits click statistics,
+            // not the offer list itself. This way offers with no traffic in the
+            // selected period still appear with zero metrics.
+            if ($dateFrom !== null || $dateTo !== null) {
+                $paramsCl = [];
+                $joinConds = [];
+                if ($dateFrom !== null) {
+                    $joinConds[] = "date(cl.created_at, '$dbTzOffset') >= date(?)";
+                    $paramsCl[] = $dateFrom;
+                }
+                if ($dateTo !== null) {
+                    $joinConds[] = "date(cl.created_at, '$dbTzOffset') <= date(?)";
+                    $paramsCl[] = $dateTo;
+                }
+                $joinCondition = $joinConds ? 'AND ' . implode(' AND ', $joinConds) : '';
+            } else {
+                // Existing dashboard callers keep their date_range/custom_from
+                // behavior when no explicit offer period was requested.
+                list($whereCl, $paramsCl) = getDashboardFilters('cl.');
+                $joinCondition = !empty($whereCl) ? str_replace("WHERE ", "AND ", $whereCl) : "";
+            }
             $limitClause = isset($_GET['limit']) ? "LIMIT " . (int) $_GET['limit'] : "";
             $orderBy = isset($_GET['limit']) ? "ORDER BY clicks DESC, created_at DESC" : "ORDER BY created_at DESC";
             $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
@@ -7461,6 +8344,67 @@ try {
             ]);
             break;
 
+        // === CRM: manual lead / status event ===
+        // The CRM's "New Lead" and status updates flow through here (the
+        // public S2S postback lives in postback.php and refuses unknown
+        // subids). A subid matching an existing click just appends a
+        // conversion event; a fresh one creates a minimal click first — the
+        // pixel endpoint's shape — so campaign attribution survives.
+        case 'crm_lead':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST method required']);
+                break;
+            }
+            $crmInput = json_decode(orbitraRequestBody(), true);
+            if (!is_array($crmInput)) {
+                $crmInput = [];
+            }
+            $crmSubid = trim((string) ($crmInput['subid'] ?? ''));
+            $crmStatus = strtolower(trim((string) ($crmInput['status'] ?? 'lead')));
+            if (!preg_match('/^[a-z0-9_-]{1,64}$/', $crmStatus)) {
+                $crmStatus = 'lead';
+            }
+            $crmPayout = max(0.0, (float) ($crmInput['payout'] ?? 0));
+            $crmCurrency = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', (string) ($crmInput['currency'] ?? 'USD')), 0, 3));
+            if ($crmCurrency === '') {
+                $crmCurrency = 'USD';
+            }
+            $crmCampaignId = (int) ($crmInput['campaign_id'] ?? 0);
+
+            if ($crmSubid === '' || !preg_match('/^[A-Za-z0-9_-]{1,64}$/', $crmSubid)) {
+                echo json_encode(['status' => 'error', 'message' => 'Valid subid required']);
+                break;
+            }
+
+            $stmt = $pdo->prepare("SELECT id, campaign_id FROM clicks WHERE id = ? LIMIT 1");
+            $stmt->execute([$crmSubid]);
+            $crmClick = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$crmClick) {
+                if ($crmCampaignId <= 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'Unknown subid — pick a campaign to attribute the lead to']);
+                    break;
+                }
+                $stmtC = $pdo->prepare("SELECT id FROM campaigns WHERE id = ? LIMIT 1");
+                $stmtC->execute([$crmCampaignId]);
+                if (!$stmtC->fetchColumn()) {
+                    echo json_encode(['status' => 'error', 'message' => 'Campaign not found']);
+                    break;
+                }
+                $pdo->prepare("INSERT INTO clicks (id, campaign_id, ip, user_agent, country, country_code, device_type, os, browser, language, accept_language_raw, parameters_json)
+                               VALUES (?, ?, ?, ?, 'Unknown', 'Unknown', 'Unknown', 'Unknown', 'Unknown', 'Unknown', '', '{}')")
+                    ->execute([$crmSubid, $crmCampaignId, (string) ($_SERVER['REMOTE_ADDR'] ?? ''), substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255)]);
+                $crmClick = ['id' => $crmSubid, 'campaign_id' => $crmCampaignId];
+            }
+
+            // tid stays NULL on purpose: UNIQUE(click_id, tid) and SQLite
+            // treats NULLs as distinct, so a click can carry many CRM events.
+            $stmt = $pdo->prepare("INSERT INTO conversions (click_id, status, payout, currency, campaign_id, ip, created_at, updated_at)
+                                   VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))");
+            $stmt->execute([$crmSubid, $crmStatus, $crmPayout, $crmCurrency, (int) ($crmClick['campaign_id'] ?? $crmCampaignId), (string) ($_SERVER['REMOTE_ADDR'] ?? '')]);
+            logAudit($pdo, 'CREATE', 'Conversion', (int) $pdo->lastInsertId(), "CRM lead $crmSubid → $crmStatus");
+            echo json_encode(['status' => 'success', 'data' => ['subid' => $crmSubid, 'status' => $crmStatus]]);
+            break;
+
         case 'conversion_statuses':
             $stmt = $pdo->query("SELECT DISTINCT status FROM conversions ORDER BY status");
             $statuses = $stmt->fetchAll(PDO::FETCH_COLUMN);
@@ -11012,7 +11956,13 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Campaign ID required']);
                 break;
             }
-            $stmt = $pdo->prepare("SELECT * FROM campaign_pixels WHERE campaign_id = ? ORDER BY type");
+            $stmt = $pdo->prepare("
+                SELECT cp.*, pp.name AS profile_name, pp.niche AS profile_niche
+                FROM campaign_pixels cp
+                LEFT JOIN pixel_profiles pp ON pp.id = cp.pixel_profile_id
+                WHERE cp.campaign_id = ?
+                ORDER BY cp.type, cp.id
+            ");
             $stmt->execute([$campaign_id]);
             echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             break;
@@ -11020,16 +11970,16 @@ try {
         case 'save_campaign_pixel':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
+                if (!is_array($data)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Invalid JSON body']);
+                    break;
+                }
                 $campaign_id = $data['campaign_id'] ?? null;
                 $type = $data['type'] ?? '';
                 $pixel_id = $data['pixel_id'] ?? '';
-
-                if (!$campaign_id || !$type || !$pixel_id) {
-                    echo json_encode(['status' => 'error', 'message' => 'Campaign ID, type, and pixel ID are required']);
-                    break;
-                }
-
                 $id = $data['id'] ?? null;
+                $profileIdProvided = array_key_exists('pixel_profile_id', $data);
+                $pixelProfileId = (int) ($data['pixel_profile_id'] ?? 0);
                 $token = $data['token'] ?? '';
                 $events = $data['events'] ?? 'PageView,Lead';
                 $is_active = isset($data['is_active']) ? (int) $data['is_active'] : 1;
@@ -11050,17 +12000,890 @@ try {
                 $api_version = trim((string) ($data['api_version'] ?? ''));
                 $event_source_url = trim((string) ($data['event_source_url'] ?? ''));
 
+                // Pixel Vault credentials never travel to React. Selecting a
+                // saved profile sends only its id; resolve the full token here.
+                if ($pixelProfileId > 0) {
+                    $profileStmt = $pdo->prepare("SELECT * FROM pixel_profiles WHERE id = ? LIMIT 1");
+                    $profileStmt->execute([$pixelProfileId]);
+                    $profile = $profileStmt->fetch(PDO::FETCH_ASSOC);
+                    if (!$profile) {
+                        echo json_encode(['status' => 'error', 'message' => 'Pixel profile not found']);
+                        break;
+                    }
+                    if ((int) ($profile['is_active'] ?? 0) !== 1) {
+                        echo json_encode(['status' => 'error', 'message' => 'Pixel profile is inactive']);
+                        break;
+                    }
+                    $profileType = strtolower(trim((string) ($profile['traffic_source'] ?? 'facebook')));
+                    if ($type !== '' && $profileType !== strtolower(trim((string) $type))) {
+                        echo json_encode(['status' => 'error', 'message' => 'Pixel profile traffic source does not match the integration type']);
+                        break;
+                    }
+                    $type = $profileType;
+                    $pixel_id = (string) $profile['pixel_id'];
+                    $token = (string) $profile['token'];
+                    if (!array_key_exists('events', $data)) {
+                        $events = (string) ($profile['events'] ?? 'PageView,Lead');
+                    }
+                    if ($test_event_code === '') {
+                        $test_event_code = trim((string) ($profile['test_event_code'] ?? ''));
+                    }
+                    if ($event_source_url === '') {
+                        $event_source_url = trim((string) ($profile['event_url'] ?? ''));
+                    }
+                } elseif ($id && trim((string) $token) === '') {
+                    // The global integrations list deliberately omits raw tokens.
+                    // Editing mappings/status with a blank token must preserve the
+                    // stored credential instead of silently disabling CAPI.
+                    $currentTokenStmt = $pdo->prepare("SELECT token FROM campaign_pixels WHERE id = ? AND campaign_id = ? LIMIT 1");
+                    $currentTokenStmt->execute([$id, $campaign_id]);
+                    $currentToken = $currentTokenStmt->fetchColumn();
+                    if ($currentToken !== false) {
+                        $token = (string) $currentToken;
+                    }
+                }
+
+                if (!$campaign_id || !$type || !$pixel_id) {
+                    echo json_encode(['status' => 'error', 'message' => 'Campaign ID, type, and pixel ID are required']);
+                    break;
+                }
+
                 if ($id) {
-                    $stmt = $pdo->prepare("UPDATE campaign_pixels SET type=?, pixel_id=?, token=?, events=?, is_active=?, mapping_json=?, test_event_code=?, proxy_url=?, api_version=?, event_source_url=? WHERE id=? AND campaign_id=?");
-                    $stmt->execute([$type, $pixel_id, $token, $events, $is_active, $mapping_json, $test_event_code, $proxy_url, $api_version, $event_source_url, $id, $campaign_id]);
+                    if ($profileIdProvided) {
+                        $stmt = $pdo->prepare("UPDATE campaign_pixels SET pixel_profile_id=?, type=?, pixel_id=?, token=?, events=?, is_active=?, mapping_json=?, test_event_code=?, proxy_url=?, api_version=?, event_source_url=? WHERE id=? AND campaign_id=?");
+                        $stmt->execute([$pixelProfileId ?: null, $type, $pixel_id, $token, $events, $is_active, $mapping_json, $test_event_code, $proxy_url, $api_version, $event_source_url, $id, $campaign_id]);
+                    } else {
+                        $stmt = $pdo->prepare("UPDATE campaign_pixels SET type=?, pixel_id=?, token=?, events=?, is_active=?, mapping_json=?, test_event_code=?, proxy_url=?, api_version=?, event_source_url=? WHERE id=? AND campaign_id=?");
+                        $stmt->execute([$type, $pixel_id, $token, $events, $is_active, $mapping_json, $test_event_code, $proxy_url, $api_version, $event_source_url, $id, $campaign_id]);
+                    }
                 } else {
-                    $stmt = $pdo->prepare("INSERT INTO campaign_pixels (campaign_id, type, pixel_id, token, events, is_active, mapping_json, test_event_code, proxy_url, api_version, event_source_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    $stmt->execute([$campaign_id, $type, $pixel_id, $token, $events, $is_active, $mapping_json, $test_event_code, $proxy_url, $api_version, $event_source_url]);
+                    $stmt = $pdo->prepare("INSERT INTO campaign_pixels (campaign_id, pixel_profile_id, type, pixel_id, token, events, is_active, mapping_json, test_event_code, proxy_url, api_version, event_source_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([$campaign_id, $pixelProfileId ?: null, $type, $pixel_id, $token, $events, $is_active, $mapping_json, $test_event_code, $proxy_url, $api_version, $event_source_url]);
                     $id = $pdo->lastInsertId();
                 }
 
-                echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
+                echo json_encode(['status' => 'success', 'data' => [
+                    'id' => $id,
+                    'pixel_profile_id' => $pixelProfileId ?: null,
+                    'has_token' => trim((string) $token) !== '',
+                ]]);
             }
+            break;
+
+        // Exchange a short-lived user token for a 60-day long-lived one.
+        // Anti-detect browsers hand out 1-2 hour tokens; the Graph endpoint
+        // needs the SAME app that issued the token, so the app credentials
+        // come from the form's Custom Meta App fields when present, else from
+        // the instance-level OAuth configuration.
+        case 'facebook_extend_token':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $extInput = json_decode(orbitraRequestBody(), true);
+            if (!is_array($extInput)) {
+                $extInput = [];
+            }
+            $shortToken = trim((string) ($extInput['short_token'] ?? ''));
+            if ($shortToken === '') {
+                echo json_encode(['status' => 'error', 'message' => 'Token is required']);
+                break;
+            }
+
+            $extAppId = trim((string) ($extInput['app_id'] ?? ''));
+            $extAppSecret = trim((string) ($extInput['app_secret'] ?? ''));
+            if ($extAppId === '' || $extAppSecret === '') {
+                $shared = orbitraFacebookOAuthCredentials($pdo);
+                if ($extAppId === '') {
+                    $extAppId = $shared['app_id'];
+                }
+                if ($extAppSecret === '') {
+                    $extAppSecret = $shared['app_secret'];
+                }
+            }
+            if ($extAppId === '' || $extAppSecret === '') {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'no_app_credentials',
+                    'detail' => ['hint' => 'Extending a token requires the Meta App that issued it — fill App ID and App Secret under "Custom Meta App", or configure the shared app on the server.'],
+                ]);
+                break;
+            }
+
+            $extProxy = trim((string) ($extInput['proxy_url'] ?? ''));
+            $extVersion = orbitraFacebookOAuthApiVersion();
+            $extUrl = "https://graph.facebook.com/{$extVersion}/oauth/access_token?" . http_build_query([
+                'grant_type' => 'fb_exchange_token',
+                'client_id' => $extAppId,
+                'client_secret' => $extAppSecret,
+                'fb_exchange_token' => $shortToken,
+            ]);
+
+            $extCh = curl_init($extUrl);
+            curl_setopt($extCh, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($extCh, CURLOPT_TIMEOUT, 15);
+            curl_setopt($extCh, CURLOPT_CONNECTTIMEOUT, 10);
+            curl_setopt($extCh, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+            if ($extProxy !== '') {
+                $extParts = parse_url($extProxy);
+                if (is_array($extParts) && !empty($extParts['host'])) {
+                    $extScheme = strtolower($extParts['scheme'] ?? 'http');
+                    curl_setopt($extCh, CURLOPT_PROXYTYPE, in_array($extScheme, ['socks5', 'socks5h'], true) ? CURLPROXY_SOCKS5_HOSTNAME : CURLPROXY_HTTP);
+                    curl_setopt($extCh, CURLOPT_PROXY, $extParts['host'] . (isset($extParts['port']) ? ':' . $extParts['port'] : ''));
+                    if (!empty($extParts['user'])) {
+                        curl_setopt($extCh, CURLOPT_PROXYUSERPWD, $extParts['user'] . ':' . ($extParts['pass'] ?? ''));
+                    }
+                }
+            }
+            $extBody = curl_exec($extCh);
+            $extErr = curl_error($extCh);
+            curl_close($extCh);
+
+            if ($extBody === false || !is_string($extBody)) {
+                echo json_encode(['status' => 'error', 'message' => 'HTTP transport error: ' . $extErr]);
+                break;
+            }
+            $extData = json_decode($extBody, true);
+            if (!is_array($extData) || empty($extData['access_token'])) {
+                $extMsg = is_array($extData['error'] ?? null) ? ($extData['error']['message'] ?? '') : '';
+                echo json_encode(['status' => 'error', 'message' => $extMsg !== '' ? $extMsg : 'Failed to extend token']);
+                break;
+            }
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'long_lived_token' => (string) $extData['access_token'],
+                    'expires_in' => (int) ($extData['expires_in'] ?? 5184000),
+                ],
+            ]);
+            break;
+
+        // ==================== Pixel Vault ====================
+        // Reusable, campaign-independent pixel/CAPI profiles. Tokens are kept
+        // server-side: list responses expose only a short mask, while attach
+        // and test actions resolve the full credential inside PHP.
+        case 'pixel_profiles_list':
+            if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+                echo json_encode(['status' => 'error', 'message' => 'GET required']);
+                break;
+            }
+
+            $stmt = $pdo->query("
+                SELECT id, traffic_source, niche, name, pixel_id, token, event_url,
+                       test_event_code, events, is_active, created_at, updated_at
+                FROM pixel_profiles
+                ORDER BY lower(niche), lower(name), id
+            ");
+            $profiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $groupedProfiles = [];
+            foreach ($profiles as &$profile) {
+                $token = trim((string) ($profile['token'] ?? ''));
+                $profile['has_token'] = $token !== '';
+                $profile['token_masked'] = $token === ''
+                    ? ''
+                    : (strlen($token) <= 8 ? str_repeat('•', strlen($token)) : substr($token, 0, 4) . '…' . substr($token, -4));
+                unset($profile['token']);
+                $profile['is_active'] = (int) ($profile['is_active'] ?? 0);
+
+                $niche = trim((string) ($profile['niche'] ?? '')) ?: 'General';
+                $source = trim((string) ($profile['traffic_source'] ?? '')) ?: 'facebook';
+                if (!isset($groupedProfiles[$niche])) {
+                    $groupedProfiles[$niche] = [];
+                }
+                if (!isset($groupedProfiles[$niche][$source])) {
+                    $groupedProfiles[$niche][$source] = [];
+                }
+                $groupedProfiles[$niche][$source][] = $profile;
+            }
+            unset($profile);
+
+            echo json_encode([
+                'status' => 'success',
+                'data' => $profiles,
+                'grouped' => $groupedProfiles,
+            ]);
+            break;
+
+        case 'save_pixel_profile':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+
+            $data = json_decode(orbitraRequestBody(), true);
+            if (!is_array($data)) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid JSON body']);
+                break;
+            }
+
+            // Duplicate is intentionally handled by the save action so the
+            // browser never has to receive the source profile's secret token.
+            $duplicateFromId = (int) ($data['duplicate_from_id'] ?? 0);
+            if ($duplicateFromId > 0) {
+                $copyStmt = $pdo->prepare("SELECT * FROM pixel_profiles WHERE id = ? LIMIT 1");
+                $copyStmt->execute([$duplicateFromId]);
+                $sourceProfile = $copyStmt->fetch(PDO::FETCH_ASSOC);
+                if (!$sourceProfile) {
+                    echo json_encode(['status' => 'error', 'message' => 'Pixel profile not found']);
+                    break;
+                }
+                $copyName = trim((string) ($data['name'] ?? '')) ?: ((string) $sourceProfile['name'] . ' Copy');
+                $insertCopy = $pdo->prepare("
+                    INSERT INTO pixel_profiles
+                        (traffic_source, niche, name, pixel_id, token, event_url, test_event_code, events, is_active)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+                $insertCopy->execute([
+                    $sourceProfile['traffic_source'],
+                    $sourceProfile['niche'],
+                    substr($copyName, 0, 255),
+                    $sourceProfile['pixel_id'],
+                    $sourceProfile['token'],
+                    $sourceProfile['event_url'],
+                    $sourceProfile['test_event_code'],
+                    $sourceProfile['events'],
+                    $sourceProfile['is_active'],
+                ]);
+                $newId = (int) $pdo->lastInsertId();
+                logAudit($pdo, 'CREATE', 'Pixel Profile', (string) $newId, ['duplicated_from' => $duplicateFromId]);
+                echo json_encode(['status' => 'success', 'data' => ['id' => $newId]]);
+                break;
+            }
+
+            $id = (int) ($data['id'] ?? 0);
+            $allowedSources = ['facebook', 'tiktok', 'google_ads', 'snapchat', 'pinterest'];
+            $trafficSource = strtolower(trim((string) ($data['traffic_source'] ?? 'facebook')));
+            if ($trafficSource === 'google') {
+                $trafficSource = 'google_ads';
+            }
+            if (!in_array($trafficSource, $allowedSources, true)) {
+                echo json_encode(['status' => 'error', 'message' => 'Unsupported traffic source']);
+                break;
+            }
+
+            $niche = substr(trim((string) ($data['niche'] ?? 'General')) ?: 'General', 0, 100);
+            $name = substr(trim((string) ($data['name'] ?? '')), 0, 255);
+            $pixelId = substr(trim((string) ($data['pixel_id'] ?? '')), 0, 100);
+            $token = trim((string) ($data['token'] ?? ''));
+            $eventUrl = substr(trim((string) ($data['event_url'] ?? '')), 0, 500);
+            $testEventCode = substr(trim((string) ($data['test_event_code'] ?? '')), 0, 50);
+            $events = substr(trim((string) ($data['events'] ?? 'PageView,Lead,Purchase')) ?: 'PageView,Lead,Purchase', 0, 255);
+            $isActive = isset($data['is_active']) ? ((int) $data['is_active'] === 1 ? 1 : 0) : 1;
+
+            if ($name === '' || $pixelId === '') {
+                echo json_encode(['status' => 'error', 'message' => 'Name and Pixel ID are required']);
+                break;
+            }
+            if ($eventUrl !== '' && filter_var($eventUrl, FILTER_VALIDATE_URL) === false) {
+                echo json_encode(['status' => 'error', 'message' => 'Event URL must be a valid URL']);
+                break;
+            }
+
+            try {
+                $pdo->beginTransaction();
+                if ($id > 0) {
+                    $currentStmt = $pdo->prepare("SELECT token FROM pixel_profiles WHERE id = ? LIMIT 1");
+                    $currentStmt->execute([$id]);
+                    $existingToken = $currentStmt->fetchColumn();
+                    if ($existingToken === false) {
+                        $pdo->rollBack();
+                        echo json_encode(['status' => 'error', 'message' => 'Pixel profile not found']);
+                        break;
+                    }
+                    // A blank token in the edit form means "keep the stored
+                    // token". This is what lets list responses stay secret-free.
+                    if ($token === '') {
+                        $token = (string) $existingToken;
+                    }
+                    $update = $pdo->prepare("
+                        UPDATE pixel_profiles
+                        SET traffic_source=?, niche=?, name=?, pixel_id=?, token=?, event_url=?,
+                            test_event_code=?, events=?, is_active=?, updated_at=CURRENT_TIMESTAMP
+                        WHERE id=?
+                    ");
+                    $update->execute([$trafficSource, $niche, $name, $pixelId, $token, $eventUrl, $testEventCode, $events, $isActive, $id]);
+
+                    // Keep every attached campaign in sync with the central
+                    // record. campaign_pixels remains the runtime snapshot used
+                    // by postback.php and the existing delivery queue.
+                    $sync = $pdo->prepare("
+                        UPDATE campaign_pixels
+                        SET type=?, pixel_id=?, token=?, events=?, test_event_code=?,
+                            event_source_url=?, is_active=?
+                        WHERE pixel_profile_id=?
+                    ");
+                    $sync->execute([$trafficSource, $pixelId, $token, $events, $testEventCode, $eventUrl, $isActive, $id]);
+                } else {
+                    if ($token === '') {
+                        $pdo->rollBack();
+                        echo json_encode(['status' => 'error', 'message' => 'Conversions API token is required']);
+                        break;
+                    }
+                    $insert = $pdo->prepare("
+                        INSERT INTO pixel_profiles
+                            (traffic_source, niche, name, pixel_id, token, event_url, test_event_code, events, is_active)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ");
+                    $insert->execute([$trafficSource, $niche, $name, $pixelId, $token, $eventUrl, $testEventCode, $events, $isActive]);
+                    $id = (int) $pdo->lastInsertId();
+                }
+                $pdo->commit();
+                logAudit($pdo, !empty($data['id']) ? 'UPDATE' : 'CREATE', 'Pixel Profile', (string) $id, [
+                    'traffic_source' => $trafficSource,
+                    'niche' => $niche,
+                ]);
+                echo json_encode(['status' => 'success', 'data' => ['id' => $id]]);
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Could not save pixel profile: ' . $e->getMessage()]);
+            }
+            break;
+
+        case 'delete_pixel_profile':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $data = json_decode(orbitraRequestBody(), true);
+            $id = (int) ($data['id'] ?? 0);
+            if ($id <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'ID required']);
+                break;
+            }
+            try {
+                $pdo->beginTransaction();
+                $detach = $pdo->prepare("DELETE FROM campaign_pixels WHERE pixel_profile_id = ?");
+                $detach->execute([$id]);
+                $detachedCount = $detach->rowCount();
+                $delete = $pdo->prepare("DELETE FROM pixel_profiles WHERE id = ?");
+                $delete->execute([$id]);
+                if ($delete->rowCount() === 0) {
+                    $pdo->rollBack();
+                    echo json_encode(['status' => 'error', 'message' => 'Pixel profile not found']);
+                    break;
+                }
+                $pdo->commit();
+                logAudit($pdo, 'DELETE', 'Pixel Profile', (string) $id, ['detached_campaigns' => $detachedCount]);
+                echo json_encode(['status' => 'success', 'data' => ['detached_campaigns' => $detachedCount]]);
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Could not delete pixel profile: ' . $e->getMessage()]);
+            }
+            break;
+
+        case 'attach_pixel_profile':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $data = json_decode(orbitraRequestBody(), true);
+            $campaignId = (int) ($data['campaign_id'] ?? 0);
+            $profileId = (int) ($data['pixel_profile_id'] ?? 0);
+            if ($campaignId <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Campaign ID required']);
+                break;
+            }
+            $campaignStmt = $pdo->prepare("SELECT id FROM campaigns WHERE id = ? LIMIT 1");
+            $campaignStmt->execute([$campaignId]);
+            if (!$campaignStmt->fetchColumn()) {
+                echo json_encode(['status' => 'error', 'message' => 'Campaign not found']);
+                break;
+            }
+
+            try {
+                $pdo->beginTransaction();
+                // The campaign editor exposes one saved-profile selector. Manual
+                // pixels remain untouched; changing the selector replaces only
+                // the previously attached Vault profile.
+                $remove = $pdo->prepare("DELETE FROM campaign_pixels WHERE campaign_id = ? AND pixel_profile_id IS NOT NULL");
+                $remove->execute([$campaignId]);
+
+                $campaignPixelId = null;
+                if ($profileId > 0) {
+                    $profileStmt = $pdo->prepare("SELECT * FROM pixel_profiles WHERE id = ? LIMIT 1");
+                    $profileStmt->execute([$profileId]);
+                    $profile = $profileStmt->fetch(PDO::FETCH_ASSOC);
+                    if (!$profile) {
+                        $pdo->rollBack();
+                        echo json_encode(['status' => 'error', 'message' => 'Pixel profile not found']);
+                        break;
+                    }
+                    if ((int) ($profile['is_active'] ?? 0) !== 1) {
+                        $pdo->rollBack();
+                        echo json_encode(['status' => 'error', 'message' => 'Pixel profile is inactive']);
+                        break;
+                    }
+                    $insert = $pdo->prepare("
+                        INSERT INTO campaign_pixels
+                            (campaign_id, pixel_profile_id, type, pixel_id, token, events, is_active,
+                             mapping_json, test_event_code, proxy_url, api_version, event_source_url)
+                        VALUES (?, ?, ?, ?, ?, ?, 1, NULL, ?, '', '', ?)
+                    ");
+                    $insert->execute([
+                        $campaignId,
+                        $profileId,
+                        $profile['traffic_source'],
+                        $profile['pixel_id'],
+                        $profile['token'],
+                        $profile['events'],
+                        $profile['test_event_code'],
+                        $profile['event_url'],
+                    ]);
+                    $campaignPixelId = (int) $pdo->lastInsertId();
+                }
+                $pdo->commit();
+                logAudit($pdo, 'UPDATE', 'Campaign Pixel Profile', (string) $campaignId, ['pixel_profile_id' => $profileId ?: null]);
+                echo json_encode(['status' => 'success', 'data' => [
+                    'pixel_profile_id' => $profileId ?: null,
+                    'campaign_pixel_id' => $campaignPixelId,
+                ]]);
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Could not attach pixel profile: ' . $e->getMessage()]);
+            }
+            break;
+
+        case 'pixel_profile_test_event':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $data = json_decode(orbitraRequestBody(), true);
+            if (!is_array($data)) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid JSON body']);
+                break;
+            }
+            $profile = null;
+            $id = (int) ($data['id'] ?? 0);
+            if ($id > 0) {
+                $profileStmt = $pdo->prepare("SELECT * FROM pixel_profiles WHERE id = ? LIMIT 1");
+                $profileStmt->execute([$id]);
+                $profile = $profileStmt->fetch(PDO::FETCH_ASSOC);
+            }
+            if (!$profile) {
+                $profile = [
+                    'traffic_source' => $data['traffic_source'] ?? 'facebook',
+                    'pixel_id' => $data['pixel_id'] ?? '',
+                    'token' => $data['token'] ?? '',
+                    'event_url' => $data['event_url'] ?? '',
+                    'test_event_code' => $data['test_event_code'] ?? '',
+                ];
+            }
+            $source = strtolower(trim((string) ($profile['traffic_source'] ?? 'facebook')));
+            if (trim((string) ($profile['pixel_id'] ?? '')) === '' || trim((string) ($profile['token'] ?? '')) === '') {
+                echo json_encode(['status' => 'error', 'message' => 'Pixel ID and Conversions API token are required.']);
+                break;
+            }
+
+            if ($source === 'facebook') {
+                require_once __DIR__ . '/core/FacebookConversions.php';
+                $pixel = [
+                    'pixel_id' => $profile['pixel_id'],
+                    'token' => $profile['token'],
+                    'mapping_json' => null,
+                    'test_event_code' => $profile['test_event_code'] ?? '',
+                    'proxy_url' => '',
+                    'api_version' => '',
+                    'event_source_url' => $profile['event_url'] ?? '',
+                ];
+                $click = [
+                    'ip' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+                    'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Orbitra/Pixel-Vault-test',
+                    'referer' => '',
+                    'country_code' => '',
+                    'region' => '',
+                    'city' => '',
+                    'zipcode' => '',
+                    'parameters_json' => '{}',
+                    'created_at' => date('Y-m-d H:i:s'),
+                ];
+                $payload = FacebookConversions::buildPayload($pixel, $click, [
+                    'event_name' => $data['event_name'] ?? 'Lead',
+                    'event_time' => time(),
+                    'event_id' => 'orbitra_vault_test_' . bin2hex(random_bytes(6)),
+                    'payout' => 1,
+                    'currency' => 'USD',
+                    'click_params' => [],
+                    'extra' => [],
+                ]);
+                $result = FacebookConversions::send($pixel, $payload);
+                echo json_encode([
+                    'status' => $result['success'] ? 'success' : 'error',
+                    'message' => $result['message'],
+                    'data' => ['response' => $result['response']],
+                ]);
+                break;
+            }
+
+            if ($source === 'tiktok') {
+                require_once __DIR__ . '/core/TikTokConversions.php';
+                $pixel = [
+                    'pixel_id' => $profile['pixel_id'],
+                    'token' => $profile['token'],
+                    'event_source_url' => $profile['event_url'] ?? '',
+                ];
+                $click = [
+                    'ip' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+                    'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Orbitra/Pixel-Vault-test',
+                    'referer' => '',
+                ];
+                $payload = TikTokConversions::buildPayload($pixel, $click, [
+                    'event_name' => $data['event_name'] ?? 'CompleteRegistration',
+                    'event_time' => time(),
+                    'event_id' => 'orbitra_vault_test_' . bin2hex(random_bytes(6)),
+                    'click_params' => [],
+                    'extra' => [],
+                ]);
+                $result = TikTokConversions::send($pixel, $payload);
+                echo json_encode([
+                    'status' => $result['success'] ? 'success' : 'error',
+                    'message' => $result['message'],
+                    'data' => ['response' => $result['response']],
+                ]);
+                break;
+            }
+
+            echo json_encode(['status' => 'error', 'message' => 'Test events are currently supported for Facebook and TikTok profiles.']);
+            break;
+
+        // Begin a popup-based Facebook Login flow for automatic ad-account discovery.
+        case 'facebook_oauth_start':
+            if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+                echo json_encode(['status' => 'error', 'message' => 'GET required']);
+                break;
+            }
+
+            $origin = orbitraFacebookOAuthOrigin();
+            $oauthCredentials = orbitraFacebookOAuthCredentials($pdo);
+            if ($oauthCredentials['app_id'] === '' || $oauthCredentials['app_secret'] === '') {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.facebook_oauth',
+                    'status' => 'error',
+                    'message' => 'Facebook OAuth is not configured. Set ORBITRA_META_APP_ID and ORBITRA_META_APP_SECRET on the server, or save App ID and App Secret in a manual Facebook connection.',
+                ], $origin);
+            }
+
+            $now = time();
+            foreach ((array) ($_SESSION['facebook_oauth_states'] ?? []) as $oldState => $details) {
+                if (!is_array($details) || (int) ($details['created_at'] ?? 0) < $now - 900) {
+                    unset($_SESSION['facebook_oauth_states'][$oldState]);
+                }
+            }
+            foreach ((array) ($_SESSION['facebook_oauth_flows'] ?? []) as $oldFlow => $details) {
+                if (!is_array($details) || (int) ($details['created_at'] ?? 0) < $now - 900) {
+                    unset($_SESSION['facebook_oauth_flows'][$oldFlow]);
+                }
+            }
+
+            $state = bin2hex(random_bytes(32));
+            $redirectUri = $origin . '/api.php?action=facebook_oauth_callback';
+            $_SESSION['facebook_oauth_states'][$state] = [
+                'created_at' => $now,
+                'user_id' => (int) $_SESSION['user_id'],
+                'origin' => $origin,
+                'redirect_uri' => $redirectUri,
+            ];
+
+            $authUrl = 'https://www.facebook.com/' . orbitraFacebookOAuthApiVersion() . '/dialog/oauth?' . http_build_query([
+                'client_id' => $oauthCredentials['app_id'],
+                'redirect_uri' => $redirectUri,
+                'scope' => 'ads_read,ads_management,read_insights',
+                'response_type' => 'code',
+                'state' => $state,
+            ], '', '&', PHP_QUERY_RFC3986);
+            header('Cache-Control: no-store');
+            header('Location: ' . $authUrl, true, 302);
+            exit;
+
+        // Exchange the authorization code, discover every accessible ad account,
+        // then pass only non-secret account metadata back to the opener window.
+        case 'facebook_oauth_callback':
+            if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+                echo json_encode(['status' => 'error', 'message' => 'GET required']);
+                break;
+            }
+
+            $origin = orbitraFacebookOAuthOrigin();
+            $state = trim((string) ($_GET['state'] ?? ''));
+            $storedState = $state !== '' ? ($_SESSION['facebook_oauth_states'][$state] ?? null) : null;
+            if ($state !== '') {
+                unset($_SESSION['facebook_oauth_states'][$state]);
+            }
+            if (!is_array($storedState)
+                || (int) ($storedState['created_at'] ?? 0) < time() - 900
+                || (int) ($storedState['user_id'] ?? 0) !== (int) $_SESSION['user_id']
+                || !hash_equals((string) ($storedState['origin'] ?? ''), $origin)) {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.facebook_oauth',
+                    'status' => 'error',
+                    'message' => 'The Facebook authorization request expired or could not be verified. Please try again.',
+                ], $origin);
+            }
+
+            if (!empty($_GET['error'])) {
+                $oauthError = trim((string) ($_GET['error_description'] ?? $_GET['error_reason'] ?? 'Facebook authorization was cancelled.'));
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.facebook_oauth',
+                    'status' => 'error',
+                    'message' => $oauthError,
+                ], $origin);
+            }
+
+            $code = trim((string) ($_GET['code'] ?? ''));
+            if ($code === '') {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.facebook_oauth',
+                    'status' => 'error',
+                    'message' => 'Facebook did not return an authorization code.',
+                ], $origin);
+            }
+
+            try {
+                $oauthCredentials = orbitraFacebookOAuthCredentials($pdo);
+                if ($oauthCredentials['app_id'] === '' || $oauthCredentials['app_secret'] === '') {
+                    throw new RuntimeException('Facebook OAuth app credentials are no longer available.');
+                }
+                $redirectUri = (string) $storedState['redirect_uri'];
+                $graphBase = 'https://graph.facebook.com/' . orbitraFacebookOAuthApiVersion();
+
+                // The authorization code first yields a short-lived user token.
+                $shortResponse = orbitraFacebookGraphGet($graphBase . '/oauth/access_token?' . http_build_query([
+                    'client_id' => $oauthCredentials['app_id'],
+                    'client_secret' => $oauthCredentials['app_secret'],
+                    'redirect_uri' => $redirectUri,
+                    'code' => $code,
+                ], '', '&', PHP_QUERY_RFC3986));
+                $shortToken = trim((string) ($shortResponse['access_token'] ?? ''));
+                if ($shortToken === '') {
+                    throw new RuntimeException('Facebook did not return an access token.');
+                }
+
+                // Exchange it immediately so every saved account gets the long-lived
+                // token expected by the cost importer (normally valid for ~60 days).
+                $longResponse = orbitraFacebookGraphGet($graphBase . '/oauth/access_token?' . http_build_query([
+                    'grant_type' => 'fb_exchange_token',
+                    'client_id' => $oauthCredentials['app_id'],
+                    'client_secret' => $oauthCredentials['app_secret'],
+                    'fb_exchange_token' => $shortToken,
+                ], '', '&', PHP_QUERY_RFC3986));
+                $longToken = trim((string) ($longResponse['access_token'] ?? ''));
+                if ($longToken === '') {
+                    throw new RuntimeException('Facebook did not return a long-lived access token.');
+                }
+                $expiresIn = max(0, (int) ($longResponse['expires_in'] ?? 0));
+
+                $accounts = [];
+                $nextUrl = $graphBase . '/me/adaccounts?' . http_build_query([
+                    'fields' => 'id,name,account_id,account_status,currency,timezone_name',
+                    'limit' => 200,
+                    'access_token' => $longToken,
+                ], '', '&', PHP_QUERY_RFC3986);
+                $pageCount = 0;
+                while ($nextUrl !== '' && $pageCount < 50) {
+                    $page = orbitraFacebookGraphGet($nextUrl, 30);
+                    foreach ((array) ($page['data'] ?? []) as $account) {
+                        if (!is_array($account)) {
+                            continue;
+                        }
+                        $accountId = orbitraFacebookNormalizeAccountId((string) ($account['id'] ?? $account['account_id'] ?? ''));
+                        if ($accountId === '' || isset($accounts[$accountId])) {
+                            continue;
+                        }
+                        $accounts[$accountId] = [
+                            'id' => $accountId,
+                            'name' => trim((string) ($account['name'] ?? '')) ?: $accountId,
+                            'currency' => strtoupper(trim((string) ($account['currency'] ?? ''))),
+                            'account_status' => (int) ($account['account_status'] ?? 0),
+                            'timezone_name' => trim((string) ($account['timezone_name'] ?? '')),
+                        ];
+                    }
+                    $nextUrl = trim((string) ($page['paging']['next'] ?? ''));
+                    $pageCount++;
+                }
+
+                $flowId = bin2hex(random_bytes(32));
+                $_SESSION['facebook_oauth_flows'][$flowId] = [
+                    'created_at' => time(),
+                    'user_id' => (int) $_SESSION['user_id'],
+                    'access_token' => $longToken,
+                    'token_expires_at' => $expiresIn > 0 ? time() + $expiresIn : null,
+                    'accounts' => $accounts,
+                ];
+
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.facebook_oauth',
+                    'status' => 'success',
+                    'flow_id' => $flowId,
+                    'accounts' => array_values($accounts),
+                    'message' => count($accounts) . ' Facebook ad account(s) found.',
+                ], $origin);
+            } catch (\Throwable $e) {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.facebook_oauth',
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ], $origin);
+            }
+
+        // Save one aggregator connection per selected account. flow_id is the
+        // browser flow used by Orbitra; access_token remains supported for direct
+        // API clients implementing the documented request shape.
+        case 'facebook_connect_accounts':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+
+            $data = json_decode(orbitraRequestBody(), true);
+            if (!is_array($data)) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid JSON body']);
+                break;
+            }
+
+            $now = time();
+            foreach ((array) ($_SESSION['facebook_oauth_flows'] ?? []) as $oldFlow => $details) {
+                if (!is_array($details) || (int) ($details['created_at'] ?? 0) < $now - 900) {
+                    unset($_SESSION['facebook_oauth_flows'][$oldFlow]);
+                }
+            }
+
+            $flowId = trim((string) ($data['flow_id'] ?? ''));
+            $flow = $flowId !== '' ? ($_SESSION['facebook_oauth_flows'][$flowId] ?? null) : null;
+            if ($flowId !== '' && (!is_array($flow)
+                || (int) ($flow['created_at'] ?? 0) < $now - 900
+                || (int) ($flow['user_id'] ?? 0) !== (int) $_SESSION['user_id'])) {
+                echo json_encode(['status' => 'error', 'message' => 'Facebook connection session expired. Please log in with Facebook again.']);
+                break;
+            }
+
+            $token = is_array($flow)
+                ? trim((string) ($flow['access_token'] ?? ''))
+                : trim((string) ($data['access_token'] ?? ''));
+            if ($token === '' || strlen($token) > 8192) {
+                echo json_encode(['status' => 'error', 'message' => 'A valid Facebook access token is required.']);
+                break;
+            }
+
+            $requestedAccounts = $data['accounts'] ?? [];
+            if (!is_array($requestedAccounts) || count($requestedAccounts) < 1 || count($requestedAccounts) > 500) {
+                echo json_encode(['status' => 'error', 'message' => 'Select between 1 and 500 Facebook ad accounts.']);
+                break;
+            }
+
+            $selectedAccounts = [];
+            $allowedAccounts = is_array($flow) && is_array($flow['accounts'] ?? null) ? $flow['accounts'] : null;
+            foreach ($requestedAccounts as $requested) {
+                if (!is_array($requested)) {
+                    continue;
+                }
+                $accountId = orbitraFacebookNormalizeAccountId((string) ($requested['id'] ?? $requested['account_id'] ?? ''));
+                if ($accountId === '') {
+                    continue;
+                }
+                if (is_array($allowedAccounts)) {
+                    if (!isset($allowedAccounts[$accountId]) || !is_array($allowedAccounts[$accountId])) {
+                        echo json_encode(['status' => 'error', 'message' => 'One or more selected accounts do not belong to this Facebook login.']);
+                        break 2;
+                    }
+                    $account = $allowedAccounts[$accountId];
+                } else {
+                    $account = [
+                        'id' => $accountId,
+                        'name' => trim((string) ($requested['name'] ?? '')) ?: $accountId,
+                        'currency' => strtoupper(trim((string) ($requested['currency'] ?? ''))),
+                        'account_status' => (int) ($requested['account_status'] ?? 0),
+                        'timezone_name' => trim((string) ($requested['timezone_name'] ?? '')),
+                    ];
+                }
+                $account['name'] = substr(trim((string) ($account['name'] ?? '')) ?: $accountId, 0, 190);
+                $account['currency'] = preg_match('/^[A-Z]{3}$/', (string) ($account['currency'] ?? '')) ? $account['currency'] : '';
+                $selectedAccounts[$accountId] = $account;
+            }
+
+            if (!$selectedAccounts) {
+                echo json_encode(['status' => 'error', 'message' => 'No valid Facebook ad accounts were selected.']);
+                break;
+            }
+
+            $syncInterval = max(1, min(168, (int) ($data['sync_interval_hours'] ?? 2)));
+            $created = 0;
+            $updated = 0;
+            try {
+                $existing = [];
+                $stmt = $pdo->query("SELECT id, credentials_json FROM aggregator_connections WHERE engine = 'facebook' ORDER BY id ASC");
+                foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                    $credentials = json_decode((string) ($row['credentials_json'] ?? ''), true);
+                    if (!is_array($credentials)) {
+                        continue;
+                    }
+                    $accountId = orbitraFacebookNormalizeAccountId((string) ($credentials['ad_account_id'] ?? ''));
+                    if ($accountId !== '' && !isset($existing[$accountId])) {
+                        $existing[$accountId] = ['id' => (int) $row['id'], 'credentials' => $credentials];
+                    }
+                }
+
+                $pdo->beginTransaction();
+                $updateStmt = $pdo->prepare("UPDATE aggregator_connections SET name=?, auth_type='oauth', credentials_json=?, sync_interval_hours=?, is_active=1 WHERE id=?");
+                $insertStmt = $pdo->prepare("INSERT INTO aggregator_connections (name, engine, affiliate_network_id, auth_type, credentials_json, base_url, deal_type, baseline, click_id_param, field_mapping_json, sync_interval_hours, is_active) VALUES (?, 'facebook', NULL, 'oauth', ?, '', 'cpa', 0, 'sub_id', '{}', ?, 1)");
+
+                foreach ($selectedAccounts as $accountId => $account) {
+                    $credentials = $existing[$accountId]['credentials'] ?? [];
+                    $credentials['token'] = $token;
+                    $credentials['ad_account_id'] = $accountId;
+                    $credentials['api_version'] = trim((string) ($credentials['api_version'] ?? '')) ?: orbitraFacebookOAuthApiVersion();
+                    $credentials['proxy_url'] = (string) ($credentials['proxy_url'] ?? '');
+                    $credentials['account_name'] = $account['name'];
+                    $credentials['currency'] = (string) ($account['currency'] ?? '');
+                    $credentials['timezone_name'] = (string) ($account['timezone_name'] ?? '');
+                    $credentials['account_status'] = (int) ($account['account_status'] ?? 0);
+                    if (!empty($flow['token_expires_at'])) {
+                        $credentials['token_expires_at'] = (int) $flow['token_expires_at'];
+                    }
+                    $credentialsJson = json_encode($credentials, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+                    if (isset($existing[$accountId])) {
+                        $updateStmt->execute([$account['name'], $credentialsJson, $syncInterval, $existing[$accountId]['id']]);
+                        $updated++;
+                    } else {
+                        $insertStmt->execute([$account['name'], $credentialsJson, $syncInterval]);
+                        $created++;
+                    }
+                }
+                $pdo->commit();
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Could not save Facebook ad accounts: ' . $e->getMessage()]);
+                break;
+            }
+
+            if ($flowId !== '') {
+                unset($_SESSION['facebook_oauth_flows'][$flowId]);
+            }
+            logAudit($pdo, 'CREATE', 'Facebook OAuth Connections', null, [
+                'connected_count' => count($selectedAccounts),
+                'created_count' => $created,
+                'updated_count' => $updated,
+            ]);
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'connected_count' => count($selectedAccounts),
+                    'created_count' => $created,
+                    'updated_count' => $updated,
+                ],
+            ]);
             break;
 
         // Every Facebook pixel across all campaigns, for the Integrations page.
@@ -11069,11 +12892,12 @@ try {
         case 'facebook_capi_list':
             require_once __DIR__ . '/core/FacebookConversions.php';
             $stmt = $pdo->query("
-                SELECT cp.id, cp.campaign_id, cp.pixel_id, cp.events, cp.is_active,
+                SELECT cp.id, cp.campaign_id, cp.pixel_profile_id, cp.pixel_id, cp.events, cp.is_active,
                        cp.mapping_json, cp.test_event_code, cp.proxy_url, cp.api_version,
-                       c.name AS campaign_name
+                       c.name AS campaign_name, pp.name AS profile_name, pp.niche AS profile_niche
                 FROM campaign_pixels cp
                 LEFT JOIN campaigns c ON cp.campaign_id = c.id
+                LEFT JOIN pixel_profiles pp ON pp.id = cp.pixel_profile_id
                 WHERE cp.type = 'facebook'
                 ORDER BY cp.id DESC
             ");
@@ -11129,7 +12953,22 @@ try {
             $data = json_decode(orbitraRequestBody(), true);
 
             $pixel = null;
-            if (!empty($data['id'])) {
+            if (!empty($data['pixel_profile_id'])) {
+                $stmt = $pdo->prepare("SELECT * FROM pixel_profiles WHERE id = ? AND traffic_source = 'facebook' AND is_active = 1 LIMIT 1");
+                $stmt->execute([(int) $data['pixel_profile_id']]);
+                $profile = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($profile) {
+                    $pixel = [
+                        'pixel_id' => $profile['pixel_id'],
+                        'token' => $profile['token'],
+                        'mapping_json' => $data['mapping_json'] ?? null,
+                        'test_event_code' => $profile['test_event_code'] ?? '',
+                        'proxy_url' => $data['proxy_url'] ?? '',
+                        'api_version' => $data['api_version'] ?? '',
+                        'event_source_url' => $profile['event_url'] ?? '',
+                    ];
+                }
+            } elseif (!empty($data['id'])) {
                 $stmt = $pdo->prepare("SELECT * FROM campaign_pixels WHERE id = ? LIMIT 1");
                 $stmt->execute([$data['id']]);
                 $pixel = $stmt->fetch(PDO::FETCH_ASSOC);

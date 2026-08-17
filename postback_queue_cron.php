@@ -126,7 +126,7 @@ try {
     // Select due rows. Claiming is done by flipping status to 'in_flight' inside a
     // transaction so a parallel worker cannot pick the same row.
     $dueStmt = $pdo->prepare("
-        SELECT id, conversion_id, url, method, attempts, payload_json, content_type, proxy_url
+        SELECT id, conversion_id, url, method, attempts, payload_json, content_type, proxy_url, headers_json
         FROM s2s_postbacks_log
         WHERE status = 'pending'
           AND next_retry_at <= datetime('now')
@@ -252,7 +252,21 @@ try {
                 // form fields would make Meta reject the event.
                 $contentType = trim((string) ($row['content_type'] ?? '')) ?: 'application/json';
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $rawBody);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: ' . $contentType]);
+                $requestHeaders = ['Content-Type: ' . $contentType];
+                $extraHeaders = json_decode((string) ($row['headers_json'] ?? ''), true);
+                if (is_array($extraHeaders)) {
+                    foreach ($extraHeaders as $headerName => $headerValue) {
+                        $headerName = trim((string) $headerName);
+                        $headerValue = trim((string) $headerValue);
+                        // Only simple HTTP token names are accepted; CR/LF are
+                        // rejected so a stored credential cannot inject headers.
+                        if ($headerName !== '' && preg_match('/^[A-Za-z0-9-]+$/', $headerName)
+                            && $headerValue !== '' && !preg_match('/[\r\n]/', $headerValue)) {
+                            $requestHeaders[] = $headerName . ': ' . $headerValue;
+                        }
+                    }
+                }
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $requestHeaders);
             } else {
                 // Move query-string fields into the POST body so partners receive them in
                 // the request body (the common S2S convention) instead of an empty body.

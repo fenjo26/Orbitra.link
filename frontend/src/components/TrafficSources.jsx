@@ -5,6 +5,7 @@ import InfoBanner from './InfoBanner';
 import TrafficSourceEditor from './TrafficSourceEditor';
 import BulkImportSources from './BulkImportSources';
 import { useLanguage } from '../contexts/LanguageContext';
+import { copyToClipboard } from '../utils/clipboard';
 
 const API_URL = '/api.php';
 
@@ -166,7 +167,9 @@ const TrafficSources = ({ refreshData }) => {
     };
 
     const copyUrl = (url) => {
-        navigator.clipboard.writeText(url);
+        // utils/clipboard: Clipboard API where available, execCommand fallback
+        // for plain HTTP/IP installs.
+        copyToClipboard(url);
     };
 
     const checkSourceUrl = async (id) => {

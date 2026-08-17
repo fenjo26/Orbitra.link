@@ -416,7 +416,6 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'uc_rate_stream':
             case 'uc_rate_global':
             case 'bot_rate':
-            case 'lp_ctr':
             case 'approve_rate':
             case 'approve_rate_excl_trash':
             case 'cr':
@@ -429,6 +428,11 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'cr_regs_to_deps':
             case 'ucr':
                 return `${num.toFixed(2)}%`;
+
+            // Direct-to-offer streams have no CTA to measure — the backend
+            // sends null, never a made-up 0%/100%.
+            case 'lp_ctr':
+                return val === null || val === undefined ? '—' : `${num.toFixed(2)}%`;
 
             case 'roi':
             case 'roi_all':

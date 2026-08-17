@@ -258,12 +258,13 @@ try {
     // Ставим в ту же очередь, что и S2S: Meta иногда отвечает медленно, а партнёрка,
     // не дождавшаяся ответа на постбек, пришлёт его повторно и удвоит конверсию.
     try {
-        $capiStmt = $pdo->prepare("SELECT * FROM campaign_pixels WHERE campaign_id = ? AND type = 'facebook' AND is_active = 1");
+        $capiStmt = $pdo->prepare("SELECT * FROM campaign_pixels WHERE campaign_id = ? AND type IN ('facebook', 'tiktok') AND is_active = 1");
         $capiStmt->execute([$campaignId]);
         $capiPixels = $capiStmt->fetchAll(PDO::FETCH_ASSOC);
 
         if (!empty($capiPixels)) {
             require_once __DIR__ . '/core/FacebookConversions.php';
+            require_once __DIR__ . '/core/TikTokConversions.php';
 
             $clickStmt = $pdo->prepare("
                 SELECT id, ip, user_agent, referer, country_code, region, city, zipcode,
@@ -319,7 +320,7 @@ try {
 
                 foreach ($capiPixels as $pixel) {
                     try {
-                        FacebookConversions::enqueue($pdo, $pixel, $clickRow, [
+                        $capiContext = [
                             'status'       => $internalStatus,
                             'payout'       => (float) $payout,
                             'currency'     => $currency,
@@ -331,7 +332,12 @@ try {
                             'extra'        => $_GET,
                             'campaign_url' => $capiCampaignUrl,
                             'landing_url'  => $capiLandingUrl,
-                        ], $capiConversionId);
+                        ];
+                        if (($pixel['type'] ?? '') === 'tiktok') {
+                            TikTokConversions::enqueue($pdo, $pixel, $clickRow, $capiContext, $capiConversionId);
+                        } else {
+                            FacebookConversions::enqueue($pdo, $pixel, $clickRow, $capiContext, $capiConversionId);
+                        }
                     } catch (\Throwable $pixelErr) {
                         // Один сломанный пиксель не должен ронять остальные.
                     }

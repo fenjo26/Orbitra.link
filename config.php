@@ -51,7 +51,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 25;
+    $LATEST_SCHEMA_VERSION = 26;
 
     $schemaVersion = 0;
     try {
@@ -469,6 +469,7 @@ try {
         url TEXT NOT NULL,
         status_code INTEGER,
         response TEXT,
+        headers_json TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (conversion_id) REFERENCES conversions(id) ON DELETE SET NULL
     );
@@ -485,16 +486,36 @@ try {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
+    CREATE TABLE IF NOT EXISTS pixel_profiles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        traffic_source TEXT NOT NULL DEFAULT 'facebook',
+        niche TEXT DEFAULT 'General',
+        name TEXT NOT NULL,
+        pixel_id TEXT NOT NULL,
+        token TEXT NOT NULL DEFAULT '',
+        event_url TEXT,
+        test_event_code TEXT,
+        events TEXT DEFAULT 'PageView,Lead,Purchase',
+        is_active INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_pixel_profiles_traffic_source ON pixel_profiles(traffic_source);
+    CREATE INDEX IF NOT EXISTS idx_pixel_profiles_niche ON pixel_profiles(niche);
+
     CREATE TABLE IF NOT EXISTS campaign_pixels (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         campaign_id INTEGER NOT NULL,
+        pixel_profile_id INTEGER,
         type TEXT NOT NULL,
         pixel_id TEXT NOT NULL,
         token TEXT,
         events TEXT DEFAULT 'PageView,Lead',
         is_active INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE
+        FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE,
+        FOREIGN KEY (pixel_profile_id) REFERENCES pixel_profiles(id) ON DELETE CASCADE
     );
 
     CREATE TABLE IF NOT EXISTS app_configs (
@@ -1481,6 +1502,52 @@ try {
                     $pdo->exec("ALTER TABLE campaigns ADD COLUMN state TEXT DEFAULT 'active'");
                 } catch (\Throwable $e) {
                     // Column already present on a half-migrated DB.
+                }
+            }
+
+            if ($schemaVersion < 26) {
+                // Migration 26: reusable Pixel Vault profiles. Campaign pixels
+                // keep their existing execution-ready fields and point back to
+                // the profile they were attached from; profile edits can then
+                // update every linked campaign without changing the CAPI worker.
+                try {
+                    $pdo->exec("CREATE TABLE IF NOT EXISTS pixel_profiles (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        traffic_source TEXT NOT NULL DEFAULT 'facebook',
+                        niche TEXT DEFAULT 'General',
+                        name TEXT NOT NULL,
+                        pixel_id TEXT NOT NULL,
+                        token TEXT NOT NULL DEFAULT '',
+                        event_url TEXT,
+                        test_event_code TEXT,
+                        events TEXT DEFAULT 'PageView,Lead,Purchase',
+                        is_active INTEGER DEFAULT 1,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )");
+                } catch (\Throwable $e) {
+                }
+                try {
+                    $pdo->exec("ALTER TABLE campaign_pixels ADD COLUMN pixel_profile_id INTEGER");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
+                }
+                try {
+                    // TikTok Events API authenticates with a request header, so
+                    // queued JSON deliveries need per-row headers as well as a body.
+                    $pdo->exec("ALTER TABLE s2s_postbacks_log ADD COLUMN headers_json TEXT");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
+                }
+                foreach ([
+                    "CREATE INDEX IF NOT EXISTS idx_pixel_profiles_traffic_source ON pixel_profiles(traffic_source)",
+                    "CREATE INDEX IF NOT EXISTS idx_pixel_profiles_niche ON pixel_profiles(niche)",
+                    "CREATE INDEX IF NOT EXISTS idx_campaign_pixels_profile ON campaign_pixels(pixel_profile_id)",
+                ] as $sql) {
+                    try {
+                        $pdo->exec($sql);
+                    } catch (\Throwable $e) {
+                    }
                 }
             }
 

@@ -1,16 +1,87 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Save, X, Upload, FileText, Code, Check, Plus, Eye, ExternalLink, LayoutTemplate, HardDrive, Layers3, Zap } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { Save, X, Upload, FileText, FileCode, Image as ImageIcon, Palette, Code, Check, Plus, Eye, ExternalLink, LayoutTemplate, HardDrive, Layers3, Zap, Columns2, WandSparkles, Maximize2, Minimize2, Link2, Undo2 } from 'lucide-react';
 import axios from 'axios';
 import GroupsModal from './GroupsModal';
 import SegmentedControl from './common/SegmentedControl';
 import FileDropzone from './common/FileDropzone';
 import CodeSnippetCard from './common/CodeSnippetCard';
+import CodeEditor from './common/CodeEditor';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import { translateLandingError, translateLandingRequestError } from '../utils/landingErrors';
 import { copyToClipboard as copyUtil } from '../utils/clipboard';
 
 const API_URL = '/api.php';
+const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'avif', 'ico', 'bmp']);
+const VOID_HTML_TAGS = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+const JUNK_FILE_NAMES = new Set(['__MACOSX', '.DS_Store', 'Thumbs.db', '.git']);
+
+const fileExtension = (path = '') => String(path).split('.').pop()?.toLowerCase() || '';
+const normalizedImageExtension = (path) => fileExtension(path).replace('jpeg', 'jpg');
+const isImageFile = (path) => IMAGE_EXTENSIONS.has(fileExtension(path));
+const isJunkFile = (path) => String(path).replace(/\\/g, '/').split('/').some(part => JUNK_FILE_NAMES.has(part));
+const encodeAssetPath = (path = '') => String(path).split('/').map(encodeURIComponent).join('/');
+
+const editorLanguage = (path) => {
+    const ext = fileExtension(path);
+    if (['html', 'htm', 'php'].includes(ext)) return 'html';
+    if (ext === 'css') return 'css';
+    if (['js', 'mjs'].includes(ext)) return 'javascript';
+    if (ext === 'json') return 'json';
+    if (ext === 'xml' || ext === 'svg') return 'xml';
+    return 'text';
+};
+
+const fileAppearance = (path) => {
+    const ext = fileExtension(path);
+    if (['html', 'htm', 'php'].includes(ext)) return { Icon: Code, color: '#f97316' };
+    if (ext === 'css') return { Icon: Palette, color: '#3b82f6' };
+    if (['js', 'mjs'].includes(ext)) return { Icon: FileCode, color: '#eab308' };
+    if (IMAGE_EXTENSIONS.has(ext)) return { Icon: ImageIcon, color: '#a855f7' };
+    return { Icon: FileText, color: 'var(--color-text-muted)' };
+};
+
+// Conservative dependency-free formatter: split adjacent HTML tags and
+// normalize indentation without rewriting attributes, script bodies or text.
+const beautifyCode = (source, language) => {
+    const normalized = String(source || '').replace(/\r\n?/g, '\n');
+    const inputLines = language === 'html'
+        ? normalized.replace(/>\s*</g, '>\n<').split('\n')
+        : normalized.split('\n');
+    let depth = 0;
+
+    return inputLines.map((rawLine) => {
+        const line = rawLine.trim();
+        if (!line) return '';
+
+        const closesBlock = language === 'html'
+            ? /^<\//.test(line)
+            : /^[}\])]/.test(line);
+        if (closesBlock) depth = Math.max(0, depth - 1);
+
+        const formatted = `${'  '.repeat(depth)}${line}`;
+        if (language === 'html') {
+            const opening = line.match(/^<([a-z][\w:-]*)(?:\s[^>]*)?>/i);
+            const sameLineClose = opening && new RegExp(`<\\/${opening[1]}\\s*>`, 'i').test(line);
+            if (opening && !sameLineClose && !line.endsWith('/>') && !VOID_HTML_TAGS.has(opening[1].toLowerCase())) {
+                depth += 1;
+            }
+        } else {
+            const openCount = (line.match(/[{[(]/g) || []).length;
+            const closeCount = (line.match(/[}\])]/g) || []).length;
+            depth = Math.max(0, depth + openCount - closeCount + (closesBlock ? 1 : 0));
+        }
+        return formatted;
+    }).join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+};
+
+const previewDocument = (html, slug) => {
+    if (!html || !slug) return '';
+    const base = `<base href="/lander/${encodeURIComponent(slug)}/">`;
+    return /<head(?:\s[^>]*)?>/i.test(html)
+        ? html.replace(/<head(?:\s[^>]*)?>/i, match => `${match}\n${base}`)
+        : `${base}\n${html}`;
+};
 
 /**
  * The landing form. One implementation, used by the Landings page and by the
@@ -83,7 +154,48 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     // it never shows the version from before the last save or upload.
     const [viewMode, setViewMode] = useState('code');
     const [previewNonce, setPreviewNonce] = useState(0);
+    const [livePreviewHtml, setLivePreviewHtml] = useState('');
+    const [imageDimensions, setImageDimensions] = useState(null);
+    const [imageLoadError, setImageLoadError] = useState(false);
+    const [assetNonce, setAssetNonce] = useState(0);
+    const [editorFullscreen, setEditorFullscreen] = useState(false);
     const assetInputRef = useRef(null);
+    const replaceAssetInputRef = useRef(null);
+    const codeEditorRef = useRef(null);
+
+    const visibleFiles = useMemo(
+        () => files.filter(file => !isJunkFile(file)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })),
+        [files]
+    );
+    const selectedIsImage = Boolean(selectedFile && isImageFile(selectedFile));
+    const selectedLanguage = editorLanguage(selectedFile);
+    const canInsertHtmlSnippets = selectedLanguage === 'html';
+    const selectedImageAccept = normalizedImageExtension(selectedFile) === 'jpg'
+        ? '.jpg,.jpeg'
+        : `.${fileExtension(selectedFile)}`;
+    const selectedAssetUrl = selectedFile && landing.slug
+        ? `/lander/${encodeURIComponent(landing.slug)}/${encodeAssetPath(selectedFile)}?_asset=${assetNonce}`
+        : '';
+
+    useEffect(() => {
+        if (!editorFullscreen) return undefined;
+        const handleEscape = (event) => {
+            if (event.key === 'Escape') setEditorFullscreen(false);
+        };
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [editorFullscreen]);
+
+    useEffect(() => {
+        if (!selectedFile || selectedIsImage || selectedLanguage !== 'html' || !landing.slug) {
+            setLivePreviewHtml('');
+            return undefined;
+        }
+        const timer = window.setTimeout(() => {
+            setLivePreviewHtml(previewDocument(fileContent, landing.slug));
+        }, 300);
+        return () => window.clearTimeout(timer);
+    }, [fileContent, landing.slug, selectedFile, selectedIsImage, selectedLanguage]);
 
     // The campaign list is only meaningful for one action, so it is not part of
     // the initial load every landing pays for.
@@ -314,6 +426,13 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     };
 
     const loadFileContent = async (path) => {
+        setImageDimensions(null);
+        setImageLoadError(false);
+        if (isImageFile(path)) {
+            setSelectedFile(path);
+            setFileContent('');
+            return;
+        }
         try {
             const res = await axios.get(`${API_URL}?action=get_landing_file&id=${landingId}&path=${encodeURIComponent(path)}`);
             if (res.data.status === 'success') {
@@ -328,7 +447,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     };
 
     const saveFileContent = async () => {
-        if (!selectedFile) return;
+        if (!selectedFile || selectedIsImage) return;
         setSavingFile(true);
         try {
             const res = await axios.post(`${API_URL}?action=save_landing_file`, {
@@ -337,7 +456,8 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                 content: fileContent
             });
             if (res.data.status === 'success') {
-                // Success marker
+                setSavedSomething(true);
+                setPreviewNonce(Date.now());
             } else {
                 alert(res.data.message || t('landingEditor.fileSaveError'));
             }
@@ -346,6 +466,159 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
         } finally {
             setSavingFile(false);
         }
+    };
+
+    const replaceSelectedImage = async (event) => {
+        const replacement = event.target.files?.[0];
+        event.target.value = '';
+        if (!replacement || !selectedFile || !landingId) return;
+        if (normalizedImageExtension(replacement.name) !== normalizedImageExtension(selectedFile)) {
+            alert(t('landingEditor.replaceImageTypeError', 'Choose an image with the same file type so existing landing links keep working.'));
+            return;
+        }
+
+        const fd = new FormData();
+        fd.append('file', replacement);
+        fd.append('id', landingId);
+        fd.append('path', selectedFile);
+        try {
+            const res = await axios.post(`${API_URL}?action=upload_landing_file`, fd, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (res.data.status !== 'success') throw new Error(res.data.message || 'failed');
+            setAssetNonce(Date.now());
+            setPreviewNonce(Date.now());
+            setImageDimensions(null);
+            setImageLoadError(false);
+            setSavedSomething(true);
+            fetchLandingFiles(landingId);
+        } catch (error) {
+            alert(`${t('landingEditor.fileOpError')}: ${error.response?.data?.message || error.message}`);
+        }
+    };
+
+    const insertAtCursor = (snippet) => {
+        codeEditorRef.current?.insertText(snippet);
+    };
+
+    const insertBeforeClosingTag = (snippet, tag) => {
+        const duplicateMarker = tag === 'head' ? '/js/orbitra-adapter.js' : 'data-orbitra-back-trap';
+        if (fileContent.includes(duplicateMarker)) {
+            codeEditorRef.current?.focus();
+            return;
+        }
+        const closingTag = `</${tag}>`;
+        const index = fileContent.toLowerCase().lastIndexOf(closingTag);
+        const position = index >= 0 ? index : fileContent.length;
+        const prefix = position > 0 && !fileContent.slice(0, position).endsWith('\n') ? '\n' : '';
+        const suffix = index >= 0 ? '\n' : '';
+        codeEditorRef.current?.replaceRange(`${prefix}${snippet}${suffix}`, position, position);
+    };
+
+    const backTrapSnippet = `<script data-orbitra-back-trap>\n(function () {\n  history.pushState(null, '', location.href);\n  window.addEventListener('popstate', function () {\n    location.href = '{offer}';\n  });\n})();\n</script>`;
+
+    const handleBeautify = () => {
+        const formatted = beautifyCode(fileContent, selectedLanguage);
+        setFileContent(formatted);
+        window.requestAnimationFrame(() => codeEditorRef.current?.setSelection(0, 0));
+    };
+
+    const renderLandingPreview = (split = false) => {
+        const useLiveDocument = Boolean(livePreviewHtml && selectedLanguage === 'html' && !selectedIsImage);
+        return (
+            <div className="flex h-full min-h-0 flex-col overflow-hidden" style={{ backgroundColor: '#fff' }}>
+                {split && (
+                    <div className="flex items-center justify-between border-b px-3 py-2 text-xs font-semibold" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}>
+                        <span className="flex items-center gap-1.5"><Eye className="w-3.5 h-3.5" /> {t('landingEditor.livePreview', 'Live preview')}</span>
+                        <span className="font-normal" style={{ color: 'var(--color-text-muted)' }}>
+                            {useLiveDocument ? t('landingEditor.unsavedPreview', 'Unsaved HTML') : t('landingEditor.savedPreview', 'Saved landing')}
+                        </span>
+                    </div>
+                )}
+                {landing.slug ? (
+                    <iframe
+                        key={`${previewNonce}-${useLiveDocument ? 'live' : 'saved'}`}
+                        src={useLiveDocument ? undefined : `/lander/${landing.slug}/?_preview=${previewNonce}`}
+                        srcDoc={useLiveDocument ? livePreviewHtml : undefined}
+                        title={t('landingEditor.viewPreview')}
+                        className="h-full min-h-0 w-full flex-1"
+                        style={{ border: 'none', minHeight: split ? '320px' : '400px' }}
+                    />
+                ) : (
+                    <div className="flex h-full items-center justify-center p-6 text-center" style={{ color: 'var(--color-text-muted)' }}>
+                        {t('landingEditor.previewNeedsSlug')}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    const renderSelectedAsset = () => {
+        if (!selectedFile) {
+            return (
+                <div className="flex h-full items-center justify-center" style={{ color: 'var(--color-text-muted)' }}>
+                    <div className="text-center">
+                        <Code className="mx-auto mb-3 h-12 w-12 opacity-20" />
+                        <p>{t('landingEditor.selectFile')}</p>
+                    </div>
+                </div>
+            );
+        }
+
+        if (selectedIsImage) {
+            return (
+                <div className="flex h-full min-h-0 items-center justify-center overflow-auto p-5">
+                    <div className="flex max-w-full flex-col items-center gap-4 rounded-2xl border p-4 shadow-sm" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
+                        {imageLoadError ? (
+                            <div className="flex min-h-48 min-w-64 items-center justify-center rounded-xl border p-6 text-center" style={{ borderColor: 'var(--color-border)', color: 'var(--color-danger)' }}>
+                                {t('landingEditor.imageLoadError', 'Could not load this image')}
+                            </div>
+                        ) : (
+                            <img
+                                key={assetNonce}
+                                src={selectedAssetUrl}
+                                alt={selectedFile}
+                                className="max-h-[52vh] max-w-full rounded-xl object-contain"
+                                onLoad={(event) => setImageDimensions({ width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight })}
+                                onError={() => setImageLoadError(true)}
+                            />
+                        )}
+                        <div className="flex w-full flex-wrap items-center justify-between gap-3">
+                            <div className="min-w-0 text-xs">
+                                <div className="break-all font-semibold" style={{ color: 'var(--color-text-primary)' }}>{selectedFile}</div>
+                                <div style={{ color: 'var(--color-text-muted)' }}>
+                                    {imageDimensions ? `${imageDimensions.width} × ${imageDimensions.height}px` : t('common.loading')}
+                                </div>
+                            </div>
+                            <button type="button" className="btn btn-secondary btn-sm" onClick={() => replaceAssetInputRef.current?.click()}>
+                                <Upload className="h-3.5 w-3.5" />
+                                {t('landingEditor.replaceImage', 'Replace image')}
+                            </button>
+                            <input
+                                ref={replaceAssetInputRef}
+                                type="file"
+                                accept={selectedImageAccept}
+                                className="hidden"
+                                onChange={replaceSelectedImage}
+                            />
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div className="h-full min-h-0 p-2">
+                <CodeEditor
+                    ref={codeEditorRef}
+                    value={fileContent}
+                    onChange={setFileContent}
+                    onSave={saveFileContent}
+                    language={selectedLanguage}
+                    ariaLabel={`${t('landingEditor.title')}: ${selectedFile}`}
+                />
+            </div>
+        );
     };
 
     if (loading) return (
@@ -376,7 +649,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
             <div
                 className="modal-content"
                 style={{
-                    maxWidth: showFileEditor ? '1200px' : '880px', width: '100%',
+                    maxWidth: showFileEditor ? '1500px' : '880px', width: '100%',
                     /* Flex column pins header/footer; only the body scrolls —
                        the file editor used to push Save below the fold. */
                     display: 'flex',
@@ -418,7 +691,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
 
                 <div className="flex-1 overflow-y-auto p-0 flex flex-col md:flex-row">
                     {/* Settings Panel */}
-                    <div className={`p-6 ${showFileEditor ? 'md:w-1/3' : 'w-full'} flex flex-col pt-4`} style={{ borderRight: showFileEditor ? '1px solid var(--color-border)' : 'none' }}>
+                    <div className={`p-6 ${showFileEditor ? 'md:w-[28%]' : 'w-full'} flex flex-col pt-4`} style={{ borderRight: showFileEditor ? '1px solid var(--color-border)' : 'none' }}>
                         <form id="landing-form" onSubmit={handleFormSubmit} className="space-y-4">
                             {activeTab === 'general' && (
                             <div className="space-y-4">
@@ -633,7 +906,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                                         replaceHint={t('landingEditor.zipReplaceHint', 'Click to replace')}
                                     />
                                     <p className="mt-2" style={{ fontSize: '12.5px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                                        {!landingId ? t('landingEditor.zipOnCreateHint') : `${files.length} ${t('offerEditor.filesLabel', 'files')}`}
+                                        {!landingId ? t('landingEditor.zipOnCreateHint') : `${visibleFiles.length} ${t('offerEditor.filesLabel', 'files')}`}
                                     </p>
                                 </div>
                             )}
@@ -754,24 +1027,30 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
 
                     {/* Editor Panel (Only for saved Local landings) */}
                     {showFileEditor && (
-                        <div className="flex-1 flex flex-col overflow-hidden min-h-[400px]" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
-                            <div className="flex justify-between items-center p-3" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
-                                <div className="flex items-center gap-3">
-                                    <h4 className="font-semibold flex items-center" style={{ color: 'var(--color-text-primary)' }}>
-                                        <Code className="w-4 h-4 mr-2" style={{ color: 'var(--color-accent-purple)' }} />
-                                        {t('landingEditor.title')}
-                                    </h4>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    {/* Code / Preview. The preview loads the landing
-                                        from its own /lander/<slug>/ address, so it is
-                                        the page as a visitor gets it — assets, scripts
-                                        and all — not an approximation of it. */}
-                                    <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+                        <div
+                            className="flex min-h-[400px] flex-1 flex-col overflow-hidden"
+                            style={{
+                                backgroundColor: 'var(--color-bg-soft)',
+                                ...(editorFullscreen ? {
+                                    position: 'fixed', inset: '12px', zIndex: 1400,
+                                    border: '1px solid var(--color-border)', borderRadius: '16px',
+                                    boxShadow: '0 24px 80px rgba(0,0,0,.45)'
+                                } : {})
+                            }}
+                        >
+                            <div className="flex flex-wrap items-center justify-between gap-2 p-3" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
+                                <h4 className="flex min-w-0 items-center font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                    <Code className="mr-2 h-4 w-4 flex-shrink-0" style={{ color: 'var(--color-accent-purple)' }} />
+                                    <span>{t('landingEditor.title')}</span>
+                                    {selectedFile && <span className="ml-2 break-all text-xs font-normal" style={{ color: 'var(--color-text-muted)' }}>· {selectedFile}</span>}
+                                </h4>
+                                <div className="flex flex-wrap items-center justify-end gap-2">
+                                    <div className="flex overflow-hidden rounded-lg" style={{ border: '1px solid var(--color-border)' }}>
                                         {[
                                             { value: 'code', label: t('landingEditor.viewCode'), icon: Code },
+                                            { value: 'split', label: t('landingEditor.viewSplit', 'Split'), icon: Columns2 },
                                             { value: 'preview', label: t('landingEditor.viewPreview'), icon: Eye },
-                                        ].map((opt, idx) => {
+                                        ].map((opt, index) => {
                                             const active = viewMode === opt.value;
                                             const Icon = opt.icon;
                                             return (
@@ -779,130 +1058,120 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                                                     key={opt.value}
                                                     type="button"
                                                     onClick={() => {
-                                                        // A preview reads what is on disk, so anything
-                                                        // typed and not saved would silently not appear.
-                                                        if (opt.value === 'preview') setPreviewNonce(Date.now());
+                                                        if (opt.value !== 'code') setPreviewNonce(Date.now());
                                                         setViewMode(opt.value);
                                                     }}
-                                                    className="px-3 py-1.5 text-xs font-medium transition flex items-center gap-1.5"
+                                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition"
                                                     style={{
                                                         backgroundColor: active ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
                                                         color: active ? 'var(--color-primary)' : 'var(--color-text-primary)',
-                                                        borderRight: idx === 0 ? '1px solid var(--color-border)' : 'none'
+                                                        borderRight: index < 2 ? '1px solid var(--color-border)' : 'none'
                                                     }}
                                                 >
-                                                    <Icon className="w-3.5 h-3.5" />
+                                                    <Icon className="h-3.5 w-3.5" />
                                                     {opt.label}
                                                 </button>
                                             );
                                         })}
                                     </div>
 
-                                    {viewMode === 'preview' && landing.slug && (
-                                        <a
-                                            href={`/lander/${landing.slug}/`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="btn btn-secondary btn-sm"
-                                            title={`/lander/${landing.slug}/`}
-                                        >
-                                            <ExternalLink className="w-4 h-4" />
+                                    {viewMode !== 'code' && landing.slug && (
+                                        <a href={`/lander/${landing.slug}/`} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm" title={`/lander/${landing.slug}/`}>
+                                            <ExternalLink className="h-4 w-4" />
                                             {t('landingEditor.openInTab')}
                                         </a>
                                     )}
 
-                                    {viewMode === 'code' && selectedFile && (
-                                        <button
-                                            onClick={saveFileContent}
-                                            disabled={savingFile}
-                                            className="btn btn-primary btn-sm"
-                                        >
-                                            {savingFile ? t('common.saving') : <><Save className="w-4 h-4 mr-1" /> {t('landingEditor.save')} {selectedFile}</>}
+                                    {viewMode !== 'preview' && selectedFile && !selectedIsImage && (
+                                        <button type="button" onClick={saveFileContent} disabled={savingFile} className="btn btn-primary btn-sm" title="Ctrl/Cmd+S">
+                                            <Save className="h-4 w-4" />
+                                            {savingFile ? t('common.saving') : t('landingEditor.save')}
                                         </button>
                                     )}
+
+                                    <button type="button" onClick={() => setEditorFullscreen(value => !value)} className="btn btn-ghost btn-sm" title={editorFullscreen ? t('landingEditor.exitFullscreen', 'Exit fullscreen') : t('landingEditor.fullscreen', 'Fullscreen')}>
+                                        {editorFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                                    </button>
                                 </div>
                             </div>
+
+                            {viewMode !== 'preview' && selectedFile && !selectedIsImage && (
+                                <div className="flex flex-wrap items-center gap-1.5 border-b px-3 py-2" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
+                                    <button type="button" disabled={!canInsertHtmlSnippets} className="btn btn-secondary btn-sm" onClick={() => insertAtCursor(`<a href="{offer}">${t('landingEditor.offerLinkWord')}</a>`)}>
+                                        <Link2 className="h-3.5 w-3.5" /> + {'{offer}'}
+                                    </button>
+                                    <button type="button" disabled={!canInsertHtmlSnippets} className="btn btn-secondary btn-sm" onClick={() => insertBeforeClosingTag(adapterSnippet, 'head')}>
+                                        <Zap className="h-3.5 w-3.5" /> + JS Adapter
+                                    </button>
+                                    <button type="button" disabled={!canInsertHtmlSnippets} className="btn btn-secondary btn-sm" onClick={() => insertBeforeClosingTag(backTrapSnippet, 'body')}>
+                                        <Undo2 className="h-3.5 w-3.5" /> + Back Trap
+                                    </button>
+                                    <button type="button" className="btn btn-secondary btn-sm" onClick={handleBeautify}>
+                                        <WandSparkles className="h-3.5 w-3.5" /> {t('landingEditor.formatCode', 'Format')}
+                                    </button>
+                                    <span className="ml-auto text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
+                                        {t('landingEditor.quickInsertHint', 'Snippets are inserted at the cursor; adapter and back trap are placed before closing tags.')}
+                                    </span>
+                                </div>
+                            )}
 
                             {viewMode === 'preview' ? (
-                                <div className="flex-1 overflow-hidden" style={{ backgroundColor: '#fff' }}>
-                                    {landing.slug ? (
-                                        <iframe
-                                            key={previewNonce}
-                                            src={`/lander/${landing.slug}/?_preview=${previewNonce}`}
-                                            title={t('landingEditor.viewPreview')}
-                                            className="w-full h-full"
-                                            style={{ border: 'none', minHeight: '400px' }}
-                                        />
-                                    ) : (
-                                        <div className="flex h-full items-center justify-center p-6 text-center" style={{ color: 'var(--color-text-muted)' }}>
-                                            {t('landingEditor.previewNeedsSlug')}
-                                        </div>
-                                    )}
-                                </div>
+                                <div className="min-h-0 flex-1 overflow-hidden">{renderLandingPreview(false)}</div>
                             ) : (
-                            <div className="flex flex-1 overflow-hidden">
-                                {/* File Tree view */}
-                                <div className="w-1/4 overflow-y-auto" style={{ borderRight: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
-                                    <div className="flex gap-1 px-2 py-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
-                                        <button onClick={createFile} className="btn btn-ghost btn-sm" title={t('landingEditor.fileNew')}>
-                                            <Plus className="w-3.5 h-3.5" />
-                                        </button>
-                                        <button onClick={() => assetInputRef.current?.click()} className="btn btn-ghost btn-sm" title={t('landingEditor.fileUpload')}>
-                                            <Upload className="w-3.5 h-3.5" />
-                                        </button>
-                                        <input ref={assetInputRef} type="file" className="hidden" onChange={uploadFile} />
+                                <div className="flex min-h-0 flex-1 overflow-hidden">
+                                    {/* File tree */}
+                                    <div className={`${viewMode === 'split' ? 'w-[20%]' : 'w-1/4'} min-w-[150px] overflow-y-auto`} style={{ borderRight: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
+                                        <div className="flex items-center gap-1 px-2 py-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                                            <span className="mr-auto text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+                                                {t('landingEditor.filesTitle', 'Files')} ({visibleFiles.length})
+                                            </span>
+                                            <button type="button" onClick={createFile} className="btn btn-ghost btn-sm" title={t('landingEditor.fileNew')}><Plus className="h-3.5 w-3.5" /></button>
+                                            <button type="button" onClick={() => assetInputRef.current?.click()} className="btn btn-ghost btn-sm" title={t('landingEditor.fileUpload')}><Upload className="h-3.5 w-3.5" /></button>
+                                            <input ref={assetInputRef} type="file" className="hidden" onChange={uploadFile} />
+                                        </div>
+
+                                        {visibleFiles.length === 0 ? (
+                                            <div className="p-4 text-center text-sm italic" style={{ color: 'var(--color-text-muted)' }}>{t('landingEditor.selectFile')}</div>
+                                        ) : (
+                                            <ul className="py-2">
+                                                {visibleFiles.map(file => {
+                                                    const { Icon, color } = fileAppearance(file);
+                                                    return (
+                                                        <li key={file} className="group flex items-start">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => loadFileContent(file)}
+                                                                className={`flex min-w-0 flex-1 items-start px-3 py-2 text-left text-sm transition ${selectedFile === file ? 'font-medium' : ''}`}
+                                                                style={{
+                                                                    backgroundColor: selectedFile === file ? 'var(--color-primary-light)' : 'transparent',
+                                                                    color: selectedFile === file ? 'var(--color-primary)' : 'var(--color-text-primary)',
+                                                                    borderRight: selectedFile === file ? '2px solid var(--color-primary)' : 'none'
+                                                                }}
+                                                            >
+                                                                <Icon className="mr-2 mt-0.5 h-3.5 w-3.5 flex-shrink-0" style={{ color }} />
+                                                                <span className="break-all whitespace-normal" title={file}>{file}</span>
+                                                            </button>
+                                                            <div className="flex flex-shrink-0 items-center pt-1.5 opacity-50 transition group-hover:opacity-100">
+                                                                <button type="button" onClick={() => renameFile(file)} className="action-btn text-blue" title={t('landingEditor.fileRename')}><FileCode className="h-3.5 w-3.5" /></button>
+                                                                <button type="button" onClick={() => deleteFile(file)} className="action-btn text-red" title={t('common.delete')}><X className="h-3.5 w-3.5" /></button>
+                                                            </div>
+                                                        </li>
+                                                    );
+                                                })}
+                                            </ul>
+                                        )}
                                     </div>
 
-                                    {files.length === 0 ? (
-                                        <div className="p-4 text-sm text-center italic" style={{ color: 'var(--color-text-muted)' }}>{t('landingEditor.selectFile')}</div>
-                                    ) : (
-                                        <ul className="py-2">
-                                            {files.map(file => (
-                                                <li key={file} className="flex items-center group">
-                                                    <button
-                                                        onClick={() => loadFileContent(file)}
-                                                        className={`flex-1 min-w-0 text-left px-4 py-2 text-sm flex items-center transition ${selectedFile === file ? 'font-medium' : ''}`}
-                                                        style={{
-                                                            backgroundColor: selectedFile === file ? 'var(--color-primary-light)' : 'transparent',
-                                                            color: selectedFile === file ? 'var(--color-primary)' : 'var(--color-text-primary)',
-                                                            borderRight: selectedFile === file ? '2px solid var(--color-primary)' : 'none'
-                                                        }}
-                                                    >
-                                                        <FileText className="w-3.5 h-3.5 mr-2 flex-shrink-0" style={{ color: 'var(--color-text-muted)' }} />
-                                                        <span className="truncate" title={file}>{file}</span>
-                                                    </button>
-                                                    <button onClick={() => renameFile(file)} className="action-btn text-blue" title={t('landingEditor.fileRename')} style={{ flexShrink: 0 }}>
-                                                        <Code className="w-3.5 h-3.5" />
-                                                    </button>
-                                                    <button onClick={() => deleteFile(file)} className="action-btn text-red" title={t('common.delete')} style={{ flexShrink: 0 }}>
-                                                        <X className="w-3.5 h-3.5" />
-                                                    </button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </div>
+                                    <div className={`${viewMode === 'split' ? 'w-[40%]' : 'flex-1'} min-w-0 min-h-0`} style={{ backgroundColor: 'var(--color-bg-card)' }}>
+                                        {renderSelectedAsset()}
+                                    </div>
 
-                                {/* Text Area / Code Viewer */}
-                                <div className="flex-1 relative" style={{ backgroundColor: 'var(--color-bg-card)' }}>
-                                    {selectedFile ? (
-                                        <textarea
-                                            value={fileContent}
-                                            onChange={e => setFileContent(e.target.value)}
-                                            className="absolute inset-0 w-full h-full p-4 font-mono text-sm leading-relaxed border-none resize-none focus:outline-none"
-                                            style={{ backgroundColor: '#1e1e1e', color: '#d4d4d4' }}
-                                            spellCheck={false}
-                                        />
-                                    ) : (
-                                        <div className="flex h-full items-center justify-center" style={{ color: 'var(--color-text-muted)' }}>
-                                            <div className="text-center">
-                                                <Code className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                                                <p>{t('landingEditor.selectFile')}</p>
-                                            </div>
+                                    {viewMode === 'split' && (
+                                        <div className="min-h-0 w-[40%] min-w-[280px] overflow-hidden border-l" style={{ borderColor: 'var(--color-border)' }}>
+                                            {renderLandingPreview(true)}
                                         </div>
                                     )}
                                 </div>
-                            </div>
                             )}
                         </div>
                     )}

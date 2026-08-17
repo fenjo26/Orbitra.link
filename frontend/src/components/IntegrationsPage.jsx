@@ -1,14 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
-import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud } from 'lucide-react';
+import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud, Database, Tag } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard as copyUtil } from '../utils/clipboard';
+import ProxyInput from './common/ProxyInput';
+import PixelPicker from './common/PixelPicker';
 
 const API_URL = '/api.php';
 
 const IntegrationsPage = () => {
     const { t } = useLanguage();
+    const translationRef = useRef(t);
+    translationRef.current = t;
     const [activeTab, setActiveTab] = useState('kclient_php');
     const [copied, setCopied] = useState('');
 
@@ -61,12 +65,21 @@ const IntegrationsPage = () => {
     const [fbBusyId, setFbBusyId] = useState(null);
     const [fbMessage, setFbMessage] = useState(null);
     const [fbShowAdvanced, setFbShowAdvanced] = useState(false);
+    const [fbShowCustomApp, setFbShowCustomApp] = useState(false);
+    const [fbExtendingToken, setFbExtendingToken] = useState(false);
+    const [fbDiscoveredAccounts, setFbDiscoveredAccounts] = useState([]);
+    const [fbSelectedAccounts, setFbSelectedAccounts] = useState([]);
+    const [fbOAuthFlowId, setFbOAuthFlowId] = useState('');
+    const [fbOAuthLoading, setFbOAuthLoading] = useState(false);
+    const [fbOAuthConnecting, setFbOAuthConnecting] = useState(false);
+    const fbOAuthPopupRef = useRef(null);
+    const fbOAuthPollRef = useRef(null);
 
     // Facebook Conversions state — campaign_pixels rows of type 'facebook' that
     // carry a Conversions API token.
     const emptyCapiForm = {
-        campaign_id: '', pixel_id: '', token: '', events: 'PageView,Lead',
-        mapping: {}, test_event_code: '', proxy_url: '', is_active: 1
+        campaign_id: '', pixel_profile_id: '', pixel_id: '', token: '', events: 'PageView,Lead',
+        mapping: {}, test_event_code: '', proxy_url: '', is_active: 1, has_saved_token: false
     };
     const [capiPixels, setCapiPixels] = useState([]);
     const [capiLoading, setCapiLoading] = useState(false);
@@ -77,6 +90,22 @@ const IntegrationsPage = () => {
     const [capiTest, setCapiTest] = useState(null);
     const [capiTesting, setCapiTesting] = useState(false);
     const [capiMessage, setCapiMessage] = useState(null);
+
+    // Pixel Vault — reusable profiles are independent from campaigns. The API
+    // deliberately returns only a token mask; an empty token while editing
+    // means "keep the existing secret".
+    const emptyPixelProfileForm = {
+        traffic_source: 'facebook', niche: 'General', name: '', pixel_id: '', token: '',
+        event_url: '', test_event_code: '', events: 'PageView,Lead,Purchase', is_active: 1
+    };
+    const [pixelProfiles, setPixelProfiles] = useState([]);
+    const [pixelProfilesLoading, setPixelProfilesLoading] = useState(false);
+    const [pixelProfileEditing, setPixelProfileEditing] = useState(null);
+    const [pixelProfileForm, setPixelProfileForm] = useState(emptyPixelProfileForm);
+    const [pixelProfileSearch, setPixelProfileSearch] = useState('');
+    const [pixelProfileNiche, setPixelProfileNiche] = useState('');
+    const [pixelProfileMessage, setPixelProfileMessage] = useState(null);
+    const [pixelProfileTesting, setPixelProfileTesting] = useState(null);
 
     // Cloudflare state — one account in settings, managed DNS for parked domains.
     const [cfForm, setCfForm] = useState({ api_token: '', proxied: true, ssl_mode: 'flexible', server_ip: '' });
@@ -487,9 +516,19 @@ const IntegrationsPage = () => {
         } catch (err) { console.error(err); }
     }, []);
 
+    const fetchPixelProfiles = useCallback(async () => {
+        setPixelProfilesLoading(true);
+        try {
+            const res = await axios.get(`${API_URL}?action=pixel_profiles_list`);
+            if (res.data.status === 'success') setPixelProfiles(res.data.data || []);
+        } catch (err) { console.error(err); }
+        finally { setPixelProfilesLoading(false); }
+    }, []);
+
     useEffect(() => {
         if (activeTab === 'facebook_costs') { fetchFbConnections(); fetchFbFields(); }
         if (activeTab === 'facebook_conversions') { fetchCapiPixels(); fetchCapiMeta(); fetchCampaigns(); }
+        if (activeTab === 'pixel_vault') fetchPixelProfiles();
         if (activeTab === 'cloudflare') {
             axios.get(`${API_URL}?action=cloudflare_status`)
                 .then(res => {
@@ -523,7 +562,50 @@ const IntegrationsPage = () => {
                 })
                 .catch(() => {});
         }
-    }, [activeTab, fetchFbConnections, fetchFbFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns]);
+    }, [activeTab, fetchFbConnections, fetchFbFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles]);
+
+    useEffect(() => {
+        const handleFacebookOAuthMessage = (event) => {
+            if (event.origin !== window.location.origin || event.data?.type !== 'orbitra.facebook_oauth') return;
+            if (!fbOAuthPopupRef.current || event.source !== fbOAuthPopupRef.current) return;
+
+            setFbOAuthLoading(false);
+            if (fbOAuthPollRef.current) {
+                window.clearInterval(fbOAuthPollRef.current);
+                fbOAuthPollRef.current = null;
+            }
+            fbOAuthPopupRef.current = null;
+
+            if (event.data.status !== 'success') {
+                setFbDiscoveredAccounts([]);
+                setFbSelectedAccounts([]);
+                setFbOAuthFlowId('');
+                setFbMessage({ type: 'error', text: event.data.message || translationRef.current('fbCosts.oauthFailed') });
+                return;
+            }
+
+            const accounts = Array.isArray(event.data.accounts) ? event.data.accounts : [];
+            setFbDiscoveredAccounts(accounts);
+            setFbSelectedAccounts(accounts.map(account => account.id));
+            setFbOAuthFlowId(event.data.flow_id || '');
+            setFbMessage(accounts.length === 0
+                ? { type: 'error', text: translationRef.current('fbCosts.noDiscoveredAccounts') }
+                : null);
+        };
+
+        window.addEventListener('message', handleFacebookOAuthMessage);
+        return () => {
+            window.removeEventListener('message', handleFacebookOAuthMessage);
+            if (fbOAuthPollRef.current) {
+                window.clearInterval(fbOAuthPollRef.current);
+                fbOAuthPollRef.current = null;
+            }
+            if (fbOAuthPopupRef.current && !fbOAuthPopupRef.current.closed) {
+                fbOAuthPopupRef.current.close();
+            }
+            fbOAuthPopupRef.current = null;
+        };
+    }, []);
 
     // The list endpoint strips credentials, so editing has to re-read the row.
     const loadFbConnection = async (id) => {
@@ -554,6 +636,98 @@ const IntegrationsPage = () => {
         return res.data.status === 'success';
     };
 
+    const resetFacebookOAuth = () => {
+        if (fbOAuthPollRef.current) {
+            window.clearInterval(fbOAuthPollRef.current);
+            fbOAuthPollRef.current = null;
+        }
+        if (fbOAuthPopupRef.current && !fbOAuthPopupRef.current.closed) {
+            fbOAuthPopupRef.current.close();
+        }
+        fbOAuthPopupRef.current = null;
+        setFbDiscoveredAccounts([]);
+        setFbSelectedAccounts([]);
+        setFbOAuthFlowId('');
+        setFbOAuthLoading(false);
+        setFbOAuthConnecting(false);
+    };
+
+    const handleStartFacebookOAuth = () => {
+        setFbMessage(null);
+        setFbDiscoveredAccounts([]);
+        setFbSelectedAccounts([]);
+        setFbOAuthFlowId('');
+
+        if (fbOAuthPopupRef.current && !fbOAuthPopupRef.current.closed) {
+            fbOAuthPopupRef.current.close();
+        }
+        if (fbOAuthPollRef.current) {
+            window.clearInterval(fbOAuthPollRef.current);
+        }
+
+        const width = 640;
+        const height = 720;
+        const left = Math.max(0, window.screenX + Math.round((window.outerWidth - width) / 2));
+        const top = Math.max(0, window.screenY + Math.round((window.outerHeight - height) / 2));
+        const popup = window.open(
+            `${API_URL}?action=facebook_oauth_start`,
+            'orbitra-facebook-oauth',
+            `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+        if (!popup) {
+            setFbOAuthLoading(false);
+            setFbMessage({ type: 'error', text: t('fbCosts.popupBlocked') });
+            return;
+        }
+
+        fbOAuthPopupRef.current = popup;
+        setFbOAuthLoading(true);
+        popup.focus();
+        fbOAuthPollRef.current = window.setInterval(() => {
+            if (popup.closed) {
+                window.clearInterval(fbOAuthPollRef.current);
+                fbOAuthPollRef.current = null;
+                fbOAuthPopupRef.current = null;
+                setFbOAuthLoading(false);
+            }
+        }, 500);
+    };
+
+    const toggleFacebookAccount = (accountId, checked) => {
+        setFbSelectedAccounts(current => checked
+            ? [...new Set([...current, accountId])]
+            : current.filter(id => id !== accountId));
+    };
+
+    const handleConnectDiscoveredAccounts = async () => {
+        if (!fbOAuthFlowId || fbSelectedAccounts.length === 0) return;
+        setFbOAuthConnecting(true);
+        setFbMessage(null);
+        try {
+            const accounts = fbDiscoveredAccounts.filter(account => fbSelectedAccounts.includes(account.id));
+            const res = await axios.post(`${API_URL}?action=facebook_connect_accounts`, {
+                flow_id: fbOAuthFlowId,
+                accounts,
+                sync_interval_hours: fbForm.sync_interval_hours || 2
+            });
+            if (res.data.status !== 'success') {
+                setFbMessage({ type: 'error', text: res.data.message || t('fbCosts.oauthFailed') });
+                return;
+            }
+
+            const connected = res.data.data?.connected_count ?? accounts.length;
+            setFbMessage({ type: 'success', text: t('fbCosts.connectedAccounts').replace('{n}', connected) });
+            setFbEditing(null);
+            setFbTest(null);
+            resetFacebookOAuth();
+            fetchFbConnections();
+        } catch (err) {
+            setFbMessage({ type: 'error', text: err.response?.data?.message || err.message || t('fbCosts.oauthFailed') });
+        } finally {
+            setFbOAuthConnecting(false);
+        }
+    };
+
     const handleFbSave = async () => {
         if (!fbForm.name || !fbForm.credentials.ad_account_id || !fbForm.credentials.token) return;
         try {
@@ -562,6 +736,7 @@ const IntegrationsPage = () => {
                 setFbMessage({ type: 'success', text: t('fbCosts.saved') });
                 setFbEditing(null);
                 setFbTest(null);
+                resetFacebookOAuth();
                 fetchFbConnections();
             }
         } catch (err) { setFbMessage({ type: 'error', text: err.message }); }
@@ -577,6 +752,34 @@ const IntegrationsPage = () => {
             setFbTest(res.data.data || { success: false, message: 'No response' });
         } catch (err) { setFbTest({ success: false, message: err.message }); }
         finally { setFbTesting(false); }
+    };
+
+    // Swap a short-lived token (anti-detect browsers hand out 1-2 hour ones)
+    // for a 60-day long-lived token. The app that issued the token must sign
+    // the exchange, so the Custom Meta App fields win when filled.
+    const handleExtendToken = async () => {
+        const shortToken = (fbForm.credentials.token || '').trim();
+        if (!shortToken || fbExtendingToken) return;
+        setFbExtendingToken(true);
+        try {
+            const res = await axios.post(`${API_URL}?action=facebook_extend_token`, {
+                short_token: shortToken,
+                app_id: fbForm.credentials.app_id || '',
+                app_secret: fbForm.credentials.app_secret || '',
+                proxy_url: fbForm.credentials.proxy_url || ''
+            });
+            if (res.data.status === 'success' && res.data.data?.long_lived_token) {
+                setFbForm(prev => ({ ...prev, credentials: { ...prev.credentials, token: res.data.data.long_lived_token } }));
+                const days = Math.max(1, Math.round((res.data.data.expires_in || 5184000) / 86400));
+                setFbMessage({ type: 'success', text: `${t('fbCosts.tokenExtended')} (~${days}d)` });
+            } else {
+                setFbMessage({ type: 'error', text: res.data.message || t('common.error') });
+            }
+        } catch (err) {
+            setFbMessage({ type: 'error', text: err.response?.data?.message || err.message || t('common.error') });
+        } finally {
+            setFbExtendingToken(false);
+        }
     };
 
     // "Обновить расходы" — the manual equivalent of one cron tick. The window
@@ -669,6 +872,94 @@ const IntegrationsPage = () => {
                             {fbEditing === 'new' ? t('fbCosts.addAccount') : t('fbCosts.editAccount')}
                         </h4>
                         <div className="space-y-3">
+                            {fbEditing === 'new' && (
+                                <>
+                                    <div
+                                        className="p-5 rounded-2xl border text-center flex flex-col items-center gap-3"
+                                        style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}
+                                    >
+                                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-2xl"
+                                            style={{ backgroundColor: 'rgba(24, 119, 242, 0.15)', color: '#1877F2' }}>
+                                            f
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold m-0" style={{ color: 'var(--color-text-primary)' }}>
+                                                {t('fbCosts.oneClickTitle')}
+                                            </h4>
+                                            <p className="text-xs m-0 mt-1 max-w-md" style={{ color: 'var(--color-text-muted)' }}>
+                                                {t('fbCosts.oneClickDesc')}
+                                            </p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleStartFacebookOAuth}
+                                            disabled={fbOAuthLoading || fbOAuthConnecting}
+                                            className="btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]"
+                                            style={{ backgroundColor: '#1877F2', color: '#ffffff', boxShadow: '0 4px 14px rgba(24, 119, 242, 0.3)', opacity: fbOAuthLoading ? 0.75 : 1 }}
+                                        >
+                                            {fbOAuthLoading ? <RefreshCw size={16} className="animate-spin" /> : <span className="font-extrabold text-base">f</span>}
+                                            <span>{fbOAuthLoading ? t('fbCosts.oauthConnecting') : t('fbCosts.loginWithFb')}</span>
+                                        </button>
+                                    </div>
+
+                                    {fbDiscoveredAccounts.length > 0 && (
+                                        <div className="p-4 rounded-2xl border space-y-3"
+                                            style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-success)' }}>
+                                            <div className="flex justify-between items-center gap-3">
+                                                <span className="text-xs font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                                                    {t('fbCosts.selectAccounts')}:
+                                                </span>
+                                                <button type="button" onClick={() => setFbSelectedAccounts(fbDiscoveredAccounts.map(account => account.id))}
+                                                    className="text-xs hover:underline" style={{ color: 'var(--color-primary)' }}>
+                                                    {t('common.selectAll')}
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-2 max-h-48 overflow-y-auto">
+                                                {fbDiscoveredAccounts.map(account => (
+                                                    <label key={account.id}
+                                                        className="flex items-center justify-between gap-3 p-2.5 rounded-xl border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
+                                                        style={{ borderColor: 'var(--color-border)' }}>
+                                                        <div className="flex items-center gap-2.5 min-w-0">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={fbSelectedAccounts.includes(account.id)}
+                                                                onChange={event => toggleFacebookAccount(account.id, event.target.checked)}
+                                                                className="rounded"
+                                                            />
+                                                            <div className="min-w-0">
+                                                                <div className="text-xs font-semibold truncate" style={{ color: 'var(--color-text-primary)' }}>{account.name}</div>
+                                                                <div className="text-[11px] font-mono" style={{ color: 'var(--color-text-muted)' }}>{account.id}</div>
+                                                            </div>
+                                                        </div>
+                                                        {account.currency && (
+                                                            <span className="text-xs font-semibold px-2 py-0.5 rounded shrink-0"
+                                                                style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)' }}>
+                                                                {account.currency}
+                                                            </span>
+                                                        )}
+                                                    </label>
+                                                ))}
+                                            </div>
+
+                                            <button type="button" onClick={handleConnectDiscoveredAccounts}
+                                                disabled={fbOAuthConnecting || fbSelectedAccounts.length === 0}
+                                                className="btn btn-primary w-full py-2 rounded-xl text-xs font-semibold">
+                                                {fbOAuthConnecting ? t('fbCosts.connectingAccounts') : t('fbCosts.connectSelected')} ({fbSelectedAccounts.length})
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center gap-3 my-4">
+                                        <div className="flex-1 border-t" style={{ borderColor: 'var(--color-border)' }}></div>
+                                        <span className="text-[11px] uppercase font-bold" style={{ color: 'var(--color-text-muted)' }}>
+                                            {t('common.orManual')}
+                                        </span>
+                                        <div className="flex-1 border-t" style={{ borderColor: 'var(--color-border)' }}></div>
+                                    </div>
+                                </>
+                            )}
+
                             <div>
                                 <label className="form-label">{t('fbCosts.name')}</label>
                                 <input type="text" className="form-input" value={fbForm.name}
@@ -676,25 +967,73 @@ const IntegrationsPage = () => {
                                     placeholder="Main ad account" />
                             </div>
 
-                            {fbFields.map(field => (
+                            {fbFields.filter(f => !['app_id', 'app_secret'].includes(f.key)).map(field => (
                                 <div key={field.key}>
-                                    <label className="form-label">
-                                        {field.label_key ? t(field.label_key, field.label) : field.label}{field.required && ' *'}
-                                    </label>
-                                    {field.type === 'select' ? (
-                                        <select className="form-select" value={fbForm.credentials[field.key] || ''}
-                                            onChange={e => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } })}>
-                                            <option value="">{t('fbCosts.defaultVersion')}</option>
-                                            {(field.options || []).map(o => <option key={o} value={o}>{o}</option>)}
-                                        </select>
-                                    ) : (
-                                        <input className="form-input" type={field.type === 'password' ? 'password' : 'text'}
-                                            value={fbForm.credentials[field.key] || ''}
-                                            placeholder={field.placeholder || ''}
-                                            onChange={e => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } })} />
-                                    )}
+                                    {field.key === 'proxy_url' ? (
+                                        <ProxyInput
+                                            label={field.label_key ? t(field.label_key, field.label) : field.label}
+                                            value={fbForm.credentials.proxy_url || ''}
+                                            onChange={(val) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, proxy_url: val } })}
+                                        />
+                                    ) : field.key === 'token' ? (<>
+                                        <label className="form-label">
+                                            {field.label_key ? t(field.label_key, field.label) : field.label}{field.required && ' *'}
+                                        </label>
+                                        <div className="flex gap-2">
+                                            <input className="form-input flex-1" type="password"
+                                                value={fbForm.credentials.token || ''}
+                                                placeholder={field.placeholder || ''}
+                                                onChange={e => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, token: e.target.value } })} />
+                                            <button type="button" onClick={handleExtendToken}
+                                                disabled={fbExtendingToken || !(fbForm.credentials.token || '').trim()}
+                                                className="btn btn-secondary text-xs whitespace-nowrap"
+                                                title={t('fbCosts.extendTokenHint', 'Exchanges the token for a 60-day long-lived one via the Graph API')}>
+                                                <Zap size={12} /> {fbExtendingToken ? '…' : t('fbCosts.extendToken')}
+                                            </button>
+                                        </div>
+                                    </>) : (<>
+                                        <label className="form-label">
+                                            {field.label_key ? t(field.label_key, field.label) : field.label}{field.required && ' *'}
+                                        </label>
+                                        {field.type === 'select' ? (
+                                            <select className="form-select" value={fbForm.credentials[field.key] || ''}
+                                                onChange={e => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } })}>
+                                                <option value="">{t('fbCosts.defaultVersion')}</option>
+                                                {(field.options || []).map(o => <option key={o} value={o}>{o}</option>)}
+                                            </select>
+                                        ) : (
+                                            <input className="form-input" type={field.type === 'password' ? 'password' : 'text'}
+                                                value={fbForm.credentials[field.key] || ''}
+                                                placeholder={field.placeholder || ''}
+                                                onChange={e => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } })} />
+                                        )}
+                                    </>)}
                                 </div>
                             ))}
+
+                            {/* Custom Meta App — most users never need these; the shared
+                                instance app or a plain long-lived token is enough. */}
+                            <div>
+                                <button type="button" onClick={() => setFbShowCustomApp(!fbShowCustomApp)}
+                                    className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }}>
+                                    {fbShowCustomApp ? '−' : '+'} {t('fbCosts.customApp')}
+                                </button>
+                                {fbShowCustomApp && (
+                                    <div style={{ border: '1px dashed var(--color-border)', borderRadius: '12px', padding: '14px', marginTop: '8px' }}>
+                                        <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginBottom: '10px' }}>{t('fbCosts.customAppHint')}</p>
+                                        {fbFields.filter(f => ['app_id', 'app_secret'].includes(f.key)).map(field => (
+                                            <div key={field.key} style={{ marginBottom: '8px' }}>
+                                                <label className="form-label" style={{ fontSize: '12px' }}>
+                                                    {field.label_key ? t(field.label_key, field.label) : field.label}
+                                                </label>
+                                                <input className="form-input" type={field.type === 'password' ? 'password' : 'text'}
+                                                    value={fbForm.credentials[field.key] || ''}
+                                                    onChange={e => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } })} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
 
                             <div>
                                 <label className="form-label">{t('fbCosts.interval')}</label>
@@ -739,7 +1078,7 @@ const IntegrationsPage = () => {
                                     <Zap size={14} /> {fbTesting ? t('fbCosts.testing') : t('fbCosts.testConnection')}
                                 </button>
                                 <div style={{ display: 'flex', gap: '8px' }}>
-                                    <button onClick={() => { setFbEditing(null); setFbTest(null); }} className="btn btn-secondary btn-sm">
+                                    <button onClick={() => { setFbEditing(null); setFbTest(null); resetFacebookOAuth(); }} className="btn btn-secondary btn-sm">
                                         <X size={14} /> {t('common.cancel')}
                                     </button>
                                     <button onClick={handleFbSave} className="btn btn-primary btn-sm"
@@ -752,7 +1091,7 @@ const IntegrationsPage = () => {
                     </div>
                 ) : (
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
-                        <button onClick={() => { setFbForm(emptyFbForm); setFbTest(null); setFbEditing('new'); }} className="btn btn-primary">
+                        <button onClick={() => { setFbForm(emptyFbForm); setFbTest(null); resetFacebookOAuth(); setFbEditing('new'); }} className="btn btn-primary">
                             <Plus size={16} /> {t('fbCosts.addAccount')}
                         </button>
                         <input type="text" className="form-input" style={{ maxWidth: '240px' }}
@@ -800,7 +1139,13 @@ const IntegrationsPage = () => {
                                         </button>
                                         <button onClick={async () => {
                                             const full = await loadFbConnection(conn.id);
-                                            if (full) { setFbForm(full); setFbTest(null); setFbEditing(conn.id); }
+                                            if (full) {
+                                                setFbForm(full);
+                                                setFbTest(null);
+                                                setFbEditing(conn.id);
+                                                // A stored custom app should stay visible while editing.
+                                                setFbShowCustomApp(!!(full.credentials?.app_id || full.credentials?.app_secret));
+                                            }
                                         }} className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }}>
                                             <Edit2 size={12} /> {t('common.edit')}
                                         </button>
@@ -822,6 +1167,318 @@ const IntegrationsPage = () => {
                             <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '13px', padding: '30px 0' }}>
                                 {t('fbCosts.noAccounts')}
                             </p>
+                        )}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    // ==================== Pixel Vault ====================
+
+    const pixelSourceOptions = [
+        { value: 'facebook', label: 'Facebook', icon: '📘' },
+        { value: 'tiktok', label: 'TikTok', icon: '🎵' },
+        { value: 'google_ads', label: 'Google Ads', icon: '🔎' },
+        { value: 'snapchat', label: 'Snapchat', icon: '👻' },
+        { value: 'pinterest', label: 'Pinterest', icon: '📌' },
+    ];
+    const suggestedPixelNiches = ['Nutra', 'Crypto', 'E-Commerce', 'Gambling', 'Dating', 'Sweepstakes'];
+
+    const pixelProfileToForm = (profile) => ({
+        id: profile.id,
+        traffic_source: profile.traffic_source || 'facebook',
+        niche: profile.niche || 'General',
+        name: profile.name || '',
+        pixel_id: profile.pixel_id || '',
+        // Secrets are not returned by the list endpoint. Blank preserves it.
+        token: '',
+        event_url: profile.event_url || '',
+        test_event_code: profile.test_event_code || '',
+        events: profile.events || 'PageView,Lead,Purchase',
+        is_active: profile.is_active ? 1 : 0,
+        has_token: !!profile.has_token,
+    });
+
+    const handlePixelProfileSave = async () => {
+        if (!pixelProfileForm.name.trim() || !pixelProfileForm.pixel_id.trim()) return;
+        if (pixelProfileEditing === 'new' && !pixelProfileForm.token.trim()) return;
+        setPixelProfileMessage(null);
+        try {
+            const payload = { ...pixelProfileForm };
+            delete payload.has_token;
+            if (pixelProfileEditing && pixelProfileEditing !== 'new') payload.id = pixelProfileEditing;
+            const res = await axios.post(`${API_URL}?action=save_pixel_profile`, payload);
+            if (res.data.status === 'success') {
+                setPixelProfileMessage({ type: 'success', text: t('pixelVault.saved') });
+                setPixelProfileEditing(null);
+                setPixelProfileForm(emptyPixelProfileForm);
+                fetchPixelProfiles();
+            } else {
+                setPixelProfileMessage({ type: 'error', text: res.data.message || t('common.error') });
+            }
+        } catch (err) {
+            setPixelProfileMessage({ type: 'error', text: err.response?.data?.message || err.message });
+        }
+    };
+
+    const handlePixelProfileDelete = async (profile) => {
+        if (!confirm(t('pixelVault.confirmDelete'))) return;
+        try {
+            const res = await axios.post(`${API_URL}?action=delete_pixel_profile`, { id: profile.id });
+            if (res.data.status === 'success') {
+                setPixelProfileMessage({ type: 'success', text: t('pixelVault.deleted') });
+                fetchPixelProfiles();
+            } else {
+                setPixelProfileMessage({ type: 'error', text: res.data.message || t('common.error') });
+            }
+        } catch (err) {
+            setPixelProfileMessage({ type: 'error', text: err.response?.data?.message || err.message });
+        }
+    };
+
+    const handlePixelProfileDuplicate = async (profile) => {
+        try {
+            const res = await axios.post(`${API_URL}?action=save_pixel_profile`, { duplicate_from_id: profile.id });
+            if (res.data.status === 'success') {
+                setPixelProfileMessage({ type: 'success', text: t('pixelVault.duplicated') });
+                fetchPixelProfiles();
+            } else {
+                setPixelProfileMessage({ type: 'error', text: res.data.message || t('common.error') });
+            }
+        } catch (err) {
+            setPixelProfileMessage({ type: 'error', text: err.response?.data?.message || err.message });
+        }
+    };
+
+    const handlePixelProfileTest = async (profile = null) => {
+        const source = profile?.traffic_source || pixelProfileForm.traffic_source;
+        if (!['facebook', 'tiktok'].includes(source)) {
+            setPixelProfileMessage({ type: 'error', text: t('pixelVault.testUnsupported') });
+            return;
+        }
+        const testingKey = profile?.id || 'form';
+        setPixelProfileTesting(testingKey);
+        setPixelProfileMessage(null);
+        try {
+            const payload = profile
+                ? { id: profile.id }
+                : {
+                    id: pixelProfileEditing !== 'new' && !pixelProfileForm.token ? pixelProfileEditing : undefined,
+                    traffic_source: pixelProfileForm.traffic_source,
+                    pixel_id: pixelProfileForm.pixel_id,
+                    token: pixelProfileForm.token,
+                    event_url: pixelProfileForm.event_url,
+                    test_event_code: pixelProfileForm.test_event_code,
+                };
+            const res = await axios.post(`${API_URL}?action=pixel_profile_test_event`, payload);
+            setPixelProfileMessage({
+                type: res.data.status === 'success' ? 'success' : 'error',
+                text: res.data.status === 'success' ? t('pixelVault.testEventSent') : (res.data.message || t('common.error'))
+            });
+        } catch (err) {
+            setPixelProfileMessage({ type: 'error', text: err.response?.data?.message || err.message });
+        } finally {
+            setPixelProfileTesting(null);
+        }
+    };
+
+    const renderPixelVaultPanel = () => {
+        const niches = [...new Set(pixelProfiles.map(profile => profile.niche || 'General'))]
+            .sort((a, b) => a.localeCompare(b));
+        const query = pixelProfileSearch.trim().toLowerCase();
+        const visible = pixelProfiles.filter(profile => {
+            if (pixelProfileNiche && (profile.niche || 'General') !== pixelProfileNiche) return false;
+            if (!query) return true;
+            return [profile.name, profile.niche, profile.pixel_id, profile.traffic_source]
+                .some(value => String(value || '').toLowerCase().includes(query));
+        });
+        const grouped = visible.reduce((groups, profile) => {
+            const niche = profile.niche || 'General';
+            if (!groups[niche]) groups[niche] = [];
+            groups[niche].push(profile);
+            return groups;
+        }, {});
+
+        return (
+            <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
+                {pixelProfileMessage && (
+                    <div style={{
+                        padding: '10px 14px', borderRadius: '10px', fontSize: '13px', marginBottom: '16px',
+                        background: pixelProfileMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
+                        color: pixelProfileMessage.type === 'success' ? '#166534' : '#991b1b',
+                        border: `1px solid ${pixelProfileMessage.type === 'success' ? '#86efac' : '#fca5a5'}`
+                    }}>
+                        {pixelProfileMessage.text}
+                    </div>
+                )}
+
+                {pixelProfileEditing ? (
+                    <div style={{ border: '1px solid var(--color-primary)', borderRadius: '16px', padding: '20px', background: 'var(--color-bg-card)', maxWidth: '820px', marginBottom: '20px' }}>
+                        <h4 style={{ fontWeight: 600, marginBottom: '16px' }}>
+                            {pixelProfileEditing === 'new' ? t('pixelVault.addNewPixel') : t('pixelVault.editPixel')}
+                        </h4>
+                        <div className="space-y-3">
+                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
+                                <div>
+                                    <label className="form-label">{t('pixelVault.trafficSource')} *</label>
+                                    <select className="form-select" value={pixelProfileForm.traffic_source}
+                                        onChange={e => setPixelProfileForm({ ...pixelProfileForm, traffic_source: e.target.value })}>
+                                        {pixelSourceOptions.map(source => <option key={source.value} value={source.value}>{source.icon} {source.label}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="form-label">{t('pixelVault.nicheTag')} *</label>
+                                    <input className="form-input" list="pixel-vault-niches" value={pixelProfileForm.niche}
+                                        onChange={e => setPixelProfileForm({ ...pixelProfileForm, niche: e.target.value })}
+                                        placeholder="Nutra, Crypto…" />
+                                    <datalist id="pixel-vault-niches">
+                                        {[...new Set([...suggestedPixelNiches, ...niches])].map(niche => <option key={niche} value={niche} />)}
+                                    </datalist>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="form-label">{t('pixelVault.pixelName')} *</label>
+                                <input className="form-input" value={pixelProfileForm.name}
+                                    onChange={e => setPixelProfileForm({ ...pixelProfileForm, name: e.target.value })}
+                                    placeholder="[Nutra IN] WeightLoss Main CAPI" />
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
+                                <div>
+                                    <label className="form-label">{t('pixelVault.pixelId')} *</label>
+                                    <input className="form-input font-mono" value={pixelProfileForm.pixel_id}
+                                        onChange={e => setPixelProfileForm({ ...pixelProfileForm, pixel_id: e.target.value })}
+                                        placeholder="12020948572849" />
+                                </div>
+                                <div>
+                                    <label className="form-label">{t('pixelVault.capiToken')} {pixelProfileEditing === 'new' ? '*' : ''}</label>
+                                    <input type="password" className="form-input font-mono" value={pixelProfileForm.token}
+                                        onChange={e => setPixelProfileForm({ ...pixelProfileForm, token: e.target.value })}
+                                        placeholder={pixelProfileEditing === 'new' ? 'EAA…' : t('pixelVault.keepToken')} />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="form-label">{t('pixelVault.events')}</label>
+                                <input className="form-input" value={pixelProfileForm.events}
+                                    onChange={e => setPixelProfileForm({ ...pixelProfileForm, events: e.target.value })}
+                                    placeholder="PageView,Lead,Purchase" />
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gap: '12px' }}>
+                                <div>
+                                    <label className="form-label">{t('pixelVault.eventUrl')}</label>
+                                    <input className="form-input font-mono" value={pixelProfileForm.event_url}
+                                        onChange={e => setPixelProfileForm({ ...pixelProfileForm, event_url: e.target.value })}
+                                        placeholder="https://domain.com/thank-you" />
+                                </div>
+                                <div>
+                                    <label className="form-label">{t('pixelVault.testEventCode')}</label>
+                                    <input className="form-input font-mono" value={pixelProfileForm.test_event_code}
+                                        onChange={e => setPixelProfileForm({ ...pixelProfileForm, test_event_code: e.target.value })}
+                                        placeholder="TEST12345" />
+                                </div>
+                            </div>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--color-text-secondary)', cursor: 'pointer' }}>
+                                <input type="checkbox" checked={!!pixelProfileForm.is_active}
+                                    onChange={e => setPixelProfileForm({ ...pixelProfileForm, is_active: e.target.checked ? 1 : 0 })} />
+                                {t('pixelVault.active')}
+                            </label>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
+                                <button className="btn btn-secondary btn-sm" onClick={() => handlePixelProfileTest()}
+                                    disabled={pixelProfileTesting === 'form' || !['facebook', 'tiktok'].includes(pixelProfileForm.traffic_source)
+                                        || !pixelProfileForm.pixel_id || (!pixelProfileForm.token && pixelProfileEditing === 'new')}>
+                                    <Zap size={14} /> {pixelProfileTesting === 'form' ? t('pixelVault.sending') : t('pixelVault.sendTestEvent')}
+                                </button>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button className="btn btn-secondary btn-sm" onClick={() => { setPixelProfileEditing(null); setPixelProfileMessage(null); }}>
+                                        <X size={14} /> {t('common.cancel')}
+                                    </button>
+                                    <button className="btn btn-primary btn-sm" onClick={handlePixelProfileSave}
+                                        disabled={!pixelProfileForm.name.trim() || !pixelProfileForm.pixel_id.trim()
+                                            || (pixelProfileEditing === 'new' && !pixelProfileForm.token.trim())}>
+                                        {t('common.save')}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div style={{ border: '1px solid var(--color-border)', borderRadius: '14px', padding: '12px', marginBottom: '18px', background: 'var(--color-bg-soft)' }}>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                            <select className="form-select" style={{ maxWidth: '210px' }} value={pixelProfileNiche} onChange={e => setPixelProfileNiche(e.target.value)}>
+                                <option value="">{t('pixelVault.allNiches')}</option>
+                                {niches.map(niche => <option key={niche} value={niche}>{niche}</option>)}
+                            </select>
+                            <input className="form-input" style={{ maxWidth: '260px' }} value={pixelProfileSearch}
+                                onChange={e => setPixelProfileSearch(e.target.value)} placeholder={t('pixelVault.search')} />
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                {niches.slice(0, 5).map(niche => (
+                                    <button key={niche} className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }}
+                                        onClick={() => setPixelProfileNiche(pixelProfileNiche === niche ? '' : niche)}>
+                                        <Tag size={11} /> {niche}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {pixelProfilesLoading ? (
+                    <div className="flex justify-center py-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: 'var(--color-primary)' }} /></div>
+                ) : (
+                    <div className="space-y-5">
+                        {Object.entries(grouped).map(([niche, profiles]) => (
+                            <section key={niche}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '7px', fontWeight: 600, fontSize: '13px', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
+                                    <Tag size={14} /> {niche} <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>({profiles.length})</span>
+                                </div>
+                                <div className="space-y-2">
+                                    {profiles.map(profile => {
+                                        const source = pixelSourceOptions.find(item => item.value === profile.traffic_source) || { label: profile.traffic_source, icon: '📊' };
+                                        return (
+                                            <div key={profile.id} style={{
+                                                border: '1px solid var(--color-border)', borderRadius: '14px', padding: '15px 16px',
+                                                background: profile.is_active ? 'var(--color-bg-card)' : 'var(--color-bg-soft)',
+                                                opacity: profile.is_active ? 1 : 0.68
+                                            }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap' }}>
+                                                    <div style={{ minWidth: 0 }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                                            <span style={{ width: 8, height: 8, borderRadius: 999, background: profile.is_active ? '#22c55e' : '#9ca3af' }} />
+                                                            <strong style={{ fontSize: '14px', color: 'var(--color-text-primary)' }}>{profile.name}</strong>
+                                                            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>{source.icon} {source.label}</span>
+                                                        </div>
+                                                        <div style={{ marginTop: '6px', fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                                                            ID: <span style={{ fontFamily: 'monospace' }}>{profile.pixel_id}</span>
+                                                            {' · '}{t('pixelVault.events')}: {profile.events || '—'}
+                                                            {' · '}{t('pixelVault.token')}: <span style={{ fontFamily: 'monospace' }}>{profile.token_masked || '—'}</span>
+                                                        </div>
+                                                        {profile.event_url && <div style={{ marginTop: '3px', fontSize: '11px', color: 'var(--color-text-muted)', wordBreak: 'break-all' }}>{profile.event_url}</div>}
+                                                    </div>
+                                                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                                        {['facebook', 'tiktok'].includes(profile.traffic_source) && (
+                                                            <button className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }} onClick={() => handlePixelProfileTest(profile)} disabled={pixelProfileTesting === profile.id}>
+                                                                <Zap size={12} /> {pixelProfileTesting === profile.id ? t('pixelVault.sending') : t('pixelVault.sendTestEvent')}
+                                                            </button>
+                                                        )}
+                                                        <button className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }} onClick={() => { setPixelProfileForm(pixelProfileToForm(profile)); setPixelProfileEditing(profile.id); setPixelProfileMessage(null); }}>
+                                                            <Edit2 size={12} /> {t('common.edit')}
+                                                        </button>
+                                                        <button className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }} onClick={() => handlePixelProfileDuplicate(profile)}>
+                                                            <Copy size={12} /> {t('pixelVault.duplicate')}
+                                                        </button>
+                                                        <button className="btn btn-secondary btn-sm" style={{ fontSize: '11px', color: '#ef4444' }} onClick={() => handlePixelProfileDelete(profile)} title={t('common.delete')}>
+                                                            <Trash2 size={12} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </section>
+                        ))}
+                        {visible.length === 0 && !pixelProfileEditing && (
+                            <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '13px', padding: '34px 0' }}>{t('pixelVault.noProfiles')}</p>
                         )}
                     </div>
                 )}
@@ -857,13 +1514,15 @@ const IntegrationsPage = () => {
         if (px.mapping_json) { try { mapping = JSON.parse(px.mapping_json) || {}; } catch { mapping = {}; } }
         return {
             campaign_id: px.campaign_id || '',
+            pixel_profile_id: px.pixel_profile_id || '',
             pixel_id: px.pixel_id || '',
-            token: px.token || '',
+            token: '',
             events: px.events || 'PageView,Lead',
             mapping,
             test_event_code: px.test_event_code || '',
             proxy_url: px.proxy_url || '',
-            is_active: px.is_active ? 1 : 0
+            is_active: px.is_active ? 1 : 0,
+            has_saved_token: !!px.has_token
         };
     };
 
@@ -892,6 +1551,7 @@ const IntegrationsPage = () => {
             const res = await axios.post(`${API_URL}?action=facebook_capi_test`, {
                 id: capiEditing && capiEditing !== 'new' ? capiEditing : undefined,
                 campaign_id: capiForm.campaign_id,
+                pixel_profile_id: capiForm.pixel_profile_id || undefined,
                 pixel_id: capiForm.pixel_id,
                 token: capiForm.token,
                 test_event_code: capiForm.test_event_code,
@@ -911,6 +1571,10 @@ const IntegrationsPage = () => {
         const visible = capiPixels.filter(p => !capiSearch ||
             (p.campaign_name || '').toLowerCase().includes(capiSearch.toLowerCase()) ||
             (p.pixel_id || '').includes(capiSearch));
+        const editingPixel = capiPixels.find(pixel => String(pixel.id) === String(capiEditing));
+        const savedTokenApplied = !!capiForm.pixel_profile_id && !!capiForm.has_saved_token;
+        const hasCapiToken = !!capiForm.token || savedTokenApplied ||
+            (capiEditing !== 'new' && !!editingPixel?.has_token);
 
         return (
             <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
@@ -938,17 +1602,30 @@ const IntegrationsPage = () => {
                                 </select>
                             </div>
                             <div>
-                                <label className="form-label">{t('fbConv.pixelId')} *</label>
-                                <input type="text" className="form-input font-mono" value={capiForm.pixel_id}
-                                    placeholder="123456789012345"
-                                    onChange={e => setCapiForm({ ...capiForm, pixel_id: e.target.value })} />
+                                <PixelPicker
+                                    label={`${t('fbConv.pixelId')} *`}
+                                    value={capiForm.pixel_id}
+                                    profileId={capiForm.pixel_profile_id}
+                                    trafficSource="facebook"
+                                    resolveServerSide
+                                    onPick={(patch) => setCapiForm(prev => ({ ...prev, ...patch }))}
+                                    onManage={() => setActiveTab('pixel_vault')}
+                                />
                             </div>
                             <div>
-                                <label className="form-label">{t('fbConv.token')}</label>
-                                <input type="password" className="form-input font-mono" value={capiForm.token}
-                                    placeholder="EAAxxxx..."
-                                    onChange={e => setCapiForm({ ...capiForm, token: e.target.value })} />
-                                <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '4px' }}>{t('fbConv.tokenHint')}</p>
+                                <label className="form-label">{t('fbConv.token')}{savedTokenApplied ? ' (✓)' : ''}</label>
+                                {capiForm.pixel_profile_id ? (
+                                    <input type="password" className="form-input font-mono" readOnly
+                                        value={savedTokenApplied ? '••••••••••••••••' : ''}
+                                        placeholder="EAAxxxx..." />
+                                ) : (
+                                    <input type="password" className="form-input font-mono" value={capiForm.token}
+                                        placeholder="EAAxxxx..."
+                                        onChange={e => setCapiForm({ ...capiForm, token: e.target.value })} />
+                                )}
+                                <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                                    {capiForm.pixel_profile_id ? t('fbConv.tokenAutoFilledHint') : t('fbConv.tokenHint')}
+                                </p>
                             </div>
 
                             <div>
@@ -976,10 +1653,11 @@ const IntegrationsPage = () => {
                                         onChange={e => setCapiForm({ ...capiForm, test_event_code: e.target.value })} />
                                 </div>
                                 <div>
-                                    <label className="form-label">{t('fbConv.proxy')}</label>
-                                    <input type="text" className="form-input font-mono" value={capiForm.proxy_url}
-                                        placeholder="http://user:pass@1.2.3.4:8080"
-                                        onChange={e => setCapiForm({ ...capiForm, proxy_url: e.target.value })} />
+                                    <ProxyInput
+                                        label={t('fbConv.proxy')}
+                                        value={capiForm.proxy_url}
+                                        onChange={(val) => setCapiForm({ ...capiForm, proxy_url: val })}
+                                    />
                                 </div>
                             </div>
 
@@ -997,7 +1675,7 @@ const IntegrationsPage = () => {
 
                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
                                 <button onClick={handleCapiTest} className="btn btn-secondary btn-sm"
-                                    disabled={capiTesting || !capiForm.pixel_id || !capiForm.token}>
+                                    disabled={capiTesting || !capiForm.pixel_id || !hasCapiToken}>
                                     <Zap size={14} /> {capiTesting ? t('fbConv.sending') : t('fbConv.sendTestEvent')}
                                 </button>
                                 <div style={{ display: 'flex', gap: '8px' }}>
@@ -1124,6 +1802,12 @@ const IntegrationsPage = () => {
             icon: <ArrowRight className="w-5 h-5" />,
             description: t('fbConv.description'),
             isFacebookConversions: true
+        },
+        pixel_vault: {
+            title: t('pixelVault.pixelVaultTitle'),
+            icon: <Database className="w-5 h-5" />,
+            description: t('pixelVault.description'),
+            isPixelVault: true
         },
         chrome_extension: {
             title: t('integrations.chromeExtension', 'Chrome & Antidetect Extension'),
@@ -2301,7 +2985,7 @@ global \$wpdb;
                                 // listed falls into a trailing group so a new entry can
                                 // never silently disappear from the menu.
                                 const groups = [
-                                    { label: t('integrations.groupAds', 'Ad networks'), ids: ['facebook_costs', 'facebook_conversions', 'dolphin_fbtool', 'chrome_extension'] },
+                                    { label: t('integrations.groupAds', 'Ad networks'), ids: ['pixel_vault', 'facebook_costs', 'facebook_conversions', 'dolphin_fbtool', 'chrome_extension'] },
                                     { label: t('integrations.groupDomains', 'Domains & SSL'), ids: ['cloudflare', 'namecheap'] },
                                     { label: t('integrations.groupSites', 'Sites & landings'), ids: ['kclient_php', 'kclient_js', 'tracking_pixel', 'js_banner', 'wordpress', 'wordpress_plugin', 'static_site', 'geo_redirect', 'device_redirect'] },
                                     { label: t('integrations.groupTools', 'Tools'), ids: ['countdown_timer', 'back_button_trap', 'exit_popup', 'app_config', 'recaptcha', 'telegram'] },
@@ -2378,29 +3062,47 @@ global \$wpdb;
                         <div style={{
                             padding: '20px 24px',
                             borderBottom: '1px solid var(--color-border)',
-                            background: 'var(--color-bg-soft)'
+                            background: 'var(--color-bg-soft)',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            gap: '16px',
+                            alignItems: 'center',
+                            flexWrap: 'wrap'
                         }}>
-                            <h3 style={{
-                                fontSize: '16px',
-                                fontWeight: 600,
-                                color: 'var(--color-text-primary)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px',
-                                margin: 0
-                            }}>
-                                <span style={{ color: 'var(--color-primary)' }}>{activeObj.icon}</span>
-                                {activeObj.title}
-                            </h3>
-                            <p style={{
-                                fontSize: '14px',
-                                color: 'var(--color-text-secondary)',
-                                marginTop: '8px',
-                                lineHeight: 1.5,
-                                margin: '8px 0 0 0'
-                            }}>
-                                {activeObj.description}
-                            </p>
+                            <div>
+                                <h3 style={{
+                                    fontSize: '16px',
+                                    fontWeight: 600,
+                                    color: 'var(--color-text-primary)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    margin: 0
+                                }}>
+                                    <span style={{ color: 'var(--color-primary)' }}>{activeObj.icon}</span>
+                                    {activeObj.title}
+                                </h3>
+                                <p style={{
+                                    fontSize: '14px',
+                                    color: 'var(--color-text-secondary)',
+                                    lineHeight: 1.5,
+                                    margin: '8px 0 0 0'
+                                }}>
+                                    {activeObj.description}
+                                </p>
+                            </div>
+                            {activeObj.isPixelVault && !pixelProfileEditing && (
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={() => {
+                                        setPixelProfileForm(emptyPixelProfileForm);
+                                        setPixelProfileEditing('new');
+                                        setPixelProfileMessage(null);
+                                    }}
+                                >
+                                    <Plus size={16} /> {t('pixelVault.addNewPixel')}
+                                </button>
+                            )}
                         </div>
 
                         {/* Content */}
@@ -2869,7 +3571,7 @@ global \$wpdb;
                                     )}
                                 </div>
                             </div>
-                        ) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : (
+                        ) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isPixelVault ? renderPixelVaultPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : (
                             <div style={{ padding: '20px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                                     <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>

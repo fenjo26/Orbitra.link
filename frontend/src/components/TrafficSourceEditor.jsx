@@ -6,6 +6,10 @@ import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 
 const API_URL = '/api.php';
 
+// Templates are static per build — cached at module level so reopening the
+// editor never refetches the list.
+let cachedTrafficSourceTemplates = null;
+
 const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
@@ -15,7 +19,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     const currentId = id || savedId;
     const [showEspHints, setShowEspHints] = useState(false);
     const [activeTab, setActiveTab] = useState('general');
-    const [templates, setTemplates] = useState([]);
+    const [templates, setTemplates] = useState(cachedTrafficSourceTemplates || []);
     const [formData, setFormData] = useState({
         name: '',
         template: '',
@@ -31,12 +35,17 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     });
 
     useEffect(() => {
-        // Load templates
-        axios.get(`${API_URL}?action=traffic_source_templates`).then(res => {
-            if (res.data.status === 'success') {
-                setTemplates(res.data.data);
-            }
-        });
+        // Load templates (once per session — then served from the module cache)
+        if (cachedTrafficSourceTemplates) {
+            setTemplates(cachedTrafficSourceTemplates);
+        } else {
+            axios.get(`${API_URL}?action=traffic_source_templates`).then(res => {
+                if (res.data.status === 'success') {
+                    cachedTrafficSourceTemplates = res.data.data;
+                    setTemplates(res.data.data);
+                }
+            });
+        }
 
         // Load existing source if editing
         if (id) {
