@@ -7,6 +7,47 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.5] — 2026-08-17
+
+Safe Page white pages: grouped selects, a Local Offer safe mode, and a critical fix that made direct local offers unreachable.
+
+### Added
+- 🛡️ **Safe Page: grouped selects** — the "Tracker Landing" picker in the cloaking
+  Safe Page block now groups landings by their group (`<optgroup>`, groups sorted
+  alphabetically, "No group" collected at the bottom), so a library of dozens of
+  whites stays navigable; a 🔍 button next to the select opens the entity picker
+  (instant search + group filter) in a new single-select mode — one click picks.
+- 📦 **Safe Page: Local Offer mode** — a fourth tab "Local Offer" lets a LeadForge
+  direct local offer (`is_local=1`) act as the white page: the new
+  `safe_mode='offer'` + `safe_offer_id` stream fields are honoured by all three
+  entry points (index.php serves the archive inline with full macro/cookie
+  context; click.php and the Click API redirect to the new public
+  `/offers/<id>/` address). A missing or non-local offer falls back to the
+  default page, exactly like a missing safe landing. The picker hides the
+  network/GEO columns when only local offers are listed.
+- 🔗 **Public `/offers/<id>/` route** — the offer twin of `/lander/<slug>/`:
+  serves a local offer's uploaded index (with `<base>` injection and the
+  `orbitra_lo` cookie so relative assets and the order.php bridge keep working),
+  404s unknown offers, never executes PHP indexes, and routes non-page files
+  through the same extension whitelist and path containment as the click flow.
+
+### Fixed
+- 🚨 **Direct local offer streams died with "URL not found."** — the
+  `die()` on an empty `$finalUrl` fired before the local-offer serving branch,
+  so v1.0.4's marquee "Direct Local Offer" destination never actually worked
+  for offer-only streams. The uploaded page is now served as intended; a
+  `null` url no longer trips PHP 8.5's `str_replace(null)` deprecation, and the
+  Click API answers with the offer's `/offers/<id>/` address instead of an
+  empty URL on both the cloak money side and the redirect schema.
+- ⚙️ **`allow_php_landings` seed missed on upgrades** — the v1.0.4 default rows
+  were added without a schema bump, so databases already at schema 29
+  (installed with 1.0.2) never received them and LeadForge builds failed with
+  `php_landings_disabled`. Migration 30 inserts
+  `allow_php_landings`/`php_landing_timeout` (`INSERT OR IGNORE`, an explicit
+  `'0'` survives), and `PhpLanding::enabled()` now treats a missing row as
+  enabled; Settings → General and the LeadForge panel follow the same
+  default-on semantics.
+
 ## [1.0.4] — 2026-08-17
 
 LeadForge tracker destinations, calendar viewport fix, Facebook OAuth preflight.

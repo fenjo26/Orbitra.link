@@ -1,4 +1,4 @@
-# Orbitra v1.0.4 Tracker
+# Orbitra v1.0.5 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -422,14 +422,13 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.0.4 (2026-08-17)
-- 🎯 **LeadForge: Tracker destination** — save each bundle as a local lander, a **direct local offer** (`is_local`, files served by the tracker from `/offers/<id>/`, no landing record), or the linked lander+offer pair; "ZIP only" replaces the old auto-save checkboxes. Groups follow the destination (landing vs offer groups) and can be created inline via "+ New group" — duplicates select the existing group
-- 💰 **Opt-in fixed payout** — nothing is hardcoded into the build by default; real revenue comes from the network's S2S postback unless "Fixed payout" is checked
-- 📅 **Fix: calendar off-screen** — the date-range panel measures the viewport and opens to the side that fits (the Landings toolbar put it ~300px past the left window edge); Campaigns/Offers/CampaignReports unchanged
-- 🗄️ **Fix: offer-group FK failure** — building with a group + auto-create offer could fail the whole bundle (`offers.group_id` is FK-bound to `offer_groups`); the offer now links a same-named offer group, else none
-- 🔵 **Facebook OAuth preflight** — the 1-Click button disables with a warning when no Meta app is configured, plus a where-to-get-a-token hint; ⚙️ PHP landings on by default with the toggle in Settings → General
+### Current release — v1.0.5 (2026-08-17)
+- 🛡️ **Safe Page: grouped white-page selects** — the "Tracker Landing" picker groups landings by their group (alphabetical, "No group" last); a 🔍 button opens the search picker in a one-click single-select mode
+- 📦 **Safe Page: Local Offer mode** — a LeadForge direct local offer can now be the white page: bots get its files inline (index.php) or via the new public `/offers/<id>/` address (click.php, Click API)
+- 🚨 **Fix: direct local offer streams** — an offer-only local destination died with "URL not found." instead of serving the uploaded page; the Click API now answers with its `/offers/<id>/` address
+- ⚙️ **Fix: allow_php_landings on upgrades** — databases updated 1.0.2 → 1.0.4 never got the seed rows (LeadForge failed with `php_landings_disabled`); migration 30 inserts them, a missing row means enabled
 
-Previous release — v1.0.3: Find & Replace in the landing code editor; full-width CRM & LeadForge; CRM KPI polish; LeadForge GEO coverage 13 → 79 countries; fix for API key + panel session coexistence.
+Previous release — v1.0.4: LeadForge tracker destinations (lander / direct local offer / pair) with on-the-fly groups; opt-in fixed payout; calendar viewport fix; Facebook OAuth preflight; PHP landings on by default.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

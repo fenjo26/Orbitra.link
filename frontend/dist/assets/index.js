@@ -17774,6 +17774,8 @@ const ru = {
   "picker": {
     "offersTitle": "Офферы",
     "landingsTitle": "Лендинги",
+    "safeLandingsTitle": "Выбор белого лендинга",
+    "safeOffersTitle": "Выбор локального оффера",
     "search": "Поиск",
     "allGroups": "Все группы",
     "allNetworks": "Все сети",
@@ -18838,6 +18840,8 @@ const ru = {
     "safePageHint": "Показывается подозрительным посетителям. Выберите лендинг, URL или встроенный HTML.",
     "safeLanding": "Белый лендинг",
     "safeLandingNone": "— нет —",
+    "safeOfferNone": "— нет —",
+    "noLocalOffers": "Локальных офферов пока нет — создайте его в Офферах (тип «Локальный») или соберите в LeadForge.",
     "safeUrl": "Белый URL",
     "safeHtml": "Белый HTML (встроенный)",
     "dontRecordSafeClicks": "Не записывать клики на Safe Page",
@@ -19360,6 +19364,7 @@ const ru = {
     "safePageTitle": "Белая страница (Safe Page — для ботов и модераторов)",
     "moneyPageTitle": "Страница оффера (Money Page — для реальных посетителей)",
     "tabLanding": "Лендинг из трекера",
+    "tabOffer": "Локальный оффер",
     "tabUrl": "Внешний URL",
     "tabHtml": "Встроенный HTML",
     "addCostConnection": "+ Подключить Cost Sync",
@@ -21042,6 +21047,8 @@ const en = {
   "picker": {
     "offersTitle": "Offers",
     "landingsTitle": "Landing pages",
+    "safeLandingsTitle": "Select a Safe Landing",
+    "safeOffersTitle": "Select a Safe Offer",
     "search": "Search",
     "allGroups": "All groups",
     "allNetworks": "All networks",
@@ -22106,6 +22113,8 @@ const en = {
     "safePageHint": "Shown to suspicious visitors. Pick a landing, a URL, or inline HTML.",
     "safeLanding": "Safe landing",
     "safeLandingNone": "— none —",
+    "safeOfferNone": "— none —",
+    "noLocalOffers": "No local offers yet — create one in Offers (type Local) or build it in LeadForge.",
     "safeUrl": "Safe URL",
     "safeHtml": "Safe HTML (inline)",
     "dontRecordSafeClicks": "Do not record clicks for Safe Page",
@@ -22628,6 +22637,7 @@ const en = {
     "safePageTitle": "Safe Page (For Bots & Moderators)",
     "moneyPageTitle": "Money Page (For Real Visitors)",
     "tabLanding": "Tracker Landing",
+    "tabOffer": "Local Offer",
     "tabUrl": "External URL",
     "tabHtml": "Inline HTML",
     "addCostConnection": "+ Add Cost Connection",
@@ -24310,6 +24320,8 @@ const uk = {
   "picker": {
     "offersTitle": "Офери",
     "landingsTitle": "Посадки",
+    "safeLandingsTitle": "Вибір білого лендінга",
+    "safeOffersTitle": "Вибір локального оффера",
     "search": "Пошук",
     "allGroups": "Усі групи",
     "allNetworks": "Усі мережі",
@@ -25374,6 +25386,8 @@ const uk = {
     "safePageHint": "Показується підозрілим відвідувачам. Оберіть лендинг, URL або вбудований HTML.",
     "safeLanding": "Безпечний лендинг",
     "safeLandingNone": "— немає —",
+    "safeOfferNone": "— немає —",
+    "noLocalOffers": "Локальних офферів ще немає — створіть його в Оферах (тип «Локальний») або зберіть у LeadForge.",
     "safeUrl": "Безпечний URL",
     "safeHtml": "Безпечний HTML (вбудований)",
     "dontRecordSafeClicks": "Не записувати кліки на Safe Page",
@@ -25896,6 +25910,7 @@ const uk = {
     "safePageTitle": "Біла сторінка (Safe Page — для ботів і модераторів)",
     "moneyPageTitle": "Сторінка оффера (Money Page — для реальних відвідувачів)",
     "tabLanding": "Лендінг з трекера",
+    "tabOffer": "Місцева пропозиція",
     "tabUrl": "Зовнішній URL",
     "tabHtml": "Вбудований HTML",
     "addCostConnection": "+ Підключити Cost Sync",
@@ -27578,6 +27593,8 @@ const es = {
   "picker": {
     "offersTitle": "Ofertas",
     "landingsTitle": "Aterrizajes",
+    "safeLandingsTitle": "Elegir landing seguro",
+    "safeOffersTitle": "Elegir offer local",
     "search": "Buscar",
     "allGroups": "Todos los grupos",
     "allNetworks": "Todas las redes",
@@ -28642,6 +28659,8 @@ const es = {
     "safePageHint": "Se muestra a visitantes sospechosos. Elige un landing, una URL o HTML en línea.",
     "safeLanding": "Landing seguro",
     "safeLandingNone": "— ninguno —",
+    "safeOfferNone": "— ninguno —",
+    "noLocalOffers": "Aún no hay offers locales: crea uno en Ofertas (tipo Local) o genéralo en LeadForge.",
     "safeUrl": "URL segura",
     "safeHtml": "HTML seguro (en línea)",
     "dontRecordSafeClicks": "No registrar clics para la página segura (Safe Page)",
@@ -29164,6 +29183,7 @@ const es = {
     "safePageTitle": "Página segura (Safe Page — para bots y revisores)",
     "moneyPageTitle": "Página de oferta (Money Page — para visitantes reales)",
     "tabLanding": "Landing del tracker",
+    "tabOffer": "Offer local",
     "tabUrl": "URL externa",
     "tabHtml": "HTML integrado",
     "addCostConnection": "+ Conectar Cost Sync",
@@ -30846,6 +30866,8 @@ const zh = {
   "picker": {
     "offersTitle": "优惠",
     "landingsTitle": "登陆页",
+    "safeLandingsTitle": "选择安全着陆页",
+    "safeOffersTitle": "选择本地优惠",
     "search": "搜索",
     "allGroups": "所有分组",
     "allNetworks": "所有网络",
@@ -31910,6 +31932,8 @@ const zh = {
     "safePageHint": "展示给可疑访客。可选择落地页、URL 或内联 HTML。",
     "safeLanding": "安全落地页",
     "safeLandingNone": "— 无 —",
+    "safeOfferNone": "— 无 —",
+    "noLocalOffers": "还没有本地优惠 —— 在「优惠」中创建（类型：本地），或在 LeadForge 中生成。",
     "safeUrl": "安全 URL",
     "safeHtml": "安全 HTML（内联）",
     "dontRecordSafeClicks": "不记录安全页（Safe Page）的点击",
@@ -32432,6 +32456,7 @@ const zh = {
     "safePageTitle": "安全页 (Safe Page — 针对审核与Bot)",
     "moneyPageTitle": "盈利页 (Money Page — 针对真实访客)",
     "tabLanding": "追踪器着陆页",
+    "tabOffer": "本地优惠",
     "tabUrl": "外部 URL",
     "tabHtml": "嵌入 HTML",
     "addCostConnection": "+ 连接 Cost Sync",
@@ -34114,6 +34139,8 @@ const fr = {
   "picker": {
     "offersTitle": "Offres",
     "landingsTitle": "Destinations",
+    "safeLandingsTitle": "Choisir une landing sûre",
+    "safeOffersTitle": "Choisir une offre locale",
     "search": "Rechercher",
     "allGroups": "Tous les groupes",
     "allNetworks": "Tous les réseaux",
@@ -35180,6 +35207,8 @@ const fr = {
     "safePageHint": "Affichée aux visiteurs suspects. Choisissez une landing, une URL ou du HTML en ligne.",
     "safeLanding": "Landing sécurisé",
     "safeLandingNone": "— aucun —",
+    "safeOfferNone": "— aucun —",
+    "noLocalOffers": "Aucune offre locale pour le moment — créez-en une dans Offres (type Local) ou forgez-la dans LeadForge.",
     "safeUrl": "URL sécurisée",
     "safeHtml": "HTML sécurisé (en ligne)",
     "dontRecordSafeClicks": "Ne pas enregistrer les clics pour la Safe Page",
@@ -35702,6 +35731,7 @@ const fr = {
     "safePageTitle": "Page sécurisée (Safe Page — pour bots et modérateurs)",
     "moneyPageTitle": "Page d'offre (Money Page — pour vrais visiteurs)",
     "tabLanding": "Landing du tracker",
+    "tabOffer": "Offre locale",
     "tabUrl": "URL externe",
     "tabHtml": "HTML intégré",
     "addCostConnection": "+ Connecter Cost Sync",
@@ -37384,6 +37414,8 @@ const de = {
   "picker": {
     "offersTitle": "Angebote",
     "landingsTitle": "Landingpages",
+    "safeLandingsTitle": "Sicheres Landing wählen",
+    "safeOffersTitle": "Lokales Angebot wählen",
     "search": "Suche",
     "allGroups": "Alle Gruppen",
     "allNetworks": "Alle Netzwerke",
@@ -38448,6 +38480,8 @@ const de = {
     "safePageHint": "Wird verdächtigen Besuchern gezeigt. Wählen Sie ein Landing, eine URL oder Inline-HTML.",
     "safeLanding": "Sicheres Landing",
     "safeLandingNone": "— keines —",
+    "safeOfferNone": "— keines —",
+    "noLocalOffers": "Noch keine lokalen Angebote — legen Sie eines unter Angebote (Typ „Lokal“) an oder erstellen Sie es in LeadForge.",
     "safeUrl": "Sichere URL",
     "safeHtml": "Sicheres HTML (Inline)",
     "dontRecordSafeClicks": "Klicks für Safe Page nicht aufzeichnen",
@@ -38970,6 +39004,7 @@ const de = {
     "safePageTitle": "Safe Page (Für Bots & Moderatoren)",
     "moneyPageTitle": "Money Page (Für echte Besucher)",
     "tabLanding": "Tracker-Landingpage",
+    "tabOffer": "Lokales Angebot",
     "tabUrl": "Externe URL",
     "tabHtml": "Inline-HTML",
     "addCostConnection": "+ Cost Sync verbinden",
@@ -67508,7 +67543,7 @@ const GeneralSettings = () => {
   const [settings, setSettings] = reactExports.useState({
     postback_key: "",
     currency: "USD",
-    allow_php_landings: "0",
+    allow_php_landings: "1",
     php_landing_timeout: "3"
   });
   reactExports.useEffect(() => {
@@ -79600,7 +79635,7 @@ const TrendsPage = () => {
     ] }) })
   ] });
 };
-const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
+const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd, singleSelect = false, title = null }) => {
   const { t } = useLanguage();
   const [q, setQ] = reactExports.useState("");
   const [groupFilter, setGroupFilter] = reactExports.useState("");
@@ -79608,6 +79643,8 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
   const [countryFilter, setCountryFilter] = reactExports.useState("");
   const [selected, setSelected] = reactExports.useState(() => /* @__PURE__ */ new Set());
   const isOffers = type === "offers";
+  const allLocal = isOffers && (items || []).length > 0 && (items || []).every((it) => it.is_local);
+  const showOfferFilters = isOffers && !allLocal;
   const existing = reactExports.useMemo(() => new Set((existingIds || []).map((id) => parseInt(id, 10))), [existingIds]);
   const uniqueByName = (entries) => {
     const seen = /* @__PURE__ */ new Map();
@@ -79644,14 +79681,14 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
         if (!haystack.includes(needle)) return false;
       }
       if (groupFilter && String(it.group_id || "") !== String(groupFilter)) return false;
-      if (isOffers && networkFilter && String(it.affiliate_network_id || "") !== String(networkFilter)) return false;
-      if (isOffers && countryFilter) {
+      if (showOfferFilters && networkFilter && String(it.affiliate_network_id || "") !== String(networkFilter)) return false;
+      if (showOfferFilters && countryFilter) {
         const codes = String(it.geo || "").split(",").map((c) => c.trim().toUpperCase());
         if (!codes.includes(countryFilter)) return false;
       }
       return true;
     });
-  }, [items, q, groupFilter, networkFilter, countryFilter, isOffers]);
+  }, [items, q, groupFilter, networkFilter, countryFilter, showOfferFilters]);
   const pickable = filtered.filter((it) => !existing.has(parseInt(it.id, 10)));
   const allPicked = pickable.length > 0 && pickable.every((it) => selected.has(it.id));
   const somePicked = pickable.some((it) => selected.has(it.id));
@@ -79679,7 +79716,7 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
   const td = { padding: "7px 10px", color: "var(--color-text-primary)", borderBottom: "1px solid var(--color-border)", verticalAlign: "middle" };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "760px" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: isOffers ? t("picker.offersTitle") : t("picker.landingsTitle") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: title || (isOffers ? t("picker.offersTitle") : t("picker.landingsTitle")) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onClose, className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 flex flex-wrap gap-2", style: { borderBottom: "1px solid var(--color-border)" }, children: [
@@ -79701,7 +79738,7 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("picker.allGroups") }),
         groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
       ] }),
-      isOffers && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      showOfferFilters && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { value: networkFilter, onChange: (e) => setNetworkFilter(e.target.value), className: "form-select text-sm", style: { width: "auto", minWidth: "130px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("picker.allNetworks") }),
           networks.map((n) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: n.id, children: n.name }, n.id))
@@ -79714,12 +79751,12 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto", style: { maxHeight: "46vh", minHeight: "200px" }, children: filtered.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-12 text-sm", style: { color: "var(--color-text-muted)" }, children: t("picker.noResults") }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-sm", style: { borderCollapse: "collapse" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { ...th, width: "36px" } }),
+        !singleSelect && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { ...th, width: "36px" } }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { ...th, width: "60px" }, children: "ID" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: t("editor.name") }),
-        isOffers && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: t("picker.countries") }),
+        showOfferFilters && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: t("picker.countries") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: t("picker.group") }),
-        isOffers && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: t("picker.network") })
+        showOfferFilters && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: th, children: t("picker.network") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: filtered.map((it) => {
         const id = parseInt(it.id, 10);
@@ -79734,11 +79771,16 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
           "tr",
           {
             onClick: () => {
-              if (!isExisting) toggle(id);
+              if (isExisting) return;
+              if (singleSelect) {
+                onAdd([id]);
+                return;
+              }
+              toggle(id);
             },
             style: { cursor: isExisting ? "default" : "pointer" },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: rowStyle, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              !singleSelect && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: rowStyle, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
                   type: "checkbox",
@@ -79754,17 +79796,17 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", style: { textDecoration: isExisting ? "line-through" : "none" }, children: it.name }),
                 isExisting && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-2 text-[10.5px] px-1.5 py-0.5 rounded-md", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: t("picker.alreadyAdded") })
               ] }),
-              isOffers && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: rowStyle, children: it.geo || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "—" }) }),
+              showOfferFilters && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: rowStyle, children: it.geo || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "—" }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: rowStyle, children: it.group_name || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "—" }) }),
-              isOffers && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: rowStyle, children: it.affiliate_network_name || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "—" }) })
+              showOfferFilters && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: rowStyle, children: it.affiliate_network_name || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "—" }) })
             ]
           },
           it.id
         );
       }) })
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", style: { justifyContent: "space-between" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-sm cursor-pointer select-none", style: { color: "var(--color-text-secondary)" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", style: { justifyContent: singleSelect ? "flex-end" : "space-between" }, children: [
+      !singleSelect && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-sm cursor-pointer select-none", style: { color: "var(--color-text-secondary)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
@@ -79782,7 +79824,7 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onClose, className: "btn btn-secondary", children: t("common.close") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
+        !singleSelect && /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
             type: "button",
@@ -80330,6 +80372,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [sources, setSources] = reactExports.useState([]);
   const [domains, setDomains] = reactExports.useState([]);
   const [allOffers, setAllOffers] = reactExports.useState([]);
+  const localOffers = (allOffers || []).filter((o) => o.is_local);
   const [allLandings, setAllLandings] = reactExports.useState([]);
   const [quickCreate, setQuickCreate] = reactExports.useState(null);
   const [pickerState, setPickerState] = reactExports.useState({ open: false, streamIdx: null, type: null });
@@ -81120,7 +81163,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     s[streamIdx].schema_custom[type] = list;
     setFormData({ ...formData, streams: s });
   };
-  const openEntityPicker = (streamIdx, type) => setPickerState({ open: true, streamIdx, type });
+  const openEntityPicker = (streamIdx, type) => setPickerState({ open: true, streamIdx, type, safeField: null });
+  const openSafePicker = (streamIdx, safeField) => setPickerState({
+    open: true,
+    streamIdx,
+    type: safeField === "safe_offer_id" ? "offers" : "landings",
+    safeField
+  });
   const attachOfferToStream = async (newId) => {
     const id = parseInt(newId, 10);
     if (!id) return;
@@ -83041,8 +83090,26 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 stream.schema_type === "cloak" && (() => {
                   const sc = stream.schema_custom || {};
                   const setCloakField = (field, value) => updateStream(idx, "schema_custom", { ...sc, [field]: value });
-                  const safeMode = sc.safe_mode || (sc.safe_landing_id ? "landing" : sc.safe_html ? "html" : "url");
+                  const safeMode = sc.safe_mode || (sc.safe_landing_id ? "landing" : sc.safe_offer_id ? "offer" : sc.safe_html ? "html" : "url");
                   const setSafeMode = (mode) => updateStream(idx, "schema_custom", { ...sc, safe_mode: mode });
+                  const renderGroupedEntities = (items) => {
+                    const groups2 = /* @__PURE__ */ new Map();
+                    (items || []).forEach((it) => {
+                      const key = it.group_name ? String(it.group_name) : "";
+                      if (!groups2.has(key)) groups2.set(key, []);
+                      groups2.get(key).push(it);
+                    });
+                    const named = Array.from(groups2.entries()).filter(([k]) => k !== "").sort((a, b) => a[0].localeCompare(b[0]));
+                    if (groups2.has("")) named.push(["", groups2.get("")]);
+                    return named.map(([groupName, groupItems]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "optgroup",
+                      {
+                        label: `📁 ${groupName || t("landings.noGroup", "No group")}`,
+                        children: groupItems.map((al) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: al.id, children: al.name }, al.id))
+                      },
+                      groupName || "__none__"
+                    ));
+                  };
                   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 rounded-2xl p-4", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("cloaking.description") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -83271,6 +83338,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex rounded-lg overflow-hidden border", style: { borderColor: "var(--color-border)" }, children: [
                           ["url", t("streamRefine.tabUrl", "External URL")],
                           ["landing", t("streamRefine.tabLanding", "Tracker Landing")],
+                          ["offer", t("streamRefine.tabOffer", "Local Offer")],
                           ["html", t("streamRefine.tabHtml", "Inline HTML")]
                         ].map(([mode, label]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                           "button",
@@ -83297,18 +83365,54 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           placeholder: "https://safe-white-page.com"
                         }
                       ) }),
-                      safeMode === "landing" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        "select",
-                        {
-                          value: sc.safe_landing_id || "",
-                          onChange: (e) => setCloakField("safe_landing_id", e.target.value ? parseInt(e.target.value) : null),
-                          className: "form-select text-xs py-1.5 rounded-xl",
-                          children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("cloaking.safeLandingNone", "Select a Safe Landing...") }),
-                            allLandings.map((al) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: al.id, children: al.name }, al.id))
-                          ]
-                        }
-                      ) }),
+                      safeMode === "landing" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "select",
+                          {
+                            value: sc.safe_landing_id || "",
+                            onChange: (e) => setCloakField("safe_landing_id", e.target.value ? parseInt(e.target.value) : null),
+                            className: "form-select text-xs py-1.5 rounded-xl flex-1 min-w-0",
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("cloaking.safeLandingNone", "Select a Safe Landing...") }),
+                              renderGroupedEntities(allLandings)
+                            ]
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "button",
+                          {
+                            type: "button",
+                            onClick: () => openSafePicker(idx, "safe_landing_id"),
+                            className: "action-btn shrink-0",
+                            title: t("picker.safeLandingsTitle", "Select a Safe Landing"),
+                            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "w-4 h-4" })
+                          }
+                        )
+                      ] }),
+                      safeMode === "offer" && (localOffers.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "select",
+                          {
+                            value: sc.safe_offer_id || "",
+                            onChange: (e) => setCloakField("safe_offer_id", e.target.value ? parseInt(e.target.value) : null),
+                            className: "form-select text-xs py-1.5 rounded-xl flex-1 min-w-0",
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("cloaking.safeOfferNone", "Select a Safe Offer...") }),
+                              renderGroupedEntities(localOffers)
+                            ]
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "button",
+                          {
+                            type: "button",
+                            onClick: () => openSafePicker(idx, "safe_offer_id"),
+                            className: "action-btn shrink-0",
+                            title: t("picker.safeOffersTitle", "Select a Safe Offer"),
+                            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "w-4 h-4" })
+                          }
+                        )
+                      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-2 px-3 rounded-xl border border-dashed", style: { borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("cloaking.noLocalOffers", "No local offers yet — create one in Offers (type Local) or build it in LeadForge.") })),
                       safeMode === "html" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                         "textarea",
                         {
@@ -83998,12 +84102,26 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       EntitySelectorModal,
       {
         type: pickerState.type,
-        items: pickerState.type === "landings" ? allLandings : allOffers,
-        existingIds: (formData.streams[pickerState.streamIdx]?.schema_custom?.[pickerState.type] || []).map((x) => parseInt(x.id, 10)).filter(Boolean),
-        onClose: () => setPickerState({ open: false, streamIdx: null, type: null }),
+        items: pickerState.safeField === "safe_offer_id" ? localOffers : pickerState.type === "landings" ? allLandings : allOffers,
+        existingIds: pickerState.safeField ? [] : (formData.streams[pickerState.streamIdx]?.schema_custom?.[pickerState.type] || []).map((x) => parseInt(x.id, 10)).filter(Boolean),
+        singleSelect: !!pickerState.safeField,
+        title: pickerState.safeField === "safe_landing_id" ? t("picker.safeLandingsTitle", "Select a Safe Landing") : pickerState.safeField === "safe_offer_id" ? t("picker.safeOffersTitle", "Select a Safe Offer") : void 0,
+        onClose: () => setPickerState({ open: false, streamIdx: null, type: null, safeField: null }),
         onAdd: (ids) => {
-          addEntitiesToStream(pickerState.streamIdx, pickerState.type, ids);
-          setPickerState({ open: false, streamIdx: null, type: null });
+          if (pickerState.safeField) {
+            const i = pickerState.streamIdx;
+            const s = [...formData.streams];
+            if (s[i]) {
+              const scNext = { ...s[i].schema_custom || {} };
+              scNext[pickerState.safeField] = parseInt(ids[0], 10) || null;
+              scNext.safe_mode = pickerState.safeField === "safe_offer_id" ? "offer" : "landing";
+              s[i] = { ...s[i], schema_custom: scNext };
+              setFormData({ ...formData, streams: s });
+            }
+          } else {
+            addEntitiesToStream(pickerState.streamIdx, pickerState.type, ids);
+          }
+          setPickerState({ open: false, streamIdx: null, type: null, safeField: null });
         }
       }
     ),
@@ -94910,7 +95028,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     });
     axios.get(`${API_URL$2}?action=global_settings`).then((res) => {
       if (res.data?.status === "success") {
-        setPhpLandingsEnabled(String(res.data.data?.allow_php_landings) === "1");
+        setPhpLandingsEnabled(String(res.data.data?.allow_php_landings ?? "1") === "1");
       }
     }).catch(() => {
     });
