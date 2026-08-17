@@ -3,7 +3,7 @@ import axios from 'axios';
 import {
     Zap, Upload, FileArchive, CheckCircle2, AlertCircle, AlertTriangle, Download,
     Layers, Globe, RefreshCw, Terminal, Sliders, ArrowRight, X, ScanSearch, Rocket,
-    Wifi, ShieldCheck, Scissors, Repeat
+    Wifi, ShieldCheck, Scissors, Repeat, Tag, Link2, Plus, Check, PackageX
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -147,21 +147,38 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     const [offerId, setOfferId] = useState('');
     const [selectedGeo, setSelectedGeo] = useState('IT');
     const [currency, setCurrency] = useState('USD');
-    const [payout, setPayout] = useState('25');
+    // Payout is opt-in: by default nothing is hardcoded into the landing and
+    // the real revenue comes from the network's S2S postback (postback.php
+    // upserts payout on the existing conversion).
+    const [useCustomPayout, setUseCustomPayout] = useState(false);
+    const [payout, setPayout] = useState('');
     const [selectedGroupId, setSelectedGroupId] = useState('');
+    const [selectedOfferGroupId, setSelectedOfferGroupId] = useState('');
+    const [offerGroups, setOfferGroups] = useState([]);
+
+    // Where the built bundle lands in the tracker: 'none' | 'lander' | 'offer' | 'both'
+    const [destType, setDestType] = useState('lander');
+
+    // Inline "+ New group" creation
+    const [showNewGroup, setShowNewGroup] = useState(false);
+    const [newGroupName, setNewGroupName] = useState('');
+    const [creatingGroup, setCreatingGroup] = useState(false);
 
     // Toggles (per ТЗ: CRM Sync + Auto QA drive the build)
     const [crmEnabled, setCrmEnabled] = useState(true);
     const [autoQa, setAutoQa] = useState(true);
+
+    // PHP landings gate: order.php/thank_you.php builds fail hard while the
+    // tracker setting is off. null = preflight not answered yet — no banner.
+    const [phpLandingsEnabled, setPhpLandingsEnabled] = useState(null);
+    const [phpEnabling, setPhpEnabling] = useState(false);
 
     const [options, setOptions] = useState({
         injectOfferMacro: true,
         injectJsAdapter: true,
         addPhoneMask: true,
         generateThankYou: true,
-        generateOrderPhp: true,
-        autoSaveTracker: true,
-        autoCreateOffer: false
+        generateOrderPhp: true
     });
 
     const isRaw = mode === 'raw';
@@ -171,6 +188,20 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
             .then(res => {
                 if (res.data?.status === 'success') {
                     setLandingGroups(res.data.data || []);
+                }
+            })
+            .catch(() => {});
+        axios.get(`${API_URL}?action=offer_groups`)
+            .then(res => {
+                if (res.data?.status === 'success') {
+                    setOfferGroups(res.data.data || []);
+                }
+            })
+            .catch(() => {});
+        axios.get(`${API_URL}?action=global_settings`)
+            .then(res => {
+                if (res.data?.status === 'success') {
+                    setPhpLandingsEnabled(String(res.data.data?.allow_php_landings) === '1');
                 }
             })
             .catch(() => {});
@@ -206,6 +237,79 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     const handleModeChange = (m) => {
         setMode(m);
         localStorage.setItem('orbitra_lf_mode', m);
+    };
+
+    // One-click enable from the warning banner. The POST is admin-only on the
+    // server and silently skips for other roles, so the banner state comes from
+    // a re-read, not from the 200.
+    const handleQuickEnablePhp = async () => {
+        setPhpEnabling(true);
+        try {
+            const res = await axios.post(`${API_URL}?action=global_settings`, { settings: { allow_php_landings: '1' } });
+            if (res.data?.status !== 'success') {
+                addLog(`❌ ${res.data?.message || 'Failed to save settings'}`, 'error');
+                return;
+            }
+            const check = await axios.get(`${API_URL}?action=global_settings`);
+            const nowEnabled = String(check.data?.data?.allow_php_landings) === '1';
+            setPhpLandingsEnabled(nowEnabled);
+            addLog(nowEnabled
+                ? t('leadforge.phpEnabledLog', 'PHP landings enabled — rebuild the bundles')
+                : t('leadforge.phpEnableDenied', 'Could not enable PHP landings: an admin session is required (Settings → General).'),
+                nowEnabled ? 'success' : 'error');
+        } catch (err) {
+            addLog(`❌ ${err.response?.data?.message || err.message}`, 'error');
+        } finally {
+            setPhpEnabling(false);
+        }
+    };
+
+    // ---- Tracker destination & groups -------------------------------------
+    const isOfferDest = destType === 'offer';
+    const destGroups = isOfferDest ? offerGroups : landingGroups;
+    const destGroupId = isOfferDest ? selectedOfferGroupId : selectedGroupId;
+    const setDestGroupId = isOfferDest ? setSelectedOfferGroupId : setSelectedGroupId;
+
+    const handleCreateGroup = async () => {
+        const name = newGroupName.trim();
+        if (!name || creatingGroup) return;
+        setCreatingGroup(true);
+        const action = isOfferDest ? 'offer_groups' : 'landing_groups';
+        const applyFound = (g) => {
+            setDestGroupId(String(g.id));
+            setNewGroupName('');
+            setShowNewGroup(false);
+        };
+        try {
+            const res = await axios.post(`${API_URL}?action=${action}`, { name });
+            if (res.data?.status === 'success') {
+                const created = { id: Number(res.data.data.id), name };
+                const merge = (list) => [...list.filter(g => g.id !== created.id), created]
+                    .sort((a, b) => a.name.localeCompare(b.name));
+                if (isOfferDest) setOfferGroups(merge); else setLandingGroups(merge);
+                applyFound(created);
+                addLog(t('leadforge.logGroupCreated', `📁 ${isOfferDest ? 'Offer' : 'Landing'} group "${name}" created`, { name }), 'success');
+            } else {
+                // Most likely a duplicate — re-fetch and select the existing one.
+                try {
+                    const list = await axios.get(`${API_URL}?action=${action}`);
+                    const found = (list.data?.data || []).find(g => g.name === name);
+                    if (found) {
+                        if (isOfferDest) setOfferGroups(list.data.data || []); else setLandingGroups(list.data.data || []);
+                        applyFound(found);
+                        addLog(t('leadforge.logGroupExists', `📁 Group "${name}" already exists — selected it`, { name }), 'step');
+                    } else {
+                        addLog(`⚠️ ${res.data?.message || 'Group create failed'}`, 'error');
+                    }
+                } catch {
+                    addLog(`⚠️ ${res.data?.message || 'Group create failed'}`, 'error');
+                }
+            }
+        } catch (err) {
+            addLog(`⚠️ ${err.response?.data?.message || err.message}`, 'error');
+        } finally {
+            setCreatingGroup(false);
+        }
     };
 
     // ---- Upload handling -------------------------------------------------
@@ -295,9 +399,14 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
         fd.append('api_key', apiKey);
         fd.append('offer_id', offerId);
         fd.append('geo', selectedGeo);
-        fd.append('payout', payout);
+        fd.append('payout', useCustomPayout && payout !== '' ? String(parseFloat(payout) || 0) : '0');
         fd.append('currency', currency);
-        if (selectedGroupId) fd.append('group_id', selectedGroupId);
+        if (destType === 'offer') {
+            if (selectedOfferGroupId) fd.append('group_id', selectedOfferGroupId);
+        } else if (destType !== 'none') {
+            if (selectedGroupId) fd.append('group_id', selectedGroupId);
+        }
+        if (destType !== 'none') fd.append('target_type', destType);
         fd.append('crm_enabled', (!isRaw && crmEnabled) ? '1' : '0');
         fd.append('auto_qa', (!isRaw && autoQa) ? '1' : '0');
         fd.append('inject_offer_macro', options.injectOfferMacro ? '1' : '0');
@@ -305,8 +414,9 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
         fd.append('add_phone_mask', options.addPhoneMask ? '1' : '0');
         fd.append('generate_thank_you', (!isRaw && options.generateThankYou) ? '1' : '0');
         fd.append('generate_order_php', (!isRaw && options.generateOrderPhp) ? '1' : '0');
-        fd.append('auto_save_tracker', options.autoSaveTracker ? '1' : '0');
-        fd.append('auto_create_offer', options.autoCreateOffer ? '1' : '0');
+        // Legacy pair, kept in sync with destType for older API consumers.
+        fd.append('auto_save_tracker', destType === 'lander' || destType === 'both' ? '1' : '0');
+        fd.append('auto_create_offer', destType === 'both' ? '1' : '0');
 
         setBundles(prev => prev.map(b => (b.selected && b.token ? { ...b, status: 'building' } : b)));
 
@@ -326,7 +436,10 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                     addLog(line, type);
                 });
                 if (!r.ok) {
-                    addLog(`❌ Bundle ${r.token?.slice(0, 8)}…: ${r.message}`, 'error');
+                    const errorText = r.message === 'php_landings_disabled'
+                        ? t('leadforge.phpDisabledHint', 'PHP landings are disabled — enable "Allow PHP landings" (banner above or Settings → General) and rebuild.')
+                        : (r.message || 'Build failed');
+                    addLog(`❌ ${names[r.token] || `Bundle ${r.token?.slice(0, 8)}…`}: ${errorText}`, 'error');
                 }
                 setBundles(prev => prev.map(b => (b.token === r.token
                     ? { ...b, status: r.ok ? 'built' : 'error', result: r.result, qa: r.qa, error: r.ok ? null : r.message }
@@ -388,6 +501,33 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
 
     return (
         <div className="space-y-6 w-full pb-12">
+            {/* PHP landings gate — order.php/thank_you.php cannot build without it */}
+            {phpLandingsEnabled === false && (
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl border"
+                    style={{ background: 'var(--color-warning-bg)', borderColor: 'var(--color-warning)' }}>
+                    <div className="flex items-start gap-3">
+                        <AlertTriangle size={20} className="shrink-0 mt-0.5" style={{ color: 'var(--color-warning)' }} />
+                        <div>
+                            <div className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                                {t('leadforge.phpBannerTitle', 'PHP landings are disabled in tracker settings')}
+                            </div>
+                            <p className="text-xs mt-1 m-0 leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                                {t('leadforge.phpBannerHint', 'Compiling order.php for CPA networks (Dr.Cash, Leadbit…) requires PHP landings — every bundle build fails with php_landings_disabled while this is off.')}
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleQuickEnablePhp}
+                        disabled={phpEnabling}
+                        className="btn-primary !py-2.5 !px-4 text-xs flex items-center gap-2 cursor-pointer shrink-0 disabled:opacity-50"
+                    >
+                        {phpEnabling ? <RefreshCw size={14} className="animate-spin" /> : <Zap size={14} />}
+                        <span>{t('leadforge.phpEnableButton', 'Enable in 1 click')}</span>
+                    </button>
+                </div>
+            )}
+
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border bg-[var(--color-bg-card)] border-[var(--color-border)]" style={{ boxShadow: 'var(--shadow-main)' }}>
                 <div className="flex items-center gap-4">
@@ -606,9 +746,20 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                                             )}
                                             {b.status === 'built' && b.result && (
                                                 <>
-                                                    <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 flex items-center gap-1">
-                                                        <CheckCircle2 size={12} /> #{b.result.landing_id} · /lander/{b.result.slug}/
-                                                    </span>
+                                                    {b.result.landing_id ? (
+                                                        <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 flex items-center gap-1">
+                                                            <CheckCircle2 size={12} /> #{b.result.landing_id} · /lander/{b.result.slug}/
+                                                        </span>
+                                                    ) : b.result.offer_id && (
+                                                        <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 flex items-center gap-1">
+                                                            <Tag size={12} /> #{b.result.offer_id} · {t('leadforge.localOfferBadge', 'Local offer')}
+                                                        </span>
+                                                    )}
+                                                    {b.result.landing_id && b.result.offer_id && (
+                                                        <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center gap-1 border border-emerald-200 dark:border-emerald-900">
+                                                            <Link2 size={12} /> {t('leadforge.linkedOfferBadge', 'Offer')} #{b.result.offer_id}
+                                                        </span>
+                                                    )}
                                                     {b.qa?.performed && (
                                                         <span
                                                             className={`px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1 ${
@@ -781,49 +932,146 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                                         </select>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="block text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>
-                                            {t('leadforge.payout', 'Default Payout')}
-                                        </label>
+                                        <div className="flex items-center justify-between gap-2">
+                                            <label className="block text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>
+                                                {t('leadforge.payout', 'Payout')}
+                                            </label>
+                                            <label className="flex items-center gap-1.5 text-xs cursor-pointer select-none" style={{ color: 'var(--color-text-secondary)' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={useCustomPayout}
+                                                    onChange={(e) => setUseCustomPayout(e.target.checked)}
+                                                    className="rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                                                />
+                                                {t('leadforge.overridePayout', 'Fixed payout')}
+                                            </label>
+                                        </div>
                                         <div className="flex gap-2">
                                             <input
                                                 type="number"
                                                 step="0.1"
-                                                value={payout}
+                                                min="0"
+                                                disabled={!useCustomPayout}
+                                                value={useCustomPayout ? payout : ''}
+                                                placeholder={useCustomPayout ? '0.00' : t('leadforge.autoFromPostback', 'Auto (S2S postback)')}
                                                 onChange={(e) => setPayout(e.target.value)}
-                                                className="w-full px-3 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                                                className="w-full px-3 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] disabled:opacity-60 disabled:cursor-not-allowed"
                                                 style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                                             />
                                             <input
                                                 type="text"
+                                                disabled={!useCustomPayout}
                                                 value={currency}
                                                 onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-                                                className="w-16 px-2 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-bold text-center focus:outline-none"
+                                                className="w-16 px-2 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-bold text-center focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
                                                 style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                                             />
                                         </div>
                                     </div>
                                 </div>
-
-                                {landingGroups.length > 0 && (
-                                    <div className="space-y-2">
-                                        <label className="block text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>
-                                            {t('leadforge.landingGroup', 'Landing Group')}
-                                        </label>
-                                        <select
-                                            value={selectedGroupId}
-                                            onChange={(e) => setSelectedGroupId(e.target.value)}
-                                            className="w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none"
-                                            style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-                                        >
-                                            <option value="">{t('leadforge.noGroup', 'No Group')}</option>
-                                            {landingGroups.map(g => (
-                                                <option key={g.id} value={g.id}>{g.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                )}
                             </>
                         )}
+
+                        {/* Tracker destination: lander / direct local offer / both */}
+                        <div className="space-y-3 pt-3 border-t border-[var(--color-border)]">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                                {t('leadforge.destTitle', 'Tracker destination')}
+                            </h4>
+                            <div className="grid grid-cols-2 gap-2">
+                                {[
+                                    { id: 'none', icon: PackageX, label: t('leadforge.destNone', 'Not saved'), sub: t('leadforge.destNoneSub', 'ZIP only') },
+                                    { id: 'lander', icon: Globe, label: t('leadforge.destLander', 'Lander'), sub: t('leadforge.destLanderSub', 'Landings') },
+                                    { id: 'offer', icon: Tag, label: t('leadforge.destOffer', 'Local offer'), sub: t('leadforge.destOfferSub', 'Offers') },
+                                    { id: 'both', icon: Link2, label: t('leadforge.destBoth', 'Lander + Offer'), sub: t('leadforge.destBothSub', 'Linked pair') },
+                                ].map(d => {
+                                    const Icon = d.icon;
+                                    const active = destType === d.id;
+                                    return (
+                                        <button
+                                            key={d.id}
+                                            type="button"
+                                            onClick={() => setDestType(d.id)}
+                                            className={`py-2.5 px-2 rounded-xl border text-center transition cursor-pointer ${
+                                                active
+                                                    ? 'border-[var(--color-primary)] bg-[var(--color-primary)] shadow-sm'
+                                                    : 'border-[var(--color-border)] bg-[var(--color-bg-main)] hover:bg-[var(--color-bg-hover)]'
+                                            }`}
+                                            style={active
+                                                ? { color: 'var(--color-text-inverse, white)', boxShadow: 'var(--color-primary-shadow)' }
+                                                : { color: 'var(--color-text-primary)' }}
+                                        >
+                                            <Icon size={16} className="mx-auto mb-1" />
+                                            <div className="text-xs font-bold leading-none">{d.label}</div>
+                                            <div className={`text-[10px] mt-0.5 leading-none ${active ? 'opacity-75' : 'text-[var(--color-text-muted)]'}`}>{d.sub}</div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {destType !== 'none' && (
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>
+                                        {isOfferDest
+                                            ? t('leadforge.offerGroup', 'Offer Group')
+                                            : t('leadforge.landingGroup', 'Landing Group')}
+                                    </label>
+                                    {showNewGroup ? (
+                                        <div className="flex gap-2">
+                                            <input
+                                                autoFocus
+                                                type="text"
+                                                value={newGroupName}
+                                                disabled={creatingGroup}
+                                                onChange={(e) => setNewGroupName(e.target.value)}
+                                                onKeyDown={(e) => { if (e.key === 'Enter') handleCreateGroup(); if (e.key === 'Escape') setShowNewGroup(false); }}
+                                                placeholder={t('leadforge.newGroupName', 'New group name…')}
+                                                className="flex-1 px-3 py-2 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                                                style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={handleCreateGroup}
+                                                disabled={creatingGroup || !newGroupName.trim()}
+                                                className="px-3 py-2 rounded-xl text-sm font-bold border border-transparent flex items-center gap-1.5 disabled:opacity-50"
+                                                style={{ background: 'var(--color-primary)', color: 'var(--color-text-inverse, white)' }}
+                                            >
+                                                <Check size={14} /> {t('leadforge.createGroup', 'Create')}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => { setShowNewGroup(false); setNewGroupName(''); }}
+                                                className="px-2.5 py-2 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]"
+                                                title="Cancel"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="flex gap-2">
+                                            <select
+                                                value={destGroupId}
+                                                onChange={(e) => setDestGroupId(e.target.value)}
+                                                className="flex-1 px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none"
+                                                style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
+                                            >
+                                                <option value="">{t('leadforge.noGroup', 'No Group')}</option>
+                                                {destGroups.map(g => (
+                                                    <option key={g.id} value={g.id}>{g.name}</option>
+                                                ))}
+                                            </select>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowNewGroup(true)}
+                                                className="px-3 py-2.5 rounded-xl border border-[var(--color-border)] text-xs font-bold hover:bg-[var(--color-bg-hover)] flex items-center gap-1"
+                                                style={{ color: 'var(--color-text-primary)' }}
+                                            >
+                                                <Plus size={14} /> {t('leadforge.newGroup', 'New group')}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
 
                         {/* CRM Sync + Auto QA toggles */}
                         <div className="space-y-3 pt-3 border-t border-[var(--color-border)]">
@@ -954,31 +1202,6 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                                 </>
                             )}
 
-                            <label className="flex items-start gap-2.5 cursor-pointer text-xs select-none">
-                                <input
-                                    type="checkbox"
-                                    checked={options.autoSaveTracker}
-                                    onChange={(e) => setOptions({ ...options, autoSaveTracker: e.target.checked })}
-                                    className="mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-                                />
-                                <span style={{ color: 'var(--color-text-primary)' }}>
-                                    {t('leadforge.optSaveTracker', 'Auto-save to Tracker Landings library')}
-                                </span>
-                            </label>
-
-                            {options.autoSaveTracker && (
-                                <label className="flex items-start gap-2.5 cursor-pointer text-xs select-none">
-                                    <input
-                                        type="checkbox"
-                                        checked={options.autoCreateOffer}
-                                        onChange={(e) => setOptions({ ...options, autoCreateOffer: e.target.checked })}
-                                        className="mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-                                    />
-                                    <span style={{ color: 'var(--color-text-primary)' }}>
-                                        {t('leadforge.optCreateOffer', 'Auto-create a matching offer in the tracker')}
-                                    </span>
-                                </label>
-                            )}
                         </div>
                     </div>
                 </div>

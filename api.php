@@ -3249,9 +3249,13 @@ try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
                 if (!empty($data['name'])) {
-                    $stmt = $pdo->prepare("INSERT INTO landing_groups (name) VALUES (?)");
-                    $stmt->execute([$data['name']]);
-                    echo json_encode(['status' => 'success', 'data' => ['id' => $pdo->lastInsertId()]]);
+                    try {
+                        $stmt = $pdo->prepare("INSERT INTO landing_groups (name) VALUES (?)");
+                        $stmt->execute([$data['name']]);
+                        echo json_encode(['status' => 'success', 'data' => ['id' => $pdo->lastInsertId()]]);
+                    } catch (\Exception $e) {
+                        echo json_encode(['status' => 'error', 'message' => 'Group name already exists']);
+                    }
                 } else {
                     echo json_encode(['status' => 'error', 'message' => 'Missing name']);
                 }
@@ -3945,6 +3949,7 @@ try {
                     'payout' => floatval($_POST['payout'] ?? 0),
                     'currency' => strtoupper(trim($_POST['currency'] ?? 'USD')),
                     'group_id' => !empty($_POST['group_id']) ? intval($_POST['group_id']) : null,
+                    'target_type' => '',
                     'inject_offer_macro' => ($_POST['inject_offer_macro'] ?? '1') === '1',
                     'inject_js_adapter' => ($_POST['inject_js_adapter'] ?? '1') === '1',
                     'add_phone_mask' => ($_POST['add_phone_mask'] ?? '1') === '1',
@@ -3956,6 +3961,32 @@ try {
                     'auto_qa' => ($_POST['auto_qa'] ?? '0') === '1',
                     'base_url' => $lfScheme . '://' . ($_SERVER['HTTP_HOST'] ?? ''),
                 ];
+
+                // Destination type from the LeadForge panel. Empty = legacy
+                // caller driving auto_save_tracker/auto_create_offer instead.
+                $lfTargetType = strtolower(trim((string) ($_POST['target_type'] ?? '')));
+                if (in_array($lfTargetType, ['lander', 'offer', 'both'], true)) {
+                    $lfOpts['target_type'] = $lfTargetType;
+                }
+
+                // A new group is created once for the whole batch — per-bundle
+                // creation would trip UNIQUE(name) from the second bundle on.
+                // It overrides group_id (both tables are name-UNIQUE).
+                $lfNewGroupName = trim((string) ($_POST['new_group_name'] ?? ''));
+                if ($lfNewGroupName !== '') {
+                    $lfGroupTable = $lfOpts['target_type'] === 'offer' ? 'offer_groups' : 'landing_groups';
+                    try {
+                        $pdo->prepare("INSERT INTO {$lfGroupTable} (name) VALUES (?)")->execute([$lfNewGroupName]);
+                        $lfOpts['group_id'] = (int) $pdo->lastInsertId();
+                    } catch (Throwable $eG) {
+                        $stmtG = $pdo->prepare("SELECT id FROM {$lfGroupTable} WHERE name = ?");
+                        $stmtG->execute([$lfNewGroupName]);
+                        $lfExistingId = $stmtG->fetchColumn();
+                        if ($lfExistingId) {
+                            $lfOpts['group_id'] = (int) $lfExistingId;
+                        }
+                    }
+                }
 
                 $lfStaging = __DIR__ . '/data/leadforge_staging';
                 $lfOut = [];
@@ -12651,6 +12682,20 @@ try {
             }
 
             echo json_encode(['status' => 'error', 'message' => 'Test events are currently supported for Facebook and TikTok profiles.']);
+            break;
+
+        // Preflight for the 1-Click popup: tells the browser whether a Meta app
+        // exists at all (env vars, settings, or a manual connection's
+        // app_id/app_secret), so the Integrations UI can show a warning instead
+        // of opening a popup that is guaranteed to fail with "not configured".
+        case 'facebook_oauth_status':
+            $fbOauthCreds = orbitraFacebookOAuthCredentials($pdo);
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'configured' => $fbOauthCreds['app_id'] !== '' && $fbOauthCreds['app_secret'] !== '',
+                ],
+            ]);
             break;
 
         // Begin a popup-based Facebook Login flow for automatic ad-account discovery.

@@ -356,7 +356,9 @@ class LeadForge
      * @param array $card  the analysis card (from staging), may be null for a
      *                    blind one-shot build
      * @param array $opts mode/network/api_key/offer_id/geo/payout/currency/
-     *                    group_id/inject flags/generate flags/auto_save_tracker/
+     *                    group_id/target_type ('lander'|'offer'|'both'; empty =
+     *                    legacy auto_save_tracker/auto_create_offer pair)/
+     *                    inject flags/generate flags/auto_save_tracker/
      *                    auto_create_offer/crm_enabled/auto_qa/base_url/name
      * @return array ['ok'=>bool,'message'=>string,'logs'=>[],'result'=>[],'qa'=>[]]
      */
@@ -558,7 +560,36 @@ class LeadForge
         $landingId = null;
         $slug = '';
         $offerId = null;
-        if (!empty($opts['auto_save_tracker'])) {
+        // An explicit target_type (LeadForge panel) overrides the legacy
+        // auto_save_tracker/auto_create_offer pair; when absent the flags rule.
+        $targetType = in_array($opts['target_type'] ?? '', ['lander', 'offer', 'both'], true) ? $opts['target_type'] : '';
+        $autoSave = $targetType !== '' ? in_array($targetType, ['lander', 'both'], true) : !empty($opts['auto_save_tracker']);
+        $autoCreateOffer = $targetType !== '' ? $targetType === 'both' : !empty($opts['auto_create_offer']);
+        if ($targetType === 'offer') {
+            // Direct local offer: no landing record — the files live in the
+            // offer's own directory (/offers/{id}/), served through the
+            // orbitra_lo cookie route, exactly like a manually uploaded one.
+            $offerName = trim((string) ($opts['name'] ?? '')) ?: ('LeadForge ' . date('Ymd His'));
+            // offers.group_id is FK-bound to offer_groups — the panel sends an
+            // offer-group id here, never a landing_groups id.
+            $stmtOff = $pdo->prepare("INSERT INTO offers (name, group_id, affiliate_network_id, payout_value, is_local, state) VALUES (?, ?, NULL, ?, 1, 'active')");
+            $stmtOff->execute([$offerName, !empty($opts['group_id']) ? (int) $opts['group_id'] : null, (float) ($opts['payout'] ?? 0)]);
+            $offerId = (int) $pdo->lastInsertId();
+
+            $targetOfferDir = dirname(__DIR__) . '/offers/' . $offerId;
+            if (!is_dir($targetOfferDir)) {
+                @mkdir($targetOfferDir, 0775, true);
+            }
+            $ci = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($tempDir, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::SELF_FIRST
+            );
+            foreach ($ci as $item) {
+                $destPath = $targetOfferDir . '/' . $ci->getSubPathName();
+                $item->isDir() ? (!is_dir($destPath) && @mkdir($destPath, 0775, true)) : @copy($item->getPathname(), $destPath);
+            }
+            $log("Saved local offer '{$offerName}' (ID #{$offerId}) — files served from /offers/{$offerId}/");
+        } elseif ($autoSave) {
             $landingName = trim((string) ($opts['name'] ?? '')) ?: ('LeadForge ' . date('Ymd His'));
             $derivedSlug = orbitraSlugify($landingName);
             $slugCheck = orbitraValidateLandingSlug($pdo, $derivedSlug, null);
@@ -597,11 +628,22 @@ class LeadForge
 
             // A matching local offer. offers has no payout_currency column —
             // the conversion carries the currency, not the offer.
-            if (!empty($opts['auto_create_offer'])) {
+            if ($autoCreateOffer) {
+                // offers.group_id is FK-bound to offer_groups, so a landing
+                // group id must not be copied as-is (PRAGMA foreign_keys=ON):
+                // link the same-named offer group when one exists, else none.
+                $offerGroupId = null;
+                if (!empty($opts['group_id'])) {
+                    $stmtGN = $pdo->prepare(
+                        "SELECT og.id FROM offer_groups og JOIN landing_groups lg ON lg.name = og.name WHERE lg.id = ?"
+                    );
+                    $stmtGN->execute([(int) $opts['group_id']]);
+                    $offerGroupId = $stmtGN->fetchColumn() ?: null;
+                }
                 $stmtOff = $pdo->prepare("INSERT INTO offers (name, group_id, affiliate_network_id, payout_value, is_local, state) VALUES (?, ?, NULL, ?, 0, 'active')");
-                $stmtOff->execute([$landingName . ' [Offer]', !empty($opts['group_id']) ? (int) $opts['group_id'] : null, (float) ($opts['payout'] ?? 0)]);
+                $stmtOff->execute([$landingName . ' [Offer]', $offerGroupId, (float) ($opts['payout'] ?? 0)]);
                 $offerId = (int) $pdo->lastInsertId();
-                $log("Created matching offer #{$offerId}");
+                $log("Created matching offer #{$offerId}" . ($offerGroupId ? ' (linked to the same-named offer group)' : ''));
             }
         }
 
@@ -622,7 +664,9 @@ class LeadForge
                 ? "[QA PASS] confidence {$qa['confidence']}% (" . implode(', ', array_keys(array_filter(array_map(fn($c) => $c['passed'], $qa['checks'])))) . ')'
                 : "[QA FAIL: " . ($qa['fail_reason'] ?? 'checks failed') . "] confidence {$qa['confidence']}%");
         } elseif (!empty($opts['auto_qa'])) {
-            $log('Auto QA skipped: needs order.php and auto-save to tracker');
+            $log($targetType === 'offer'
+                ? 'Auto QA skipped: direct local offers have no landing record to QA'
+                : 'Auto QA skipped: needs order.php and auto-save to tracker');
         }
 
         self::rrmdir($tempDir);
@@ -644,6 +688,7 @@ class LeadForge
                 'geo' => $geo,
                 'network' => $network,
                 'mode' => $mode,
+                'target_type' => $targetType !== '' ? $targetType : null,
             ],
         ];
     }

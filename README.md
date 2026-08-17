@@ -1,4 +1,4 @@
-# Orbitra v1.0.3 Tracker
+# Orbitra v1.0.4 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -422,14 +422,14 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.0.3 (2026-08-17)
-- 🔍 **Find & Replace in the code editor** — Ctrl/Cmd+F / Ctrl/Cmd+H opens a VS Code-style widget over the landing editor: case, whole-word and regex modifiers, a live `N of M` counter, Enter/Shift+Enter navigation that scrolls to each match (minified one-liners included), single Replace and count-verified Replace All, query seeded from the selection
-- 🖥️ **Full-width CRM & LeadForge** — the 1280px cap and its side voids are gone (both pages match the dashboard now), and the duplicated page title above their hero headers no longer renders
-- 🧾 **CRM polish** — Approval Rate under the Approved Sales card, a rose-tinted Shave Suspects card reporting only lost-in-transit, hover copy buttons for SubID and phone in the leads table
-- 🌍 **79-GEO coverage** — the LeadForge country picker grows from 13 to 79 countries grouped by Europe / Americas / Asia / MENA & Africa, with matching mobile phone masks in the build engine (order.php generation, adapter validation, Auto QA scoring)
-- 🔐 **Fix: API key + session coexistence** — a key arriving on a signed-in browser request is honored only when it belongs to the same user (403 otherwise); the live panel session is never re-identified as api_key
+### Current release — v1.0.4 (2026-08-17)
+- 🎯 **LeadForge: Tracker destination** — save each bundle as a local lander, a **direct local offer** (`is_local`, files served by the tracker from `/offers/<id>/`, no landing record), or the linked lander+offer pair; "ZIP only" replaces the old auto-save checkboxes. Groups follow the destination (landing vs offer groups) and can be created inline via "+ New group" — duplicates select the existing group
+- 💰 **Opt-in fixed payout** — nothing is hardcoded into the build by default; real revenue comes from the network's S2S postback unless "Fixed payout" is checked
+- 📅 **Fix: calendar off-screen** — the date-range panel measures the viewport and opens to the side that fits (the Landings toolbar put it ~300px past the left window edge); Campaigns/Offers/CampaignReports unchanged
+- 🗄️ **Fix: offer-group FK failure** — building with a group + auto-create offer could fail the whole bundle (`offers.group_id` is FK-bound to `offer_groups`); the offer now links a same-named offer group, else none
+- 🔵 **Facebook OAuth preflight** — the 1-Click button disables with a warning when no Meta app is configured, plus a where-to-get-a-token hint; ⚙️ PHP landings on by default with the toggle in Settings → General
 
-Previous release — v1.0.2: LeadForge 2.0 (Analyze→Build, Auto/Cross/Raw modes, Live Auto QA) + CRM Anti-Shaving Vault with shave detection; order.php bridge timeout + router.php fixes.
+Previous release — v1.0.3: Find & Replace in the landing code editor; full-width CRM & LeadForge; CRM KPI polish; LeadForge GEO coverage 13 → 79 countries; fix for API key + panel session coexistence.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

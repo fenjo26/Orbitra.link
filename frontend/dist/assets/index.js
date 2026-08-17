@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$27 = [
+const __iconNode$28 = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$27 = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$27);
-const __iconNode$26 = [
+const Activity = createLucideIcon("activity", __iconNode$28);
+const __iconNode$27 = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$26);
-const __iconNode$25 = [
+const Archive = createLucideIcon("archive", __iconNode$27);
+const __iconNode$26 = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$25);
-const __iconNode$24 = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$26);
+const __iconNode$25 = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$24);
-const __iconNode$23 = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$25);
+const __iconNode$24 = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$23);
-const __iconNode$22 = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$24);
+const __iconNode$23 = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$22 = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$22);
-const __iconNode$21 = [
+const BellOff = createLucideIcon("bell-off", __iconNode$23);
+const __iconNode$22 = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$21 = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$21);
-const __iconNode$20 = [
+const Bell = createLucideIcon("bell", __iconNode$22);
+const __iconNode$21 = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$20);
-const __iconNode$1$ = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$21);
+const __iconNode$20 = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1$);
-const __iconNode$1_ = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$20);
+const __iconNode$1$ = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1_);
-const __iconNode$1Z = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1$);
+const __iconNode$1_ = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$1Z = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1Z);
-const __iconNode$1Y = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1Y);
-const __iconNode$1X = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1X);
-const __iconNode$1W = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1W);
-const __iconNode$1V = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1V);
-const __iconNode$1U = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1U);
-const __iconNode$1T = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1_);
+const __iconNode$1Z = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1Z);
+const __iconNode$1Y = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1Y);
+const __iconNode$1X = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1X);
+const __iconNode$1W = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1W);
+const __iconNode$1V = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1V);
+const __iconNode$1U = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1T);
-const __iconNode$1S = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1U);
+const __iconNode$1T = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1S);
-const __iconNode$1R = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1T);
+const __iconNode$1S = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1R);
-const __iconNode$1Q = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1S);
+const __iconNode$1R = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1Q);
-const __iconNode$1P = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1R);
+const __iconNode$1Q = [
   [
     "path",
     {
@@ -15240,50 +15240,50 @@ const __iconNode$1P = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1P);
-const __iconNode$1O = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1Q);
+const __iconNode$1P = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1O);
-const __iconNode$1N = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1P);
+const __iconNode$1O = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1N);
-const __iconNode$1M = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1O);
+const __iconNode$1N = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1M);
-const __iconNode$1L = [
+const Clock = createLucideIcon("clock", __iconNode$1N);
+const __iconNode$1M = [
   ["path", { d: "M12 13v8", key: "1l5pq0" }],
   ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
   ["path", { d: "m8 17 4-4 4 4", key: "1quai1" }]
 ];
-const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1L);
-const __iconNode$1K = [
+const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1M);
+const __iconNode$1L = [
   ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1K);
-const __iconNode$1J = [
+const Cloud = createLucideIcon("cloud", __iconNode$1L);
+const __iconNode$1K = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1J);
-const __iconNode$1I = [
+const Code = createLucideIcon("code", __iconNode$1K);
+const __iconNode$1J = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M12 3v18", key: "108xh3" }]
 ];
-const Columns2 = createLucideIcon("columns-2", __iconNode$1I);
-const __iconNode$1H = [
+const Columns2 = createLucideIcon("columns-2", __iconNode$1J);
+const __iconNode$1I = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1H);
-const __iconNode$1G = [
+const Copy = createLucideIcon("copy", __iconNode$1I);
+const __iconNode$1H = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15299,33 +15299,33 @@ const __iconNode$1G = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1G);
-const __iconNode$1F = [
+const Cpu = createLucideIcon("cpu", __iconNode$1H);
+const __iconNode$1G = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "22", x2: "18", y1: "12", y2: "12", key: "l9bcsi" }],
   ["line", { x1: "6", x2: "2", y1: "12", y2: "12", key: "13hhkx" }],
   ["line", { x1: "12", x2: "12", y1: "6", y2: "2", key: "10w3f3" }],
   ["line", { x1: "12", x2: "12", y1: "22", y2: "18", key: "15g9kq" }]
 ];
-const Crosshair = createLucideIcon("crosshair", __iconNode$1F);
-const __iconNode$1E = [
+const Crosshair = createLucideIcon("crosshair", __iconNode$1G);
+const __iconNode$1F = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1E);
-const __iconNode$1D = [
+const Database = createLucideIcon("database", __iconNode$1F);
+const __iconNode$1E = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$1D);
-const __iconNode$1C = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1E);
+const __iconNode$1D = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$1C);
-const __iconNode$1B = [
+const Download = createLucideIcon("download", __iconNode$1D);
+const __iconNode$1C = [
   [
     "path",
     {
@@ -15334,20 +15334,20 @@ const __iconNode$1B = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$1B);
-const __iconNode$1A = [
+const Droplet = createLucideIcon("droplet", __iconNode$1C);
+const __iconNode$1B = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1A);
-const __iconNode$1z = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1B);
+const __iconNode$1A = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$1z);
-const __iconNode$1y = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$1A);
+const __iconNode$1z = [
   [
     "path",
     {
@@ -15365,8 +15365,8 @@ const __iconNode$1y = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$1y);
-const __iconNode$1x = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$1z);
+const __iconNode$1y = [
   [
     "path",
     {
@@ -15376,8 +15376,8 @@ const __iconNode$1x = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$1x);
-const __iconNode$1w = [
+const Eye = createLucideIcon("eye", __iconNode$1y);
+const __iconNode$1x = [
   [
     "path",
     {
@@ -15391,8 +15391,8 @@ const __iconNode$1w = [
   ["path", { d: "M8 7V6", key: "1nbb54" }],
   ["circle", { cx: "8", cy: "20", r: "2", key: "ckkr5m" }]
 ];
-const FileArchive = createLucideIcon("file-archive", __iconNode$1w);
-const __iconNode$1v = [
+const FileArchive = createLucideIcon("file-archive", __iconNode$1x);
+const __iconNode$1w = [
   [
     "path",
     {
@@ -15404,8 +15404,8 @@ const __iconNode$1v = [
   ["path", { d: "M10 12.5 8 15l2 2.5", key: "1tg20x" }],
   ["path", { d: "m14 12.5 2 2.5-2 2.5", key: "yinavb" }]
 ];
-const FileCode = createLucideIcon("file-code", __iconNode$1v);
-const __iconNode$1u = [
+const FileCode = createLucideIcon("file-code", __iconNode$1w);
+const __iconNode$1v = [
   [
     "path",
     {
@@ -15417,8 +15417,8 @@ const __iconNode$1u = [
   ["circle", { cx: "11.5", cy: "14.5", r: "2.5", key: "1bq0ko" }],
   ["path", { d: "M13.3 16.3 15 18", key: "2quom7" }]
 ];
-const FileSearch = createLucideIcon("file-search", __iconNode$1u);
-const __iconNode$1t = [
+const FileSearch = createLucideIcon("file-search", __iconNode$1v);
+const __iconNode$1u = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15429,8 +15429,8 @@ const __iconNode$1t = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$1t);
-const __iconNode$1s = [
+const FileStack = createLucideIcon("file-stack", __iconNode$1u);
+const __iconNode$1t = [
   [
     "path",
     {
@@ -15443,8 +15443,8 @@ const __iconNode$1s = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$1s);
-const __iconNode$1r = [
+const FileText = createLucideIcon("file-text", __iconNode$1t);
+const __iconNode$1s = [
   [
     "path",
     {
@@ -15453,22 +15453,22 @@ const __iconNode$1r = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$1r);
-const __iconNode$1q = [
+const Funnel = createLucideIcon("funnel", __iconNode$1s);
+const __iconNode$1r = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$1q);
-const __iconNode$1p = [
+const Globe = createLucideIcon("globe", __iconNode$1r);
+const __iconNode$1q = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }],
   ["path", { d: "M9 3v18", key: "fh3hqa" }],
   ["path", { d: "M15 3v18", key: "14nvp0" }]
 ];
-const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1p);
-const __iconNode$1o = [
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1q);
+const __iconNode$1p = [
   ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
   ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
   ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
@@ -15476,8 +15476,8 @@ const __iconNode$1o = [
   ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
   ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
 ];
-const GripVertical = createLucideIcon("grip-vertical", __iconNode$1o);
-const __iconNode$1n = [
+const GripVertical = createLucideIcon("grip-vertical", __iconNode$1p);
+const __iconNode$1o = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15489,8 +15489,8 @@ const __iconNode$1n = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$1n);
-const __iconNode$1m = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$1o);
+const __iconNode$1n = [
   [
     "path",
     {
@@ -15499,20 +15499,20 @@ const __iconNode$1m = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$1m);
-const __iconNode$1l = [
+const Heart = createLucideIcon("heart", __iconNode$1n);
+const __iconNode$1m = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$1l);
-const __iconNode$1k = [
+const Image = createLucideIcon("image", __iconNode$1m);
+const __iconNode$1l = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$1k);
-const __iconNode$1j = [
+const Info = createLucideIcon("info", __iconNode$1l);
+const __iconNode$1k = [
   [
     "path",
     {
@@ -15522,14 +15522,14 @@ const __iconNode$1j = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$1j);
-const __iconNode$1i = [
+const KeyRound = createLucideIcon("key-round", __iconNode$1k);
+const __iconNode$1j = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$1i);
-const __iconNode$1h = [
+const Key = createLucideIcon("key", __iconNode$1j);
+const __iconNode$1i = [
   [
     "path",
     {
@@ -15552,28 +15552,28 @@ const __iconNode$1h = [
     }
   ]
 ];
-const Layers = createLucideIcon("layers", __iconNode$1h);
-const __iconNode$1g = [
+const Layers = createLucideIcon("layers", __iconNode$1i);
+const __iconNode$1h = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$1g);
-const __iconNode$1f = [
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$1h);
+const __iconNode$1g = [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
   ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
   ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
 ];
-const LayoutGrid = createLucideIcon("layout-grid", __iconNode$1f);
-const __iconNode$1e = [
+const LayoutGrid = createLucideIcon("layout-grid", __iconNode$1g);
+const __iconNode$1f = [
   ["rect", { width: "18", height: "7", x: "3", y: "3", rx: "1", key: "f1a2em" }],
   ["rect", { width: "9", height: "7", x: "3", y: "14", rx: "1", key: "jqznyg" }],
   ["rect", { width: "5", height: "7", x: "16", y: "14", rx: "1", key: "q5h2i8" }]
 ];
-const LayoutTemplate = createLucideIcon("layout-template", __iconNode$1e);
-const __iconNode$1d = [
+const LayoutTemplate = createLucideIcon("layout-template", __iconNode$1f);
+const __iconNode$1e = [
   [
     "path",
     {
@@ -15584,19 +15584,19 @@ const __iconNode$1d = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$1d);
-const __iconNode$1c = [
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$1e);
+const __iconNode$1d = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-const Link2 = createLucideIcon("link-2", __iconNode$1c);
-const __iconNode$1b = [
+const Link2 = createLucideIcon("link-2", __iconNode$1d);
+const __iconNode$1c = [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ];
-const Link = createLucideIcon("link", __iconNode$1b);
-const __iconNode$1a = [
+const Link = createLucideIcon("link", __iconNode$1c);
+const __iconNode$1b = [
   ["path", { d: "M12 2v4", key: "3427ic" }],
   ["path", { d: "m16.2 7.8 2.9-2.9", key: "r700ao" }],
   ["path", { d: "M18 12h4", key: "wj9ykh" }],
@@ -15606,24 +15606,24 @@ const __iconNode$1a = [
   ["path", { d: "M2 12h4", key: "j09sii" }],
   ["path", { d: "m4.9 4.9 2.9 2.9", key: "giyufr" }]
 ];
-const Loader = createLucideIcon("loader", __iconNode$1a);
-const __iconNode$19 = [
+const Loader = createLucideIcon("loader", __iconNode$1b);
+const __iconNode$1a = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$19);
-const __iconNode$18 = [
+const Lock = createLucideIcon("lock", __iconNode$1a);
+const __iconNode$19 = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$18);
-const __iconNode$17 = [
+const LogOut = createLucideIcon("log-out", __iconNode$19);
+const __iconNode$18 = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Mail = createLucideIcon("mail", __iconNode$17);
-const __iconNode$16 = [
+const Mail = createLucideIcon("mail", __iconNode$18);
+const __iconNode$17 = [
   [
     "path",
     {
@@ -15633,8 +15633,8 @@ const __iconNode$16 = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$16);
-const __iconNode$15 = [
+const MapPin = createLucideIcon("map-pin", __iconNode$17);
+const __iconNode$16 = [
   [
     "path",
     {
@@ -15645,21 +15645,21 @@ const __iconNode$15 = [
   ["path", { d: "M15 5.764v15", key: "1pn4in" }],
   ["path", { d: "M9 3.236v15", key: "1uimfh" }]
 ];
-const Map$1 = createLucideIcon("map", __iconNode$15);
-const __iconNode$14 = [
+const Map$1 = createLucideIcon("map", __iconNode$16);
+const __iconNode$15 = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "m21 3-7 7", key: "1l2asr" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M9 21H3v-6", key: "wtvkvv" }]
 ];
-const Maximize2 = createLucideIcon("maximize-2", __iconNode$14);
-const __iconNode$13 = [
+const Maximize2 = createLucideIcon("maximize-2", __iconNode$15);
+const __iconNode$14 = [
   ["path", { d: "M4 5h16", key: "1tepv9" }],
   ["path", { d: "M4 12h16", key: "1lakjw" }],
   ["path", { d: "M4 19h16", key: "1djgab" }]
 ];
-const Menu = createLucideIcon("menu", __iconNode$13);
-const __iconNode$12 = [
+const Menu = createLucideIcon("menu", __iconNode$14);
+const __iconNode$13 = [
   [
     "path",
     {
@@ -15668,8 +15668,8 @@ const __iconNode$12 = [
     }
   ]
 ];
-const MessageCircle = createLucideIcon("message-circle", __iconNode$12);
-const __iconNode$11 = [
+const MessageCircle = createLucideIcon("message-circle", __iconNode$13);
+const __iconNode$12 = [
   [
     "path",
     {
@@ -15678,21 +15678,21 @@ const __iconNode$11 = [
     }
   ]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$11);
-const __iconNode$10 = [
+const MessageSquare = createLucideIcon("message-square", __iconNode$12);
+const __iconNode$11 = [
   ["path", { d: "m14 10 7-7", key: "oa77jy" }],
   ["path", { d: "M20 10h-6V4", key: "mjg0md" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M4 14h6v6", key: "rmj7iw" }]
 ];
-const Minimize2 = createLucideIcon("minimize-2", __iconNode$10);
-const __iconNode$$ = [
+const Minimize2 = createLucideIcon("minimize-2", __iconNode$11);
+const __iconNode$10 = [
   ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
   ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
   ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
 ];
-const Monitor = createLucideIcon("monitor", __iconNode$$);
-const __iconNode$_ = [
+const Monitor = createLucideIcon("monitor", __iconNode$10);
+const __iconNode$$ = [
   [
     "path",
     {
@@ -15701,21 +15701,21 @@ const __iconNode$_ = [
     }
   ]
 ];
-const Moon = createLucideIcon("moon", __iconNode$_);
-const __iconNode$Z = [
+const Moon = createLucideIcon("moon", __iconNode$$);
+const __iconNode$_ = [
   ["circle", { cx: "8", cy: "18", r: "4", key: "1fc0mg" }],
   ["path", { d: "M12 18V2l7 4", key: "g04rme" }]
 ];
-const Music2 = createLucideIcon("music-2", __iconNode$Z);
-const __iconNode$Y = [
+const Music2 = createLucideIcon("music-2", __iconNode$_);
+const __iconNode$Z = [
   ["rect", { x: "16", y: "16", width: "6", height: "6", rx: "1", key: "4q2zg0" }],
   ["rect", { x: "2", y: "16", width: "6", height: "6", rx: "1", key: "8cvhb9" }],
   ["rect", { x: "9", y: "2", width: "6", height: "6", rx: "1", key: "1egb70" }],
   ["path", { d: "M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3", key: "1jsf9p" }],
   ["path", { d: "M12 12V8", key: "2874zd" }]
 ];
-const Network = createLucideIcon("network", __iconNode$Y);
-const __iconNode$X = [
+const Network = createLucideIcon("network", __iconNode$Z);
+const __iconNode$Y = [
   ["path", { d: "M12 22v-9", key: "x3hkom" }],
   [
     "path",
@@ -15739,7 +15739,21 @@ const __iconNode$X = [
     }
   ]
 ];
-const PackageOpen = createLucideIcon("package-open", __iconNode$X);
+const PackageOpen = createLucideIcon("package-open", __iconNode$Y);
+const __iconNode$X = [
+  [
+    "path",
+    {
+      d: "M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14",
+      key: "e7tb2h"
+    }
+  ],
+  ["path", { d: "m7.5 4.27 9 5.15", key: "1c824w" }],
+  ["polyline", { points: "3.29 7 12 12 20.71 7", key: "ousv84" }],
+  ["line", { x1: "12", x2: "12", y1: "22", y2: "12", key: "a4e8g8" }],
+  ["path", { d: "m17 13 5 5m-5 0 5-5", key: "im3w4b" }]
+];
+const PackageX = createLucideIcon("package-x", __iconNode$X);
 const __iconNode$W = [
   [
     "path",
@@ -19158,6 +19172,10 @@ const ru = {
     "tokenExtended": "Токен продлён на 60 дней",
     "customApp": "Собственное Meta App (опционально)",
     "customAppHint": "Нужно только для продления токена и редких апп-специфичных сетапов — общему приложению инстанса или готовому долгоживущему токену ничего не требуется.",
+    "oauthNotConfiguredTitle": "1-Click OAuth не настроен",
+    "oauthNotConfiguredHint": "Задайте ORBITRA_META_APP_ID и ORBITRA_META_APP_SECRET на сервере либо раскройте «Собственное Meta App» ниже и сохраните App ID / App Secret. А можно вообще обойтись без 1-Click — подключитесь вручную по Access Token в форме ниже, как в Keitaro.",
+    "tokenHowTo": "Как получить Access Token",
+    "tokenHowToHint": "1. Откройте Meta for Developers → ваше приложение или Business Settings → System Users.\n2. Создайте системного пользователя с админ-доступом к вашему Business Manager.\n3. Сгенерируйте токен с правами ads_read и ads_management.\n4. Вставьте его выше вместе с ID рекламного кабинета (act_…).",
     "advancedHint": "Нужно, только если трафик идёт через приложение, которое перепаковывает макросы Facebook в sub ID. Оставьте пустым, чтобы использовать стандартные ad_id / adset_id / campaign_id.",
     "ad_id_param": "Ad ID приходит в параметре",
     "adset_id_param": "Adset ID приходит в параметре",
@@ -19371,8 +19389,31 @@ const ru = {
     "geoAsia": "Азия",
     "geoMena": "Ближний Восток и Африка",
     "currency": "Валюта",
-    "payout": "Выплата по умолчанию",
+    "payout": "Выплата",
+    "overridePayout": "Фиксированная выплата",
+    "autoFromPostback": "Авто (S2S постбек)",
+    "phpBannerTitle": "PHP-лендинги отключены в настройках трекера",
+    "phpBannerHint": "Для компиляции order.php под CPA-сети (Dr.Cash, Leadbit…) требуются включённые PHP-лендинги — пока настройка выключена, сборка каждого бандла падает с php_landings_disabled.",
+    "phpEnableButton": "Включить в 1 клик",
+    "phpEnabledLog": "PHP-лендинги включены — пересоберите бандлы",
+    "phpEnableDenied": "Не удалось включить PHP-лендинги: требуется сессия администратора (Настройки → General).",
+    "phpDisabledHint": "PHP-лендинги отключены — включите «Allow PHP landings» (баннер выше или Настройки → General) и пересоберите.",
     "landingGroup": "Группа лендингов",
+    "destTitle": "Назначение в трекере",
+    "destNone": "Не сохранять",
+    "destNoneSub": "только ZIP",
+    "destLander": "Лендинг",
+    "destLanderSub": "в Landings",
+    "destOffer": "Лок. оффер",
+    "destOfferSub": "в Offers",
+    "destBoth": "Лендинг + оффер",
+    "destBothSub": "связка",
+    "offerGroup": "Группа офферов",
+    "newGroup": "Новая группа",
+    "newGroupName": "Название новой группы…",
+    "createGroup": "Создать",
+    "localOfferBadge": "Локальный оффер",
+    "linkedOfferBadge": "Оффер",
     "forgeButton": "⚡ Forge & Save to Tracker",
     "forging": "⚡ Обработка и интеграция...",
     "forgeSuccess": "Пакетная обработка лендингов успешно завершена!",
@@ -22399,6 +22440,10 @@ const en = {
     "tokenExtended": "Token extended to 60 days",
     "customApp": "Custom Meta App (Optional)",
     "customAppHint": "Only needed for token extension and rare app-scoped setups — the shared instance app or a ready long-lived token needs nothing here.",
+    "oauthNotConfiguredTitle": "1-Click OAuth is not configured",
+    "oauthNotConfiguredHint": "Set ORBITRA_META_APP_ID and ORBITRA_META_APP_SECRET on the server, or expand “Custom Meta App” below and save an App ID / App Secret. You can also skip 1-Click entirely: connect manually with an Access Token in the form below — the Keitaro way.",
+    "tokenHowTo": "How to get an Access Token",
+    "tokenHowToHint": "1. Open Meta for Developers → your app, or Business Settings → System Users.\n2. Create a System User with admin access to your Business Manager.\n3. Generate an access token with the ads_read and ads_management permissions.\n4. Paste it above together with your Ad Account ID (act_…).",
     "advancedHint": "Only needed when traffic passes through an app that repacks the Facebook macros into sub IDs. Leave empty to use the standard ad_id / adset_id / campaign_id.",
     "ad_id_param": "Ad ID arrives in parameter",
     "adset_id_param": "Adset ID arrives in parameter",
@@ -22612,8 +22657,31 @@ const en = {
     "geoAsia": "Asia",
     "geoMena": "MENA & Africa",
     "currency": "Currency",
-    "payout": "Default Payout",
+    "payout": "Payout",
+    "overridePayout": "Fixed payout",
+    "autoFromPostback": "Auto (S2S postback)",
+    "phpBannerTitle": "PHP landings are disabled in tracker settings",
+    "phpBannerHint": "Compiling order.php for CPA networks (Dr.Cash, Leadbit…) requires PHP landings — every bundle build fails with php_landings_disabled while this is off.",
+    "phpEnableButton": "Enable in 1 click",
+    "phpEnabledLog": "PHP landings enabled — rebuild the bundles",
+    "phpEnableDenied": "Could not enable PHP landings: an admin session is required (Settings → General).",
+    "phpDisabledHint": 'PHP landings are disabled — enable "Allow PHP landings" (banner above or Settings → General) and rebuild.',
     "landingGroup": "Landing Group",
+    "destTitle": "Tracker destination",
+    "destNone": "Not saved",
+    "destNoneSub": "ZIP only",
+    "destLander": "Lander",
+    "destLanderSub": "Landings",
+    "destOffer": "Local offer",
+    "destOfferSub": "Offers",
+    "destBoth": "Lander + Offer",
+    "destBothSub": "Linked pair",
+    "offerGroup": "Offer Group",
+    "newGroup": "New group",
+    "newGroupName": "New group name…",
+    "createGroup": "Create",
+    "localOfferBadge": "Local offer",
+    "linkedOfferBadge": "Offer",
     "forgeButton": "⚡ Forge & Save to Tracker",
     "forging": "⚡ Forging Landings...",
     "forgeSuccess": "Batch forging completed successfully!",
@@ -25640,6 +25708,10 @@ const uk = {
     "tokenExtended": "Токен продовжено на 60 днів",
     "customApp": "Власний Meta App (опційно)",
     "customAppHint": "Потрібно лише для продовження токена та рідкісних апп-специфічних налаштувань — спільному застосунку інстанса або готовому довгоживучому токену нічого не потрібно.",
+    "oauthNotConfiguredTitle": "1-Click OAuth не налаштовано",
+    "oauthNotConfiguredHint": "Задайте ORBITRA_META_APP_ID і ORBITRA_META_APP_SECRET на сервері або розкрийте «Власний Meta App» нижче та збережіть App ID / App Secret. А можна взагалі обійтися без 1-Click — підключіться вручну через Access Token у формі нижче, як у Keitaro.",
+    "tokenHowTo": "Як отримати Access Token",
+    "tokenHowToHint": "1. Відкрийте Meta for Developers → ваш застосунок або Business Settings → System Users.\n2. Створіть системного користувача з адмін-доступом до вашого Business Manager.\n3. Згенеруйте токен із правами ads_read і ads_management.\n4. Вставте його вище разом із ID рекламного кабінету (act_…).",
     "advancedHint": "Потрібно лише якщо трафік іде через застосунок, який перепаковує макроси Facebook у sub ID. Залиште порожнім, щоб використовувати стандартні ad_id / adset_id / campaign_id.",
     "ad_id_param": "Ad ID надходить у параметрі",
     "adset_id_param": "Adset ID надходить у параметрі",
@@ -25853,8 +25925,31 @@ const uk = {
     "geoAsia": "Азія",
     "geoMena": "Близький Схід та Африка",
     "currency": "Валюта",
-    "payout": "Виплата за замовчуванням",
+    "payout": "Виплата",
+    "overridePayout": "Фіксована виплата",
+    "autoFromPostback": "Авто (S2S постбек)",
+    "phpBannerTitle": "PHP-лендінги вимкнено в налаштуваннях трекера",
+    "phpBannerHint": "Компіляція order.php під CPA-мережі (Dr.Cash, Leadbit…) потребує увімкнених PHP-лендінгів — поки налаштування вимкнено, збірка кожного бандла падає з php_landings_disabled.",
+    "phpEnableButton": "Увімкнути в 1 клік",
+    "phpEnabledLog": "PHP-лендінги увімкнено — пересберіть бандли",
+    "phpEnableDenied": "Не вдалося увімкнути PHP-лендінги: потрібна сесія адміністратора (Налаштування → General).",
+    "phpDisabledHint": "PHP-лендінги вимкнено — увімкніть «Allow PHP landings» (банер вище або Налаштування → General) і пересберіть.",
     "landingGroup": "Група лендінгів",
+    "destTitle": "Призначення в трекері",
+    "destNone": "Не зберігати",
+    "destNoneSub": "лише ZIP",
+    "destLander": "Лендінг",
+    "destLanderSub": "у Landings",
+    "destOffer": "Лок. оффер",
+    "destOfferSub": "у Offers",
+    "destBoth": "Лендінг + оффер",
+    "destBothSub": "зв'язка",
+    "offerGroup": "Група офферів",
+    "newGroup": "Нова група",
+    "newGroupName": "Назва нової групи…",
+    "createGroup": "Створити",
+    "localOfferBadge": "Локальний оффер",
+    "linkedOfferBadge": "Оффер",
     "forgeButton": "⚡ Forge & Save to Tracker",
     "forging": "⚡ Обробка та інтеграція...",
     "forgeSuccess": "Пакетну обробку лендінгів успішно завершено!",
@@ -28881,6 +28976,10 @@ const es = {
     "tokenExtended": "Token extendido a 60 días",
     "customApp": "Meta App personalizada (Opcional)",
     "customAppHint": "Solo necesario para extender tokens y configuraciones raras por app — la app compartida de la instancia o un token de larga duración listo no necesita nada aquí.",
+    "oauthNotConfiguredTitle": "1-Click OAuth no está configurado",
+    "oauthNotConfiguredHint": "Configure ORBITRA_META_APP_ID y ORBITRA_META_APP_SECRET en el servidor, o despliegue «Meta App personalizada» abajo y guarde un App ID / App Secret. También puede omitir el 1-Click por completo: conéctese manualmente con un Access Token en el formulario de abajo — como en Keitaro.",
+    "tokenHowTo": "Cómo obtener un Access Token",
+    "tokenHowToHint": "1. Abra Meta for Developers → su aplicación, o Business Settings → System Users.\n2. Cree un usuario del sistema con acceso de administrador a su Business Manager.\n3. Genere un token con los permisos ads_read y ads_management.\n4. Péguelo arriba junto con el ID de su cuenta publicitaria (act_…).",
     "advancedHint": "Solo necesario cuando el tráfico pasa por una app que reempaqueta las macros de Facebook en sub IDs. Déjalo vacío para usar ad_id / adset_id / campaign_id estándar.",
     "ad_id_param": "El Ad ID llega en el parámetro",
     "adset_id_param": "El Adset ID llega en el parámetro",
@@ -29094,8 +29193,31 @@ const es = {
     "geoAsia": "Asia",
     "geoMena": "Oriente Medio y África",
     "currency": "Moneda",
-    "payout": "Pago predeterminado",
+    "payout": "Pago",
+    "overridePayout": "Pago fijo",
+    "autoFromPostback": "Auto (postback S2S)",
+    "phpBannerTitle": "Los landings PHP están desactivados en los ajustes del tracker",
+    "phpBannerHint": "Compilar order.php para redes CPA (Dr.Cash, Leadbit…) requiere landings PHP — mientras esté apagado, cada build de bundle falla con php_landings_disabled.",
+    "phpEnableButton": "Activar en 1 clic",
+    "phpEnabledLog": "Landings PHP activados — reconstruya los bundles",
+    "phpEnableDenied": "No se pudieron activar los landings PHP: se requiere una sesión de administrador (Ajustes → General).",
+    "phpDisabledHint": "Los landings PHP están desactivados — active «Allow PHP landings» (banner de arriba o Ajustes → General) y reconstruya.",
     "landingGroup": "Grupo de landings",
+    "destTitle": "Destino en el tracker",
+    "destNone": "No guardar",
+    "destNoneSub": "solo ZIP",
+    "destLander": "Lander",
+    "destLanderSub": "Landings",
+    "destOffer": "Offer local",
+    "destOfferSub": "Offers",
+    "destBoth": "Lander + Offer",
+    "destBothSub": "Pareja enlazada",
+    "offerGroup": "Grupo de offers",
+    "newGroup": "Nuevo grupo",
+    "newGroupName": "Nombre del nuevo grupo…",
+    "createGroup": "Crear",
+    "localOfferBadge": "Offer local",
+    "linkedOfferBadge": "Offer",
     "forgeButton": "⚡ Forge & Save to Tracker",
     "forging": "⚡ Procesando e integrando...",
     "forgeSuccess": "¡Procesamiento de landings completado con éxito!",
@@ -32122,6 +32244,10 @@ const zh = {
     "tokenExtended": "Token 已成功延长为 60 天",
     "customApp": "自定义 Meta App 应用 (选填)",
     "customAppHint": "仅在延长 Token 或少数按应用配置的场景需要 — 使用实例共享应用或现成的长期 Token 时无需填写。",
+    "oauthNotConfiguredTitle": "1-Click OAuth 未配置",
+    "oauthNotConfiguredHint": "在服务器上设置 ORBITRA_META_APP_ID 和 ORBITRA_META_APP_SECRET，或在下方展开「自定义 Meta App」并保存 App ID / App Secret。也可以完全跳过 1-Click：使用 Access Token 在下方表单手动连接 — 与 Keitaro 相同。",
+    "tokenHowTo": "如何获取 Access Token",
+    "tokenHowToHint": "1. 打开 Meta for Developers → 你的应用，或 Business Settings → System Users。\n2. 创建一个对 Business Manager 拥有管理员权限的系统用户。\n3. 生成包含 ads_read 和 ads_management 权限的访问令牌。\n4. 将其与广告账户 ID（act_…）一起粘贴到上方。",
     "advancedHint": "仅当流量经过将 Facebook 宏重新打包为 sub ID 的应用时才需要。留空则使用标准的 ad_id / adset_id / campaign_id。",
     "ad_id_param": "广告 ID 所在参数",
     "adset_id_param": "广告组 ID 所在参数",
@@ -32335,8 +32461,31 @@ const zh = {
     "geoAsia": "亚洲",
     "geoMena": "中东和非洲",
     "currency": "货币",
-    "payout": "默认单价",
+    "payout": "单价",
+    "overridePayout": "固定单价",
+    "autoFromPostback": "自动（S2S 回传）",
+    "phpBannerTitle": "跟踪器设置中已禁用 PHP 落地页",
+    "phpBannerHint": "为 CPA 网络（Dr.Cash、Leadbit…）编译 order.php 需要启用 PHP 落地页 — 关闭时每个捆包构建都会以 php_landings_disabled 失败。",
+    "phpEnableButton": "一键启用",
+    "phpEnabledLog": "PHP 落地页已启用 — 请重新构建捆包",
+    "phpEnableDenied": "无法启用 PHP 落地页：需要管理员会话（设置 → General）。",
+    "phpDisabledHint": "PHP 落地页已禁用 — 请启用「Allow PHP landings」（上方横幅或 设置 → General）后重新构建。",
     "landingGroup": "着陆页分组",
+    "destTitle": "跟踪器目标",
+    "destNone": "不保存",
+    "destNoneSub": "仅 ZIP",
+    "destLander": "着陆页",
+    "destLanderSub": "至 Landings",
+    "destOffer": "本地优惠",
+    "destOfferSub": "至 Offers",
+    "destBoth": "着陆页+优惠",
+    "destBothSub": "关联组合",
+    "offerGroup": "优惠分组",
+    "newGroup": "新建分组",
+    "newGroupName": "新分组名称…",
+    "createGroup": "创建",
+    "localOfferBadge": "本地优惠",
+    "linkedOfferBadge": "优惠",
     "forgeButton": "⚡ Forge & Save to Tracker",
     "forging": "⚡ 处理并整合中...",
     "forgeSuccess": "批量处理着陆页成功！",
@@ -35365,6 +35514,10 @@ const fr = {
     "tokenExtended": "Token prolongé à 60 jours",
     "customApp": "Meta App personnalisée (Optionnel)",
     "customAppHint": "Utile seulement pour prolonger un token et de rares configurations par application — l'application partagée de l'instance ou un token longue durée prêt à l'emploi n'a rien besoin ici.",
+    "oauthNotConfiguredTitle": "Le 1-Click OAuth n'est pas configuré",
+    "oauthNotConfiguredHint": "Définissez ORBITRA_META_APP_ID et ORBITRA_META_APP_SECRET sur le serveur, ou dépliez « Meta App personnalisée » ci-dessous et enregistrez un App ID / App Secret. Vous pouvez aussi passer le 1-Click : connectez-vous manuellement avec un Access Token dans le formulaire ci-dessous — comme dans Keitaro.",
+    "tokenHowTo": "Comment obtenir un Access Token",
+    "tokenHowToHint": "1. Ouvrez Meta for Developers → votre application, ou Business Settings → System Users.\n2. Créez un utilisateur système avec un accès administrateur à votre Business Manager.\n3. Générez un token avec les permissions ads_read et ads_management.\n4. Collez-le ci-dessus avec l'ID de votre compte publicitaire (act_…).",
     "advancedHint": "Nécessaire uniquement si le trafic passe par une application qui réencapsule les macros Facebook dans des sub ID. Laissez vide pour utiliser ad_id / adset_id / campaign_id.",
     "ad_id_param": "L’Ad ID arrive dans le paramètre",
     "adset_id_param": "L’Adset ID arrive dans le paramètre",
@@ -35578,8 +35731,31 @@ const fr = {
     "geoAsia": "Asie",
     "geoMena": "Moyen-Orient et Afrique",
     "currency": "Devise",
-    "payout": "Paiement par défaut",
+    "payout": "Paiement",
+    "overridePayout": "Paiement fixe",
+    "autoFromPostback": "Auto (postback S2S)",
+    "phpBannerTitle": "Les landings PHP sont désactivés dans les réglages du tracker",
+    "phpBannerHint": "Compiler order.php pour les réseaux CPA (Dr.Cash, Leadbit…) exige les landings PHP — tant que c'est désactivé, chaque build de bundle échoue avec php_landings_disabled.",
+    "phpEnableButton": "Activer en 1 clic",
+    "phpEnabledLog": "Landings PHP activés — reconstruisez les bundles",
+    "phpEnableDenied": "Impossible d'activer les landings PHP : une session administrateur est requise (Réglages → General).",
+    "phpDisabledHint": "Les landings PHP sont désactivés — activez « Allow PHP landings » (bandeau ci-dessus ou Réglages → General) puis reconstruisez.",
     "landingGroup": "Groupe de landings",
+    "destTitle": "Destination dans le tracker",
+    "destNone": "Ne pas enregistrer",
+    "destNoneSub": "ZIP seul",
+    "destLander": "Lander",
+    "destLanderSub": "Landings",
+    "destOffer": "Offre locale",
+    "destOfferSub": "Offres",
+    "destBoth": "Lander + Offre",
+    "destBothSub": "Duo lié",
+    "offerGroup": "Groupe d'offres",
+    "newGroup": "Nouveau groupe",
+    "newGroupName": "Nom du nouveau groupe…",
+    "createGroup": "Créer",
+    "localOfferBadge": "Offre locale",
+    "linkedOfferBadge": "Offre",
     "forgeButton": "⚡ Forge & Save to Tracker",
     "forging": "⚡ Traitement et intégration...",
     "forgeSuccess": "Préparation en masse terminée avec succès !",
@@ -38606,6 +38782,10 @@ const de = {
     "tokenExtended": "Token auf 60 Tage verlängert",
     "customApp": "Benutzerdefinierte Meta App (Optional)",
     "customAppHint": "Nur für die Token-Verlängerung und seltene App-Setups nötig — die geteilte Instanz-App oder ein fertiges Langzeit-Token braucht hier nichts.",
+    "oauthNotConfiguredTitle": "1-Click-OAuth ist nicht konfiguriert",
+    "oauthNotConfiguredHint": "Setzen Sie ORBITRA_META_APP_ID und ORBITRA_META_APP_SECRET auf dem Server, oder klappen Sie unten „Benutzerdefinierte Meta App“ aus und speichern Sie App ID / App Secret. Sie können 1-Click auch komplett überspringen: Verbinden Sie sich unten manuell mit einem Access Token — wie in Keitaro.",
+    "tokenHowTo": "So erhalten Sie einen Access Token",
+    "tokenHowToHint": "1. Öffnen Sie Meta for Developers → Ihre App, oder Business Settings → System Users.\n2. Erstellen Sie einen System-Benutzer mit Admin-Zugriff auf Ihren Business Manager.\n3. Erzeugen Sie einen Token mit den Rechten ads_read und ads_management.\n4. Fügen Sie ihn oben zusammen mit Ihrer Werbekonto-ID (act_…) ein.",
     "advancedHint": "Nur nötig, wenn der Traffic über eine App läuft, die die Facebook-Makros in Sub-IDs umpackt. Leer lassen für die Standardwerte ad_id / adset_id / campaign_id.",
     "ad_id_param": "Ad-ID kommt im Parameter",
     "adset_id_param": "Adset-ID kommt im Parameter",
@@ -38819,8 +38999,31 @@ const de = {
     "geoAsia": "Asien",
     "geoMena": "Naher Osten & Afrika",
     "currency": "Währung",
-    "payout": "Standard-Auszahlung",
+    "payout": "Auszahlung",
+    "overridePayout": "Feste Auszahlung",
+    "autoFromPostback": "Auto (S2S-Postback)",
+    "phpBannerTitle": "PHP-Landings sind in den Tracker-Einstellungen deaktiviert",
+    "phpBannerHint": "Das Kompilieren von order.php für CPA-Netzwerke (Dr.Cash, Leadbit…) erfordert PHP-Landings — solange dies aus ist, schlägt jeder Bundle-Build mit php_landings_disabled fehl.",
+    "phpEnableButton": "Mit 1 Klick aktivieren",
+    "phpEnabledLog": "PHP-Landings aktiviert — Bundles neu bauen",
+    "phpEnableDenied": "PHP-Landings konnten nicht aktiviert werden: eine Admin-Sitzung ist erforderlich (Einstellungen → General).",
+    "phpDisabledHint": "PHP-Landings sind deaktiviert — aktivieren Sie „Allow PHP landings“ (Banner oben oder Einstellungen → General) und bauen Sie neu.",
     "landingGroup": "Landingpage-Gruppe",
+    "destTitle": "Ziel im Tracker",
+    "destNone": "Nicht speichern",
+    "destNoneSub": "nur ZIP",
+    "destLander": "Lander",
+    "destLanderSub": "Landings",
+    "destOffer": "Lokales Offer",
+    "destOfferSub": "Offers",
+    "destBoth": "Lander + Offer",
+    "destBothSub": "Gekoppeltes Paar",
+    "offerGroup": "Offer-Gruppe",
+    "newGroup": "Neue Gruppe",
+    "newGroupName": "Name der neuen Gruppe…",
+    "createGroup": "Erstellen",
+    "localOfferBadge": "Lokales Offer",
+    "linkedOfferBadge": "Offer",
     "forgeButton": "⚡ Forge & Save to Tracker",
     "forging": "⚡ Verarbeite & Integriere...",
     "forgeSuccess": "Batch-Verarbeitung erfolgreich abgeschlossen!",
@@ -54734,7 +54937,8 @@ const DateRangePicker = ({
   selectedTimezone,
   onTimezoneChange,
   className = "",
-  compact = false
+  compact = false,
+  align = "auto"
 }) => {
   const { t } = useLanguage();
   const [isOpen, setIsOpen] = reactExports.useState(false);
@@ -54749,6 +54953,28 @@ const DateRangePicker = ({
   const [selectionStep, setSelectionStep] = reactExports.useState(0);
   const [timezone, setTimezone] = reactExports.useState(selectedTimezone || localStorage.getItem("orbitra_tz") || "UTC");
   const containerRef = reactExports.useRef(null);
+  const [computedAlign, setComputedAlign] = reactExports.useState("right");
+  reactExports.useEffect(() => {
+    if (!isOpen) return;
+    const PANEL_MIN = 540;
+    const MARGIN = 16;
+    const recompute = () => {
+      if (align !== "auto") {
+        setComputedAlign(align);
+        return;
+      }
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const roomLeft = rect.right;
+      const roomRight = window.innerWidth - rect.left;
+      setComputedAlign(
+        roomLeft >= PANEL_MIN + MARGIN ? "right" : roomRight >= PANEL_MIN + MARGIN ? "left" : roomRight > roomLeft ? "left" : "right"
+      );
+    };
+    recompute();
+    window.addEventListener("resize", recompute);
+    return () => window.removeEventListener("resize", recompute);
+  }, [isOpen, align]);
   reactExports.useEffect(() => {
     if (dateFrom) setTempFrom(dateFrom);
     if (dateTo) setTempTo(dateTo);
@@ -54892,12 +55118,13 @@ const DateRangePicker = ({
     isOpen && /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
-        className: "absolute right-0 top-full mt-2 z-50 rounded-2xl shadow-2xl p-4 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150",
+        className: `absolute top-full mt-2 z-50 rounded-2xl shadow-2xl p-4 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150 ${computedAlign === "left" ? "left-0" : "right-0"}`,
         style: {
           backgroundColor: "var(--color-bg-card)",
           border: "1px solid var(--color-border)",
           color: "var(--color-text-primary)",
-          minWidth: "540px"
+          minWidth: "540px",
+          maxWidth: "calc(100vw - 24px)"
         },
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
@@ -67306,7 +67533,9 @@ const GeneralSettings = () => {
         body: JSON.stringify({
           settings: {
             postback_key: settings.postback_key,
-            currency: settings.currency
+            currency: settings.currency,
+            allow_php_landings: settings.allow_php_landings,
+            php_landing_timeout: settings.php_landing_timeout
           }
         })
       });
@@ -70191,12 +70420,14 @@ const IntegrationsPage = () => {
   const [fbMessage, setFbMessage] = reactExports.useState(null);
   const [fbShowAdvanced, setFbShowAdvanced] = reactExports.useState(false);
   const [fbShowCustomApp, setFbShowCustomApp] = reactExports.useState(false);
+  const [fbShowTokenHowTo, setFbShowTokenHowTo] = reactExports.useState(false);
   const [fbExtendingToken, setFbExtendingToken] = reactExports.useState(false);
   const [fbDiscoveredAccounts, setFbDiscoveredAccounts] = reactExports.useState([]);
   const [fbSelectedAccounts, setFbSelectedAccounts] = reactExports.useState([]);
   const [fbOAuthFlowId, setFbOAuthFlowId] = reactExports.useState("");
   const [fbOAuthLoading, setFbOAuthLoading] = reactExports.useState(false);
   const [fbOAuthConnecting, setFbOAuthConnecting] = reactExports.useState(false);
+  const [fbOauthConfigured, setFbOauthConfigured] = reactExports.useState(null);
   const fbOAuthPopupRef = reactExports.useRef(null);
   const fbOAuthPollRef = reactExports.useRef(null);
   const emptyTtForm = {
@@ -70672,6 +70903,14 @@ const IntegrationsPage = () => {
       console.error(err);
     }
   }, []);
+  const fetchFbOauthStatus = reactExports.useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_URL$b}?action=facebook_oauth_status`);
+      if (res.data.status === "success") setFbOauthConfigured(!!res.data.data?.configured);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
   const fetchTtConnections = reactExports.useCallback(async () => {
     setTtLoading(true);
     try {
@@ -70748,6 +70987,7 @@ const IntegrationsPage = () => {
     if (activeTab === "facebook_costs") {
       fetchFbConnections();
       fetchFbFields();
+      fetchFbOauthStatus();
     }
     if (activeTab === "tiktok_costs") {
       fetchTtConnections();
@@ -71546,12 +71786,23 @@ const IntegrationsPage = () => {
                     {
                       type: "button",
                       onClick: handleStartFacebookOAuth,
-                      disabled: fbOAuthLoading || fbOAuthConnecting,
+                      disabled: fbOAuthLoading || fbOAuthConnecting || fbOauthConfigured === false,
                       className: "btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]",
-                      style: { backgroundColor: "#1877F2", color: "#ffffff", boxShadow: "0 4px 14px rgba(24, 119, 242, 0.3)", opacity: fbOAuthLoading ? 0.75 : 1 },
+                      style: { backgroundColor: "#1877F2", color: "#ffffff", boxShadow: "0 4px 14px rgba(24, 119, 242, 0.3)", opacity: fbOAuthLoading || fbOauthConfigured === false ? 0.75 : 1 },
                       children: [
                         fbOAuthLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-extrabold text-base", children: "f" }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: fbOAuthLoading ? t("fbCosts.oauthConnecting") : t("fbCosts.loginWithFb") })
+                      ]
+                    }
+                  ),
+                  fbOauthConfigured === false && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "div",
+                    {
+                      className: "w-full max-w-md text-left rounded-xl border p-3",
+                      style: { background: "var(--color-warning-bg)", borderColor: "var(--color-warning)" },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-bold", style: { color: "var(--color-warning)" }, children: t("fbCosts.oauthNotConfiguredTitle") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] leading-relaxed mt-1", style: { color: "var(--color-text-secondary)" }, children: t("fbCosts.oauthNotConfiguredHint") })
                       ]
                     }
                   )
@@ -71716,6 +71967,23 @@ const IntegrationsPage = () => {
               }
             )
           ] }) }, field.key)),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => setFbShowTokenHowTo(!fbShowTokenHowTo),
+                className: "btn btn-secondary btn-sm",
+                style: { fontSize: "11px" },
+                children: [
+                  fbShowTokenHowTo ? "−" : "+",
+                  " ",
+                  t("fbCosts.tokenHowTo")
+                ]
+              }
+            ),
+            fbShowTokenHowTo && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { border: "1px dashed var(--color-border)", borderRadius: "12px", padding: "14px", marginTop: "8px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", margin: 0, whiteSpace: "pre-line", lineHeight: 1.7 }, children: t("fbCosts.tokenHowToHint") }) })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
@@ -94606,24 +94874,43 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
   const [offerId, setOfferId] = reactExports.useState("");
   const [selectedGeo, setSelectedGeo] = reactExports.useState("IT");
   const [currency, setCurrency] = reactExports.useState("USD");
-  const [payout, setPayout] = reactExports.useState("25");
+  const [useCustomPayout, setUseCustomPayout] = reactExports.useState(false);
+  const [payout, setPayout] = reactExports.useState("");
   const [selectedGroupId, setSelectedGroupId] = reactExports.useState("");
+  const [selectedOfferGroupId, setSelectedOfferGroupId] = reactExports.useState("");
+  const [offerGroups, setOfferGroups] = reactExports.useState([]);
+  const [destType, setDestType] = reactExports.useState("lander");
+  const [showNewGroup, setShowNewGroup] = reactExports.useState(false);
+  const [newGroupName, setNewGroupName] = reactExports.useState("");
+  const [creatingGroup, setCreatingGroup] = reactExports.useState(false);
   const [crmEnabled, setCrmEnabled] = reactExports.useState(true);
   const [autoQa, setAutoQa] = reactExports.useState(true);
+  const [phpLandingsEnabled, setPhpLandingsEnabled] = reactExports.useState(null);
+  const [phpEnabling, setPhpEnabling] = reactExports.useState(false);
   const [options, setOptions2] = reactExports.useState({
     injectOfferMacro: true,
     injectJsAdapter: true,
     addPhoneMask: true,
     generateThankYou: true,
-    generateOrderPhp: true,
-    autoSaveTracker: true,
-    autoCreateOffer: false
+    generateOrderPhp: true
   });
   const isRaw = mode === "raw";
   reactExports.useEffect(() => {
     axios.get(`${API_URL$2}?action=landing_groups`).then((res) => {
       if (res.data?.status === "success") {
         setLandingGroups(res.data.data || []);
+      }
+    }).catch(() => {
+    });
+    axios.get(`${API_URL$2}?action=offer_groups`).then((res) => {
+      if (res.data?.status === "success") {
+        setOfferGroups(res.data.data || []);
+      }
+    }).catch(() => {
+    });
+    axios.get(`${API_URL$2}?action=global_settings`).then((res) => {
+      if (res.data?.status === "success") {
+        setPhpLandingsEnabled(String(res.data.data?.allow_php_landings) === "1");
       }
     }).catch(() => {
     });
@@ -94654,6 +94941,72 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
   const handleModeChange = (m) => {
     setMode(m);
     localStorage.setItem("orbitra_lf_mode", m);
+  };
+  const handleQuickEnablePhp = async () => {
+    setPhpEnabling(true);
+    try {
+      const res = await axios.post(`${API_URL$2}?action=global_settings`, { settings: { allow_php_landings: "1" } });
+      if (res.data?.status !== "success") {
+        addLog(`❌ ${res.data?.message || "Failed to save settings"}`, "error");
+        return;
+      }
+      const check = await axios.get(`${API_URL$2}?action=global_settings`);
+      const nowEnabled = String(check.data?.data?.allow_php_landings) === "1";
+      setPhpLandingsEnabled(nowEnabled);
+      addLog(
+        nowEnabled ? t("leadforge.phpEnabledLog", "PHP landings enabled — rebuild the bundles") : t("leadforge.phpEnableDenied", "Could not enable PHP landings: an admin session is required (Settings → General)."),
+        nowEnabled ? "success" : "error"
+      );
+    } catch (err) {
+      addLog(`❌ ${err.response?.data?.message || err.message}`, "error");
+    } finally {
+      setPhpEnabling(false);
+    }
+  };
+  const isOfferDest = destType === "offer";
+  const destGroups = isOfferDest ? offerGroups : landingGroups;
+  const destGroupId = isOfferDest ? selectedOfferGroupId : selectedGroupId;
+  const setDestGroupId = isOfferDest ? setSelectedOfferGroupId : setSelectedGroupId;
+  const handleCreateGroup = async () => {
+    const name = newGroupName.trim();
+    if (!name || creatingGroup) return;
+    setCreatingGroup(true);
+    const action = isOfferDest ? "offer_groups" : "landing_groups";
+    const applyFound = (g) => {
+      setDestGroupId(String(g.id));
+      setNewGroupName("");
+      setShowNewGroup(false);
+    };
+    try {
+      const res = await axios.post(`${API_URL$2}?action=${action}`, { name });
+      if (res.data?.status === "success") {
+        const created = { id: Number(res.data.data.id), name };
+        const merge2 = (list) => [...list.filter((g) => g.id !== created.id), created].sort((a, b) => a.name.localeCompare(b.name));
+        if (isOfferDest) setOfferGroups(merge2);
+        else setLandingGroups(merge2);
+        applyFound(created);
+        addLog(t("leadforge.logGroupCreated", `📁 ${isOfferDest ? "Offer" : "Landing"} group "${name}" created`, { name }), "success");
+      } else {
+        try {
+          const list = await axios.get(`${API_URL$2}?action=${action}`);
+          const found = (list.data?.data || []).find((g) => g.name === name);
+          if (found) {
+            if (isOfferDest) setOfferGroups(list.data.data || []);
+            else setLandingGroups(list.data.data || []);
+            applyFound(found);
+            addLog(t("leadforge.logGroupExists", `📁 Group "${name}" already exists — selected it`, { name }), "step");
+          } else {
+            addLog(`⚠️ ${res.data?.message || "Group create failed"}`, "error");
+          }
+        } catch {
+          addLog(`⚠️ ${res.data?.message || "Group create failed"}`, "error");
+        }
+      }
+    } catch (err) {
+      addLog(`⚠️ ${err.response?.data?.message || err.message}`, "error");
+    } finally {
+      setCreatingGroup(false);
+    }
   };
   const handleAddFiles = (files) => {
     const zipFiles = Array.from(files).filter(
@@ -94732,9 +95085,14 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     fd.append("api_key", apiKey);
     fd.append("offer_id", offerId);
     fd.append("geo", selectedGeo);
-    fd.append("payout", payout);
+    fd.append("payout", useCustomPayout && payout !== "" ? String(parseFloat(payout) || 0) : "0");
     fd.append("currency", currency);
-    if (selectedGroupId) fd.append("group_id", selectedGroupId);
+    if (destType === "offer") {
+      if (selectedOfferGroupId) fd.append("group_id", selectedOfferGroupId);
+    } else if (destType !== "none") {
+      if (selectedGroupId) fd.append("group_id", selectedGroupId);
+    }
+    if (destType !== "none") fd.append("target_type", destType);
     fd.append("crm_enabled", !isRaw && crmEnabled ? "1" : "0");
     fd.append("auto_qa", !isRaw && autoQa ? "1" : "0");
     fd.append("inject_offer_macro", options.injectOfferMacro ? "1" : "0");
@@ -94742,8 +95100,8 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     fd.append("add_phone_mask", options.addPhoneMask ? "1" : "0");
     fd.append("generate_thank_you", !isRaw && options.generateThankYou ? "1" : "0");
     fd.append("generate_order_php", !isRaw && options.generateOrderPhp ? "1" : "0");
-    fd.append("auto_save_tracker", options.autoSaveTracker ? "1" : "0");
-    fd.append("auto_create_offer", options.autoCreateOffer ? "1" : "0");
+    fd.append("auto_save_tracker", destType === "lander" || destType === "both" ? "1" : "0");
+    fd.append("auto_create_offer", destType === "both" ? "1" : "0");
     setBundles((prev) => prev.map((b) => b.selected && b.token ? { ...b, status: "building" } : b));
     try {
       const res = await axios.post(`${API_URL$2}?action=leadforge_build_batch`, fd, { timeout: 3e5 });
@@ -94758,7 +95116,8 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
           addLog(line, type);
         });
         if (!r2.ok) {
-          addLog(`❌ Bundle ${r2.token?.slice(0, 8)}…: ${r2.message}`, "error");
+          const errorText = r2.message === "php_landings_disabled" ? t("leadforge.phpDisabledHint", 'PHP landings are disabled — enable "Allow PHP landings" (banner above or Settings → General) and rebuild.') : r2.message || "Build failed";
+          addLog(`❌ ${names2[r2.token] || `Bundle ${r2.token?.slice(0, 8)}…`}: ${errorText}`, "error");
         }
         setBundles((prev) => prev.map((b) => b.token === r2.token ? { ...b, status: r2.ok ? "built" : "error", result: r2.result, qa: r2.qa, error: r2.ok ? null : r2.message } : b));
       });
@@ -94811,6 +95170,35 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     "raw": t("leadforge.modeRawHint", "Clone patch: foreign counters (FB/TikTok/GA/Yandex) and hostile scripts are stripped, the ClickID bridge and {offer} macros are injected — no server-side order.php is generated.")
   }[mode];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 w-full pb-12", children: [
+    phpLandingsEnabled === false && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl border",
+        style: { background: "var(--color-warning-bg)", borderColor: "var(--color-warning)" },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { size: 20, className: "shrink-0 mt-0.5", style: { color: "var(--color-warning)" } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("leadforge.phpBannerTitle", "PHP landings are disabled in tracker settings") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1 m-0 leading-relaxed", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.phpBannerHint", "Compiling order.php for CPA networks (Dr.Cash, Leadbit…) requires PHP landings — every bundle build fails with php_landings_disabled while this is off.") })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: handleQuickEnablePhp,
+              disabled: phpEnabling,
+              className: "btn-primary !py-2.5 !px-4 text-xs flex items-center gap-2 cursor-pointer shrink-0 disabled:opacity-50",
+              children: [
+                phpEnabling ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 14, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("leadforge.phpEnableButton", "Enable in 1 click") })
+              ]
+            }
+          )
+        ]
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border bg-[var(--color-bg-card)] border-[var(--color-border)]", style: { boxShadow: "var(--shadow-main)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -95021,13 +95409,26 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                       t("leadforge.buildingBadge", "Building…")
                     ] }),
                     b.status === "built" && b.result && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 flex items-center gap-1", children: [
+                      b.result.landing_id ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 flex items-center gap-1", children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12 }),
                         " #",
                         b.result.landing_id,
                         " · /lander/",
                         b.result.slug,
                         "/"
+                      ] }) : b.result.offer_id && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 flex items-center gap-1", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { size: 12 }),
+                        " #",
+                        b.result.offer_id,
+                        " · ",
+                        t("leadforge.localOfferBadge", "Local offer")
+                      ] }),
+                      b.result.landing_id && b.result.offer_id && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center gap-1 border border-emerald-200 dark:border-emerald-900", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { size: 12 }),
+                        " ",
+                        t("leadforge.linkedOfferBadge", "Offer"),
+                        " #",
+                        b.result.offer_id
                       ] }),
                       b.qa?.performed && /* @__PURE__ */ jsxRuntimeExports.jsxs(
                         "span",
@@ -95172,16 +95573,33 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
               )
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.payout", "Default Payout") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.payout", "Payout") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-1.5 text-xs cursor-pointer select-none", style: { color: "var(--color-text-secondary)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "checkbox",
+                      checked: useCustomPayout,
+                      onChange: (e) => setUseCustomPayout(e.target.checked),
+                      className: "rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                    }
+                  ),
+                  t("leadforge.overridePayout", "Fixed payout")
+                ] })
+              ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "input",
                   {
                     type: "number",
                     step: "0.1",
-                    value: payout,
+                    min: "0",
+                    disabled: !useCustomPayout,
+                    value: useCustomPayout ? payout : "",
+                    placeholder: useCustomPayout ? "0.00" : t("leadforge.autoFromPostback", "Auto (S2S postback)"),
                     onChange: (e) => setPayout(e.target.value),
-                    className: "w-full px-3 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
+                    className: "w-full px-3 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] disabled:opacity-60 disabled:cursor-not-allowed",
                     style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
                   }
                 ),
@@ -95189,30 +95607,120 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                   "input",
                   {
                     type: "text",
+                    disabled: !useCustomPayout,
                     value: currency,
                     onChange: (e) => setCurrency(e.target.value.toUpperCase()),
-                    className: "w-16 px-2 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-bold text-center focus:outline-none",
+                    className: "w-16 px-2 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-bold text-center focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed",
                     style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
                   }
                 )
               ] })
             ] })
-          ] }),
-          landingGroups.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.landingGroup", "Landing Group") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "select",
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 pt-3 border-t border-[var(--color-border)]", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]", children: t("leadforge.destTitle", "Tracker destination") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: [
+            { id: "none", icon: PackageX, label: t("leadforge.destNone", "Not saved"), sub: t("leadforge.destNoneSub", "ZIP only") },
+            { id: "lander", icon: Globe, label: t("leadforge.destLander", "Lander"), sub: t("leadforge.destLanderSub", "Landings") },
+            { id: "offer", icon: Tag, label: t("leadforge.destOffer", "Local offer"), sub: t("leadforge.destOfferSub", "Offers") },
+            { id: "both", icon: Link2, label: t("leadforge.destBoth", "Lander + Offer"), sub: t("leadforge.destBothSub", "Linked pair") }
+          ].map((d) => {
+            const Icon2 = d.icon;
+            const active = destType === d.id;
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
               {
-                value: selectedGroupId,
-                onChange: (e) => setSelectedGroupId(e.target.value),
-                className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none",
-                style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+                type: "button",
+                onClick: () => setDestType(d.id),
+                className: `py-2.5 px-2 rounded-xl border text-center transition cursor-pointer ${active ? "border-[var(--color-primary)] bg-[var(--color-primary)] shadow-sm" : "border-[var(--color-border)] bg-[var(--color-bg-main)] hover:bg-[var(--color-bg-hover)]"}`,
+                style: active ? { color: "var(--color-text-inverse, white)", boxShadow: "var(--color-primary-shadow)" } : { color: "var(--color-text-primary)" },
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("leadforge.noGroup", "No Group") }),
-                  landingGroups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { size: 16, className: "mx-auto mb-1" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-bold leading-none", children: d.label }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `text-[10px] mt-0.5 leading-none ${active ? "opacity-75" : "text-[var(--color-text-muted)]"}`, children: d.sub })
                 ]
-              }
-            )
+              },
+              d.id
+            );
+          }) }),
+          destType !== "none" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: isOfferDest ? t("leadforge.offerGroup", "Offer Group") : t("leadforge.landingGroup", "Landing Group") }),
+            showNewGroup ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  autoFocus: true,
+                  type: "text",
+                  value: newGroupName,
+                  disabled: creatingGroup,
+                  onChange: (e) => setNewGroupName(e.target.value),
+                  onKeyDown: (e) => {
+                    if (e.key === "Enter") handleCreateGroup();
+                    if (e.key === "Escape") setShowNewGroup(false);
+                  },
+                  placeholder: t("leadforge.newGroupName", "New group name…"),
+                  className: "flex-1 px-3 py-2 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
+                  style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: handleCreateGroup,
+                  disabled: creatingGroup || !newGroupName.trim(),
+                  className: "px-3 py-2 rounded-xl text-sm font-bold border border-transparent flex items-center gap-1.5 disabled:opacity-50",
+                  style: { background: "var(--color-primary)", color: "var(--color-text-inverse, white)" },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }),
+                    " ",
+                    t("leadforge.createGroup", "Create")
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => {
+                    setShowNewGroup(false);
+                    setNewGroupName("");
+                  },
+                  className: "px-2.5 py-2 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]",
+                  title: "Cancel",
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 })
+                }
+              )
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
+                {
+                  value: destGroupId,
+                  onChange: (e) => setDestGroupId(e.target.value),
+                  className: "flex-1 px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none",
+                  style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("leadforge.noGroup", "No Group") }),
+                    destGroups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setShowNewGroup(true),
+                  className: "px-3 py-2.5 rounded-xl border border-[var(--color-border)] text-xs font-bold hover:bg-[var(--color-bg-hover)] flex items-center gap-1",
+                  style: { color: "var(--color-text-primary)" },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
+                    " ",
+                    t("leadforge.newGroup", "New group")
+                  ]
+                }
+              )
+            ] })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 pt-3 border-t border-[var(--color-border)]", children: [
@@ -95341,30 +95849,6 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optOrderPhp", "Generate Secure order.php CPA API Bridge") })
             ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2.5 cursor-pointer text-xs select-none", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "checkbox",
-                checked: options.autoSaveTracker,
-                onChange: (e) => setOptions2({ ...options, autoSaveTracker: e.target.checked }),
-                className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optSaveTracker", "Auto-save to Tracker Landings library") })
-          ] }),
-          options.autoSaveTracker && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2.5 cursor-pointer text-xs select-none", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "checkbox",
-                checked: options.autoCreateOffer,
-                onChange: (e) => setOptions2({ ...options, autoCreateOffer: e.target.checked }),
-                className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optCreateOffer", "Auto-create a matching offer in the tracker") })
           ] })
         ] })
       ] }) })

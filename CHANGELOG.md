@@ -7,6 +7,46 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.4] — 2026-08-17
+
+LeadForge tracker destinations, calendar viewport fix, Facebook OAuth preflight.
+
+### Added
+- 🎯 **LeadForge: Tracker destination** — every bundle can now be saved as a
+  local lander (Landings), a **direct local offer** (Offers, `is_local=1`, files
+  served from the tracker's own `/offers/<id>/` route with no landing record),
+  or the linked lander+offer pair; an explicit "ZIP only" state replaces the
+  old auto-save/auto-create checkboxes. Legacy API flags keep working.
+- 📁 **Groups on the fly** — the group picker follows the destination (landing
+  groups vs offer groups) and "+ New group" creates one inline without leaving
+  the panel; a duplicate name selects the existing group. `new_group_name` is
+  resolved once per batch in the API (per-bundle creation would trip
+  `UNIQUE(name)`), with a fallback to the existing id.
+- 💰 **Opt-in fixed payout** — LeadForge no longer hardcodes a payout into the
+  build by default; real revenue comes from the network's S2S postback unless
+  "Fixed payout" is checked.
+- 🔵 **Facebook OAuth preflight** — `facebook_oauth_status` tells the
+  Integrations UI whether a Meta app is configured at all: the 1-Click button
+  disables with a warning instead of opening a popup guaranteed to fail; a
+  collapsible hint explains where a long-lived token comes from.
+- ⚙️ **PHP landings on by default** — LeadForge bundles live on
+  order.php/thank_you.php and were unusable on a fresh install; the toggle and
+  timeout are now exposed in Settings → General (both API whitelist spots were
+  already in place).
+
+### Fixed
+- 📅 **Date-range calendar off-screen** — the 540px panel was right-aligned to
+  its trigger, so on Landings (picker at the left edge of the toolbar) it
+  opened ~300px past the left edge of the window. The panel now measures the
+  viewport on open (and on resize) and hangs from the side that fits;
+  Campaigns/Offers/CampaignReports keep their previous look.
+- 🗄️ **Offer-group FK failure** — `auto_create_offer` copied a landing-group id
+  into `offers.group_id` (`FOREIGN KEY … offer_groups`, `PRAGMA foreign_keys=ON`),
+  so building with a group selected could fail the whole bundle; the offer now
+  links a same-named offer group when one exists, else none.
+- 📧 **landing_groups duplicate 500** — POSTing an existing group name returned
+  a 500 (missing try/catch, unlike offer_groups); it now returns a clean error.
+
 ## [1.0.3] — 2026-08-17
 
 Editor tooling, layout consistency and worldwide GEO coverage.

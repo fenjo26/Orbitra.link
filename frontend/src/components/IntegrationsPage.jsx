@@ -66,12 +66,16 @@ const IntegrationsPage = () => {
     const [fbMessage, setFbMessage] = useState(null);
     const [fbShowAdvanced, setFbShowAdvanced] = useState(false);
     const [fbShowCustomApp, setFbShowCustomApp] = useState(false);
+    const [fbShowTokenHowTo, setFbShowTokenHowTo] = useState(false);
     const [fbExtendingToken, setFbExtendingToken] = useState(false);
     const [fbDiscoveredAccounts, setFbDiscoveredAccounts] = useState([]);
     const [fbSelectedAccounts, setFbSelectedAccounts] = useState([]);
     const [fbOAuthFlowId, setFbOAuthFlowId] = useState('');
     const [fbOAuthLoading, setFbOAuthLoading] = useState(false);
     const [fbOAuthConnecting, setFbOAuthConnecting] = useState(false);
+    // null = unknown (preflight unfinished or failed): the 1-Click button then
+    // keeps its old behaviour instead of locking users out of the popup.
+    const [fbOauthConfigured, setFbOauthConfigured] = useState(null);
     const fbOAuthPopupRef = useRef(null);
     const fbOAuthPollRef = useRef(null);
 
@@ -566,6 +570,13 @@ const IntegrationsPage = () => {
         } catch (err) { console.error(err); }
     }, []);
 
+    const fetchFbOauthStatus = useCallback(async () => {
+        try {
+            const res = await axios.get(`${API_URL}?action=facebook_oauth_status`);
+            if (res.data.status === 'success') setFbOauthConfigured(!!res.data.data?.configured);
+        } catch (err) { console.error(err); }
+    }, []);
+
     const fetchTtConnections = useCallback(async () => {
         setTtLoading(true);
         try {
@@ -628,7 +639,7 @@ const IntegrationsPage = () => {
     }, []);
 
     useEffect(() => {
-        if (activeTab === 'facebook_costs') { fetchFbConnections(); fetchFbFields(); }
+        if (activeTab === 'facebook_costs') { fetchFbConnections(); fetchFbFields(); fetchFbOauthStatus(); }
         if (activeTab === 'tiktok_costs') { fetchTtConnections(); fetchTtFields(); }
         if (activeTab === 'google_ads_costs') { fetchGaConnections(); fetchGaFields(); }
         if (activeTab === 'facebook_conversions') { fetchCapiPixels(); fetchCapiMeta(); fetchCampaigns(); }
@@ -1503,13 +1514,24 @@ const IntegrationsPage = () => {
                                         <button
                                             type="button"
                                             onClick={handleStartFacebookOAuth}
-                                            disabled={fbOAuthLoading || fbOAuthConnecting}
+                                            disabled={fbOAuthLoading || fbOAuthConnecting || fbOauthConfigured === false}
                                             className="btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]"
-                                            style={{ backgroundColor: '#1877F2', color: '#ffffff', boxShadow: '0 4px 14px rgba(24, 119, 242, 0.3)', opacity: fbOAuthLoading ? 0.75 : 1 }}
+                                            style={{ backgroundColor: '#1877F2', color: '#ffffff', boxShadow: '0 4px 14px rgba(24, 119, 242, 0.3)', opacity: (fbOAuthLoading || fbOauthConfigured === false) ? 0.75 : 1 }}
                                         >
                                             {fbOAuthLoading ? <RefreshCw size={16} className="animate-spin" /> : <span className="font-extrabold text-base">f</span>}
                                             <span>{fbOAuthLoading ? t('fbCosts.oauthConnecting') : t('fbCosts.loginWithFb')}</span>
                                         </button>
+                                        {fbOauthConfigured === false && (
+                                            <div className="w-full max-w-md text-left rounded-xl border p-3"
+                                                style={{ background: 'var(--color-warning-bg)', borderColor: 'var(--color-warning)' }}>
+                                                <div className="text-xs font-bold" style={{ color: 'var(--color-warning)' }}>
+                                                    {t('fbCosts.oauthNotConfiguredTitle')}
+                                                </div>
+                                                <div className="text-[11px] leading-relaxed mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                                                    {t('fbCosts.oauthNotConfiguredHint')}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {fbDiscoveredAccounts.length > 0 && (
@@ -1620,6 +1642,22 @@ const IntegrationsPage = () => {
                                     </>)}
                                 </div>
                             ))}
+
+                            {/* Keitaro-style flow: most users bring a ready
+                                long-lived token — show where it comes from. */}
+                            <div>
+                                <button type="button" onClick={() => setFbShowTokenHowTo(!fbShowTokenHowTo)}
+                                    className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }}>
+                                    {fbShowTokenHowTo ? '−' : '+'} {t('fbCosts.tokenHowTo')}
+                                </button>
+                                {fbShowTokenHowTo && (
+                                    <div style={{ border: '1px dashed var(--color-border)', borderRadius: '12px', padding: '14px', marginTop: '8px' }}>
+                                        <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', margin: 0, whiteSpace: 'pre-line', lineHeight: 1.7 }}>
+                                            {t('fbCosts.tokenHowToHint')}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
 
                             {/* Custom Meta App — most users never need these; the shared
                                 instance app or a plain long-lived token is enough. */}

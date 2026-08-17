@@ -782,10 +782,11 @@ try {
         ['stats_retention_days', '256'],
         ['audit_retention_days', '30'],
         ['landing_token_ttl', '3600'],
-        // PHP landings execute uploaded code in the web root. Off unless an admin
-        // deliberately turns it on, and capped so a hung landing cannot occupy a
-        // PHP-FPM worker indefinitely.
-        ['allow_php_landings', '0'],
+        // PHP landings execute uploaded code in the web root. On by default:
+        // LeadForge bundles live on order.php/thank_you.php and are unusable
+        // without it; still admin-gated in the panel and capped so a hung
+        // landing cannot occupy a PHP-FPM worker indefinitely.
+        ['allow_php_landings', '1'],
         ['php_landing_timeout', '3'],
         ['archive_retention_days', '30'],
         ['report_display', 'table'],

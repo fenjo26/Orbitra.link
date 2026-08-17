@@ -84,7 +84,8 @@ const DateRangePicker = ({
     selectedTimezone,
     onTimezoneChange,
     className = '',
-    compact = false
+    compact = false,
+    align = 'auto'
 }) => {
     const { t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
@@ -104,6 +105,35 @@ const DateRangePicker = ({
 
     const [timezone, setTimezone] = useState(selectedTimezone || localStorage.getItem('orbitra_tz') || 'UTC');
     const containerRef = useRef(null);
+
+    // Which edge of the trigger the panel hangs from: 'right' keeps the
+    // historical right-0 (panel grows leftward), 'left' opens it rightward.
+    // 'auto' measures the viewport on every open — the picker sits at either
+    // end of a page toolbar, and a fixed side sends the 540px panel off-screen.
+    const [computedAlign, setComputedAlign] = useState('right');
+    useEffect(() => {
+        if (!isOpen) return;
+        const PANEL_MIN = 540;
+        const MARGIN = 16;
+        const recompute = () => {
+            if (align !== 'auto') {
+                setComputedAlign(align);
+                return;
+            }
+            const rect = containerRef.current?.getBoundingClientRect();
+            if (!rect) return;
+            const roomLeft = rect.right;
+            const roomRight = window.innerWidth - rect.left;
+            setComputedAlign(
+                roomLeft >= PANEL_MIN + MARGIN ? 'right'
+                    : roomRight >= PANEL_MIN + MARGIN ? 'left'
+                        : (roomRight > roomLeft ? 'left' : 'right')
+            );
+        };
+        recompute();
+        window.addEventListener('resize', recompute);
+        return () => window.removeEventListener('resize', recompute);
+    }, [isOpen, align]);
 
     // Sync when props change
     useEffect(() => {
@@ -271,12 +301,13 @@ const DateRangePicker = ({
             {/* Dropdown Calendar Panel */}
             {isOpen && (
                 <div
-                    className="absolute right-0 top-full mt-2 z-50 rounded-2xl shadow-2xl p-4 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150"
+                    className={`absolute top-full mt-2 z-50 rounded-2xl shadow-2xl p-4 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150 ${computedAlign === 'left' ? 'left-0' : 'right-0'}`}
                     style={{
                         backgroundColor: 'var(--color-bg-card)',
                         border: '1px solid var(--color-border)',
                         color: 'var(--color-text-primary)',
-                        minWidth: '540px'
+                        minWidth: '540px',
+                        maxWidth: 'calc(100vw - 24px)'
                     }}
                 >
                     <div className="flex gap-4">

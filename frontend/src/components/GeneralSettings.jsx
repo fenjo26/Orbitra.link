@@ -45,6 +45,8 @@ const GeneralSettings = () => {
                     settings: {
                         postback_key: settings.postback_key,
                         currency: settings.currency,
+                        allow_php_landings: settings.allow_php_landings,
+                        php_landing_timeout: settings.php_landing_timeout,
                     }
                 })
             });
