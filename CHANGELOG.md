@@ -7,7 +7,7 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [0.9.9.0] — 2026-08-17
 
 ### Added
 - 🎮 **RedTrack-style play/pause** — toggle internal campaigns (a disabled
@@ -43,10 +43,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   and reports; CPV metric; editor preference presets; affiliate-network
   template presets.
 
+- 📈 **Dashboard redesign** — settings modal rebuilt on theme variables with
+  four metric groups and three presets; 27 selectable StatCards wired to real
+  aggregated metrics (cost no longer hard-coded to zero); finance masking
+  extended to CPL, CPS and EPV; dashboard translations across all 7 locales.
+- 🎨 **Theme sweep** — hardcoded Tailwind grays/blues purged panel-wide
+  (admin header, AutomationSettings, ClickDetailsModal, Login, SetupWizard,
+  dashboard modals, RecentClicks and more); ClickDetailsModal's white-on-white
+  fixed; semantic status colors on --color-success/--color-danger.
+- 📚 **Docs refresh** — READMEs updated to the current feature set and halved
+  (58 embedded per-version note blocks dropped; CHANGELOG is the history).
+
 ### Changed
 - All monetary and unit metrics render as `$0.00` (2 decimals) everywhere,
   including CSV export — previously CPC/EPC/CPV showed four decimals.
 - `var/` (sessions, locks, caches) is gitignored.
+
+### Fixed
+- Schema v25 adds `campaigns.state` — the column never existed in any DDL or
+  migration; the new play/pause toggle surfaced it on live testing with
+  "no such column: state".
 
 ## [0.9.8.2] — 2026-08-16
 

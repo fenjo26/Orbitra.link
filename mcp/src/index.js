@@ -8,7 +8,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import { apiGet, apiPost, config } from './client.js';
 
-const server = new McpServer({ name: 'orbitra-mcp', version: '0.9.8.2' });
+const server = new McpServer({ name: 'orbitra-mcp', version: '0.9.9.0' });
 
 // ---- helpers ---------------------------------------------------------------
 

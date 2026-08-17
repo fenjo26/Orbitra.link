@@ -1,4 +1,4 @@
-# Orbitra v0.9.8.2 Tracker
+# Orbitra v0.9.9.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -422,19 +422,16 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v0.9.8.2 (2026-08-16)
-- 🔐 RBAC role templates (Admin / Media Buyer / Video Editor / Developer / Custom) + server-side financial masking of costs / revenue / payout for restricted users
-- 🌍 Namecheap integration: zero-config DNS parking, domain purchasing and import
-- 🧣 Quick cloaking targeting filters (GEO, devices, bot-ISP blocklist) on the cloak card
-- 📊 Keitaro-parity column set for Landings and Offers; redesigned Tracking tab with live widget preview
-- 🐛 Headline fix: the "Prefetch ignored" blank screen — preloaded navigations now serve the campaign, skip only the click insert and answer `Cache-Control: no-store`
+### Current release — v0.9.9.0 (2026-08-17)
+- 🏷️ Keitaro-style domain panel: groups, per-domain admin access (404), Cloudflare proxy, registrar/DNS metadata, bulk add with URL cleanup (schema v23)
+- 🎮 Play/pause for internal campaigns (disabled = 503) and real Facebook ads / ad sets from the tables and reports, via the Meta Marketing API
+- 🚦 Per-stream "Collect clicks" — fallback / white-page streams stay out of the stats (schema v24)
+- 🧩 Ads Manager browser extension: profit/ROI/CPA pills in Facebook tables + a deep-stats modal (daily history, landings & offers, Pixel/CAPI accuracy)
+- 📈 Dashboard redesign: 27 StatCards on real aggregated metrics, presets, finance masking extended to CPL/CPS/EPV
+- 📊 High-density sticky-header tables with ⋮ row menus and pagination; every monetary metric as `$0.00` (CSV included)
+- 🖥️ Shared device taxonomy (Desktop/Mobile/Tablet), CPV metric; hardcoded Tailwind colors purged panel-wide
 
-### On main, unreleased (next release)
-- 🎮 Play/pause for internal campaigns and real Facebook ads / ad sets from the tables and reports
-- 🚦 Per-stream "Collect clicks" — fallback streams stay out of the stats
-- 🧩 Ads Manager browser extension (row pills + deep-stats modal with CAPI accuracy)
-- 🏷️ Keitaro-style domain panel: groups, per-domain admin access, Cloudflare proxy, metadata (schema v23)
-- 📊 High-density tables with sticky totals, ⋮ row menus and pagination; all money as `$0.00`
+Previous release — v0.9.8.2: RBAC role templates + finance masking, Namecheap integration, cloaking targeting filters, Keitaro-parity Landings/Offers columns, prefetch blank-screen fix.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 
