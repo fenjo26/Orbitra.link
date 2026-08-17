@@ -19153,6 +19153,35 @@ const ru = {
     "port": "Порт",
     "username": "Логин",
     "password": "Пароль"
+  },
+  "dimensions": {
+    "campaign": "Кампания",
+    "stream": "Поток",
+    "landing": "Лендинг",
+    "offer": "Оффер",
+    "source": "Источник трафика",
+    "directNoLander": "Прямой переход (Без лендинга)",
+    "defaultStream": "Поток по умолчанию / Прямой",
+    "country": "Страна",
+    "region": "Регион",
+    "city": "Город",
+    "deviceType": "Тип устройства",
+    "os": "Операционная система",
+    "browser": "Браузер",
+    "language": "Язык",
+    "day": "Дата (День)",
+    "hour": "Час",
+    "adCampaignId": "ID кампании",
+    "adsetId": "ID группы объявлений",
+    "adId": "ID объявления",
+    "keyword": "Ключевое слово",
+    "creativeId": "ID креатива",
+    "externalId": "Внешний ID",
+    "subId1": "Sub ID 1",
+    "subId2": "Sub ID 2",
+    "subId3": "Sub ID 3",
+    "subId4": "Sub ID 4",
+    "subId5": "Sub ID 5"
   }
 };
 const en = {
@@ -22155,6 +22184,35 @@ const en = {
     "port": "Port",
     "username": "User",
     "password": "Pass"
+  },
+  "dimensions": {
+    "campaign": "Campaign",
+    "stream": "Stream",
+    "landing": "Landing Page",
+    "offer": "Offer",
+    "source": "Traffic Source",
+    "directNoLander": "Direct (No Lander)",
+    "defaultStream": "Default / Direct Stream",
+    "country": "Country",
+    "region": "Region",
+    "city": "City",
+    "deviceType": "Device Type",
+    "os": "Operating System",
+    "browser": "Browser",
+    "language": "Language",
+    "day": "Date (Day)",
+    "hour": "Hour",
+    "adCampaignId": "Ad Campaign ID",
+    "adsetId": "AdSet ID",
+    "adId": "Ad ID",
+    "keyword": "Keyword",
+    "creativeId": "Creative ID",
+    "externalId": "External ID",
+    "subId1": "Sub ID 1",
+    "subId2": "Sub ID 2",
+    "subId3": "Sub ID 3",
+    "subId4": "Sub ID 4",
+    "subId5": "Sub ID 5"
   }
 };
 const uk = {
@@ -25157,6 +25215,35 @@ const uk = {
     "port": "Порт",
     "username": "Логін",
     "password": "Пароль"
+  },
+  "dimensions": {
+    "campaign": "Кампанія",
+    "stream": "Потік",
+    "landing": "Лендінг",
+    "offer": "Оффер",
+    "source": "Джерело трафіку",
+    "directNoLander": "Прямий перехід (Без лендінгу)",
+    "defaultStream": "Потік за замовчуванням / Прямий",
+    "country": "Країна",
+    "region": "Регіон",
+    "city": "Місто",
+    "deviceType": "Тип пристрою",
+    "os": "Операційна система",
+    "browser": "Браузер",
+    "language": "Мова",
+    "day": "Дата (День)",
+    "hour": "Година",
+    "adCampaignId": "ID кампанії",
+    "adsetId": "ID групи оголошень",
+    "adId": "ID оголошення",
+    "keyword": "Ключове слово",
+    "creativeId": "ID креативу",
+    "externalId": "Зовнішній ID",
+    "subId1": "Sub ID 1",
+    "subId2": "Sub ID 2",
+    "subId3": "Sub ID 3",
+    "subId4": "Sub ID 4",
+    "subId5": "Sub ID 5"
   }
 };
 const es = {
@@ -28159,6 +28246,35 @@ const es = {
     "port": "Puerto",
     "username": "Usuario",
     "password": "Contraseña"
+  },
+  "dimensions": {
+    "campaign": "Campaña",
+    "stream": "Flujo",
+    "landing": "Página de destino",
+    "offer": "Oferta",
+    "source": "Fuente de tráfico",
+    "directNoLander": "Directo (Sin landing)",
+    "defaultStream": "Flujo predeterminado / Directo",
+    "country": "País",
+    "region": "Región",
+    "city": "Ciudad",
+    "deviceType": "Tipo de dispositivo",
+    "os": "Sistema operativo",
+    "browser": "Navegador",
+    "language": "Idioma",
+    "day": "Fecha (Día)",
+    "hour": "Hora",
+    "adCampaignId": "ID de campaña publicitaria",
+    "adsetId": "ID de conjunto de anuncios",
+    "adId": "ID de anuncio",
+    "keyword": "Palabra clave",
+    "creativeId": "ID del creativo",
+    "externalId": "ID externo",
+    "subId1": "Sub ID 1",
+    "subId2": "Sub ID 2",
+    "subId3": "Sub ID 3",
+    "subId4": "Sub ID 4",
+    "subId5": "Sub ID 5"
   }
 };
 const zh = {
@@ -31161,6 +31277,35 @@ const zh = {
     "port": "端口",
     "username": "用户名",
     "password": "密码"
+  },
+  "dimensions": {
+    "campaign": "广告活动",
+    "stream": "分流",
+    "landing": "着陆页",
+    "offer": "Offer",
+    "source": "流量源",
+    "directNoLander": "直连 (无着陆页)",
+    "defaultStream": "默认 / 直连分流",
+    "country": "国家",
+    "region": "地区",
+    "city": "城市",
+    "deviceType": "设备类型",
+    "os": "操作系统",
+    "browser": "浏览器",
+    "language": "语言",
+    "day": "日期 (日)",
+    "hour": "小时",
+    "adCampaignId": "广告活动 ID",
+    "adsetId": "广告组 ID",
+    "adId": "广告 ID",
+    "keyword": "关键词",
+    "creativeId": "素材 ID",
+    "externalId": "外部 ID",
+    "subId1": "Sub ID 1",
+    "subId2": "Sub ID 2",
+    "subId3": "Sub ID 3",
+    "subId4": "Sub ID 4",
+    "subId5": "Sub ID 5"
   }
 };
 const fr = {
@@ -34165,6 +34310,35 @@ const fr = {
     "port": "Port",
     "username": "Utilisateur",
     "password": "Mot de passe"
+  },
+  "dimensions": {
+    "campaign": "Campagne",
+    "stream": "Flux",
+    "landing": "Page de destination",
+    "offer": "Offre",
+    "source": "Source de trafic",
+    "directNoLander": "Direct (Sans landing)",
+    "defaultStream": "Flux par défaut / Direct",
+    "country": "Pays",
+    "region": "Région",
+    "city": "Ville",
+    "deviceType": "Type d'appareil",
+    "os": "Système d'exploitation",
+    "browser": "Navigateur",
+    "language": "Langue",
+    "day": "Date (Jour)",
+    "hour": "Heure",
+    "adCampaignId": "ID de campagne publicitaire",
+    "adsetId": "ID de groupe d'annonces",
+    "adId": "ID d'annonce",
+    "keyword": "Mot-clé",
+    "creativeId": "ID de créa",
+    "externalId": "ID externe",
+    "subId1": "Sub ID 1",
+    "subId2": "Sub ID 2",
+    "subId3": "Sub ID 3",
+    "subId4": "Sub ID 4",
+    "subId5": "Sub ID 5"
   }
 };
 const de = {
@@ -37167,6 +37341,35 @@ const de = {
     "port": "Port",
     "username": "Benutzer",
     "password": "Passwort"
+  },
+  "dimensions": {
+    "campaign": "Kampagne",
+    "stream": "Stream",
+    "landing": "Landingpage",
+    "offer": "Angebot",
+    "source": "Traffic-Quelle",
+    "directNoLander": "Direkt (Keine Landingpage)",
+    "defaultStream": "Standard-/Direkt-Stream",
+    "country": "Land",
+    "region": "Region",
+    "city": "Stadt",
+    "deviceType": "Gerätetyp",
+    "os": "Betriebssystem",
+    "browser": "Browser",
+    "language": "Sprache",
+    "day": "Datum (Tag)",
+    "hour": "Stunde",
+    "adCampaignId": "Werbekampagnen-ID",
+    "adsetId": "Anzeigengruppen-ID",
+    "adId": "Anzeigen-ID",
+    "keyword": "Keyword",
+    "creativeId": "Creative-ID",
+    "externalId": "Externe ID",
+    "subId1": "Sub-ID 1",
+    "subId2": "Sub-ID 2",
+    "subId3": "Sub-ID 3",
+    "subId4": "Sub-ID 4",
+    "subId5": "Sub-ID 5"
   }
 };
 const translations = { ru, en, uk, es, zh, fr, de };
@@ -53347,10 +53550,75 @@ const getReportMetricTooltip = (metric, t) => {
   return metric.hintKey ? t(`metrics.${metric.hintKey}`, metric.hint || metric.label) : metric.label;
 };
 const REPORT_DIMENSION_LABELS = {
-  campaign_id: "Tracker Campaign",
-  ad_campaign_id: "FB Campaign ID",
-  adset_id: "FB AdSet ID",
-  ad_id: "FB Ad ID"
+  // Tracker entities
+  campaign_id: "Campaign",
+  stream_id: "Stream",
+  landing_id: "Landing Page",
+  offer_id: "Offer",
+  source_id: "Traffic Source",
+  // Geography and devices
+  country: "Country",
+  region: "Region",
+  city: "City",
+  device_type: "Device Type",
+  os: "Operating System",
+  browser: "Browser",
+  language: "Language",
+  // Time
+  day: "Date (Day)",
+  hour: "Hour",
+  // Ad parameters
+  ad_campaign_id: "Ad Campaign ID",
+  adset_id: "AdSet ID",
+  ad_id: "Ad ID",
+  keyword: "Keyword",
+  creative_id: "Creative ID",
+  external_id: "External ID",
+  // SubIDs
+  sub_id_1: "Sub ID 1",
+  sub_id_2: "Sub ID 2",
+  sub_id_3: "Sub ID 3",
+  sub_id_4: "Sub ID 4",
+  sub_id_5: "Sub ID 5"
+};
+const DIMENSION_I18N_KEYS = {
+  campaign_id: "campaign",
+  stream_id: "stream",
+  landing_id: "landing",
+  offer_id: "offer",
+  source_id: "source",
+  country: "country",
+  region: "region",
+  city: "city",
+  device_type: "deviceType",
+  os: "os",
+  browser: "browser",
+  language: "language",
+  day: "day",
+  hour: "hour",
+  ad_campaign_id: "adCampaignId",
+  adset_id: "adsetId",
+  ad_id: "adId",
+  keyword: "keyword",
+  creative_id: "creativeId",
+  external_id: "externalId",
+  sub_id_1: "subId1",
+  sub_id_2: "subId2",
+  sub_id_3: "subId3",
+  sub_id_4: "subId4",
+  sub_id_5: "subId5"
+};
+const getDimensionLabel = (dim, t) => {
+  if (!dim) return "";
+  const i18nKey = DIMENSION_I18N_KEYS[dim];
+  if (t && i18nKey) {
+    const fullKey = `dimensions.${i18nKey}`;
+    const translated = t(fullKey);
+    if (translated && translated !== fullKey) {
+      return translated;
+    }
+  }
+  return REPORT_DIMENSION_LABELS[dim] || dim;
 };
 const TEMPLATES_KEY = "orbitra_column_templates";
 const DEFAULT_TEMPLATE_KEY = "orbitra_default_template_id";
@@ -54252,7 +54520,7 @@ const ReportCustomizerModal = ({
                   fontWeight: isChosen ? 600 : 400
                 },
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: REPORT_DIMENSION_LABELS[dim] || dim }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: getDimensionLabel(dim, t) }),
                   isChosen && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 py-0.2 rounded-full bg-blue-500 text-white font-bold", children: layerIndex + 1 })
                 ]
               },
@@ -54394,15 +54662,9 @@ const ENTITY_TYPE_BY_DIMENSION = {
   adset_id: "adset",
   ad_id: "ad"
 };
-const DIMENSION_LABELS = {
-  campaign_id: "Tracker Campaign",
-  ad_campaign_id: "FB_CAMPAIGN_ID",
-  adset_id: "FB_ADSET_ID",
-  ad_id: "FB_AD_ID"
-};
-const formatDimensionLabel = (dimension) => DIMENSION_LABELS[dimension] || dimension;
 const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   const { t } = useLanguage();
+  const formatDimensionLabel = (dimension) => getDimensionLabel(dimension, t);
   const [loading, setLoading] = reactExports.useState(true);
   const [rows, setRows] = reactExports.useState([]);
   const [layerKeys, setLayerKeys] = reactExports.useState([]);
@@ -54607,29 +54869,30 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       const dims = row.dims || [];
       const dimIds = row.dim_ids || dims;
       dims.forEach((dimValue, i) => {
-        const key = dimValue !== void 0 && dimValue !== null && dimValue !== "" ? String(dimValue) : "none";
+        const rawId = String(dimIds[i] ?? dimValue ?? "");
+        const key = rawId !== "" ? rawId : "none";
         if (!node.children.has(key)) {
-          node.children.set(key, { ...createEmptyAgg(), children: /* @__PURE__ */ new Map(), dimId: String(dimIds[i] ?? dimValue) });
+          node.children.set(key, { ...createEmptyAgg(), children: /* @__PURE__ */ new Map(), dimId: rawId === "" ? "none" : rawId, dimName: String(dimValue ?? "") });
         }
         node = node.children.get(key);
         addRow(node, row);
       });
     });
     const out = [];
-    const walk = (node, depth, name) => {
+    const walk = (node, depth) => {
       computeDerived(node);
       const children = [...node.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks);
       out.push({
-        name,
+        name: node.dimName,
         depth,
         dimId: node.dimId,
         subtotal: depth < layers.length - 1 || children.length > 0,
         ...node,
         childrenCount: children.length
       });
-      children.forEach(([childName, child]) => walk(child, depth + 1, childName));
+      children.forEach(([, child]) => walk(child, depth + 1));
     };
-    [...root.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks).forEach(([name, child]) => walk(child, 0, name));
+    [...root.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks).forEach(([, child]) => walk(child, 0));
     return out;
   }, [rows, layers.length]);
   const grandTotal = reactExports.useMemo(() => {
@@ -55075,7 +55338,11 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                           }
                         );
                       })(),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: r2.name }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-xs text-[var(--color-text-primary)]", children: r2.name === "Direct (No Lander)" ? t("dimensions.directNoLander", r2.name) : r2.name === "Default / Direct Stream" ? t("dimensions.defaultStream", r2.name) : r2.name }),
+                      r2.dimId && r2.dimId !== "0" && r2.dimId !== "Unknown" && r2.dimId !== "none" && r2.dimId !== r2.name && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--color-bg-soft)] text-[var(--color-text-muted)] border border-[var(--color-border)]", children: [
+                        "#",
+                        r2.dimId
+                      ] }),
                       isSubtotal && r2.childrenCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)", fontSize: "11px" }, children: [
                         "(",
                         r2.childrenCount,

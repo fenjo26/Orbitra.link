@@ -3,7 +3,7 @@ import axios from 'axios';
 import { X, Download, Filter, BarChart3, Plus, Trash2, SlidersHorizontal, GripVertical, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
-import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
+import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, REPORT_DIMENSION_LABELS, getDimensionLabel, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
 
 const API_URL = '/api.php';
 const FB_HIERARCHY_LAYERS = ['ad_campaign_id', 'adset_id', 'ad_id'];
@@ -22,17 +22,10 @@ const ENTITY_TYPE_BY_DIMENSION = {
     adset_id: 'adset',
     ad_id: 'ad'
 };
-const DIMENSION_LABELS = {
-    campaign_id: 'Tracker Campaign',
-    ad_campaign_id: 'FB_CAMPAIGN_ID',
-    adset_id: 'FB_ADSET_ID',
-    ad_id: 'FB_AD_ID'
-};
-
-const formatDimensionLabel = (dimension) => DIMENSION_LABELS[dimension] || dimension;
 
 const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const { t } = useLanguage();
+    const formatDimensionLabel = (dimension) => getDimensionLabel(dimension, t);
     const [loading, setLoading] = useState(true);
     const [rows, setRows] = useState([]);
     const [layerKeys, setLayerKeys] = useState([]);
@@ -266,11 +259,13 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             const dims = row.dims || [];
             const dimIds = row.dim_ids || dims;
             dims.forEach((dimValue, i) => {
-                const key = dimValue !== undefined && dimValue !== null && dimValue !== '' ? String(dimValue) : 'none';
+                // Group by the RAW id (dim_ids), not the display name — two
+                // entities can share a name (bulk copies) and must not merge
+                // into one node. `name` stays the display value.
+                const rawId = String(dimIds[i] ?? dimValue ?? '');
+                const key = rawId !== '' ? rawId : 'none';
                 if (!node.children.has(key)) {
-                    // dimId: the raw grouping value (internal/network id) the
-                    // play-pause toggle sends; `name` may be a display name.
-                    node.children.set(key, { ...createEmptyAgg(), children: new Map(), dimId: String(dimIds[i] ?? dimValue) });
+                    node.children.set(key, { ...createEmptyAgg(), children: new Map(), dimId: rawId === '' ? 'none' : rawId, dimName: String(dimValue ?? '') });
                 }
                 node = node.children.get(key);
                 addRow(node, row);
@@ -278,21 +273,21 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         });
 
         const out = [];
-        const walk = (node, depth, name) => {
+        const walk = (node, depth) => {
             computeDerived(node);
             const children = [...node.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks);
             out.push({
-                name,
+                name: node.dimName,
                 depth,
                 dimId: node.dimId,
                 subtotal: depth < layers.length - 1 || children.length > 0,
                 ...node,
                 childrenCount: children.length
             });
-            children.forEach(([childName, child]) => walk(child, depth + 1, childName));
+            children.forEach(([, child]) => walk(child, depth + 1));
         };
 
-        [...root.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks).forEach(([name, child]) => walk(child, 0, name));
+        [...root.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks).forEach(([, child]) => walk(child, 0));
         return out;
     }, [rows, layers.length]);
 
@@ -774,7 +769,18 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                                         </button>
                                                                     );
                                                                 })()}
-                                                                <span>{r.name}</span>
+                                                                <span className="font-semibold text-xs text-[var(--color-text-primary)]">
+                                                                    {r.name === 'Direct (No Lander)'
+                                                                        ? t('dimensions.directNoLander', r.name)
+                                                                        : r.name === 'Default / Direct Stream'
+                                                                            ? t('dimensions.defaultStream', r.name)
+                                                                            : r.name}
+                                                                </span>
+                                                                {r.dimId && r.dimId !== '0' && r.dimId !== 'Unknown' && r.dimId !== 'none' && r.dimId !== r.name && (
+                                                                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--color-bg-soft)] text-[var(--color-text-muted)] border border-[var(--color-border)]">
+                                                                        #{r.dimId}
+                                                                    </span>
+                                                                )}
                                                                 {isSubtotal && r.childrenCount > 0 && (
                                                                     <span style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>({r.childrenCount})</span>
                                                                 )}

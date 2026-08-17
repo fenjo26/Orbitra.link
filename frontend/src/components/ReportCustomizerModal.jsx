@@ -96,11 +96,82 @@ export const getReportMetricTooltip = (metric, t) => {
     if (!metric) return '';
     return metric.hintKey ? t(`metrics.${metric.hintKey}`, metric.hint || metric.label) : metric.label;
 };
-const REPORT_DIMENSION_LABELS = {
-    campaign_id: 'Tracker Campaign',
-    ad_campaign_id: 'FB Campaign ID',
-    adset_id: 'FB AdSet ID',
-    ad_id: 'FB Ad ID'
+export const REPORT_DIMENSION_LABELS = {
+    // Tracker entities
+    campaign_id: 'Campaign',
+    stream_id: 'Stream',
+    landing_id: 'Landing Page',
+    offer_id: 'Offer',
+    source_id: 'Traffic Source',
+
+    // Geography and devices
+    country: 'Country',
+    region: 'Region',
+    city: 'City',
+    device_type: 'Device Type',
+    os: 'Operating System',
+    browser: 'Browser',
+    language: 'Language',
+
+    // Time
+    day: 'Date (Day)',
+    hour: 'Hour',
+
+    // Ad parameters
+    ad_campaign_id: 'Ad Campaign ID',
+    adset_id: 'AdSet ID',
+    ad_id: 'Ad ID',
+    keyword: 'Keyword',
+    creative_id: 'Creative ID',
+    external_id: 'External ID',
+
+    // SubIDs
+    sub_id_1: 'Sub ID 1',
+    sub_id_2: 'Sub ID 2',
+    sub_id_3: 'Sub ID 3',
+    sub_id_4: 'Sub ID 4',
+    sub_id_5: 'Sub ID 5'
+};
+
+const DIMENSION_I18N_KEYS = {
+    campaign_id: 'campaign',
+    stream_id: 'stream',
+    landing_id: 'landing',
+    offer_id: 'offer',
+    source_id: 'source',
+    country: 'country',
+    region: 'region',
+    city: 'city',
+    device_type: 'deviceType',
+    os: 'os',
+    browser: 'browser',
+    language: 'language',
+    day: 'day',
+    hour: 'hour',
+    ad_campaign_id: 'adCampaignId',
+    adset_id: 'adsetId',
+    ad_id: 'adId',
+    keyword: 'keyword',
+    creative_id: 'creativeId',
+    external_id: 'externalId',
+    sub_id_1: 'subId1',
+    sub_id_2: 'subId2',
+    sub_id_3: 'subId3',
+    sub_id_4: 'subId4',
+    sub_id_5: 'subId5'
+};
+
+export const getDimensionLabel = (dim, t) => {
+    if (!dim) return '';
+    const i18nKey = DIMENSION_I18N_KEYS[dim];
+    if (t && i18nKey) {
+        const fullKey = `dimensions.${i18nKey}`;
+        const translated = t(fullKey);
+        if (translated && translated !== fullKey) {
+            return translated;
+        }
+    }
+    return REPORT_DIMENSION_LABELS[dim] || dim;
 };
 
 // --- User-saved column templates (localStorage) ---
@@ -1022,7 +1093,7 @@ const ReportCustomizerModal = ({
                                             fontWeight: isChosen ? 600 : 400
                                         }}
                                     >
-                                        <span className="truncate">{REPORT_DIMENSION_LABELS[dim] || dim}</span>
+                                        <span className="truncate">{getDimensionLabel(dim, t)}</span>
                                         {isChosen && (
                                             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-500 text-white font-bold">
                                                 {layerIndex + 1}

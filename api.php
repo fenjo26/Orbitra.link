@@ -8682,7 +8682,13 @@ PHP;
             // Resolve numeric ids of the layer dimensions into names, in batch —
             // one query per entity type instead of one per row.
             $nameMaps = [];
-            $idLayers = ['stream_id' => 'streams', 'source_id' => 'traffic_sources', 'offer_id' => 'offers', 'landing_id' => 'landings', 'campaign_id' => 'campaigns'];
+            $idLayers = [
+                'stream_id'   => 'streams',
+                'source_id'   => 'traffic_sources',
+                'offer_id'    => 'offers',
+                'landing_id'  => 'landings',
+                'campaign_id' => 'campaigns'
+            ];
             foreach ($layers as $i => $layer) {
                 if (!isset($idLayers[$layer])) {
                     continue;
@@ -8690,7 +8696,7 @@ PHP;
                 $ids = [];
                 foreach ($rows as $r) {
                     $v = (string) ($r['dim_' . ($i + 1)] ?? '');
-                    if ($v !== '' && $v !== 'Unknown' && ctype_digit($v)) {
+                    if ($v !== '' && $v !== 'Unknown' && $v !== '0' && ctype_digit($v)) {
                         $ids[$v] = true;
                     }
                 }
@@ -8708,16 +8714,24 @@ PHP;
                 $dims = [];
                 $dimIds = [];
                 foreach ($layers as $i => $layer) {
-                    $v = (string) ($r['dim_' . ($i + 1)] ?? 'Unknown');
+                    $rawVal = (string) ($r['dim_' . ($i + 1)] ?? 'Unknown');
                     // dim_ids keeps the raw grouping value (internal campaign id,
                     // ad network ad/adset id from click parameters) — dims may
                     // replace it with a display name, but actions like the
                     // play/pause toggle need the id itself.
-                    $dimIds[] = $v;
-                    if (isset($nameMaps[$layer][$v])) {
-                        $v = (string) $nameMaps[$layer][$v];
+                    $dimIds[] = $rawVal;
+
+                    if ($layer === 'landing_id' && ($rawVal === '0' || $rawVal === '' || $rawVal === 'Unknown')) {
+                        $displayName = 'Direct (No Lander)';
+                    } else if ($layer === 'stream_id' && ($rawVal === '0' || $rawVal === '' || $rawVal === 'Unknown')) {
+                        $displayName = 'Default / Direct Stream';
+                    } else if (isset($nameMaps[$layer][$rawVal])) {
+                        $displayName = (string) $nameMaps[$layer][$rawVal];
+                    } else {
+                        $displayName = $rawVal;
                     }
-                    $dims[] = $v;
+
+                    $dims[] = $displayName;
                 }
                 $out[] = array_merge(['dims' => $dims, 'dim_ids' => $dimIds], orbitraComputeDerivedMetrics($r));
             }
