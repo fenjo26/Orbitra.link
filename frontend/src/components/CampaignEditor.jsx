@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
-import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3, Eye, Info } from 'lucide-react';
+import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3, Eye, Info, Search } from 'lucide-react';
 import CampaignReports from './CampaignReports';
 import ConversionsLog from './ConversionsLog';
 import LandingEditor from './LandingEditor';
@@ -254,6 +254,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [sources, setSources] = useState([]);
     const [domains, setDomains] = useState([]);
     const [allOffers, setAllOffers] = useState([]);
+    // LeadForge "Direct Local Offer" whites: is_local=1, files in offers/<id>/.
+    // Candidates for the cloak Safe Page's "Local Offer" tab.
+    const localOffers = (allOffers || []).filter(o => o.is_local);
     const [allLandings, setAllLandings] = useState([]);
     // Creating a landing or offer without leaving the stream you are wiring up.
     // Going to another page and back used to mean losing the unsaved campaign.
@@ -1171,7 +1174,17 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         setFormData({ ...formData, streams: s });
     };
 
-    const openEntityPicker = (streamIdx, type) => setPickerState({ open: true, streamIdx, type });
+    const openEntityPicker = (streamIdx, type) => setPickerState({ open: true, streamIdx, type, safeField: null });
+
+    // The Safe Page block reuses the same picker, but as a single pick that
+    // writes one cloak field (safe_landing_id / safe_offer_id) instead of
+    // appending to the stream rotation.
+    const openSafePicker = (streamIdx, safeField) => setPickerState({
+        open: true,
+        streamIdx,
+        type: safeField === 'safe_offer_id' ? 'offers' : 'landings',
+        safeField,
+    });
 
     /**
      * An offer was created inside the stream's embedded OfferEditor — refresh
@@ -3162,8 +3175,33 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 {stream.schema_type === 'cloak' && (() => {
                                                     const sc = stream.schema_custom || {};
                                                     const setCloakField = (field, value) => updateStream(idx, 'schema_custom', { ...sc, [field]: value });
-                                                    const safeMode = sc.safe_mode || (sc.safe_landing_id ? 'landing' : sc.safe_html ? 'html' : 'url');
+                                                    const safeMode = sc.safe_mode || (sc.safe_landing_id ? 'landing' : sc.safe_offer_id ? 'offer' : sc.safe_html ? 'html' : 'url');
                                                     const setSafeMode = (mode) => updateStream(idx, 'schema_custom', { ...sc, safe_mode: mode });
+
+                                                    // Whites are filed in groups ("White Nutra", "Safe Ecom"…);
+                                                    // a flat select is unusable past a few dozen pages, so both
+                                                    // Safe Page selects group their items by group_name, with
+                                                    // ungrouped entries collected at the bottom.
+                                                    const renderGroupedEntities = (items) => {
+                                                        const groups = new Map();
+                                                        (items || []).forEach(it => {
+                                                            const key = it.group_name ? String(it.group_name) : '';
+                                                            if (!groups.has(key)) groups.set(key, []);
+                                                            groups.get(key).push(it);
+                                                        });
+                                                        const named = Array.from(groups.entries())
+                                                            .filter(([k]) => k !== '')
+                                                            .sort((a, b) => a[0].localeCompare(b[0]));
+                                                        if (groups.has('')) named.push(['', groups.get('')]);
+                                                        return named.map(([groupName, groupItems]) => (
+                                                            <optgroup
+                                                                key={groupName || '__none__'}
+                                                                label={`📁 ${groupName || t('landings.noGroup', 'No group')}`}
+                                                            >
+                                                                {groupItems.map(al => <option key={al.id} value={al.id}>{al.name}</option>)}
+                                                            </optgroup>
+                                                        ));
+                                                    };
 
                                                     return (
                                                         <div className="space-y-4 rounded-2xl p-4" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
@@ -3387,11 +3425,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                         🛡️ {t('streamRefine.safePageTitle', 'Safe Page (For Reviewers & Bots)')}
                                                                     </span>
                                                                     <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--color-border)' }}>
-                                                                        {[
-                                                                            ['url', t('streamRefine.tabUrl', 'External URL')],
-                                                                            ['landing', t('streamRefine.tabLanding', 'Tracker Landing')],
-                                                                            ['html', t('streamRefine.tabHtml', 'Inline HTML')]
-                                                                        ].map(([mode, label]) => (
+                                                                    {[
+                                                                        ['url', t('streamRefine.tabUrl', 'External URL')],
+                                                                        ['landing', t('streamRefine.tabLanding', 'Tracker Landing')],
+                                                                        ['offer', t('streamRefine.tabOffer', 'Local Offer')],
+                                                                        ['html', t('streamRefine.tabHtml', 'Inline HTML')]
+                                                                    ].map(([mode, label]) => (
                                                                             <button
                                                                                 key={mode}
                                                                                 type="button"
@@ -3421,16 +3460,51 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 )}
 
                                                                 {safeMode === 'landing' && (
-                                                                    <div>
+                                                                    <div className="flex items-center gap-2">
                                                                         <select
                                                                             value={sc.safe_landing_id || ''}
                                                                             onChange={e => setCloakField('safe_landing_id', e.target.value ? parseInt(e.target.value) : null)}
-                                                                            className="form-select text-xs py-1.5 rounded-xl"
+                                                                            className="form-select text-xs py-1.5 rounded-xl flex-1 min-w-0"
                                                                         >
                                                                             <option value="">{t('cloaking.safeLandingNone', 'Select a Safe Landing...')}</option>
-                                                                            {allLandings.map(al => <option key={al.id} value={al.id}>{al.name}</option>)}
+                                                                            {renderGroupedEntities(allLandings)}
                                                                         </select>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => openSafePicker(idx, 'safe_landing_id')}
+                                                                            className="action-btn shrink-0"
+                                                                            title={t('picker.safeLandingsTitle', 'Select a Safe Landing')}
+                                                                        >
+                                                                            <Search className="w-4 h-4" />
+                                                                        </button>
                                                                     </div>
+                                                                )}
+
+                                                                {safeMode === 'offer' && (
+                                                                    localOffers.length > 0 ? (
+                                                                        <div className="flex items-center gap-2">
+                                                                            <select
+                                                                                value={sc.safe_offer_id || ''}
+                                                                                onChange={e => setCloakField('safe_offer_id', e.target.value ? parseInt(e.target.value) : null)}
+                                                                                className="form-select text-xs py-1.5 rounded-xl flex-1 min-w-0"
+                                                                            >
+                                                                                <option value="">{t('cloaking.safeOfferNone', 'Select a Safe Offer...')}</option>
+                                                                                {renderGroupedEntities(localOffers)}
+                                                                            </select>
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => openSafePicker(idx, 'safe_offer_id')}
+                                                                                className="action-btn shrink-0"
+                                                                                title={t('picker.safeOffersTitle', 'Select a Safe Offer')}
+                                                                            >
+                                                                                <Search className="w-4 h-4" />
+                                                                            </button>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="text-xs py-2 px-3 rounded-xl border border-dashed" style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
+                                                                            {t('cloaking.noLocalOffers', 'No local offers yet — create one in Offers (type Local) or build it in LeadForge.')}
+                                                                        </div>
+                                                                    )
                                                                 )}
 
                                                                 {safeMode === 'html' && (
@@ -4211,18 +4285,41 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 />
             )}
 
-            {/* Keitaro-style entity picker opened by a stream's "Add ..." button */}
+            {/* Keitaro-style entity picker opened by a stream's "Add ..." button,
+                and by the Safe Page selects (single pick → safe_landing_id / safe_offer_id) */}
             {pickerState.open && (
                 <EntitySelectorModal
                     type={pickerState.type}
-                    items={pickerState.type === 'landings' ? allLandings : allOffers}
-                    existingIds={(formData.streams[pickerState.streamIdx]?.schema_custom?.[pickerState.type] || [])
-                        .map(x => parseInt(x.id, 10))
-                        .filter(Boolean)}
-                    onClose={() => setPickerState({ open: false, streamIdx: null, type: null })}
+                    items={pickerState.safeField === 'safe_offer_id'
+                        ? localOffers
+                        : (pickerState.type === 'landings' ? allLandings : allOffers)}
+                    existingIds={pickerState.safeField
+                        ? []
+                        : (formData.streams[pickerState.streamIdx]?.schema_custom?.[pickerState.type] || [])
+                            .map(x => parseInt(x.id, 10))
+                            .filter(Boolean)}
+                    singleSelect={!!pickerState.safeField}
+                    title={pickerState.safeField === 'safe_landing_id'
+                        ? t('picker.safeLandingsTitle', 'Select a Safe Landing')
+                        : pickerState.safeField === 'safe_offer_id'
+                            ? t('picker.safeOffersTitle', 'Select a Safe Offer')
+                            : undefined}
+                    onClose={() => setPickerState({ open: false, streamIdx: null, type: null, safeField: null })}
                     onAdd={(ids) => {
-                        addEntitiesToStream(pickerState.streamIdx, pickerState.type, ids);
-                        setPickerState({ open: false, streamIdx: null, type: null });
+                        if (pickerState.safeField) {
+                            const i = pickerState.streamIdx;
+                            const s = [...formData.streams];
+                            if (s[i]) {
+                                const scNext = { ...(s[i].schema_custom || {}) };
+                                scNext[pickerState.safeField] = parseInt(ids[0], 10) || null;
+                                scNext.safe_mode = pickerState.safeField === 'safe_offer_id' ? 'offer' : 'landing';
+                                s[i] = { ...s[i], schema_custom: scNext };
+                                setFormData({ ...formData, streams: s });
+                            }
+                        } else {
+                            addEntitiesToStream(pickerState.streamIdx, pickerState.type, ids);
+                        }
+                        setPickerState({ open: false, streamIdx: null, type: null, safeField: null });
                     }}
                 />
             )}

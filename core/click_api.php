@@ -672,11 +672,14 @@ function orbitraClickApiV3(PDO $pdo): void
 
     if ($routeSchemaType === 'cloak_safe') {
         $safeLandingId = (int) ($customSchema['safe_landing_id'] ?? 0);
+        $safeOfferId = (int) ($customSchema['safe_offer_id'] ?? 0);
         $safeMode = (string) ($customSchema['safe_mode'] ?? '');
-        if (!in_array($safeMode, ['landing', 'url', 'html'], true)) {
+        if (!in_array($safeMode, ['landing', 'offer', 'url', 'html'], true)) {
             $safeMode = $safeLandingId > 0
                 ? 'landing'
-                : (!empty($customSchema['safe_url']) ? 'url' : 'html');
+                : ($safeOfferId > 0
+                    ? 'offer'
+                    : (!empty($customSchema['safe_url']) ? 'url' : 'html'));
         }
 
         if ($safeMode === 'landing' && $safeLandingId > 0) {
@@ -700,6 +703,19 @@ function orbitraClickApiV3(PDO $pdo): void
                         ? 'text/plain; charset=utf-8'
                         : 'text/html; charset=utf-8';
                 }
+            } else {
+                $actionBody = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Welcome</title></head><body><h1>Page</h1><p>Content is loading.</p></body></html>';
+            }
+        } elseif ($safeMode === 'offer' && $safeOfferId > 0) {
+            // A local offer as the white page. The Click API cannot serve the
+            // archive itself — the tracker's public /offers/<id>/ route does.
+            // Relative on purpose: this endpoint is served by index.php on the
+            // same host, exactly like the /lander/ redirect above.
+            $stmtSafeOffer = $pdo->prepare("SELECT is_local FROM offers WHERE id = ? LIMIT 1");
+            $stmtSafeOffer->execute([$safeOfferId]);
+            $safeOfferRow = $stmtSafeOffer->fetch();
+            if ($safeOfferRow && (int) ($safeOfferRow['is_local'] ?? 0) === 1) {
+                $finalUrl = '/offers/' . $safeOfferId . '/';
             } else {
                 $actionBody = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Welcome</title></head><body><h1>Page</h1><p>Content is loading.</p></body></html>';
             }
@@ -728,11 +744,16 @@ function orbitraClickApiV3(PDO $pdo): void
             }
         }
         if ($offerIdToLog) {
-            $stmtO = $pdo->prepare("SELECT url FROM offers WHERE id = ?");
+            $stmtO = $pdo->prepare("SELECT url, is_local FROM offers WHERE id = ?");
             $stmtO->execute([$offerIdToLog]);
             $off = $stmtO->fetch(PDO::FETCH_ASSOC);
             if ($off) {
                 $offerUrl = $off['url'] ?? null;
+                // A direct local offer carries no URL — the tracker's public
+                // /offers/<id>/ route serves its uploaded page instead.
+                if ((string) $offerUrl === '' && (int) ($off['is_local'] ?? 0) === 1) {
+                    $offerUrl = '/offers/' . $offerIdToLog . '/';
+                }
             }
         }
 
@@ -768,11 +789,15 @@ function orbitraClickApiV3(PDO $pdo): void
         }
 
         if ($offerIdToLog) {
-            $stmtO = $pdo->prepare("SELECT url FROM offers WHERE id = ?");
+            $stmtO = $pdo->prepare("SELECT url, is_local FROM offers WHERE id = ?");
             $stmtO->execute([$offerIdToLog]);
             $off = $stmtO->fetch(PDO::FETCH_ASSOC);
             if ($off) {
                 $offerUrl = $off['url'] ?? null;
+                // Same direct-local-offer fallback as the landing_offer schema.
+                if ((string) $offerUrl === '' && (int) ($off['is_local'] ?? 0) === 1) {
+                    $offerUrl = '/offers/' . $offerIdToLog . '/';
+                }
                 $finalUrl = $offerUrl;
             }
         }

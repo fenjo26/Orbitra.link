@@ -954,6 +954,96 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
     return false;
 }
 
+/**
+ * A local offer's own address, /offers/<id>/ — the offer twin of /lander/<slug>/.
+ * Cloaked streams that use a local offer as their Safe Page send bots here from
+ * click.php and the Click API, which cannot serve the archive themselves. Same
+ * rules as the lander route: not a click, nothing logged, PHP indexes are not
+ * executed (no click context here). The orbitra_lo cookie is set while serving,
+ * so the page's relative assets and the LeadForge order.php bridge keep
+ * resolving for a visitor standing on this URL.
+ */
+function orbitraServeOfferPath(PDO $pdo, int $offerId, string $rest): void
+{
+    $notFound = function () {
+        http_response_code(404);
+        header('Content-Type: text/html; charset=utf-8');
+        echo "<!doctype html><html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>";
+        exit;
+    };
+
+    if ($offerId <= 0) {
+        $notFound();
+    }
+    try {
+        $stmt = $pdo->prepare("SELECT is_local, state FROM offers WHERE id = ? LIMIT 1");
+        $stmt->execute([$offerId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (\Throwable $e) {
+        $row = null;
+    }
+    if (!$row || (int) ($row['is_local'] ?? 0) !== 1 || ($row['state'] ?? '') === 'archived') {
+        $notFound();
+    }
+
+    $root = realpath(orbitraLandingContentDir(orbitraOfferDir($offerId)));
+    if ($root === false) {
+        $notFound();
+    }
+
+    $rest = trim(rawurldecode($rest), '/');
+    if ($rest === '') {
+        $rest = 'index.html';
+    }
+
+    // Anything that is not a page goes through the same extension whitelist
+    // and path containment the click flow uses. serveOfferAsset() exits when
+    // it serves and simply returns when it will not.
+    if (!preg_match('/\.html?$/i', $rest)) {
+        serveOfferAsset($offerId, '/' . $rest);
+        $notFound();
+    }
+
+    $file = realpath($root . '/' . $rest);
+    if ($file === false || !is_file($file) || strpos($file, $root . DIRECTORY_SEPARATOR) !== 0) {
+        if ($rest === 'index.html' && is_file($root . '/index.php')) {
+            http_response_code(503);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'This offer page is written in PHP. A PHP page runs only inside a real click, '
+                . 'where the tracker can give it the click context, so it cannot be previewed here.';
+            exit;
+        }
+        $notFound();
+    }
+
+    $html = (string) file_get_contents($file);
+
+    // Same <base> the lander route injects: relative paths must resolve inside
+    // the offer's folder, and /offers/<id>/... is exactly what this route answers.
+    $base = '<base href="/offers/' . $offerId . '/">';
+    if (preg_match('/<head[^>]*>/i', $html, $m, PREG_OFFSET_CAPTURE)) {
+        $at = $m[0][1] + strlen($m[0][0]);
+        $html = substr($html, 0, $at) . "\n" . $base . substr($html, $at);
+    } else {
+        $html = $base . "\n" . $html;
+    }
+
+    // No stream picked an offer for this view, so the macro resolves to the same
+    // entry point a hand-written landing uses.
+    $html = str_replace('{offer}', '/?_lp=1', $html);
+
+    if (!headers_sent()) {
+        $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['SERVER_PORT'] ?? '') == 443);
+        $opts = ['expires' => time() + 86400, 'path' => '/', 'secure' => $secure, 'httponly' => false, 'samesite' => 'Lax'];
+        setcookie('orbitra_lo', (string) $offerId, $opts);
+        setcookie('orbitra_lp', '', ['expires' => time() - 3600, 'path' => '/']);
+    }
+
+    header('Content-Type: text/html; charset=utf-8');
+    echo $html;
+    exit;
+}
+
 /** Asset passthrough for a local offer's directory (mirror of serveLandingAsset). */
 function serveOfferAsset($offerId, $uriPath)
 {
@@ -1638,6 +1728,14 @@ if ($uriPath !== null) {
             exit;
         }
     }
+}
+
+// A local offer's own address, /offers/<id>/ — see orbitraServeOfferPath().
+// Comes after the order.php bridge (a form on that page posts to a relative
+// order.php the bridge must run, using the cookie this route sets) and before
+// the cookie passthrough: the id in the URL, not the cookie, decides here.
+if ($uriPath !== null && preg_match('#^/offers/(\d+)(?:/(.*))?$#', $uriPath, $offerMatch)) {
+    orbitraServeOfferPath($pdo, (int) $offerMatch[1], $offerMatch[2] ?? '');
 }
 
 if (!empty($_COOKIE['orbitra_lo']) && $uriPath !== null && $uriPath !== '/') {
@@ -2520,11 +2618,14 @@ if ($selectedStream) {
         if ($cloakShowSafe) {
             // --- Safe page ---
             $safeLandingId = (int) ($customSchema['safe_landing_id'] ?? 0);
+            $safeOfferId = (int) ($customSchema['safe_offer_id'] ?? 0);
             $safeMode = (string) ($customSchema['safe_mode'] ?? '');
-            if (!in_array($safeMode, ['landing', 'url', 'html'], true)) {
+            if (!in_array($safeMode, ['landing', 'offer', 'url', 'html'], true)) {
                 $safeMode = $safeLandingId > 0
                     ? 'landing'
-                    : (!empty($customSchema['safe_url']) ? 'url' : 'html');
+                    : ($safeOfferId > 0
+                        ? 'offer'
+                        : (!empty($customSchema['safe_url']) ? 'url' : 'html'));
             }
 
             if ($safeMode === 'landing' && $safeLandingId > 0) {
@@ -2544,6 +2645,16 @@ if ($selectedStream) {
                     }
                 }
                 if (!$safeLand) {
+                    $deferredSafeHtml = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Welcome</title></head><body><h1>Page</h1><p>Content is loading.</p></body></html>';
+                }
+            } elseif ($safeMode === 'offer' && $safeOfferId > 0) {
+                // A local offer as the white page: mark it as the click's offer
+                // and let the direct local-offer branch at the redirect stage
+                // serve the uploaded archive inline, with the same macros and
+                // orbitra_lo cookie handling a money-page offer gets.
+                if (orbitraOfferIsLocal($pdo, $safeOfferId)) {
+                    $offerIdToLog = $safeOfferId;
+                } else {
                     $deferredSafeHtml = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Welcome</title></head><body><h1>Page</h1><p>Content is loading.</p></body></html>';
                 }
             } elseif ($safeMode === 'url' && !empty($customSchema['safe_url'])) {
@@ -2862,8 +2973,22 @@ if ($actionToPerfrom) {
         }
     }
 
-    if (!$finalUrl) {
+    // Default behavior is redirect. Use redirect=0 for debug/integration checks.
+    $shouldRedirect = ($_GET['redirect'] ?? '1') !== '0';
+
+    // A direct local offer has no URL to redirect to — its uploaded page IS the
+    // destination and is served below, so an empty URL must not die on the way
+    // there. This is what makes "Direct Local Offer" streams (and a local offer
+    // picked as the cloak Safe Page) reachable at all.
+    $pendingLocalOffer = $shouldRedirect && !empty($offerIdToLog) && orbitraOfferIsLocal($pdo, $offerIdToLog);
+    if (!$finalUrl && !$pendingLocalOffer) {
         die("URL not found.");
+    }
+
+    // A NULL url on the picked offer (e.g. a direct local offer reached this
+    // point) must not leak into the macro substitution below.
+    if ($finalUrl === null) {
+        $finalUrl = '';
     }
 
     // Подстановка макросов.
@@ -2892,12 +3017,9 @@ if ($actionToPerfrom) {
     }
 
     // Ensure URL has a scheme (http/https) to prevent relative redirects back to the index
-    if (!preg_match('#^(https?:)?//#i', $finalUrl) && !preg_match('#^/#', $finalUrl) && !preg_match('#^(mailto|tel):#i', $finalUrl)) {
+    if ($finalUrl !== '' && !preg_match('#^(https?:)?//#i', $finalUrl) && !preg_match('#^/#', $finalUrl) && !preg_match('#^(mailto|tel):#i', $finalUrl)) {
         $finalUrl = 'http://' . ltrim($finalUrl, '/');
     }
-
-    // Default behavior is redirect. Use redirect=0 for debug/integration checks.
-    $shouldRedirect = ($_GET['redirect'] ?? '1') !== '0';
 
     // A local offer replaces the redirect: the visitor stays on the tracker and
     // gets the offer's uploaded page inline (same machinery as local landings).

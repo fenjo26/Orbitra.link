@@ -15,7 +15,7 @@ $pdo->exec('CREATE TABLE streams (
     type TEXT, position INTEGER, filters_json TEXT, filters_logic TEXT,
     schema_type TEXT, schema_custom_json TEXT
 )');
-$pdo->exec('CREATE TABLE offers (id INTEGER PRIMARY KEY, url TEXT)');
+$pdo->exec('CREATE TABLE offers (id INTEGER PRIMARY KEY, url TEXT, is_local INTEGER DEFAULT 0)');
 $pdo->exec('CREATE TABLE landings (id INTEGER PRIMARY KEY, type TEXT, url TEXT, action_payload TEXT, action_type TEXT, slug TEXT)');
 $pdo->exec('CREATE TABLE bot_ips (id INTEGER PRIMARY KEY, ip_or_cidr TEXT)');
 $pdo->exec('CREATE TABLE bot_signatures (id INTEGER PRIMARY KEY, signature TEXT)');
@@ -43,6 +43,10 @@ foreach ([
 
 $pdo->exec("INSERT INTO campaigns (id, token, rotation_type, uniqueness_hours, uniqueness_method) VALUES (1, 'cloak-token', 'position', 24, 'IP')");
 $pdo->exec("INSERT INTO offers (id, url) VALUES (1, 'https://money.example/path')");
+// A LeadForge-style direct local offer: is_local=1, no url — the uploaded
+// archive is the destination, served by the tracker's /offers/<id>/ route.
+$pdo->exec("INSERT INTO offers (id, url, is_local) VALUES (2, NULL, 1)");
+$pdo->exec("INSERT INTO offers (id, url, is_local) VALUES (3, 'https://remote.example/offer', 0)");
 
 $streamInsert = $pdo->prepare('INSERT INTO streams (
     id, campaign_id, offer_id, is_active, type, position, filters_json,
@@ -123,6 +127,46 @@ if ((int) $pdo->query('SELECT COUNT(*) FROM clicks')->fetchColumn() !== 2) {
 }
 if (($recordedSafeResponse['headers'][0] ?? '') !== 'Location: https://safe.example/review') {
     throw new RuntimeException('Recorded Safe Page URL was not returned');
+}
+
+// --- Safe Page as a local offer (safe_mode='offer') -------------------------
+$offerSafeSchema = $baseSchema;
+$offerSafeSchema['safe_mode'] = 'offer';
+$offerSafeSchema['safe_offer_id'] = 2;
+$offerSafeResponse = $runClickApi($offerSafeSchema, $botUa);
+if (($offerSafeResponse['headers'][0] ?? '') !== 'Location: /offers/2/') {
+    throw new RuntimeException('Safe Page local offer redirect was not returned');
+}
+if ((int) $pdo->query('SELECT COUNT(*) FROM clicks')->fetchColumn() !== 2) {
+    throw new RuntimeException('Safe Page local offer request was written to clicks');
+}
+
+// A non-local offer id must not produce an /offers/ redirect — the default
+// fallback page answers instead.
+$offerSafeSchema['safe_offer_id'] = 3;
+$offerFallbackResponse = $runClickApi($offerSafeSchema, $botUa);
+if (!empty($offerFallbackResponse['headers']) || strpos((string) ($offerFallbackResponse['body'] ?? ''), 'Content is loading') === false) {
+    throw new RuntimeException('Non-local Safe Page offer did not fall back to the default page');
+}
+
+// Money Page: a direct local offer (no url) resolves to its /offers/<id>/
+// address instead of an empty destination.
+$moneyLocalSchema = $baseSchema;
+unset($moneyLocalSchema['safe_mode'], $moneyLocalSchema['safe_url']);
+$moneyLocalSchema['offers'] = [['id' => 2, 'weight' => 100]];
+$moneyLocalResponse = $runClickApi($moneyLocalSchema, $browserUa);
+if (($moneyLocalResponse['headers'][0] ?? '') !== 'Location: /offers/2/') {
+    throw new RuntimeException('Money Page direct local offer URL was not returned');
+}
+
+// Legacy schema without safe_mode: a saved safe_offer_id alone must select the
+// offer mode, the same way a saved safe_landing_id selects the landing mode.
+$legacyOfferSchema = $baseSchema;
+unset($legacyOfferSchema['safe_mode']);
+$legacyOfferSchema['safe_offer_id'] = 2;
+$legacyOfferResponse = $runClickApi($legacyOfferSchema, $botUa);
+if (($legacyOfferResponse['headers'][0] ?? '') !== 'Location: /offers/2/') {
+    throw new RuntimeException('Legacy schema with only safe_offer_id did not resolve to the offer Safe Page');
 }
 
 echo "Cloak click logging integration tests passed.\n";

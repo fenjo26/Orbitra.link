@@ -14,7 +14,7 @@ import { useLanguage } from '../contexts/LanguageContext';
  * Group Network columns for offers (ID Name Group for landings), and a footer
  * with "Select all" on the left, Close/Add on the right.
  */
-const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
+const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd, singleSelect = false, title = null }) => {
     const { t } = useLanguage();
     const [q, setQ] = useState('');
     const [groupFilter, setGroupFilter] = useState('');
@@ -23,6 +23,11 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
     const [selected, setSelected] = useState(() => new Set());
 
     const isOffers = type === 'offers';
+    // The Safe Page picker passes local offers only: network and GEO filters
+    // are noise for uploaded whites, so they disappear when everything on the
+    // list is local.
+    const allLocal = isOffers && (items || []).length > 0 && (items || []).every(it => it.is_local);
+    const showOfferFilters = isOffers && !allLocal;
     const existing = useMemo(() => new Set((existingIds || []).map(id => parseInt(id, 10))), [existingIds]);
 
     const uniqueByName = (entries) => {
@@ -64,14 +69,14 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
                 if (!haystack.includes(needle)) return false;
             }
             if (groupFilter && String(it.group_id || '') !== String(groupFilter)) return false;
-            if (isOffers && networkFilter && String(it.affiliate_network_id || '') !== String(networkFilter)) return false;
-            if (isOffers && countryFilter) {
+            if (showOfferFilters && networkFilter && String(it.affiliate_network_id || '') !== String(networkFilter)) return false;
+            if (showOfferFilters && countryFilter) {
                 const codes = String(it.geo || '').split(',').map(c => c.trim().toUpperCase());
                 if (!codes.includes(countryFilter)) return false;
             }
             return true;
         });
-    }, [items, q, groupFilter, networkFilter, countryFilter, isOffers]);
+    }, [items, q, groupFilter, networkFilter, countryFilter, showOfferFilters]);
 
     const pickable = filtered.filter(it => !existing.has(parseInt(it.id, 10)));
     const allPicked = pickable.length > 0 && pickable.every(it => selected.has(it.id));
@@ -105,7 +110,7 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
         <div className="modal-overlay">
             <div className="modal-content" style={{ maxWidth: '760px' }}>
                 <div className="modal-header">
-                    <h3 className="modal-title">{isOffers ? t('picker.offersTitle') : t('picker.landingsTitle')}</h3>
+                    <h3 className="modal-title">{title || (isOffers ? t('picker.offersTitle') : t('picker.landingsTitle'))}</h3>
                     <button type="button" onClick={onClose} className="action-btn">
                         <X className="w-5 h-5" />
                     </button>
@@ -128,7 +133,7 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
                         <option value="">{t('picker.allGroups')}</option>
                         {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                     </select>
-                    {isOffers && (
+                    {showOfferFilters && (
                         <>
                             <select value={networkFilter} onChange={e => setNetworkFilter(e.target.value)} className="form-select text-sm" style={{ width: 'auto', minWidth: '130px' }}>
                                 <option value="">{t('picker.allNetworks')}</option>
@@ -152,12 +157,12 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
                         <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
                             <thead>
                                 <tr>
-                                    <th style={{ ...th, width: '36px' }}></th>
+                                    {!singleSelect && <th style={{ ...th, width: '36px' }}></th>}
                                     <th style={{ ...th, width: '60px' }}>ID</th>
                                     <th style={th}>{t('editor.name')}</th>
-                                    {isOffers && <th style={th}>{t('picker.countries')}</th>}
+                                    {showOfferFilters && <th style={th}>{t('picker.countries')}</th>}
                                     <th style={th}>{t('picker.group')}</th>
-                                    {isOffers && <th style={th}>{t('picker.network')}</th>}
+                                    {showOfferFilters && <th style={th}>{t('picker.network')}</th>}
                                 </tr>
                             </thead>
                             <tbody>
@@ -177,19 +182,26 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
                                     return (
                                         <tr
                                             key={it.id}
-                                            onClick={() => { if (!isExisting) toggle(id); }}
+                                            onClick={() => {
+                                                if (isExisting) return;
+                                                // Single-select (Safe Page): one click IS the pick.
+                                                if (singleSelect) { onAdd([id]); return; }
+                                                toggle(id);
+                                            }}
                                             style={{ cursor: isExisting ? 'default' : 'pointer' }}
                                         >
-                                            <td style={rowStyle}>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={isExisting || isSelected}
-                                                    disabled={isExisting}
-                                                    onChange={() => toggle(id)}
-                                                    onClick={e => e.stopPropagation()}
-                                                    style={{ accentColor: 'var(--color-primary)', verticalAlign: 'middle' }}
-                                                />
-                                            </td>
+                                            {!singleSelect && (
+                                                <td style={rowStyle}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isExisting || isSelected}
+                                                        disabled={isExisting}
+                                                        onChange={() => toggle(id)}
+                                                        onClick={e => e.stopPropagation()}
+                                                        style={{ accentColor: 'var(--color-primary)', verticalAlign: 'middle' }}
+                                                    />
+                                                </td>
+                                            )}
                                             <td style={{ ...rowStyle, color: 'var(--color-text-muted)' }}>{it.id}</td>
                                             <td style={rowStyle}>
                                                 <span className="font-medium" style={{ textDecoration: isExisting ? 'line-through' : 'none' }}>
@@ -201,9 +213,9 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
                                                     </span>
                                                 )}
                                             </td>
-                                            {isOffers && <td style={rowStyle}>{it.geo || <span style={{ color: 'var(--color-text-muted)' }}>—</span>}</td>}
+                                            {showOfferFilters && <td style={rowStyle}>{it.geo || <span style={{ color: 'var(--color-text-muted)' }}>—</span>}</td>}
                                             <td style={rowStyle}>{it.group_name || <span style={{ color: 'var(--color-text-muted)' }}>—</span>}</td>
-                                            {isOffers && <td style={rowStyle}>{it.affiliate_network_name || <span style={{ color: 'var(--color-text-muted)' }}>—</span>}</td>}
+                                            {showOfferFilters && <td style={rowStyle}>{it.affiliate_network_name || <span style={{ color: 'var(--color-text-muted)' }}>—</span>}</td>}
                                         </tr>
                                     );
                                 })}
@@ -212,31 +224,36 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd }) => {
                     )}
                 </div>
 
-                {/* Footer: Select all on the left, Close/Add on the right */}
-                <div className="modal-footer" style={{ justifyContent: 'space-between' }}>
-                    <label className="flex items-center gap-2 text-sm cursor-pointer select-none" style={{ color: 'var(--color-text-secondary)' }}>
-                        <input
-                            type="checkbox"
-                            checked={allPicked}
-                            ref={el => { if (el) el.indeterminate = !allPicked && somePicked; }}
-                            onChange={toggleAll}
-                            disabled={pickable.length === 0}
-                            style={{ accentColor: 'var(--color-primary)' }}
-                        />
-                        {t('editor.selectAll')}
-                    </label>
+                {/* Footer: Select all on the left, Close/Add on the right.
+                    A single-select pick fires on row click, so only Close stays. */}
+                <div className="modal-footer" style={{ justifyContent: singleSelect ? 'flex-end' : 'space-between' }}>
+                    {!singleSelect && (
+                        <label className="flex items-center gap-2 text-sm cursor-pointer select-none" style={{ color: 'var(--color-text-secondary)' }}>
+                            <input
+                                type="checkbox"
+                                checked={allPicked}
+                                ref={el => { if (el) el.indeterminate = !allPicked && somePicked; }}
+                                onChange={toggleAll}
+                                disabled={pickable.length === 0}
+                                style={{ accentColor: 'var(--color-primary)' }}
+                            />
+                            {t('editor.selectAll')}
+                        </label>
+                    )}
                     <div className="flex gap-3">
                         <button type="button" onClick={onClose} className="btn btn-secondary">
                             {t('common.close')}
                         </button>
-                        <button
-                            type="button"
-                            onClick={() => onAdd(Array.from(selected))}
-                            disabled={selected.size === 0}
-                            className="btn btn-primary"
-                        >
-                            {t('common.add')}
-                        </button>
+                        {!singleSelect && (
+                            <button
+                                type="button"
+                                onClick={() => onAdd(Array.from(selected))}
+                                disabled={selected.size === 0}
+                                className="btn btn-primary"
+                            >
+                                {t('common.add')}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

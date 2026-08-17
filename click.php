@@ -496,11 +496,14 @@ if ($stream) {
 
     if ($cloakShowSafe) {
         $safeLandingId = (int) ($customSchema['safe_landing_id'] ?? 0);
+        $safeOfferId = (int) ($customSchema['safe_offer_id'] ?? 0);
         $safeMode = (string) ($customSchema['safe_mode'] ?? '');
-        if (!in_array($safeMode, ['landing', 'url', 'html'], true)) {
+        if (!in_array($safeMode, ['landing', 'offer', 'url', 'html'], true)) {
             $safeMode = $safeLandingId > 0
                 ? 'landing'
-                : (!empty($customSchema['safe_url']) ? 'url' : 'html');
+                : ($safeOfferId > 0
+                    ? 'offer'
+                    : (!empty($customSchema['safe_url']) ? 'url' : 'html'));
         }
 
         if ($safeMode === 'landing' && $safeLandingId > 0) {
@@ -525,6 +528,21 @@ if ($stream) {
                 }
             }
             if (!$safeLanding || ($offerUrl === '' && $safeResponseBody === null)) {
+                $safeResponseBody = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Welcome</title></head><body><h1>Page</h1><p>Content is loading.</p></body></html>';
+            }
+        } elseif ($safeMode === 'offer' && $safeOfferId > 0) {
+            // A local offer as the white page. click.php cannot serve the
+            // archive itself — the tracker's /offers/<id>/ route does — so send
+            // the bot there, absolute like the /lander/ redirect above.
+            $stmtSafeOffer = $pdo->prepare("SELECT is_local FROM offers WHERE id = ? LIMIT 1");
+            $stmtSafeOffer->execute([$safeOfferId]);
+            $safeOfferRow = $stmtSafeOffer->fetch();
+            if ($safeOfferRow && (int) ($safeOfferRow['is_local'] ?? 0) === 1) {
+                $safeScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $safeHost = (string) ($_SERVER['HTTP_HOST'] ?? '');
+                $safePath = '/offers/' . $safeOfferId . '/';
+                $offerUrl = $safeHost !== '' ? $safeScheme . '://' . $safeHost . $safePath : $safePath;
+            } else {
                 $safeResponseBody = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Welcome</title></head><body><h1>Page</h1><p>Content is loading.</p></body></html>';
             }
         } elseif ($safeMode === 'url' && !empty($customSchema['safe_url'])) {
