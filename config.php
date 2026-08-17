@@ -51,7 +51,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 24;
+    $LATEST_SCHEMA_VERSION = 25;
 
     $schemaVersion = 0;
     try {
@@ -259,6 +259,7 @@ try {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         is_archived INTEGER DEFAULT 0,
         archived_at DATETIME,
+        state TEXT DEFAULT 'active',                      -- play/pause toggle: 'disabled' stops serving (503)
         FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE SET NULL,
         FOREIGN KEY (group_id) REFERENCES campaign_groups(id) ON DELETE SET NULL,
         FOREIGN KEY (source_id) REFERENCES traffic_sources(id) ON DELETE SET NULL
@@ -1466,6 +1467,18 @@ try {
                 // counted exactly as before.
                 try {
                     $pdo->exec("ALTER TABLE streams ADD COLUMN collect_clicks INTEGER DEFAULT 1");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
+                }
+            }
+
+            if ($schemaVersion < 25) {
+                // Migration 25: campaigns.state. The play/pause toggle writes
+                // it and index.php refuses to serve disabled campaigns. It was
+                // assumed to exist — landings and offers carry a state column,
+                // campaigns never did, on any install.
+                try {
+                    $pdo->exec("ALTER TABLE campaigns ADD COLUMN state TEXT DEFAULT 'active'");
                 } catch (\Throwable $e) {
                     // Column already present on a half-migrated DB.
                 }

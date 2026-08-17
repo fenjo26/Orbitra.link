@@ -167,6 +167,7 @@ CREATE TABLE campaigns (
         FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE SET NULL,
         FOREIGN KEY (group_id) REFERENCES campaign_groups(id) ON DELETE SET NULL,
         FOREIGN KEY (source_id) REFERENCES traffic_sources(id) ON DELETE SET NULL
+        state TEXT DEFAULT 'active',                      -- play/pause toggle: 'disabled' stops serving
     );
 
 CREATE TABLE clicks (
